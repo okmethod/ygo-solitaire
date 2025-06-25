@@ -1,7 +1,7 @@
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
-const githubRepoName = "my-static-site";
+const githubRepoName = "ygo-solitaire";
 
 const config = {
   // Consult https://svelte.dev/docs/kit/integrations

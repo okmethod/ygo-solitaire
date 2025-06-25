@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import fs from "fs";
 import path from "path";
 
-const githubRepoName = "my-static-site";
+const githubRepoName = "ygo-solitaire";
 
 const content404 = ((base: string) => `
 <!DOCTYPE html>
