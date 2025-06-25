@@ -1,0 +1,28 @@
+[project]
+name = "fast-api-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11.11"
+dependencies = [
+    "fastapi>=0.115.12",
+    "pydantic>=2.11.5",
+    "pydantic-settings>=2.9.1",
+    "uvicorn>=0.34.3",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.0",
+    "poethepoet>=0.34.0",
+    "ruff>=0.11.13",
+]
+
+[tool.poe.tasks]
+ruff-format = "ruff format ."
+ruff-check = "ruff check ."
+ruff-fix = "ruff check . --fix"
+mypy = "mypy ."
+
+lint = ["ruff-format", "ruff-check", "mypy"]
+fix = ["ruff-format", "ruff-fix"]

@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "skeleton-app": true,
+    "fast-api-server": true,
+  },
+  "[makefile]": {
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": false
+},
+}
