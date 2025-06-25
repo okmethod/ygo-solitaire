@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { navigateTo } from "$lib/utils/navigation";
 
   function navigateToSimulator() {
-    goto("/simulator");
+    navigateTo("/simulator");
   }
 </script>
 
