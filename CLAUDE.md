@@ -1,39 +1,77 @@
-# Claude Code Configuration
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## ALWAYS YOU MUST:
 - 回答は日本語で行ってください。
 - TODO にはブランチ作成・実装内容のテスト・コミット・push・PR作成（まだ作成されていない場合）が含めてください。
 
-## Github Repository
+## GitHub Repository
 - **リポジトリ**: https://github.com/okmethod/ygo-solitaire
 
 ## プロジェクト概要
-./README.md を参照。
+遊戯王カードの1ターンキルコンボをシミュレートするWebアプリケーション。
+固定のデッキレシピで先行1ターン目をプレイし、勝利条件を満たすことを目的とする。
 
-## 技術スタック
-- フロントエンド: Skeleton v3 @ TypeScript
-  - Tool Chain
-    - npm
-    - SvelteKit
-    - Svelte
-    - Tailwind
-  - 留意事項
-    - スタイルは可能な限り TailwindCSS を使用する
-- バックエンドAPI: FastAPI @ Python
-  - Tool Chain
-    - uv
-    - ruff
-    - mypy
-  - 留意事項
-    - リクエスト/レスポンススキーマにはPydanticモデルを使う
-- Claude Code: AIによる開発支援
-- GitHub CLI: GitHubリポジトリ操作（Pull Request作成など）    
+## アーキテクチャ
+- **フロントエンド**: `skeleton-app/` - SvelteKit + Skeleton UI + TailwindCSS
+- **バックエンドAPI**: `fast-api-server/` - FastAPI + Python
+- **デプロイ**: Docker Compose (開発) / GitHub Pages (本番)
+
+## よく使用するコマンド
+
+### 開発環境起動
+```bash
+# 全体起動
+docker compose up
+
+# フロントエンドのみ（skeleton-app/ 内で実行）
+npm run dev
+
+# バックエンドのみ（fast-api-server/ 内で実行）
+uv run uvicorn src.main:app --host 0.0.0.0 --reload
+```
+
+### ビルドとテスト
+```bash
+# フロントエンド（skeleton-app/ 内で実行）
+npm run build          # ビルド
+npm run check          # TypeScript型チェック
+npm run lint           # ESLint + Prettier チェック
+npm run format         # Prettier フォーマット
+
+# バックエンド（fast-api-server/ 内で実行）
+uv run poe lint        # ruff format + ruff check + mypy
+uv run poe fix         # ruff format + ruff check --fix
+uv run poe mypy        # mypy型チェック
+```
+
+### デプロイ
+```bash
+# 本番デプロイ（skeleton-app/ 内で実行）
+npm run deploy         # build + gh-pages へのデプロイ
+```
 
 ## アプリケーションポート設定
-### 開発環境 （Docker Compose）
-- 以下のポート番号を変更しないこと。
+### 開発環境（Docker Compose）
 - **フロントエンド**: `http://localhost:5173` (ポート: 5173)
 - **バックエンドAPI**: `http://localhost:8000` (ポート: 8000)
+
+## 技術スタック詳細
+### フロントエンド (skeleton-app/)
+- **フレームワーク**: SvelteKit + Svelte 5
+- **UIライブラリ**: Skeleton UI v3
+- **CSS**: TailwindCSS v4
+- **型チェック**: TypeScript + svelte-check
+- **リンター**: ESLint + Prettier
+- **デプロイ**: GitHub Pages (gh-pages)
+
+### バックエンド (fast-api-server/)
+- **フレームワーク**: FastAPI + Pydantic
+- **パッケージ管理**: uv
+- **リンター**: ruff + mypy
+- **タスクランナー**: poethepoet
+- **API設計**: RESTful API with OpenAPI/Swagger
 
 ## YOU MUST : New issue
 - issue作成時は、目的・TODOを簡潔に記載してください。
@@ -52,3 +90,9 @@
 - コミット前には必ず linter / formatter を実行してください
 - コミットする際はエラーがない状態で行ってください
 - ファイルを新規追加する場合、そのファイルが Github にPushするべきでないファイル判断した場合には、必ず.gitignoreに指定してください
+
+## 開発時の注意事項
+- フロントエンドのスタイルは可能な限り TailwindCSS を使用する
+- バックエンドのリクエスト/レスポンススキーマにはPydanticモデルを使う
+- APIのCORS設定は `fast-api-server/src/main.py:21` で管理
+- 環境変数は `compose.yaml` の environment セクションで設定
