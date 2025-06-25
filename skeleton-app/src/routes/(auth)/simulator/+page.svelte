@@ -13,15 +13,14 @@
       <!-- 自分フィールド -->
       <div>
         <div class="grid grid-cols-7 gap-2 mb-4">
-          <!-- 自分デッキ -->
+          <!-- フィールド魔法ゾーン -->
           <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
+            class="border border-surface-300 rounded aspect-[3/4] bg-surface-200-700-token flex items-center justify-center"
           >
-            <span class="text-xs opacity-50">デッキ</span>
-            <span class="text-xs opacity-50 mt-1">40枚</span>
+            <span class="text-xs opacity-50">フィールド</span>
           </div>
 
-          <!-- 自分魔法・罠ゾーン (5つ) -->
+          <!-- 魔法・罠ゾーン (5つ) -->
           {#each Array(5) as _, i}
             <div
               class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
@@ -30,16 +29,17 @@
             </div>
           {/each}
 
-          <!-- フィールド魔法ゾーン -->
+          <!-- 墓地 -->
           <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-200-700-token flex items-center justify-center"
+            class="border border-surface-300 rounded aspect-[3/4] bg-surface-50-900-token flex items-center justify-center"
           >
-            <span class="text-xs opacity-50">フィールド</span>
+            <span class="text-xs opacity-50">墓地</span>
+            <span class="text-xs opacity-50 mt-1">0枚</span>
           </div>
         </div>
 
         <div class="grid grid-cols-7 gap-2 mb-4">
-          <!-- 自分エクストラデッキ -->
+          <!-- エクストラデッキ -->
           <div
             class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
           >
@@ -56,12 +56,12 @@
             </div>
           {/each}
 
-          <!-- 自分墓地 -->
+          <!-- 自分デッキ -->
           <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-50-900-token flex items-center justify-center"
+            class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
           >
-            <span class="text-xs opacity-50">墓地</span>
-            <span class="text-xs opacity-50 mt-1">0枚</span>
+            <span class="text-xs opacity-50">デッキ</span>
+            <span class="text-xs opacity-50 mt-1">40枚</span>
           </div>
         </div>
 
