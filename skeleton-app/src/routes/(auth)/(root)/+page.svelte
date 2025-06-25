@@ -1,113 +1,42 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+
+  function navigateToSimulator() {
+    goto("/simulator");
+  }
 </script>
 
-<div class="container mx-auto p-4">
-  <header class="mb-8">
-    <h1 class="h1 text-center mb-4">遊戯王ソリティア</h1>
-    <p class="text-center text-lg opacity-75">1ターンキルコンボシミュレーター</p>
-  </header>
+<div class="container mx-auto p-8">
+  <div class="flex flex-col items-center justify-center min-h-[70vh] space-y-8">
+    <header class="text-center">
+      <h1 class="h1 mb-4">遊戯王ソリティア</h1>
+      <p class="text-xl opacity-75 mb-8">1ターンキルコンボシミュレーター</p>
+      <p class="text-base opacity-60 max-w-2xl">
+        固定のデッキレシピで先行1ターン目をプレイし、勝利条件を満たすことを目的とするシミュレーションゲームです。
+      </p>
+    </header>
 
-  <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- プレイヤー情報 -->
-    <div class="card p-4">
-      <h3 class="h3 mb-4">プレイヤー情報</h3>
-      <div class="space-y-2">
-        <div class="flex justify-between">
-          <span>ライフポイント:</span>
-          <span class="font-bold">8000</span>
-        </div>
-        <div class="flex justify-between">
-          <span>ターン:</span>
-          <span class="font-bold">1</span>
-        </div>
-        <div class="flex justify-between">
-          <span>フェーズ:</span>
-          <span class="font-bold">メインフェーズ1</span>
-        </div>
-      </div>
-    </div>
+    <div class="flex flex-col items-center space-y-6">
+      <button class="btn variant-filled-primary text-lg px-8 py-4" on:click={navigateToSimulator}>
+        シミュレーター開始
+      </button>
 
-    <!-- ゲームボード -->
-    <div class="lg:col-span-2">
-      <div class="card p-6">
-        <h3 class="h3 mb-4 text-center">ゲームボード</h3>
-
-        <!-- フィールド -->
-        <div class="grid grid-cols-1 gap-4">
-          <!-- モンスターゾーン -->
-          <div class="border-2 border-dashed border-surface-400 p-4 rounded-lg">
-            <h4 class="h4 mb-2 text-center">モンスターゾーン</h4>
-            <div class="grid grid-cols-5 gap-2 min-h-24">
-              {#each Array(5) as _, i}
-                <div
-                  class="border border-surface-300 rounded aspect-[3/4] flex items-center justify-center bg-surface-100-800-token"
-                >
-                  <span class="text-xs opacity-50">M{i + 1}</span>
-                </div>
-              {/each}
-            </div>
-          </div>
-
-          <!-- 魔法・罠ゾーン -->
-          <div class="border-2 border-dashed border-surface-400 p-4 rounded-lg">
-            <h4 class="h4 mb-2 text-center">魔法・罠ゾーン</h4>
-            <div class="grid grid-cols-5 gap-2 min-h-24">
-              {#each Array(5) as _, i}
-                <div
-                  class="border border-surface-300 rounded aspect-[3/4] flex items-center justify-center bg-surface-100-800-token"
-                >
-                  <span class="text-xs opacity-50">S{i + 1}</span>
-                </div>
-              {/each}
-            </div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+        <div class="card p-6 text-center">
+          <h3 class="h3 mb-3">🎯 目標</h3>
+          <p class="text-sm opacity-75">先行1ターン目で相手のライフポイントを0にする1ターンキルコンボを実行</p>
         </div>
 
-        <!-- 操作ボタン -->
-        <div class="mt-6 flex justify-center gap-4">
-          <button class="btn variant-filled-primary"> コンボ開始 </button>
-          <button class="btn variant-outline-surface"> リセット </button>
+        <div class="card p-6 text-center">
+          <h3 class="h3 mb-3">🎮 操作</h3>
+          <p class="text-sm opacity-75">コンボの各ステップを確認しながら、自動または手動でゲームを進行</p>
+        </div>
+
+        <div class="card p-6 text-center">
+          <h3 class="h3 mb-3">📚 学習</h3>
+          <p class="text-sm opacity-75">複雑なコンボの流れを理解し、遊戯王の戦術を学ぶことができます</p>
         </div>
       </div>
     </div>
-
-    <!-- 追加情報 -->
-    <div class="lg:col-span-3">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- 手札 -->
-        <div class="card p-4">
-          <h4 class="h4 mb-2">手札 (5枚)</h4>
-          <div class="flex gap-1 overflow-x-auto">
-            {#each Array(5) as _, i}
-              <div
-                class="border border-surface-300 rounded aspect-[3/4] w-12 flex-shrink-0 bg-surface-100-800-token flex items-center justify-center"
-              >
-                <span class="text-xs opacity-50">{i + 1}</span>
-              </div>
-            {/each}
-          </div>
-        </div>
-
-        <!-- 墓地 -->
-        <div class="card p-4">
-          <h4 class="h4 mb-2">墓地 (0枚)</h4>
-          <div
-            class="border border-surface-300 rounded aspect-[3/4] w-16 bg-surface-50-900-token flex items-center justify-center"
-          >
-            <span class="text-xs opacity-50">墓地</span>
-          </div>
-        </div>
-
-        <!-- エクストラデッキ -->
-        <div class="card p-4">
-          <h4 class="h4 mb-2">エクストラデッキ (15枚)</h4>
-          <div
-            class="border border-surface-300 rounded aspect-[3/4] w-16 bg-surface-100-800-token flex items-center justify-center"
-          >
-            <span class="text-xs opacity-50">EX</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+  </div>
 </div>
