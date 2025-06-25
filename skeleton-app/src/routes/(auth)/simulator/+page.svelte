@@ -65,42 +65,31 @@
           </div>
         </div>
 
-        <!-- 手札 -->
-        <div class="mt-6">
-          <h4 class="h4 text-center mb-4">手札 (5枚)</h4>
-          <div class="flex justify-center gap-2">
-            {#each Array(5) as _, i}
-              <div
-                class="border border-surface-300 rounded aspect-[3/4] w-16 bg-surface-100-800-token flex items-center justify-center"
-              >
-                <span class="text-xs opacity-50">{i + 1}</span>
-              </div>
-            {/each}
+        <!-- プレイヤー情報 -->
+        <div class="grid grid-cols-3 gap-8 my-6">
+          <div class="text-center">
+            <h3 class="h4 mb-2">相手</h3>
+            <div class="text-xl font-bold">LP: 8000</div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- プレイヤー情報 -->
-    <div class="grid grid-cols-2 gap-8 my-6">
-      <div class="text-center">
-        <h3 class="h4 mb-2">相手</h3>
-        <div class="text-xl font-bold">LP: 8000</div>
-      </div>
-      <div class="text-center">
-        <h3 class="h4 mb-2">自分</h3>
-        <div class="text-xl font-bold">LP: 8000</div>
-      </div>
-    </div>
+          <!-- 手札 -->
+          <div class="mt-6">
+            <h4 class="h4 text-center mb-4">手札 (5枚)</h4>
+            <div class="flex justify-center gap-2">
+              {#each Array(5) as _, i}
+                <div
+                  class="border border-surface-300 rounded aspect-[3/4] w-16 bg-surface-100-800-token flex items-center justify-center"
+                >
+                  <span class="text-xs opacity-50">{i + 1}</span>
+                </div>
+              {/each}
+            </div>
+          </div>
 
-    <!-- 操作パネル -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="card p-6">
-        <h3 class="h3 mb-4">ゲーム操作</h3>
-        <div class="flex flex-col gap-3">
-          <button class="btn variant-filled-primary"> コンボ開始 </button>
-          <button class="btn variant-outline-surface"> 次のステップ </button>
-          <button class="btn variant-outline-surface"> リセット </button>
+          <div class="text-center">
+            <h3 class="h4 mb-2">自分</h3>
+            <div class="text-xl font-bold">LP: 8000</div>
+          </div>
         </div>
       </div>
     </div>
