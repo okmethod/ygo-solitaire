@@ -17,11 +17,6 @@
 </script>
 
 <div class="container mx-auto p-4">
-  <header class="mb-6">
-    <h1 class="h1 text-center mb-2">遊戯王ソリティア</h1>
-    <p class="text-center text-lg opacity-75">デュエルフィールド</p>
-  </header>
-
   <main class="max-w-6xl mx-auto space-y-6">
     <!-- ゲームボード -->
     <GameBoard
