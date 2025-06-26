@@ -36,33 +36,28 @@
   }
 </script>
 
-<div class="space-y-4 rounded-lg border border-surface-300/50">
-  <div class="grid grid-cols-2 gap-8 p-2 bg-surface-100-800-token/20">
-    <div class="grid grid-cols-2 gap-4 text-sm">
-      <div class="flex items-center md:gap-1 md:text-center">
-        <span class="opacity-75">ターン:</span>
-        <span class="font-bold md:text-center">{currentTurn}</span>
-      </div>
+<div class="space-y-4">
+  <div class="flex flex-col gap-8 p-2 bg-surface-100-800-token/20">
+    <div class="flex items-center md:gap-1 md:text-center">
+      <span class="opacity-75">ターン:</span>
+      <span class="font-bold md:text-center">{currentTurn}</span>
+    </div>
 
-      <div class="flex items-center md:gap-1 md:text-center">
-        <span class="opacity-75">フェーズ:</span>
-        <span class="font-bold md:text-center">{currentPhase}</span>
+    <div class="flex items-center md:gap-1 md:text-center">
+      <span class="font-bold md:text-center">{currentPhase}</span>
+    </div>
+
+    <div class="flex items-center md:gap-1 md:text-center">
+      <span class="opacity-75">相手LP: </span>
+      <div class="text-xl font-bold {getLifePointsColor(opponentLifePoints, false)}">
+        {opponentLifePoints.toLocaleString()}
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 bg-surface-100-800-token/20">
-      <div class="flex items-center md:gap-1 md:text-center">
-        <span class="opacity-75">相手LP: </span>
-        <div class="text-2xl font-bold {getLifePointsColor(opponentLifePoints, false)}">
-          {opponentLifePoints.toLocaleString()}
-        </div>
-      </div>
-
-      <div class="flex items-center md:gap-1 md:text-center">
-        <span class="opacity-75">自分LP: </span>
-        <div class="text-2xl font-bold {getLifePointsColor(playerLifePoints)}">
-          {playerLifePoints.toLocaleString()}
-        </div>
+    <div class="flex items-center md:gap-1 md:text-center">
+      <span class="opacity-75">自分LP: </span>
+      <div class="text-xl font-bold {getLifePointsColor(playerLifePoints)}">
+        {playerLifePoints.toLocaleString()}
       </div>
     </div>
   </div>
