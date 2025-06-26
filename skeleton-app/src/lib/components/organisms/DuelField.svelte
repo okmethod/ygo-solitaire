@@ -1,11 +1,11 @@
 <script lang="ts">
-  interface GameBoardProps {
+  interface DuelFieldProps {
     deckCards?: number;
     extraDeckCards?: number;
     graveyardCards?: number;
   }
 
-  let { deckCards = 40, extraDeckCards = 15, graveyardCards = 0 }: GameBoardProps = $props();
+  let { deckCards = 40, extraDeckCards = 15, graveyardCards = 0 }: DuelFieldProps = $props();
 </script>
 
 <div class="card p-6 max-w-6xl mx-auto">
