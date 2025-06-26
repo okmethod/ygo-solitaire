@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-  <title>My Static WebSite</title>
+  <title>Yu-Gi-Oh! ソリティア</title>
 </svelte:head>
 
 <Toaster {toaster} rounded="rounded-lg" />
@@ -30,7 +30,7 @@
   <header class="p-2 sm:p-4 shadow-md bg-surface-100-900">
     <div class="flex justify-between items-center">
       <a class="h5 flex items-center" href="./">
-        <span class="hidden sm:inline">My Static WebSite</span>
+        <span class="hidden sm:inline">Yu-Gi-Oh! ソリティア</span>
         <Icon icon="mdi:home" class="size-6 sm:hidden" />
       </a>
 
