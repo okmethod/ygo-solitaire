@@ -1,4 +1,18 @@
 <script lang="ts">
+  import GameBoard from "$lib/components/gameBoard/GameBoard.svelte";
+  import PlayerInfo from "$lib/components/gameBoard/PlayerInfo.svelte";
+
+  let gameState = {
+    playerLifePoints: 8000,
+    opponentLifePoints: 8000,
+    currentTurn: 1,
+    currentPhase: "メインフェーズ1",
+    gameStatus: "準備中" as const,
+    handCards: 5,
+    deckCards: 40,
+    extraDeckCards: 15,
+    graveyardCards: 0,
+  };
 </script>
 
 <div class="container mx-auto p-4">
@@ -7,88 +21,51 @@
     <p class="text-center text-lg opacity-75">デュエルフィールド</p>
   </header>
 
-  <main class="max-w-6xl mx-auto">
+  <main class="max-w-6xl mx-auto space-y-6">
     <!-- ゲームボード -->
-    <div class="card p-6 mb-6">
-      <!-- 自分フィールド -->
-      <div>
-        <div class="grid grid-cols-7 gap-2 mb-4">
-          <!-- フィールド魔法ゾーン -->
-          <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-200-700-token flex items-center justify-center"
-          >
-            <span class="text-xs opacity-50">フィールド</span>
-          </div>
+    <GameBoard
+      playerLifePoints={gameState.playerLifePoints}
+      opponentLifePoints={gameState.opponentLifePoints}
+      handCards={gameState.handCards}
+      deckCards={gameState.deckCards}
+      extraDeckCards={gameState.extraDeckCards}
+      graveyardCards={gameState.graveyardCards}
+    />
 
-          <!-- 魔法・罠ゾーン (5つ) -->
-          {#each Array(5) as _, i}
-            <div
-              class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
-            >
-              <span class="text-xs opacity-50">S{i + 1}</span>
-            </div>
-          {/each}
+    <!-- プレイヤー情報 -->
+    <PlayerInfo
+      playerLifePoints={gameState.playerLifePoints}
+      opponentLifePoints={gameState.opponentLifePoints}
+      currentTurn={gameState.currentTurn}
+      currentPhase={gameState.currentPhase}
+      gameStatus={gameState.gameStatus}
+    />
 
-          <!-- 墓地 -->
-          <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-50-900-token flex items-center justify-center"
-          >
-            <span class="text-xs opacity-50">墓地</span>
-            <span class="text-xs opacity-50 mt-1">0枚</span>
-          </div>
+    <!-- 操作パネル -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card p-6">
+        <h3 class="h3 mb-4">ゲーム操作</h3>
+        <div class="flex flex-col gap-3">
+          <button class="btn variant-filled-primary"> コンボ開始 </button>
+          <button class="btn variant-outline-surface"> 次のステップ </button>
+          <button class="btn variant-outline-surface"> リセット </button>
         </div>
+      </div>
 
-        <div class="grid grid-cols-7 gap-2 mb-4">
-          <!-- エクストラデッキ -->
-          <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
-          >
-            <span class="text-xs opacity-50">EX</span>
-            <span class="text-xs opacity-50 mt-1">15枚</span>
+      <div class="card p-6">
+        <h3 class="h3 mb-4">コンボ情報</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="opacity-75">手順:</span>
+            <span class="font-bold">1 / 20</span>
           </div>
-
-          <!-- 自分モンスターゾーン (5つ) -->
-          {#each Array(5) as _, i}
-            <div
-              class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
-            >
-              <span class="text-xs opacity-50">M{i + 1}</span>
-            </div>
-          {/each}
-
-          <!-- 自分デッキ -->
-          <div
-            class="border border-surface-300 rounded aspect-[3/4] bg-surface-100-800-token flex items-center justify-center"
-          >
-            <span class="text-xs opacity-50">デッキ</span>
-            <span class="text-xs opacity-50 mt-1">40枚</span>
+          <div class="flex justify-between">
+            <span class="opacity-75">進行:</span>
+            <span class="font-bold">5%</span>
           </div>
-        </div>
-
-        <!-- プレイヤー情報 -->
-        <div class="grid grid-cols-3 gap-8 my-6">
-          <div class="text-center">
-            <h3 class="h4 mb-2">相手</h3>
-            <div class="text-xl font-bold">LP: 8000</div>
-          </div>
-
-          <!-- 手札 -->
-          <div class="mt-6">
-            <h4 class="h4 text-center mb-4">手札 (5枚)</h4>
-            <div class="flex justify-center gap-2">
-              {#each Array(5) as _, i}
-                <div
-                  class="border border-surface-300 rounded aspect-[3/4] w-16 bg-surface-100-800-token flex items-center justify-center"
-                >
-                  <span class="text-xs opacity-50">{i + 1}</span>
-                </div>
-              {/each}
-            </div>
-          </div>
-
-          <div class="text-center">
-            <h3 class="h4 mb-2">自分</h3>
-            <div class="text-xl font-bold">LP: 8000</div>
+          <div class="flex justify-between">
+            <span class="opacity-75">目標:</span>
+            <span class="font-bold text-warning-500">1ターンキル</span>
           </div>
         </div>
       </div>
