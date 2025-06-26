@@ -1,7 +1,7 @@
 <script lang="ts">
   import GameBoard from "$lib/components/organisms/GameBoard.svelte";
   import PlayerInfo from "$lib/components/organisms/PlayerInfo.svelte";
-  import Hand from "$lib/components/organisms/Hand.svelte";
+  import Hands from "$lib/components/organisms/Hands.svelte";
 
   let gameState = {
     playerLifePoints: 8000,
@@ -31,9 +31,7 @@
     />
 
     <!-- 手札 -->
-    <div class="card p-6">
-      <Hand handCards={gameState.handCards} />
-    </div>
+    <Hands handCards={gameState.handCards} />
 
     <!-- プレイヤー情報 -->
     <PlayerInfo
