@@ -6,7 +6,7 @@
   let { handCards = 5 }: HandsProps = $props();
 </script>
 
-<div class="card p-6 max-w-6xl mx-auto">
+<div class="card p-2 max-w-6xl mx-auto">
   <div class="transition-all duration-300">
     <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
       <div></div>

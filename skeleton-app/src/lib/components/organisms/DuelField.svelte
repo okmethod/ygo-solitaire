@@ -8,8 +8,7 @@
   let { deckCards = 40, extraDeckCards = 15, graveyardCards = 0 }: DuelFieldProps = $props();
 </script>
 
-<div class="card p-6 max-w-6xl mx-auto">
-  <!-- 自分フィールド -->
+<div class="card p-2 max-w-6xl mx-auto">
   <div class="transition-all duration-300">
     <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
       <!-- フィールド魔法ゾーン -->
