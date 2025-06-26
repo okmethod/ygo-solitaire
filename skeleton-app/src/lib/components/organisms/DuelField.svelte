@@ -50,6 +50,7 @@
           <Card card={fieldCards[0]} size="medium" clickable={true} onClick={handleCardClick} />
         {:else}
           <div class="relative">
+            <!-- プレースホルダー色調：緑 -->
             <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
               <Card placeholder={true} placeholderText="フィールド" size="medium" />
             </div>
@@ -64,6 +65,7 @@
             <Card card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />
           {:else}
             <div class="relative">
+              <!-- プレースホルダー色調：青 -->
               <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
                 <Card placeholder={true} placeholderText="S{i + 1}" size="medium" />
               </div>
@@ -74,13 +76,18 @@
 
       <!-- 墓地 -->
       <div class="flex justify-center">
-        <Card
-          placeholder={true}
-          placeholderText="墓地\n{graveyardCards}枚"
-          size="medium"
-          clickable={true}
-          onClick={handleGraveyardClick}
-        />
+        <div class="relative">
+          <!-- プレースホルダー色調：グレー -->
+          <div style="filter: grayscale(0.8) brightness(0.7) contrast(1.2);">
+            <Card
+              placeholder={true}
+              placeholderText="墓地\n{graveyardCards}枚"
+              size="medium"
+              clickable={true}
+              onClick={handleGraveyardClick}
+            />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -103,6 +110,7 @@
             <Card card={monsterCards[i]} size="medium" clickable={true} selectable={true} onClick={handleCardClick} />
           {:else}
             <div class="relative">
+              <!-- プレースホルダー色調：橙 -->
               <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
                 <Card placeholder={true} placeholderText="M{i + 1}" size="medium" />
               </div>
