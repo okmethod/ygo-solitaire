@@ -1,21 +1,11 @@
 <script lang="ts">
   interface GameBoardProps {
-    playerLifePoints?: number;
-    opponentLifePoints?: number;
-    handCards?: number;
     deckCards?: number;
     extraDeckCards?: number;
     graveyardCards?: number;
   }
 
-  let {
-    playerLifePoints = 8000,
-    opponentLifePoints = 8000,
-    handCards = 5,
-    deckCards = 40,
-    extraDeckCards = 15,
-    graveyardCards = 0,
-  }: GameBoardProps = $props();
+  let { deckCards = 40, extraDeckCards = 15, graveyardCards = 0 }: GameBoardProps = $props();
 </script>
 
 <div class="card p-6 max-w-6xl mx-auto">
@@ -76,25 +66,6 @@
         <div class="flex flex-col items-center">
           <span class="text-xs opacity-50 select-none">デッキ</span>
           <span class="text-xs opacity-50 mt-1 select-none">{deckCards}枚</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- プレイヤー情報 -->
-    <div
-      class="grid grid-cols-3 gap-8 my-6 p-4 rounded-lg bg-surface-50-900-token/20 md:grid-cols-1 md:gap-4 md:text-sm"
-    >
-      <!-- 手札 -->
-      <div class="mt-6">
-        <h4 class="h4 text-center mb-4">手札 ({handCards}枚)</h4>
-        <div class="flex justify-center gap-2 flex-wrap">
-          {#each Array(handCards) as _, i}
-            <div
-              class="border border-surface-300 rounded aspect-[3/4] w-16 md:w-12 flex items-center justify-center bg-surface-100-800-token hover:bg-surface-200-700-token transition-colors cursor-pointer"
-            >
-              <span class="text-xs opacity-50 select-none">{i + 1}</span>
-            </div>
-          {/each}
         </div>
       </div>
     </div>
