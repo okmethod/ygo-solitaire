@@ -50,9 +50,9 @@
           <Card card={fieldCards[0]} size="medium" clickable={true} onClick={handleCardClick} />
         {:else}
           <div class="relative">
-            <Card placeholder={true} placeholderText="フィールド" size="medium" />
-            <!-- 緑の透過オーバーレイ -->
-            <div class="absolute inset-0 bg-green-500 bg-opacity-15 rounded pointer-events-none"></div>
+            <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
+              <Card placeholder={true} placeholderText="フィールド" size="medium" />
+            </div>
           </div>
         {/if}
       </div>
@@ -64,9 +64,9 @@
             <Card card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />
           {:else}
             <div class="relative">
-              <Card placeholder={true} placeholderText="S{i + 1}" size="medium" />
-              <!-- 青い透過オーバーレイ -->
-              <div class="absolute inset-0 bg-blue-500 bg-opacity-20 rounded pointer-events-none"></div>
+              <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
+                <Card placeholder={true} placeholderText="S{i + 1}" size="medium" />
+              </div>
             </div>
           {/if}
         </div>
@@ -103,9 +103,9 @@
             <Card card={monsterCards[i]} size="medium" clickable={true} selectable={true} onClick={handleCardClick} />
           {:else}
             <div class="relative">
-              <Card placeholder={true} placeholderText="M{i + 1}" size="medium" />
-              <!-- オレンジの透過オーバーレイ -->
-              <div class="absolute inset-0 bg-orange-500 bg-opacity-15 rounded pointer-events-none"></div>
+              <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
+                <Card placeholder={true} placeholderText="M{i + 1}" size="medium" />
+              </div>
             </div>
           {/if}
         </div>
