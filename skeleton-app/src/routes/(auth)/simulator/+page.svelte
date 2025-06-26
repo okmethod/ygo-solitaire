@@ -35,35 +35,5 @@
       currentPhase={gameState.currentPhase}
       gameStatus={gameState.gameStatus}
     />
-
-    <!-- 操作パネル -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="card p-6">
-        <h3 class="h3 mb-4">ゲーム操作</h3>
-        <div class="flex flex-col gap-3">
-          <button class="btn variant-filled-primary"> コンボ開始 </button>
-          <button class="btn variant-outline-surface"> 次のステップ </button>
-          <button class="btn variant-outline-surface"> リセット </button>
-        </div>
-      </div>
-
-      <div class="card p-6">
-        <h3 class="h3 mb-4">コンボ情報</h3>
-        <div class="space-y-2 text-sm">
-          <div class="flex justify-between">
-            <span class="opacity-75">手順:</span>
-            <span class="font-bold">1 / 20</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="opacity-75">進行:</span>
-            <span class="font-bold">5%</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="opacity-75">目標:</span>
-            <span class="font-bold text-warning-500">1ターンキル</span>
-          </div>
-        </div>
-      </div>
-    </div>
   </main>
 </div>
