@@ -57,7 +57,7 @@
   const isPlaceholder = $derived(placeholder || !card);
 
   // プレースホルダー画像URL
-  const placeholderImageUrl = "https://via.placeholder.com/150x210/1e293b/f1f5f9?text=YGO";
+  const placeholderImageUrl = "/CardBack.jpg";
 
   // アニメーションクラス
   const animationClasses = $derived(animate ? "transition-all duration-300 ease-in-out" : "");
