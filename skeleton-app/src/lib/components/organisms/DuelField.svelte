@@ -58,16 +58,16 @@
         {/if}
       </div>
 
-      <!-- 魔法・罠ゾーン (5つ) -->
+      <!-- モンスターゾーン (5つ) -->
       {#each Array(5) as _, i}
         <div class="flex justify-center">
-          {#if spellTrapCards[i]}
-            <Card card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />
+          {#if monsterCards[i]}
+            <Card card={monsterCards[i]} size="medium" clickable={true} selectable={true} onClick={handleCardClick} />
           {:else}
             <div class="relative">
-              <!-- プレースホルダー色調：青 -->
-              <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
-                <Card placeholder={true} placeholderText="S{i + 1}" size="medium" />
+              <!-- プレースホルダー色調：橙 -->
+              <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
+                <Card placeholder={true} placeholderText="M{i + 1}" size="medium" />
               </div>
             </div>
           {/if}
@@ -103,23 +103,23 @@
         />
       </div>
 
-      <!-- 自分モンスターゾーン (5つ) -->
+      <!-- 魔法・罠ゾーン (5つ) -->
       {#each Array(5) as _, i}
         <div class="flex justify-center">
-          {#if monsterCards[i]}
-            <Card card={monsterCards[i]} size="medium" clickable={true} selectable={true} onClick={handleCardClick} />
+          {#if spellTrapCards[i]}
+            <Card card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />
           {:else}
             <div class="relative">
-              <!-- プレースホルダー色調：橙 -->
-              <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
-                <Card placeholder={true} placeholderText="M{i + 1}" size="medium" />
+              <!-- プレースホルダー色調：青 -->
+              <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
+                <Card placeholder={true} placeholderText="S{i + 1}" size="medium" />
               </div>
             </div>
           {/if}
         </div>
       {/each}
 
-      <!-- 自分デッキ -->
+      <!-- メインデッキ -->
       <div class="flex justify-center">
         <Card
           placeholder={true}
