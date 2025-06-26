@@ -84,11 +84,6 @@
     <div
       class="grid grid-cols-3 gap-8 my-6 p-4 rounded-lg bg-surface-50-900-token/20 md:grid-cols-1 md:gap-4 md:text-sm"
     >
-      <div class="text-center">
-        <h3 class="h4 mb-2">相手</h3>
-        <div class="text-xl font-bold text-error-500">LP: {opponentLifePoints.toLocaleString()}</div>
-      </div>
-
       <!-- 手札 -->
       <div class="mt-6">
         <h4 class="h4 text-center mb-4">手札 ({handCards}枚)</h4>
@@ -101,11 +96,6 @@
             </div>
           {/each}
         </div>
-      </div>
-
-      <div class="text-center">
-        <h3 class="h4 mb-2">自分</h3>
-        <div class="text-xl font-bold text-success-500">LP: {playerLifePoints.toLocaleString()}</div>
       </div>
     </div>
   </div>
