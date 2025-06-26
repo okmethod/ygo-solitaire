@@ -1,6 +1,6 @@
 <script lang="ts">
-  import GameBoard from "$lib/components/gameBoard/GameBoard.svelte";
-  import PlayerInfo from "$lib/components/gameBoard/PlayerInfo.svelte";
+  import GameBoard from "$lib/components/organisms/GameBoard.svelte";
+  import PlayerInfo from "$lib/components/organisms/PlayerInfo.svelte";
 
   let gameState = {
     playerLifePoints: 8000,
