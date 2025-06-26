@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CardComponentProps } from "$lib/types/card";
+  import cardBackImage from "$lib/assets/CardBack.jpg";
 
   let {
     card,
@@ -57,7 +58,7 @@
   const isPlaceholder = $derived(placeholder || !card);
 
   // プレースホルダー画像URL
-  const placeholderImageUrl = "/CardBack.jpg";
+  const placeholderImageUrl = cardBackImage;
 
   // アニメーションクラス
   const animationClasses = $derived(animate ? "transition-all duration-300 ease-in-out" : "");
