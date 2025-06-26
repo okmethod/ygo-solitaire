@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Card, CardComponentProps } from "$lib/types/card";
+  import type { CardComponentProps } from "$lib/types/card";
 
   let {
     card,
@@ -162,6 +162,7 @@
   <div
     class={commonClasses}
     style={rotationStyle}
+    role="img"
     onmouseenter={handleMouseEnter}
     onmouseleave={handleMouseLeave}
   >
