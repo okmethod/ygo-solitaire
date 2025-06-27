@@ -157,7 +157,7 @@ export const sampleCards: Card[] = [
 ];
 
 // サンプルデッキレシピ（静的データ）
-export const sampleDeckRecipeData: DeckRecipeData[] = [
+export const sampleDeckRecipes: DeckRecipeData[] = [
   {
     name: "初心者向けデッキ",
     description: "遊戯王を始めたばかりの人におすすめの基本的なデッキです",
