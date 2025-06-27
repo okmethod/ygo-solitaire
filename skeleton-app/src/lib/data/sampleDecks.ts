@@ -1,6 +1,5 @@
 import type { Card } from "$lib/types/card";
-import { DeckRecipe } from "$lib/classes/DeckRecipe";
-import { DeckManager } from "$lib/classes/DeckManager";
+import type { DeckRecipeData } from "$lib/types/recipe";
 
 // サンプルカードデータ
 export const sampleCards: Card[] = [
@@ -158,7 +157,7 @@ export const sampleCards: Card[] = [
 ];
 
 // サンプルデッキレシピ（静的データ）
-const sampleDeckRecipeData = [
+export const sampleDeckRecipeData: DeckRecipeData[] = [
   {
     name: "初心者向けデッキ",
     description: "遊戯王を始めたばかりの人におすすめの基本的なデッキです",
@@ -282,148 +281,3 @@ const sampleDeckRecipeData = [
     extraDeck: [],
   },
 ];
-
-/**
- * 初期デッキレシピをDeckManagerに登録
- */
-export function initializeSampleRecipes(): void {
-  const recipes = sampleDeckRecipeData.map((data) => new DeckRecipe(data));
-  DeckManager.registerRecipes(recipes);
-}
-
-// デッキレシピのサンプルデータ生成関数
-export function generateSampleDeck(type: "balanced" | "aggro" | "control" = "balanced"): Card[] {
-  const deck: Card[] = [];
-
-  switch (type) {
-    case "aggro":
-      // 攻撃的なデッキ
-      deck.push(
-        ...Array(20)
-          .fill(null)
-          .map((_, i) => ({
-            id: `aggro-monster-${i}`,
-            name: `攻撃モンスター${i + 1}`,
-            type: "monster" as const,
-            attack: 1600 + Math.floor(Math.random() * 800),
-            defense: 800 + Math.floor(Math.random() * 400),
-            level: 3 + Math.floor(Math.random() * 3),
-            attribute: "炎",
-            race: "戦士族",
-            restriction: "unlimited" as const,
-          })),
-      );
-
-      deck.push(
-        ...Array(15)
-          .fill(null)
-          .map((_, i) => ({
-            id: `aggro-spell-${i}`,
-            name: `攻撃魔法${i + 1}`,
-            type: "spell" as const,
-            description: "攻撃をサポートする魔法",
-            restriction: "unlimited" as const,
-          })),
-      );
-
-      deck.push(
-        ...Array(5)
-          .fill(null)
-          .map((_, i) => ({
-            id: `aggro-trap-${i}`,
-            name: `速攻罠${i + 1}`,
-            type: "trap" as const,
-            description: "素早く発動できる罠",
-            restriction: "unlimited" as const,
-          })),
-      );
-      break;
-
-    case "control":
-      // コントロール系デッキ
-      deck.push(
-        ...Array(10)
-          .fill(null)
-          .map((_, i) => ({
-            id: `control-monster-${i}`,
-            name: `守備モンスター${i + 1}`,
-            type: "monster" as const,
-            attack: 1000 + Math.floor(Math.random() * 500),
-            defense: 1500 + Math.floor(Math.random() * 1000),
-            level: 2 + Math.floor(Math.random() * 4),
-            attribute: "水",
-            race: "魔法使い族",
-            restriction: "unlimited" as const,
-          })),
-      );
-
-      deck.push(
-        ...Array(15)
-          .fill(null)
-          .map((_, i) => ({
-            id: `control-spell-${i}`,
-            name: `制御魔法${i + 1}`,
-            type: "spell" as const,
-            description: "場をコントロールする魔法",
-            restriction: "unlimited" as const,
-          })),
-      );
-
-      deck.push(
-        ...Array(15)
-          .fill(null)
-          .map((_, i) => ({
-            id: `control-trap-${i}`,
-            name: `妨害罠${i + 1}`,
-            type: "trap" as const,
-            description: "相手を妨害する罠",
-            restriction: "unlimited" as const,
-          })),
-      );
-      break;
-
-    default:
-      // バランス型デッキ
-      deck.push(
-        ...Array(15)
-          .fill(null)
-          .map((_, i) => ({
-            id: `balanced-monster-${i}`,
-            name: `バランスモンスター${i + 1}`,
-            type: "monster" as const,
-            attack: 1200 + Math.floor(Math.random() * 1000),
-            defense: 1000 + Math.floor(Math.random() * 800),
-            level: 3 + Math.floor(Math.random() * 4),
-            attribute: "地",
-            race: "獣族",
-            restriction: "unlimited" as const,
-          })),
-      );
-
-      deck.push(
-        ...Array(13)
-          .fill(null)
-          .map((_, i) => ({
-            id: `balanced-spell-${i}`,
-            name: `汎用魔法${i + 1}`,
-            type: "spell" as const,
-            description: "汎用性の高い魔法",
-            restriction: "unlimited" as const,
-          })),
-      );
-
-      deck.push(
-        ...Array(12)
-          .fill(null)
-          .map((_, i) => ({
-            id: `balanced-trap-${i}`,
-            name: `汎用罠${i + 1}`,
-            type: "trap" as const,
-            description: "汎用性の高い罠",
-            restriction: "unlimited" as const,
-          })),
-      );
-  }
-
-  return deck;
-}
