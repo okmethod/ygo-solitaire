@@ -1,22 +1,21 @@
 import type { Card } from "$lib/types/card";
-import type { DeckData, GameDeckStats } from "$lib/types/deck";
+import type { DuelStateData, GameDuelStats } from "$lib/types/duel";
 import { DeckRecipe } from "./DeckRecipe";
 
 /**
- * Deck（デッキ）クラス
- * 実際のゲームで使用するデッキのインスタンス
+ * DuelState（決闘状態）クラス
+ * 実際のゲームで使用する決闘状態のインスタンス
  * DeckRecipe（設計図）から作成され、シャッフル、ドロー、フィールド管理などの操作が可能
  */
-export class Deck {
+export class DuelState {
   public name: string;
   public mainDeck: Card[];
   public extraDeck: Card[];
   public sideDeck: Card[];
-  public hand: Card[];
+  public hands: Card[];
   public field: {
     monsterZones: (Card | null)[];
     spellTrapZones: (Card | null)[];
-    extraMonsterZone: Card | null;
     fieldSpell: Card | null;
   };
   public graveyard: Card[];
@@ -24,16 +23,15 @@ export class Deck {
   public createdAt: Date;
   public sourceRecipe?: string;
 
-  constructor(data: Partial<DeckData> = {}) {
-    this.name = data.name || "新しいデッキ";
+  constructor(data: Partial<DuelStateData> = {}) {
+    this.name = data.name || "No Name";
     this.mainDeck = data.mainDeck ? [...data.mainDeck] : [];
     this.extraDeck = data.extraDeck ? [...data.extraDeck] : [];
     this.sideDeck = data.sideDeck ? [...data.sideDeck] : [];
-    this.hand = data.hand ? [...data.hand] : [];
+    this.hands = data.hands ? [...data.hands] : [];
     this.field = data.field || {
       monsterZones: [null, null, null, null, null], // 5つのモンスターゾーン
       spellTrapZones: [null, null, null, null, null], // 5つの魔法・罠ゾーン
-      extraMonsterZone: null, // エクストラモンスターゾーン
       fieldSpell: null, // フィールド魔法ゾーン
     };
     this.graveyard = data.graveyard ? [...data.graveyard] : [];
@@ -43,11 +41,11 @@ export class Deck {
   }
 
   /**
-   * デッキレシピからデッキインスタンスを作成
+   * デッキレシピから決闘状態インスタンスを作成
    */
-  static fromRecipe(recipe: DeckRecipe, name?: string): Deck {
-    return new Deck({
-      name: name || `${recipe.name}（実戦用）`,
+  static fromRecipe(recipe: DeckRecipe, name?: string): DuelState {
+    return new DuelState({
+      name: name || recipe.name,
       mainDeck: [...recipe.mainDeck],
       extraDeck: [...recipe.extraDeck],
       sourceRecipe: recipe.name,
@@ -70,7 +68,7 @@ export class Deck {
     for (let i = 0; i < count && this.mainDeck.length > 0; i++) {
       const card = this.mainDeck.pop();
       if (card) {
-        this.hand.push(card);
+        this.hands.push(card);
         drawnCards.push(card);
       }
     }
@@ -88,10 +86,10 @@ export class Deck {
    * カードをフィールドに召喚
    */
   summonToField(cardId: string, zone: "monster" | "spellTrap", zoneIndex?: number): boolean {
-    const cardIndex = this.hand.findIndex((card) => card.id === cardId);
+    const cardIndex = this.hands.findIndex((card) => card.id === cardId);
     if (cardIndex === -1) return false;
 
-    const card = this.hand[cardIndex];
+    const card = this.hands[cardIndex];
 
     if (zone === "monster") {
       const targetZone = zoneIndex !== undefined ? zoneIndex : this.field.monsterZones.findIndex((z) => z === null);
@@ -105,7 +103,7 @@ export class Deck {
       this.field.spellTrapZones[targetZone] = card;
     }
 
-    this.hand.splice(cardIndex, 1);
+    this.hands.splice(cardIndex, 1);
     return true;
   }
 
@@ -114,10 +112,10 @@ export class Deck {
    */
   sendToGraveyard(cardId: string, from: "hand" | "field"): boolean {
     if (from === "hand") {
-      const cardIndex = this.hand.findIndex((card) => card.id === cardId);
+      const cardIndex = this.hands.findIndex((card) => card.id === cardId);
       if (cardIndex === -1) return false;
 
-      const card = this.hand.splice(cardIndex, 1)[0];
+      const card = this.hands.splice(cardIndex, 1)[0];
       this.graveyard.push(card);
       return true;
     } else {
@@ -153,8 +151,8 @@ export class Deck {
 
     switch (from) {
       case "hand":
-        sourceArray = this.hand;
-        targetIndex = this.hand.findIndex((card) => card.id === cardId);
+        sourceArray = this.hands;
+        targetIndex = this.hands.findIndex((card) => card.id === cardId);
         break;
       case "graveyard":
         sourceArray = this.graveyard;
@@ -204,11 +202,11 @@ export class Deck {
   /**
    * ゲーム状況の統計を取得
    */
-  getGameStats(): GameDeckStats {
+  getGameStats(): GameDuelStats {
     return {
       mainDeckRemaining: this.mainDeck.length,
       extraDeckRemaining: this.extraDeck.length,
-      handSize: this.hand.length,
+      handsSize: this.hands.length,
       graveyardSize: this.graveyard.length,
       banishedSize: this.banished.length,
       fieldStatus: {
@@ -225,29 +223,24 @@ export class Deck {
   reset(): void {
     // すべてのカードをメインデッキに戻す
     const allCards = [
-      ...this.hand,
+      ...this.hands,
       ...this.graveyard,
       ...this.banished,
       ...(this.field.monsterZones.filter((card) => card !== null) as Card[]),
       ...(this.field.spellTrapZones.filter((card) => card !== null) as Card[]),
     ];
 
-    if (this.field.extraMonsterZone) {
-      allCards.push(this.field.extraMonsterZone);
-    }
-
     if (this.field.fieldSpell) {
       allCards.push(this.field.fieldSpell);
     }
 
     this.mainDeck.push(...allCards);
-    this.hand = [];
+    this.hands = [];
     this.graveyard = [];
     this.banished = [];
     this.field = {
       monsterZones: [null, null, null, null, null],
       spellTrapZones: [null, null, null, null, null],
-      extraMonsterZone: null,
       fieldSpell: null,
     };
   }
@@ -261,7 +254,7 @@ export class Deck {
       mainDeck: this.mainDeck,
       extraDeck: this.extraDeck,
       sideDeck: this.sideDeck,
-      hand: this.hand,
+      hands: this.hands,
       field: this.field,
       graveyard: this.graveyard,
       banished: this.banished,
@@ -271,21 +264,21 @@ export class Deck {
   }
 
   /**
-   * JSONからデッキインスタンスを復元
+   * JSONから決闘状態インスタンスを復元
    */
-  static fromJSON(json: string): Deck {
+  static fromJSON(json: string): DuelState {
     const data = JSON.parse(json);
-    return new Deck({
+    return new DuelState({
       ...data,
       createdAt: new Date(data.createdAt),
     });
   }
 
   /**
-   * デッキのクローンを作成
+   * 決闘状態のクローンを作成
    */
-  clone(): Deck {
-    return Deck.fromJSON(this.toJSON());
+  clone(): DuelState {
+    return DuelState.fromJSON(this.toJSON());
   }
 
   // ユーティリティメソッド

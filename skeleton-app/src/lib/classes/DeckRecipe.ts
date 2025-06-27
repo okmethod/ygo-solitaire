@@ -1,5 +1,5 @@
 import type { Card } from "$lib/types/card";
-import type { DeckRecipeData, ValidationResult, ValidationError, CardTypeStats } from "$lib/types/deck";
+import type { DeckRecipeData, ValidationResult, ValidationError, CardTypeStats } from "$lib/types/recipe";
 
 /**
  * DeckRecipe（デッキレシピ）クラス
@@ -22,11 +22,11 @@ export class DeckRecipe {
   }
 
   /**
-   * このレシピからゲーム用デッキインスタンスを作成
+   * このレシピからゲーム用決闘状態インスタンスを作成
    */
-  async createDeck(deckName?: string): Promise<import("./Deck").Deck> {
-    const { Deck } = await import("./Deck");
-    return Deck.fromRecipe(this, deckName);
+  async createDuelState(duelName?: string): Promise<import("./DuelState").DuelState> {
+    const { DuelState } = await import("./DuelState");
+    return DuelState.fromRecipe(this, duelName);
   }
 
   /**

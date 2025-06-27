@@ -80,7 +80,7 @@ describe("DeckRecipe", () => {
     });
   });
 
-  describe("createDeck", () => {
+  describe("createDuelState", () => {
     it("should create a game deck from recipe", async () => {
       const recipe = new DeckRecipe({
         name: "テストレシピ",
@@ -90,11 +90,11 @@ describe("DeckRecipe", () => {
         extraDeck: [],
       });
 
-      const gameDeck = await recipe.createDeck();
+      const gameDuelState = await recipe.createDuelState();
 
-      expect(gameDeck.name).toBe("テストレシピ（実戦用）");
-      expect(gameDeck.mainDeck).toHaveLength(40);
-      expect(gameDeck.sourceRecipe).toBe("テストレシピ");
+      expect(gameDuelState.name).toBe("テストレシピ");
+      expect(gameDuelState.mainDeck).toHaveLength(40);
+      expect(gameDuelState.sourceRecipe).toBe("テストレシピ");
     });
 
     it("should create deck with custom name", async () => {
@@ -104,8 +104,8 @@ describe("DeckRecipe", () => {
         extraDeck: [],
       });
 
-      const gameDeck = await recipe.createDeck("カスタムデッキ名");
-      expect(gameDeck.name).toBe("カスタムデッキ名");
+      const gameDuelState = await recipe.createDuelState("カスタムデッキ名");
+      expect(gameDuelState.name).toBe("カスタムデッキ名");
     });
   });
 

@@ -9,25 +9,6 @@ export interface DeckRecipeData {
   category?: string;
 }
 
-// 実際のゲーム用デッキ（インスタンス）の型定義
-export interface DeckData {
-  name: string;
-  mainDeck: Card[];
-  extraDeck: Card[];
-  sideDeck: Card[];
-  hand: Card[];
-  field: {
-    monsterZones: (Card | null)[];
-    spellTrapZones: (Card | null)[];
-    extraMonsterZone: Card | null;
-    fieldSpell: Card | null;
-  };
-  graveyard: Card[];
-  banished: Card[];
-  createdAt: Date;
-  sourceRecipe?: string; // 元となったデッキレシピの名前
-}
-
 export interface ValidationResult {
   isValid: boolean;
   errors: ValidationError[];
@@ -66,19 +47,6 @@ export interface RecipeStats extends DeckStats {
   // デッキレシピ特有の統計（将来の拡張用）
   recipeVersion?: string;
   lastValidated?: Date;
-}
-
-export interface GameDeckStats {
-  mainDeckRemaining: number;
-  extraDeckRemaining: number;
-  handSize: number;
-  graveyardSize: number;
-  banishedSize: number;
-  fieldStatus: {
-    monstersOnField: number;
-    spellTrapsOnField: number;
-    hasFieldSpell: boolean;
-  };
 }
 
 export type SortCriteria = "name" | "type" | "level" | "attack" | "defense" | "rarity";
