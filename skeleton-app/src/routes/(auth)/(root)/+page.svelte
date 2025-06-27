@@ -21,9 +21,13 @@
       <h1 class="h2 opacity-75 p-4">ワンキルシミュレーター</h1>
     </header>
 
-    <div class="mx-auto w-96">
+    <div class="mx-auto w-96 rounded-lg shadow-lg">
       <label for="deck-select"></label>
-      <select id="deck-select" bind:value={selectedRecipeId} class="w-full border border-gray-100 rounded px-4 py-2">
+      <select
+        id="deck-select"
+        bind:value={selectedRecipeId}
+        class="badge preset-tonal text-sm border border-gray-100 rounded px-4 py-2 w-full"
+      >
         {#each recipeEntries as [id, recipe] (id)}
           <option value={id}>{recipe.name}</option>
         {/each}
@@ -31,8 +35,12 @@
     </div>
 
     <div class="flex justify-center space-x-6">
-      <button class="btn preset-tonal rounded-full text-lg px-8 py-4" on:click={navigateToRecipe}> デッキ確認 </button>
-      <button class="btn preset-tonal rounded-full text-lg px-8 py-4" on:click={navigateToSimulator}> 決闘開始 </button>
+      <button class="btn preset-tonal rounded-full shadow-lg text-lg px-8 py-4" on:click={navigateToRecipe}>
+        デッキ確認
+      </button>
+      <button class="btn preset-tonal rounded-full shadow-lg text-lg px-8 py-4" on:click={navigateToSimulator}>
+        決闘開始
+      </button>
     </div>
   </div>
 </div>
