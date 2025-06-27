@@ -157,8 +157,8 @@ export const sampleCards: Card[] = [
 ];
 
 // サンプルデッキレシピ（静的データ）
-const deckRecipeArray: DeckRecipeData[] = [
-  {
+export const sampleDeckRecipes: Record<string, DeckRecipeData> = {
+  "beginner-deck": {
     name: "初心者向けデッキ",
     description: "遊戯王を始めたばかりの人におすすめの基本的なデッキです",
     category: "初心者",
@@ -204,7 +204,7 @@ const deckRecipeArray: DeckRecipeData[] = [
     extraDeck: [],
   },
 
-  {
+  "dragon-deck": {
     name: "ドラゴンデッキ",
     description: "ドラゴン族を中心とした攻撃的なデッキです",
     category: "ビートダウン",
@@ -241,7 +241,7 @@ const deckRecipeArray: DeckRecipeData[] = [
     extraDeck: [],
   },
 
-  {
+  "control-deck": {
     name: "コントロールデッキ",
     description: "魔法・罠で場をコントロールする上級者向けデッキです",
     category: "コントロール",
@@ -280,14 +280,4 @@ const deckRecipeArray: DeckRecipeData[] = [
     ],
     extraDeck: [],
   },
-];
-
-// レシピをRecord形式で管理
-export const sampleDeckRecipes: Record<string, DeckRecipeData> = {
-  "beginner-deck": deckRecipeArray[0],
-  "dragon-deck": deckRecipeArray[1],
-  "control-deck": deckRecipeArray[2],
 };
-
-// 配列形式も互換性のために残す
-export const sampleDeckRecipesList: DeckRecipeData[] = deckRecipeArray;

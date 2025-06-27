@@ -1,25 +1,17 @@
 <script lang="ts">
-  import { sampleDeckRecipesList } from "$lib/data/sampleDeckRecipes";
+  import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
   import { navigateTo } from "$lib/utils/navigation";
-  import type { DeckRecipeData } from "$lib/types/recipe";
 
-  let selectedRecipe = sampleDeckRecipesList[0];
-
-  // レシピIDを取得する関数
-  function getRecipeId(recipe: DeckRecipeData): string {
-    if (recipe === sampleDeckRecipesList[0]) return "beginner-deck";
-    if (recipe === sampleDeckRecipesList[1]) return "dragon-deck";
-    if (recipe === sampleDeckRecipesList[2]) return "control-deck";
-    return "beginner-deck";
-  }
+  // レシピのキーと値の配列を作成
+  const recipeEntries = Object.entries(sampleDeckRecipes);
+  let selectedRecipeId = recipeEntries[0][0]; // 初期値として最初のIDを設定
 
   function navigateToSimulator() {
     navigateTo("/simulator");
   }
 
   function navigateToRecipe() {
-    const recipeId = getRecipeId(selectedRecipe);
-    navigateTo(`/recipe/${recipeId}`);
+    navigateTo(`/recipe/${selectedRecipeId}`);
   }
 </script>
 
@@ -31,9 +23,9 @@
 
     <div class="mx-auto w-96">
       <label for="deck-select"></label>
-      <select id="deck-select" bind:value={selectedRecipe} class="w-full border border-gray-100 rounded px-4 py-2">
-        {#each sampleDeckRecipesList as recipe (recipe.name)}
-          <option value={recipe}>{recipe.name}</option>
+      <select id="deck-select" bind:value={selectedRecipeId} class="w-full border border-gray-100 rounded px-4 py-2">
+        {#each recipeEntries as [id, recipe] (id)}
+          <option value={id}>{recipe.name}</option>
         {/each}
       </select>
     </div>
