@@ -23,14 +23,6 @@ export class DeckRecipe {
   }
 
   /**
-   * このレシピからゲーム用決闘状態インスタンスを作成
-   */
-  async createDuelState(duelName?: string): Promise<import("$lib/classes/DuelState").DuelState> {
-    const { DuelState } = await import("$lib/classes/DuelState");
-    return DuelState.loadRecipe(this, duelName);
-  }
-
-  /**
    * デッキレシピのバリデーション
    */
   validateRecipe(): ValidationResult {

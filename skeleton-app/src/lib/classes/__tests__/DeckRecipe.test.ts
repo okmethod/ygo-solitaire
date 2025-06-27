@@ -80,35 +80,6 @@ describe("DeckRecipe", () => {
     });
   });
 
-  describe("createDuelState", () => {
-    it("should create a game deck from recipe", async () => {
-      const recipe = new DeckRecipe({
-        name: "テストレシピ",
-        mainDeck: Array(40)
-          .fill(null)
-          .map((_, i) => ({ ...sampleCard, id: `card-${i}`, name: `カード${i}` })),
-        extraDeck: [],
-      });
-
-      const gameDuelState = await recipe.createDuelState();
-
-      expect(gameDuelState.name).toBe("テストレシピ");
-      expect(gameDuelState.mainDeck).toHaveLength(40);
-      expect(gameDuelState.sourceRecipe).toBe("テストレシピ");
-    });
-
-    it("should create deck with custom name", async () => {
-      const recipe = new DeckRecipe({
-        name: "テストレシピ",
-        mainDeck: [sampleCard],
-        extraDeck: [],
-      });
-
-      const gameDuelState = await recipe.createDuelState("カスタムデッキ名");
-      expect(gameDuelState.name).toBe("カスタムデッキ名");
-    });
-  });
-
   describe("validateRecipe", () => {
     it("should validate minimum deck size", () => {
       const recipe = new DeckRecipe({
