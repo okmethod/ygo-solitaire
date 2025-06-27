@@ -1,4 +1,4 @@
-import type { Card } from "./card";
+import type { Card } from "$lib/types/card";
 
 // 実際のゲーム用決闘状態（インスタンス）の型定義
 export interface DuelStateData {

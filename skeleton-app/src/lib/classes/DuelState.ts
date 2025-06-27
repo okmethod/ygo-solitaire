@@ -1,6 +1,6 @@
 import type { Card } from "$lib/types/card";
 import type { DuelStateData, GameDuelStats } from "$lib/types/duel";
-import { DeckRecipe } from "./DeckRecipe";
+import { DeckRecipe } from "$lib/classes/DeckRecipe";
 
 /**
  * DuelState（決闘状態）クラス

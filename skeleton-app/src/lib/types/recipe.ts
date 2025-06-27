@@ -1,4 +1,4 @@
-import type { Card } from "./card";
+import type { Card } from "$lib/types/card";
 
 // デッキレシピ（設計図）の型定義
 export interface DeckRecipeData {

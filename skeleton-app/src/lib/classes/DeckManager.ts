@@ -1,4 +1,4 @@
-import { DeckRecipe } from "./DeckRecipe";
+import { DeckRecipe } from "$lib/classes/DeckRecipe";
 
 /**
  * DeckManager クラス
