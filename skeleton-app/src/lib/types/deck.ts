@@ -5,8 +5,6 @@ export interface DeckRecipeData {
   name: string;
   mainDeck: Card[];
   extraDeck: Card[];
-  createdAt: Date;
-  updatedAt: Date;
   description?: string;
   category?: string;
 }
@@ -85,14 +83,3 @@ export interface GameDeckStats {
 
 export type SortCriteria = "name" | "type" | "level" | "attack" | "defense" | "rarity";
 export type SortOrder = "asc" | "desc";
-
-export interface DeckTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  mainDeck: Card[];
-  extraDeck: Card[];
-  author?: string;
-  isOfficial?: boolean;
-}

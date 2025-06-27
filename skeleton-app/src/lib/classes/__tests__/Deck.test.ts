@@ -39,10 +39,14 @@ describe("Deck", () => {
     };
 
     // サンプルレシピを作成
-    recipe = new DeckRecipe({ name: "テストレシピ" });
-    for (let i = 0; i < 40; i++) {
-      recipe.addCard({ ...sampleCard, id: `card-${i}`, name: `カード${i}` }, "main");
-    }
+    const mainDeck = Array(40)
+      .fill(null)
+      .map((_, i) => ({ ...sampleCard, id: `card-${i}`, name: `カード${i}` }));
+    recipe = new DeckRecipe({
+      name: "テストレシピ",
+      mainDeck,
+      extraDeck: [],
+    });
 
     deck = new Deck();
   });

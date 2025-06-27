@@ -1,5 +1,6 @@
 import type { Card } from "$lib/types/card";
-import type { DeckTemplate } from "$lib/types/deck";
+import { DeckRecipe } from "$lib/classes/DeckRecipe";
+import { DeckManager } from "$lib/classes/DeckManager";
 
 // サンプルカードデータ
 export const sampleCards: Card[] = [
@@ -156,15 +157,12 @@ export const sampleCards: Card[] = [
   },
 ];
 
-// サンプルデッキテンプレート
-export const sampleDeckTemplates: DeckTemplate[] = [
+// サンプルデッキレシピ（静的データ）
+const sampleDeckRecipeData = [
   {
-    id: "beginner-deck",
     name: "初心者向けデッキ",
     description: "遊戯王を始めたばかりの人におすすめの基本的なデッキです",
     category: "初心者",
-    author: "システム",
-    isOfficial: true,
     mainDeck: [
       // モンスター (20枚)
       ...Array(3).fill(sampleCards[3]), // エルフの剣士 x3
@@ -208,12 +206,9 @@ export const sampleDeckTemplates: DeckTemplate[] = [
   },
 
   {
-    id: "dragon-deck",
     name: "ドラゴンデッキ",
     description: "ドラゴン族を中心とした攻撃的なデッキです",
     category: "ビートダウン",
-    author: "システム",
-    isOfficial: true,
     mainDeck: [
       // ドラゴン族モンスター中心
       ...Array(3).fill(sampleCards[0]), // 青眼の白龍 x3
@@ -248,12 +243,9 @@ export const sampleDeckTemplates: DeckTemplate[] = [
   },
 
   {
-    id: "control-deck",
     name: "コントロールデッキ",
     description: "魔法・罠で場をコントロールする上級者向けデッキです",
     category: "コントロール",
-    author: "システム",
-    isOfficial: true,
     mainDeck: [
       // 少数精鋭モンスター
       ...Array(2).fill(sampleCards[2]), // ブラック・マジシャン x2
@@ -290,6 +282,14 @@ export const sampleDeckTemplates: DeckTemplate[] = [
     extraDeck: [],
   },
 ];
+
+/**
+ * 初期デッキレシピをDeckManagerに登録
+ */
+export function initializeSampleRecipes(): void {
+  const recipes = sampleDeckRecipeData.map((data) => new DeckRecipe(data));
+  DeckManager.registerRecipes(recipes);
+}
 
 // デッキレシピのサンプルデータ生成関数
 export function generateSampleDeck(type: "balanced" | "aggro" | "control" = "balanced"): Card[] {
