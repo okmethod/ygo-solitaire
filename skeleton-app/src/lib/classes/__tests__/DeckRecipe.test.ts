@@ -257,25 +257,26 @@ describe("DeckRecipe", () => {
     });
   });
 
-  describe("shuffle", () => {
+  describe("createDeck", () => {
     beforeEach(() => {
-      // 複数のカードを追加
-      for (let i = 0; i < 10; i++) {
-        deck.addCard({ ...sampleCard, id: `card-${i}` }, "main");
+      deck.name = "テストレシピ";
+      for (let i = 0; i < 40; i++) {
+        deck.addCard({ ...sampleCard, id: `recipe-${i}`, name: `レシピカード${i}` }, "main");
       }
     });
 
-    it("should shuffle the deck", () => {
-      const originalOrder = [...deck.mainDeck];
-      deck.shuffle();
+    it("should create a game deck from recipe", async () => {
+      const gameDeck = await deck.createDeck();
 
-      // シャッフル後は順序が変わる可能性が高い
-      // （確率的には同じ順序になる可能性もあるが、10枚なら非常に低い）
-      expect(deck.mainDeck).toHaveLength(originalOrder.length);
-      // すべてのカードが存在することを確認
-      originalOrder.forEach((card) => {
-        expect(deck.mainDeck.find((c) => c.id === card.id)).toBeDefined();
-      });
+      expect(gameDeck.name).toBe("テストレシピ（実戦用）");
+      expect(gameDeck.mainDeck).toHaveLength(40);
+      expect(gameDeck.sourceRecipe).toBe("テストレシピ");
+      expect(gameDeck.mainDeck).not.toBe(deck.mainDeck); // 別のインスタンス
+    });
+
+    it("should create deck with custom name", async () => {
+      const gameDeck = await deck.createDeck("カスタムデッキ名");
+      expect(gameDeck.name).toBe("カスタムデッキ名");
     });
   });
 

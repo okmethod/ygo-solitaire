@@ -82,12 +82,8 @@ export class DeckRecipe {
     return [...this.mainDeck, ...this.extraDeck].filter((card) => card.name.toLowerCase().includes(name.toLowerCase()));
   }
 
-  // デッキ操作メソッド
-  shuffle(): void {
-    this.shuffleArray(this.mainDeck);
-    this.shuffleArray(this.extraDeck);
-    this.updatedAt = new Date();
-  }
+  // デッキレシピ操作メソッド（設計図としての操作のみ）
+  // シャッフルは実際のゲーム用Deckクラスで行う
 
   sort(criteria: SortCriteria, order: SortOrder = "asc", target: "main" | "extra" | "both" = "both"): void {
     const sortFunction = this.getSortFunction(criteria, order);
@@ -200,6 +196,15 @@ export class DeckRecipe {
     });
   }
 
+  /**
+   * このレシピからゲーム用デッキインスタンスを作成
+   * 注意: 動的インポートを使用するため、実行時にDeckクラスが利用可能である必要がある
+   */
+  async createDeck(deckName?: string): Promise<import("./Deck").Deck> {
+    const { Deck } = await import("./Deck");
+    return Deck.fromRecipe(this, deckName);
+  }
+
   // ユーティリティメソッド
   clone(): DeckRecipe {
     return DeckRecipe.fromJSON(this.toJSON());
@@ -222,13 +227,6 @@ export class DeckRecipe {
         return 2;
       default:
         return 3;
-    }
-  }
-
-  private shuffleArray(array: Card[]): void {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
     }
   }
 

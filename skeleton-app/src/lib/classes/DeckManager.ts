@@ -1,84 +1,120 @@
 import type { DeckTemplate } from "$lib/types/deck";
 import { DeckRecipe } from "./DeckRecipe";
 
+/**
+ * DeckManager クラス
+ * デッキレシピ（設計図）の管理を行う静的クラス
+ * LocalStorageを使用してデッキレシピを永続化
+ * 実際のゲーム用デッキインスタンスはDeckクラスを使用
+ */
 export class DeckManager {
   private static readonly STORAGE_KEY = "ygo_deck_recipes";
   private static readonly TEMPLATES_KEY = "ygo_deck_templates";
 
-  // デッキレシピ管理
-  static createDeck(name: string = "新しいデッキ"): DeckRecipe {
+  // デッキレシピ（設計図）管理
+  static createRecipe(name: string = "新しいデッキレシピ"): DeckRecipe {
     return new DeckRecipe({ name });
   }
 
-  static saveDeck(deck: DeckRecipe): boolean {
+  // 後方互換性のため残すが、createRecipe を推奨
+  static createDeck(name: string = "新しいデッキ"): DeckRecipe {
+    return this.createRecipe(name);
+  }
+
+  static saveRecipe(recipe: DeckRecipe): boolean {
     try {
-      const existingDecks = this.listDecks();
-      const index = existingDecks.findIndex((d) => d.name === deck.name);
+      const existingRecipes = this.listRecipes();
+      const index = existingRecipes.findIndex((d: DeckRecipe) => d.name === recipe.name);
 
       if (index >= 0) {
-        existingDecks[index] = deck;
+        existingRecipes[index] = recipe;
       } else {
-        existingDecks.push(deck);
+        existingRecipes.push(recipe);
       }
 
-      const serializedDecks = existingDecks.map((d) => d.toJSON());
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(serializedDecks));
+      const serializedRecipes = existingRecipes.map((d: DeckRecipe) => d.toJSON());
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(serializedRecipes));
       return true;
     } catch (error) {
-      console.error("Failed to save deck:", error);
+      console.error("Failed to save recipe:", error);
       return false;
     }
   }
 
-  static loadDeck(name: string): DeckRecipe | null {
+  // 後方互換性のため残すが、saveRecipe を推奨
+  static saveDeck(deck: DeckRecipe): boolean {
+    return this.saveRecipe(deck);
+  }
+
+  static loadRecipe(name: string): DeckRecipe | null {
     try {
-      const decks = this.listDecks();
-      return decks.find((deck) => deck.name === name) || null;
+      const recipes = this.listRecipes();
+      return recipes.find((recipe) => recipe.name === name) || null;
     } catch (error) {
-      console.error("Failed to load deck:", error);
+      console.error("Failed to load recipe:", error);
       return null;
     }
   }
 
-  static deleteDeck(name: string): boolean {
-    try {
-      const existingDecks = this.listDecks();
-      const filteredDecks = existingDecks.filter((deck) => deck.name !== name);
+  // 後方互換性のため残すが、loadRecipe を推奨
+  static loadDeck(name: string): DeckRecipe | null {
+    return this.loadRecipe(name);
+  }
 
-      if (filteredDecks.length === existingDecks.length) {
-        return false; // デッキが見つからない
+  static deleteRecipe(name: string): boolean {
+    try {
+      const existingRecipes = this.listRecipes();
+      const filteredRecipes = existingRecipes.filter((recipe) => recipe.name !== name);
+
+      if (filteredRecipes.length === existingRecipes.length) {
+        return false; // レシピが見つからない
       }
 
-      const serializedDecks = filteredDecks.map((d) => d.toJSON());
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(serializedDecks));
+      const serializedRecipes = filteredRecipes.map((d) => d.toJSON());
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(serializedRecipes));
       return true;
     } catch (error) {
-      console.error("Failed to delete deck:", error);
+      console.error("Failed to delete recipe:", error);
       return false;
     }
   }
 
-  static listDecks(): DeckRecipe[] {
+  // 後方互換性のため残すが、deleteRecipe を推奨
+  static deleteDeck(name: string): boolean {
+    return this.deleteRecipe(name);
+  }
+
+  static listRecipes(): DeckRecipe[] {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (!stored) {
         return [];
       }
 
-      const serializedDecks = JSON.parse(stored) as string[];
-      return serializedDecks.map((json) => DeckRecipe.fromJSON(json));
+      const serializedRecipes = JSON.parse(stored) as string[];
+      return serializedRecipes.map((json) => DeckRecipe.fromJSON(json));
     } catch (error) {
-      console.error("Failed to list decks:", error);
+      console.error("Failed to list recipes:", error);
       return [];
     }
   }
 
-  static deckExists(name: string): boolean {
-    return this.listDecks().some((deck) => deck.name === name);
+  // 後方互換性のため残すが、listRecipes を推奨
+  static listDecks(): DeckRecipe[] {
+    return this.listRecipes();
   }
 
-  static getUniqueDeckName(baseName: string): string {
-    const existingNames = this.listDecks().map((deck) => deck.name);
+  static recipeExists(name: string): boolean {
+    return this.listRecipes().some((recipe) => recipe.name === name);
+  }
+
+  // 後方互換性のため残すが、recipeExists を推奨
+  static deckExists(name: string): boolean {
+    return this.recipeExists(name);
+  }
+
+  static getUniqueRecipeName(baseName: string): string {
+    const existingNames = this.listRecipes().map((recipe) => recipe.name);
     let counter = 1;
     let newName = baseName;
 
@@ -88,6 +124,11 @@ export class DeckManager {
     }
 
     return newName;
+  }
+
+  // 後方互換性のため残すが、getUniqueRecipeName を推奨
+  static getUniqueDeckName(baseName: string): string {
+    return this.getUniqueRecipeName(baseName);
   }
 
   // テンプレート管理
@@ -113,7 +154,7 @@ export class DeckManager {
       return null;
     }
 
-    const uniqueName = this.getUniqueDeckName(template.name);
+    const uniqueName = this.getUniqueRecipeName(template.name);
     return new DeckRecipe({
       name: uniqueName,
       mainDeck: [...template.mainDeck],
@@ -160,40 +201,55 @@ export class DeckManager {
   }
 
   // エクスポート・インポート
-  static exportDeck(deck: DeckRecipe): string {
-    return deck.toJSON();
+  static exportRecipe(recipe: DeckRecipe): string {
+    return recipe.toJSON();
   }
 
-  static importDeck(jsonData: string): DeckRecipe | null {
+  // 後方互換性のため残すが、exportRecipe を推奨
+  static exportDeck(deck: DeckRecipe): string {
+    return this.exportRecipe(deck);
+  }
+
+  static importRecipe(jsonData: string): DeckRecipe | null {
     try {
-      const deck = DeckRecipe.fromJSON(jsonData);
+      const recipe = DeckRecipe.fromJSON(jsonData);
       // 重複を避けるため名前をユニークにする
-      deck.name = this.getUniqueDeckName(deck.name);
-      return deck;
+      recipe.name = this.getUniqueRecipeName(recipe.name);
+      return recipe;
     } catch (error) {
-      console.error("Failed to import deck:", error);
+      console.error("Failed to import recipe:", error);
       return null;
     }
   }
 
-  static exportAllDecks(): string {
-    const decks = this.listDecks();
-    return JSON.stringify(decks.map((deck) => deck.toJSON()));
+  // 後方互換性のため残すが、importRecipe を推奨
+  static importDeck(jsonData: string): DeckRecipe | null {
+    return this.importRecipe(jsonData);
   }
 
-  static importAllDecks(jsonData: string): { success: number; failed: number } {
+  static exportAllRecipes(): string {
+    const recipes = this.listRecipes();
+    return JSON.stringify(recipes.map((recipe) => recipe.toJSON()));
+  }
+
+  // 後方互換性のため残すが、exportAllRecipes を推奨
+  static exportAllDecks(): string {
+    return this.exportAllRecipes();
+  }
+
+  static importAllRecipes(jsonData: string): { success: number; failed: number } {
     let success = 0;
     let failed = 0;
 
     try {
-      const deckJsons = JSON.parse(jsonData) as string[];
+      const recipeJsons = JSON.parse(jsonData) as string[];
 
-      for (const deckJson of deckJsons) {
+      for (const recipeJson of recipeJsons) {
         try {
-          const deck = DeckRecipe.fromJSON(deckJson);
-          deck.name = this.getUniqueDeckName(deck.name);
+          const recipe = DeckRecipe.fromJSON(recipeJson);
+          recipe.name = this.getUniqueRecipeName(recipe.name);
 
-          if (this.saveDeck(deck)) {
+          if (this.saveRecipe(recipe)) {
             success++;
           } else {
             failed++;
@@ -203,11 +259,16 @@ export class DeckManager {
         }
       }
     } catch (error) {
-      console.error("Failed to import decks:", error);
+      console.error("Failed to import recipes:", error);
       failed = 1;
     }
 
     return { success, failed };
+  }
+
+  // 後方互換性のため残すが、importAllRecipes を推奨
+  static importAllDecks(jsonData: string): { success: number; failed: number } {
+    return this.importAllRecipes(jsonData);
   }
 
   // ストレージ管理
