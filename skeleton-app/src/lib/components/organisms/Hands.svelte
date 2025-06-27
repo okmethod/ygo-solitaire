@@ -60,7 +60,7 @@
           />
         </div>
       {/each}
-      {#each Array(Math.max(0, handCards - displayCards.length)) as _, i (i)}
+      {#each [...Array(Math.max(0, handCards - displayCards.length)).keys()] as i (i)}
         <div class="flex justify-center">
           <Card placeholder={true} placeholderText="H{displayCards.length + i + 1}" size="medium" />
         </div>

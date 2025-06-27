@@ -2,6 +2,10 @@
   import Card from "$lib/components/atoms/Card.svelte";
   import type { Card as CardType } from "$lib/types/card";
 
+  // ゾーン数の定数
+  const ZONE_COUNT = 5;
+  const zones = [...Array(ZONE_COUNT).keys()];
+
   interface DuelFieldProps {
     deckCards?: number;
     extraDeckCards?: number;
@@ -59,7 +63,7 @@
       </div>
 
       <!-- モンスターゾーン (5つ) -->
-      {#each Array(5) as _, i (i)}
+      {#each zones as i (i)}
         <div class="flex justify-center">
           {#if monsterCards[i]}
             <Card card={monsterCards[i]} size="medium" clickable={true} selectable={true} onClick={handleCardClick} />
@@ -104,7 +108,7 @@
       </div>
 
       <!-- 魔法・罠ゾーン (5つ) -->
-      {#each Array(5) as _, i (i)}
+      {#each zones as i (i)}
         <div class="flex justify-center">
           {#if spellTrapCards[i]}
             <Card card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />
