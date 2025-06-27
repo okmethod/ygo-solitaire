@@ -7,6 +7,7 @@
   import AudioToggle from "$lib/components/buttons/AudioToggle.svelte";
   import { applyTheme } from "$lib/stores/theme";
   import { toaster } from "$lib/utils/toaster";
+  import { base } from "$app/paths";
 
   let { children } = $props();
 
@@ -29,7 +30,7 @@
 {#if isLoaded}
   <header class="p-2 sm:p-4 shadow-md bg-surface-100-900">
     <div class="flex justify-between items-center">
-      <a class="h5 flex items-center" href="./">
+      <a class="h5 flex items-center" href="{base}/">
         <span class="hidden sm:inline">Yu-Gi-Oh! ソリティア</span>
         <Icon icon="mdi:home" class="size-6 sm:hidden" />
       </a>
