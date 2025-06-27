@@ -79,7 +79,7 @@ export class DuelState {
   /**
    * 初期手札をドロー（通常5枚）
    */
-  drawInitialHand(count: number = 5): Card[] {
+  drawInitialHands(count: number = 5): Card[] {
     return this.drawCard(count);
   }
 

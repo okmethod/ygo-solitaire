@@ -138,7 +138,7 @@ describe("DuelState", () => {
     });
   });
 
-  describe("drawInitialHand", () => {
+  describe("drawInitialHands", () => {
     beforeEach(() => {
       for (let i = 0; i < 10; i++) {
         duelState.mainDeck.push({ ...sampleCard, id: `initial-${i}` });
@@ -146,7 +146,7 @@ describe("DuelState", () => {
     });
 
     it("should draw 5 cards by default", () => {
-      const initialHand = duelState.drawInitialHand();
+      const initialHand = duelState.drawInitialHands();
 
       expect(initialHand).toHaveLength(5);
       expect(duelState.hands).toHaveLength(5);
@@ -154,7 +154,7 @@ describe("DuelState", () => {
     });
 
     it("should draw custom number of cards", () => {
-      const initialHand = duelState.drawInitialHand(7);
+      const initialHand = duelState.drawInitialHands(7);
 
       expect(initialHand).toHaveLength(7);
       expect(duelState.hands).toHaveLength(7);
