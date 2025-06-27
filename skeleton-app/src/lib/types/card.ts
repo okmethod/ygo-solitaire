@@ -29,4 +29,3 @@ export interface CardComponentProps {
   onClick?: (card: Card) => void;
   onHover?: (card: Card | null) => void;
 }
-

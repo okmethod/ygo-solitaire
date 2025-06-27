@@ -15,7 +15,7 @@ export const sampleCards: Card[] = [
     race: "ドラゴン族",
     rarity: "ultra_rare",
     description: "高い攻撃力を誇る伝説のドラゴン。その雄叫びと破壊光線は全てを無に帰す。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
   {
     id: "card-002",
@@ -28,7 +28,7 @@ export const sampleCards: Card[] = [
     race: "ドラゴン族",
     rarity: "ultra_rare",
     description: "真紅の眼を持つ黒いドラゴン。燃え盛る黒い炎で敵を焼き尽くす。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
   {
     id: "card-003",
@@ -41,7 +41,7 @@ export const sampleCards: Card[] = [
     race: "魔法使い族",
     rarity: "ultra_rare",
     description: "魔法使いとしては攻撃力・守備力ともに最高クラス。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
   {
     id: "card-004",
@@ -54,7 +54,7 @@ export const sampleCards: Card[] = [
     race: "戦士族",
     rarity: "common",
     description: "剣の達人であるエルフの戦士。素早い剣技で敵を翻弄する。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
   {
     id: "card-005",
@@ -67,7 +67,7 @@ export const sampleCards: Card[] = [
     race: "悪魔族",
     rarity: "common",
     description: "いたずら好きな小悪魔。機械を壊すのが得意。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
 
   // 魔法カード
@@ -77,7 +77,7 @@ export const sampleCards: Card[] = [
     type: "spell",
     rarity: "super_rare",
     description: "自分または相手の墓地からモンスター1体を選択し、自分フィールド上に攻撃表示で特殊召喚する。",
-    restriction: "limited"
+    restriction: "limited",
   },
   {
     id: "card-007",
@@ -85,7 +85,7 @@ export const sampleCards: Card[] = [
     type: "spell",
     rarity: "rare",
     description: "フィールド上に存在するモンスターを全て破壊する。",
-    restriction: "limited"
+    restriction: "limited",
   },
   {
     id: "card-008",
@@ -93,7 +93,7 @@ export const sampleCards: Card[] = [
     type: "spell",
     rarity: "rare",
     description: "自分のデッキからカードを2枚ドローする。",
-    restriction: "forbidden"
+    restriction: "forbidden",
   },
   {
     id: "card-009",
@@ -101,7 +101,7 @@ export const sampleCards: Card[] = [
     type: "spell",
     rarity: "common",
     description: "相手フィールド上に存在するモンスターを全て破壊する。",
-    restriction: "limited"
+    restriction: "limited",
   },
   {
     id: "card-010",
@@ -109,7 +109,7 @@ export const sampleCards: Card[] = [
     type: "spell",
     rarity: "common",
     description: "相手モンスターを3ターンの間攻撃表示にできず、表示形式を変更できない。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
 
   // 罠カード
@@ -119,7 +119,7 @@ export const sampleCards: Card[] = [
     type: "trap",
     rarity: "super_rare",
     description: "相手モンスターの攻撃宣言時に発動できる。攻撃表示モンスターを全て破壊する。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
   {
     id: "card-012",
@@ -127,7 +127,7 @@ export const sampleCards: Card[] = [
     type: "trap",
     rarity: "rare",
     description: "モンスターが召喚・反転召喚・特殊召喚された時に発動できる。フィールド上のモンスターを全て破壊する。",
-    restriction: "limited"
+    restriction: "limited",
   },
   {
     id: "card-013",
@@ -135,15 +135,16 @@ export const sampleCards: Card[] = [
     type: "trap",
     rarity: "common",
     description: "相手モンスターの召喚・反転召喚・特殊召喚時に発動できる。そのモンスター1体を破壊する。",
-    restriction: "unlimited"
+    restriction: "unlimited",
   },
   {
     id: "card-014",
     name: "魔法の筒",
     type: "trap",
     rarity: "rare",
-    description: "相手モンスターの攻撃宣言時に発動できる。その攻撃を無効にし、攻撃モンスターの攻撃力分のダメージを相手に与える。",
-    restriction: "unlimited"
+    description:
+      "相手モンスターの攻撃宣言時に発動できる。その攻撃を無効にし、攻撃モンスターの攻撃力分のダメージを相手に与える。",
+    restriction: "unlimited",
   },
   {
     id: "card-015",
@@ -151,8 +152,8 @@ export const sampleCards: Card[] = [
     type: "trap",
     rarity: "common",
     description: "自分の墓地からモンスター1体を選択して攻撃表示で特殊召喚する。",
-    restriction: "unlimited"
-  }
+    restriction: "unlimited",
+  },
 ];
 
 // サンプルデッキテンプレート
@@ -180,7 +181,7 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         level: 3,
         attribute: "地",
         race: "獣族",
-        restriction: "unlimited" as const
+        restriction: "unlimited" as const,
       }),
 
       // 魔法 (12枚)
@@ -193,7 +194,7 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         name: "フィラー魔法",
         type: "spell" as const,
         description: "サンプル魔法カード",
-        restriction: "unlimited" as const
+        restriction: "unlimited" as const,
       }),
 
       // 罠 (8枚)
@@ -201,9 +202,9 @@ export const sampleDeckTemplates: DeckTemplate[] = [
       sampleCards[11], // 激流葬 x1
       ...Array(2).fill(sampleCards[12]), // 落とし穴 x2
       sampleCards[13], // 魔法の筒 x1
-      ...Array(2).fill(sampleCards[14]) // リビングデッドの呼び声 x2
+      ...Array(2).fill(sampleCards[14]), // リビングデッドの呼び声 x2
     ],
-    extraDeck: []
+    extraDeck: [],
   },
 
   {
@@ -226,7 +227,7 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         level: 3,
         attribute: "風",
         race: "ドラゴン族",
-        restriction: "unlimited" as const
+        restriction: "unlimited" as const,
       }),
 
       // サポート魔法
@@ -237,13 +238,13 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         name: "ドラゴンサポート",
         type: "spell" as const,
         description: "ドラゴン族をサポートする魔法",
-        restriction: "unlimited" as const
+        restriction: "unlimited" as const,
       }),
 
       // 防御罠
-      ...Array(6).fill(sampleCards[10]) // ミラーフォース等
+      ...Array(6).fill(sampleCards[10]), // ミラーフォース等
     ],
-    extraDeck: []
+    extraDeck: [],
   },
 
   {
@@ -265,7 +266,7 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         level: 4,
         attribute: "光",
         race: "魔法使い族",
-        restriction: "unlimited" as const
+        restriction: "unlimited" as const,
       }),
 
       // 大量の魔法
@@ -274,7 +275,7 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         name: "コントロール魔法",
         type: "spell" as const,
         description: "場をコントロールする魔法",
-        restriction: "unlimited" as const
+        restriction: "unlimited" as const,
       }),
 
       // 大量の罠
@@ -283,110 +284,146 @@ export const sampleDeckTemplates: DeckTemplate[] = [
         name: "コントロール罠",
         type: "trap" as const,
         description: "相手を妨害する罠",
-        restriction: "unlimited" as const
-      })
+        restriction: "unlimited" as const,
+      }),
     ],
-    extraDeck: []
-  }
+    extraDeck: [],
+  },
 ];
 
 // デッキレシピのサンプルデータ生成関数
 export function generateSampleDeck(type: "balanced" | "aggro" | "control" = "balanced"): Card[] {
   const deck: Card[] = [];
-  
+
   switch (type) {
     case "aggro":
       // 攻撃的なデッキ
-      deck.push(...Array(20).fill(null).map((_, i) => ({
-        id: `aggro-monster-${i}`,
-        name: `攻撃モンスター${i + 1}`,
-        type: "monster" as const,
-        attack: 1600 + Math.floor(Math.random() * 800),
-        defense: 800 + Math.floor(Math.random() * 400),
-        level: 3 + Math.floor(Math.random() * 3),
-        attribute: "炎",
-        race: "戦士族",
-        restriction: "unlimited" as const
-      })));
-      
-      deck.push(...Array(15).fill(null).map((_, i) => ({
-        id: `aggro-spell-${i}`,
-        name: `攻撃魔法${i + 1}`,
-        type: "spell" as const,
-        description: "攻撃をサポートする魔法",
-        restriction: "unlimited" as const
-      })));
-      
-      deck.push(...Array(5).fill(null).map((_, i) => ({
-        id: `aggro-trap-${i}`,
-        name: `速攻罠${i + 1}`,
-        type: "trap" as const,
-        description: "素早く発動できる罠",
-        restriction: "unlimited" as const
-      })));
+      deck.push(
+        ...Array(20)
+          .fill(null)
+          .map((_, i) => ({
+            id: `aggro-monster-${i}`,
+            name: `攻撃モンスター${i + 1}`,
+            type: "monster" as const,
+            attack: 1600 + Math.floor(Math.random() * 800),
+            defense: 800 + Math.floor(Math.random() * 400),
+            level: 3 + Math.floor(Math.random() * 3),
+            attribute: "炎",
+            race: "戦士族",
+            restriction: "unlimited" as const,
+          })),
+      );
+
+      deck.push(
+        ...Array(15)
+          .fill(null)
+          .map((_, i) => ({
+            id: `aggro-spell-${i}`,
+            name: `攻撃魔法${i + 1}`,
+            type: "spell" as const,
+            description: "攻撃をサポートする魔法",
+            restriction: "unlimited" as const,
+          })),
+      );
+
+      deck.push(
+        ...Array(5)
+          .fill(null)
+          .map((_, i) => ({
+            id: `aggro-trap-${i}`,
+            name: `速攻罠${i + 1}`,
+            type: "trap" as const,
+            description: "素早く発動できる罠",
+            restriction: "unlimited" as const,
+          })),
+      );
       break;
-      
+
     case "control":
       // コントロール系デッキ
-      deck.push(...Array(10).fill(null).map((_, i) => ({
-        id: `control-monster-${i}`,
-        name: `守備モンスター${i + 1}`,
-        type: "monster" as const,
-        attack: 1000 + Math.floor(Math.random() * 500),
-        defense: 1500 + Math.floor(Math.random() * 1000),
-        level: 2 + Math.floor(Math.random() * 4),
-        attribute: "水",
-        race: "魔法使い族",
-        restriction: "unlimited" as const
-      })));
-      
-      deck.push(...Array(15).fill(null).map((_, i) => ({
-        id: `control-spell-${i}`,
-        name: `制御魔法${i + 1}`,
-        type: "spell" as const,
-        description: "場をコントロールする魔法",
-        restriction: "unlimited" as const
-      })));
-      
-      deck.push(...Array(15).fill(null).map((_, i) => ({
-        id: `control-trap-${i}`,
-        name: `妨害罠${i + 1}`,
-        type: "trap" as const,
-        description: "相手を妨害する罠",
-        restriction: "unlimited" as const
-      })));
+      deck.push(
+        ...Array(10)
+          .fill(null)
+          .map((_, i) => ({
+            id: `control-monster-${i}`,
+            name: `守備モンスター${i + 1}`,
+            type: "monster" as const,
+            attack: 1000 + Math.floor(Math.random() * 500),
+            defense: 1500 + Math.floor(Math.random() * 1000),
+            level: 2 + Math.floor(Math.random() * 4),
+            attribute: "水",
+            race: "魔法使い族",
+            restriction: "unlimited" as const,
+          })),
+      );
+
+      deck.push(
+        ...Array(15)
+          .fill(null)
+          .map((_, i) => ({
+            id: `control-spell-${i}`,
+            name: `制御魔法${i + 1}`,
+            type: "spell" as const,
+            description: "場をコントロールする魔法",
+            restriction: "unlimited" as const,
+          })),
+      );
+
+      deck.push(
+        ...Array(15)
+          .fill(null)
+          .map((_, i) => ({
+            id: `control-trap-${i}`,
+            name: `妨害罠${i + 1}`,
+            type: "trap" as const,
+            description: "相手を妨害する罠",
+            restriction: "unlimited" as const,
+          })),
+      );
       break;
-      
+
     default:
       // バランス型デッキ
-      deck.push(...Array(15).fill(null).map((_, i) => ({
-        id: `balanced-monster-${i}`,
-        name: `バランスモンスター${i + 1}`,
-        type: "monster" as const,
-        attack: 1200 + Math.floor(Math.random() * 1000),
-        defense: 1000 + Math.floor(Math.random() * 800),
-        level: 3 + Math.floor(Math.random() * 4),
-        attribute: "地",
-        race: "獣族",
-        restriction: "unlimited" as const
-      })));
-      
-      deck.push(...Array(13).fill(null).map((_, i) => ({
-        id: `balanced-spell-${i}`,
-        name: `汎用魔法${i + 1}`,
-        type: "spell" as const,
-        description: "汎用性の高い魔法",
-        restriction: "unlimited" as const
-      })));
-      
-      deck.push(...Array(12).fill(null).map((_, i) => ({
-        id: `balanced-trap-${i}`,
-        name: `汎用罠${i + 1}`,
-        type: "trap" as const,
-        description: "汎用性の高い罠",
-        restriction: "unlimited" as const
-      })));
+      deck.push(
+        ...Array(15)
+          .fill(null)
+          .map((_, i) => ({
+            id: `balanced-monster-${i}`,
+            name: `バランスモンスター${i + 1}`,
+            type: "monster" as const,
+            attack: 1200 + Math.floor(Math.random() * 1000),
+            defense: 1000 + Math.floor(Math.random() * 800),
+            level: 3 + Math.floor(Math.random() * 4),
+            attribute: "地",
+            race: "獣族",
+            restriction: "unlimited" as const,
+          })),
+      );
+
+      deck.push(
+        ...Array(13)
+          .fill(null)
+          .map((_, i) => ({
+            id: `balanced-spell-${i}`,
+            name: `汎用魔法${i + 1}`,
+            type: "spell" as const,
+            description: "汎用性の高い魔法",
+            restriction: "unlimited" as const,
+          })),
+      );
+
+      deck.push(
+        ...Array(12)
+          .fill(null)
+          .map((_, i) => ({
+            id: `balanced-trap-${i}`,
+            name: `汎用罠${i + 1}`,
+            type: "trap" as const,
+            description: "汎用性の高い罠",
+            restriction: "unlimited" as const,
+          })),
+      );
   }
-  
+
   return deck;
 }

@@ -14,7 +14,7 @@ export class DeckManager {
     try {
       const existingDecks = this.listDecks();
       const index = existingDecks.findIndex((d) => d.name === deck.name);
-      
+
       if (index >= 0) {
         existingDecks[index] = deck;
       } else {
@@ -44,7 +44,7 @@ export class DeckManager {
     try {
       const existingDecks = this.listDecks();
       const filteredDecks = existingDecks.filter((deck) => deck.name !== name);
-      
+
       if (filteredDecks.length === existingDecks.length) {
         return false; // デッキが見つからない
       }
@@ -108,7 +108,7 @@ export class DeckManager {
   static createFromTemplate(templateId: string): DeckRecipe | null {
     const templates = this.getTemplates();
     const template = templates.find((t) => t.id === templateId);
-    
+
     if (!template) {
       return null;
     }
@@ -119,7 +119,7 @@ export class DeckManager {
       mainDeck: [...template.mainDeck],
       extraDeck: [...template.extraDeck],
       description: template.description,
-      category: template.category
+      category: template.category,
     });
   }
 
@@ -127,7 +127,7 @@ export class DeckManager {
     try {
       const existingTemplates = this.getTemplates();
       const index = existingTemplates.findIndex((t) => t.id === template.id);
-      
+
       if (index >= 0) {
         existingTemplates[index] = template;
       } else {
@@ -146,7 +146,7 @@ export class DeckManager {
     try {
       const existingTemplates = this.getTemplates();
       const filteredTemplates = existingTemplates.filter((template) => template.id !== templateId);
-      
+
       if (filteredTemplates.length === existingTemplates.length) {
         return false; // テンプレートが見つからない
       }
@@ -187,12 +187,12 @@ export class DeckManager {
 
     try {
       const deckJsons = JSON.parse(jsonData) as string[];
-      
+
       for (const deckJson of deckJsons) {
         try {
           const deck = DeckRecipe.fromJSON(deckJson);
           deck.name = this.getUniqueDeckName(deck.name);
-          
+
           if (this.saveDeck(deck)) {
             success++;
           } else {
@@ -226,11 +226,11 @@ export class DeckManager {
     try {
       const decksData = localStorage.getItem(this.STORAGE_KEY) || "";
       const templatesData = localStorage.getItem(this.TEMPLATES_KEY) || "";
-      
+
       return {
         decks: new Blob([decksData]).size,
         templates: new Blob([templatesData]).size,
-        total: new Blob([decksData + templatesData]).size
+        total: new Blob([decksData + templatesData]).size,
       };
     } catch (error) {
       console.error("Failed to get storage size:", error);
@@ -249,7 +249,7 @@ export class DeckManager {
         mainDeck: [],
         extraDeck: [],
         author: "システム",
-        isOfficial: true
+        isOfficial: true,
       },
       {
         id: "sample-control",
@@ -259,8 +259,8 @@ export class DeckManager {
         mainDeck: [],
         extraDeck: [],
         author: "システム",
-        isOfficial: true
-      }
+        isOfficial: true,
+      },
     ];
   }
 }

@@ -33,7 +33,7 @@ export class DeckRecipe {
   addCard(card: Card, target: "main" | "extra" = "main"): boolean {
     const targetDeck = target === "main" ? this.mainDeck : this.extraDeck;
     const maxSize = target === "main" ? 60 : 15; // メインデッキは最大60枚
-    
+
     if (targetDeck.length >= maxSize) {
       return false;
     }
@@ -41,7 +41,7 @@ export class DeckRecipe {
     // 同名カード制限チェック
     const sameNameCount = targetDeck.filter((c) => c.name === card.name).length;
     const cardLimit = this.getCardLimit(card);
-    
+
     if (sameNameCount >= cardLimit) {
       return false;
     }
@@ -54,7 +54,7 @@ export class DeckRecipe {
   removeCard(cardId: string, target: "main" | "extra" = "main"): boolean {
     const targetDeck = target === "main" ? this.mainDeck : this.extraDeck;
     const index = targetDeck.findIndex((card) => card.id === cardId);
-    
+
     if (index === -1) {
       return false;
     }
@@ -79,9 +79,7 @@ export class DeckRecipe {
   }
 
   findCardsByName(name: string): Card[] {
-    return [...this.mainDeck, ...this.extraDeck].filter((card) => 
-      card.name.toLowerCase().includes(name.toLowerCase())
-    );
+    return [...this.mainDeck, ...this.extraDeck].filter((card) => card.name.toLowerCase().includes(name.toLowerCase()));
   }
 
   // デッキ操作メソッド
@@ -93,14 +91,14 @@ export class DeckRecipe {
 
   sort(criteria: SortCriteria, order: SortOrder = "asc", target: "main" | "extra" | "both" = "both"): void {
     const sortFunction = this.getSortFunction(criteria, order);
-    
+
     if (target === "main" || target === "both") {
       this.mainDeck.sort(sortFunction);
     }
     if (target === "extra" || target === "both") {
       this.extraDeck.sort(sortFunction);
     }
-    
+
     this.updatedAt = new Date();
   }
 
@@ -113,12 +111,12 @@ export class DeckRecipe {
     if (this.mainDeck.length < 40) {
       errors.push({
         type: "DECK_SIZE",
-        message: `メインデッキが不足しています（${this.mainDeck.length}/40枚）`
+        message: `メインデッキが不足しています（${this.mainDeck.length}/40枚）`,
       });
     } else if (this.mainDeck.length > 60) {
       errors.push({
         type: "DECK_SIZE",
-        message: `メインデッキが多すぎます（${this.mainDeck.length}/60枚）`
+        message: `メインデッキが多すぎます（${this.mainDeck.length}/60枚）`,
       });
     }
 
@@ -126,7 +124,7 @@ export class DeckRecipe {
     if (this.extraDeck.length > 15) {
       errors.push({
         type: "DECK_SIZE",
-        message: `エクストラデッキが多すぎます（${this.extraDeck.length}/15枚）`
+        message: `エクストラデッキが多すぎます（${this.extraDeck.length}/15枚）`,
       });
     }
 
@@ -142,7 +140,7 @@ export class DeckRecipe {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -155,7 +153,7 @@ export class DeckRecipe {
     return {
       main: this.mainDeck.length,
       extra: this.extraDeck.length,
-      total: this.mainDeck.length + this.extraDeck.length
+      total: this.mainDeck.length + this.extraDeck.length,
     };
   }
 
@@ -164,19 +162,19 @@ export class DeckRecipe {
     return {
       monster: allCards.filter((card) => card.type === "monster").length,
       spell: allCards.filter((card) => card.type === "spell").length,
-      trap: allCards.filter((card) => card.type === "trap").length
+      trap: allCards.filter((card) => card.type === "trap").length,
     };
   }
 
   getDeckStats(): DeckStats {
     const allCards = [...this.mainDeck, ...this.extraDeck];
-    
+
     return {
       totalCards: this.getCardCount(),
       typeDistribution: this.getTypeDistribution(),
       levelDistribution: this.getLevelDistribution(allCards),
       attributeDistribution: this.getAttributeDistribution(allCards),
-      raceDistribution: this.getRaceDistribution(allCards)
+      raceDistribution: this.getRaceDistribution(allCards),
     };
   }
 
@@ -189,7 +187,7 @@ export class DeckRecipe {
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
       description: this.description,
-      category: this.category
+      category: this.category,
     });
   }
 
@@ -198,7 +196,7 @@ export class DeckRecipe {
     return new DeckRecipe({
       ...data,
       createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt)
+      updatedAt: new Date(data.updatedAt),
     });
   }
 
@@ -236,7 +234,7 @@ export class DeckRecipe {
 
   private getSortFunction(criteria: SortCriteria, order: SortOrder) {
     const modifier = order === "asc" ? 1 : -1;
-    
+
     return (a: Card, b: Card): number => {
       let aValue: string | number;
       let bValue: string | number;
@@ -273,18 +271,18 @@ export class DeckRecipe {
       if (typeof aValue === "string" && typeof bValue === "string") {
         return aValue.localeCompare(bValue) * modifier;
       }
-      
+
       if (typeof aValue === "number" && typeof bValue === "number") {
         return (aValue - bValue) * modifier;
       }
-      
+
       return 0;
     };
   }
 
   private validateCardLimits(errors: ValidationError[]): void {
     const cardCounts = new Map<string, number>();
-    
+
     [...this.mainDeck, ...this.extraDeck].forEach((card) => {
       const count = cardCounts.get(card.name) || 0;
       cardCounts.set(card.name, count + 1);
@@ -298,7 +296,7 @@ export class DeckRecipe {
           errors.push({
             type: "CARD_LIMIT",
             message: `「${cardName}」が制限枚数を超えています（${count}/${limit}枚）`,
-            cardName
+            cardName,
           });
         }
       }
@@ -312,7 +310,7 @@ export class DeckRecipe {
           type: "FORBIDDEN_CARD",
           message: `「${card.name}」は禁止カードです`,
           cardId: card.id,
-          cardName: card.name
+          cardName: card.name,
         });
       }
     });
@@ -324,7 +322,7 @@ export class DeckRecipe {
     } else if (this.mainDeck.length > 40) {
       warnings.push({
         type: "DECK_RECOMMENDATION",
-        message: "デッキ枚数を40枚に近づけることを推奨します"
+        message: "デッキ枚数を40枚に近づけることを推奨します",
       });
     }
   }
