@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
   import { navigateTo } from "$lib/utils/navigation";
   import Card from "$lib/components/atoms/Card.svelte";
   import type { Card as CardType } from "$lib/types/card";
+  import type { PageData } from "./$types";
 
-  // TODO: 実際の選択されたレシピを取得する実装が必要
-  // 現在は仮でfirst recipeを使用
-  let selectedRecipe = sampleDeckRecipes[0];
+  let { data }: { data: PageData } = $props();
+  const selectedRecipe = data.recipe;
 
   function navigateToHome() {
     navigateTo("/");
@@ -50,8 +49,8 @@
     <div class="flex items-center justify-between">
       <h1 class="h2 opacity-75">デッキレシピ詳細</h1>
       <div class="flex space-x-2">
-        <button class="btn btn-sm preset-tonal" on:click={navigateToHome}> 戻る </button>
-        <button class="btn btn-sm preset-filled" on:click={navigateToSimulator}> 決闘開始 </button>
+        <button class="btn btn-sm preset-tonal" onclick={navigateToHome}> 戻る </button>
+        <button class="btn btn-sm preset-filled" onclick={navigateToSimulator}> 決闘開始 </button>
       </div>
     </div>
   </header>
