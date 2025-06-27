@@ -27,7 +27,7 @@ export class DeckRecipe {
    */
   async createDuelState(duelName?: string): Promise<import("$lib/classes/DuelState").DuelState> {
     const { DuelState } = await import("$lib/classes/DuelState");
-    return DuelState.fromRecipe(this, duelName);
+    return DuelState.loadRecipe(this, duelName);
   }
 
   /**

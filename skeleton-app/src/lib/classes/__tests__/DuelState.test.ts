@@ -66,9 +66,9 @@ describe("DuelState", () => {
     });
   });
 
-  describe("fromRecipe", () => {
+  describe("loadRecipe", () => {
     it("should create duel state from recipe", () => {
-      const gameDuelState = DuelState.fromRecipe(recipe);
+      const gameDuelState = DuelState.loadRecipe(recipe);
 
       expect(gameDuelState.name).toBe("テストレシピ");
       expect(gameDuelState.mainDeck).toHaveLength(40);
@@ -77,7 +77,7 @@ describe("DuelState", () => {
     });
 
     it("should create duel state with custom name", () => {
-      const gameDuelState = DuelState.fromRecipe(recipe, "カスタム名");
+      const gameDuelState = DuelState.loadRecipe(recipe, "カスタム名");
       expect(gameDuelState.name).toBe("カスタム名");
     });
   });

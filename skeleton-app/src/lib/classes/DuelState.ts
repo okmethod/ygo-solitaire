@@ -43,7 +43,7 @@ export class DuelState {
   /**
    * デッキレシピをロードしてインスタンスを作成
    */
-  static fromRecipe(recipe: DeckRecipe, name?: string): DuelState {
+  static loadRecipe(recipe: DeckRecipe, name?: string): DuelState {
     return new DuelState({
       name: name || recipe.name,
       mainDeck: [...recipe.mainDeck],
