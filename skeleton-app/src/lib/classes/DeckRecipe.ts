@@ -2,9 +2,10 @@ import type { Card } from "$lib/types/card";
 import type { DeckRecipeData, ValidationResult, ValidationError, CardTypeStats } from "$lib/types/recipe";
 
 /**
- * DeckRecipe（デッキレシピ）クラス
- * 開発者が予め用意する静的なカードリスト（設計図）
- * ユーザーによる編集は不可、永続化も不要
+ * デッキレシピ管理クラス
+ * 予め用意された静的なカードリスト
+ * ユーザーによる編集は不可
+ * 必要なタイミングでロードするため永続化不要
  */
 export class DeckRecipe {
   public readonly name: string;
@@ -30,12 +31,12 @@ export class DeckRecipe {
   }
 
   /**
-   * デッキレシピの基本的なバリデーション
+   * デッキレシピのバリデーション
    */
   validateRecipe(): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // メインデッキサイズチェック
+    // メインデッキ枚数チェック
     if (this.mainDeck.length < 40) {
       errors.push({
         type: "DECK_SIZE",
@@ -48,7 +49,7 @@ export class DeckRecipe {
       });
     }
 
-    // エクストラデッキサイズチェック
+    // エクストラデッキ枚数チェック
     if (this.extraDeck.length > 15) {
       errors.push({
         type: "DECK_SIZE",
@@ -56,7 +57,7 @@ export class DeckRecipe {
       });
     }
 
-    // カード制限チェック
+    // 制限カードチェック
     this.validateCardLimits(errors);
 
     // 禁止カードチェック

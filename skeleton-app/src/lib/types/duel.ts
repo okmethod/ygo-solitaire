@@ -1,6 +1,5 @@
 import type { Card } from "$lib/types/card";
 
-// 実際のゲーム用決闘状態（インスタンス）の型定義
 export interface DuelStateData {
   name: string;
   mainDeck: Card[];
@@ -15,7 +14,7 @@ export interface DuelStateData {
   graveyard: Card[];
   banished: Card[];
   createdAt: Date;
-  sourceRecipe?: string; // 元となったデッキレシピの名前
+  sourceRecipe?: string; // デッキレシピ名
 }
 
 export interface GameDuelStats {

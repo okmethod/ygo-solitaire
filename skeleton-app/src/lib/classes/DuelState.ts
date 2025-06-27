@@ -3,9 +3,9 @@ import type { DuelStateData, GameDuelStats } from "$lib/types/duel";
 import { DeckRecipe } from "$lib/classes/DeckRecipe";
 
 /**
- * DuelState（決闘状態）クラス
- * 実際のゲームで使用する決闘状態のインスタンス
- * DeckRecipe（設計図）から作成され、シャッフル、ドロー、フィールド管理などの操作が可能
+ * ゲーム状態管理クラス
+ * デッキレシピをロードして作成される
+ * シャッフル・ドロー・フィールドなどの操作を管理する
  */
 export class DuelState {
   public name: string;
@@ -41,7 +41,7 @@ export class DuelState {
   }
 
   /**
-   * デッキレシピから決闘状態インスタンスを作成
+   * デッキレシピをロードしてインスタンスを作成
    */
   static fromRecipe(recipe: DeckRecipe, name?: string): DuelState {
     return new DuelState({
@@ -53,6 +53,7 @@ export class DuelState {
   }
 
   // ゲーム操作メソッド
+
   /**
    * メインデッキをシャッフル
    */
@@ -61,7 +62,7 @@ export class DuelState {
   }
 
   /**
-   * カードを手札にドロー
+   * カードをドローして手札に加える
    */
   drawCard(count: number = 1): Card[] {
     const drawnCards: Card[] = [];
