@@ -59,7 +59,7 @@
       </div>
 
       <!-- モンスターゾーン (5つ) -->
-      {#each Array(5) as _, i}
+      {#each Array(5) as _, i (i)}
         <div class="flex justify-center">
           {#if monsterCards[i]}
             <Card card={monsterCards[i]} size="medium" clickable={true} selectable={true} onClick={handleCardClick} />
@@ -104,7 +104,7 @@
       </div>
 
       <!-- 魔法・罠ゾーン (5つ) -->
-      {#each Array(5) as _, i}
+      {#each Array(5) as _, i (i)}
         <div class="flex justify-center">
           {#if spellTrapCards[i]}
             <Card card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />

@@ -4,7 +4,6 @@
     opponentLifePoints?: number;
     currentTurn?: number;
     currentPhase?: string;
-    gameStatus?: "準備中" | "実行中" | "停止中" | "完了";
   }
 
   let {
@@ -12,21 +11,7 @@
     opponentLifePoints = 8000,
     currentTurn = 1,
     currentPhase = "メインフェーズ1",
-    gameStatus = "準備中",
   }: GameInfoProps = $props();
-
-  function getStatusColor(status: string) {
-    switch (status) {
-      case "実行中":
-        return "text-warning-500";
-      case "完了":
-        return "text-success-500";
-      case "停止中":
-        return "text-error-500";
-      default:
-        return "text-surface-600";
-    }
-  }
 
   function getLifePointsColor(points: number, isPlayer: boolean = true) {
     if (points <= 0) return "text-error-500";

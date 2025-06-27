@@ -47,7 +47,7 @@
   <div class="transition-all duration-300">
     <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
       <div></div>
-      {#each displayCards as card}
+      {#each displayCards as card, index (index)}
         <div class="flex justify-center">
           <Card
             {card}
@@ -60,7 +60,7 @@
           />
         </div>
       {/each}
-      {#each Array(Math.max(0, handCards - displayCards.length)) as _, i}
+      {#each Array(Math.max(0, handCards - displayCards.length)) as _, i (i)}
         <div class="flex justify-center">
           <Card placeholder={true} placeholderText="H{displayCards.length + i + 1}" size="medium" />
         </div>
