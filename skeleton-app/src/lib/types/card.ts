@@ -9,6 +9,9 @@ export interface Card {
   level?: number;
   attribute?: string;
   race?: string;
+  rarity?: "common" | "rare" | "super_rare" | "ultra_rare" | "secret_rare";
+  cardNumber?: string;
+  restriction?: "unlimited" | "semi_limited" | "limited" | "forbidden";
   isSelected?: boolean;
   position?: "attack" | "defense" | "facedown";
 }
