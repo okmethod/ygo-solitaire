@@ -1,19 +1,22 @@
 export interface Card {
-  id: string;
+  id: number; // YGOPRODeck API uses numeric IDs
   name: string;
   type: "monster" | "spell" | "trap";
-  image?: string;
-  description?: string;
+  frameType?: string; // API provides frameType like "normal", "effect", etc.
+  description: string; // API always provides description
   attack?: number;
   defense?: number;
   level?: number;
   attribute?: string;
   race?: string;
-  rarity?: "common" | "rare" | "super_rare" | "ultra_rare" | "secret_rare";
-  cardNumber?: string;
-  restriction?: "unlimited" | "semi_limited" | "limited" | "forbidden";
+  archetype?: string; // API provides archetype information
+  image?: string; // URL to card image
+  imageSmall?: string; // URL to small card image
+  imageCropped?: string; // URL to cropped card image
+  // 以下は UI 用のプロパティ（API からは取得しない）
   isSelected?: boolean;
   position?: "attack" | "defense" | "facedown";
+  quantity?: number; // デッキ内での枚数
 }
 
 export interface CardComponentProps {
