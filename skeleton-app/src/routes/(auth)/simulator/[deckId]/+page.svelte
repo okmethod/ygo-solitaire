@@ -6,7 +6,8 @@
 
   export let data: PageData;
 
-  $: ({ gameState } = data);
+  $: ({ duelState } = data);
+  $: duelStats = duelState.getDuelStats();
 </script>
 
 <div class="container mx-auto p-4">
@@ -14,19 +15,19 @@
     <div class="grid grid-cols-6 gap-2 md:gap-2 sm:gap-1">
       <div class="col-span-5">
         <DuelField
-          deckCards={gameState.deckCards}
-          extraDeckCards={gameState.extraDeckCards}
-          graveyardCards={gameState.graveyardCards}
+          deckCards={duelStats.mainDeckRemaining}
+          extraDeckCards={duelStats.extraDeckRemaining}
+          graveyardCards={duelStats.graveyardSize}
         />
-        <Hands handCards={gameState.handCards} />
+        <Hands handCards={duelStats.handsSize} />
       </div>
       <div class="col-span-1 p-4">
         <GameInfo
-          deckName={gameState.sourceRecipe}
-          playerLifePoints={gameState.playerLifePoints}
-          opponentLifePoints={gameState.opponentLifePoints}
-          currentTurn={gameState.currentTurn}
-          currentPhase={gameState.currentPhase}
+          deckName={duelStats.gameStatus.deckName}
+          playerLifePoints={duelStats.gameStatus.playerLifePoints}
+          opponentLifePoints={duelStats.gameStatus.opponentLifePoints}
+          currentTurn={duelStats.gameStatus.currentTurn}
+          currentPhase={duelStats.gameStatus.currentPhase}
         />
       </div>
     </div>
