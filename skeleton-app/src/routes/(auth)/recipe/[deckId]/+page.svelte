@@ -29,81 +29,101 @@
     <!-- メインデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">メインデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.totalCards}枚</span>
+      <span class="badge preset-tonal-surface text-sm"
+        >{data.deckData.stats.monsterCount + data.deckData.stats.spellCount + data.deckData.stats.trapCount}枚</span
+      >
     </div>
     <!-- モンスターカード -->
     <section>
-      <div class="mb-4 flex items-center space-x-4">
-        <h3 class="h4 flex items-center">
+      <div class="mb-3 flex items-center space-x-4">
+        <h3 class="h4 flex items-center min-w-fit">
           <span class="w-4 h-4 bg-yellow-500 rounded mr-2"></span>
           モンスター
         </h3>
         <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.monsterCount}枚</span>
-      </div>
-      {#if monsters.length > 0}
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each monsters as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              <div
-                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              >
-                {cardEntry.quantity}
+        {#if monsters.length > 0}
+          <div
+            class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4"
+          >
+            {#each monsters as cardEntry (cardEntry.cardData.id)}
+              <div class="relative">
+                <div class="border-2 border-gray-400 rounded-lg shadow-md overflow-hidden">
+                  <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+                </div>
+                {#if cardEntry.quantity > 1}
+                  <div
+                    class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                  >
+                    {cardEntry.quantity}
+                  </div>
+                {/if}
               </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
+            {/each}
+          </div>
+        {/if}
+      </div>
     </section>
 
     <!-- 魔法カード -->
     <section>
-      <div class="mb-4 flex items-center space-x-4">
-        <h3 class="h4 flex items-center">
+      <div class="mb-3 flex items-center space-x-4">
+        <h3 class="h4 flex items-center min-w-fit">
           <span class="w-4 h-4 bg-green-500 rounded mr-2"></span>
           魔法
         </h3>
         <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.spellCount}枚</span>
-      </div>
-      {#if spells.length > 0}
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each spells as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              <div
-                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              >
-                {cardEntry.quantity}
+        {#if spells.length > 0}
+          <div
+            class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4"
+          >
+            {#each spells as cardEntry (cardEntry.cardData.id)}
+              <div class="relative">
+                <div class="border-2 border-gray-400 rounded-lg shadow-md overflow-hidden">
+                  <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+                </div>
+                {#if cardEntry.quantity > 1}
+                  <div
+                    class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                  >
+                    {cardEntry.quantity}
+                  </div>
+                {/if}
               </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
+            {/each}
+          </div>
+        {/if}
+      </div>
     </section>
 
     <!-- 罠カード -->
     <section>
-      <div class="mb-4 flex items-center space-x-4">
-        <h3 class="h4 flex items-center">
+      <div class="mb-3 flex items-center space-x-4">
+        <h3 class="h4 flex items-center min-w-fit">
           <span class="w-4 h-4 bg-purple-500 rounded mr-2"></span>
           罠
         </h3>
         <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.trapCount}枚</span>
-      </div>
-      {#if traps.length > 0}
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each traps as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              <div
-                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              >
-                {cardEntry.quantity}
+        {#if traps.length > 0}
+          <div
+            class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4"
+          >
+            {#each traps as cardEntry (cardEntry.cardData.id)}
+              <div class="relative">
+                <div class="border-2 border-gray-400 rounded-lg shadow-md overflow-hidden">
+                  <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+                </div>
+                {#if cardEntry.quantity > 1}
+                  <div
+                    class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                  >
+                    {cardEntry.quantity}
+                  </div>
+                {/if}
               </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
+            {/each}
+          </div>
+        {/if}
+      </div>
     </section>
 
     <hr class="my-8 border-t border-gray-300" />
@@ -121,26 +141,32 @@
     <!-- 融合モンスター -->
     {#if fusion.length > 0}
       <section>
-        <div class="mb-4 flex items-center space-x-4">
-          <h3 class="h4 flex items-center">
-            <span class="w-4 h-4 bg-purple-600 rounded mr-2"></span>
+        <div class="mb-3 flex items-center space-x-4">
+          <h3 class="h4 flex items-center min-w-fit">
+            <span class="w-4 h-4 bg-violet-600 rounded mr-2"></span>
             融合
           </h3>
           <span class="badge preset-tonal-surface text-sm"
             >{fusion.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
           >
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each fusion as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              <div
-                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              >
-                {cardEntry.quantity}
+          <div
+            class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4"
+          >
+            {#each fusion as cardEntry (cardEntry.cardData.id)}
+              <div class="relative">
+                <div class="border-2 border-violet-600 rounded-lg shadow-md overflow-hidden">
+                  <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+                </div>
+                {#if cardEntry.quantity > 1}
+                  <div
+                    class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                  >
+                    {cardEntry.quantity}
+                  </div>
+                {/if}
               </div>
-            </div>
-          {/each}
+            {/each}
+          </div>
         </div>
       </section>
     {/if}
@@ -148,26 +174,32 @@
     <!-- シンクロモンスター -->
     {#if synchro.length > 0}
       <section>
-        <div class="mb-4 flex items-center space-x-4">
-          <h3 class="h4 flex items-center">
-            <span class="w-4 h-4 bg-white border border-gray-400 rounded mr-2"></span>
+        <div class="mb-3 flex items-center space-x-4">
+          <h3 class="h4 flex items-center min-w-fit">
+            <span class="w-4 h-4 bg-slate-300 border border-gray-500 rounded mr-2"></span>
             シンクロ
           </h3>
           <span class="badge preset-tonal-surface text-sm"
             >{synchro.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
           >
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each synchro as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              <div
-                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              >
-                {cardEntry.quantity}
+          <div
+            class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4"
+          >
+            {#each synchro as cardEntry (cardEntry.cardData.id)}
+              <div class="relative">
+                <div class="border-2 border-slate-400 rounded-lg shadow-md overflow-hidden">
+                  <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+                </div>
+                {#if cardEntry.quantity > 1}
+                  <div
+                    class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                  >
+                    {cardEntry.quantity}
+                  </div>
+                {/if}
               </div>
-            </div>
-          {/each}
+            {/each}
+          </div>
         </div>
       </section>
     {/if}
@@ -175,25 +207,31 @@
     <!-- エクシーズモンスター -->
     {#if xyz.length > 0}
       <section>
-        <div class="mb-4 flex items-center space-x-4">
-          <h3 class="h4 flex items-center">
-            <span class="w-4 h-4 bg-black rounded mr-2"></span>
+        <div class="mb-3 flex items-center space-x-4">
+          <h3 class="h4 flex items-center min-w-fit">
+            <span class="w-4 h-4 bg-gray-800 rounded mr-2"></span>
             エクシーズ
           </h3>
           <span class="badge preset-tonal-surface text-sm">{xyz.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
           >
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each xyz as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              <div
-                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              >
-                {cardEntry.quantity}
+          <div
+            class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4"
+          >
+            {#each xyz as cardEntry (cardEntry.cardData.id)}
+              <div class="relative">
+                <div class="border-2 border-gray-800 rounded-lg shadow-md overflow-hidden">
+                  <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+                </div>
+                {#if cardEntry.quantity > 1}
+                  <div
+                    class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                  >
+                    {cardEntry.quantity}
+                  </div>
+                {/if}
               </div>
-            </div>
-          {/each}
+            {/each}
+          </div>
         </div>
       </section>
     {/if}

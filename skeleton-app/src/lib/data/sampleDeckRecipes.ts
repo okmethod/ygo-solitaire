@@ -36,11 +36,11 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       // 融合モンスター
       { id: 89943723, quantity: 1 }, // Blue-Eyes Ultimate Dragon
       { id: 23995346, quantity: 1 }, // Blue-Eyes Twin Burst Dragon
-      
-      // シンクロモンスター  
+
+      // シンクロモンスター
       { id: 44508094, quantity: 1 }, // Stardust Dragon
       { id: 70902743, quantity: 1 }, // Red Dragon Archfiend
-      
+
       // エクシーズモンスター
       { id: 10443957, quantity: 1 }, // Number 39: Utopia
       { id: 69610924, quantity: 1 }, // Number 11: Big Eye
@@ -79,11 +79,11 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       // 融合モンスター
       { id: 46986414, quantity: 1 }, // Dark Paladin
       { id: 74069014, quantity: 1 }, // The Dark Magicians
-      
+
       // シンクロモンスター
       { id: 11502550, quantity: 1 }, // Tempest Magician
       { id: 44508094, quantity: 1 }, // Stardust Dragon
-      
+
       // エクシーズモンスター
       { id: 10443957, quantity: 1 }, // Number 39: Utopia
       { id: 90809975, quantity: 1 }, // Gagaga Cowboy
@@ -122,12 +122,12 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       { id: 35809262, quantity: 1 }, // Elemental HERO Flame Wingman
       { id: 58932615, quantity: 1 }, // Elemental HERO Thunder Giant
       { id: 21143940, quantity: 1 }, // Elemental HERO Sparkman
-      
+
       // シンクロモンスター
       { id: 44508094, quantity: 1 }, // Stardust Dragon
       { id: 70902743, quantity: 1 }, // Red Dragon Archfiend
       { id: 33396948, quantity: 1 }, // Exodius the Ultimate Forbidden Lord
-      
+
       // エクシーズモンスター
       { id: 10443957, quantity: 1 }, // Number 39: Utopia
       { id: 56832966, quantity: 1 }, // Number 17: Leviathan Dragon
