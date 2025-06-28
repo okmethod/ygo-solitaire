@@ -5,6 +5,12 @@ import { convertYGOProDeckCardToCard, type YGOProDeckCard } from "$lib/types/ygo
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
+// DeckCardEntry型を定義（recipe.tsのprivate型）
+interface DeckCardEntry {
+  id: number;
+  quantity: number;
+}
+
 /**
  * デッキIDからデッキデータを取得する共通処理
  */
@@ -31,31 +37,25 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   // カード情報をマップに変換
   const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
 
-  // メインデッキのカード配列を作成
-  const mainDeckCards: Card[] = [];
-  for (const entry of recipeData.mainDeck) {
-    const ygoCard = ygoCardMap.get(entry.id);
-    if (ygoCard) {
-      const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
-      // quantity分だけカードを追加
-      for (let i = 0; i < entry.quantity; i++) {
-        mainDeckCards.push(card);
+  // デッキエントリーからCard配列を作成する内部関数
+  function buildCardArray(entries: DeckCardEntry[]): Card[] {
+    const cards: Card[] = [];
+    for (const entry of entries) {
+      const ygoCard = ygoCardMap.get(entry.id);
+      if (ygoCard) {
+        const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
+        // quantity分だけカードを追加
+        for (let i = 0; i < entry.quantity; i++) {
+          cards.push(card);
+        }
       }
     }
+    return cards;
   }
 
-  // エクストラデッキのカード配列を作成
-  const extraDeckCards: Card[] = [];
-  for (const entry of recipeData.extraDeck) {
-    const ygoCard = ygoCardMap.get(entry.id);
-    if (ygoCard) {
-      const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
-      // quantity分だけカードを追加
-      for (let i = 0; i < entry.quantity; i++) {
-        extraDeckCards.push(card);
-      }
-    }
-  }
+  // メインデッキとエクストラデッキのカード配列を作成
+  const mainDeckCards = buildCardArray(recipeData.mainDeck);
+  const extraDeckCards = buildCardArray(recipeData.extraDeck);
 
   // DeckRecipe形式に変換
   const recipe: DeckRecipe = {
