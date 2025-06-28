@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../DuelState";
-import { DeckRecipe } from "../DeckRecipe";
+import { Deck } from "../Deck";
 import type { Card } from "$lib/types/card";
 
 describe("DuelState", () => {
   let duelState: DuelState;
-  let recipe: DeckRecipe;
+  let deck: Deck;
   let sampleCard: Card;
   let monsterCard: Card;
   let spellCard: Card;
@@ -59,8 +59,8 @@ describe("DuelState", () => {
     const mainDeck = Array(40)
       .fill(null)
       .map((_, i) => ({ ...sampleCard, id: 5000 + i, name: `カード${i}` }));
-    recipe = new DeckRecipe({
-      name: "テストレシピ",
+    deck = new Deck({
+      name: "テストデッキ",
       mainDeck,
       extraDeck: [],
     });
@@ -83,18 +83,18 @@ describe("DuelState", () => {
     });
   });
 
-  describe("loadRecipe", () => {
-    it("should create duel state from recipe", () => {
-      const gameDuelState = DuelState.loadRecipe(recipe);
+  describe("loadDeck", () => {
+    it("should create duel state from deck", () => {
+      const gameDuelState = DuelState.loadDeck(deck);
 
-      expect(gameDuelState.name).toBe("テストレシピ");
+      expect(gameDuelState.name).toBe("テストデッキ");
       expect(gameDuelState.mainDeck).toHaveLength(40);
-      expect(gameDuelState.sourceRecipe).toBe("テストレシピ");
-      expect(gameDuelState.mainDeck).not.toBe(recipe.mainDeck); // 別のインスタンス
+      expect(gameDuelState.sourceRecipe).toBe("テストデッキ");
+      expect(gameDuelState.mainDeck).not.toBe(deck.mainDeck); // 別のインスタンス
     });
 
     it("should create duel state with custom name", () => {
-      const gameDuelState = DuelState.loadRecipe(recipe, "カスタム名");
+      const gameDuelState = DuelState.loadDeck(deck, "カスタム名");
       expect(gameDuelState.name).toBe("カスタム名");
     });
   });

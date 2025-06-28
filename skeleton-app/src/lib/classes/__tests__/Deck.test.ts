@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { DeckRecipe } from "../DeckRecipe";
+import { Deck } from "../Deck";
 import type { Card } from "$lib/types/card";
 
-describe("DeckRecipe", () => {
+describe("Deck", () => {
   let sampleCard: Card;
   let monsterCard: Card;
   let spellCard: Card;
@@ -66,7 +66,7 @@ describe("DeckRecipe", () => {
 
   describe("constructor", () => {
     it("should create a recipe with readonly properties", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "静的レシピ",
         mainDeck: [sampleCard],
         extraDeck: [monsterCard],
@@ -86,7 +86,7 @@ describe("DeckRecipe", () => {
     });
 
     it("should create a recipe with minimal data", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "最小レシピ",
         mainDeck: [],
         extraDeck: [],
@@ -102,7 +102,7 @@ describe("DeckRecipe", () => {
 
   describe("validateRecipe", () => {
     it("should validate minimum deck size", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "小さすぎるデッキ",
         mainDeck: Array(30)
           .fill(null)
@@ -117,7 +117,7 @@ describe("DeckRecipe", () => {
     });
 
     it("should validate maximum deck size", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "大きすぎるデッキ",
         mainDeck: Array(70)
           .fill(null)
@@ -131,7 +131,7 @@ describe("DeckRecipe", () => {
     });
 
     it("should validate valid deck", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "有効なデッキ",
         mainDeck: Array(40)
           .fill(null)
@@ -146,7 +146,7 @@ describe("DeckRecipe", () => {
 
     it("should validate card limits", () => {
       const limitedCard = { ...sampleCard, frameType: "limited" };
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "制限違反デッキ",
         mainDeck: [limitedCard, limitedCard], // limited カードを2枚
         extraDeck: [],
@@ -159,7 +159,7 @@ describe("DeckRecipe", () => {
 
     it("should validate forbidden cards", () => {
       const forbiddenCard = { ...sampleCard, frameType: "forbidden" };
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "禁止カードデッキ",
         mainDeck: [forbiddenCard],
         extraDeck: [],
@@ -173,7 +173,7 @@ describe("DeckRecipe", () => {
 
   describe("getTypeDistribution", () => {
     it("should return correct type distribution", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "バランスデッキ",
         mainDeck: [monsterCard, monsterCard, spellCard, trapCard],
         extraDeck: [],
@@ -188,7 +188,7 @@ describe("DeckRecipe", () => {
 
   describe("getCardCount", () => {
     it("should return correct card counts", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "カウントテスト",
         mainDeck: [sampleCard, monsterCard],
         extraDeck: [spellCard],
@@ -203,7 +203,7 @@ describe("DeckRecipe", () => {
 
   describe("findCardsByName", () => {
     it("should find cards by name", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "検索テスト",
         mainDeck: [sampleCard, monsterCard],
         extraDeck: [spellCard],
@@ -214,7 +214,7 @@ describe("DeckRecipe", () => {
     });
 
     it("should return empty array if no matches", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "検索テスト",
         mainDeck: [sampleCard],
         extraDeck: [],
@@ -227,7 +227,7 @@ describe("DeckRecipe", () => {
 
   describe("JSON serialization", () => {
     it("should serialize to JSON", () => {
-      const recipe = new DeckRecipe({
+      const recipe = new Deck({
         name: "JSONテスト",
         mainDeck: [sampleCard],
         extraDeck: [monsterCard],
@@ -247,14 +247,14 @@ describe("DeckRecipe", () => {
     });
 
     it("should deserialize from JSON", () => {
-      const originalRecipe = new DeckRecipe({
+      const originalRecipe = new Deck({
         name: "オリジナル",
         mainDeck: [sampleCard],
         extraDeck: [monsterCard],
       });
 
       const json = originalRecipe.toJSON();
-      const newRecipe = DeckRecipe.fromJSON(json);
+      const newRecipe = Deck.fromJSON(json);
 
       expect(newRecipe.name).toBe(originalRecipe.name);
       expect(newRecipe.mainDeck).toEqual(originalRecipe.mainDeck);

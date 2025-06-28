@@ -1,10 +1,5 @@
 import type { Card } from "$lib/types/card";
-import type {
-  DeckRecipe as DeckRecipeInterface,
-  ValidationResult,
-  ValidationError,
-  CardTypeStats,
-} from "$lib/types/recipe";
+import type { DeckRecipe, ValidationResult, ValidationError, CardTypeStats } from "$lib/types/recipe";
 
 /**
  * デッキレシピ管理クラス
@@ -12,19 +7,19 @@ import type {
  * ユーザーによる編集は不可
  * 必要なタイミングでロードするため永続化不要
  */
-export class DeckRecipe {
+export class Deck {
   public readonly name: string;
   public readonly mainDeck: readonly Card[];
   public readonly extraDeck: readonly Card[];
   public readonly description?: string;
   public readonly category?: string;
 
-  constructor(data: DeckRecipeInterface) {
-    this.name = data.name;
-    this.mainDeck = Object.freeze([...data.mainDeck]);
-    this.extraDeck = Object.freeze([...data.extraDeck]);
-    this.description = data.description;
-    this.category = data.category;
+  constructor(recipe: DeckRecipe) {
+    this.name = recipe.name;
+    this.mainDeck = Object.freeze([...recipe.mainDeck]);
+    this.extraDeck = Object.freeze([...recipe.extraDeck]);
+    this.description = recipe.description;
+    this.category = recipe.category;
   }
 
   /**
@@ -113,9 +108,9 @@ export class DeckRecipe {
   /**
    * JSONからデッキレシピを作成（静的データ読み込み用）
    */
-  static fromJSON(json: string): DeckRecipe {
-    const data = JSON.parse(json);
-    return new DeckRecipe(data);
+  static fromJSON(json: string): Deck {
+    const recipe = JSON.parse(json);
+    return new Deck(recipe);
   }
 
   // プライベートメソッド
