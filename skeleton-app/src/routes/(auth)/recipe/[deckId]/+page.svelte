@@ -1,35 +1,21 @@
 <script lang="ts">
   import { navigateTo } from "$lib/utils/navigation";
   import Card from "$lib/components/atoms/Card.svelte";
-  import type { LoadedCardEntry } from "$lib/types/deck";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
-  const selectedDeckData = data.deckData;
+  const { monsters, spells, traps } = data.deckData.mainDeck;
 
   function navigateToSimulator() {
     navigateTo(`/simulator/${data.deckId}`);
   }
-
-  // カードタイプ別にフィルタする関数（LoadedCardEntry用）
-  function getCardsByType(cards: LoadedCardEntry[], type: string) {
-    return cards.filter((cardEntry) => cardEntry.cardData.type === type);
-  }
-
-  // カードタイプ別の統計情報（事前計算された統計を使用）
-  const monsterCards = getCardsByType(selectedDeckData.mainDeck, "monster");
-  const spellCards = getCardsByType(selectedDeckData.mainDeck, "spell");
-  const trapCards = getCardsByType(selectedDeckData.mainDeck, "trap");
-
-  // 統計情報は事前計算済み
-  const { totalCards, monsterCount, spellCount, trapCount } = selectedDeckData.stats;
 </script>
 
 <div class="container mx-auto p-4">
   <!-- ヘッダー -->
   <header class="my-6">
     <div class="flex items-center space-x-8 mb-4">
-      <h2 class="h3">{selectedDeckData.name}</h2>
+      <h2 class="h3">{data.deckData.name}</h2>
       <button class="btn preset-tonal rounded-full shadow-lg text-lg px-4 py-2" onclick={navigateToSimulator}>
         決闘開始
       </button>
@@ -42,7 +28,7 @@
     <!-- メインデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">メインデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm">{totalCards}枚</span>
+      <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.totalCards}枚</span>
     </div>
     <!-- モンスターカード -->
     <section>
@@ -51,11 +37,11 @@
           <span class="w-4 h-4 bg-yellow-500 rounded mr-2"></span>
           モンスター
         </h3>
-        <span class="badge preset-tonal-surface text-sm">{monsterCount}枚</span>
+        <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.monsterCount}枚</span>
       </div>
-      {#if monsterCards.length > 0}
+      {#if monsters.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each monsterCards as cardEntry (cardEntry.cardData.id)}
+          {#each monsters as cardEntry (cardEntry.cardData.id)}
             <div class="relative">
               <Card card={cardEntry.cardData} size="medium" showDetails={true} />
               <div
@@ -76,11 +62,11 @@
           <span class="w-4 h-4 bg-green-500 rounded mr-2"></span>
           魔法
         </h3>
-        <span class="badge preset-tonal-surface text-sm">{spellCount}枚</span>
+        <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.spellCount}枚</span>
       </div>
-      {#if spellCards.length > 0}
+      {#if spells.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each spellCards as cardEntry (cardEntry.cardData.id)}
+          {#each spells as cardEntry (cardEntry.cardData.id)}
             <div class="relative">
               <Card card={cardEntry.cardData} size="medium" showDetails={true} />
               <div
@@ -101,11 +87,11 @@
           <span class="w-4 h-4 bg-purple-500 rounded mr-2"></span>
           罠
         </h3>
-        <span class="badge preset-tonal-surface text-sm">{trapCount}枚</span>
+        <span class="badge preset-tonal-surface text-sm">{data.deckData.stats.trapCount}枚</span>
       </div>
-      {#if trapCards.length > 0}
+      {#if traps.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each trapCards as cardEntry (cardEntry.cardData.id)}
+          {#each traps as cardEntry (cardEntry.cardData.id)}
             <div class="relative">
               <Card card={cardEntry.cardData} size="medium" showDetails={true} />
               <div
@@ -125,15 +111,15 @@
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">エクストラデッキ</h2>
       <span class="badge preset-tonal-surface text-sm"
-        >{selectedDeckData.extraDeck.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
+        >{data.deckData.extraDeck.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
       >
     </div>
 
     <!-- TODO: シンクロ・エクシーズなどを分類する -->
     <section>
-      {#if selectedDeckData.extraDeck.length > 0}
+      {#if data.deckData.extraDeck.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each selectedDeckData.extraDeck as cardEntry (cardEntry.cardData.id)}
+          {#each data.deckData.extraDeck as cardEntry (cardEntry.cardData.id)}
             <Card card={cardEntry.cardData} size="medium" showDetails={true} />
           {/each}
         </div>
@@ -143,9 +129,9 @@
   </div>
 
   <!-- デッキ説明 -->
-  {#if selectedDeckData.description}
+  {#if data.deckData.description}
     <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
-      <p class="text-sm opacity-75">{selectedDeckData.description}</p>
+      <p class="text-sm opacity-75">{data.deckData.description}</p>
     </div>
   {/if}
 </div>

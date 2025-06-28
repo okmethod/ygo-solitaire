@@ -46,12 +46,21 @@ export interface DeckRecipe extends DeckBase {
 }
 
 /**
+ * メインデッキの構造（カードタイプ別に事前分類）
+ */
+export interface MainDeckData {
+  monsters: LoadedCardEntry[]; // モンスターカード
+  spells: LoadedCardEntry[]; // 魔法カード
+  traps: LoadedCardEntry[]; // 罠カード
+}
+
+/**
  * ロード済みデッキデータ
- * CardDataと枚数を保持し、統計情報も含む
- * 同名カードの重複インスタンスを避けてメモリ効率化
+ * CardDataと枚数を保持し、カードタイプ別に事前分類済み
+ * フィルタリング処理を不要にしてパフォーマンス向上
  */
 export interface DeckData extends DeckBase {
-  mainDeck: LoadedCardEntry[];
-  extraDeck: LoadedCardEntry[];
+  mainDeck: MainDeckData; // カードタイプ別に分類済み
+  extraDeck: LoadedCardEntry[]; // エクストラデッキ（分類不要）
   stats: DeckStats; // 統計情報を事前計算
 }
