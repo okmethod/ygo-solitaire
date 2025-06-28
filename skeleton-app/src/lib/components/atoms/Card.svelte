@@ -76,11 +76,11 @@
   // カードタイプ別の背景色
   const typeClasses = $derived(
     card?.type === "monster"
-      ? "bg-yellow-100 dark:bg-yellow-900"
+      ? "bg-yellow-100 dark:bg-yellow-800"
       : card?.type === "spell"
-        ? "bg-green-100 dark:bg-green-900"
+        ? "bg-green-100 dark:bg-green-800"
         : card?.type === "trap"
-          ? "bg-purple-100 dark:bg-purple-900"
+          ? "bg-purple-100 dark:bg-purple-800"
           : "bg-surface-100-800-token",
   );
 
@@ -94,134 +94,73 @@
     ${typeClasses}
     relative overflow-hidden
   `);
+
+  // インタラクティブ要素の属性
+  const interactiveProps = $derived({
+    style: rotationStyle,
+    onclick: clickable || selectable ? handleClick : undefined,
+    onmouseenter: handleMouseEnter,
+    onmouseleave: handleMouseLeave,
+  });
 </script>
 
-{#if clickable || selectable}
-  <button
-    class="{commonClasses} bg-transparent p-0"
-    style={rotationStyle}
-    onclick={handleClick}
-    onmouseenter={handleMouseEnter}
-    onmouseleave={handleMouseLeave}
-  >
-    <!-- カード画像エリア -->
-    <div class="flex-1 flex items-center justify-center p-1">
-      {#if card?.images?.imageCropped}
-        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
-      {:else if isPlaceholder}
-        <div
-          class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
-        >
-          <img src={placeholderImageUrl} alt={placeholderText} class="w-full h-full object-cover opacity-30" />
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-xs select-none text-surface-600-300-token font-medium">{placeholderText}</span>
-            {#if card?.type}
-              <span class="text-xs opacity-75 select-none mt-1">{card.type}</span>
-            {/if}
-          </div>
+<!-- 共通コンテンツテンプレート -->
+{#snippet cardContent()}
+  <!-- カード画像エリア -->
+  <div class="flex-1 flex items-center justify-center p-1">
+    {#if card?.images?.imageCropped}
+      <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+    {:else if isPlaceholder}
+      <div
+        class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
+      >
+        <img src={placeholderImageUrl} alt={placeholderText} class="w-full h-full object-cover opacity-30" />
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span class="text-xs select-none text-surface-600-300-token font-medium">{placeholderText}</span>
+          {#if card?.type}
+            <span class="text-xs opacity-75 select-none mt-1">{card.type}</span>
+          {/if}
         </div>
-      {:else}
-        <div class="w-full h-full bg-surface-200-700-token rounded-sm flex items-center justify-center">
-          <img src={placeholderImageUrl} alt="" class="w-full h-full object-cover opacity-20" />
-          <div class="absolute inset-0 flex items-center justify-center">
-            <span class="text-xs opacity-50 select-none">No Image</span>
-          </div>
+      </div>
+    {:else}
+      <div class="w-full h-full bg-surface-200-700-token rounded-sm flex items-center justify-center">
+        <img src={placeholderImageUrl} alt="" class="w-full h-full object-cover opacity-20" />
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="text-xs opacity-50 select-none">No Image</span>
+        </div>
+      </div>
+    {/if}
+  </div>
+
+  <!-- カード情報エリア -->
+  {#if card && !isPlaceholder}
+    <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
+      <div class="text-xs font-medium truncate">{card.name}</div>
+      {#if showDetails || (isHovered && size !== "small")}
+        <div class="text-xs opacity-75 mt-1">
+          <!-- 何か追加するかも -->
         </div>
       {/if}
     </div>
+  {/if}
 
-    <!-- カード情報エリア -->
-    {#if card && !isPlaceholder}
-      <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
-        <div class="text-xs font-medium truncate">{card.name}</div>
-        {#if showDetails || (isHovered && size !== "small")}
-          <div class="text-xs opacity-75 mt-1">
-            {#if card.type === "monster" && card.monster?.attack !== undefined && card.monster?.defense !== undefined}
-              <div class="flex justify-between">
-                <span>ATK:{card.monster.attack}</span>
-                <span>DEF:{card.monster.defense}</span>
-              </div>
-            {/if}
-            {#if card.monster?.level}
-              <div class="text-xs opacity-50">Lv.{card.monster.level}</div>
-            {/if}
-          </div>
-        {/if}
-      </div>
-    {/if}
+  <!-- 選択状態インジケーター -->
+  {#if isSelected}
+    <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
+  {/if}
 
-    <!-- 選択状態インジケーター -->
-    {#if isSelected}
-      <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
-    {/if}
+  <!-- フェードアニメーション用オーバーレイ -->
+  {#if animate && (isHovered || isSelected)}
+    <div class="absolute inset-0 bg-primary-500 opacity-10 pointer-events-none"></div>
+  {/if}
+{/snippet}
 
-    <!-- フェードアニメーション用オーバーレイ -->
-    {#if animate && (isHovered || isSelected)}
-      <div class="absolute inset-0 bg-primary-500 opacity-10 pointer-events-none"></div>
-    {/if}
+{#if clickable || selectable}
+  <button class="{commonClasses} bg-transparent p-0" {...interactiveProps}>
+    {@render cardContent()}
   </button>
 {:else}
-  <div
-    class={commonClasses}
-    style={rotationStyle}
-    role="img"
-    onmouseenter={handleMouseEnter}
-    onmouseleave={handleMouseLeave}
-  >
-    <!-- カード画像エリア -->
-    <div class="flex-1 flex items-center justify-center p-1">
-      {#if card?.images?.imageCropped}
-        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
-      {:else if isPlaceholder}
-        <div
-          class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
-        >
-          <img src={placeholderImageUrl} alt={placeholderText} class="w-full h-full object-cover opacity-30" />
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-xs select-none text-surface-600-300-token font-medium">{placeholderText}</span>
-            {#if card?.type}
-              <span class="text-xs opacity-75 select-none mt-1">{card.type}</span>
-            {/if}
-          </div>
-        </div>
-      {:else}
-        <div class="w-full h-full bg-surface-200-700-token rounded-sm flex items-center justify-center">
-          <img src={placeholderImageUrl} alt="" class="w-full h-full object-cover opacity-20" />
-          <div class="absolute inset-0 flex items-center justify-center">
-            <span class="text-xs opacity-50 select-none">No Image</span>
-          </div>
-        </div>
-      {/if}
-    </div>
-
-    <!-- カード情報エリア -->
-    {#if card && !isPlaceholder}
-      <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
-        <div class="text-xs font-medium truncate">{card.name}</div>
-        {#if showDetails || (isHovered && size !== "small")}
-          <div class="text-xs opacity-75 mt-1">
-            {#if card.type === "monster" && card.monster?.attack !== undefined && card.monster?.defense !== undefined}
-              <div class="flex justify-between">
-                <span>ATK:{card.monster.attack}</span>
-                <span>DEF:{card.monster.defense}</span>
-              </div>
-            {/if}
-            {#if card.monster?.level}
-              <div class="text-xs opacity-50">Lv.{card.monster.level}</div>
-            {/if}
-          </div>
-        {/if}
-      </div>
-    {/if}
-
-    <!-- 選択状態インジケーター -->
-    {#if isSelected}
-      <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
-    {/if}
-
-    <!-- フェードアニメーション用オーバーレイ -->
-    {#if animate && (isHovered || isSelected)}
-      <div class="absolute inset-0 bg-primary-500 opacity-10 pointer-events-none"></div>
-    {/if}
+  <div class={commonClasses} role="img" {...interactiveProps}>
+    {@render cardContent()}
   </div>
 {/if}
