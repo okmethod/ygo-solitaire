@@ -1,10 +1,10 @@
 import type { PageLoad } from "./$types";
-import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
-import { getCardsByIds } from "$lib/api/ygoprodeck";
-import { convertYGOProDeckCardToCard } from "$lib/utils/cardConverter";
 import { error } from "@sveltejs/kit";
 import type { Card } from "$lib/types/card";
 import type { DeckRecipe } from "$lib/types/recipe";
+import { convertYGOProDeckCardToCard } from "$lib/types/ygoprodeck";
+import { getCardsByIds } from "$lib/api/ygoprodeck";
+import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const { id } = params;
