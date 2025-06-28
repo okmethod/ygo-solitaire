@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import { loadDeckData } from "$lib/api/deckLoader";
+import { loadDeckData } from "$lib/utils/deckLoader";
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const { deckId } = params;
