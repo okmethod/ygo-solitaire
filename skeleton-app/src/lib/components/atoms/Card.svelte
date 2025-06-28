@@ -1,6 +1,20 @@
 <script lang="ts">
-  import type { CardComponentProps } from "$lib/types/card";
+  import type { Card } from "$lib/types/card";
   import cardBackImage from "$lib/assets/CardBack.jpg";
+
+  interface CardComponentProps {
+    card?: Card;
+    size?: "small" | "medium" | "large";
+    showDetails?: boolean;
+    clickable?: boolean;
+    selectable?: boolean;
+    placeholder?: boolean;
+    placeholderText?: string;
+    rotation?: number;
+    animate?: boolean;
+    onClick?: (card: Card) => void;
+    onHover?: (card: Card | null) => void;
+  }
 
   let {
     card,
