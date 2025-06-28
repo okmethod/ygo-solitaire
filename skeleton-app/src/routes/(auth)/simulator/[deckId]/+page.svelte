@@ -11,10 +11,6 @@
 
 <div class="container mx-auto p-4">
   <main class="max-w-6xl mx-auto space-y-6">
-    <header class="text-center mb-6">
-      <h1 class="h2 text-primary-600">{deck.name}</h1>
-      <p class="text-surface-600">{deck.description}</p>
-    </header>
     <div class="grid grid-cols-6 gap-2 md:gap-2 sm:gap-1">
       <div class="col-span-5">
         <DuelField
