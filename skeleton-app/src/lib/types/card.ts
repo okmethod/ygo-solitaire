@@ -1,22 +1,49 @@
-export interface Card {
-  id: number; // YGOPRODeck API uses numeric IDs
-  name: string;
-  type: "monster" | "spell" | "trap";
-  frameType?: string; // API provides frameType like "normal", "effect", etc.
-  description: string; // API always provides description
+// カードタイプの定義
+export type CardType = "monster" | "spell" | "trap";
+
+// モンスターカード専用のプロパティ
+export interface MonsterCardProperties {
   attack?: number;
   defense?: number;
   level?: number;
   attribute?: string;
   race?: string;
-  archetype?: string; // API provides archetype information
+}
+
+// カード画像のプロパティ
+export interface CardImageProperties {
   image?: string; // URL to card image
   imageSmall?: string; // URL to small card image
   imageCropped?: string; // URL to cropped card image
-  // 以下は UI 用のプロパティ（API からは取得しない）
+}
+
+// UI用のプロパティ
+export interface CardUIProperties {
   isSelected?: boolean;
   position?: "attack" | "defense" | "facedown";
   quantity?: number; // デッキ内での枚数
+}
+
+// 基本のCardインターフェース
+export interface Card {
+  // 必須プロパティ
+  id: number; // YGOPRODeck API uses numeric IDs
+  name: string;
+  type: CardType;
+  description: string; // API always provides description
+
+  // オプショナルなAPIプロパティ
+  frameType?: string; // API provides frameType like "normal", "effect", etc.
+  archetype?: string; // API provides archetype information
+
+  // モンスターカード専用プロパティ
+  monster?: MonsterCardProperties;
+
+  // 画像プロパティ
+  images?: CardImageProperties;
+
+  // UI用プロパティ
+  ui?: CardUIProperties;
 }
 
 export interface CardComponentProps {

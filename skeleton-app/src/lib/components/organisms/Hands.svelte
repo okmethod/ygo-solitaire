@@ -14,15 +14,17 @@
     const sampleCards: CardType[] = [];
     for (let i = 0; i < count; i++) {
       sampleCards.push({
-        id: `hand-${i + 1}`,
+        id: 100000 + i + 1, // 数値IDに変更
         name: `手札${i + 1}`,
         type: "monster",
-        attack: Math.floor(Math.random() * 3000) + 500,
-        defense: Math.floor(Math.random() * 2500) + 200,
-        level: Math.floor(Math.random() * 8) + 1,
         description: `サンプルカード${i + 1}の効果説明です。`,
-        attribute: "光",
-        race: "戦士族",
+        monster: {
+          attack: Math.floor(Math.random() * 3000) + 500,
+          defense: Math.floor(Math.random() * 2500) + 200,
+          level: Math.floor(Math.random() * 8) + 1,
+          attribute: "光",
+          race: "戦士族",
+        },
       });
     }
     return sampleCards;

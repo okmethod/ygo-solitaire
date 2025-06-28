@@ -23,7 +23,7 @@
 
   // 重複を除いたカードリストを作成する関数
   function getUniqueCards(cards: CardType[]): CardType[] {
-    const uniqueMap = new Map<string, CardType>();
+    const uniqueMap = new Map<number, CardType>();
     cards.forEach((card) => {
       if (!uniqueMap.has(card.id)) {
         uniqueMap.set(card.id, card);

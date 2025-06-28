@@ -47,15 +47,26 @@ export interface YGOProDeckResponse {
 // YGOPRODeck API 呼び出し関数
 const API_BASE_URL = "https://db.ygoprodeck.com/api/v7";
 
-export async function getCardById(id: number): Promise<YGOProDeckCard | null> {
+// 共通のfetch関数
+async function fetchYGOProDeckAPI(url: string): Promise<YGOProDeckResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/cardinfo.php?id=${id}`);
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data: YGOProDeckResponse = await response.json();
+    return await response.json();
+  } catch (error) {
+    console.error(`YGOPRODeck API error:`, error);
+    throw new Error(`Failed to fetch from YGOPRODeck API: ${url}`);
+  }
+}
+
+export async function getCardById(id: number): Promise<YGOProDeckCard | null> {
+  try {
+    const url = `${API_BASE_URL}/cardinfo.php?id=${id}`;
+    const data = await fetchYGOProDeckAPI(url);
     return data.data[0] || null;
   } catch (error) {
     console.error(`Error fetching card ${id}:`, error);
@@ -68,13 +79,8 @@ export async function getCardsByIds(ids: number[]): Promise<YGOProDeckCard[]> {
 
   try {
     const idsString = ids.join(",");
-    const response = await fetch(`${API_BASE_URL}/cardinfo.php?id=${idsString}`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data: YGOProDeckResponse = await response.json();
+    const url = `${API_BASE_URL}/cardinfo.php?id=${idsString}`;
+    const data = await fetchYGOProDeckAPI(url);
     return data.data || [];
   } catch (error) {
     console.error(`Error fetching cards ${ids.join(",")}:`, error);
@@ -85,13 +91,8 @@ export async function getCardsByIds(ids: number[]): Promise<YGOProDeckCard[]> {
 export async function searchCardsByName(name: string): Promise<YGOProDeckCard[]> {
   try {
     const encodedName = encodeURIComponent(name);
-    const response = await fetch(`${API_BASE_URL}/cardinfo.php?fname=${encodedName}`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data: YGOProDeckResponse = await response.json();
+    const url = `${API_BASE_URL}/cardinfo.php?fname=${encodedName}`;
+    const data = await fetchYGOProDeckAPI(url);
     return data.data || [];
   } catch (error) {
     console.error(`Error searching cards by name "${name}":`, error);

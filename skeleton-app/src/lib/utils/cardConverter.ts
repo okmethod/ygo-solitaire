@@ -1,4 +1,4 @@
-import type { Card } from "$lib/types/card";
+import type { Card, CardType } from "$lib/types/card";
 import type { YGOProDeckCard } from "$lib/api/ygoprodeck";
 
 /**
@@ -6,7 +6,7 @@ import type { YGOProDeckCard } from "$lib/api/ygoprodeck";
  */
 export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard, quantity = 1): Card {
   // カードタイプを正規化
-  const normalizeType = (type: string): "monster" | "spell" | "trap" => {
+  const normalizeType = (type: string): CardType => {
     const lowerType = type.toLowerCase();
     if (lowerType.includes("monster")) return "monster";
     if (lowerType.includes("spell")) return "spell";
@@ -19,22 +19,41 @@ export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard, quantity = 
   // 画像URL を取得（最初の画像を使用）
   const cardImage = apiCard.card_images[0];
 
+  const cardType = normalizeType(apiCard.type);
+
   return {
     id: apiCard.id,
     name: apiCard.name,
-    type: normalizeType(apiCard.type),
-    frameType: apiCard.frameType,
+    type: cardType,
     description: apiCard.desc,
-    attack: apiCard.atk,
-    defense: apiCard.def,
-    level: apiCard.level,
-    attribute: apiCard.attribute,
-    race: apiCard.race,
+    frameType: apiCard.frameType,
     archetype: apiCard.archetype,
-    image: cardImage?.image_url,
-    imageSmall: cardImage?.image_url_small,
-    imageCropped: cardImage?.image_url_cropped,
-    quantity,
+
+    // モンスターカード専用プロパティ
+    monster:
+      cardType === "monster"
+        ? {
+            attack: apiCard.atk,
+            defense: apiCard.def,
+            level: apiCard.level,
+            attribute: apiCard.attribute,
+            race: apiCard.race,
+          }
+        : undefined,
+
+    // 画像プロパティ
+    images: cardImage
+      ? {
+          image: cardImage.image_url,
+          imageSmall: cardImage.image_url_small,
+          imageCropped: cardImage.image_url_cropped,
+        }
+      : undefined,
+
+    // UI用プロパティ
+    ui: {
+      quantity,
+    },
   };
 }
 
