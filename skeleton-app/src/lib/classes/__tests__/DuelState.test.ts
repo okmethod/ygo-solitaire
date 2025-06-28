@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../DuelState";
 import type { CardData } from "$lib/types/card";
-import type { DeckData, LoadedCardEntry, MainDeckData } from "$lib/types/deck";
+import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData } from "$lib/types/deck";
 
 describe("DuelState", () => {
   let duelState: DuelState;
@@ -74,10 +74,16 @@ describe("DuelState", () => {
       traps,
     };
 
+    const extraDeckData: ExtraDeckData = {
+      fusion: [],
+      synchro: [],
+      xyz: [],
+    };
+
     deckData = {
       name: "テストデッキ",
       mainDeck: mainDeckData,
-      extraDeck: [],
+      extraDeck: extraDeckData,
       stats: {
         totalCards: 40,
         uniqueCards: 40,

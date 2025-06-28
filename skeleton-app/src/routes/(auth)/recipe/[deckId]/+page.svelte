@@ -5,6 +5,7 @@
 
   let { data }: { data: PageData } = $props();
   const { monsters, spells, traps } = data.deckData.mainDeck;
+  const { fusion, synchro, xyz } = data.deckData.extraDeck;
 
   function navigateToSimulator() {
     navigateTo(`/simulator/${data.deckId}`);
@@ -111,20 +112,91 @@
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">エクストラデッキ</h2>
       <span class="badge preset-tonal-surface text-sm"
-        >{data.deckData.extraDeck.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
+        >{fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
+          synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
+          xyz.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
       >
     </div>
 
-    <!-- TODO: シンクロ・エクシーズなどを分類する -->
-    <section>
-      {#if data.deckData.extraDeck.length > 0}
+    <!-- 融合モンスター -->
+    {#if fusion.length > 0}
+      <section>
+        <div class="mb-4 flex items-center space-x-4">
+          <h3 class="h4 flex items-center">
+            <span class="w-4 h-4 bg-purple-600 rounded mr-2"></span>
+            融合
+          </h3>
+          <span class="badge preset-tonal-surface text-sm"
+            >{fusion.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
+          >
+        </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each data.deckData.extraDeck as cardEntry (cardEntry.cardData.id)}
-            <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+          {#each fusion as cardEntry (cardEntry.cardData.id)}
+            <div class="relative">
+              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+              <div
+                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+              >
+                {cardEntry.quantity}
+              </div>
+            </div>
           {/each}
         </div>
-      {/if}
-    </section>
+      </section>
+    {/if}
+
+    <!-- シンクロモンスター -->
+    {#if synchro.length > 0}
+      <section>
+        <div class="mb-4 flex items-center space-x-4">
+          <h3 class="h4 flex items-center">
+            <span class="w-4 h-4 bg-white border border-gray-400 rounded mr-2"></span>
+            シンクロ
+          </h3>
+          <span class="badge preset-tonal-surface text-sm"
+            >{synchro.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
+          >
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+          {#each synchro as cardEntry (cardEntry.cardData.id)}
+            <div class="relative">
+              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+              <div
+                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+              >
+                {cardEntry.quantity}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </section>
+    {/if}
+
+    <!-- エクシーズモンスター -->
+    {#if xyz.length > 0}
+      <section>
+        <div class="mb-4 flex items-center space-x-4">
+          <h3 class="h4 flex items-center">
+            <span class="w-4 h-4 bg-black rounded mr-2"></span>
+            エクシーズ
+          </h3>
+          <span class="badge preset-tonal-surface text-sm">{xyz.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
+          >
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+          {#each xyz as cardEntry (cardEntry.cardData.id)}
+            <div class="relative">
+              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+              <div
+                class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+              >
+                {cardEntry.quantity}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </section>
+    {/if}
     <hr class="my-8 border-t border-gray-300" />
   </div>
 

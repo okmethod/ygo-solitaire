@@ -55,12 +55,21 @@ export interface MainDeckData {
 }
 
 /**
+ * エクストラデッキの構造（モンスタータイプ別に事前分類）
+ */
+export interface ExtraDeckData {
+  fusion: LoadedCardEntry[]; // 融合モンスター
+  synchro: LoadedCardEntry[]; // シンクロモンスター
+  xyz: LoadedCardEntry[]; // エクシーズモンスター
+}
+
+/**
  * ロード済みデッキデータ
  * CardDataと枚数を保持し、カードタイプ別に事前分類済み
  * フィルタリング処理を不要にしてパフォーマンス向上
  */
 export interface DeckData extends DeckBase {
   mainDeck: MainDeckData; // カードタイプ別に分類済み
-  extraDeck: LoadedCardEntry[]; // エクストラデッキ（分類不要）
+  extraDeck: ExtraDeckData; // モンスタータイプ別に分類済み
   stats: DeckStats; // 統計情報を事前計算
 }
