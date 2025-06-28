@@ -13,6 +13,36 @@
   }
 </script>
 
+<!-- 共通snippet -->
+{#snippet cardSection(title: string, cardCount: number, cards: LoadedCardEntry[], borderColor = "border-gray-400")}
+  <section>
+    <div class="badge preset-tonal-surface mb-3 grid grid-cols-12 items-center space-x-4 p-2 rounded-lg shadow-md">
+      <h3 class="col-span-2 h4 flex flex-col min-w-fit ml-2">
+        {title}
+        <span class="badge w-fit preset-tonal-surface text-sm">{cardCount}枚</span>
+      </h3>
+      {#if cards.length > 0}
+        <div class="col-span-9 flex-1 flex gap-2 ml-4">
+          {#each cards as cardEntry (cardEntry.cardData.id)}
+            <div class="relative">
+              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
+                <Card card={cardEntry.cardData} size="medium" showDetails={true} />
+              </div>
+              {#if cardEntry.quantity > 1}
+                <div
+                  class="absolute -top-2 -right-2 bg-primary-200 text-primary-900 text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md"
+                >
+                  {cardEntry.quantity}
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </section>
+{/snippet}
+
 <div class="container mx-auto p-4">
   <!-- ヘッダー -->
   <header class="my-6">
@@ -30,25 +60,25 @@
     <!-- メインデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">メインデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm"
+      <span class="badge preset-tonal-surface text-sm shadow-md"
         >{data.deckData.stats.monsterCount + data.deckData.stats.spellCount + data.deckData.stats.trapCount}枚</span
       >
     </div>
     <!-- モンスターカード -->
-    {@render cardSection("モンスター", "bg-yellow-500", data.deckData.stats.monsterCount, monsters)}
+    {@render cardSection("モンスター", data.deckData.stats.monsterCount, monsters)}
 
     <!-- 魔法カード -->
-    {@render cardSection("魔法", "bg-green-500", data.deckData.stats.spellCount, spells)}
+    {@render cardSection("魔法", data.deckData.stats.spellCount, spells)}
 
     <!-- 罠カード -->
-    {@render cardSection("罠", "bg-purple-500", data.deckData.stats.trapCount, traps)}
+    {@render cardSection("罠", data.deckData.stats.trapCount, traps)}
 
     <hr class="my-8 border-t border-gray-300" />
 
     <!-- エクストラデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">エクストラデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm"
+      <span class="badge preset-tonal-surface text-sm shadow-md"
         >{fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
           synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
           xyz.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
@@ -59,10 +89,8 @@
     {#if fusion.length > 0}
       {@render cardSection(
         "融合",
-        "bg-violet-600",
         fusion.reduce((sum, entry) => sum + entry.quantity, 0),
         fusion,
-        "border-violet-600",
       )}
     {/if}
 
@@ -70,10 +98,8 @@
     {#if synchro.length > 0}
       {@render cardSection(
         "シンクロ",
-        "bg-slate-300 border border-gray-500",
         synchro.reduce((sum, entry) => sum + entry.quantity, 0),
         synchro,
-        "border-slate-400",
       )}
     {/if}
 
@@ -81,10 +107,8 @@
     {#if xyz.length > 0}
       {@render cardSection(
         "エクシーズ",
-        "bg-gray-800",
         xyz.reduce((sum, entry) => sum + entry.quantity, 0),
         xyz,
-        "border-gray-800",
       )}
     {/if}
     <hr class="my-8 border-t border-gray-300" />
@@ -97,40 +121,3 @@
     </div>
   {/if}
 </div>
-
-<!-- 共通snippet -->
-{#snippet cardSection(
-  title: string,
-  iconColor: string,
-  cardCount: number,
-  cards: LoadedCardEntry[],
-  borderColor = "border-gray-400",
-)}
-  <section>
-    <div class="mb-3 flex items-center space-x-4">
-      <h3 class="h4 flex items-center min-w-fit">
-        <span class="w-4 h-4 {iconColor} rounded mr-2"></span>
-        {title}
-      </h3>
-      <span class="badge preset-tonal-surface text-sm">{cardCount}枚</span>
-      {#if cards.length > 0}
-        <div class="flex-1 grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-2 ml-4">
-          {#each cards as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-                <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              </div>
-              {#if cardEntry.quantity > 1}
-                <div
-                  class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-                >
-                  {cardEntry.quantity}
-                </div>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </section>
-{/snippet}

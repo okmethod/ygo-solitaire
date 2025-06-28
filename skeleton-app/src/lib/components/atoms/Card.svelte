@@ -36,7 +36,7 @@
   // サイズクラスの定義
   const sizeClasses = {
     small: "w-16 h-24",
-    medium: "w-20 h-32",
+    medium: "w-22 h-32",
     large: "w-32 h-48",
   };
 
@@ -87,12 +87,12 @@
   // カードタイプ別の背景色
   const typeClasses = $derived(
     card?.type === "monster"
-      ? "bg-yellow-100 dark:bg-yellow-800"
+      ? "bg-yellow-100 dark:bg-yellow-600"
       : card?.type === "spell"
-        ? "bg-green-100 dark:bg-green-800"
+        ? "bg-green-100 dark:bg-green-600"
         : card?.type === "trap"
-          ? "bg-purple-100 dark:bg-purple-800"
-          : "bg-surface-100-800-token",
+          ? "bg-purple-100 dark:bg-purple-600"
+          : "bg-surface-100-600-token",
   );
 
   // 共通クラス
