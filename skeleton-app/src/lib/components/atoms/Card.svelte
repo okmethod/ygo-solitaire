@@ -76,11 +76,11 @@
   // カードタイプ別の背景色
   const typeClasses = $derived(
     card?.type === "monster"
-      ? "bg-yellow-100 dark:bg-yellow-900"
+      ? "bg-yellow-100 dark:bg-yellow-800"
       : card?.type === "spell"
-        ? "bg-green-100 dark:bg-green-900"
+        ? "bg-green-100 dark:bg-green-800"
         : card?.type === "trap"
-          ? "bg-purple-100 dark:bg-purple-900"
+          ? "bg-purple-100 dark:bg-purple-800"
           : "bg-surface-100-800-token",
   );
 
@@ -138,15 +138,7 @@
       <div class="text-xs font-medium truncate">{card.name}</div>
       {#if showDetails || (isHovered && size !== "small")}
         <div class="text-xs opacity-75 mt-1">
-          {#if card.type === "monster" && card.monster?.attack !== undefined && card.monster?.defense !== undefined}
-            <div class="flex justify-between">
-              <span>ATK:{card.monster.attack}</span>
-              <span>DEF:{card.monster.defense}</span>
-            </div>
-          {/if}
-          {#if card.monster?.level}
-            <div class="text-xs opacity-50">Lv.{card.monster.level}</div>
-          {/if}
+          <!-- 何か追加するかも -->
         </div>
       {/if}
     </div>
