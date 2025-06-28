@@ -1,27 +1,23 @@
 import type { PageLoad } from "./$types";
 import { loadDeckData } from "$lib/utils/deckLoader";
+import { DuelState } from "$lib/classes/DuelState";
+import { DeckRecipe } from "$lib/classes/DeckRecipe";
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const { deckId } = params;
 
-  const deck = await loadDeckData(deckId, fetch);
+  const deckData = await loadDeckData(deckId, fetch);
+  const deck = new DeckRecipe(deckData);
 
-  // ゲーム初期状態を作成
-  const gameState = {
-    playerLifePoints: 8000,
-    opponentLifePoints: 8000,
-    currentTurn: 1,
-    currentPhase: "メインフェイズ1",
-    handCards: 5,
-    deckCards: deck.mainDeck.length,
-    extraDeckCards: deck.extraDeck.length,
-    graveyardCards: 0,
-    sourceRecipe: deck.name,
-  };
+  // DuelStateクラスを使用してゲーム初期状態を作成
+  const duelState = DuelState.loadRecipe(deck);
+
+  // 初期手札をドロー
+  duelState.drawInitialHands();
 
   return {
     deck,
-    gameState,
+    duelState,
     deckId,
   };
 };
