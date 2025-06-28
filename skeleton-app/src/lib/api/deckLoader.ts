@@ -1,4 +1,3 @@
-import type { PageLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import type { Card } from "$lib/types/card";
 import type { DeckRecipe } from "$lib/types/recipe";
@@ -6,12 +5,14 @@ import { convertYGOProDeckCardToCard } from "$lib/types/ygoprodeck";
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
-export const load: PageLoad = async ({ params, fetch }) => {
-  const { id } = params;
-  const recipeData = sampleDeckRecipes[id];
+/**
+ * デッキIDからデッキデータを取得する共通処理
+ */
+export async function loadDeckData(deckId: string, fetch: typeof window.fetch): Promise<DeckRecipe> {
+  const recipeData = sampleDeckRecipes[deckId];
 
   if (!recipeData) {
-    throw error(404, "レシピが見つかりません");
+    throw error(404, "デッキが見つかりません");
   }
 
   try {
@@ -52,7 +53,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     }
 
     // DeckRecipe形式に変換
-    const recipe: DeckRecipe = {
+    const deck: DeckRecipe = {
       name: recipeData.name,
       description: recipeData.description,
       category: recipeData.category,
@@ -60,12 +61,9 @@ export const load: PageLoad = async ({ params, fetch }) => {
       extraDeck: extraDeckCards,
     };
 
-    return {
-      recipe,
-      id,
-    };
+    return deck;
   } catch (err) {
-    console.error("カード情報の取得に失敗しました:", err);
-    throw error(500, "カード情報の取得に失敗しました");
+    console.error("デッキ情報の取得に失敗しました:", err);
+    throw error(500, "デッキ情報の取得に失敗しました");
   }
-};
+}
