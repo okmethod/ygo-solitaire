@@ -24,8 +24,8 @@ export interface CardUIProperties {
   quantity?: number; // デッキ内での枚数
 }
 
-// 基本のCardインターフェース
-export interface Card {
+// 静的なカードのデータ（APIから取得される不変のデータ）
+export interface CardData {
   // 必須プロパティ
   id: number; // YGOPRODeck API uses numeric IDs
   name: string;
@@ -41,8 +41,11 @@ export interface Card {
 
   // 画像プロパティ
   images?: CardImageProperties;
+}
 
-  // UI用プロパティ
+// ゲーム内で利用する動的なカードインスタンス
+export interface Card extends CardData {
+  // UI用プロパティ（動的な状態を含む）
   ui?: CardUIProperties;
 }
 
