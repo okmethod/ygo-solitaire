@@ -1,17 +1,13 @@
 <script lang="ts">
   interface GameInfoProps {
-    playerLifePoints?: number;
-    opponentLifePoints?: number;
-    currentTurn?: number;
-    currentPhase?: string;
+    deckName: string;
+    playerLifePoints: number;
+    opponentLifePoints: number;
+    currentTurn: number;
+    currentPhase: string;
   }
 
-  let {
-    playerLifePoints = 8000,
-    opponentLifePoints = 8000,
-    currentTurn = 1,
-    currentPhase = "メインフェーズ1",
-  }: GameInfoProps = $props();
+  let { deckName, playerLifePoints, opponentLifePoints, currentTurn, currentPhase }: GameInfoProps = $props();
 
   function getLifePointsColor(points: number, isPlayer: boolean = true) {
     if (points <= 0) return "text-error-500";
@@ -23,6 +19,10 @@
 
 <div class="space-y-4">
   <div class="flex flex-col gap-8 p-2 bg-surface-100-800-token/20">
+    <div class="flex items-center justify-between">
+      <span class="font-bold">{deckName}</span>
+    </div>
+
     <div class="flex items-center md:gap-1 md:text-center">
       <span class="opacity-75">ターン:</span>
       <span class="font-bold md:text-center">{currentTurn}</span>

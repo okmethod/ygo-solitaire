@@ -11,12 +11,12 @@ export const load: PageLoad = async ({ params, fetch }) => {
     playerLifePoints: 8000,
     opponentLifePoints: 8000,
     currentTurn: 1,
-    currentPhase: "メインフェーズ1",
-    gameStatus: "準備中" as const,
+    currentPhase: "メインフェイズ1",
     handCards: 5,
     deckCards: deck.mainDeck.length,
     extraDeckCards: deck.extraDeck.length,
     graveyardCards: 0,
+    sourceRecipe: deck.name,
   };
 
   return {

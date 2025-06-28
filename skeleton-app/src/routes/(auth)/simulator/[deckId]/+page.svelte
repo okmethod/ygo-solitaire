@@ -6,7 +6,7 @@
 
   export let data: PageData;
 
-  $: ({ deck, gameState } = data);
+  $: ({ gameState } = data);
 </script>
 
 <div class="container mx-auto p-4">
@@ -22,6 +22,7 @@
       </div>
       <div class="col-span-1 p-4">
         <GameInfo
+          deckName={gameState.sourceRecipe}
           playerLifePoints={gameState.playerLifePoints}
           opponentLifePoints={gameState.opponentLifePoints}
           currentTurn={gameState.currentTurn}
