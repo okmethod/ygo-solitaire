@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../DuelState";
 import type { CardData } from "$lib/types/card";
-import type { DeckData, LoadedCardEntry } from "$lib/types/deck";
+import type { DeckData, LoadedCardEntry, MainDeckData } from "$lib/types/deck";
 
 describe("DuelState", () => {
   let duelState: DuelState;
@@ -46,24 +46,44 @@ describe("DuelState", () => {
       description: "テスト用の魔法カード",
     };
 
-    // サンプルレシピを作成（LoadedCardEntry形式）
-    const mainDeck: LoadedCardEntry[] = Array(40)
+    // サンプルレシピを作成（新しい構造対応）
+    const monsters: LoadedCardEntry[] = Array(30)
       .fill(null)
       .map((_, i) => ({
-        cardData: { ...sampleCardData, id: 5000 + i, name: `カード${i}` },
+        cardData: { ...sampleCardData, id: 5000 + i, name: `モンスター${i}` },
         quantity: 1,
       }));
 
+    const spells: LoadedCardEntry[] = Array(8)
+      .fill(null)
+      .map((_, i) => ({
+        cardData: { ...spellCardData, id: 6000 + i, name: `魔法${i}` },
+        quantity: 1,
+      }));
+
+    const traps: LoadedCardEntry[] = Array(2)
+      .fill(null)
+      .map((_, i) => ({
+        cardData: { ...spellCardData, id: 7000 + i, name: `罠${i}`, type: "trap" as const },
+        quantity: 1,
+      }));
+
+    const mainDeckData: MainDeckData = {
+      monsters,
+      spells,
+      traps,
+    };
+
     deckData = {
       name: "テストデッキ",
-      mainDeck,
+      mainDeck: mainDeckData,
       extraDeck: [],
       stats: {
         totalCards: 40,
         uniqueCards: 40,
-        monsterCount: 40,
-        spellCount: 0,
-        trapCount: 0,
+        monsterCount: 30,
+        spellCount: 8,
+        trapCount: 2,
       },
     };
 
