@@ -17,7 +17,7 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let isSelected = $state(card?.isSelected || false);
+  let isSelected = $state(card?.ui?.isSelected || false);
 
   // サイズクラスの定義
   const sizeClasses = {
@@ -34,7 +34,8 @@
     if (selectable) {
       isSelected = !isSelected;
       if (card) {
-        card.isSelected = isSelected;
+        if (!card.ui) card.ui = {};
+        card.ui.isSelected = isSelected;
       }
     }
   }
@@ -105,8 +106,8 @@
   >
     <!-- カード画像エリア -->
     <div class="flex-1 flex items-center justify-center p-1">
-      {#if card?.image}
-        <img src={card.image} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+      {#if card?.images?.image}
+        <img src={card.images.image} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
       {:else if isPlaceholder}
         <div
           class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
@@ -135,14 +136,14 @@
         <div class="text-xs font-medium truncate">{card.name}</div>
         {#if showDetails || (isHovered && size !== "small")}
           <div class="text-xs opacity-75 mt-1">
-            {#if card.type === "monster" && card.attack !== undefined && card.defense !== undefined}
+            {#if card.type === "monster" && card.monster?.attack !== undefined && card.monster?.defense !== undefined}
               <div class="flex justify-between">
-                <span>ATK:{card.attack}</span>
-                <span>DEF:{card.defense}</span>
+                <span>ATK:{card.monster.attack}</span>
+                <span>DEF:{card.monster.defense}</span>
               </div>
             {/if}
-            {#if card.level}
-              <div class="text-xs opacity-50">Lv.{card.level}</div>
+            {#if card.monster?.level}
+              <div class="text-xs opacity-50">Lv.{card.monster.level}</div>
             {/if}
           </div>
         {/if}
@@ -169,8 +170,8 @@
   >
     <!-- カード画像エリア -->
     <div class="flex-1 flex items-center justify-center p-1">
-      {#if card?.image}
-        <img src={card.image} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+      {#if card?.images?.image}
+        <img src={card.images.image} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
       {:else if isPlaceholder}
         <div
           class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
@@ -199,14 +200,14 @@
         <div class="text-xs font-medium truncate">{card.name}</div>
         {#if showDetails || (isHovered && size !== "small")}
           <div class="text-xs opacity-75 mt-1">
-            {#if card.type === "monster" && card.attack !== undefined && card.defense !== undefined}
+            {#if card.type === "monster" && card.monster?.attack !== undefined && card.monster?.defense !== undefined}
               <div class="flex justify-between">
-                <span>ATK:{card.attack}</span>
-                <span>DEF:{card.defense}</span>
+                <span>ATK:{card.monster.attack}</span>
+                <span>DEF:{card.monster.defense}</span>
               </div>
             {/if}
-            {#if card.level}
-              <div class="text-xs opacity-50">Lv.{card.level}</div>
+            {#if card.monster?.level}
+              <div class="text-xs opacity-50">Lv.{card.monster.level}</div>
             {/if}
           </div>
         {/if}

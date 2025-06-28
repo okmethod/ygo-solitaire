@@ -86,7 +86,7 @@ export class DuelState {
   /**
    * カードをフィールドに召喚
    */
-  summonToField(cardId: string, zone: "monster" | "spellTrap", zoneIndex?: number): boolean {
+  summonToField(cardId: number, zone: "monster" | "spellTrap", zoneIndex?: number): boolean {
     const cardIndex = this.hands.findIndex((card) => card.id === cardId);
     if (cardIndex === -1) return false;
 
@@ -111,7 +111,7 @@ export class DuelState {
   /**
    * カードを墓地に送る
    */
-  sendToGraveyard(cardId: string, from: "hand" | "field"): boolean {
+  sendToGraveyard(cardId: number, from: "hand" | "field"): boolean {
     if (from === "hand") {
       const cardIndex = this.hands.findIndex((card) => card.id === cardId);
       if (cardIndex === -1) return false;
@@ -146,7 +146,7 @@ export class DuelState {
   /**
    * カードを除外する
    */
-  banishCard(cardId: string, from: "hand" | "field" | "graveyard"): boolean {
+  banishCard(cardId: number, from: "hand" | "field" | "graveyard"): boolean {
     let sourceArray: Card[];
     let targetIndex = -1;
 
@@ -176,7 +176,7 @@ export class DuelState {
   /**
    * フィールドからカードを除外
    */
-  private banishFromField(cardId: string): boolean {
+  private banishFromField(cardId: number): boolean {
     // モンスターゾーンをチェック
     for (let i = 0; i < this.field.monsterZones.length; i++) {
       if (this.field.monsterZones[i]?.id === cardId) {

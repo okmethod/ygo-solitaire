@@ -33,7 +33,6 @@
           opponentLifePoints={gameState.opponentLifePoints}
           currentTurn={gameState.currentTurn}
           currentPhase={gameState.currentPhase}
-          gameStatus={gameState.gameStatus}
         />
       </div>
     </div>

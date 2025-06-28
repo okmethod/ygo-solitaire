@@ -1,6 +1,22 @@
 import type { Card } from "$lib/types/card";
 
+// カード ID と枚数の組み合わせ
+export interface DeckCardEntry {
+  id: number; // YGOPRODeck API の数値 ID
+  quantity: number; // 枚数
+}
+
+// API 用のデッキレシピ（カード ID のみ保持）
 export interface DeckRecipeData {
+  name: string;
+  mainDeck: DeckCardEntry[];
+  extraDeck: DeckCardEntry[];
+  description?: string;
+  category?: string;
+}
+
+// UI 用のデッキレシピ（Card オブジェクト保持）
+export interface DeckRecipe {
   name: string;
   mainDeck: Card[];
   extraDeck: Card[];

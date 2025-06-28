@@ -1,5 +1,10 @@
 import type { Card } from "$lib/types/card";
-import type { DeckRecipeData, ValidationResult, ValidationError, CardTypeStats } from "$lib/types/recipe";
+import type {
+  DeckRecipe as DeckRecipeInterface,
+  ValidationResult,
+  ValidationError,
+  CardTypeStats,
+} from "$lib/types/recipe";
 
 /**
  * デッキレシピ管理クラス
@@ -14,7 +19,7 @@ export class DeckRecipe {
   public readonly description?: string;
   public readonly category?: string;
 
-  constructor(data: DeckRecipeData) {
+  constructor(data: DeckRecipeInterface) {
     this.name = data.name;
     this.mainDeck = Object.freeze([...data.mainDeck]);
     this.extraDeck = Object.freeze([...data.extraDeck]);
@@ -130,6 +135,7 @@ export class DeckRecipe {
           errors.push({
             type: "CARD_LIMIT",
             message: `「${cardName}」が制限枚数を超えています（${count}/${limit}枚）`,
+            cardId: card.id.toString(),
             cardName,
           });
         }
@@ -139,11 +145,11 @@ export class DeckRecipe {
 
   private validateForbiddenCards(errors: ValidationError[]): void {
     [...this.mainDeck, ...this.extraDeck].forEach((card) => {
-      if (card.restriction === "forbidden") {
+      if (card.frameType === "forbidden") {
         errors.push({
           type: "FORBIDDEN_CARD",
           message: `「${card.name}」は禁止カードです`,
-          cardId: card.id,
+          cardId: card.id.toString(),
           cardName: card.name,
         });
       }
@@ -151,7 +157,8 @@ export class DeckRecipe {
   }
 
   private getCardLimit(card: Card): number {
-    switch (card.restriction) {
+    // frameTypeベースの制限チェック
+    switch (card.frameType) {
       case "forbidden":
         return 0;
       case "limited":

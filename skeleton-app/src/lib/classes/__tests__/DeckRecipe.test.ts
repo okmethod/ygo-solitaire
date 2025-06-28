@@ -10,37 +10,57 @@ describe("DeckRecipe", () => {
 
   beforeEach(() => {
     sampleCard = {
-      id: "test-001",
+      id: 1001,
       name: "テストカード",
       type: "monster",
-      attack: 1000,
-      defense: 800,
-      level: 4,
-      restriction: "unlimited",
+      description: "テスト用のモンスターカード",
+      monster: {
+        attack: 1000,
+        defense: 800,
+        level: 4,
+        attribute: "LIGHT",
+        race: "Warrior",
+      },
+      ui: {
+        quantity: 1,
+      },
     };
 
     monsterCard = {
-      id: "monster-001",
+      id: 2001,
       name: "テストモンスター",
       type: "monster",
-      attack: 2000,
-      defense: 1500,
-      level: 5,
-      restriction: "unlimited",
+      description: "テスト用の強力なモンスターカード",
+      monster: {
+        attack: 2000,
+        defense: 1500,
+        level: 5,
+        attribute: "DARK",
+        race: "Dragon",
+      },
+      ui: {
+        quantity: 1,
+      },
     };
 
     spellCard = {
-      id: "spell-001",
+      id: 3001,
       name: "テスト魔法",
       type: "spell",
-      restriction: "unlimited",
+      description: "テスト用の魔法カード",
+      ui: {
+        quantity: 1,
+      },
     };
 
     trapCard = {
-      id: "trap-001",
+      id: 4001,
       name: "テスト罠",
       type: "trap",
-      restriction: "unlimited",
+      description: "テスト用の罠カード",
+      ui: {
+        quantity: 1,
+      },
     };
   });
 
@@ -86,7 +106,7 @@ describe("DeckRecipe", () => {
         name: "小さすぎるデッキ",
         mainDeck: Array(30)
           .fill(null)
-          .map((_, i) => ({ ...sampleCard, id: `card-${i}`, name: `カード${i}` })),
+          .map((_, i) => ({ ...sampleCard, id: 1000 + i, name: `カード${i}` })),
         extraDeck: [],
       });
 
@@ -101,7 +121,7 @@ describe("DeckRecipe", () => {
         name: "大きすぎるデッキ",
         mainDeck: Array(70)
           .fill(null)
-          .map((_, i) => ({ ...sampleCard, id: `card-${i}`, name: `カード${i}` })),
+          .map((_, i) => ({ ...sampleCard, id: 2000 + i, name: `カード${i}` })),
         extraDeck: [],
       });
 
@@ -115,7 +135,7 @@ describe("DeckRecipe", () => {
         name: "有効なデッキ",
         mainDeck: Array(40)
           .fill(null)
-          .map((_, i) => ({ ...sampleCard, id: `card-${i}`, name: `カード${i}` })),
+          .map((_, i) => ({ ...sampleCard, id: 3000 + i, name: `カード${i}` })),
         extraDeck: [],
       });
 
@@ -125,7 +145,7 @@ describe("DeckRecipe", () => {
     });
 
     it("should validate card limits", () => {
-      const limitedCard = { ...sampleCard, restriction: "limited" as const };
+      const limitedCard = { ...sampleCard, frameType: "limited" };
       const recipe = new DeckRecipe({
         name: "制限違反デッキ",
         mainDeck: [limitedCard, limitedCard], // limited カードを2枚
@@ -138,7 +158,7 @@ describe("DeckRecipe", () => {
     });
 
     it("should validate forbidden cards", () => {
-      const forbiddenCard = { ...sampleCard, restriction: "forbidden" as const };
+      const forbiddenCard = { ...sampleCard, frameType: "forbidden" };
       const recipe = new DeckRecipe({
         name: "禁止カードデッキ",
         mainDeck: [forbiddenCard],
