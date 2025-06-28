@@ -31,7 +31,7 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let isSelected = $state(card?.ui?.isSelected || false);
+  let isSelected = $state(card?.isSelected || false);
 
   // サイズクラスの定義
   const sizeClasses = {
@@ -47,10 +47,7 @@
     }
     if (selectable) {
       isSelected = !isSelected;
-      if (card) {
-        if (!card.ui) card.ui = {};
-        card.ui.isSelected = isSelected;
-      }
+      if (card) card.isSelected = isSelected;
     }
   }
 
