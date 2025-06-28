@@ -4,10 +4,10 @@ import { loadDeckData } from "$lib/utils/deckLoader";
 export const load: PageLoad = async ({ params, fetch }) => {
   const { deckId } = params;
 
-  const recipe = await loadDeckData(deckId, fetch);
+  const deckData = await loadDeckData(deckId, fetch);
 
   return {
-    recipe,
     deckId,
+    deckData,
   };
 };

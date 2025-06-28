@@ -1,7 +1,7 @@
-import type { DeckRecipeData } from "$lib/types/recipe";
+import type { DeckRecipe } from "$lib/types/deck";
 
 // 実際の遊戯王カードIDを使用したサンプルデッキレシピ
-export const sampleDeckRecipes: Record<string, DeckRecipeData> = {
+export const sampleDeckRecipes: Record<string, DeckRecipe> = {
   "blue-eyes-deck": {
     name: "青眼の白龍デッキ",
     description: "青眼の白龍を中心とした基本的なビートダウンデッキです",

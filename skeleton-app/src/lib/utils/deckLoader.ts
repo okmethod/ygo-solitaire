@@ -1,15 +1,9 @@
 import { error } from "@sveltejs/kit";
 import type { Card } from "$lib/types/card";
-import type { DeckRecipe } from "$lib/types/recipe";
+import type { DeckCardEntry, DeckData } from "$lib/types/deck";
 import { convertYGOProDeckCardToCard, type YGOProDeckCard } from "$lib/types/ygoprodeck";
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
-
-// DeckCardEntry型を定義（recipe.tsのprivate型）
-interface DeckCardEntry {
-  id: number;
-  quantity: number;
-}
 
 // デッキエントリーからCard配列を作成する内部関数
 function buildCardArray(ygoCardMap: Map<number, YGOProDeckCard>, entries: DeckCardEntry[]): Card[] {
@@ -28,17 +22,16 @@ function buildCardArray(ygoCardMap: Map<number, YGOProDeckCard>, entries: DeckCa
 }
 
 /**
- * デッキIDからデッキデータを取得する共通処理
+ * デッキレシピからデッキデータを生成する
  */
-export async function loadDeckData(deckId: string, fetch: typeof window.fetch): Promise<DeckRecipe> {
-  const recipeData = sampleDeckRecipes[deckId];
-
-  if (!recipeData) {
+export async function loadDeckData(deckId: string, fetch: typeof window.fetch): Promise<DeckData> {
+  const recipe = sampleDeckRecipes[deckId];
+  if (!recipe) {
     throw error(404, "デッキが見つかりません");
   }
 
   // メインデッキとエクストラデッキの全カード ID を取得
-  const allCardEntries = [...recipeData.mainDeck, ...recipeData.extraDeck];
+  const allCardEntries = [...recipe.mainDeck, ...recipe.extraDeck];
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
   // API でカード情報を取得
@@ -54,17 +47,16 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
 
   // メインデッキとエクストラデッキのカード配列を作成
-  const mainDeckCards = buildCardArray(ygoCardMap, recipeData.mainDeck);
-  const extraDeckCards = buildCardArray(ygoCardMap, recipeData.extraDeck);
+  const mainDeckCards = buildCardArray(ygoCardMap, recipe.mainDeck);
+  const extraDeckCards = buildCardArray(ygoCardMap, recipe.extraDeck);
 
-  // DeckRecipe形式に変換
-  const recipe: DeckRecipe = {
-    name: recipeData.name,
-    description: recipeData.description,
-    category: recipeData.category,
+  const deckData: DeckData = {
+    name: recipe.name,
+    description: recipe.description,
+    category: recipe.category,
     mainDeck: mainDeckCards,
     extraDeck: extraDeckCards,
   };
 
-  return recipe;
+  return deckData;
 }

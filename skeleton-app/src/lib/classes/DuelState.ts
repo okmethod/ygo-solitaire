@@ -1,6 +1,6 @@
 import type { Card } from "$lib/types/card";
 import type { DuelStateData, DuelStats } from "$lib/types/duel";
-import { Deck } from "$lib/classes/Deck";
+import type { DeckData } from "$lib/types/deck";
 
 /**
  * ゲーム状態管理クラス
@@ -51,12 +51,12 @@ export class DuelState {
   /**
    * デッキレシピをロードしてインスタンスを作成
    */
-  static loadDeck(deck: Deck, name?: string): DuelState {
+  static loadDeck(deckData: DeckData, name?: string): DuelState {
     return new DuelState({
-      name: name || deck.name,
-      mainDeck: [...deck.mainDeck],
-      extraDeck: [...deck.extraDeck],
-      sourceRecipe: deck.name,
+      name: name || deckData.name,
+      mainDeck: [...deckData.mainDeck],
+      extraDeck: [...deckData.extraDeck],
+      sourceRecipe: deckData.name,
     });
   }
 
