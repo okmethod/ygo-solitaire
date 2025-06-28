@@ -1,33 +1,27 @@
 import type { Card } from "$lib/types/card";
 
 // カード ID と枚数の組み合わせ
-export interface DeckCardEntry {
+interface DeckCardEntry {
   id: number; // YGOPRODeck API の数値 ID
   quantity: number; // 枚数
 }
 
-// API 用のデッキレシピ（カード ID のみ保持）
-export interface DeckRecipeData {
+interface BaseDeckRecipe {
   name: string;
+  description?: string;
+  category?: string;
+}
+
+// 保存用デッキレシピ（カードIDのみ保持）
+export interface DeckRecipeData extends BaseDeckRecipe {
   mainDeck: DeckCardEntry[];
   extraDeck: DeckCardEntry[];
-  description?: string;
-  category?: string;
 }
 
-// UI 用のデッキレシピ（Card オブジェクト保持）
-export interface DeckRecipe {
-  name: string;
+// UI用デッキレシピ（Card オブジェクト保持）
+export interface DeckRecipe extends BaseDeckRecipe {
   mainDeck: Card[];
   extraDeck: Card[];
-  description?: string;
-  category?: string;
-}
-
-export interface ValidationResult {
-  isValid: boolean;
-  errors: ValidationError[];
-  warnings: ValidationWarning[];
 }
 
 export interface ValidationError {
@@ -41,6 +35,12 @@ export interface ValidationWarning {
   type: "DECK_RECOMMENDATION" | "CARD_SYNERGY";
   message: string;
   cardId?: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
 }
 
 export interface CardTypeStats {
