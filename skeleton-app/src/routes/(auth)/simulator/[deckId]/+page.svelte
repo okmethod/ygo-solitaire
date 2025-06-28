@@ -23,11 +23,11 @@
       </div>
       <div class="col-span-1 p-4">
         <GameInfo
-          deckName={duelState.sourceRecipe || ""}
-          playerLifePoints={8000}
-          opponentLifePoints={8000}
-          currentTurn={1}
-          currentPhase="メインフェイズ1"
+          deckName={duelStats.gameStatus.deckName}
+          playerLifePoints={duelStats.gameStatus.playerLifePoints}
+          opponentLifePoints={duelStats.gameStatus.opponentLifePoints}
+          currentTurn={duelStats.gameStatus.currentTurn}
+          currentPhase={duelStats.gameStatus.currentPhase}
         />
       </div>
     </div>

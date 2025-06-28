@@ -28,4 +28,11 @@ export interface DuelStats {
     spellTrapsOnField: number;
     hasFieldSpell: boolean;
   };
+  gameStatus: {
+    deckName: string;
+    playerLifePoints: number;
+    opponentLifePoints: number;
+    currentTurn: number;
+    currentPhase: string;
+  };
 }

@@ -22,6 +22,10 @@ export class DuelState {
   public banished: Card[];
   public createdAt: Date;
   public sourceRecipe?: string;
+  public playerLifePoints: number;
+  public opponentLifePoints: number;
+  public currentTurn: number;
+  public currentPhase: string;
 
   constructor(data: Partial<DuelStateData> = {}) {
     this.name = data.name || "No Name";
@@ -38,6 +42,10 @@ export class DuelState {
     this.banished = data.banished ? [...data.banished] : [];
     this.createdAt = data.createdAt || new Date();
     this.sourceRecipe = data.sourceRecipe;
+    this.playerLifePoints = 8000;
+    this.opponentLifePoints = 8000;
+    this.currentTurn = 1;
+    this.currentPhase = "メインフェイズ1";
   }
 
   /**
@@ -214,6 +222,13 @@ export class DuelState {
         monstersOnField: this.field.monsterZones.filter((zone) => zone !== null).length,
         spellTrapsOnField: this.field.spellTrapZones.filter((zone) => zone !== null).length,
         hasFieldSpell: this.field.fieldSpell !== null,
+      },
+      gameStatus: {
+        deckName: this.sourceRecipe || "",
+        playerLifePoints: this.playerLifePoints,
+        opponentLifePoints: this.opponentLifePoints,
+        currentTurn: this.currentTurn,
+        currentPhase: this.currentPhase,
       },
     };
   }
