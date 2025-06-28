@@ -1,6 +1,20 @@
 <script lang="ts">
-  import type { CardComponentProps } from "$lib/types/card";
+  import type { Card } from "$lib/types/card";
   import cardBackImage from "$lib/assets/CardBack.jpg";
+
+  interface CardComponentProps {
+    card?: Card;
+    size?: "small" | "medium" | "large";
+    showDetails?: boolean;
+    clickable?: boolean;
+    selectable?: boolean;
+    placeholder?: boolean;
+    placeholderText?: string;
+    rotation?: number;
+    animate?: boolean;
+    onClick?: (card: Card) => void;
+    onHover?: (card: Card | null) => void;
+  }
 
   let {
     card,
@@ -17,7 +31,7 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let isSelected = $state(card?.ui?.isSelected || false);
+  let isSelected = $state(card?.isSelected || false);
 
   // サイズクラスの定義
   const sizeClasses = {
@@ -33,10 +47,7 @@
     }
     if (selectable) {
       isSelected = !isSelected;
-      if (card) {
-        if (!card.ui) card.ui = {};
-        card.ui.isSelected = isSelected;
-      }
+      if (card) card.isSelected = isSelected;
     }
   }
 

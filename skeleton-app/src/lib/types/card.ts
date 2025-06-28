@@ -1,8 +1,6 @@
-// カードタイプの定義
 export type CardType = "monster" | "spell" | "trap";
 
-// モンスターカード専用のプロパティ
-export interface MonsterCardProperties {
+interface MonsterCardProperties {
   attack?: number;
   defense?: number;
   level?: number;
@@ -10,22 +8,14 @@ export interface MonsterCardProperties {
   race?: string;
 }
 
-// カード画像のプロパティ
-export interface CardImageProperties {
+interface CardImageProperties {
   image?: string; // URL to card image
   imageSmall?: string; // URL to small card image
   imageCropped?: string; // URL to cropped card image
 }
 
-// UI用のプロパティ
-export interface CardUIProperties {
-  isSelected?: boolean;
-  position?: "attack" | "defense" | "facedown";
-  quantity?: number; // デッキ内での枚数
-}
-
-// 基本のCardインターフェース
-export interface Card {
+// 静的なカードデータ
+export interface CardData {
   // 必須プロパティ
   id: number; // YGOPRODeck API uses numeric IDs
   name: string;
@@ -41,21 +31,11 @@ export interface Card {
 
   // 画像プロパティ
   images?: CardImageProperties;
-
-  // UI用プロパティ
-  ui?: CardUIProperties;
 }
 
-export interface CardComponentProps {
-  card?: Card;
-  size?: "small" | "medium" | "large";
-  showDetails?: boolean;
-  clickable?: boolean;
-  selectable?: boolean;
-  placeholder?: boolean;
-  placeholderText?: string;
-  rotation?: number;
-  animate?: boolean;
-  onClick?: (card: Card) => void;
-  onHover?: (card: Card | null) => void;
+// ゲームで使用する動的なカードインスタンス用のインターフェース
+export interface Card extends CardData {
+  isSelected?: boolean;
+  position?: "attack" | "defense" | "facedown";
+  quantity?: number; // デッキ内での枚数
 }
