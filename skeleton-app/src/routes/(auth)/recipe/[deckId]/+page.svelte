@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigateTo } from "$lib/utils/navigation";
   import Card from "$lib/components/atoms/Card.svelte";
-  import type { DeckCardData } from "$lib/types/deck";
+  import type { LoadedCardEntry } from "$lib/types/deck";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -11,16 +11,18 @@
     navigateTo(`/simulator/${data.deckId}`);
   }
 
-  // カードタイプ別にフィルタする関数（DeckCardData用）
-  function getCardsByType(cards: DeckCardData[], type: string) {
-    return cards.filter((cardData) => cardData.card.type === type);
+  // カードタイプ別にフィルタする関数（LoadedCardEntry用）
+  function getCardsByType(cards: LoadedCardEntry[], type: string) {
+    return cards.filter((cardEntry) => cardEntry.card.type === type);
   }
 
-  // カードタイプ別の統計情報
+  // カードタイプ別の統計情報（事前計算された統計を使用）
   const monsterCards = getCardsByType(selectedDeckData.mainDeck, "monster");
   const spellCards = getCardsByType(selectedDeckData.mainDeck, "spell");
   const trapCards = getCardsByType(selectedDeckData.mainDeck, "trap");
-  const totalCards = selectedDeckData.mainDeck.reduce((sum, cardData) => sum + cardData.quantity, 0);
+
+  // 統計情報は事前計算済み
+  const { totalCards, monsterCount, spellCount, trapCount } = selectedDeckData.stats;
 </script>
 
 <div class="container mx-auto p-4">
@@ -49,9 +51,7 @@
           <span class="w-4 h-4 bg-yellow-500 rounded mr-2"></span>
           モンスター
         </h3>
-        <span class="badge preset-tonal-surface text-sm"
-          >{monsterCards.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
-        >
+        <span class="badge preset-tonal-surface text-sm">{monsterCount}枚</span>
       </div>
       {#if monsterCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
@@ -76,9 +76,7 @@
           <span class="w-4 h-4 bg-green-500 rounded mr-2"></span>
           魔法
         </h3>
-        <span class="badge preset-tonal-surface text-sm"
-          >{spellCards.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
-        >
+        <span class="badge preset-tonal-surface text-sm">{spellCount}枚</span>
       </div>
       {#if spellCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
@@ -103,9 +101,7 @@
           <span class="w-4 h-4 bg-purple-500 rounded mr-2"></span>
           罠
         </h3>
-        <span class="badge preset-tonal-surface text-sm"
-          >{trapCards.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
-        >
+        <span class="badge preset-tonal-surface text-sm">{trapCount}枚</span>
       </div>
       {#if trapCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">

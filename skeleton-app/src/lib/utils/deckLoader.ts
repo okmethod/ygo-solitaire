@@ -1,23 +1,54 @@
 import { error } from "@sveltejs/kit";
-import type { DeckCardEntry, DeckCardData, DeckData } from "$lib/types/deck";
+import type { RecipeCardEntry, LoadedCardEntry, DeckData, DeckStats } from "$lib/types/deck";
 import { convertYGOProDeckCardToCardData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
-// デッキエントリーからDeckCardData配列を作成する内部関数
-function buildDeckCardDataArray(ygoCardMap: Map<number, YGOProDeckCard>, entries: DeckCardEntry[]): DeckCardData[] {
-  const deckCards: DeckCardData[] = [];
+// デッキエントリーからLoadedCardEntry配列を作成する内部関数
+function buildLoadedCardEntries(
+  ygoCardMap: Map<number, YGOProDeckCard>,
+  entries: RecipeCardEntry[],
+): LoadedCardEntry[] {
+  const loadedCards: LoadedCardEntry[] = [];
   for (const entry of entries) {
     const ygoCard = ygoCardMap.get(entry.id);
     if (ygoCard) {
       const cardData = convertYGOProDeckCardToCardData(ygoCard);
-      deckCards.push({
+      loadedCards.push({
         card: cardData,
         quantity: entry.quantity,
       });
     }
   }
-  return deckCards;
+  return loadedCards;
+}
+
+// デッキ統計情報を計算する内部関数
+function calculateDeckStats(mainDeck: LoadedCardEntry[], extraDeck: LoadedCardEntry[]): DeckStats {
+  const allCards = [...mainDeck, ...extraDeck];
+
+  const totalCards = allCards.reduce((sum, entry) => sum + entry.quantity, 0);
+  const uniqueCards = allCards.length;
+
+  const monsterCount = mainDeck
+    .filter((entry) => entry.card.type === "monster")
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+
+  const spellCount = mainDeck
+    .filter((entry) => entry.card.type === "spell")
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+
+  const trapCount = mainDeck
+    .filter((entry) => entry.card.type === "trap")
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+
+  return {
+    totalCards,
+    uniqueCards,
+    monsterCount,
+    spellCount,
+    trapCount,
+  };
 }
 
 /**
@@ -46,8 +77,11 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
 
   // メインデッキとエクストラデッキのカード配列を作成
-  const mainDeckCards = buildDeckCardDataArray(ygoCardMap, recipe.mainDeck);
-  const extraDeckCards = buildDeckCardDataArray(ygoCardMap, recipe.extraDeck);
+  const mainDeckCards = buildLoadedCardEntries(ygoCardMap, recipe.mainDeck);
+  const extraDeckCards = buildLoadedCardEntries(ygoCardMap, recipe.extraDeck);
+
+  // 統計情報を計算
+  const stats = calculateDeckStats(mainDeckCards, extraDeckCards);
 
   const deckData: DeckData = {
     name: recipe.name,
@@ -55,6 +89,7 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
     category: recipe.category,
     mainDeck: mainDeckCards,
     extraDeck: extraDeckCards,
+    stats,
   };
 
   return deckData;

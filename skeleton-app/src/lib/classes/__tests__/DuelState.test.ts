@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../DuelState";
 import type { CardData } from "$lib/types/card";
-import type { DeckData, DeckCardData } from "$lib/types/deck";
+import type { DeckData, LoadedCardEntry } from "$lib/types/deck";
 
 describe("DuelState", () => {
   let duelState: DuelState;
@@ -46,8 +46,8 @@ describe("DuelState", () => {
       description: "テスト用の魔法カード",
     };
 
-    // サンプルレシピを作成（DeckCardData形式）
-    const mainDeck: DeckCardData[] = Array(40)
+    // サンプルレシピを作成（LoadedCardEntry形式）
+    const mainDeck: LoadedCardEntry[] = Array(40)
       .fill(null)
       .map((_, i) => ({
         card: { ...sampleCardData, id: 5000 + i, name: `カード${i}` },
@@ -58,6 +58,13 @@ describe("DuelState", () => {
       name: "テストデッキ",
       mainDeck,
       extraDeck: [],
+      stats: {
+        totalCards: 40,
+        uniqueCards: 40,
+        monsterCount: 40,
+        spellCount: 0,
+        trapCount: 0,
+      },
     };
 
     duelState = new DuelState();

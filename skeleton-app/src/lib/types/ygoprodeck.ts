@@ -89,13 +89,12 @@ export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardDa
   };
 }
 
-export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard, quantity = 1): Card {
+export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard): Card {
   const cardData = convertYGOProDeckCardToCardData(apiCard);
 
   return {
     ...cardData,
-    // UI用プロパティ
-    quantity,
+    // ゲーム状態プロパティは初期値なし（必要に応じて後で設定）
   };
 }
 
