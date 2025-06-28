@@ -33,7 +33,7 @@ export interface CardData {
   images?: CardImageProperties;
 }
 
-// ゲームで動的なカードインスタンス用のインターフェース
+// ゲームで使用する動的なカードインスタンス用のインターフェース
 export interface Card extends CardData {
   isSelected?: boolean;
   position?: "attack" | "defense" | "facedown";
