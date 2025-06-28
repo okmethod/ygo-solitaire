@@ -7,8 +7,8 @@ import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
 export const load: PageLoad = async ({ params, fetch }) => {
-  const { id } = params;
-  const recipeData = sampleDeckRecipes[id];
+  const { deckId } = params;
+  const recipeData = sampleDeckRecipes[deckId];
 
   if (!recipeData) {
     throw error(404, "デッキが見つかりません");
@@ -76,7 +76,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     return {
       deck,
       gameState,
-      id,
+      deckId,
     };
   } catch (err) {
     console.error("デッキ情報の取得に失敗しました:", err);
