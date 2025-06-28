@@ -106,8 +106,8 @@
   >
     <!-- カード画像エリア -->
     <div class="flex-1 flex items-center justify-center p-1">
-      {#if card?.images?.image}
-        <img src={card.images.image} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+      {#if card?.images?.imageCropped}
+        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
       {:else if isPlaceholder}
         <div
           class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
@@ -170,8 +170,8 @@
   >
     <!-- カード画像エリア -->
     <div class="flex-1 flex items-center justify-center p-1">
-      {#if card?.images?.image}
-        <img src={card.images.image} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+      {#if card?.images?.imageCropped}
+        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
       {:else if isPlaceholder}
         <div
           class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
