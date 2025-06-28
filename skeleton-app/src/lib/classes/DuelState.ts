@@ -53,9 +53,9 @@ export class DuelState {
    */
   private static expandLoadedCardEntries(loadedCardEntries: LoadedCardEntry[]): Card[] {
     const cards: Card[] = [];
-    for (const { card, quantity } of loadedCardEntries) {
+    for (const { cardData, quantity } of loadedCardEntries) {
       for (let i = 0; i < quantity; i++) {
-        cards.push({ ...card });
+        cards.push({ ...cardData });
       }
     }
     return cards;

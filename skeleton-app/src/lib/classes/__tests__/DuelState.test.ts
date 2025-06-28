@@ -50,7 +50,7 @@ describe("DuelState", () => {
     const mainDeck: LoadedCardEntry[] = Array(40)
       .fill(null)
       .map((_, i) => ({
-        card: { ...sampleCardData, id: 5000 + i, name: `カード${i}` },
+        cardData: { ...sampleCardData, id: 5000 + i, name: `カード${i}` },
         quantity: 1,
       }));
 

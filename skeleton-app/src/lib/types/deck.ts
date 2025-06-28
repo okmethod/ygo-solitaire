@@ -15,7 +15,7 @@ export interface RecipeCardEntry {
  * UI表示やゲーム処理で使用
  */
 export interface LoadedCardEntry {
-  card: CardData; // カードの静的データ
+  cardData: CardData; // カードの静的データ
   quantity: number; // 枚数
 }
 

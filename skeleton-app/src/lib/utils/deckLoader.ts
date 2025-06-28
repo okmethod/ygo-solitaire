@@ -15,7 +15,7 @@ function buildLoadedCardEntries(
     if (ygoCard) {
       const cardData = convertYGOProDeckCardToCardData(ygoCard);
       loadedCards.push({
-        card: cardData,
+        cardData: cardData,
         quantity: entry.quantity,
       });
     }
@@ -31,15 +31,15 @@ function calculateDeckStats(mainDeck: LoadedCardEntry[], extraDeck: LoadedCardEn
   const uniqueCards = allCards.length;
 
   const monsterCount = mainDeck
-    .filter((entry) => entry.card.type === "monster")
+    .filter((entry) => entry.cardData.type === "monster")
     .reduce((sum, entry) => sum + entry.quantity, 0);
 
   const spellCount = mainDeck
-    .filter((entry) => entry.card.type === "spell")
+    .filter((entry) => entry.cardData.type === "spell")
     .reduce((sum, entry) => sum + entry.quantity, 0);
 
   const trapCount = mainDeck
-    .filter((entry) => entry.card.type === "trap")
+    .filter((entry) => entry.cardData.type === "trap")
     .reduce((sum, entry) => sum + entry.quantity, 0);
 
   return {

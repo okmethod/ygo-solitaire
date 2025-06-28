@@ -13,7 +13,7 @@
 
   // カードタイプ別にフィルタする関数（LoadedCardEntry用）
   function getCardsByType(cards: LoadedCardEntry[], type: string) {
-    return cards.filter((cardEntry) => cardEntry.card.type === type);
+    return cards.filter((cardEntry) => cardEntry.cardData.type === type);
   }
 
   // カードタイプ別の統計情報（事前計算された統計を使用）
@@ -55,13 +55,13 @@
       </div>
       {#if monsterCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each monsterCards as cardData (cardData.card.id)}
+          {#each monsterCards as cardEntry (cardEntry.cardData.id)}
             <div class="relative">
-              <Card card={cardData.card} size="medium" showDetails={true} />
+              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
               <div
                 class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
               >
-                {cardData.quantity}
+                {cardEntry.quantity}
               </div>
             </div>
           {/each}
@@ -80,13 +80,13 @@
       </div>
       {#if spellCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each spellCards as cardData (cardData.card.id)}
+          {#each spellCards as cardEntry (cardEntry.cardData.id)}
             <div class="relative">
-              <Card card={cardData.card} size="medium" showDetails={true} />
+              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
               <div
                 class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
               >
-                {cardData.quantity}
+                {cardEntry.quantity}
               </div>
             </div>
           {/each}
@@ -105,13 +105,13 @@
       </div>
       {#if trapCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each trapCards as cardData (cardData.card.id)}
+          {#each trapCards as cardEntry (cardEntry.cardData.id)}
             <div class="relative">
-              <Card card={cardData.card} size="medium" showDetails={true} />
+              <Card card={cardEntry.cardData} size="medium" showDetails={true} />
               <div
                 class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
               >
-                {cardData.quantity}
+                {cardEntry.quantity}
               </div>
             </div>
           {/each}
@@ -133,8 +133,8 @@
     <section>
       {#if selectedDeckData.extraDeck.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each selectedDeckData.extraDeck as cardData (cardData.card.id)}
-            <Card card={cardData.card} size="medium" showDetails={true} />
+          {#each selectedDeckData.extraDeck as cardEntry (cardEntry.cardData.id)}
+            <Card card={cardEntry.cardData} size="medium" showDetails={true} />
           {/each}
         </div>
       {/if}
