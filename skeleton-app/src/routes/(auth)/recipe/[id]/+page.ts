@@ -6,7 +6,7 @@ import { error } from "@sveltejs/kit";
 import type { Card } from "$lib/types/card";
 import type { DeckRecipe } from "$lib/types/recipe";
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, fetch }) => {
   const { id } = params;
   const recipeData = sampleDeckRecipes[id];
 
@@ -20,7 +20,7 @@ export const load: PageLoad = async ({ params }) => {
     const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
     // API からカード情報を取得
-    const apiCards = await getCardsByIds(uniqueCardIds);
+    const apiCards = await getCardsByIds(fetch, uniqueCardIds);
 
     // カード情報をマップに変換
     const cardMap = new Map(apiCards.map((card) => [card.id, card]));
