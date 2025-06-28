@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../DuelState";
-import type { Card } from "$lib/types/card";
-import type { DeckData } from "$lib/types/deck";
+import type { CardData } from "$lib/types/card";
+import type { DeckData, LoadedCardEntry } from "$lib/types/deck";
 
 describe("DuelState", () => {
   let duelState: DuelState;
   let deckData: DeckData;
-  let sampleCard: Card;
-  let monsterCard: Card;
-  let spellCard: Card;
+  let sampleCardData: CardData;
+  let monsterCardData: CardData;
+  let spellCardData: CardData;
 
   beforeEach(() => {
-    sampleCard = {
+    sampleCardData = {
       id: 1001,
       name: "テストカード",
       type: "monster",
@@ -23,12 +23,9 @@ describe("DuelState", () => {
         attribute: "LIGHT",
         race: "Warrior",
       },
-      ui: {
-        quantity: 1,
-      },
     };
 
-    monsterCard = {
+    monsterCardData = {
       id: 2001,
       name: "テストモンスター",
       type: "monster",
@@ -40,30 +37,34 @@ describe("DuelState", () => {
         attribute: "DARK",
         race: "Dragon",
       },
-      ui: {
-        quantity: 1,
-      },
     };
 
-    spellCard = {
+    spellCardData = {
       id: 3001,
       name: "テスト魔法",
       type: "spell",
       description: "テスト用の魔法カード",
-      ui: {
-        quantity: 1,
-      },
     };
 
-    // サンプルレシピを作成
-    const mainDeck = Array(40)
+    // サンプルレシピを作成（LoadedCardEntry形式）
+    const mainDeck: LoadedCardEntry[] = Array(40)
       .fill(null)
-      .map((_, i) => ({ ...sampleCard, id: 5000 + i, name: `カード${i}` }));
+      .map((_, i) => ({
+        cardData: { ...sampleCardData, id: 5000 + i, name: `カード${i}` },
+        quantity: 1,
+      }));
 
     deckData = {
       name: "テストデッキ",
       mainDeck,
       extraDeck: [],
+      stats: {
+        totalCards: 40,
+        uniqueCards: 40,
+        monsterCount: 40,
+        spellCount: 0,
+        trapCount: 0,
+      },
     };
 
     duelState = new DuelState();
@@ -105,7 +106,7 @@ describe("DuelState", () => {
       // デッキにカードを追加
       const cards = [];
       for (let i = 0; i < 10; i++) {
-        const card = { ...sampleCard, id: 6000 + i, name: `シャッフルカード${i}` };
+        const card = { ...sampleCardData, id: 6000 + i, name: `シャッフルカード${i}` };
         cards.push(card);
         duelState.mainDeck.push(card);
       }
@@ -126,7 +127,7 @@ describe("DuelState", () => {
     beforeEach(() => {
       // デッキに5枚追加
       for (let i = 0; i < 5; i++) {
-        duelState.mainDeck.push({ ...sampleCard, id: 7000 + i });
+        duelState.mainDeck.push({ ...sampleCardData, id: 7000 + i });
       }
     });
 
@@ -159,7 +160,7 @@ describe("DuelState", () => {
   describe("drawInitialHands", () => {
     beforeEach(() => {
       for (let i = 0; i < 10; i++) {
-        duelState.mainDeck.push({ ...sampleCard, id: 8000 + i });
+        duelState.mainDeck.push({ ...sampleCardData, id: 8000 + i });
       }
     });
 
@@ -182,31 +183,31 @@ describe("DuelState", () => {
 
   describe("summonToField", () => {
     beforeEach(() => {
-      duelState.hands.push(monsterCard);
-      duelState.hands.push(spellCard);
+      duelState.hands.push({ ...monsterCardData });
+      duelState.hands.push({ ...spellCardData });
     });
 
     it("should summon monster to monster zone", () => {
-      const result = duelState.summonToField(monsterCard.id, "monster");
+      const result = duelState.summonToField(monsterCardData.id, "monster");
 
       expect(result).toBe(true);
-      expect(duelState.field.monsterZones[0]).toEqual(monsterCard);
+      expect(duelState.field.monsterZones[0]).toEqual({ ...monsterCardData });
       expect(duelState.hands).toHaveLength(1); // spellCardのみ残る
     });
 
     it("should place spell in spell/trap zone", () => {
-      const result = duelState.summonToField(spellCard.id, "spellTrap");
+      const result = duelState.summonToField(spellCardData.id, "spellTrap");
 
       expect(result).toBe(true);
-      expect(duelState.field.spellTrapZones[0]).toEqual(spellCard);
+      expect(duelState.field.spellTrapZones[0]).toEqual({ ...spellCardData });
       expect(duelState.hands).toHaveLength(1); // monsterCardのみ残る
     });
 
     it("should place card in specific zone", () => {
-      const result = duelState.summonToField(monsterCard.id, "monster", 2);
+      const result = duelState.summonToField(monsterCardData.id, "monster", 2);
 
       expect(result).toBe(true);
-      expect(duelState.field.monsterZones[2]).toEqual(monsterCard);
+      expect(duelState.field.monsterZones[2]).toEqual({ ...monsterCardData });
       expect(duelState.field.monsterZones[0]).toBeNull();
     });
 
@@ -218,26 +219,26 @@ describe("DuelState", () => {
 
   describe("sendToGraveyard", () => {
     beforeEach(() => {
-      duelState.hands.push(sampleCard);
-      duelState.field.monsterZones[0] = monsterCard;
+      duelState.hands.push({ ...sampleCardData });
+      duelState.field.monsterZones[0] = { ...monsterCardData };
     });
 
     it("should send card from hand to graveyard", () => {
-      const result = duelState.sendToGraveyard(sampleCard.id, "hand");
+      const result = duelState.sendToGraveyard(sampleCardData.id, "hand");
 
       expect(result).toBe(true);
       expect(duelState.hands).toHaveLength(0);
       expect(duelState.graveyard).toHaveLength(1);
-      expect(duelState.graveyard[0]).toEqual(sampleCard);
+      expect(duelState.graveyard[0]).toEqual({ ...sampleCardData });
     });
 
     it("should send card from field to graveyard", () => {
-      const result = duelState.sendToGraveyard(monsterCard.id, "field");
+      const result = duelState.sendToGraveyard(monsterCardData.id, "field");
 
       expect(result).toBe(true);
       expect(duelState.field.monsterZones[0]).toBeNull();
       expect(duelState.graveyard).toHaveLength(1);
-      expect(duelState.graveyard[0]).toEqual(monsterCard);
+      expect(duelState.graveyard[0]).toEqual({ ...monsterCardData });
     });
 
     it("should return false for non-existent card", () => {
@@ -248,26 +249,26 @@ describe("DuelState", () => {
 
   describe("banishCard", () => {
     beforeEach(() => {
-      duelState.hands.push(sampleCard);
-      duelState.graveyard.push(monsterCard);
+      duelState.hands.push({ ...sampleCardData });
+      duelState.graveyard.push({ ...monsterCardData });
     });
 
     it("should banish card from hand", () => {
-      const result = duelState.banishCard(sampleCard.id, "hand");
+      const result = duelState.banishCard(sampleCardData.id, "hand");
 
       expect(result).toBe(true);
       expect(duelState.hands).toHaveLength(0);
       expect(duelState.banished).toHaveLength(1);
-      expect(duelState.banished[0]).toEqual(sampleCard);
+      expect(duelState.banished[0]).toEqual({ ...sampleCardData });
     });
 
     it("should banish card from graveyard", () => {
-      const result = duelState.banishCard(monsterCard.id, "graveyard");
+      const result = duelState.banishCard(monsterCardData.id, "graveyard");
 
       expect(result).toBe(true);
       expect(duelState.graveyard).toHaveLength(0);
       expect(duelState.banished).toHaveLength(1);
-      expect(duelState.banished[0]).toEqual(monsterCard);
+      expect(duelState.banished[0]).toEqual({ ...monsterCardData });
     });
   });
 
@@ -275,14 +276,14 @@ describe("DuelState", () => {
     beforeEach(() => {
       // セットアップ
       for (let i = 0; i < 30; i++) {
-        duelState.mainDeck.push({ ...sampleCard, id: 9000 + i });
+        duelState.mainDeck.push({ ...sampleCardData, id: 9000 + i });
       }
       for (let i = 0; i < 10; i++) {
-        duelState.extraDeck.push({ ...sampleCard, id: 9500 + i });
+        duelState.extraDeck.push({ ...sampleCardData, id: 9500 + i });
       }
-      duelState.hands.push(sampleCard);
-      duelState.graveyard.push(monsterCard);
-      duelState.field.monsterZones[0] = spellCard;
+      duelState.hands.push({ ...sampleCardData });
+      duelState.graveyard.push({ ...monsterCardData });
+      duelState.field.monsterZones[0] = { ...spellCardData };
     });
 
     it("should return correct game statistics", () => {
@@ -301,10 +302,10 @@ describe("DuelState", () => {
 
   describe("reset", () => {
     beforeEach(() => {
-      duelState.hands.push(sampleCard);
-      duelState.graveyard.push(monsterCard);
-      duelState.field.monsterZones[0] = spellCard;
-      duelState.mainDeck.push({ ...sampleCard, id: 10000 });
+      duelState.hands.push({ ...sampleCardData });
+      duelState.graveyard.push({ ...monsterCardData });
+      duelState.field.monsterZones[0] = { ...spellCardData };
+      duelState.mainDeck.push({ ...sampleCardData, id: 10000 });
     });
 
     it("should reset duel state to initial state", () => {
@@ -322,8 +323,8 @@ describe("DuelState", () => {
   describe("JSON serialization", () => {
     beforeEach(() => {
       duelState.name = "テスト決闘状態";
-      duelState.mainDeck.push(sampleCard);
-      duelState.hands.push(monsterCard);
+      duelState.mainDeck.push({ ...sampleCardData });
+      duelState.hands.push({ ...monsterCardData });
     });
 
     it("should serialize to JSON", () => {
@@ -350,7 +351,7 @@ describe("DuelState", () => {
   describe("clone", () => {
     beforeEach(() => {
       duelState.name = "オリジナル";
-      duelState.mainDeck.push(sampleCard);
+      duelState.mainDeck.push({ ...sampleCardData });
     });
 
     it("should create a deep copy", () => {

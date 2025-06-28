@@ -1,24 +1,54 @@
 import { error } from "@sveltejs/kit";
-import type { Card } from "$lib/types/card";
-import type { DeckCardEntry, DeckData } from "$lib/types/deck";
-import { convertYGOProDeckCardToCard, type YGOProDeckCard } from "$lib/types/ygoprodeck";
+import type { RecipeCardEntry, LoadedCardEntry, DeckData, DeckStats } from "$lib/types/deck";
+import { convertYGOProDeckCardToCardData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
-// デッキエントリーからCard配列を作成する内部関数
-function buildCardArray(ygoCardMap: Map<number, YGOProDeckCard>, entries: DeckCardEntry[]): Card[] {
-  const cards: Card[] = [];
+// デッキエントリーからLoadedCardEntry配列を作成する内部関数
+function buildLoadedCardEntries(
+  ygoCardMap: Map<number, YGOProDeckCard>,
+  entries: RecipeCardEntry[],
+): LoadedCardEntry[] {
+  const loadedCards: LoadedCardEntry[] = [];
   for (const entry of entries) {
     const ygoCard = ygoCardMap.get(entry.id);
     if (ygoCard) {
-      const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
-      // quantity分だけカードを追加
-      for (let i = 0; i < entry.quantity; i++) {
-        cards.push(card);
-      }
+      const cardData = convertYGOProDeckCardToCardData(ygoCard);
+      loadedCards.push({
+        cardData: cardData,
+        quantity: entry.quantity,
+      });
     }
   }
-  return cards;
+  return loadedCards;
+}
+
+// デッキ統計情報を計算する内部関数
+function calculateDeckStats(mainDeck: LoadedCardEntry[], extraDeck: LoadedCardEntry[]): DeckStats {
+  const allCards = [...mainDeck, ...extraDeck];
+
+  const totalCards = allCards.reduce((sum, entry) => sum + entry.quantity, 0);
+  const uniqueCards = allCards.length;
+
+  const monsterCount = mainDeck
+    .filter((entry) => entry.cardData.type === "monster")
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+
+  const spellCount = mainDeck
+    .filter((entry) => entry.cardData.type === "spell")
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+
+  const trapCount = mainDeck
+    .filter((entry) => entry.cardData.type === "trap")
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+
+  return {
+    totalCards,
+    uniqueCards,
+    monsterCount,
+    spellCount,
+    trapCount,
+  };
 }
 
 /**
@@ -47,8 +77,11 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
 
   // メインデッキとエクストラデッキのカード配列を作成
-  const mainDeckCards = buildCardArray(ygoCardMap, recipe.mainDeck);
-  const extraDeckCards = buildCardArray(ygoCardMap, recipe.extraDeck);
+  const mainDeckCards = buildLoadedCardEntries(ygoCardMap, recipe.mainDeck);
+  const extraDeckCards = buildLoadedCardEntries(ygoCardMap, recipe.extraDeck);
+
+  // 統計情報を計算
+  const stats = calculateDeckStats(mainDeckCards, extraDeckCards);
 
   const deckData: DeckData = {
     name: recipe.name,
@@ -56,6 +89,7 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
     category: recipe.category,
     mainDeck: mainDeckCards,
     extraDeck: extraDeckCards,
+    stats,
   };
 
   return deckData;
