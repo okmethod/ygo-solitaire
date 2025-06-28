@@ -19,24 +19,24 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   const allCardEntries = [...recipeData.mainDeck, ...recipeData.extraDeck];
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
-  // API からカード情報を取得
-  let apiCards: YGOProDeckCard[];
+  // API でカード情報を取得
+  let ygoCards: YGOProDeckCard[];
   try {
-    apiCards = await getCardsByIds(fetch, uniqueCardIds);
+    ygoCards = await getCardsByIds(fetch, uniqueCardIds);
   } catch (err) {
     console.error("カード情報のAPI取得に失敗しました:", err);
     throw error(500, "カード情報の取得に失敗しました");
   }
 
   // カード情報をマップに変換
-  const cardMap = new Map(apiCards.map((card) => [card.id, card]));
+  const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
 
   // メインデッキのカード配列を作成
   const mainDeckCards: Card[] = [];
   for (const entry of recipeData.mainDeck) {
-    const apiCard = cardMap.get(entry.id);
-    if (apiCard) {
-      const card = convertYGOProDeckCardToCard(apiCard, entry.quantity);
+    const ygoCard = ygoCardMap.get(entry.id);
+    if (ygoCard) {
+      const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
       // quantity分だけカードを追加
       for (let i = 0; i < entry.quantity; i++) {
         mainDeckCards.push(card);
@@ -47,9 +47,9 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   // エクストラデッキのカード配列を作成
   const extraDeckCards: Card[] = [];
   for (const entry of recipeData.extraDeck) {
-    const apiCard = cardMap.get(entry.id);
-    if (apiCard) {
-      const card = convertYGOProDeckCardToCard(apiCard, entry.quantity);
+    const ygoCard = ygoCardMap.get(entry.id);
+    if (ygoCard) {
+      const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
       // quantity分だけカードを追加
       for (let i = 0; i < entry.quantity; i++) {
         extraDeckCards.push(card);
@@ -58,7 +58,7 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   }
 
   // DeckRecipe形式に変換
-  const deck: DeckRecipe = {
+  const recipe: DeckRecipe = {
     name: recipeData.name,
     description: recipeData.description,
     category: recipeData.category,
@@ -66,5 +66,5 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
     extraDeck: extraDeckCards,
   };
 
-  return deck;
+  return recipe;
 }
