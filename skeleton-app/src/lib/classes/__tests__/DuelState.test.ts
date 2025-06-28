@@ -12,36 +12,53 @@ describe("DuelState", () => {
 
   beforeEach(() => {
     sampleCard = {
-      id: "test-001",
+      id: 1001,
       name: "テストカード",
       type: "monster",
-      attack: 1000,
-      defense: 800,
-      level: 4,
-      restriction: "unlimited",
+      description: "テスト用のモンスターカード",
+      monster: {
+        attack: 1000,
+        defense: 800,
+        level: 4,
+        attribute: "LIGHT",
+        race: "Warrior",
+      },
+      ui: {
+        quantity: 1,
+      },
     };
 
     monsterCard = {
-      id: "monster-001",
+      id: 2001,
       name: "テストモンスター",
       type: "monster",
-      attack: 2000,
-      defense: 1500,
-      level: 5,
-      restriction: "unlimited",
+      description: "テスト用の強力なモンスターカード",
+      monster: {
+        attack: 2000,
+        defense: 1500,
+        level: 5,
+        attribute: "DARK",
+        race: "Dragon",
+      },
+      ui: {
+        quantity: 1,
+      },
     };
 
     spellCard = {
-      id: "spell-001",
+      id: 3001,
       name: "テスト魔法",
       type: "spell",
-      restriction: "unlimited",
+      description: "テスト用の魔法カード",
+      ui: {
+        quantity: 1,
+      },
     };
 
     // サンプルレシピを作成
     const mainDeck = Array(40)
       .fill(null)
-      .map((_, i) => ({ ...sampleCard, id: `card-${i}`, name: `カード${i}` }));
+      .map((_, i) => ({ ...sampleCard, id: 5000 + i, name: `カード${i}` }));
     recipe = new DeckRecipe({
       name: "テストレシピ",
       mainDeck,
@@ -87,7 +104,7 @@ describe("DuelState", () => {
       // デッキにカードを追加
       const cards = [];
       for (let i = 0; i < 10; i++) {
-        const card = { ...sampleCard, id: `shuffle-${i}`, name: `シャッフルカード${i}` };
+        const card = { ...sampleCard, id: 6000 + i, name: `シャッフルカード${i}` };
         cards.push(card);
         duelState.mainDeck.push(card);
       }
@@ -108,7 +125,7 @@ describe("DuelState", () => {
     beforeEach(() => {
       // デッキに5枚追加
       for (let i = 0; i < 5; i++) {
-        duelState.mainDeck.push({ ...sampleCard, id: `draw-${i}` });
+        duelState.mainDeck.push({ ...sampleCard, id: 7000 + i });
       }
     });
 
@@ -141,7 +158,7 @@ describe("DuelState", () => {
   describe("drawInitialHands", () => {
     beforeEach(() => {
       for (let i = 0; i < 10; i++) {
-        duelState.mainDeck.push({ ...sampleCard, id: `initial-${i}` });
+        duelState.mainDeck.push({ ...sampleCard, id: 8000 + i });
       }
     });
 
@@ -193,7 +210,7 @@ describe("DuelState", () => {
     });
 
     it("should return false for non-existent card", () => {
-      const result = duelState.summonToField("non-existent", "monster");
+      const result = duelState.summonToField(99999, "monster");
       expect(result).toBe(false);
     });
   });
@@ -223,7 +240,7 @@ describe("DuelState", () => {
     });
 
     it("should return false for non-existent card", () => {
-      const result = duelState.sendToGraveyard("non-existent", "hand");
+      const result = duelState.sendToGraveyard(99999, "hand");
       expect(result).toBe(false);
     });
   });
@@ -257,10 +274,10 @@ describe("DuelState", () => {
     beforeEach(() => {
       // セットアップ
       for (let i = 0; i < 30; i++) {
-        duelState.mainDeck.push({ ...sampleCard, id: `stats-main-${i}` });
+        duelState.mainDeck.push({ ...sampleCard, id: 9000 + i });
       }
       for (let i = 0; i < 10; i++) {
-        duelState.extraDeck.push({ ...sampleCard, id: `stats-extra-${i}` });
+        duelState.extraDeck.push({ ...sampleCard, id: 9500 + i });
       }
       duelState.hands.push(sampleCard);
       duelState.graveyard.push(monsterCard);
@@ -286,7 +303,7 @@ describe("DuelState", () => {
       duelState.hands.push(sampleCard);
       duelState.graveyard.push(monsterCard);
       duelState.field.monsterZones[0] = spellCard;
-      duelState.mainDeck.push({ ...sampleCard, id: "remaining" });
+      duelState.mainDeck.push({ ...sampleCard, id: 10000 });
     });
 
     it("should reset duel state to initial state", () => {
