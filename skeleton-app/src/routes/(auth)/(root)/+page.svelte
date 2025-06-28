@@ -7,7 +7,7 @@
   let selectedRecipeId = recipeEntries[0][0]; // 初期値として最初のIDを設定
 
   function navigateToSimulator() {
-    navigateTo("/simulator");
+    navigateTo(`/simulator/${selectedRecipeId}`);
   }
 
   function navigateToRecipe() {

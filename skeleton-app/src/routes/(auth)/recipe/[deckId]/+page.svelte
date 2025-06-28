@@ -8,7 +8,7 @@
   const selectedRecipe = data.recipe;
 
   function navigateToSimulator() {
-    navigateTo("/simulator");
+    navigateTo(`/simulator/${data.deckId}`);
   }
 
   // カードタイプ別にフィルタする関数
