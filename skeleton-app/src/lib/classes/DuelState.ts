@@ -1,5 +1,5 @@
 import type { Card } from "$lib/types/card";
-import type { DuelStateData, GameDuelStats } from "$lib/types/duel";
+import type { DuelStateData, DuelStats } from "$lib/types/duel";
 import { DeckRecipe } from "$lib/classes/DeckRecipe";
 
 /**
@@ -203,7 +203,7 @@ export class DuelState {
   /**
    * ゲーム状況の統計を取得
    */
-  getGameStats(): GameDuelStats {
+  getDuelStats(): DuelStats {
     return {
       mainDeckRemaining: this.mainDeck.length,
       extraDeckRemaining: this.extraDeck.length,

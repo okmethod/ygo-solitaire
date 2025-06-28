@@ -17,7 +17,7 @@ export interface DuelStateData {
   sourceRecipe?: string; // デッキレシピ名
 }
 
-export interface GameDuelStats {
+export interface DuelStats {
   mainDeckRemaining: number;
   extraDeckRemaining: number;
   handsSize: number;

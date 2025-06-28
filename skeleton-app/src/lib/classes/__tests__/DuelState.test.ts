@@ -270,7 +270,7 @@ describe("DuelState", () => {
     });
   });
 
-  describe("getGameStats", () => {
+  describe("getDuelStats", () => {
     beforeEach(() => {
       // セットアップ
       for (let i = 0; i < 30; i++) {
@@ -285,7 +285,7 @@ describe("DuelState", () => {
     });
 
     it("should return correct game statistics", () => {
-      const stats = duelState.getGameStats();
+      const stats = duelState.getDuelStats();
 
       expect(stats.mainDeckRemaining).toBe(30);
       expect(stats.extraDeckRemaining).toBe(10);
