@@ -1,6 +1,6 @@
 import type { Card } from "$lib/types/card";
 import type { DuelStateData, DuelStats } from "$lib/types/duel";
-import type { DeckData } from "$lib/types/deck";
+import type { DeckData, DeckCardData } from "$lib/types/deck";
 
 /**
  * ゲーム状態管理クラス
@@ -49,13 +49,26 @@ export class DuelState {
   }
 
   /**
+   * DeckCardDataをCard配列に展開するヘルパー関数
+   */
+  private static expandDeckCardData(deckCardData: DeckCardData[]): Card[] {
+    const cards: Card[] = [];
+    for (const { card, quantity } of deckCardData) {
+      for (let i = 0; i < quantity; i++) {
+        cards.push({ ...card });
+      }
+    }
+    return cards;
+  }
+
+  /**
    * デッキレシピをロードしてインスタンスを作成
    */
   static loadDeck(deckData: DeckData, name?: string): DuelState {
     return new DuelState({
       name: name || deckData.name,
-      mainDeck: [...deckData.mainDeck],
-      extraDeck: [...deckData.extraDeck],
+      mainDeck: this.expandDeckCardData(deckData.mainDeck),
+      extraDeck: this.expandDeckCardData(deckData.extraDeck),
       sourceRecipe: deckData.name,
     });
   }

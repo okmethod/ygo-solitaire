@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigateTo } from "$lib/utils/navigation";
   import Card from "$lib/components/atoms/Card.svelte";
-  import type { Card as CardType } from "$lib/types/card";
+  import type { DeckCardData } from "$lib/types/deck";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -11,32 +11,16 @@
     navigateTo(`/simulator/${data.deckId}`);
   }
 
-  // カードタイプ別にフィルタする関数
-  function getCardsByType(cards: CardType[], type: string) {
-    return cards.filter((card) => card.type === type);
-  }
-
-  // カードの数量を計算する関数
-  function countCardQuantity(cards: CardType[], targetCard: CardType): number {
-    return cards.filter((card) => card.id === targetCard.id).length;
-  }
-
-  // 重複を除いたカードリストを作成する関数
-  function getUniqueCards(cards: CardType[]): CardType[] {
-    const uniqueMap = new Map<number, CardType>();
-    cards.forEach((card) => {
-      if (!uniqueMap.has(card.id)) {
-        uniqueMap.set(card.id, card);
-      }
-    });
-    return Array.from(uniqueMap.values());
+  // カードタイプ別にフィルタする関数（DeckCardData用）
+  function getCardsByType(cards: DeckCardData[], type: string) {
+    return cards.filter((cardData) => cardData.card.type === type);
   }
 
   // カードタイプ別の統計情報
-  const monsterCards = getUniqueCards(getCardsByType(selectedDeckData.mainDeck, "monster"));
-  const spellCards = getUniqueCards(getCardsByType(selectedDeckData.mainDeck, "spell"));
-  const trapCards = getUniqueCards(getCardsByType(selectedDeckData.mainDeck, "trap"));
-  const totalCards = selectedDeckData.mainDeck.length;
+  const monsterCards = getCardsByType(selectedDeckData.mainDeck, "monster");
+  const spellCards = getCardsByType(selectedDeckData.mainDeck, "spell");
+  const trapCards = getCardsByType(selectedDeckData.mainDeck, "trap");
+  const totalCards = selectedDeckData.mainDeck.reduce((sum, cardData) => sum + cardData.quantity, 0);
 </script>
 
 <div class="container mx-auto p-4">
@@ -66,18 +50,18 @@
           モンスター
         </h3>
         <span class="badge preset-tonal-surface text-sm"
-          >{getCardsByType(selectedDeckData.mainDeck, "monster").length}枚</span
+          >{monsterCards.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
         >
       </div>
       {#if monsterCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each monsterCards as card (card.id)}
+          {#each monsterCards as cardData (cardData.card.id)}
             <div class="relative">
-              <Card {card} size="medium" showDetails={true} />
+              <Card card={cardData.card} size="medium" showDetails={true} />
               <div
                 class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
               >
-                {countCardQuantity(selectedDeckData.mainDeck, card)}
+                {cardData.quantity}
               </div>
             </div>
           {/each}
@@ -93,18 +77,18 @@
           魔法
         </h3>
         <span class="badge preset-tonal-surface text-sm"
-          >{getCardsByType(selectedDeckData.mainDeck, "spell").length}枚</span
+          >{spellCards.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
         >
       </div>
       {#if spellCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each spellCards as card (card.id)}
+          {#each spellCards as cardData (cardData.card.id)}
             <div class="relative">
-              <Card {card} size="medium" showDetails={true} />
+              <Card card={cardData.card} size="medium" showDetails={true} />
               <div
                 class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
               >
-                {countCardQuantity(selectedDeckData.mainDeck, card)}
+                {cardData.quantity}
               </div>
             </div>
           {/each}
@@ -120,18 +104,18 @@
           罠
         </h3>
         <span class="badge preset-tonal-surface text-sm"
-          >{getCardsByType(selectedDeckData.mainDeck, "trap").length}枚</span
+          >{trapCards.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
         >
       </div>
       {#if trapCards.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each trapCards as card (card.id)}
+          {#each trapCards as cardData (cardData.card.id)}
             <div class="relative">
-              <Card {card} size="medium" showDetails={true} />
+              <Card card={cardData.card} size="medium" showDetails={true} />
               <div
                 class="absolute -top-2 bg-primary-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
               >
-                {countCardQuantity(selectedDeckData.mainDeck, card)}
+                {cardData.quantity}
               </div>
             </div>
           {/each}
@@ -144,15 +128,17 @@
     <!-- エクストラデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">エクストラデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm">{selectedDeckData.extraDeck.length}枚</span>
+      <span class="badge preset-tonal-surface text-sm"
+        >{selectedDeckData.extraDeck.reduce((sum, cardData) => sum + cardData.quantity, 0)}枚</span
+      >
     </div>
 
     <!-- TODO: シンクロ・エクシーズなどを分類する -->
     <section>
       {#if selectedDeckData.extraDeck.length > 0}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-          {#each selectedDeckData.extraDeck as card (card.id)}
-            <Card {card} size="medium" showDetails={true} />
+          {#each selectedDeckData.extraDeck as cardData (cardData.card.id)}
+            <Card card={cardData.card} size="medium" showDetails={true} />
           {/each}
         </div>
       {/if}

@@ -1,4 +1,4 @@
-import type { Card, CardType } from "$lib/types/card";
+import type { Card, CardData, CardType } from "$lib/types/card";
 
 interface YGOProDeckCardImage {
   id: number;
@@ -41,18 +41,18 @@ export interface YGOProDeckCard {
   card_prices?: YGOProDeckCardPrice[];
 }
 
-export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard, quantity = 1): Card {
-  // カードタイプを正規化
-  const normalizeType = (type: string): CardType => {
-    const lowerType = type.toLowerCase();
-    if (lowerType.includes("monster")) return "monster";
-    if (lowerType.includes("spell")) return "spell";
-    if (lowerType.includes("trap")) return "trap";
+// カードタイプを正規化する内部関数
+function normalizeType(type: string): CardType {
+  const lowerType = type.toLowerCase();
+  if (lowerType.includes("monster")) return "monster";
+  if (lowerType.includes("spell")) return "spell";
+  if (lowerType.includes("trap")) return "trap";
 
-    // デフォルトはmonster（安全のため）
-    return "monster";
-  };
+  // デフォルトはmonster（安全のため）
+  return "monster";
+}
 
+export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardData {
   // 画像URL を取得（最初の画像を使用）
   const cardImage = apiCard.card_images[0];
 
@@ -86,11 +86,16 @@ export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard, quantity = 
           imageCropped: cardImage.image_url_cropped,
         }
       : undefined,
+  };
+}
 
+export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard, quantity = 1): Card {
+  const cardData = convertYGOProDeckCardToCardData(apiCard);
+
+  return {
+    ...cardData,
     // UI用プロパティ
-    ui: {
-      quantity,
-    },
+    quantity,
   };
 }
 

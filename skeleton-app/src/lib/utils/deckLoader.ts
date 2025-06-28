@@ -1,24 +1,23 @@
 import { error } from "@sveltejs/kit";
-import type { Card } from "$lib/types/card";
-import type { DeckCardEntry, DeckData } from "$lib/types/deck";
-import { convertYGOProDeckCardToCard, type YGOProDeckCard } from "$lib/types/ygoprodeck";
+import type { DeckCardEntry, DeckCardData, DeckData } from "$lib/types/deck";
+import { convertYGOProDeckCardToCardData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
-// デッキエントリーからCard配列を作成する内部関数
-function buildCardArray(ygoCardMap: Map<number, YGOProDeckCard>, entries: DeckCardEntry[]): Card[] {
-  const cards: Card[] = [];
+// デッキエントリーからDeckCardData配列を作成する内部関数
+function buildDeckCardDataArray(ygoCardMap: Map<number, YGOProDeckCard>, entries: DeckCardEntry[]): DeckCardData[] {
+  const deckCards: DeckCardData[] = [];
   for (const entry of entries) {
     const ygoCard = ygoCardMap.get(entry.id);
     if (ygoCard) {
-      const card = convertYGOProDeckCardToCard(ygoCard, entry.quantity);
-      // quantity分だけカードを追加
-      for (let i = 0; i < entry.quantity; i++) {
-        cards.push(card);
-      }
+      const cardData = convertYGOProDeckCardToCardData(ygoCard);
+      deckCards.push({
+        card: cardData,
+        quantity: entry.quantity,
+      });
     }
   }
-  return cards;
+  return deckCards;
 }
 
 /**
@@ -47,8 +46,8 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
 
   // メインデッキとエクストラデッキのカード配列を作成
-  const mainDeckCards = buildCardArray(ygoCardMap, recipe.mainDeck);
-  const extraDeckCards = buildCardArray(ygoCardMap, recipe.extraDeck);
+  const mainDeckCards = buildDeckCardDataArray(ygoCardMap, recipe.mainDeck);
+  const extraDeckCards = buildDeckCardDataArray(ygoCardMap, recipe.extraDeck);
 
   const deckData: DeckData = {
     name: recipe.name,
