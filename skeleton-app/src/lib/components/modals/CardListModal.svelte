@@ -2,7 +2,8 @@
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import CardList from "$lib/components/organisms/CardList.svelte";
-  import type { Card } from "$lib/types/card";
+  import type { Card, CardData } from "$lib/types/card";
+  import type { LoadedCardEntry } from "$lib/types/deck";
 
   interface CardListModalProps {
     cards: Card[];
@@ -11,7 +12,6 @@
     title: string;
     emptyMessage?: string;
     borderColor?: string;
-    cardQuantity?: number; // カードごとの枚数（デフォルト: 1）
   }
 
   // Modal用のOpenChangeDetailsに対応するラッパー
@@ -26,16 +26,26 @@
     title,
     emptyMessage = "カードがありません",
     borderColor = "border-gray-400",
-    cardQuantity = 1,
   }: CardListModalProps = $props();
 
-  // カードをLoadedCardEntry形式に変換
-  const cardEntries = $derived(
-    cards.map((card) => ({
-      cardData: card,
-      quantity: cardQuantity,
-    })),
-  );
+  // 同名カードを集約して LoadedCardEntry に変換
+  const cardEntries = $derived((): LoadedCardEntry[] => {
+    const cardMap = new Map<number, LoadedCardEntry>();
+
+    cards.forEach((card) => {
+      const existing = cardMap.get(card.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cardMap.set(card.id, {
+          cardData: card as CardData, // Card を CardData にキャスト
+          quantity: 1,
+        });
+      }
+    });
+
+    return Array.from(cardMap.values());
+  });
 
   function modalClose() {
     onOpenChange(false);
@@ -57,7 +67,7 @@
     </header>
 
     {#if cards.length > 0}
-      <CardList cards={cardEntries} {borderColor} />
+      <CardList cards={cardEntries()} {borderColor} />
     {:else}
       <div class="text-center py-8">
         <p class="text-gray-500">{emptyMessage}</p>

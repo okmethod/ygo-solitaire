@@ -72,5 +72,4 @@
   onOpenChange={handleModalChange}
   title="エクストラデッキ"
   borderColor="border-purple-400"
-  cardQuantity={1}
 />
