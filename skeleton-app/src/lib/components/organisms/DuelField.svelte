@@ -1,6 +1,7 @@
 <script lang="ts">
   import Card from "$lib/components/atoms/Card.svelte";
   import Graveyard from "$lib/components/organisms/Graveyard.svelte";
+  import ExtraDeck from "$lib/components/organisms/ExtraDeck.svelte";
   import type { Card as CardType } from "$lib/types/card";
 
   // ゾーン数の定数
@@ -9,7 +10,7 @@
 
   interface DuelFieldProps {
     deckCards?: number;
-    extraDeckCards?: number;
+    extraDeckCards?: CardType[];
     graveyardCards?: CardType[];
     fieldCards?: CardType[];
     monsterCards?: CardType[];
@@ -18,7 +19,7 @@
 
   let {
     deckCards = 40,
-    extraDeckCards = 15,
+    extraDeckCards = [],
     graveyardCards = [],
     fieldCards = [],
     monsterCards = [],
@@ -92,11 +93,9 @@
     <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
       <!-- エクストラデッキ -->
       <div class="flex justify-center">
-        <Card
-          placeholder={true}
-          placeholderText="EX\n{extraDeckCards}枚"
+        <ExtraDeck 
+          cards={extraDeckCards}
           size="medium"
-          clickable={true}
           onClick={handleExtraDeckClick}
         />
       </div>
