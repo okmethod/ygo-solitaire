@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { Card } from "$lib/types/card";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface CardComponentProps {
     card?: Card;
-    size?: "small" | "medium" | "large";
+    size?: ComponentSize;
     showDetails?: boolean;
     clickable?: boolean;
     selectable?: boolean;
@@ -32,13 +33,6 @@
 
   let isHovered = $state(false);
   let isSelected = $state(card?.isSelected || false);
-
-  // サイズクラスの定義
-  const sizeClasses = {
-    small: "w-16 h-24",
-    medium: "w-22 h-32",
-    large: "w-32 h-48",
-  };
 
   // カードクリック処理
   function handleClick() {
@@ -102,7 +96,7 @@
   // 共通クラス
   const commonClasses = $derived(() => {
     return `
-      ${sizeClasses[size]}
+      ${CARD_SIZE_CLASSES[size]}
       ${animationClasses}
       ${hoverClasses}
       ${selectedClasses}

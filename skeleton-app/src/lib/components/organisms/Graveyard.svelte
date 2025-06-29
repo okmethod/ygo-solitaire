@@ -2,11 +2,12 @@
   import CardComponent from "$lib/components/atoms/Card.svelte";
   import CountBadge from "$lib/components/atoms/CountBadge.svelte";
   import type { Card } from "$lib/types/card";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface GraveyardProps {
     cards: Card[];
-    size?: "small" | "medium" | "large";
+    size?: ComponentSize;
     onClick?: () => void;
   }
 
@@ -14,13 +15,6 @@
 
   // 最後に墓地に置かれたカード
   const topCard = $derived(cards.length > 0 ? cards[cards.length - 1] : null);
-
-  // サイズクラスの定義
-  const sizeClasses = {
-    small: "w-16 h-24",
-    medium: "w-22 h-32",
-    large: "w-32 h-48",
-  };
 
   // クリック処理
   function handleClick() {
@@ -43,7 +37,7 @@
 
 <div
   class="
-    {sizeClasses[size]}
+    {CARD_SIZE_CLASSES[size]}
     relative
     border-2 border-dashed border-gray-400
     rounded-lg
