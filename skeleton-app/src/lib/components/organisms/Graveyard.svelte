@@ -1,6 +1,7 @@
 <script lang="ts">
   import CardComponent from "$lib/components/atoms/Card.svelte";
   import CountBadge from "$lib/components/atoms/CountBadge.svelte";
+  import CardListModal from "$lib/components/modals/CardListModal.svelte";
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
@@ -8,19 +9,24 @@
   interface GraveyardProps {
     cards: Card[];
     size?: ComponentSize;
-    onClick?: () => void;
   }
 
-  let { cards, size = "medium", onClick }: GraveyardProps = $props();
+  let { cards, size = "medium" }: GraveyardProps = $props();
+
+  // モーダル状態管理
+  let modalOpen = $state(false);
 
   // 最後に墓地に置かれたカード
   const topCard = $derived(cards.length > 0 ? cards[cards.length - 1] : null);
 
   // クリック処理
   function handleClick() {
-    if (onClick) {
-      onClick();
-    }
+    modalOpen = true;
+  }
+
+  // モーダル状態変更処理
+  function handleModalChange(open: boolean) {
+    modalOpen = open;
   }
 
   // ホバー状態
@@ -71,3 +77,6 @@
     <CountBadge count={cards.length} />
   {/if}
 </div>
+
+<!-- 墓地モーダル -->
+<CardListModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="墓地" borderColor="border-gray-400" />

@@ -35,11 +35,6 @@
   function handleDeckClick() {
     console.log("Deck clicked");
   }
-
-  // 墓地クリック処理
-  function handleGraveyardClick() {
-    console.log("Graveyard clicked");
-  }
 </script>
 
 <div class="card p-2 max-w-6xl mx-auto">
@@ -83,7 +78,7 @@
 
       <!-- 墓地 -->
       <div class="flex justify-center">
-        <Graveyard cards={graveyardCards} size="medium" onClick={handleGraveyardClick} />
+        <Graveyard cards={graveyardCards} size="medium" />
       </div>
     </div>
 
