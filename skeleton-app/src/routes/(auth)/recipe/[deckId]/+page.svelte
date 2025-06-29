@@ -1,8 +1,7 @@
 <script lang="ts">
   import { navigateTo } from "$lib/utils/navigation";
-  import Card from "$lib/components/atoms/Card.svelte";
+  import CardsSection from "$lib/components/organisms/CardsSection.svelte";
   import type { PageData } from "./$types";
-  import type { LoadedCardEntry } from "$lib/types/deck";
 
   let { data }: { data: PageData } = $props();
   const { monsters, spells, traps } = data.deckData.mainDeck;
@@ -13,35 +12,6 @@
   }
 </script>
 
-<!-- 共通snippet -->
-{#snippet cardSection(title: string, cardCount: number, cards: LoadedCardEntry[], borderColor = "border-gray-400")}
-  <section>
-    <div class="badge preset-tonal-surface mb-3 grid grid-cols-12 items-center space-x-4 p-2 rounded-lg shadow-md">
-      <h3 class="col-span-2 h4 flex flex-col min-w-fit ml-2">
-        {title}
-        <span class="badge w-fit preset-tonal-surface text-sm">{cardCount}枚</span>
-      </h3>
-      {#if cards.length > 0}
-        <div class="col-span-9 flex-1 flex gap-2 ml-4">
-          {#each cards as cardEntry (cardEntry.cardData.id)}
-            <div class="relative">
-              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-                <Card card={cardEntry.cardData} size="medium" showDetails={true} />
-              </div>
-              {#if cardEntry.quantity > 1}
-                <div
-                  class="absolute -top-2 -right-2 bg-primary-200 text-primary-900 text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md"
-                >
-                  {cardEntry.quantity}
-                </div>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </section>
-{/snippet}
 
 <div class="container mx-auto p-4">
   <!-- ヘッダー -->
@@ -65,13 +35,13 @@
       >
     </div>
     <!-- モンスターカード -->
-    {@render cardSection("モンスター", data.deckData.stats.monsterCount, monsters)}
+    <CardsSection title="モンスター" cardCount={data.deckData.stats.monsterCount} cards={monsters} />
 
     <!-- 魔法カード -->
-    {@render cardSection("魔法", data.deckData.stats.spellCount, spells)}
+    <CardsSection title="魔法" cardCount={data.deckData.stats.spellCount} cards={spells} />
 
     <!-- 罠カード -->
-    {@render cardSection("罠", data.deckData.stats.trapCount, traps)}
+    <CardsSection title="罠" cardCount={data.deckData.stats.trapCount} cards={traps} />
 
     <hr class="my-8 border-t border-gray-300" />
 
@@ -87,29 +57,29 @@
 
     <!-- 融合モンスター -->
     {#if fusion.length > 0}
-      {@render cardSection(
-        "融合",
-        fusion.reduce((sum, entry) => sum + entry.quantity, 0),
-        fusion,
-      )}
+      <CardsSection
+        title="融合"
+        cardCount={fusion.reduce((sum, entry) => sum + entry.quantity, 0)}
+        cards={fusion}
+      />
     {/if}
 
     <!-- シンクロモンスター -->
     {#if synchro.length > 0}
-      {@render cardSection(
-        "シンクロ",
-        synchro.reduce((sum, entry) => sum + entry.quantity, 0),
-        synchro,
-      )}
+      <CardsSection
+        title="シンクロ"
+        cardCount={synchro.reduce((sum, entry) => sum + entry.quantity, 0)}
+        cards={synchro}
+      />
     {/if}
 
     <!-- エクシーズモンスター -->
     {#if xyz.length > 0}
-      {@render cardSection(
-        "エクシーズ",
-        xyz.reduce((sum, entry) => sum + entry.quantity, 0),
-        xyz,
-      )}
+      <CardsSection
+        title="エクシーズ"
+        cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)}
+        cards={xyz}
+      />
     {/if}
     <hr class="my-8 border-t border-gray-300" />
   </div>
