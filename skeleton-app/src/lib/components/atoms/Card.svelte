@@ -85,26 +85,32 @@
   const rotationStyle = $derived(rotation !== 0 ? `transform: rotate(${rotation}deg);` : "");
 
   // カードタイプ別の背景色
-  const typeClasses = $derived(
-    card?.type === "monster"
-      ? "bg-yellow-100 dark:bg-yellow-600"
-      : card?.type === "spell"
-        ? "bg-green-100 dark:bg-green-600"
-        : card?.type === "trap"
-          ? "bg-purple-100 dark:bg-purple-600"
-          : "bg-surface-100-600-token",
-  );
+  const typeClasses = $derived(() => {
+    if (!card) return "bg-surface-100-600-token";
+    switch (card.type) {
+      case "monster":
+        return "!bg-yellow-300 dark:!bg-yellow-600";
+      case "spell":
+        return "!bg-green-300 dark:!bg-green-600";
+      case "trap":
+        return "!bg-purple-300 dark:!bg-purple-600";
+      default:
+        return "bg-surface-100-600-token";
+    }
+  });
 
   // 共通クラス
-  const commonClasses = $derived(`
-    ${sizeClasses[size]}
-    ${animationClasses}
-    ${hoverClasses}
-    ${selectedClasses}
-    border border-surface-300 rounded aspect-[3/4] flex flex-col justify-between
-    ${typeClasses}
-    relative overflow-hidden
-  `);
+  const commonClasses = $derived(() => {
+    return `
+      ${sizeClasses[size]}
+      ${animationClasses}
+      ${hoverClasses}
+      ${selectedClasses}
+      ${typeClasses()}
+      border border-surface-300 rounded aspect-[3/4] flex flex-col justify-between
+      relative overflow-hidden
+    `;
+  });
 
   // インタラクティブ要素の属性
   const interactiveProps = $derived({
@@ -167,11 +173,11 @@
 {/snippet}
 
 {#if clickable || selectable}
-  <button class="{commonClasses} bg-transparent p-0" {...interactiveProps}>
+  <button class="{commonClasses()} bg-transparent p-0 border border-2 border-gray-100" {...interactiveProps}>
     {@render cardContent()}
   </button>
 {:else}
-  <div class={commonClasses} role="img" {...interactiveProps}>
+  <div class={commonClasses()} role="img" {...interactiveProps}>
     {@render cardContent()}
   </div>
 {/if}
