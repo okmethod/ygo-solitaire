@@ -71,7 +71,6 @@
   open={modalOpen}
   onOpenChange={handleModalChange}
   title="エクストラデッキ"
-  emptyMessage="エクストラデッキにカードがありません"
   borderColor="border-purple-400"
   cardQuantity={1}
 />

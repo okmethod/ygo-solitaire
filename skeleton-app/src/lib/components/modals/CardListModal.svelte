@@ -57,7 +57,7 @@
     </header>
 
     {#if cards.length > 0}
-      <CardList {title} cardCount={cards.length} cards={cardEntries} {borderColor} />
+      <CardList cards={cardEntries} {borderColor} />
     {:else}
       <div class="text-center py-8">
         <p class="text-gray-500">{emptyMessage}</p>
