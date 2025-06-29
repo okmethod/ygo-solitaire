@@ -12,7 +12,6 @@
   }
 </script>
 
-
 <div class="container mx-auto p-4">
   <!-- ヘッダー -->
   <header class="my-6">
@@ -57,11 +56,7 @@
 
     <!-- 融合モンスター -->
     {#if fusion.length > 0}
-      <CardsSection
-        title="融合"
-        cardCount={fusion.reduce((sum, entry) => sum + entry.quantity, 0)}
-        cards={fusion}
-      />
+      <CardsSection title="融合" cardCount={fusion.reduce((sum, entry) => sum + entry.quantity, 0)} cards={fusion} />
     {/if}
 
     <!-- シンクロモンスター -->
@@ -75,11 +70,7 @@
 
     <!-- エクシーズモンスター -->
     {#if xyz.length > 0}
-      <CardsSection
-        title="エクシーズ"
-        cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)}
-        cards={xyz}
-      />
+      <CardsSection title="エクシーズ" cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)} cards={xyz} />
     {/if}
     <hr class="my-8 border-t border-gray-300" />
   </div>
