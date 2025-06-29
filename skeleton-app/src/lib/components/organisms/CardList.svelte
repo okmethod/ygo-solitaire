@@ -3,14 +3,14 @@
   import CountBadge from "$lib/components/atoms/CountBadge.svelte";
   import type { LoadedCardEntry } from "$lib/types/deck";
 
-  interface CardsSectionProps {
+  interface CardListProps {
     title: string;
     cardCount: number;
     cards: LoadedCardEntry[];
     borderColor?: string;
   }
 
-  let { title, cardCount, cards, borderColor = "border-gray-400" }: CardsSectionProps = $props();
+  let { title, cardCount, cards, borderColor = "border-gray-400" }: CardListProps = $props();
 </script>
 
 <section>

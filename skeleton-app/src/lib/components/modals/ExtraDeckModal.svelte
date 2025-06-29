@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
-  import CardsSection from "$lib/components/organisms/CardsSection.svelte";
+  import CardList from "$lib/components/organisms/CardList.svelte";
   import type { Card } from "$lib/types/card";
 
   interface ExtraDeckModalProps {
@@ -45,12 +45,7 @@
     </header>
 
     {#if cards.length > 0}
-      <CardsSection
-        title="エクストラデッキ"
-        cardCount={cards.length}
-        cards={cardEntries}
-        borderColor="border-purple-400"
-      />
+      <CardList title="エクストラデッキ" cardCount={cards.length} cards={cardEntries} borderColor="border-purple-400" />
     {:else}
       <div class="text-center py-8">
         <p class="text-gray-500">エクストラデッキにカードがありません</p>
