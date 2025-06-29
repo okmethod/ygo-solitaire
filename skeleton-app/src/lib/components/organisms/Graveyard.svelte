@@ -1,5 +1,6 @@
 <script lang="ts">
   import CardComponent from "$lib/components/atoms/Card.svelte";
+  import CountBadge from "$lib/components/atoms/CountBadge.svelte";
   import type { Card } from "$lib/types/card";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
@@ -64,11 +65,7 @@
     <div class="absolute inset-1">
       <CardComponent card={topCard} {size} clickable={false} />
     </div>
-    <div
-      class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md z-10"
-    >
-      {cards.length}
-    </div>
+    <CountBadge count={cards.length} />
   {:else}
     <!-- カードが無い場合、プレースホルダー色調：グレーを表示する -->
     <div
@@ -76,11 +73,7 @@
       style="filter: grayscale(0.8) brightness(0.7) contrast(1.2);"
     >
       <img src={cardBackImage} alt="墓地" class="w-full h-full object-cover opacity-30 rounded-sm" />
-      <div
-        class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md z-10"
-      >
-        {cards.length}
-      </div>
     </div>
+    <CountBadge count={cards.length} />
   {/if}
 </div>
