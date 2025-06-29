@@ -1,6 +1,6 @@
 <script lang="ts">
   import CountBadge from "$lib/components/atoms/CountBadge.svelte";
-  import ExtraDeckModal from "$lib/components/modals/ExtraDeckModal.svelte";
+  import CardListModal from "$lib/components/modals/CardListModal.svelte";
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
@@ -66,4 +66,12 @@
 </div>
 
 <!-- エクストラデッキモーダル -->
-<ExtraDeckModal {cards} open={modalOpen} onOpenChange={handleModalChange} />
+<CardListModal
+  {cards}
+  open={modalOpen}
+  onOpenChange={handleModalChange}
+  title="エクストラデッキ"
+  emptyMessage="エクストラデッキにカードがありません"
+  borderColor="border-purple-400"
+  cardQuantity={1}
+/>
