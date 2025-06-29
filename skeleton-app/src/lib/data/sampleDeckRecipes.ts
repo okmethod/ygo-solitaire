@@ -34,19 +34,16 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
     ],
     extraDeck: [
       // 融合モンスター
-      { id: 89943723, quantity: 1 }, // Blue-Eyes Ultimate Dragon
+      { id: 89943723, quantity: 2 }, // Blue-Eyes Ultimate Dragon
       { id: 23995346, quantity: 1 }, // Blue-Eyes Twin Burst Dragon
-      { id: 89943723, quantity: 1 }, // Blue-Eyes Ultimate Dragon (2枚目)
 
       // シンクロモンスター
-      { id: 44508094, quantity: 1 }, // Stardust Dragon
+      { id: 44508094, quantity: 2 }, // Stardust Dragon
       { id: 70902743, quantity: 1 }, // Red Dragon Archfiend
-      { id: 44508094, quantity: 1 }, // Stardust Dragon (2枚目)
 
       // エクシーズモンスター
-      { id: 10443957, quantity: 1 }, // Number 39: Utopia
+      { id: 10443957, quantity: 2 }, // Number 39: Utopia
       { id: 69610924, quantity: 1 }, // Number 11: Big Eye
-      { id: 10443957, quantity: 1 }, // Number 39: Utopia (2枚目)
     ],
   },
 
@@ -80,19 +77,16 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
     ],
     extraDeck: [
       // 融合モンスター
-      { id: 46986414, quantity: 1 }, // Dark Paladin
+      { id: 46986414, quantity: 2 }, // Dark Paladin
       { id: 74069014, quantity: 1 }, // The Dark Magicians
-      { id: 46986414, quantity: 1 }, // Dark Paladin (2枚目)
 
       // シンクロモンスター
-      { id: 11502550, quantity: 1 }, // Tempest Magician
+      { id: 11502550, quantity: 2 }, // Tempest Magician
       { id: 44508094, quantity: 1 }, // Stardust Dragon
-      { id: 11502550, quantity: 1 }, // Tempest Magician (2枚目)
 
       // エクシーズモンスター
-      { id: 10443957, quantity: 1 }, // Number 39: Utopia
+      { id: 10443957, quantity: 2 }, // Number 39: Utopia
       { id: 90809975, quantity: 1 }, // Gagaga Cowboy
-      { id: 10443957, quantity: 1 }, // Number 39: Utopia (2枚目)
     ],
   },
 
@@ -125,22 +119,19 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
     ],
     extraDeck: [
       // 融合モンスター
-      { id: 35809262, quantity: 1 }, // Elemental HERO Flame Wingman
+      { id: 35809262, quantity: 2 }, // Elemental HERO Flame Wingman
       { id: 58932615, quantity: 1 }, // Elemental HERO Thunder Giant
       { id: 21143940, quantity: 1 }, // Elemental HERO Sparkman
-      { id: 35809262, quantity: 1 }, // Elemental HERO Flame Wingman (2枚目)
 
       // シンクロモンスター
-      { id: 44508094, quantity: 1 }, // Stardust Dragon
+      { id: 44508094, quantity: 2 }, // Stardust Dragon
       { id: 70902743, quantity: 1 }, // Red Dragon Archfiend
       { id: 33396948, quantity: 1 }, // Exodius the Ultimate Forbidden Lord
-      { id: 44508094, quantity: 1 }, // Stardust Dragon (2枚目)
 
       // エクシーズモンスター
-      { id: 10443957, quantity: 1 }, // Number 39: Utopia
+      { id: 10443957, quantity: 2 }, // Number 39: Utopia
       { id: 56832966, quantity: 1 }, // Number 17: Leviathan Dragon
       { id: 69610924, quantity: 1 }, // Number 11: Big Eye
-      { id: 10443957, quantity: 1 }, // Number 39: Utopia (2枚目)
     ],
   },
 };
