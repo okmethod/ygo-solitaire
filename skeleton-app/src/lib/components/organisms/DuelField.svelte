@@ -2,6 +2,7 @@
   import CardComponent from "$lib/components/atoms/Card.svelte";
   import Graveyard from "$lib/components/organisms/Graveyard.svelte";
   import ExtraDeck from "$lib/components/organisms/ExtraDeck.svelte";
+  import MainDeck from "$lib/components/organisms/MainDeck.svelte";
   import type { Card } from "$lib/types/card";
 
   // ゾーン数の定数
@@ -29,11 +30,6 @@
   // カードクリック処理
   function handleCardClick(card: Card) {
     console.log("Card clicked:", card.name);
-  }
-
-  // デッキクリック処理
-  function handleDeckClick() {
-    console.log("Deck clicked");
   }
 </script>
 
@@ -106,13 +102,7 @@
 
       <!-- メインデッキ -->
       <div class="flex justify-center">
-        <CardComponent
-          placeholder={true}
-          placeholderText="デッキ\n{deckCards}枚"
-          size="medium"
-          clickable={true}
-          onClick={handleDeckClick}
-        />
+        <MainDeck cardCount={deckCards} size="medium" />
       </div>
     </div>
   </div>
