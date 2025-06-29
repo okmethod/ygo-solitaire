@@ -11,7 +11,7 @@
 
   let { cards, size = "medium", onClick }: GraveyardProps = $props();
 
-  // 最上位カード（最後に追加されたカード）
+  // 最後に墓地に置かれたカード
   const topCard = $derived(cards.length > 0 ? cards[cards.length - 1] : null);
 
   // サイズクラスの定義
@@ -57,28 +57,30 @@
   onclick={handleClick}
   onmouseenter={handleMouseEnter}
   onmouseleave={handleMouseLeave}
-  onkeydown={(e) => e.key === 'Enter' && handleClick()}
+  onkeydown={(e) => e.key === "Enter" && handleClick()}
 >
   {#if topCard}
-    <!-- 最上位カードがある場合 -->
+    <!-- カードがある場合、最後に置かれたカードを表示 -->
     <div class="absolute inset-1">
       <CardComponent card={topCard} {size} clickable={false} />
     </div>
-
-    <!-- 枚数表示（右上） -->
     <div
       class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md z-10"
     >
       {cards.length}
     </div>
   {:else}
-    <!-- 墓地が空の場合のプレースホルダー -->
-    <div class="h-full flex flex-col items-center justify-center p-2">
-      <img src={cardBackImage} alt="墓地" class="w-8 h-12 object-cover opacity-30 mb-1" />
-      <span class="text-xs text-gray-600 dark:text-gray-400 font-medium text-center">
-        墓地<br />
-        {cards.length}枚
-      </span>
+    <!-- カードが無い場合、プレースホルダー色調：グレーを表示する -->
+    <div
+      class="h-full flex items-center justify-center p-1 relative"
+      style="filter: grayscale(0.8) brightness(0.7) contrast(1.2);"
+    >
+      <img src={cardBackImage} alt="墓地" class="w-full h-full object-cover opacity-30 rounded-sm" />
+      <div
+        class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md z-10"
+      >
+        {cards.length}
+      </div>
     </div>
   {/if}
 </div>
