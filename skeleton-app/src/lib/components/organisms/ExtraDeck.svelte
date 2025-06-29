@@ -1,5 +1,6 @@
 <script lang="ts">
   import CountBadge from "$lib/components/atoms/CountBadge.svelte";
+  import CardListModal from "$lib/components/modals/CardListModal.svelte";
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
@@ -7,16 +8,21 @@
   interface ExtraDeckProps {
     cards: Card[];
     size?: ComponentSize;
-    onClick?: () => void;
   }
 
-  let { cards, size = "medium", onClick }: ExtraDeckProps = $props();
+  let { cards, size = "medium" }: ExtraDeckProps = $props();
+
+  // モーダル状態管理
+  let modalOpen = $state(false);
 
   // クリック処理
   function handleClick() {
-    if (onClick) {
-      onClick();
-    }
+    modalOpen = true;
+  }
+
+  // モーダル状態変更処理
+  function handleModalChange(open: boolean) {
+    modalOpen = open;
   }
 
   // ホバー状態
@@ -58,3 +64,13 @@
   </div>
   <CountBadge count={cards.length} />
 </div>
+
+<!-- エクストラデッキモーダル -->
+<CardListModal
+  {cards}
+  open={modalOpen}
+  onOpenChange={handleModalChange}
+  title="エクストラデッキ"
+  borderColor="border-purple-400"
+  cardQuantity={1}
+/>

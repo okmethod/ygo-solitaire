@@ -40,11 +40,6 @@
   function handleGraveyardClick() {
     console.log("Graveyard clicked");
   }
-
-  // エクストラデッキクリック処理
-  function handleExtraDeckClick() {
-    console.log("Extra deck clicked");
-  }
 </script>
 
 <div class="card p-2 max-w-6xl mx-auto">
@@ -95,7 +90,7 @@
     <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
       <!-- エクストラデッキ -->
       <div class="flex justify-center">
-        <ExtraDeck cards={extraDeckCards} size="medium" onClick={handleExtraDeckClick} />
+        <ExtraDeck cards={extraDeckCards} size="medium" />
       </div>
 
       <!-- 魔法・罠ゾーン (5つ) -->

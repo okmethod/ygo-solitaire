@@ -1,6 +1,6 @@
 <script lang="ts">
   import { navigateTo } from "$lib/utils/navigation";
-  import CardsSection from "$lib/components/organisms/CardsSection.svelte";
+  import CardList from "$lib/components/organisms/CardList.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -34,13 +34,13 @@
       >
     </div>
     <!-- モンスターカード -->
-    <CardsSection title="モンスター" cardCount={data.deckData.stats.monsterCount} cards={monsters} />
+    <CardList title="モンスター" cardCount={data.deckData.stats.monsterCount} cards={monsters} />
 
     <!-- 魔法カード -->
-    <CardsSection title="魔法" cardCount={data.deckData.stats.spellCount} cards={spells} />
+    <CardList title="魔法" cardCount={data.deckData.stats.spellCount} cards={spells} />
 
     <!-- 罠カード -->
-    <CardsSection title="罠" cardCount={data.deckData.stats.trapCount} cards={traps} />
+    <CardList title="罠" cardCount={data.deckData.stats.trapCount} cards={traps} />
 
     <hr class="my-8 border-t border-gray-300" />
 
@@ -56,21 +56,17 @@
 
     <!-- 融合モンスター -->
     {#if fusion.length > 0}
-      <CardsSection title="融合" cardCount={fusion.reduce((sum, entry) => sum + entry.quantity, 0)} cards={fusion} />
+      <CardList title="融合" cardCount={fusion.reduce((sum, entry) => sum + entry.quantity, 0)} cards={fusion} />
     {/if}
 
     <!-- シンクロモンスター -->
     {#if synchro.length > 0}
-      <CardsSection
-        title="シンクロ"
-        cardCount={synchro.reduce((sum, entry) => sum + entry.quantity, 0)}
-        cards={synchro}
-      />
+      <CardList title="シンクロ" cardCount={synchro.reduce((sum, entry) => sum + entry.quantity, 0)} cards={synchro} />
     {/if}
 
     <!-- エクシーズモンスター -->
     {#if xyz.length > 0}
-      <CardsSection title="エクシーズ" cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)} cards={xyz} />
+      <CardList title="エクシーズ" cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)} cards={xyz} />
     {/if}
     <hr class="my-8 border-t border-gray-300" />
   </div>
