@@ -1,5 +1,6 @@
 <script lang="ts">
   import Card from "$lib/components/atoms/Card.svelte";
+  import Graveyard from "$lib/components/organisms/Graveyard.svelte";
   import type { Card as CardType } from "$lib/types/card";
 
   // ゾーン数の定数
@@ -9,7 +10,7 @@
   interface DuelFieldProps {
     deckCards?: number;
     extraDeckCards?: number;
-    graveyardCards?: number;
+    graveyardCards?: CardType[];
     fieldCards?: CardType[];
     monsterCards?: CardType[];
     spellTrapCards?: CardType[];
@@ -18,7 +19,7 @@
   let {
     deckCards = 40,
     extraDeckCards = 15,
-    graveyardCards = 0,
+    graveyardCards = [],
     fieldCards = [],
     monsterCards = [],
     spellTrapCards = [],
@@ -80,18 +81,11 @@
 
       <!-- 墓地 -->
       <div class="flex justify-center">
-        <div class="relative">
-          <!-- プレースホルダー色調：グレー -->
-          <div style="filter: grayscale(0.8) brightness(0.7) contrast(1.2);">
-            <Card
-              placeholder={true}
-              placeholderText="墓地\n{graveyardCards}枚"
-              size="medium"
-              clickable={true}
-              onClick={handleGraveyardClick}
-            />
-          </div>
-        </div>
+        <Graveyard 
+          cards={graveyardCards}
+          size="medium"
+          onClick={handleGraveyardClick}
+        />
       </div>
     </div>
 

@@ -17,7 +17,7 @@
         <DuelField
           deckCards={duelStats.mainDeckRemaining}
           extraDeckCards={duelStats.extraDeckRemaining}
-          graveyardCards={duelStats.graveyardSize}
+          graveyardCards={duelState.graveyard}
         />
         <Hands cards={duelState.hands} />
       </div>
