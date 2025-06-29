@@ -43,6 +43,7 @@ export interface CardData {
  * 実際のデュエル中にのみ使用
  */
 export interface Card extends CardData {
+  instanceId?: string; // 同じカードの複数インスタンスを区別するための一意ID
   isSelected?: boolean; // UI上での選択状態
   position?: "attack" | "defense" | "facedown"; // フィールド上での表示形式
 }

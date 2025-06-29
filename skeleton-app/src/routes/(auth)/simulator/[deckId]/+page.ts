@@ -8,7 +8,8 @@ export const load: PageLoad = async ({ params, fetch }) => {
   const deckData = await loadDeckData(deckId, fetch);
   const duelState = DuelState.loadDeck(deckData);
 
-  // 初期手札をドロー
+  // デッキをシャッフルして初期手札をドロー
+  duelState.shuffleMainDeck();
   duelState.drawInitialHands();
 
   return {

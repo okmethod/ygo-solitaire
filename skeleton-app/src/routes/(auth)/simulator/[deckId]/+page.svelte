@@ -19,7 +19,7 @@
           extraDeckCards={duelStats.extraDeckRemaining}
           graveyardCards={duelStats.graveyardSize}
         />
-        <Hands handCards={duelStats.handsSize} />
+        <Hands cards={duelState.hands} />
       </div>
       <div class="col-span-1 p-4">
         <GameInfo

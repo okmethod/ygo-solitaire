@@ -55,7 +55,10 @@ export class DuelState {
     const cards: Card[] = [];
     for (const { cardData, quantity } of loadedCardEntries) {
       for (let i = 0; i < quantity; i++) {
-        cards.push({ ...cardData });
+        cards.push({
+          ...cardData,
+          instanceId: `${cardData.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        });
       }
     }
     return cards;
