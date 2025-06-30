@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
+  import { showCardDetail } from "$lib/stores/cardDetailStore";
+  import { showCardDetailToast } from "$lib/utils/cardDetailToaster";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface CardComponentProps {
@@ -13,6 +15,7 @@
     placeholderText?: string;
     rotation?: number;
     animate?: boolean;
+    showDetailOnClick?: boolean;
     onClick?: (card: Card) => void;
     onHover?: (card: Card | null) => void;
   }
@@ -27,6 +30,7 @@
     placeholderText = "カード",
     rotation = 0,
     animate = true,
+    showDetailOnClick = false,
     onClick,
     onHover,
   }: CardComponentProps = $props();
@@ -43,6 +47,30 @@
       isSelected = !isSelected;
       if (card) card.isSelected = isSelected;
     }
+    if (showDetailOnClick && card) {
+      showCardDetail(card);
+      const cardDetails = formatCardDetails(card);
+      showCardDetailToast(card.name, cardDetails);
+    }
+  }
+
+  // カード詳細情報をフォーマット
+  function formatCardDetails(card: Card): string {
+    const details = [];
+    details.push(`タイプ: ${card.type}`);
+
+    if (card.type === "monster" && card.monster) {
+      details.push(`ATK: ${card.monster.attack} / DEF: ${card.monster.defense}`);
+      details.push(`レベル: ${card.monster.level}`);
+      if (card.monster.attribute) {
+        details.push(`属性: ${card.monster.attribute}`);
+      }
+      if (card.monster.race) {
+        details.push(`種族: ${card.monster.race}`);
+      }
+    }
+
+    return details.join(" | ");
   }
 
   // ホバー処理
@@ -70,7 +98,9 @@
   const animationClasses = $derived(animate ? "transition-all duration-300 ease-in-out" : "");
 
   // ホバー効果クラス
-  const hoverClasses = $derived(clickable || selectable ? "cursor-pointer hover:scale-105 hover:shadow-lg" : "");
+  const hoverClasses = $derived(
+    clickable || selectable || showDetailOnClick ? "cursor-pointer hover:scale-105 hover:shadow-lg" : "",
+  );
 
   // 選択状態クラス
   const selectedClasses = $derived(isSelected ? "ring-2 ring-primary-500 shadow-lg" : "");
@@ -109,7 +139,7 @@
   // インタラクティブ要素の属性
   const interactiveProps = $derived({
     style: rotationStyle,
-    onclick: clickable || selectable ? handleClick : undefined,
+    onclick: clickable || selectable || showDetailOnClick ? handleClick : undefined,
     onmouseenter: handleMouseEnter,
     onmouseleave: handleMouseLeave,
   });
@@ -166,7 +196,7 @@
   {/if}
 {/snippet}
 
-{#if clickable || selectable}
+{#if clickable || selectable || showDetailOnClick}
   <button class="{commonClasses()} bg-transparent p-0 border border-2 border-gray-100" {...interactiveProps}>
     {@render cardContent()}
   </button>
