@@ -26,7 +26,7 @@
   <title>Yu-Gi-Oh! ソリティア</title>
 </svelte:head>
 
-<Toaster {toaster} rounded="rounded-lg" descriptionClasses="whitespace-pre-wrap" titleClasses="whitespace-pre-wrap" />
+<Toaster {toaster} rounded="rounded-lg" />
 
 {#if isLoaded}
   <header class="p-2 sm:p-4 shadow-md bg-surface-100-900">
