@@ -37,7 +37,7 @@
         {#each cards as cardEntry (cardEntry.cardData.id)}
           <div class="relative">
             <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-              <CardComponent card={cardEntry.cardData} size="medium" showDetails={true} />
+              <CardComponent card={cardEntry.cardData} size="medium" />
             </div>
             {#if cardEntry.quantity > 1}
               <CountBadge count={cardEntry.quantity} colorClasses="bg-primary-200 text-primary-900" />

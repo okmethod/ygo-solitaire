@@ -8,7 +8,6 @@
   interface CardComponentProps {
     card?: Card;
     size?: ComponentSize;
-    showDetails?: boolean;
     clickable?: boolean;
     selectable?: boolean;
     placeholder?: boolean;
@@ -23,7 +22,6 @@
   let {
     card,
     size = "medium",
-    showDetails = false,
     clickable = false,
     selectable = false,
     placeholder = false,
@@ -177,11 +175,6 @@
   {#if card && !isPlaceholder}
     <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
       <div class="text-xs font-medium truncate">{card.name}</div>
-      {#if showDetails || (isHovered && size !== "small")}
-        <div class="text-xs opacity-75 mt-1">
-          <!-- 何か追加するかも -->
-        </div>
-      {/if}
     </div>
   {/if}
 
