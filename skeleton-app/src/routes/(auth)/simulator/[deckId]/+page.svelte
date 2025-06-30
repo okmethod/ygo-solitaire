@@ -1,7 +1,7 @@
 <script lang="ts">
-  import DuelField from "$lib/components/organisms/DuelField.svelte";
+  import DuelField from "$lib/components/organisms/board/DuelField.svelte";
   import GameInfo from "$lib/components/organisms/GameInfo.svelte";
-  import Hands from "$lib/components/organisms/Hands.svelte";
+  import Hands from "$lib/components/organisms/board/Hands.svelte";
   import type { PageData } from "./$types";
 
   export let data: PageData;
