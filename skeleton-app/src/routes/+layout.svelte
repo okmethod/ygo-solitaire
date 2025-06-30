@@ -8,7 +8,6 @@
   import CardImageDisplay from "$lib/components/atoms/CardImageDisplay.svelte";
   import { applyTheme } from "$lib/stores/theme";
   import { toaster } from "$lib/utils/toaster";
-  import { cardDetailToaster } from "$lib/utils/cardDetailToaster";
   import { base } from "$app/paths";
 
   let { children } = $props();
@@ -27,8 +26,7 @@
   <title>Yu-Gi-Oh! ソリティア</title>
 </svelte:head>
 
-<Toaster {toaster} rounded="rounded-lg" />
-<Toaster toaster={cardDetailToaster} rounded="rounded-lg" />
+<Toaster {toaster} rounded="rounded-lg" descriptionClasses="whitespace-pre-wrap" titleClasses="whitespace-pre-wrap" />
 
 {#if isLoaded}
   <header class="p-2 sm:p-4 shadow-md bg-surface-100-900">

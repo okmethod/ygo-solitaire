@@ -2,7 +2,6 @@
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import { showCardDetail } from "$lib/stores/cardDetailStore";
-  import { showCardDetailToast } from "$lib/utils/cardDetailToaster";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface CardComponentProps {
@@ -47,28 +46,7 @@
     }
     if (showDetailOnClick && card) {
       showCardDetail(card);
-      const cardDetails = formatCardDetails(card);
-      showCardDetailToast(card.name, cardDetails);
     }
-  }
-
-  // カード詳細情報をフォーマット
-  function formatCardDetails(card: Card): string {
-    const details = [];
-    details.push(`タイプ: ${card.type}`);
-
-    if (card.type === "monster" && card.monster) {
-      details.push(`ATK: ${card.monster.attack} / DEF: ${card.monster.defense}`);
-      details.push(`レベル: ${card.monster.level}`);
-      if (card.monster.attribute) {
-        details.push(`属性: ${card.monster.attribute}`);
-      }
-      if (card.monster.race) {
-        details.push(`種族: ${card.monster.race}`);
-      }
-    }
-
-    return details.join(" | ");
   }
 
   // ホバー処理
