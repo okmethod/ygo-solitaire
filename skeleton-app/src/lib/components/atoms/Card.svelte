@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
-  import { showCardDetail } from "$lib/stores/cardDetailStore";
+  import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface CardComponentProps {
@@ -45,7 +45,7 @@
       if (card) card.isSelected = isSelected;
     }
     if (showDetailOnClick && card) {
-      showCardDetail(card);
+      showCardDetailDisplay(card);
     }
   }
 

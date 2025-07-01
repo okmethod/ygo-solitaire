@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { selectedCardForDetail, hideCardDetail } from "$lib/stores/cardDetailStore";
+  import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import { onMount } from "svelte";
 
   let isVisible = false;
 
-  $: if ($selectedCardForDetail) {
+  $: if ($selectedCardForDisplay) {
     isVisible = true;
   } else {
     isVisible = false;
   }
 
   function handleClose() {
-    hideCardDetail();
+    hideCardDetailDisplay();
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -28,7 +28,7 @@
   });
 </script>
 
-{#if isVisible && $selectedCardForDetail}
+{#if isVisible && $selectedCardForDisplay}
   <div
     class="fixed top-4 right-4 z-50 bg-surface-100-800-token rounded-lg shadow-lg p-4 w-80 transition-all duration-300 ease-in-out"
     role="dialog"
@@ -37,7 +37,7 @@
   >
     <div class="flex justify-between items-center mb-3">
       <h3 id="card-image-title" class="text-lg font-semibold truncate">
-        {$selectedCardForDetail.name}
+        {$selectedCardForDisplay.name}
       </h3>
       <button
         on:click={handleClose}
@@ -52,8 +52,8 @@
 
     <div class="mb-3">
       <img
-        src={$selectedCardForDetail.images?.image || "/CardBack.jpg"}
-        alt={$selectedCardForDetail.name}
+        src={$selectedCardForDisplay.images?.image || "/CardBack.jpg"}
+        alt={$selectedCardForDisplay.name}
         class="w-full h-auto rounded-md shadow-sm"
         loading="lazy"
       />
@@ -62,39 +62,39 @@
     <div id="card-image-description" class="text-sm space-y-2">
       <div class="flex justify-between">
         <span class="text-surface-600-300-token">タイプ:</span>
-        <span class="capitalize">{$selectedCardForDetail.type}</span>
+        <span class="capitalize">{$selectedCardForDisplay.type}</span>
       </div>
 
-      {#if $selectedCardForDetail.type === "monster" && $selectedCardForDetail.monster}
+      {#if $selectedCardForDisplay.type === "monster" && $selectedCardForDisplay.monster}
         <div class="flex justify-between">
           <span class="text-surface-600-300-token">ATK/DEF:</span>
-          <span>{$selectedCardForDetail.monster.attack}/{$selectedCardForDetail.monster.defense}</span>
+          <span>{$selectedCardForDisplay.monster.attack}/{$selectedCardForDisplay.monster.defense}</span>
         </div>
 
         <div class="flex justify-between">
           <span class="text-surface-600-300-token">レベル:</span>
-          <span>{$selectedCardForDetail.monster.level}</span>
+          <span>{$selectedCardForDisplay.monster.level}</span>
         </div>
 
-        {#if $selectedCardForDetail.monster.attribute}
+        {#if $selectedCardForDisplay.monster.attribute}
           <div class="flex justify-between">
             <span class="text-surface-600-300-token">属性:</span>
-            <span>{$selectedCardForDetail.monster.attribute}</span>
+            <span>{$selectedCardForDisplay.monster.attribute}</span>
           </div>
         {/if}
 
-        {#if $selectedCardForDetail.monster.race}
+        {#if $selectedCardForDisplay.monster.race}
           <div class="flex justify-between">
             <span class="text-surface-600-300-token">種族:</span>
-            <span>{$selectedCardForDetail.monster.race}</span>
+            <span>{$selectedCardForDisplay.monster.race}</span>
           </div>
         {/if}
       {/if}
 
-      {#if $selectedCardForDetail.description}
+      {#if $selectedCardForDisplay.description}
         <div class="mt-3 pt-3 border-t border-surface-300-600-token">
           <p class="text-xs text-surface-700-200-token leading-relaxed">
-            {$selectedCardForDetail.description}
+            {$selectedCardForDisplay.description}
           </p>
         </div>
       {/if}
