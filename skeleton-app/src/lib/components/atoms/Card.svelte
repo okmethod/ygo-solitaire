@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
+  import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
   import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
@@ -86,17 +87,7 @@
 
   // カードタイプ別の背景色
   const typeClasses = $derived(() => {
-    if (!card) return "bg-surface-100-600-token";
-    switch (card.type) {
-      case "monster":
-        return "!bg-yellow-200 dark:!bg-yellow-800";
-      case "spell":
-        return "!bg-green-200 dark:!bg-green-800";
-      case "trap":
-        return "!bg-purple-200 dark:!bg-purple-800";
-      default:
-        return "bg-surface-100-600-token";
-    }
+    return getCardTypeBackgroundClass(card?.type);
   });
 
   // 共通クラス
