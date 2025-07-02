@@ -2,14 +2,9 @@
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
+  import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
 
-  let isVisible = false;
-
-  $: if ($selectedCardForDisplay) {
-    isVisible = true;
-  } else {
-    isVisible = false;
-  }
+  const isVisible = $derived(!!$selectedCardForDisplay);
 
   function handleClose() {
     hideCardDetailDisplay();
@@ -27,11 +22,24 @@
       document.removeEventListener("keydown", handleKeydown);
     };
   });
+
+  // カードタイプに応じた背景色
+  const backgroundClass = $derived(() => {
+    if (!$selectedCardForDisplay) return "bg-gray-100 dark:bg-gray-800";
+    const typeClass = getCardTypeBackgroundClass($selectedCardForDisplay.type, "bg-gray-100 dark:bg-gray-800");
+    return typeClass;
+  });
 </script>
 
 {#if isVisible && $selectedCardForDisplay}
   <div
-    class="fixed top-4 right-4 z-50 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 w-80 transition-all duration-300 ease-in-out"
+    class="
+      fixed top-4 right-4 z-50 p-4 w-80
+      {backgroundClass()}
+      rounded-lg shadow-lg
+      border border-4 border-gray-400 dark:border-gray-700
+      transition-all duration-300 ease-in-out
+    "
     role="dialog"
     aria-labelledby="card-image-title"
     aria-describedby="card-image-description"
@@ -41,7 +49,7 @@
         {$selectedCardForDisplay.name}
       </h3>
       <button
-        on:click={handleClose}
+        onclick={handleClose}
         class="btn-icon btn-icon-sm border hover:bg-surface-200-700-token"
         aria-label="カード詳細を閉じる"
       >
