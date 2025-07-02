@@ -1,18 +1,20 @@
 <script lang="ts">
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
+  import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
+  import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface CardComponentProps {
     card?: Card;
     size?: ComponentSize;
-    showDetails?: boolean;
     clickable?: boolean;
     selectable?: boolean;
     placeholder?: boolean;
     placeholderText?: string;
     rotation?: number;
     animate?: boolean;
+    showDetailOnClick?: boolean;
     onClick?: (card: Card) => void;
     onHover?: (card: Card | null) => void;
   }
@@ -20,13 +22,13 @@
   let {
     card,
     size = "medium",
-    showDetails = false,
     clickable = false,
     selectable = false,
     placeholder = false,
     placeholderText = "カード",
     rotation = 0,
     animate = true,
+    showDetailOnClick = false,
     onClick,
     onHover,
   }: CardComponentProps = $props();
@@ -42,6 +44,9 @@
     if (selectable) {
       isSelected = !isSelected;
       if (card) card.isSelected = isSelected;
+    }
+    if (showDetailOnClick && card) {
+      showCardDetailDisplay(card);
     }
   }
 
@@ -70,7 +75,9 @@
   const animationClasses = $derived(animate ? "transition-all duration-300 ease-in-out" : "");
 
   // ホバー効果クラス
-  const hoverClasses = $derived(clickable || selectable ? "cursor-pointer hover:scale-105 hover:shadow-lg" : "");
+  const hoverClasses = $derived(
+    clickable || selectable || showDetailOnClick ? "cursor-pointer hover:scale-105 hover:shadow-lg" : "",
+  );
 
   // 選択状態クラス
   const selectedClasses = $derived(isSelected ? "ring-2 ring-primary-500 shadow-lg" : "");
@@ -80,17 +87,7 @@
 
   // カードタイプ別の背景色
   const typeClasses = $derived(() => {
-    if (!card) return "bg-surface-100-600-token";
-    switch (card.type) {
-      case "monster":
-        return "!bg-yellow-200 dark:!bg-yellow-800";
-      case "spell":
-        return "!bg-green-200 dark:!bg-green-800";
-      case "trap":
-        return "!bg-purple-200 dark:!bg-purple-800";
-      default:
-        return "bg-surface-100-600-token";
-    }
+    return getCardTypeBackgroundClass(card?.type);
   });
 
   // 共通クラス
@@ -109,7 +106,7 @@
   // インタラクティブ要素の属性
   const interactiveProps = $derived({
     style: rotationStyle,
-    onclick: clickable || selectable ? handleClick : undefined,
+    onclick: clickable || selectable || showDetailOnClick ? handleClick : undefined,
     onmouseenter: handleMouseEnter,
     onmouseleave: handleMouseLeave,
   });
@@ -147,11 +144,6 @@
   {#if card && !isPlaceholder}
     <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
       <div class="text-xs font-medium truncate">{card.name}</div>
-      {#if showDetails || (isHovered && size !== "small")}
-        <div class="text-xs opacity-75 mt-1">
-          <!-- 何か追加するかも -->
-        </div>
-      {/if}
     </div>
   {/if}
 
@@ -166,7 +158,7 @@
   {/if}
 {/snippet}
 
-{#if clickable || selectable}
+{#if clickable || selectable || showDetailOnClick}
   <button class="{commonClasses()} bg-transparent p-0 border border-2 border-gray-100" {...interactiveProps}>
     {@render cardContent()}
   </button>

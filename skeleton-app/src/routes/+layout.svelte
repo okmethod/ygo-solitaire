@@ -5,6 +5,7 @@
   import Icon from "@iconify/svelte";
   import ThemeSwitchModal from "$lib/components/modals/ThemeSwitchModal.svelte";
   import AudioToggle from "$lib/components/buttons/AudioToggle.svelte";
+  import CardDetailDisplay from "$lib/components/atoms/CardDetailDisplay.svelte";
   import { applyTheme } from "$lib/stores/theme";
   import { toaster } from "$lib/utils/toaster";
   import { base } from "$app/paths";
@@ -51,6 +52,9 @@
   <main class="mx-auto">
     {@render children()}
   </main>
+
+  <!-- カード詳細表示エリア -->
+  <CardDetailDisplay />
 {:else}
   <div class="h-screen flex items-center justify-center bg-gray-100">
     <div class="font-mono text-black text-[32px]">Now Loading...</div>
