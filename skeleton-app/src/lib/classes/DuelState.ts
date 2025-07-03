@@ -2,6 +2,7 @@ import type { Card } from "$lib/types/card";
 import type { DuelStateData, DuelStats } from "$lib/types/duel";
 import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData } from "$lib/types/deck";
 import type { Effect, EffectResult } from "$lib/types/effect";
+import { EffectRegistry } from "./effects/EffectRegistry";
 
 /**
  * ゲーム状態管理クラス
@@ -28,7 +29,6 @@ export class DuelState {
   public currentTurn: number;
   public currentPhase: string;
   public gameResult: "ongoing" | "win" | "lose" | "draw";
-  public registeredEffects: Map<number, Effect[]>;
 
   constructor(data: Partial<DuelStateData> = {}) {
     this.name = data.name || "No Name";
@@ -50,7 +50,6 @@ export class DuelState {
     this.currentTurn = 1;
     this.currentPhase = "メインフェイズ1";
     this.gameResult = "ongoing";
-    this.registeredEffects = new Map<number, Effect[]>();
   }
 
   /**
@@ -349,20 +348,10 @@ export class DuelState {
   // Effect関連メソッド
 
   /**
-   * カードに効果を登録する
-   */
-  registerEffect(cardId: number, effect: Effect): void {
-    if (!this.registeredEffects.has(cardId)) {
-      this.registeredEffects.set(cardId, []);
-    }
-    this.registeredEffects.get(cardId)!.push(effect);
-  }
-
-  /**
-   * カードの効果を取得する
+   * カードの効果を取得する（EffectRegistryから）
    */
   getEffectsForCard(cardId: number): Effect[] {
-    return this.registeredEffects.get(cardId) || [];
+    return EffectRegistry.getEffects(cardId);
   }
 
   /**
