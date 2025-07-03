@@ -46,21 +46,6 @@ export class CardEffectRegistrar {
   }
 
   /**
-   * 全てのカード効果をEffectRegistryに登録（後方互換性のため）
-   * @deprecated registerEffectsFromDeck を使用してください
-   */
-  static registerAllEffects(): void {
-    console.log("[CardEffectRegistrar] 全効果の一括登録（非推奨）を開始します...");
-
-    // 強欲な壺のみを登録（後方互換性のため）
-    EffectRegistry.register(55144522, () => [new PotOfGreedEffect()]);
-
-    const stats = EffectRegistry.getStats();
-    console.log(`[CardEffectRegistrar] ${stats.totalRegistered}個のカード効果を登録しました`);
-    console.log(`[CardEffectRegistrar] 登録されたカードID: ${stats.cardIds.join(", ")}`);
-  }
-
-  /**
    * 効果クラス名に基づいて効果ファクトリーを取得
    * デッキレシピの effectClass フィールドを使用した新しい方式
    */
@@ -69,8 +54,8 @@ export class CardEffectRegistrar {
     effectClass?: string,
   ): (() => import("$lib/types/effect").Effect[]) | null {
     if (!effectClass) {
-      // 効果クラスが指定されていない場合、従来の方式にフォールバック
-      return this.getEffectFactory(cardId);
+      // 効果クラスが指定されていない場合は null を返す
+      return null;
     }
 
     switch (effectClass) {
@@ -89,31 +74,6 @@ export class CardEffectRegistrar {
 
       default:
         console.warn(`[CardEffectRegistrar] 不明な効果クラス: ${effectClass} (カードID: ${cardId})`);
-        return null;
-    }
-  }
-
-  /**
-   * カードIDに対応する効果ファクトリーを取得（従来方式）
-   * 新しいカード効果を追加する際はここに追加する
-   * @deprecated getEffectFactoryByClass を使用してください
-   */
-  private static getEffectFactory(cardId: number): (() => import("$lib/types/effect").Effect[]) | null {
-    switch (cardId) {
-      case 55144522: // 強欲な壺
-        return () => [new PotOfGreedEffect()];
-
-      // TODO: 今後追加予定の効果
-      // case 70278545: // 謙虚な壺
-      //   return () => [new ModestPotEffect()];
-
-      // case 83968380: // 強欲な瓶
-      //   return () => [new JarOfGreedEffect()];
-
-      // case 33396948: // 封印されしエクゾディア
-      //   return () => [new ExodiaWinEffect()];
-
-      default:
         return null;
     }
   }

@@ -30,14 +30,6 @@ describe("Effects Integration", () => {
   });
 
   describe("CardEffectRegistrar統合", () => {
-    it("全てのカード効果を一括登録できる（後方互換性）", () => {
-      CardEffectRegistrar.registerAllEffects();
-
-      const stats = EffectRegistry.getStats();
-      expect(stats.totalRegistered).toBeGreaterThan(0);
-      expect(stats.cardIds).toContain(55144522); // 強欲な壺
-    });
-
     it("デッキレシピから効果を登録できる", () => {
       const testDeck: DeckRecipe = {
         name: "テストデッキ",
@@ -95,7 +87,17 @@ describe("Effects Integration", () => {
     });
 
     it("強欲な壺の効果が正しく登録される", () => {
-      CardEffectRegistrar.registerAllEffects();
+      const testDeck: DeckRecipe = {
+        name: "強欲な壺テストデッキ",
+        description: "強欲な壺テスト用",
+        category: "テスト",
+        mainDeck: [
+          { id: 55144522, quantity: 1, effectClass: "PotOfGreedEffect" }, // 強欲な壺
+        ],
+        extraDeck: [],
+      };
+
+      CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
       const effects = EffectRegistry.getEffects(55144522);
       expect(effects).toHaveLength(1);
@@ -104,7 +106,17 @@ describe("Effects Integration", () => {
     });
 
     it("登録確認機能が正常に動作する", () => {
-      CardEffectRegistrar.registerAllEffects();
+      const testDeck: DeckRecipe = {
+        name: "登録確認テストデッキ",
+        description: "登録確認テスト用",
+        category: "テスト",
+        mainDeck: [
+          { id: 55144522, quantity: 1, effectClass: "PotOfGreedEffect" }, // 強欲な壺
+        ],
+        extraDeck: [],
+      };
+
+      CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
       const registration = CardEffectRegistrar.checkRegistration(55144522);
       expect(registration.isRegistered).toBe(true);
@@ -113,7 +125,17 @@ describe("Effects Integration", () => {
     });
 
     it("登録サマリが正しく取得できる", () => {
-      CardEffectRegistrar.registerAllEffects();
+      const testDeck: DeckRecipe = {
+        name: "サマリテストデッキ",
+        description: "サマリテスト用",
+        category: "テスト",
+        mainDeck: [
+          { id: 55144522, quantity: 1, effectClass: "PotOfGreedEffect" }, // 強欲な壺
+        ],
+        extraDeck: [],
+      };
+
+      CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
       const summary = CardEffectRegistrar.getRegistrationSummary();
       expect(summary.totalCards).toBeGreaterThan(0);
@@ -126,7 +148,16 @@ describe("Effects Integration", () => {
 
   describe("DuelStateとの統合", () => {
     beforeEach(() => {
-      CardEffectRegistrar.registerAllEffects();
+      const testDeck: DeckRecipe = {
+        name: "DuelState統合テストデッキ",
+        description: "DuelState統合テスト用",
+        category: "テスト",
+        mainDeck: [
+          { id: 55144522, quantity: 1, effectClass: "PotOfGreedEffect" }, // 強欲な壺
+        ],
+        extraDeck: [],
+      };
+      CardEffectRegistrar.registerEffectsFromDeck(testDeck);
     });
 
     it("DuelStateから強欲な壺の効果を取得できる", () => {
