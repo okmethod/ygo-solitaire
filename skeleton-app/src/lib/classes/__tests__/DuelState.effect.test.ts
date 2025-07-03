@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { DuelState } from "../DuelState";
 import { BaseEffect } from "../effects/BaseEffect";
+import { EffectRegistry } from "../effects/EffectRegistry";
 import { EffectType } from "$lib/types/effect";
 import type { EffectResult } from "$lib/types/effect";
 
@@ -29,6 +30,9 @@ describe("DuelState Effect Integration", () => {
   let drawEffect: SimpleDrawEffect;
 
   beforeEach(() => {
+    // EffectRegistryをクリア
+    EffectRegistry.clear();
+
     duelState = new DuelState({
       name: "効果テストデュエル",
       mainDeck: [
@@ -41,9 +45,14 @@ describe("DuelState Effect Integration", () => {
     drawEffect = new SimpleDrawEffect();
   });
 
+  afterEach(() => {
+    // テスト後にEffectRegistryをクリア
+    EffectRegistry.clear();
+  });
+
   describe("効果登録と取得", () => {
-    it("カードに効果を登録できる", () => {
-      duelState.registerEffect(55144522, drawEffect);
+    it("EffectRegistryを通してカードに効果を登録できる", () => {
+      EffectRegistry.register(55144522, () => [drawEffect]);
 
       const effects = duelState.getEffectsForCard(55144522);
       expect(effects).toHaveLength(1);
@@ -68,8 +77,7 @@ describe("DuelState Effect Integration", () => {
         }
       })();
 
-      duelState.registerEffect(55144522, drawEffect);
-      duelState.registerEffect(55144522, secondEffect);
+      EffectRegistry.register(55144522, () => [drawEffect, secondEffect]);
 
       const effects = duelState.getEffectsForCard(55144522);
       expect(effects).toHaveLength(2);
@@ -78,7 +86,7 @@ describe("DuelState Effect Integration", () => {
 
   describe("効果実行", () => {
     beforeEach(() => {
-      duelState.registerEffect(55144522, drawEffect);
+      EffectRegistry.register(55144522, () => [drawEffect]);
     });
 
     it("効果を直接実行できる", () => {
