@@ -1,8 +1,9 @@
 import type { Card } from "$lib/types/card";
 import type { DuelStateData, DuelStats } from "$lib/types/duel";
-import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData } from "$lib/types/deck";
+import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData, DeckRecipe } from "$lib/types/deck";
 import type { Effect, EffectResult } from "$lib/types/effect";
 import { EffectRegistry } from "./effects/EffectRegistry";
+import { CardEffectRegistrar } from "./effects/registry/CardEffectRegistrar";
 
 /**
  * ゲーム状態管理クラス
@@ -50,6 +51,15 @@ export class DuelState {
     this.currentTurn = 1;
     this.currentPhase = "メインフェイズ1";
     this.gameResult = "ongoing";
+  }
+
+  /**
+   * デッキレシピから効果を登録
+   * DuelStateを作成後に、使用するデッキレシピを指定して効果を登録する
+   */
+  registerEffectsFromDeckRecipe(deckRecipe: DeckRecipe): void {
+    console.log(`[DuelState] デッキレシピ「${deckRecipe.name}」から効果を登録します`);
+    CardEffectRegistrar.registerEffectsFromDeck(deckRecipe);
   }
 
   /**

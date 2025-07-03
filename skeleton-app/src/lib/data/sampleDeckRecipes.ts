@@ -15,11 +15,11 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       { id: 8124921, quantity: 1 }, // 封印されし者の右足
 
       // 魔法カード
-      { id: 55144522, quantity: 20 }, // 強欲な壺
-      { id: 70278545, quantity: 12 }, // 謙虚な壺
+      { id: 55144522, quantity: 20, effectClass: "PotOfGreedEffect" }, // 強欲な壺
+      { id: 70278545, quantity: 12 }, // 謙虚な壺（未実装）
 
       // 罠カード
-      { id: 83968380, quantity: 3 }, // 強欲な瓶
+      { id: 83968380, quantity: 3 }, // 強欲な瓶（未実装）
     ],
     extraDeck: [],
   },
