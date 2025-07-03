@@ -1,6 +1,8 @@
 import type { Card } from "$lib/types/card";
 import type { DuelStateData, DuelStats } from "$lib/types/duel";
 import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData } from "$lib/types/deck";
+import type { Effect, EffectResult } from "$lib/types/effect";
+import { EffectRegistry } from "./effects/EffectRegistry";
 
 /**
  * ゲーム状態管理クラス
@@ -26,6 +28,7 @@ export class DuelState {
   public opponentLifePoints: number;
   public currentTurn: number;
   public currentPhase: string;
+  public gameResult: "ongoing" | "win" | "lose" | "draw";
 
   constructor(data: Partial<DuelStateData> = {}) {
     this.name = data.name || "No Name";
@@ -46,6 +49,7 @@ export class DuelState {
     this.opponentLifePoints = 8000;
     this.currentTurn = 1;
     this.currentPhase = "メインフェイズ1";
+    this.gameResult = "ongoing";
   }
 
   /**
@@ -339,6 +343,69 @@ export class DuelState {
    */
   clone(): DuelState {
     return DuelState.fromJSON(this.toJSON());
+  }
+
+  // Effect関連メソッド
+
+  /**
+   * カードの効果を取得する（EffectRegistryから）
+   */
+  getEffectsForCard(cardId: number): Effect[] {
+    return EffectRegistry.getEffects(cardId);
+  }
+
+  /**
+   * 効果を実行する
+   */
+  executeEffect(effect: Effect): EffectResult {
+    if (!effect.canActivate(this)) {
+      return {
+        success: false,
+        message: `${effect.name}は発動できません`,
+        stateChanged: false,
+      };
+    }
+
+    const result = effect.execute(this);
+
+    // 効果実行後にゲーム状態をチェック
+    if (result.gameEnded) {
+      this.gameResult = "win";
+    }
+
+    return result;
+  }
+
+  /**
+   * カードIDから効果を実行する
+   */
+  executeCardEffect(cardId: number, effectId?: string): EffectResult {
+    const effects = this.getEffectsForCard(cardId);
+
+    if (effects.length === 0) {
+      return {
+        success: false,
+        message: "このカードには効果がありません",
+        stateChanged: false,
+      };
+    }
+
+    // 特定の効果IDが指定されている場合はそれを実行
+    if (effectId) {
+      const targetEffect = effects.find((effect) => effect.id === effectId);
+      if (targetEffect) {
+        return this.executeEffect(targetEffect);
+      } else {
+        return {
+          success: false,
+          message: "指定された効果が見つかりません",
+          stateChanged: false,
+        };
+      }
+    }
+
+    // 効果IDが指定されていない場合は最初の効果を実行
+    return this.executeEffect(effects[0]);
   }
 
   // ユーティリティメソッド
