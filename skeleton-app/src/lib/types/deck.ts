@@ -1,12 +1,13 @@
 import type { CardData } from "$lib/types/card";
 
 /**
- * レシピ保存時のカードエントリー（ID + 枚数）
+ * レシピ保存時のカードエントリー（ID + 枚数 + 効果情報）
  * データベースやJSONファイルに保存する軽量な形式
  */
 export interface RecipeCardEntry {
   id: number; // YGOPRODeck API の数値 ID
   quantity: number; // 枚数
+  effectClass?: string; // 効果クラス名（オプション）
 }
 
 /**

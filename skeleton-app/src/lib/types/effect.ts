@@ -73,7 +73,7 @@ export interface InteractiveEffectResult extends EffectResult {
   choices?: {
     id: string;
     label: string;
-    value: any;
+    value: unknown;
   }[];
   /** 選択が必要な場合のコールバック */
   onChoice?: (choiceId: string) => void;
@@ -91,5 +91,5 @@ export interface EffectContext {
   /** チェーンブロック内での順序 */
   chainIndex?: number;
   /** 追加のコンテキストデータ */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
