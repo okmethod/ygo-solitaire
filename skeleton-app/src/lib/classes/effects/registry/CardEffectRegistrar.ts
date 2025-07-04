@@ -49,6 +49,24 @@ export class CardEffectRegistrar {
    * 効果クラス名に基づいて効果ファクトリーを取得
    * デッキレシピの effectClass フィールドを使用した新しい方式
    */
+  /**
+   * 効果クラスのレジストリ
+   * クラス名とコンストラクタのマッピング
+   *
+   * この方式の利点:
+   * 1. 新しい効果クラスを動的に登録可能
+   * 2. テスト時のモック効果の注入が容易
+   * 3. プラグインシステムとして拡張可能
+   * 4. switch文よりも保守性が高い
+   */
+  private static effectClassRegistry = new Map<string, new () => import("$lib/types/effect").Effect>([
+    ["PotOfGreedEffect", PotOfGreedEffect],
+    // TODO: 今後追加予定の効果クラス
+    // ["ModestPotEffect", ModestPotEffect],
+    // ["JarOfGreedEffect", JarOfGreedEffect],
+    // ["ExodiaWinEffect", ExodiaWinEffect],
+  ]);
+
   private static getEffectFactoryByClass(
     cardId: number,
     effectClass?: string,
@@ -58,24 +76,22 @@ export class CardEffectRegistrar {
       return null;
     }
 
-    switch (effectClass) {
-      case "PotOfGreedEffect":
-        return () => [new PotOfGreedEffect()];
-
-      // TODO: 今後追加予定の効果クラス
-      // case "ModestPotEffect":
-      //   return () => [new ModestPotEffect()];
-
-      // case "JarOfGreedEffect":
-      //   return () => [new JarOfGreedEffect()];
-
-      // case "ExodiaWinEffect":
-      //   return () => [new ExodiaWinEffect()];
-
-      default:
-        console.warn(`[CardEffectRegistrar] 不明な効果クラス: ${effectClass} (カードID: ${cardId})`);
-        return null;
+    const EffectClass = this.effectClassRegistry.get(effectClass);
+    if (!EffectClass) {
+      console.warn(`[CardEffectRegistrar] 不明な効果クラス: ${effectClass} (カードID: ${cardId})`);
+      return null;
     }
+
+    return () => [new EffectClass()];
+  }
+
+  /**
+   * 新しい効果クラスをレジストリに登録
+   * テストや動的な効果追加で使用
+   */
+  static registerEffectClass(className: string, effectClass: new () => import("$lib/types/effect").Effect): void {
+    this.effectClassRegistry.set(className, effectClass);
+    console.log(`[CardEffectRegistrar] 効果クラス「${className}」を登録しました`);
   }
 
   /**

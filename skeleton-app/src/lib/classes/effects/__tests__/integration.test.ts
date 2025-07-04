@@ -144,6 +144,35 @@ describe("Effects Integration", () => {
       expect(potOfGreedRegistration).toBeDefined();
       expect(potOfGreedRegistration?.effectNames).toContain("強欲な壺");
     });
+
+    it("動的に効果クラスを登録できる", () => {
+      // カスタムテスト効果クラス
+      class TestCustomEffect extends PotOfGreedEffect {
+        constructor() {
+          super();
+          this.name = "テストカスタム効果";
+        }
+      }
+
+      // 動的に効果クラスを登録
+      CardEffectRegistrar.registerEffectClass("TestCustomEffect", TestCustomEffect);
+
+      const testDeck: DeckRecipe = {
+        name: "動的効果テストデッキ",
+        description: "動的効果テスト用",
+        category: "テスト",
+        mainDeck: [
+          { id: 99999, quantity: 1, effectClass: "TestCustomEffect" }, // カスタム効果
+        ],
+        extraDeck: [],
+      };
+
+      CardEffectRegistrar.registerEffectsFromDeck(testDeck);
+
+      const effects = EffectRegistry.getEffects(99999);
+      expect(effects).toHaveLength(1);
+      expect(effects[0].name).toBe("テストカスタム効果");
+    });
   });
 
   describe("DuelStateとの統合", () => {
