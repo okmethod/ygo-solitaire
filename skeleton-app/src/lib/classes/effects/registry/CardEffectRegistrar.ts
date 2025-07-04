@@ -1,16 +1,21 @@
 import { EffectRegistry } from "../EffectRegistry";
 import type { DeckRecipe } from "$lib/types/deck";
 import type { Effect } from "$lib/types/effect";
-import { EFFECT_CLASS_REGISTRY, isRegisteredEffectClass } from "./effectsConfig";
+import { CARD_EFFECTS_REGISTRY, isRegisteredCardEffect } from "./cardEffectsRegistry";
 
 /**
- * カード効果の動的登録を管理するクラス
- * デッキレシピに基づいて必要な効果のみを登録する
+ * カード固有効果の動的登録を管理するクラス
+ * デッキレシピに基づいてカード固有効果のみを登録する
+ * 
+ * 設計思想:
+ * - cards/ ディレクトリのカード固有効果のみを対象
+ * - atoms/ の再利用可能効果は継承により使用される
+ * - デッキレシピのeffectClassフィールドで指定されるのはカード固有効果のみ
  */
 export class CardEffectRegistrar {
   /**
-   * デッキレシピに基づいて効果を登録
-   * デッキに含まれるカードの効果のみを登録する
+   * デッキレシピに基づいてカード固有効果を登録
+   * デッキに含まれるカードのカード固有効果のみを登録する
    */
   static registerEffectsFromDeck(deck: DeckRecipe): void {
     console.log(`[CardEffectRegistrar] デッキ「${deck.name}」の効果登録を開始します...`);
@@ -51,8 +56,8 @@ export class CardEffectRegistrar {
    * デッキレシピの effectClass フィールドを使用した新しい方式
    */
   /**
-   * 設定ファイルベースの効果クラス取得
-   * 新しい効果を追加する際は effectsConfig.ts に追加するだけでOK
+   * カード固有効果クラスの取得
+   * 新しいカード効果を追加する際は cardEffectsRegistry.ts に追加するだけでOK
    */
   private static getEffectFactoryByClass(cardId: number, effectClass?: string): (() => Effect[]) | null {
     if (!effectClass) {
@@ -60,10 +65,10 @@ export class CardEffectRegistrar {
       return null;
     }
 
-    const EffectClass = this.getEffectClass(effectClass);
+    const EffectClass = this.getCardEffectClass(effectClass);
     if (!EffectClass) {
-      console.warn(`[CardEffectRegistrar] 未登録の効果クラス: ${effectClass} (カードID: ${cardId})`);
-      console.info(`効果クラスを追加するには effectsConfig.ts に追加してください`);
+      console.warn(`[CardEffectRegistrar] 未登録のカード効果クラス: ${effectClass} (カードID: ${cardId})`);
+      console.info(`カード効果クラスを追加するには cardEffectsRegistry.ts に追加してください`);
       return null;
     }
 
@@ -71,35 +76,36 @@ export class CardEffectRegistrar {
   }
 
   /**
-   * 実行時に効果クラスを一時的に登録
-   * 主にテスト用途で使用（本番では effectsConfig.ts を使用）
+   * 実行時にカード効果クラスを一時的に登録
+   * 主にテスト用途で使用（本番では cardEffectsRegistry.ts を使用）
    */
   private static runtimeEffectRegistry = new Map<string, new () => Effect>();
 
   static registerEffectClass(className: string, effectClass: new () => Effect): void {
     this.runtimeEffectRegistry.set(className, effectClass);
-    console.log(`[CardEffectRegistrar] 実行時効果クラス「${className}」を登録しました`);
+    console.log(`[CardEffectRegistrar] 実行時カード効果クラス「${className}」を登録しました`);
   }
 
   /**
-   * 実行時登録とコンフィグ登録の両方をチェック
+   * 実行時登録とレジストリ登録の両方をチェック
+   * カード固有効果クラスのみを対象とする
    */
-  private static getEffectClass(effectClassName: string): (new () => Effect) | null {
+  private static getCardEffectClass(effectClassName: string): (new () => Effect) | null {
     // まず実行時登録をチェック（テスト用途）
     if (this.runtimeEffectRegistry.has(effectClassName)) {
       return this.runtimeEffectRegistry.get(effectClassName)!;
     }
 
-    // 次にコンフィグファイルの登録をチェック
-    if (isRegisteredEffectClass(effectClassName)) {
-      return EFFECT_CLASS_REGISTRY[effectClassName];
+    // 次にカード効果レジストリの登録をチェック
+    if (isRegisteredCardEffect(effectClassName)) {
+      return CARD_EFFECTS_REGISTRY[effectClassName];
     }
 
     return null;
   }
 
   /**
-   * 特定のカードIDの効果登録状況を確認
+   * 特定のカードIDのカード固有効果登録状況を確認
    */
   static checkRegistration(cardId: number): {
     isRegistered: boolean;
@@ -115,7 +121,7 @@ export class CardEffectRegistrar {
   }
 
   /**
-   * 登録済み効果の一覧を取得（デバッグ用）
+   * 登録済みカード固有効果の一覧を取得（デバッグ用）
    */
   static getRegistrationSummary(): {
     totalCards: number;
