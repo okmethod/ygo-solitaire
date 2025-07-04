@@ -1,6 +1,7 @@
 import { EffectRegistry } from "../EffectRegistry";
-import { PotOfGreedEffect } from "../cards/PotOfGreedEffect";
 import type { DeckRecipe } from "$lib/types/deck";
+import type { Effect } from "$lib/types/effect";
+import { EFFECT_CLASS_REGISTRY, isRegisteredEffectClass } from "./effectsConfig";
 
 /**
  * カード効果の動的登録を管理するクラス
@@ -50,35 +51,19 @@ export class CardEffectRegistrar {
    * デッキレシピの effectClass フィールドを使用した新しい方式
    */
   /**
-   * 効果クラスのレジストリ
-   * クラス名とコンストラクタのマッピング
-   *
-   * この方式の利点:
-   * 1. 新しい効果クラスを動的に登録可能
-   * 2. テスト時のモック効果の注入が容易
-   * 3. プラグインシステムとして拡張可能
-   * 4. switch文よりも保守性が高い
+   * 設定ファイルベースの効果クラス取得
+   * 新しい効果を追加する際は effectsConfig.ts に追加するだけでOK
    */
-  private static effectClassRegistry = new Map<string, new () => import("$lib/types/effect").Effect>([
-    ["PotOfGreedEffect", PotOfGreedEffect],
-    // TODO: 今後追加予定の効果クラス
-    // ["ModestPotEffect", ModestPotEffect],
-    // ["JarOfGreedEffect", JarOfGreedEffect],
-    // ["ExodiaWinEffect", ExodiaWinEffect],
-  ]);
-
-  private static getEffectFactoryByClass(
-    cardId: number,
-    effectClass?: string,
-  ): (() => import("$lib/types/effect").Effect[]) | null {
+  private static getEffectFactoryByClass(cardId: number, effectClass?: string): (() => Effect[]) | null {
     if (!effectClass) {
       // 効果クラスが指定されていない場合は null を返す
       return null;
     }
 
-    const EffectClass = this.effectClassRegistry.get(effectClass);
+    const EffectClass = this.getEffectClass(effectClass);
     if (!EffectClass) {
-      console.warn(`[CardEffectRegistrar] 不明な効果クラス: ${effectClass} (カードID: ${cardId})`);
+      console.warn(`[CardEffectRegistrar] 未登録の効果クラス: ${effectClass} (カードID: ${cardId})`);
+      console.info(`効果クラスを追加するには effectsConfig.ts に追加してください`);
       return null;
     }
 
@@ -86,12 +71,31 @@ export class CardEffectRegistrar {
   }
 
   /**
-   * 新しい効果クラスをレジストリに登録
-   * テストや動的な効果追加で使用
+   * 実行時に効果クラスを一時的に登録
+   * 主にテスト用途で使用（本番では effectsConfig.ts を使用）
    */
-  static registerEffectClass(className: string, effectClass: new () => import("$lib/types/effect").Effect): void {
-    this.effectClassRegistry.set(className, effectClass);
-    console.log(`[CardEffectRegistrar] 効果クラス「${className}」を登録しました`);
+  private static runtimeEffectRegistry = new Map<string, new () => Effect>();
+
+  static registerEffectClass(className: string, effectClass: new () => Effect): void {
+    this.runtimeEffectRegistry.set(className, effectClass);
+    console.log(`[CardEffectRegistrar] 実行時効果クラス「${className}」を登録しました`);
+  }
+
+  /**
+   * 実行時登録とコンフィグ登録の両方をチェック
+   */
+  private static getEffectClass(effectClassName: string): (new () => Effect) | null {
+    // まず実行時登録をチェック（テスト用途）
+    if (this.runtimeEffectRegistry.has(effectClassName)) {
+      return this.runtimeEffectRegistry.get(effectClassName)!;
+    }
+
+    // 次にコンフィグファイルの登録をチェック
+    if (isRegisteredEffectClass(effectClassName)) {
+      return EFFECT_CLASS_REGISTRY[effectClassName];
+    }
+
+    return null;
   }
 
   /**
