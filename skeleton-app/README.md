@@ -1,428 +1,296 @@
-# 遊戯王ソリティア - フロントエンド設計ドキュメント
+# 遊戯王ソリティア - 設計思想ドキュメント
 
-このドキュメントでは、遊戯王ソリティアアプリケーションのフロントエンド（SvelteKit）における効果システムの設計思想と実装について詳しく説明します。
+このドキュメントでは、遊戯王ソリティアWebアプリケーションの設計思想とアーキテクチャ判断について説明します。実装の詳細ではなく、**なぜその設計を選んだのか**という背景と、将来の拡張性を見据えた設計原則に焦点を当てています。
 
 ## 目次
 
-1. [効果システム概要](#効果システム概要)
-2. [アーキテクチャ設計](#アーキテクチャ設計)
-3. [階層化設計](#階層化設計)
-4. [ファクトリーパターン](#ファクトリーパターン)
-5. [デッキレシピベース登録システム](#デッキレシピベース登録システム)
-6. [型システム設計](#型システム設計)
-7. [テスト戦略](#テスト戦略)
-8. [拡張性と保守性](#拡張性と保守性)
-9. [実装例: 強欲な壺](#実装例-強欲な壺)
-10. [開発ガイド](#開発ガイド)
+1. [プロジェクト概要と設計目標](#プロジェクト概要と設計目標)
+2. [全体アーキテクチャ](#全体アーキテクチャ)
+3. [コアゲームロジック設計](#コアゲームロジック設計)
+4. [フロントエンド設計思想](#フロントエンド設計思想)
+5. [効果システム設計哲学](#効果システム設計哲学)
+6. [データフローと型システム](#データフローと型システム)
+7. [UI/UX設計原則](#uiux設計原則)
+8. [テスト・品質管理戦略](#テスト品質管理戦略)
+9. [デプロイ・運用設計](#デプロイ運用設計)
+10. [技術選定の戦略的判断](#技術選定の戦略的判断)
 
-## 効果システム概要
+## プロジェクト概要と設計目標
 
-遊戯王ソリティアでは、カードの効果を正確にシミュレートするために、OCGルールに準拠した包括的な効果システムを実装しています。
+### 核心的な設計目標
 
-### 設計目標
+**正確性**: 遊戯王OCGルールの忠実な再現
+- フィールド配置の正確性（モンスター5ゾーン、魔法罠5ゾーン等）
+- カード効果の発動条件とタイミング
+- ゲーム状態の整合性保証
 
-- **拡張性**: 新しいカード効果を簡単に追加できる
-- **再利用性**: 共通する効果処理を効率的に再利用できる
-- **型安全性**: TypeScriptによる厳密な型チェック
-- **テスタビリティ**: 単体・統合テストが容易に書ける
-- **メモリ効率**: ファクトリーパターンによる効率的なメモリ使用
+**拡張性**: 新しいカード効果の容易な追加
+- 動的効果登録システム
+- 継承による効果構築
+- 設定駆動による柔軟性
 
-## アーキテクチャ設計
+**保守性**: 長期的な開発・運用の持続性
+- 責任分離による明確な境界
+- 型安全性による実行時エラー防止
+- 包括的テストによる品質保証
 
-効果システムは以下のディレクトリ構造で構成されています：
+**運用効率**: 低コストでの継続的運用
+- 静的サイト生成によるサーバーレス運用
+- GitHub Pages での無料ホスティング
+- 自動化されたデプロイプロセス
 
+## 全体アーキテクチャ
+
+### 設計哲学：分離と統合
+
+**関心の分離**: 各レイヤーが明確な責任を持つ
+- **データ層**: カード情報、ゲーム状態
+- **ビジネスロジック層**: ゲームルール、効果処理
+- **プレゼンテーション層**: UI コンポーネント、ユーザーインタラクション
+
+**統合の最適化**: レイヤー間の効率的な連携
+- 型システムによる契約の明確化
+- イベント駆動による疎結合
+- ファクトリーパターンによる動的生成
+
+### アーキテクチャの選択理由
+
+**モノリシック vs マイクロフロントエンド**
+→ **モノリシック選択**: 遊戯王ソリティアという単一ドメインの複雑性を一元管理するため
+
+**CSR vs SSR vs 静的生成**
+→ **静的生成選択**: 運用コスト最小化と高速配信を重視
+
+**状態管理の中央集権 vs 分散**
+→ **中央集権（DuelState）選択**: ゲーム状態の整合性を保証するため
+
+## コアゲームロジック設計
+
+### DuelStateクラス：ゲーム状態の中核
+
+**設計思想**：Single Source of Truth
+- 全てのゲーム状態を一箇所で管理
+- 状態変更の原子性保証
+- 副作用の制御
+
+**不変性の原則**
+- カードデータ（CardData）とゲームインスタンス（Card）の分離
+- 状態変更時の新しいインスタンス生成
+- JSON シリアライゼーション対応
+
+**エラーハンドリング戦略**
+- 失敗可能操作の明示的な戻り値
+- ゲーム状態の一貫性維持
+- ユーザーフレンドリーなエラーメッセージ
+
+### ゲーム状態管理の設計判断
+
+**なぜ中央集権的な状態管理を選んだのか**
+1. **整合性保証**: 遊戯王の複雑なルールにおける状態の矛盾防止
+2. **デバッグ容易性**: 単一箇所での状態追跡
+3. **再現性**: ゲーム状態の保存・復元機能
+4. **テスタビリティ**: 予測可能な状態変化
+
+## フロントエンド設計思想
+
+### コンポーネント設計：Atomic Design の採用
+
+**設計原則**：再利用性と組み合わせ可能性
+- **atoms**: 最小単位での責任分離
+- **organisms**: 複合機能の独立性
+- **pages**: ビジネスロジックとの統合
+
+**なぜ Atomic Design を選んだのか**
+1. **スケーラビリティ**: 機能追加時の影響範囲最小化
+2. **一貫性**: デザインシステムの統一
+3. **テスタビリティ**: 独立したコンポーネントの単体テスト
+4. **再利用性**: 異なるコンテキストでの部品活用
+
+### 状態管理：局所化と最小化
+
+**グローバル状態の最小化**
+- 必要最小限のグローバル状態
+- コンポーネント固有状態の優先
+- ストアの責任範囲明確化
+
+**リアクティブシステムの活用**
+- Svelte 5 runes による効率的な更新
+- 細粒度なリアクティビティ
+- メモリリークの防止
+
+## 効果システム設計哲学
+
+### 階層化による複雑性管理
+
+**設計思想**：継承による効果構築
+- **BaseEffect**: 共通インターフェースと基本機能
+- **atoms**: 再利用可能な原子効果
+- **cards**: カード固有の複合効果
+
+**動的登録による拡張性**
+- デッキレシピ駆動の効果登録
+- ファクトリーパターンによるメモリ効率
+- 設定ファイルによる一元管理
+
+### 設計判断の背景
+
+**なぜ動的登録システムを選んだのか**
+1. **拡張性**: 新カード追加の容易性
+2. **メモリ効率**: 使用する効果のみロード
+3. **保守性**: 効果の変更影響範囲限定
+4. **テスタビリティ**: 独立した効果テスト
+
+**なぜ継承ベースの設計を選んだのか**
+1. **再利用性**: 共通処理の効率化
+2. **一貫性**: 効果実行パターンの統一
+3. **型安全性**: コンパイル時の整合性チェック
+4. **OCGルール対応**: 段階的な条件判定
+
+## データフローと型システム
+
+### 型安全性による品質保証
+
+**設計原則**：実行時エラーの事前防止
+- 外部API との境界での型変換
+- 内部システムでの厳密な型制約
+- ランタイム検証による補完
+
+**データ変換の段階化**
 ```
-src/lib/classes/effects/
-├── BaseEffect.ts              # 効果の基底抽象クラス
-├── EffectRegistry.ts          # ファクトリーパターン実装
-├── atoms/                     # 再利用可能な原子効果
-│   └── DrawEffect.ts         # 汎用ドロー効果
-├── cards/                    # カード固有効果
-│   └── PotOfGreedEffect.ts   # 強欲な壺効果
-└── registry/                 # 効果登録システム
-    ├── CardEffectRegistrar.ts    # デッキベース登録管理
-    └── cardEffectsRegistry.ts    # カード効果設定
-```
-
-## 階層化設計
-
-効果システムは3層のアーキテクチャを採用しています：
-
-### 1. BaseEffect（基底層）
-
-全ての効果の共通インターフェースと基本機能を提供：
-
-```typescript
-export abstract class BaseEffect implements Effect {
-  // 共通プロパティ
-  public readonly id: string;
-  public readonly name: string;
-  public readonly type: EffectType;
-  public readonly description: string;
-  public readonly cardId: number;
-
-  // 抽象メソッド（継承先で実装）
-  abstract canActivate(state: DuelState): boolean;
-  abstract execute(state: DuelState): EffectResult;
-
-  // 共通処理
-  protected preExecute(state: DuelState, context?: EffectContext): boolean;
-  protected postExecute(result: EffectResult, state: DuelState): EffectResult;
-  protected checkWinCondition(state: DuelState): boolean;
-}
-```
-
-### 2. atoms（原子効果層）
-
-再利用可能な基本効果を実装：
-
-```typescript
-export class DrawEffect extends BaseEffect {
-  private readonly drawCount: number;
-
-  constructor(id: string, name: string, description: string, cardId: number, drawCount: number) {
-    super(id, name, EffectType.DRAW, description, cardId);
-    this.drawCount = drawCount;
-  }
-
-  canActivate(state: DuelState): boolean {
-    return state.mainDeck.length >= this.drawCount;
-  }
-
-  execute(state: DuelState): EffectResult {
-    // N枚ドロー処理の実装
-  }
-}
-```
-
-### 3. cards（カード固有効果層）
-
-特定カードの効果を原子効果の継承により実装：
-
-```typescript
-export class PotOfGreedEffect extends DrawEffect {
-  constructor() {
-    super("pot-of-greed-55144522", "強欲な壺", "自分はデッキから２枚ドローする", 55144522, 2);
-  }
-
-  canActivate(state: DuelState): boolean {
-    // 基本のドロー条件をチェック
-    if (!super.canActivate(state)) {
-      return false;
-    }
-
-    // 通常魔法の発動条件（メインフェイズのみ）
-    const isMainPhase = state.currentPhase === "メインフェイズ1" || state.currentPhase === "メインフェイズ2";
-    return isMainPhase && state.gameResult === "ongoing";
-  }
-}
-```
-
-## ファクトリーパターン
-
-メモリ効率と拡張性を両立するため、ファクトリーパターンを採用：
-
-### EffectRegistry
-
-```typescript
-export class EffectRegistry {
-  private static effects = new Map<number, EffectFactory>();
-
-  static register(cardId: number, factory: EffectFactory): void {
-    this.effects.set(cardId, factory);
-  }
-
-  static getEffects(cardId: number): Effect[] {
-    const factory = this.effects.get(cardId);
-    return factory ? factory() : [];
-  }
-}
-```
-
-### 利点
-
-- **メモリ効率**: 効果インスタンスは必要時のみ生成
-- **再利用性**: 同一カードIDで複数回効果を取得可能
-- **拡張性**: 新しい効果を動的に登録可能
-
-## デッキレシピベース登録システム
-
-効果の登録は、デッキレシピの構成に基づいて動的に行われます：
-
-### デッキレシピの拡張
-
-```typescript
-export interface RecipeCardEntry {
-  id: number;           // YGOPRODeck API の数値 ID
-  quantity: number;     // 枚数
-  effectClass?: string; // 効果クラス名（オプション）
-}
-```
-
-### 動的登録プロセス
-
-```typescript
-export class CardEffectRegistrar {
-  static registerEffectsFromDeck(deck: DeckRecipe): void {
-    // 1. 既存効果をクリア
-    EffectRegistry.clear();
-
-    // 2. デッキ内のユニークカードを抽出
-    const uniqueCards = new Map<number, string | undefined>();
-    for (const card of [...deck.mainDeck, ...deck.extraDeck]) {
-      uniqueCards.set(card.id, card.effectClass);
-    }
-
-    // 3. 効果クラスが指定されたカードの効果を登録
-    for (const [cardId, effectClass] of uniqueCards) {
-      const effectFactory = this.getEffectFactoryByClass(cardId, effectClass);
-      if (effectFactory) {
-        EffectRegistry.register(cardId, effectFactory);
-      }
-    }
-  }
-}
+外部API → 内部型 → ゲーム状態 → UI表示
 ```
 
-### 設定ファイルによる一元管理
+### 型システム設計の戦略的判断
 
-```typescript
-// cardEffectsRegistry.ts
-export const CARD_EFFECTS_REGISTRY = {
-  PotOfGreedEffect,
-  // 新しいカード効果を追加する際はここに1行追加するだけ
-} as const;
-```
+**なぜ厳密な型システムを選んだのか**
+1. **信頼性**: カードゲームの複雑なルール実装での安全性
+2. **開発効率**: IDE支援による高速開発
+3. **リファクタリング安全性**: 型による変更影響追跡
+4. **ドキュメント効果**: 型による仕様明確化
 
-## 型システム設計
+## UI/UX設計原則
 
-TypeScriptによる厳密な型チェックを実現：
+### 視覚的忠実性と使いやすさの両立
 
-### 効果の型定義
+**設計思想**：遊戯王体験の再現
+- 物理的なデュエルフィールドの再現
+- 直感的なカード操作
+- 適切な視覚的フィードバック
 
-```typescript
-export enum EffectType {
-  DRAW = "draw",
-  SEARCH = "search",
-  WIN_CONDITION = "win_condition",
-  ACTIVATE = "activate",
-  TRAP = "trap",
-}
+**アクセシビリティへの配慮**
+- キーボード操作対応
+- 色覚障害への配慮
+- スクリーンリーダー対応
 
-export interface EffectResult {
-  success: boolean;
-  message: string;
-  affectedCards?: Card[];
-  stateChanged: boolean;
-  gameEnded?: boolean;
-  nextEffectId?: string;
-}
+### レスポンシブデザインの戦略
 
-export interface Effect {
-  id: string;
-  name: string;
-  type: EffectType;
-  description: string;
-  cardId: number;
-  canActivate(state: DuelState): boolean;
-  execute(state: DuelState): EffectResult;
-}
-```
+**デバイス適応の考慮**
+- モバイルファーストの設計
+- タッチインタラクションの最適化
+- 画面サイズに応じた情報密度調整
 
-### 型安全な効果登録
+## テスト・品質管理戦略
 
-```typescript
-export type RegisteredCardEffectClassName = keyof typeof CARD_EFFECTS_REGISTRY;
+### 包括的テスト戦略
 
-export function isRegisteredCardEffect(className: string): className is RegisteredCardEffectClassName {
-  return className in CARD_EFFECTS_REGISTRY;
-}
-```
+**多層テストアプローチ**
+- **単体テスト**: 個別クラス・関数の正確性
+- **統合テスト**: コンポーネント間連携の検証
+- **E2Eテスト**: ユーザーシナリオの完全性
 
-## テスト戦略
+**品質保証の自動化**
+- プリコミットフックによる事前チェック
+- 継続的インテグレーションによる回帰防止
+- カバレッジ計測による網羅性確保
 
-包括的なテスト戦略により、システムの信頼性を確保：
+### テスト戦略の設計判断
 
-### 1. 単体テスト
+**なぜ包括的テストを重視するのか**
+1. **複雑性対応**: 遊戯王ルールの複雑性に対する安全網
+2. **リファクタリング支援**: 安全な変更実施
+3. **回帰防止**: 新機能追加時の既存機能保護
+4. **ドキュメント効果**: テストによる仕様明確化
 
-```typescript
-// DrawEffect.test.ts
-describe("DrawEffect", () => {
-  it("2枚ドロー効果が正常に動作する", () => {
-    const result = drawEffect2.execute(duelState);
-    expect(result.success).toBe(true);
-    expect(result.message).toBe("2枚ドローしました");
-    expect(duelState.hands.length).toBe(initialHandSize + 2);
-  });
-});
-```
+## デプロイ・運用設計
 
-### 2. 統合テスト
+### 静的サイト生成による運用最適化
 
-```typescript
-// integration.test.ts
-describe("Effects Integration", () => {
-  it("フルワークフロー: 登録→取得→実行", () => {
-    // 1. 効果が登録されていることを確認
-    expect(EffectRegistry.hasEffects(55144522)).toBe(true);
+**設計思想**：運用コストの最小化
+- サーバーレスアーキテクチャ
+- CDN による高速配信
+- 自動デプロイによる運用効率化
 
-    // 2. DuelStateから効果を取得
-    const effects = duelState.getEffectsForCard(55144522);
-    expect(effects).toHaveLength(1);
+**開発・本番環境の分離**
+- Docker による開発環境統一
+- 環境固有設定の外部化
+- デプロイプロセスの自動化
 
-    // 3. 効果を実行
-    const result = duelState.executeEffect(effects[0]);
-    expect(result.success).toBe(true);
-  });
-});
-```
+### 運用設計の戦略的判断
 
-### 3. エラーハンドリングテスト
+**なぜ静的サイト生成を選んだのか**
+1. **コスト効率**: サーバー運用費用の削減
+2. **パフォーマンス**: CDN による高速配信
+3. **可用性**: サーバー障害リスクの最小化
+4. **セキュリティ**: 攻撃対象面の縮小
 
-```typescript
-it("発動条件を満たさない場合は失敗する", () => {
-  duelState.currentPhase = "バトルフェイズ";
-  const result = duelState.executeEffect(potOfGreed);
-  expect(result.success).toBe(false);
-  expect(result.message).toContain("強欲な壺は発動できません");
-});
-```
+## 技術選定の戦略的判断
 
-## 拡張性と保守性
+### フレームワーク選択の背景
 
-### 新しいカード効果の追加手順
+**SvelteKit を選んだ理由**
+1. **パフォーマンス**: 軽量なランタイム
+2. **開発体験**: 直感的な記法
+3. **型安全性**: TypeScript との良好な統合
+4. **SSG対応**: 静的サイト生成への適合性
 
-1. **原子効果の作成**（必要に応じて）
-   ```typescript
-   // atoms/SearchEffect.ts
-   export class SearchEffect extends BaseEffect {
-     // サーチ効果の実装
-   }
-   ```
+**TailwindCSS を選んだ理由**
+1. **開発速度**: ユーティリティファーストによる高速開発
+2. **一貫性**: デザインシステムの統一
+3. **保守性**: CSS の責任範囲明確化
+4. **カスタマイズ性**: テーマ機能との親和性
 
-2. **カード固有効果の実装**
-   ```typescript
-   // cards/SangenOfTheYangZingEffect.ts
-   export class SangenOfTheYangZingEffect extends SearchEffect {
-     constructor() {
-       super("sangen-12345", "源竜星－望天門", "デッキからカードをサーチ", 12345, searchConditions);
-     }
-   }
-   ```
+### ツールチェーン選択の戦略
 
-3. **効果登録設定への追加**
-   ```typescript
-   // cardEffectsRegistry.ts
-   export const CARD_EFFECTS_REGISTRY = {
-     PotOfGreedEffect,
-     SangenOfTheYangZingEffect, // ← 1行追加するだけ
-   } as const;
-   ```
+**Vitest を選んだ理由**
+1. **高速性**: 効率的なテスト実行
+2. **統合性**: Vite との一体化
+3. **開発体験**: ホットリロード対応
+4. **TypeScript対応**: 型安全なテスト記述
 
-4. **デッキレシピでの指定**
-   ```typescript
-   { id: 12345, quantity: 1, effectClass: "SangenOfTheYangZingEffect" }
-   ```
-
-### 保守性の特徴
-
-- **責任分離**: 各クラスが明確な責任を持つ
-- **疎結合**: インターフェースによる依存関係の抽象化
-- **設定駆動**: ハードコーディングを最小限に抑制
-- **型安全性**: コンパイル時エラー検知
-
-## 実装例: 強欲な壺
-
-実際の効果実装を例に、設計思想を説明：
-
-### 継承による効果構築
-
-```typescript
-export class PotOfGreedEffect extends DrawEffect {
-  constructor() {
-    super(
-      "pot-of-greed-55144522",
-      "強欲な壺", 
-      "自分はデッキから２枚ドローする",
-      55144522,
-      2 // ドロー枚数
-    );
-  }
-
-  canActivate(state: DuelState): boolean {
-    // 1. 基本ドロー条件のチェック（DrawEffectから継承）
-    if (!super.canActivate(state)) {
-      return false;
-    }
-
-    // 2. 通常魔法固有の発動条件
-    const isMainPhase = state.currentPhase === "メインフェイズ1" || 
-                       state.currentPhase === "メインフェイズ2";
-    
-    if (!isMainPhase) {
-      console.warn(`[PotOfGreedEffect] 通常魔法は${state.currentPhase}では発動できません`);
-      return false;
-    }
-
-    // 3. ゲーム状態の確認
-    if (state.gameResult !== "ongoing") {
-      console.warn(`[PotOfGreedEffect] ゲームが既に終了しています: ${state.gameResult}`);
-      return false;
-    }
-
-    return true;
-  }
-}
-```
-
-### OCGルールの実装
-
-- **フェイズ制限**: メインフェイズでのみ発動可能
-- **デッキ枚数チェック**: 必要枚数の確認
-- **ゲーム状態確認**: 継続中のゲームでのみ発動
-- **エラーハンドリング**: 適切なエラーメッセージの提供
-
-## 開発ガイド
-
-### 開発環境セットアップ
-
-```bash
-# 依存関係インストール
-npm install
-
-# 開発サーバー起動
-npm run dev
-
-# テスト実行
-npm run test
-
-# 型チェック
-npm run check
-
-# コード品質チェック
-npm run lint
-```
-
-### デバッグとログ
-
-効果システムには包括的なログ機能が組み込まれています：
-
-```typescript
-// 効果実行時の詳細ログ
-console.log(`[Effect] ${this.name} (${this.id}) の実行を開始します`);
-console.log(`[Effect] デバッグ情報: ゲーム状態 = ${state.gameResult}, フェイズ = ${state.currentPhase}`);
-
-// 登録プロセスのトレース
-console.log(`[CardEffectRegistrar] カードID ${cardId} (${effectClass}) の効果を登録しました`);
-```
-
-### パフォーマンス考慮事項
-
-- **ファクトリーパターン**: インスタンス生成の最適化
-- **重複除去**: 同一カードIDの効果は1つのファクトリーのみ登録
-- **遅延評価**: 効果の実行時のみインスタンス化
-- **メモリ管理**: 不要な効果の自動クリア
+**TypeScript を選んだ理由**
+1. **型安全性**: 実行時エラーの事前防止
+2. **開発効率**: IDE 支援による生産性向上
+3. **保守性**: リファクタリング時の安全性
+4. **ドキュメント効果**: 型による仕様明確化
 
 ---
 
-この設計により、遊戯王OCGの複雑な効果システムを、拡張性と保守性を保ちながら実装することができています。新しいカード効果の追加は最小限のコード変更で行え、型安全性により開発時のエラーを大幅に削減できます。
+## 設計思想の継続性
+
+この設計思想は、個別の実装技術が変わっても維持されるべき原則です：
+
+- **正確性**: 遊戯王ルールの忠実な実装
+- **拡張性**: 新機能追加の容易性
+- **保守性**: 長期的な開発持続性
+- **効率性**: 運用コストの最小化
+
+新しい技術やフレームワークを導入する際も、これらの原則に基づいて判断することで、プロジェクトの一貫性と品質を維持できます。
+
+---
+
+## 開発ガイド
+
+### 環境セットアップ
+```bash
+npm install     # 依存関係インストール
+npm run dev     # 開発サーバー起動
+npm run test    # テスト実行
+npm run check   # 型チェック
+npm run lint    # コード品質チェック
+```
+
+### 拡張開発時の指針
+1. **型定義の優先**: 実装前の型設計
+2. **テスト駆動**: 仕様明確化のためのテスト先行
+3. **責任分離**: 単一責任原則の遵守
+4. **文書化**: 設計判断の背景記録
