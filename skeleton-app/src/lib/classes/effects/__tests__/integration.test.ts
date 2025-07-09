@@ -150,7 +150,7 @@ describe("Effects Integration", () => {
       class TestCustomEffect extends PotOfGreedEffect {
         constructor() {
           super();
-          this.name = "テストカスタム効果";
+          // name プロパティは読み取り専用なので、テストでは既存の名前を使用
         }
       }
 

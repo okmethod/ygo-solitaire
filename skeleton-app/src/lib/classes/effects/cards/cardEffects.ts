@@ -6,6 +6,7 @@
 
 // カード固有効果クラスをインポート
 import { PotOfGreedEffect } from "$lib/classes/effects/cards/PotOfGreedEffect";
+import { GracefulCharityEffect } from "$lib/classes/effects/cards/GracefulCharityEffect";
 // TODO: 新しいカード効果を追加する際はここにインポートを追加
 
 /**
@@ -25,6 +26,7 @@ import { PotOfGreedEffect } from "$lib/classes/effects/cards/PotOfGreedEffect";
 export const CARD_EFFECTS = {
   // カード固有効果（cards/ ディレクトリ）
   PotOfGreedEffect,
+  GracefulCharityEffect,
 
   // TODO: 新しいカード効果を追加する際はここに追加
 } as const;

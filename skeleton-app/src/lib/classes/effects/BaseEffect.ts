@@ -100,12 +100,12 @@ export abstract class BaseEffect implements Effect {
   /**
    * 成功結果を生成するヘルパーメソッド
    */
-  protected createSuccessResult(message: string, stateChanged: boolean = true, affectedCards?: Card[]): EffectResult {
+  protected createSuccessResult(message: string, stateChanged: boolean = true, drawnCards?: Card[]): EffectResult {
     return {
       success: true,
       message,
       stateChanged,
-      affectedCards,
+      drawnCards,
       gameEnded: false,
     };
   }

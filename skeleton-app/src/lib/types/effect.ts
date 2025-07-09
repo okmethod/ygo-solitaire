@@ -33,6 +33,8 @@ export interface EffectResult {
   gameEnded?: boolean;
   /** 次に実行される効果のID（チェーン用） */
   nextEffectId?: string;
+  /** ドローしたカード（ドロー効果用） */
+  drawnCards?: Card[];
 }
 
 /**
