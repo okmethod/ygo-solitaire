@@ -1,6 +1,6 @@
 import { BaseEffect } from "../BaseEffect";
 import { EffectType } from "$lib/types/effect";
-import type { DuelState } from "../../DuelState";
+import type { DuelState } from "$lib/classes/DuelState";
 import type { EffectResult } from "$lib/types/effect";
 
 /**

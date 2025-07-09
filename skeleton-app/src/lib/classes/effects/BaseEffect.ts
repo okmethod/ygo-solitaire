@@ -1,4 +1,4 @@
-import type { DuelState } from "../DuelState";
+import type { DuelState } from "$lib/classes/DuelState";
 import type { Card } from "$lib/types/card";
 import type { Effect, EffectResult, EffectType, EffectContext } from "$lib/types/effect";
 
