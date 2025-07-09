@@ -1,5 +1,11 @@
 export type CardType = "monster" | "spell" | "trap";
 
+export type MonsterType = "normal" | "effect";
+// チューナー, デュアル, リバース などは後回しにする
+export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "pendulum" | "link";
+export type MagicSubType = "normal" | "effect" | "ritual" | "quick-play" | "field" | "equip";
+export type TrapSubType = "normal" | "continuous" | "counter";
+
 interface MonsterCardProperties {
   attack?: number;
   defense?: number;
