@@ -61,13 +61,8 @@ export class GracefulCharityEffect extends EffectComposer {
       return false;
     }
 
-    // ドロー後に2枚捨てられるかチェック
-    // 現在の手札 + 3枚ドロー >= 2枚捨てる
-    const handAfterDraw = state.hands.length + 3;
-    if (handAfterDraw < 2) {
-      return false;
-    }
-
+    // 3枚ドローした後は必ず2枚以上の手札になるため、
+    // 捨てる条件は常に満たされる
     return true;
   }
 }

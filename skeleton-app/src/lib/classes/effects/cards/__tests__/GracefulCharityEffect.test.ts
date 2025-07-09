@@ -220,15 +220,11 @@ describe("GracefulCharityEffect", () => {
       expect(result.success).toBe(false);
     });
 
-    it("nullまたはundefinedの状態を適切に処理する", () => {
-      // 異常な状態をテスト
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      duelState.hands = null as any;
+    it("デッキが空の場合は発動不可", () => {
+      // より現実的なエラーケース
+      duelState.mainDeck = [];
 
-      // エラーが発生しても適切に処理される
-      expect(() => {
-        gracefulCharityEffect.canActivate(duelState);
-      }).toThrow();
+      expect(gracefulCharityEffect.canActivate(duelState)).toBe(false);
     });
   });
 });
