@@ -1,8 +1,8 @@
-import type { DuelState } from "$lib/classes/DuelState";
-import { BaseEffect } from "$lib/classes/effects/BaseEffect";
-import { EffectType } from "$lib/types/effect";
-import type { EffectResult, Effect } from "$lib/types/effect";
 import type { Card } from "$lib/types/card";
+import type { EffectResult, Effect } from "$lib/types/effect";
+import type { DuelState } from "$lib/classes/DuelState";
+import { EffectType } from "$lib/types/effect";
+import { BaseEffect } from "$lib/classes/effects/bases/BaseEffect";
 
 /**
  * 複数の効果を組み合わせて実行するコンポジションベースの効果クラス

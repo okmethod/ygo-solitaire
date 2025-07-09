@@ -1,4 +1,4 @@
-import { EffectComposer } from "$lib/classes/effects/EffectComposer";
+import { EffectComposer } from "$lib/classes/effects/bases/EffectComposer";
 import { DrawEffect } from "$lib/classes/effects/primitives/DrawEffect";
 import { DiscardEffect } from "$lib/classes/effects/primitives/DiscardEffect";
 import type { DuelState } from "$lib/classes/DuelState";

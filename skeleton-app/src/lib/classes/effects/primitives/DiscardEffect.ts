@@ -1,5 +1,5 @@
 import type { DuelState } from "$lib/classes/DuelState";
-import { BaseEffect } from "$lib/classes/effects/BaseEffect";
+import { BaseEffect } from "$lib/classes/effects/bases/BaseEffect";
 import { EffectType } from "$lib/types/effect";
 import type { EffectResult } from "$lib/types/effect";
 import type { Card } from "$lib/types/card";

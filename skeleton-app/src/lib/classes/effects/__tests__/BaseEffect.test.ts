@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../../DuelState";
-import { BaseEffect } from "../BaseEffect";
+import { BaseEffect } from "../bases/BaseEffect";
 import { EffectType } from "$lib/types/effect";
 import type { EffectResult } from "$lib/types/effect";
 

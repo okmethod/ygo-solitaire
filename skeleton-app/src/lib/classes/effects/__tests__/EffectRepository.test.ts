@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { EffectRepository } from "../EffectRepository";
-import { BaseEffect } from "../BaseEffect";
+import { BaseEffect } from "../bases/BaseEffect";
 import { EffectType } from "$lib/types/effect";
 import type { EffectResult } from "$lib/types/effect";
 
