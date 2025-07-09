@@ -1,6 +1,7 @@
 import type { DeckRecipe } from "$lib/types/deck";
 
-// 実際の遊戯王カードIDを使用したサンプルデッキレシピ
+// YGOProDeckAPI の ID を使用したサンプルデッキレシピ
+// 例) https://db.ygoprodeck.com/api/v7/cardinfo.php?id=33396948
 export const sampleDeckRecipes: Record<string, DeckRecipe> = {
   "greedy-exodia-deck": {
     name: "強欲なエクゾディア",
@@ -16,7 +17,7 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
 
       // 魔法カード
       { id: 55144522, quantity: 20, effectClass: "PotOfGreedEffect" }, // 強欲な壺
-      { id: 70278545, quantity: 12 }, // 謙虚な壺（未実装）
+      { id: 79571449, quantity: 12, effectClass: "GracefulCharityEffect" }, // 天使の施し
 
       // 罠カード
       { id: 83968380, quantity: 3 }, // 強欲な瓶（未実装）
