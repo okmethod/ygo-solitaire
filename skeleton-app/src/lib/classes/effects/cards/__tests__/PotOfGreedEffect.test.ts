@@ -29,10 +29,10 @@ describe("PotOfGreedEffect", () => {
 
   describe("基本プロパティ", () => {
     it("強欲な壺のプロパティが正しく設定される", () => {
-      expect(potOfGreed.id).toBe("pot-of-greed-55144522");
+      expect(potOfGreed.id).toBe("pot-of-greed");
       expect(potOfGreed.name).toBe("強欲な壺");
       expect(potOfGreed.type).toBe(EffectType.DRAW);
-      expect(potOfGreed.description).toBe("自分はデッキから２枚ドローする");
+      expect(potOfGreed.description).toBe("デッキから2枚ドローする");
       expect(potOfGreed.cardId).toBe(55144522);
       expect(potOfGreed.getDrawCount()).toBe(2);
     });
