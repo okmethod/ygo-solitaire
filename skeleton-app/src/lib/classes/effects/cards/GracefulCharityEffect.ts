@@ -56,7 +56,9 @@ export class GracefulCharityEffect extends EffectComposer {
       return false;
     }
 
-    // デッキに3枚以上のカードがあるかチェック
+    // DrawEffectの発動条件（デッキに3枚以上）のみチェック
+    // DiscardEffectの発動条件は実行時（ドロー後）の状態に依存するため、
+    // 個別に手動でチェックする必要がある
     if (state.mainDeck.length < 3) {
       return false;
     }
