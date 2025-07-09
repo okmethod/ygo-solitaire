@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { DuelState } from "$lib/classes/DuelState";
 import { EffectRepository } from "../EffectRepository";
 import { PotOfGreedEffect } from "../cards/PotOfGreedEffect";
-import { CardEffectRegistrar } from "../registry/CardEffectRegistrar";
+import { CardEffectRegistrar } from "../CardEffectRegistrar";
 import type { DeckRecipe } from "$lib/types/deck";
 
 describe("Effects Integration", () => {

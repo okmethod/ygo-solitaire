@@ -3,7 +3,7 @@ import type { DuelStateData, DuelStats } from "$lib/types/duel";
 import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData, DeckRecipe } from "$lib/types/deck";
 import type { Effect, EffectResult } from "$lib/types/effect";
 import { EffectRepository } from "./effects/EffectRepository";
-import { CardEffectRegistrar } from "./effects/registry/CardEffectRegistrar";
+import { CardEffectRegistrar } from "./effects/CardEffectRegistrar";
 
 /**
  * ゲーム状態管理クラス
