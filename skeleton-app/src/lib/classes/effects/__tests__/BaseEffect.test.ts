@@ -13,7 +13,7 @@ class TestEffect extends BaseEffect {
     this.shouldSucceed = shouldSucceed;
   }
 
-  canActivate(state: DuelState): boolean {
+  canActivate(): boolean {
     return this.shouldSucceed;
   }
 
@@ -82,12 +82,12 @@ describe("BaseEffect", () => {
 
   describe("発動可能性チェック", () => {
     it("発動可能な場合はtrueを返す", () => {
-      expect(testEffect.canActivate(duelState)).toBe(true);
+      expect(testEffect.canActivate()).toBe(true);
     });
 
     it("発動不可能な場合はfalseを返す", () => {
       const failEffect = new TestEffect(false);
-      expect(failEffect.canActivate(duelState)).toBe(false);
+      expect(failEffect.canActivate()).toBe(false);
     });
   });
 
