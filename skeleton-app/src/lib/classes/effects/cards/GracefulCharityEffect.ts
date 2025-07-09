@@ -46,13 +46,13 @@ export class GracefulCharityEffect extends EffectComposer {
    * - ゲーム継続中かつ適切なフェイズ
    */
   canActivate(state: DuelState): boolean {
-    // 基本的なゲーム状態チェック
-    if (state.gameResult !== "ongoing") {
+    // ゲームが継続中かチェック
+    if (!this.isGameOngoing(state)) {
       return false;
     }
 
     // 通常魔法として適切なフェイズかチェック
-    if (!["メインフェイズ1", "メインフェイズ2"].includes(state.currentPhase)) {
+    if (!this.isValidSpellPhase(state)) {
       return false;
     }
 

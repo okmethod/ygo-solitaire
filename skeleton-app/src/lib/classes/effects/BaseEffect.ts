@@ -109,4 +109,20 @@ export abstract class BaseEffect implements Effect {
       gameEnded: false,
     };
   }
+
+  /**
+   * ゲーム状態の基本チェック
+   * ゲームが継続中かどうかを確認する共通ヘルパー
+   */
+  protected isGameOngoing(state: DuelState): boolean {
+    return state.gameResult === "ongoing";
+  }
+
+  /**
+   * 通常魔法の発動可能フェイズチェック
+   * メインフェイズ1またはメインフェイズ2かどうかを確認する共通ヘルパー
+   */
+  protected isValidSpellPhase(state: DuelState): boolean {
+    return ["メインフェイズ1", "メインフェイズ2"].includes(state.currentPhase);
+  }
 }

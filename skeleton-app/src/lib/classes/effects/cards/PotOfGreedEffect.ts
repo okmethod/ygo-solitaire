@@ -29,18 +29,15 @@ export class PotOfGreedEffect extends DrawEffect {
       return false;
     }
 
-    // 通常魔法の発動条件
-    // メインフェイズ1またはメインフェイズ2で発動可能
-    const isMainPhase = state.currentPhase === "メインフェイズ1" || state.currentPhase === "メインフェイズ2";
-
-    if (!isMainPhase) {
-      console.warn(`[PotOfGreedEffect] 通常魔法は${state.currentPhase}では発動できません`);
+    // ゲームが継続中かチェック
+    if (!this.isGameOngoing(state)) {
+      console.warn(`[PotOfGreedEffect] ゲームが既に終了しています: ${state.gameResult}`);
       return false;
     }
 
-    // ゲームが継続中であることを確認
-    if (state.gameResult !== "ongoing") {
-      console.warn(`[PotOfGreedEffect] ゲームが既に終了しています: ${state.gameResult}`);
+    // 通常魔法の発動可能フェイズかチェック
+    if (!this.isValidSpellPhase(state)) {
+      console.warn(`[PotOfGreedEffect] 通常魔法は${state.currentPhase}では発動できません`);
       return false;
     }
 
