@@ -46,5 +46,4 @@ export class PotOfGreedEffect extends DrawEffect {
 
     return true;
   }
-
 }

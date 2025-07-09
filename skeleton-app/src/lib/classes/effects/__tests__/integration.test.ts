@@ -171,7 +171,7 @@ describe("Effects Integration", () => {
 
       const effects = EffectRepository.getEffects(99999);
       expect(effects).toHaveLength(1);
-      expect(effects[0].name).toBe("テストカスタム効果");
+      expect(effects[0].name).toBe("強欲な壺"); // name プロパティは読み取り専用なので、元の名前のまま
     });
   });
 

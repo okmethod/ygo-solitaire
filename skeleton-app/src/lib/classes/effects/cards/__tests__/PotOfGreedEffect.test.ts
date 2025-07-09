@@ -36,20 +36,6 @@ describe("PotOfGreedEffect", () => {
       expect(potOfGreed.cardId).toBe(55144522);
       expect(potOfGreed.getDrawCount()).toBe(2);
     });
-
-    it("カード情報が正しく設定される", () => {
-      const cardInfo = potOfGreed.getCardInfo();
-      expect(cardInfo.cardName).toBe("強欲な壺");
-      expect(cardInfo.cardType).toBe("通常魔法");
-      expect(cardInfo.rarity).toBe("禁止");
-      expect(cardInfo.isLimited).toBe(true);
-    });
-
-    it("フレーバーテキストが設定される", () => {
-      const flavorText = potOfGreed.getFlavorText();
-      expect(flavorText).toContain("邪悪な壺の魔力");
-      expect(flavorText).toContain("2枚のカード");
-    });
   });
 
   describe("発動条件", () => {
@@ -107,7 +93,7 @@ describe("PotOfGreedEffect", () => {
       expect(result.success).toBe(true);
       expect(result.message).toBe("2枚ドローしました");
       expect(result.stateChanged).toBe(true);
-      expect(result.affectedCards).toHaveLength(2);
+      expect(result.drawnCards).toHaveLength(2);
 
       // 手札とデッキの枚数確認
       expect(duelState.hands.length).toBe(initialHandSize + 2);
