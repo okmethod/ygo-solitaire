@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { PotOfGreedEffect } from "../PotOfGreedEffect";
+import { PotOfGreedEffect } from "../magic/normal/PotOfGreedEffect";
 import { DuelState } from "../../../DuelState";
 import { EffectType } from "$lib/types/effect";
 

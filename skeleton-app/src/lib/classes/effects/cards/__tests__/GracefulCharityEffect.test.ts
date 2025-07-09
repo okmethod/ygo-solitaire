@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "$lib/classes/DuelState";
-import { GracefulCharityEffect } from "$lib/classes/effects/cards/GracefulCharityEffect";
+import { GracefulCharityEffect } from "$lib/classes/effects/cards/magic/normal/GracefulCharityEffect";
 import { EffectType } from "$lib/types/effect";
 
 describe("GracefulCharityEffect", () => {

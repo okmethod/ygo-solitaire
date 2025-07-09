@@ -5,8 +5,8 @@
  */
 
 // カード固有効果クラスをインポート
-import { PotOfGreedEffect } from "$lib/classes/effects/cards/PotOfGreedEffect";
-import { GracefulCharityEffect } from "$lib/classes/effects/cards/GracefulCharityEffect";
+import { PotOfGreedEffect } from "$lib/classes/effects/cards/magic/normal/PotOfGreedEffect";
+import { GracefulCharityEffect } from "$lib/classes/effects/cards/magic/normal/GracefulCharityEffect";
 // TODO: 新しいカード効果を追加する際はここにインポートを追加
 
 /**
