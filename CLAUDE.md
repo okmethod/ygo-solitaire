@@ -120,7 +120,7 @@ npm run deploy         # build + gh-pages へのデプロイ
   - 勝利条件チェック機能
 
 - **効果継承階層**: `BaseEffect` → `DrawEffect` → `PotOfGreedEffect`
-  - `atoms/DrawEffect.ts`: 汎用ドロー効果
+  - `primitives/DrawEffect.ts`: 汎用ドロー効果
   - `cards/PotOfGreedEffect.ts`: 強欲な壺（DrawEffectを継承）
 
 #### 効果登録システム

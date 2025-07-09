@@ -1,5 +1,5 @@
-import { DrawEffect } from "../atoms/DrawEffect";
 import type { DuelState } from "$lib/classes/DuelState";
+import { DrawEffect } from "$lib/classes/effects/primitives/DrawEffect";
 
 /**
  * 強欲な壺の効果
