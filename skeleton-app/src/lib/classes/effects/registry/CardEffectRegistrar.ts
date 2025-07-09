@@ -1,7 +1,7 @@
-import { EffectRepository } from "../EffectRepository";
 import type { DeckRecipe } from "$lib/types/deck";
 import type { Effect } from "$lib/types/effect";
-import { CARD_EFFECTS_REGISTRY, isRegisteredCardEffect } from "./cardEffectsRegistry";
+import { EffectRepository } from "$lib/classes/effects/EffectRepository";
+import { CARD_EFFECTS, isRegisteredCardEffect } from "$lib/classes/effects/cards/cardEffects";
 
 /**
  * カード固有効果の動的登録を管理するクラス
@@ -98,7 +98,7 @@ export class CardEffectRegistrar {
 
     // 次にカード効果レジストリの登録をチェック
     if (isRegisteredCardEffect(effectClassName)) {
-      return CARD_EFFECTS_REGISTRY[effectClassName];
+      return CARD_EFFECTS[effectClassName];
     }
 
     return null;
