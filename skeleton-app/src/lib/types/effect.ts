@@ -2,6 +2,11 @@ import type { DuelState } from "$lib/classes/DuelState";
 import type { Card } from "$lib/types/card";
 
 /**
+ * 魔法カードのサブタイプ
+ */
+export type MagicSubType = "normal" | "effect" | "ritual" | "quick-play" | "field" | "equip";
+
+/**
  * 効果の種類を表す列挙型
  */
 export enum EffectType {

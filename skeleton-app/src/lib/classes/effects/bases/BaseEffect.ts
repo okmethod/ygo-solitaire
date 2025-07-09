@@ -105,6 +105,7 @@ export abstract class BaseEffect implements Effect {
       success: true,
       message,
       stateChanged,
+      affectedCards: drawnCards,
       drawnCards,
       gameEnded: false,
     };

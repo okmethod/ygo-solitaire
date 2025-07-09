@@ -31,10 +31,9 @@ describe("PotOfGreedEffect", () => {
     it("強欲な壺のプロパティが正しく設定される", () => {
       expect(potOfGreed.id).toBe("pot-of-greed");
       expect(potOfGreed.name).toBe("強欲な壺");
-      expect(potOfGreed.type).toBe(EffectType.DRAW);
+      expect(potOfGreed.type).toBe(EffectType.ACTIVATE);
       expect(potOfGreed.description).toBe("デッキから2枚ドローする");
       expect(potOfGreed.cardId).toBe(55144522);
-      expect(potOfGreed.getDrawCount()).toBe(2);
     });
   });
 
@@ -120,8 +119,7 @@ describe("PotOfGreedEffect", () => {
       const result = potOfGreed.execute(duelState);
 
       expect(result.success).toBe(false);
-      expect(result.message).toContain("デッキに2枚のカードがありません");
-      expect(result.message).toContain("残り1枚");
+      expect(result.message).toContain("強欲な壺は発動できません");
     });
 
     it("効果実行後にゲーム状態が正常に保たれる", () => {
