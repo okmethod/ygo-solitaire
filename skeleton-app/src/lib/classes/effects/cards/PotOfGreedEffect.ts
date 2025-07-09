@@ -47,27 +47,4 @@ export class PotOfGreedEffect extends DrawEffect {
     return true;
   }
 
-  /**
-   * 強欲な壺特有の効果情報
-   */
-  getCardInfo(): {
-    cardName: string;
-    cardType: string;
-    rarity: string;
-    isLimited: boolean;
-  } {
-    return {
-      cardName: "強欲な壺",
-      cardType: "通常魔法",
-      rarity: "禁止",
-      isLimited: true, // 実際のOCGでは禁止カード
-    };
-  }
-
-  /**
-   * 効果発動時のフレーバーテキスト
-   */
-  getFlavorText(): string {
-    return "邪悪な壺の魔力により、デッキから2枚のカードを引き寄せる...";
-  }
 }
