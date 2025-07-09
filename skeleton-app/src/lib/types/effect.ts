@@ -1,5 +1,5 @@
 import type { DuelState } from "$lib/classes/DuelState";
-import type { Card } from "./card";
+import type { Card } from "$lib/types/card";
 
 /**
  * 効果の種類を表す列挙型
