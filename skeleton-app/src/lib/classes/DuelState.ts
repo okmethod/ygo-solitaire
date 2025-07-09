@@ -2,7 +2,7 @@ import type { Card } from "$lib/types/card";
 import type { DuelStateData, DuelStats } from "$lib/types/duel";
 import type { DeckData, LoadedCardEntry, MainDeckData, ExtraDeckData, DeckRecipe } from "$lib/types/deck";
 import type { Effect, EffectResult } from "$lib/types/effect";
-import { EffectRegistry } from "./effects/EffectRegistry";
+import { EffectRepository } from "./effects/EffectRepository";
 import { CardEffectRegistrar } from "./effects/registry/CardEffectRegistrar";
 
 /**
@@ -361,7 +361,7 @@ export class DuelState {
    * カードの効果を取得する（EffectRegistryから）
    */
   getEffectsForCard(cardId: number): Effect[] {
-    return EffectRegistry.getEffects(cardId);
+    return EffectRepository.getEffects(cardId);
   }
 
   /**

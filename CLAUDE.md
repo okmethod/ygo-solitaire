@@ -111,7 +111,7 @@ npm run deploy         # build + gh-pages へのデプロイ
   - 効果システムとの連携
 
 #### カード効果システム
-- **`EffectRegistry.ts`**: カードIDと効果の対応管理
+- **`EffectRepository.ts`**: カードIDと効果の対応管理
   - ファクトリーパターンによる効果の遅延生成
   - メモリ効率とパフォーマンス最適化
 

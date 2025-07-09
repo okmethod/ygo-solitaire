@@ -9,7 +9,7 @@ export type EffectFactory = () => Effect[];
  * カードIDに対応する効果を管理するレジストリ
  * 効果のファクトリパターンを実装し、メモリ効率とパフォーマンスを向上
  */
-export class EffectRegistry {
+export class EffectRepository {
   private static effects = new Map<number, EffectFactory>();
 
   /**

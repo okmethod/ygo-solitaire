@@ -1,4 +1,4 @@
-import { EffectRegistry } from "../EffectRegistry";
+import { EffectRepository } from "../EffectRepository";
 import type { DeckRecipe } from "$lib/types/deck";
 import type { Effect } from "$lib/types/effect";
 import { CARD_EFFECTS_REGISTRY, isRegisteredCardEffect } from "./cardEffectsRegistry";
@@ -6,7 +6,7 @@ import { CARD_EFFECTS_REGISTRY, isRegisteredCardEffect } from "./cardEffectsRegi
 /**
  * カード固有効果の動的登録を管理するクラス
  * デッキレシピに基づいてカード固有効果のみを登録する
- * 
+ *
  * 設計思想:
  * - cards/ ディレクトリのカード固有効果のみを対象
  * - atoms/ の再利用可能効果は継承により使用される
@@ -21,7 +21,7 @@ export class CardEffectRegistrar {
     console.log(`[CardEffectRegistrar] デッキ「${deck.name}」の効果登録を開始します...`);
 
     // 登録前に既存の効果をクリア
-    EffectRegistry.clear();
+    EffectRepository.clear();
 
     // メインデッキとエクストラデッキの全カードを取得
     const allCards = [...deck.mainDeck, ...deck.extraDeck];
@@ -37,7 +37,7 @@ export class CardEffectRegistrar {
     for (const [cardId, effectClass] of uniqueCards) {
       const effectFactory = this.getEffectFactoryByClass(cardId, effectClass);
       if (effectFactory) {
-        EffectRegistry.register(cardId, effectFactory);
+        EffectRepository.register(cardId, effectFactory);
         registeredCount++;
         console.log(`[CardEffectRegistrar] カードID ${cardId} (${effectClass}) の効果を登録しました`);
       }
@@ -112,9 +112,9 @@ export class CardEffectRegistrar {
     effectCount: number;
     effectNames: string[];
   } {
-    const effects = EffectRegistry.getEffects(cardId);
+    const effects = EffectRepository.getEffects(cardId);
     return {
-      isRegistered: EffectRegistry.hasEffects(cardId),
+      isRegistered: EffectRepository.hasEffects(cardId),
       effectCount: effects.length,
       effectNames: effects.map((effect) => effect.name),
     };
@@ -130,10 +130,10 @@ export class CardEffectRegistrar {
       effectNames: string[];
     }[];
   } {
-    const stats = EffectRegistry.getStats();
+    const stats = EffectRepository.getStats();
     const registeredCards = stats.cardIds.map((cardId) => ({
       cardId,
-      effectNames: EffectRegistry.getEffects(cardId).map((effect) => effect.name),
+      effectNames: EffectRepository.getEffects(cardId).map((effect) => effect.name),
     }));
 
     return {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { DuelState } from "../../DuelState";
-import { EffectRegistry } from "../EffectRegistry";
+import { DuelState } from "$lib/classes/DuelState";
+import { EffectRepository } from "../EffectRepository";
 import { PotOfGreedEffect } from "../cards/PotOfGreedEffect";
 import { CardEffectRegistrar } from "../registry/CardEffectRegistrar";
 import type { DeckRecipe } from "$lib/types/deck";
@@ -9,7 +9,7 @@ describe("Effects Integration", () => {
   let duelState: DuelState;
 
   beforeEach(() => {
-    EffectRegistry.clear();
+    EffectRepository.clear();
     duelState = new DuelState({
       name: "統合テスト",
       mainDeck: [
@@ -26,7 +26,7 @@ describe("Effects Integration", () => {
   });
 
   afterEach(() => {
-    EffectRegistry.clear();
+    EffectRepository.clear();
   });
 
   describe("CardEffectRegistrar統合", () => {
@@ -44,7 +44,7 @@ describe("Effects Integration", () => {
 
       CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
-      const stats = EffectRegistry.getStats();
+      const stats = EffectRepository.getStats();
       expect(stats.totalRegistered).toBe(1); // 強欲な壺のみ
       expect(stats.cardIds).toContain(55144522);
     });
@@ -63,7 +63,7 @@ describe("Effects Integration", () => {
 
       CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
-      const stats = EffectRegistry.getStats();
+      const stats = EffectRepository.getStats();
       expect(stats.totalRegistered).toBe(0);
     });
 
@@ -80,7 +80,7 @@ describe("Effects Integration", () => {
 
       CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
-      const effects = EffectRegistry.getEffects(55144522);
+      const effects = EffectRepository.getEffects(55144522);
       expect(effects).toHaveLength(1);
       expect(effects[0]).toBeInstanceOf(PotOfGreedEffect);
       expect(effects[0].name).toBe("強欲な壺");
@@ -99,7 +99,7 @@ describe("Effects Integration", () => {
 
       CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
-      const effects = EffectRegistry.getEffects(55144522);
+      const effects = EffectRepository.getEffects(55144522);
       expect(effects).toHaveLength(1);
       expect(effects[0]).toBeInstanceOf(PotOfGreedEffect);
       expect(effects[0].name).toBe("強欲な壺");
@@ -169,7 +169,7 @@ describe("Effects Integration", () => {
 
       CardEffectRegistrar.registerEffectsFromDeck(testDeck);
 
-      const effects = EffectRegistry.getEffects(99999);
+      const effects = EffectRepository.getEffects(99999);
       expect(effects).toHaveLength(1);
       expect(effects[0].name).toBe("テストカスタム効果");
     });
@@ -232,7 +232,7 @@ describe("Effects Integration", () => {
 
     it("フルワークフロー: 登録→取得→実行", () => {
       // 1. 効果が登録されていることを確認
-      expect(EffectRegistry.hasEffects(55144522)).toBe(true);
+      expect(EffectRepository.hasEffects(55144522)).toBe(true);
 
       // 2. DuelStateから効果を取得
       const effects = duelState.getEffectsForCard(55144522);
