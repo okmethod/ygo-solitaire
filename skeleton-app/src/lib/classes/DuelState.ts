@@ -361,7 +361,11 @@ export class DuelState {
    * カードの効果を取得する（EffectRegistryから）
    */
   getEffectsForCard(cardId: number): Effect[] {
-    return EffectRepository.getEffects(cardId);
+    const effects = EffectRepository.getEffects(cardId);
+    if (effects.length > 0) {
+      console.log(`[DuelState] カードID ${cardId} の効果取得: ${effects.length}個`, effects.map(e => e.name));
+    }
+    return effects;
   }
 
   /**

@@ -41,14 +41,18 @@
 
   // カードクリック処理 - 効果発動
   function handleCardClick(card: Card) {
-    console.log(`[Hands] カード「${card.name}」がクリックされました`);
+    console.log(`[Hands] *** カード「${card.name}」(ID: ${card.id})がクリックされました ***`);
 
     // カードに効果があるかチェック
     const effects = duelState.getEffectsForCard(card.id);
+    console.log(`[Hands] 効果チェック結果: ${effects.length}個の効果`, effects);
+    
     if (effects.length === 0) {
       console.log(`[Hands] カード「${card.name}」には効果がありません`);
       return;
     }
+
+    console.log(`[Hands] 効果実行を開始します...`);
 
     // 効果実行
     const result = duelState.executeCardEffect(card.id) as InteractiveEffectResult;
@@ -56,6 +60,7 @@
 
     // インタラクティブな結果の場合はカード選択モーダルを表示
     if (result.success && result.requiresCardSelection) {
+      console.log(`[Hands] カード選択モーダルを表示します`);
       const selection = result.requiresCardSelection;
       cardSelectionTitle = selection.title;
       cardSelectionDescription = selection.description;
@@ -67,6 +72,7 @@
 
     // 結果を親コンポーネントに通知
     if (onEffectResult) {
+      console.log(`[Hands] 親コンポーネントに結果を通知します`);
       onEffectResult(result);
     }
   }
@@ -99,13 +105,22 @@
 
   // カードが効果を持っているかチェック
   function hasEffect(card: Card): boolean {
-    return duelState.getEffectsForCard(card.id).length > 0;
+    const effects = duelState.getEffectsForCard(card.id);
+    const hasEffects = effects.length > 0;
+    if (hasEffects) {
+      console.log(`[Hands] カード「${card.name}」(${card.id})には${effects.length}個の効果があります:`, effects.map(e => e.name));
+    }
+    return hasEffects;
   }
 
   // カードの効果が発動可能かチェック
   function canActivateEffect(card: Card): boolean {
     const effects = duelState.getEffectsForCard(card.id);
-    return effects.some((effect) => effect.canActivate(duelState));
+    const canActivate = effects.some((effect) => effect.canActivate(duelState));
+    if (effects.length > 0) {
+      console.log(`[Hands] カード「${card.name}」効果発動可能: ${canActivate}`);
+    }
+    return canActivate;
   }
 </script>
 
