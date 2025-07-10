@@ -66,6 +66,14 @@ export interface InteractiveEffectResult extends EffectResult {
   }[];
   /** 選択が必要な場合のコールバック */
   onChoice?: (choiceId: string) => void;
+  /** 手札選択が必要な場合 */
+  requiresCardSelection?: {
+    title: string;
+    description: string;
+    cards: Card[];
+    maxSelections: number;
+    onSelection: (selectedCards: Card[]) => void;
+  };
 }
 
 /**
