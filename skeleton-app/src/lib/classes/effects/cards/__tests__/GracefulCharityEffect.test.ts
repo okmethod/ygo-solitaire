@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "$lib/classes/DuelState";
 import { GracefulCharityEffect } from "$lib/classes/effects/cards/magic/normal/GracefulCharityEffect";
-import { EffectType } from "$lib/types/effect";
 
 describe("GracefulCharityEffect", () => {
   let duelState: DuelState;
@@ -33,7 +32,6 @@ describe("GracefulCharityEffect", () => {
     it("正しい効果情報を持つ", () => {
       expect(gracefulCharityEffect.id).toBe("graceful-charity");
       expect(gracefulCharityEffect.name).toBe("天使の施し");
-      expect(gracefulCharityEffect.type).toBe(EffectType.ACTIVATE);
       expect(gracefulCharityEffect.cardId).toBe(79571449);
       expect(gracefulCharityEffect.description).toBe("デッキから3枚ドローし、その後手札から2枚捨てる");
     });

@@ -1,6 +1,6 @@
 import type { DuelState } from "$lib/classes/DuelState";
 import type { Card } from "$lib/types/card";
-import type { Effect, EffectResult, EffectType, EffectContext } from "$lib/types/effect";
+import type { Effect, EffectResult, EffectContext } from "$lib/types/effect";
 
 /**
  * 効果の基底抽象クラス
@@ -9,14 +9,12 @@ import type { Effect, EffectResult, EffectType, EffectContext } from "$lib/types
 export abstract class BaseEffect implements Effect {
   public readonly id: string;
   public readonly name: string;
-  public readonly type: EffectType;
   public readonly description: string;
   public readonly cardId: number;
 
-  constructor(id: string, name: string, type: EffectType, description: string, cardId: number) {
+  constructor(id: string, name: string, description: string, cardId: number) {
     this.id = id;
     this.name = name;
-    this.type = type;
     this.description = description;
     this.cardId = cardId;
   }

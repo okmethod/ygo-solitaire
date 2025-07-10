@@ -1,5 +1,4 @@
 import { BaseEffect } from "$lib/classes/effects/bases/BaseEffect";
-import { EffectType } from "$lib/types/effect";
 import type { DuelState } from "$lib/classes/DuelState";
 import type { EffectResult } from "$lib/types/effect";
 
@@ -11,7 +10,7 @@ export class DrawEffect extends BaseEffect {
   private readonly drawCount: number;
 
   constructor(id: string, name: string, description: string, cardId: number, drawCount: number) {
-    super(id, name, EffectType.DRAW, description, cardId);
+    super(id, name, description, cardId);
     this.drawCount = drawCount;
   }
 

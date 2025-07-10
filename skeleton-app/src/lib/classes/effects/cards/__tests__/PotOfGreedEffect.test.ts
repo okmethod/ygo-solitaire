@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { PotOfGreedEffect } from "../magic/normal/PotOfGreedEffect";
 import { DuelState } from "../../../DuelState";
-import { EffectType } from "$lib/types/effect";
 
 describe("PotOfGreedEffect", () => {
   let duelState: DuelState;
@@ -31,7 +30,6 @@ describe("PotOfGreedEffect", () => {
     it("強欲な壺のプロパティが正しく設定される", () => {
       expect(potOfGreed.id).toBe("pot-of-greed");
       expect(potOfGreed.name).toBe("強欲な壺");
-      expect(potOfGreed.type).toBe(EffectType.ACTIVATE);
       expect(potOfGreed.description).toBe("デッキから2枚ドローする");
       expect(potOfGreed.cardId).toBe(55144522);
     });

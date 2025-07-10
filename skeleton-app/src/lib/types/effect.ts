@@ -7,22 +7,6 @@ import type { Card } from "$lib/types/card";
 export type MagicSubType = "normal" | "effect" | "ritual" | "quick-play" | "field" | "equip";
 
 /**
- * 効果の種類を表す列挙型
- */
-export enum EffectType {
-  /** ドロー効果 */
-  DRAW = "draw",
-  /** サーチ効果 */
-  SEARCH = "search",
-  /** 勝利条件 */
-  WIN_CONDITION = "win_condition",
-  /** 一般的な発動効果 */
-  ACTIVATE = "activate",
-  /** 罠カード効果 */
-  TRAP = "trap",
-}
-
-/**
  * 効果実行の結果
  */
 export interface EffectResult {
@@ -50,8 +34,6 @@ export interface Effect {
   id: string;
   /** 効果の名前 */
   name: string;
-  /** 効果の種類 */
-  type: EffectType;
   /** 効果の説明 */
   description: string;
   /** この効果を持つカードのID */

@@ -1,6 +1,5 @@
 import type { DuelState } from "$lib/classes/DuelState";
 import { BaseEffect } from "$lib/classes/effects/bases/BaseEffect";
-import { EffectType } from "$lib/types/effect";
 import type { MagicSubType } from "$lib/types/effect";
 
 /**
@@ -15,7 +14,7 @@ export abstract class BaseMagicEffect extends BaseEffect {
   protected readonly magicSubType: MagicSubType;
 
   constructor(id: string, name: string, description: string, cardId: number, magicSubType: MagicSubType) {
-    super(id, name, EffectType.ACTIVATE, description, cardId);
+    super(id, name, description, cardId);
     this.magicSubType = magicSubType;
   }
 
