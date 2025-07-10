@@ -1,6 +1,6 @@
 import type { DuelState } from "$lib/classes/DuelState";
 import { BaseEffect } from "$lib/classes/effects/bases/BaseEffect";
-import type { MagicSubType, EffectResult } from "$lib/types/effect";
+import type { MagicSubType, EffectResult, InteractiveEffectResult } from "$lib/types/effect";
 
 /**
  * 魔法カード効果の基底クラス
@@ -113,8 +113,12 @@ export abstract class BaseMagicEffect extends BaseEffect {
     console.log(`[${this.name}] 効果解決を実行します`);
     const effectResult = this.resolveMagicEffect(state);
 
-    // 3. 継続系でない魔法カードは墓地に送る
-    if (effectResult.success && this.shouldSendToGraveyardAfterResolution()) {
+    // 3. インタラクティブな効果の場合、後処理コールバックを設定
+    if (effectResult.success && this.isInteractiveEffect(effectResult)) {
+      this.setupInteractiveEffectCallback(effectResult as InteractiveEffectResult, state);
+    }
+    // 4. 通常効果の場合、継続系でない魔法カードは即座に墓地に送る
+    else if (effectResult.success && this.shouldSendToGraveyardAfterResolution()) {
       this.sendToGraveyardAfterResolution(state);
     }
 
@@ -156,6 +160,36 @@ export abstract class BaseMagicEffect extends BaseEffect {
    * 魔法効果の解決（サブクラスで実装）
    */
   protected abstract resolveMagicEffect(state: DuelState): EffectResult;
+
+  /**
+   * インタラクティブな効果かどうかを判定
+   */
+  protected isInteractiveEffect(result: EffectResult): result is InteractiveEffectResult {
+    return 'requiresCardSelection' in result;
+  }
+
+  /**
+   * インタラクティブ効果の後処理コールバックを設定
+   */
+  protected setupInteractiveEffectCallback(result: InteractiveEffectResult, state: DuelState): void {
+    if (result.requiresCardSelection) {
+      const originalCallback = result.requiresCardSelection.onSelection;
+      
+      // 元のコールバックをラップして、完了後に墓地送りを実行
+      result.requiresCardSelection.onSelection = (selectedCards) => {
+        console.log(`[${this.name}] インタラクティブ効果のコールバック実行`);
+        
+        // 元の処理を実行
+        originalCallback(selectedCards);
+        
+        // 効果解決完了後、魔法カードを墓地に送る
+        if (this.shouldSendToGraveyardAfterResolution()) {
+          console.log(`[${this.name}] インタラクティブ効果完了後、魔法カードを墓地に送ります`);
+          this.sendToGraveyardAfterResolution(state);
+        }
+      };
+    }
+  }
 
   /**
    * 効果解決後に墓地に送るかどうか

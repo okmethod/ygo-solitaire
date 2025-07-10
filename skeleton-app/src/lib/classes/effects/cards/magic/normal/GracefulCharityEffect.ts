@@ -86,16 +86,7 @@ export class GracefulCharityEffect extends BaseMagicEffect {
       }
     }
     
-    // 手札選択が完了したので、魔法カード自体も墓地に送る
-    this.sendToGraveyardAfterResolution(state);
-    
-    console.log(`[${this.name}] 天使の施しの効果が完了しました`);
-  }
-
-  /**
-   * 天使の施しは手札選択完了後に墓地に送るため、通常の自動送りを無効にする
-   */
-  protected shouldSendToGraveyardAfterResolution(): boolean {
-    return false; // 手札選択後に手動で墓地に送る
+    console.log(`[${this.name}] 天使の施しの効果解決が完了しました`);
+    // 注意: 魔法カード自体の墓地送りは、BaseMagicEffectがインタラクティブ効果完了後に自動実行する
   }
 }
