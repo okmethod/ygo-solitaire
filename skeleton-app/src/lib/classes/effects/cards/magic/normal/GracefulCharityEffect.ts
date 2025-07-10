@@ -39,15 +39,10 @@ export class GracefulCharityEffect extends BaseMagicEffect {
   }
 
   /**
-   * 効果実行: 3枚ドロー → 手札選択UI表示
+   * 魔法効果の解決: 3枚ドロー → 手札選択UI表示
    */
-  execute(state: DuelState): InteractiveEffectResult {
-    console.log(`[${this.name}] 効果を実行します: 3枚ドロー → 手札選択`);
-
-    // 発動条件の再チェック
-    if (!this.canActivate(state)) {
-      return this.createErrorResult(`${this.name}は発動できません`) as InteractiveEffectResult;
-    }
+  protected resolveMagicEffect(state: DuelState): InteractiveEffectResult {
+    console.log(`[${this.name}] 効果解決: 3枚ドロー → 手札選択`);
 
     // 1. まず3枚ドローする
     const drawResult = this.drawEffect.execute(state);
@@ -91,6 +86,16 @@ export class GracefulCharityEffect extends BaseMagicEffect {
       }
     }
     
+    // 手札選択が完了したので、魔法カード自体も墓地に送る
+    this.sendToGraveyardAfterResolution(state);
+    
     console.log(`[${this.name}] 天使の施しの効果が完了しました`);
+  }
+
+  /**
+   * 天使の施しは手札選択完了後に墓地に送るため、通常の自動送りを無効にする
+   */
+  protected shouldSendToGraveyardAfterResolution(): boolean {
+    return false; // 手札選択後に手動で墓地に送る
   }
 }
