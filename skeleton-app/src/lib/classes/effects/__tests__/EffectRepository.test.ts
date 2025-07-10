@@ -1,13 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { EffectRepository } from "../EffectRepository";
-import { BaseEffect } from "../BaseEffect";
-import { EffectType } from "$lib/types/effect";
+import { BaseEffect } from "../bases/BaseEffect";
 import type { EffectResult } from "$lib/types/effect";
 
 // テスト用効果クラス
 class TestEffect extends BaseEffect {
   constructor(id: string = "test-effect", cardId: number = 12345) {
-    super(id, "テスト効果", EffectType.ACTIVATE, "テスト用の効果", cardId);
+    super(id, "テスト効果", "テスト用の効果", cardId);
   }
 
   canActivate(): boolean {
@@ -21,7 +20,7 @@ class TestEffect extends BaseEffect {
 
 class SecondTestEffect extends BaseEffect {
   constructor() {
-    super("second-test", "セカンドテスト効果", EffectType.DRAW, "2番目のテスト効果", 12345);
+    super("second-test", "セカンドテスト効果", "2番目のテスト効果", 12345);
   }
 
   canActivate(): boolean {

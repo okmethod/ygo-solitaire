@@ -1,14 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { DuelState } from "$lib/classes/DuelState";
-import { BaseEffect } from "../effects/BaseEffect";
+import { BaseEffect } from "../effects/bases/BaseEffect";
 import { EffectRepository } from "../effects/EffectRepository";
-import { EffectType } from "$lib/types/effect";
 import type { EffectResult } from "$lib/types/effect";
 
 // テスト用効果クラス
 class SimpleDrawEffect extends BaseEffect {
   constructor() {
-    super("simple-draw", "シンプルドロー", EffectType.DRAW, "1枚ドローする", 55144522);
+    super("simple-draw", "シンプルドロー", "1枚ドローする", 55144522);
   }
 
   canActivate(state: DuelState): boolean {
@@ -67,7 +66,7 @@ describe("DuelState Effect Integration", () => {
     it("複数の効果を同じカードに登録できる", () => {
       const secondEffect = new (class extends BaseEffect {
         constructor() {
-          super("simple-draw-2", "シンプルドロー2", EffectType.DRAW, "2枚目のドロー効果", 55144522);
+          super("simple-draw-2", "シンプルドロー2", "2枚目のドロー効果", 55144522);
         }
         canActivate(): boolean {
           return true;
@@ -133,7 +132,7 @@ describe("DuelState Effect Integration", () => {
       // 勝利効果をモック
       const winEffect = new (class extends BaseEffect {
         constructor() {
-          super("win-test", "勝利テスト", EffectType.WIN_CONDITION, "勝利する", 12345);
+          super("win-test", "勝利テスト", "勝利する", 12345);
         }
 
         canActivate(): boolean {

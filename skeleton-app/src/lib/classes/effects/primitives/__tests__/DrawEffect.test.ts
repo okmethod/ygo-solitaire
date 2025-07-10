@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DrawEffect } from "../DrawEffect";
 import { DuelState } from "../../../DuelState";
-import { EffectType } from "$lib/types/effect";
 
 describe("DrawEffect", () => {
   let duelState: DuelState;
@@ -30,7 +29,6 @@ describe("DrawEffect", () => {
     it("効果のプロパティが正しく設定される", () => {
       expect(drawEffect2.id).toBe("test-draw-2");
       expect(drawEffect2.name).toBe("2枚ドロー");
-      expect(drawEffect2.type).toBe(EffectType.DRAW);
       expect(drawEffect2.description).toBe("テスト用2枚ドロー効果");
       expect(drawEffect2.cardId).toBe(12345);
       expect(drawEffect2.getDrawCount()).toBe(2);

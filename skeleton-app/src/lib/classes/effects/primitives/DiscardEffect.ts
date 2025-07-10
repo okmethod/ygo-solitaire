@@ -1,6 +1,5 @@
 import type { DuelState } from "$lib/classes/DuelState";
-import { BaseEffect } from "$lib/classes/effects/BaseEffect";
-import { EffectType } from "$lib/types/effect";
+import { BaseEffect } from "$lib/classes/effects/bases/BaseEffect";
 import type { EffectResult } from "$lib/types/effect";
 import type { Card } from "$lib/types/card";
 
@@ -21,7 +20,7 @@ export class DiscardEffect extends BaseEffect {
   private discardCount: number;
 
   constructor(id: string = "discard-effect", name: string = "手札捨て", discardCount: number = 1, cardId: number = 0) {
-    super(id, name, EffectType.ACTIVATE, `手札から${discardCount}枚捨てる`, cardId);
+    super(id, name, `手札から${discardCount}枚捨てる`, cardId);
     this.discardCount = discardCount;
   }
 

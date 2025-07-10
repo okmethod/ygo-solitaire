@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "$lib/classes/DuelState";
 import { GracefulCharityEffect } from "$lib/classes/effects/cards/magic/normal/GracefulCharityEffect";
-import { EffectType } from "$lib/types/effect";
 
 describe("GracefulCharityEffect", () => {
   let duelState: DuelState;
@@ -33,7 +32,6 @@ describe("GracefulCharityEffect", () => {
     it("正しい効果情報を持つ", () => {
       expect(gracefulCharityEffect.id).toBe("graceful-charity");
       expect(gracefulCharityEffect.name).toBe("天使の施し");
-      expect(gracefulCharityEffect.type).toBe(EffectType.ACTIVATE);
       expect(gracefulCharityEffect.cardId).toBe(79571449);
       expect(gracefulCharityEffect.description).toBe("デッキから3枚ドローし、その後手札から2枚捨てる");
     });
@@ -42,7 +40,7 @@ describe("GracefulCharityEffect", () => {
       // 効果の実行結果から組み込まれた効果を検証
       const result = gracefulCharityEffect.execute(duelState);
       expect(result.success).toBe(true);
-      expect(result.message).toContain("3枚ドロー → 2枚捨てる");
+      expect(result.message).toContain("3枚ドロー → 2枚捨てる効果を実行しました");
     });
   });
 
@@ -93,7 +91,7 @@ describe("GracefulCharityEffect", () => {
 
       expect(result.success).toBe(true);
       expect(result.stateChanged).toBe(true);
-      expect(result.message).toContain("3枚ドロー → 2枚捨てる");
+      expect(result.message).toContain("3枚ドロー → 2枚捨てる効果を実行しました");
 
       // 手札: 2 + 3 - 2 = 3枚
       expect(duelState.hands.length).toBe(initialHandSize + 3 - 2);
@@ -122,7 +120,7 @@ describe("GracefulCharityEffect", () => {
       const result = gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(false);
-      expect(result.message).toContain("効果実行に失敗");
+      expect(result.message).toContain("天使の施し");
     });
 
     it("手札が多い場合でも正常に実行される", () => {
@@ -207,7 +205,7 @@ describe("GracefulCharityEffect", () => {
       const result = gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(false);
-      expect(result.message).toContain("効果実行に失敗");
+      expect(result.message).toContain("天使の施し");
     });
   });
 

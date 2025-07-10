@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DuelState } from "../../DuelState";
-import { BaseEffect } from "../BaseEffect";
-import { EffectType } from "$lib/types/effect";
+import { BaseEffect } from "../bases/BaseEffect";
 import type { EffectResult } from "$lib/types/effect";
 
 // テスト用の具体的な効果クラス
@@ -9,7 +8,7 @@ class TestEffect extends BaseEffect {
   private shouldSucceed: boolean;
 
   constructor(shouldSucceed: boolean = true) {
-    super("test-effect-1", "テスト効果", EffectType.ACTIVATE, "テスト用の効果です", 12345);
+    super("test-effect-1", "テスト効果", "テスト用の効果です", 12345);
     this.shouldSucceed = shouldSucceed;
   }
 
@@ -50,7 +49,6 @@ describe("BaseEffect", () => {
     it("効果のプロパティが正しく設定される", () => {
       expect(testEffect.id).toBe("test-effect-1");
       expect(testEffect.name).toBe("テスト効果");
-      expect(testEffect.type).toBe(EffectType.ACTIVATE);
       expect(testEffect.description).toBe("テスト用の効果です");
       expect(testEffect.cardId).toBe(12345);
     });
