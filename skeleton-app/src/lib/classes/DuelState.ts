@@ -132,13 +132,22 @@ export class DuelState {
    */
   drawCard(count: number = 1): Card[] {
     const drawnCards: Card[] = [];
-    for (let i = 0; i < count && this.mainDeck.length > 0; i++) {
-      const card = this.mainDeck.pop();
+    const newHands = [...this.hands];
+    const newMainDeck = [...this.mainDeck];
+    
+    for (let i = 0; i < count && newMainDeck.length > 0; i++) {
+      const card = newMainDeck.pop();
       if (card) {
-        this.hands.push(card);
+        newHands.push(card);
         drawnCards.push(card);
       }
     }
+    
+    // 配列を新しい参照で更新（Svelteのリアクティビティのため）
+    this.hands = newHands;
+    this.mainDeck = newMainDeck;
+    
+    console.log(`[DuelState] ${drawnCards.length}枚ドロー完了。手札: ${this.hands.length}枚、デッキ: ${this.mainDeck.length}枚`);
     return drawnCards;
   }
 
@@ -182,8 +191,17 @@ export class DuelState {
       const cardIndex = this.hands.findIndex((card) => card.id === cardId);
       if (cardIndex === -1) return false;
 
-      const card = this.hands.splice(cardIndex, 1)[0];
-      this.graveyard.push(card);
+      // 配列を新しい参照で更新（Svelteのリアクティビティのため）
+      const newHands = [...this.hands];
+      const newGraveyard = [...this.graveyard];
+      
+      const card = newHands.splice(cardIndex, 1)[0];
+      newGraveyard.push(card);
+      
+      this.hands = newHands;
+      this.graveyard = newGraveyard;
+      
+      console.log(`[DuelState] カード「${card.name}」を手札から墓地に送りました。手札: ${this.hands.length}枚、墓地: ${this.graveyard.length}枚`);
       return true;
     } else {
       // フィールドから墓地へ

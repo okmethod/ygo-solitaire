@@ -9,7 +9,7 @@
 
   export let data: PageData;
 
-  $: ({ duelState } = data);
+  let { duelState } = data;
   $: duelStats = duelState.getDuelStats();
 
   // 効果実行結果のハンドリング
@@ -26,8 +26,11 @@
         toastStore.info(`ドローしたカード: ${cardNames}`);
       }
 
-      // UI状態を更新（duelStateの変更は自動的にリアクティブに反映される）
+      // DuelStateのリアクティブ更新を強制
+      console.log("[Simulator] 手札更新前:", duelState.hands.length, "枚");
+      duelState = duelState; // Svelteのリアクティビティをトリガー
       duelStats = duelState.getDuelStats();
+      console.log("[Simulator] 手札更新後:", duelState.hands.length, "枚");
     } else {
       // 失敗時のフィードバック
       toastStore.error(result.message);
