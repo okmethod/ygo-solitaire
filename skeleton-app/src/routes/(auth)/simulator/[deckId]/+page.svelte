@@ -45,6 +45,7 @@
           deckCards={duelStats.mainDeckRemaining}
           extraDeckCards={duelState.extraDeck}
           graveyardCards={duelState.graveyard}
+          spellTrapCards={duelState.field.spellTrapZones}
         />
         <Hands cards={duelState.hands} {duelState} onEffectResult={handleEffectResult} />
       </div>

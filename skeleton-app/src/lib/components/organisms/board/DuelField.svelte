@@ -14,8 +14,8 @@
     extraDeckCards?: Card[];
     graveyardCards?: Card[];
     fieldCards?: Card[];
-    monsterCards?: Card[];
-    spellTrapCards?: Card[];
+    monsterCards?: (Card | null)[];
+    spellTrapCards?: (Card | null)[];
   }
 
   let {
@@ -23,8 +23,8 @@
     extraDeckCards = [],
     graveyardCards = [],
     fieldCards = [],
-    monsterCards = [],
-    spellTrapCards = [],
+    monsterCards = [null, null, null, null, null],
+    spellTrapCards = [null, null, null, null, null],
   }: DuelFieldProps = $props();
 
   // カードクリック処理
