@@ -16,7 +16,7 @@ class TestEffect extends BaseEffect {
     return this.shouldSucceed;
   }
 
-  execute(state: DuelState): EffectResult {
+  async execute(state: DuelState): Promise<EffectResult> {
     if (!this.shouldSucceed) {
       return this.createErrorResult("テスト用の失敗");
     }
@@ -55,8 +55,8 @@ describe("BaseEffect", () => {
   });
 
   describe("効果実行", () => {
-    it("成功時に正しい結果を返す", () => {
-      const result = testEffect.execute(duelState);
+    it("成功時に正しい結果を返す", async () => {
+      const result = await testEffect.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("テスト効果が成功しました");
@@ -66,9 +66,9 @@ describe("BaseEffect", () => {
       expect(duelState.hands[0].name).toBe("テストカード");
     });
 
-    it("失敗時に正しい結果を返す", () => {
+    it("失敗時に正しい結果を返す", async () => {
       const failEffect = new TestEffect(false);
-      const result = failEffect.execute(duelState);
+      const result = await failEffect.execute(duelState);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("テスト用の失敗");

@@ -37,11 +37,11 @@ export class PotOfGreedEffect extends BaseMagicEffect {
   /**
    * 魔法効果の解決: 2枚ドロー
    */
-  protected resolveMagicEffect(state: DuelState): EffectResult {
+  protected async resolveMagicEffect(state: DuelState): Promise<EffectResult> {
     console.log(`[${this.name}] 効果解決: 2枚ドロー`);
 
     // ドロー効果を実行
-    const drawResult = this.drawEffect.execute(state);
+    const drawResult = await this.drawEffect.execute(state);
 
     if (!drawResult.success) {
       return this.createErrorResult(`${this.name}: ${drawResult.message}`);
