@@ -73,16 +73,7 @@
         message: `${card.name}を発動します`,
         action: async () => {
           console.log(`[Hands] 魔法カード「${card.name}」を発動`);
-          // 実際のカード発動処理はここでは行わない（次のステップで実行）
-        },
-      },
-      {
-        id: "resolve-effect",
-        title: "効果解決",
-        message: `${card.name}の効果を解決します`,
-        action: async () => {
-          console.log(`[Hands] 効果解決中...`);
-          // 実際の効果実行
+          // 実際の効果実行（手札から魔法・罠ゾーンへの移動も含む）
           const result = (await duelState.executeCardEffect(card.id)) as InteractiveEffectResult;
           console.log(`[Hands] 効果実行結果:`, result);
 
@@ -98,7 +89,7 @@
             isCardSelectionOpen = true;
           }
 
-          // 結果を親コンポーネントに通知
+          // 結果を親コンポーネントに通知（UI更新のため）
           if (onEffectResult) {
             console.log(`[Hands] 親コンポーネントに結果を通知します`);
             onEffectResult(result);
