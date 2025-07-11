@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { Modal } from "@skeletonlabs/skeleton-svelte";
   import CardComponent from "$lib/components/atoms/Card.svelte";
   import type { Card } from "$lib/types/card";
 
@@ -16,17 +16,20 @@
   let { isOpen, title, description, cards, maxSelections, onConfirm, onCancel }: CardSelectionModalProps = $props();
 
   let selectedCards = $state<Card[]>([]);
-  let modal: HTMLDialogElement;
 
-  // モーダルの開閉制御
+  // モーダルが開かれたときに選択をリセット
   $effect(() => {
-    if (isOpen && modal) {
-      modal.showModal();
-      selectedCards = []; // 選択をリセット
-    } else if (!isOpen && modal) {
-      modal.close();
+    if (isOpen) {
+      selectedCards = [];
     }
   });
+
+  // Modal の onOpenChange ハンドラー
+  function handleOpenChange(event: { open: boolean }) {
+    if (!event.open) {
+      onCancel();
+    }
+  }
 
   // カード選択ハンドリング
   function handleCardClick(card: Card) {
@@ -60,8 +63,17 @@
   const canConfirm = $derived(selectedCards.length === maxSelections);
 </script>
 
-<dialog bind:this={modal} class="modal modal-bottom sm:modal-middle">
-  <div class="modal-box max-w-4xl">
+<Modal
+  open={isOpen}
+  onOpenChange={handleOpenChange}
+  contentBase="card bg-surface-100-800-token p-6 space-y-4 max-w-4xl max-h-[90vh] overflow-auto"
+  backdropClasses="backdrop-blur-sm"
+  modal={true}
+  trapFocus={true}
+  closeOnEscape={true}
+  preventScroll={true}
+>
+  {#snippet content()}
     <!-- ヘッダー -->
     <div class="flex justify-between items-center mb-4">
       <h3 class="font-bold text-lg">{title}</h3>
@@ -112,16 +124,11 @@
     </div>
 
     <!-- ボタンエリア -->
-    <div class="modal-action">
+    <div class="flex justify-end gap-3 mt-6">
       <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
       <button class="btn btn-primary" onclick={handleConfirm} disabled={!canConfirm}>
         確定 ({selectedCards.length}/{maxSelections})
       </button>
     </div>
-  </div>
-
-  <!-- 背景クリックでキャンセル -->
-  <form method="dialog" class="modal-backdrop">
-    <button onclick={handleCancel}>close</button>
-  </form>
-</dialog>
+  {/snippet}
+</Modal>

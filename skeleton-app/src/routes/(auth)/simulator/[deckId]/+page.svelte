@@ -29,7 +29,6 @@
       // DuelStateのリアクティブ更新を強制
       console.log("[Simulator] 手札更新前:", duelState.hands.length, "枚");
       duelState = duelState; // Svelteのリアクティビティをトリガー
-      duelStats = duelState.getDuelStats();
       console.log("[Simulator] 手札更新後:", duelState.hands.length, "枚");
     } else {
       // 失敗時のフィードバック

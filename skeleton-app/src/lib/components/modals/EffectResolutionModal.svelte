@@ -22,15 +22,9 @@
     }
   }
 
-  function modalClose() {
-    if (showCancel && onCancel) {
-      handleCancel();
-    }
-  }
-
   function onOpenChange(event: { open: boolean }) {
     if (!event.open && showCancel && onCancel) {
-      onCancel();
+      handleCancel();
     }
   }
 </script>
