@@ -1,8 +1,8 @@
 import { BaseMagicEffect } from "$lib/classes/effects/bases/BaseMagicEffect";
 import { DrawEffect } from "$lib/classes/effects/primitives/DrawEffect";
-import { DiscardEffect } from "$lib/classes/effects/primitives/DiscardEffect";
 import type { DuelState } from "$lib/classes/DuelState";
-import type { EffectResult } from "$lib/types/effect";
+import type { InteractiveEffectResult } from "$lib/types/effect";
+import type { Card } from "$lib/types/card";
 
 /**
  * 天使の施し
@@ -10,12 +10,10 @@ import type { EffectResult } from "$lib/types/effect";
  */
 export class GracefulCharityEffect extends BaseMagicEffect {
   private drawEffect: DrawEffect;
-  private discardEffect: DiscardEffect;
 
   constructor() {
     super("graceful-charity", "天使の施し", "デッキから3枚ドローし、その後手札から2枚捨てる", 79571449, "normal");
     this.drawEffect = new DrawEffect("graceful-charity-draw", "3枚ドロー", "デッキから3枚ドローする", 79571449, 3);
-    this.discardEffect = new DiscardEffect("graceful-charity-discard", "2枚捨てる", 2, 79571449);
   }
 
   /**
@@ -41,28 +39,59 @@ export class GracefulCharityEffect extends BaseMagicEffect {
   }
 
   /**
-   * 効果実行: 3枚ドロー → 2枚捨てる
+   * 魔法効果の解決: 3枚ドロー → 手札選択UI表示
    */
-  execute(state: DuelState): EffectResult {
-    console.log(`[${this.name}] 効果を実行します: 3枚ドロー → 2枚捨てる`);
+  protected async resolveMagicEffect(state: DuelState): Promise<InteractiveEffectResult> {
+    console.log(`[${this.name}] 効果解決: 3枚ドロー → 手札選択`);
 
-    // 発動条件の再チェック
-    if (!this.canActivate(state)) {
-      return this.createErrorResult(`${this.name}は発動できません`);
-    }
-
-    // 1. まず3枚ドローする
-    const drawResult = this.drawEffect.execute(state);
+    // 1. ステップバイステップで3枚ドローする
+    const drawResult = await this.drawEffect.executeStepByStep(state);
     if (!drawResult.success) {
-      return this.createErrorResult(`${this.name}: ドロー効果実行に失敗 - ${drawResult.message}`);
+      return this.createErrorResult(
+        `${this.name}: ドロー効果実行に失敗 - ${drawResult.message}`,
+      ) as InteractiveEffectResult;
     }
 
-    // 2. その後手札から2枚捨てる
-    const discardResult = this.discardEffect.execute(state);
-    if (!discardResult.success) {
-      return this.createErrorResult(`${this.name}: 捨てる効果実行に失敗 - ${discardResult.message}`);
+    console.log(`[${this.name}] 3枚ドロー完了。手札選択UIを表示します`);
+
+    // 2. 手札選択UIを表示するためのInteractiveEffectResultを返す
+    const result: InteractiveEffectResult = {
+      success: true,
+      message: "3枚ドローしました。手札から2枚選んで捨ててください",
+      stateChanged: true,
+      drawnCards: drawResult.drawnCards,
+      requiresCardSelection: {
+        title: "天使の施し - 手札を捨てる",
+        description: "手札から2枚選んで捨ててください",
+        cards: [...state.hands], // 現在の手札をコピー
+        maxSelections: 2,
+        onSelection: (selectedCards: Card[]) => {
+          this.handleCardSelection(selectedCards, state);
+        },
+      },
+    };
+
+    return result;
+  }
+
+  /**
+   * 手札選択後の処理
+   */
+  private handleCardSelection(selectedCards: Card[], state: DuelState): void {
+    console.log(
+      `[${this.name}] 選択されたカード:`,
+      selectedCards.map((c) => c.name),
+    );
+
+    // 選択されたカードを墓地に送る
+    for (const card of selectedCards) {
+      const success = state.sendToGraveyard(card.id, "hand");
+      if (!success) {
+        console.error(`[${this.name}] カード「${card.name}」を墓地に送れませんでした`);
+      }
     }
 
-    return this.createSuccessResult("3枚ドロー → 2枚捨てる効果を実行しました", true, drawResult.drawnCards);
+    console.log(`[${this.name}] 天使の施しの効果解決が完了しました`);
+    // 注意: 魔法カード自体の墓地送りは、BaseMagicEffectがインタラクティブ効果完了後に自動実行する
   }
 }

@@ -3,11 +3,37 @@
   import GameInfo from "$lib/components/organisms/GameInfo.svelte";
   import Hands from "$lib/components/organisms/board/Hands.svelte";
   import type { PageData } from "./$types";
+  import type { EffectResult } from "$lib/types/effect";
+  import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
 
   export let data: PageData;
 
-  $: ({ duelState } = data);
+  let { duelState } = data;
   $: duelStats = duelState.getDuelStats();
+
+  // 効果実行結果のハンドリング
+  function handleEffectResult(result: EffectResult) {
+    console.log("[Simulator] 効果実行結果:", result);
+
+    if (result.success) {
+      // 成功時のフィードバック
+      showSuccessToast(result.message);
+
+      // ドローしたカードがある場合は追加情報
+      if (result.drawnCards && result.drawnCards.length > 0) {
+        const cardNames = result.drawnCards.map((card) => card.name).join(", ");
+        showSuccessToast(`ドローしたカード: ${cardNames}`);
+      }
+
+      // DuelStateのリアクティブ更新を強制
+      console.log("[Simulator] 手札更新前:", duelState.hands.length, "枚");
+      duelState = duelState; // Svelteのリアクティビティをトリガー
+      console.log("[Simulator] 手札更新後:", duelState.hands.length, "枚");
+    } else {
+      // 失敗時のフィードバック
+      showErrorToast(result.message);
+    }
+  }
 </script>
 
 <div class="container mx-auto p-4">
@@ -18,8 +44,11 @@
           deckCards={duelStats.mainDeckRemaining}
           extraDeckCards={duelState.extraDeck}
           graveyardCards={duelState.graveyard}
+          fieldCards={duelState.field.fieldSpell ? [duelState.field.fieldSpell] : []}
+          monsterCards={duelState.field.monsterZones}
+          spellTrapCards={duelState.field.spellTrapZones}
         />
-        <Hands cards={duelState.hands} />
+        <Hands cards={duelState.hands} {duelState} onEffectResult={handleEffectResult} />
       </div>
       <div class="col-span-1 p-4">
         <GameInfo

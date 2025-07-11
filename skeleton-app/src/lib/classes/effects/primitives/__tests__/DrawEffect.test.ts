@@ -63,11 +63,11 @@ describe("DrawEffect", () => {
   });
 
   describe("効果実行", () => {
-    it("2枚ドロー効果が正常に動作する", () => {
+    it("2枚ドロー効果が正常に動作する", async () => {
       const initialHandSize = duelState.hands.length;
       const initialDeckSize = duelState.mainDeck.length;
 
-      const result = drawEffect2.execute(duelState);
+      const result = await drawEffect2.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("2枚ドローしました");
@@ -79,11 +79,11 @@ describe("DrawEffect", () => {
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 2);
     });
 
-    it("1枚ドロー効果が正常に動作する", () => {
+    it("1枚ドロー効果が正常に動作する", async () => {
       const initialHandSize = duelState.hands.length;
       const initialDeckSize = duelState.mainDeck.length;
 
-      const result = drawEffect1.execute(duelState);
+      const result = await drawEffect1.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("1枚ドローしました");
@@ -91,11 +91,11 @@ describe("DrawEffect", () => {
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 1);
     });
 
-    it("ドローしたカードが手札に正しく追加される", () => {
+    it("ドローしたカードが手札に正しく追加される", async () => {
       // デッキの上2枚を記録
       const topCards = duelState.mainDeck.slice(-2);
 
-      const result = drawEffect2.execute(duelState);
+      const result = await drawEffect2.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.affectedCards).toEqual(topCards.reverse()); // drawCardは後ろから取るので逆順
@@ -105,21 +105,21 @@ describe("DrawEffect", () => {
       expect(lastTwoHands).toEqual(topCards);
     });
 
-    it("発動不可能な状態で実行すると失敗する", () => {
+    it("発動不可能な状態で実行すると失敗する", async () => {
       duelState.mainDeck = [{ id: 1, name: "カード1", type: "monster", description: "テスト1" }];
 
-      const result = drawEffect2.execute(duelState);
+      const result = await drawEffect2.execute(duelState);
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("デッキに2枚のカードがありません");
       expect(result.stateChanged).toBe(false);
     });
 
-    it("デッキが不足している場合は適切なエラーメッセージを返す", () => {
+    it("デッキが不足している場合は適切なエラーメッセージを返す", async () => {
       // デッキを1枚にして2枚ドローを試行
       duelState.mainDeck = [{ id: 1, name: "カード1", type: "monster", description: "テスト1" }];
 
-      const result = drawEffect2.execute(duelState);
+      const result = await drawEffect2.execute(duelState);
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("デッキに2枚のカードがありません");

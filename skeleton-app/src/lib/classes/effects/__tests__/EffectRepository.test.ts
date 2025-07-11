@@ -13,7 +13,7 @@ class TestEffect extends BaseEffect {
     return true;
   }
 
-  execute(): EffectResult {
+  async execute(): Promise<EffectResult> {
     return this.createSuccessResult("テスト効果が実行されました");
   }
 }
@@ -27,7 +27,7 @@ class SecondTestEffect extends BaseEffect {
     return true;
   }
 
-  execute(): EffectResult {
+  async execute(): Promise<EffectResult> {
     return this.createSuccessResult("セカンド効果が実行されました");
   }
 }
