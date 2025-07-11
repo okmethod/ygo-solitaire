@@ -29,7 +29,7 @@ export abstract class BaseEffect implements Effect {
    * 効果を実行する
    * 継承先でオーバーライドして具体的な効果処理を実装
    */
-  abstract execute(state: DuelState): EffectResult | Promise<EffectResult>;
+  abstract execute(state: DuelState): Promise<EffectResult>;
 
   /**
    * 効果実行前の共通処理

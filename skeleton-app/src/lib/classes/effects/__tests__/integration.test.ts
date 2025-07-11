@@ -19,7 +19,9 @@ describe("Effects Integration", () => {
         { id: 4, name: "カード4", type: "monster", description: "テスト4" },
         { id: 5, name: "カード5", type: "spell", description: "テスト5" },
       ],
-      hands: [],
+      hands: [
+        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
+      ],
     });
     duelState.currentPhase = "メインフェイズ1";
     duelState.gameResult = "ongoing";
@@ -214,23 +216,23 @@ describe("Effects Integration", () => {
       expect(effects[0].name).toBe("強欲な壺");
     });
 
-    it("DuelStateから強欲な壺の効果を実行できる", () => {
+    it("DuelStateから強欲な壺の効果を実行できる", async () => {
       const initialHandSize = duelState.hands.length;
-      const result = duelState.executeCardEffect(55144522);
+      const result = await duelState.executeCardEffect(55144522);
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("2枚ドローしました");
-      expect(duelState.hands.length).toBe(initialHandSize + 2);
+      expect(duelState.hands.length).toBe(initialHandSize + 1); // 強欲な壺が墓地に送られ、2枚ドローされるので +2-1=+1
     });
 
-    it("存在しないカードの効果実行は失敗する", () => {
-      const result = duelState.executeCardEffect(99999);
+    it("存在しないカードの効果実行は失敗する", async () => {
+      const result = await duelState.executeCardEffect(99999);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("このカードには効果がありません");
     });
 
-    it("フルワークフロー: 登録→取得→実行", () => {
+    it("フルワークフロー: 登録→取得→実行", async () => {
       // 1. 効果が登録されていることを確認
       expect(EffectRepository.hasEffects(55144522)).toBe(true);
 
@@ -242,10 +244,10 @@ describe("Effects Integration", () => {
       const initialHandSize = duelState.hands.length;
       const initialDeckSize = duelState.mainDeck.length;
 
-      const result = duelState.executeEffect(effects[0]);
+      const result = await duelState.executeEffect(effects[0]);
 
       expect(result.success).toBe(true);
-      expect(duelState.hands.length).toBe(initialHandSize + 2);
+      expect(duelState.hands.length).toBe(initialHandSize + 1); // 強欲な壺が墓地に送られ、2枚ドローされるので +2-1=+1
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 2);
     });
   });

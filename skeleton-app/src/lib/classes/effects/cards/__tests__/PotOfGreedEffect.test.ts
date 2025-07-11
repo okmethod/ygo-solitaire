@@ -16,7 +16,9 @@ describe("PotOfGreedEffect", () => {
         { id: 4, name: "聖なるバリア", type: "trap", description: "攻撃無効化" },
         { id: 5, name: "サンダーボルト", type: "spell", description: "全体除去" },
       ],
-      hands: [],
+      hands: [
+        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
+      ],
     });
 
     // 現在のフェイズとゲーム結果を設定
@@ -78,14 +80,14 @@ describe("PotOfGreedEffect", () => {
   });
 
   describe("効果実行", () => {
-    it("2枚ドロー効果が正常に動作する", () => {
+    it("2枚ドロー効果が正常に動作する", async () => {
       const initialHandSize = duelState.hands.length;
       const initialDeckSize = duelState.mainDeck.length;
 
       // デッキの上2枚を記録
       const topTwoCards = duelState.mainDeck.slice(-2);
 
-      const result = potOfGreed.execute(duelState);
+      const result = await potOfGreed.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("2枚ドローしました");
@@ -93,7 +95,7 @@ describe("PotOfGreedEffect", () => {
       expect(result.drawnCards).toHaveLength(2);
 
       // 手札とデッキの枚数確認
-      expect(duelState.hands.length).toBe(initialHandSize + 2);
+      expect(duelState.hands.length).toBe(initialHandSize + 1); // 強欲な壺が墓地に送られ、2枚ドローされるので +2-1=+1
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 2);
 
       // ドローしたカードが正しく手札に追加されているか確認
@@ -101,27 +103,27 @@ describe("PotOfGreedEffect", () => {
       expect(lastTwoHands).toEqual(topTwoCards.reverse());
     });
 
-    it("発動条件を満たさない場合は失敗する", () => {
+    it("発動条件を満たさない場合は失敗する", async () => {
       duelState.currentPhase = "バトルフェイズ";
 
-      const result = duelState.executeEffect(potOfGreed);
+      const result = await duelState.executeEffect(potOfGreed);
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("強欲な壺は発動できません");
       expect(result.stateChanged).toBe(false);
     });
 
-    it("デッキ不足の場合は適切なエラーメッセージを返す", () => {
+    it("デッキ不足の場合は適切なエラーメッセージを返す", async () => {
       duelState.mainDeck = [{ id: 1, name: "カード1", type: "monster", description: "テスト" }];
 
-      const result = potOfGreed.execute(duelState);
+      const result = await potOfGreed.execute(duelState);
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("強欲な壺は発動できません");
     });
 
-    it("効果実行後にゲーム状態が正常に保たれる", () => {
-      const result = potOfGreed.execute(duelState);
+    it("効果実行後にゲーム状態が正常に保たれる", async () => {
+      const result = await potOfGreed.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(duelState.gameResult).toBe("ongoing");
@@ -139,23 +141,29 @@ describe("PotOfGreedEffect", () => {
   });
 
   describe("複数回実行", () => {
-    it("複数回実行しても正常に動作する", () => {
-      // 1回目
-      const result1 = potOfGreed.execute(duelState);
+    it("複数回実行しても正常に動作する", async () => {
+      // 手札に複数の強欲な壺を追加
+      duelState.hands.push(
+        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
+        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" }
+      );
+
+      // 1回目: 初期手札3枚、実行後 3-1+2=4枚
+      const result1 = await potOfGreed.execute(duelState);
       expect(result1.success).toBe(true);
-      expect(duelState.hands.length).toBe(2);
+      expect(duelState.hands.length).toBe(4);
       expect(duelState.mainDeck.length).toBe(3);
 
-      // 2回目（まだ3枚残っているので実行可能）
-      const result2 = potOfGreed.execute(duelState);
+      // 2回目（まだ3枚残っているので実行可能）: 実行後 4-1+2=5枚
+      const result2 = await potOfGreed.execute(duelState);
       expect(result2.success).toBe(true);
-      expect(duelState.hands.length).toBe(4);
+      expect(duelState.hands.length).toBe(5);
       expect(duelState.mainDeck.length).toBe(1);
 
       // 3回目（1枚しか残っていないので失敗）
-      const result3 = potOfGreed.execute(duelState);
+      const result3 = await potOfGreed.execute(duelState);
       expect(result3.success).toBe(false);
-      expect(duelState.hands.length).toBe(4); // 変化なし
+      expect(duelState.hands.length).toBe(5); // 変化なし
       expect(duelState.mainDeck.length).toBe(1); // 変化なし
     });
   });

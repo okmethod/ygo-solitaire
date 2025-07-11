@@ -27,7 +27,7 @@ export class DrawEffect extends BaseEffect {
    * ドロー効果を実行
    * 指定された枚数のカードをデッキからドローする
    */
-  execute(state: DuelState): EffectResult {
+  async execute(state: DuelState): Promise<EffectResult> {
     if (!this.canActivate(state)) {
       return this.createErrorResult(
         `デッキに${this.drawCount}枚のカードがありません（残り${state.mainDeck.length}枚）`,

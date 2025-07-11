@@ -159,7 +159,7 @@ export abstract class BaseMagicEffect extends BaseEffect {
   /**
    * 魔法効果の解決（サブクラスで実装）
    */
-  protected abstract resolveMagicEffect(state: DuelState): EffectResult | Promise<EffectResult>;
+  protected abstract resolveMagicEffect(state: DuelState): Promise<EffectResult>;
 
   /**
    * インタラクティブな効果かどうかを判定

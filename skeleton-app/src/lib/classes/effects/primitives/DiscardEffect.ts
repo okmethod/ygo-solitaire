@@ -47,7 +47,7 @@ export class DiscardEffect extends BaseEffect {
    * 効果実行: 手札から指定枚数を墓地に送る
    * 現在の実装では手札の最後からカードを捨てる（ランダム性は将来的に実装）
    */
-  execute(state: DuelState): EffectResult {
+  async execute(state: DuelState): Promise<EffectResult> {
     console.log(`[${this.name}] 手札から${this.discardCount}枚捨てる効果を実行します`);
 
     // 発動条件の再チェック

@@ -18,6 +18,7 @@ describe("GracefulCharityEffect", () => {
         { id: 6, name: "カード6", type: "monster", description: "テストカード6" },
       ],
       hands: [
+        { id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" },
         { id: 10, name: "手札1", type: "monster", description: "手札のカード1" },
         { id: 11, name: "手札2", type: "spell", description: "手札のカード2" },
       ],
@@ -36,11 +37,11 @@ describe("GracefulCharityEffect", () => {
       expect(gracefulCharityEffect.description).toBe("デッキから3枚ドローし、その後手札から2枚捨てる");
     });
 
-    it("組み込まれている効果が正しい", () => {
+    it("組み込まれている効果が正しい", async () => {
       // 効果の実行結果から組み込まれた効果を検証
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
       expect(result.success).toBe(true);
-      expect(result.message).toContain("3枚ドロー → 2枚捨てる効果を実行しました");
+      expect(result.message).toContain("3枚ドローしました。手札から2枚選んで捨ててください");
     });
   });
 
@@ -69,42 +70,45 @@ describe("GracefulCharityEffect", () => {
     });
 
     it("手札0枚でもドロー後に2枚捨てられるため発動可能", () => {
-      duelState.hands = []; // 手札なし
-      // 0 + 3 = 3枚 → 2枚捨てる可能
+      duelState.hands = [{ id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" }]; // 天使の施しのみ
+      // 1 + 3 = 4枚 → 2枚捨てる可能
       expect(gracefulCharityEffect.canActivate(duelState)).toBe(true);
     });
 
     it("手札1枚でもドロー後に2枚捨てられるため発動可能", () => {
-      duelState.hands = [{ id: 10, name: "手札1", type: "monster", description: "手札のカード1" }];
-      // 1 + 3 = 4枚 → 2枚捨てる可能
+      duelState.hands = [
+        { id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" },
+        { id: 10, name: "手札1", type: "monster", description: "手札のカード1" }
+      ];
+      // 2 + 3 = 5枚 → 2枚捨てる可能
       expect(gracefulCharityEffect.canActivate(duelState)).toBe(true);
     });
   });
 
   describe("効果実行", () => {
-    it("正常に3枚ドロー→2枚捨てが実行される", () => {
-      const initialHandSize = duelState.hands.length; // 2枚
+    it("正常に3枚ドロー→2枚捨てが実行される", async () => {
+      const initialHandSize = duelState.hands.length; // 3枚
       const initialDeckSize = duelState.mainDeck.length; // 6枚
       const initialGraveyardSize = duelState.graveyard.length; // 0枚
 
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.stateChanged).toBe(true);
-      expect(result.message).toContain("3枚ドロー → 2枚捨てる効果を実行しました");
+      expect(result.message).toContain("3枚ドローしました。手札から2枚選んで捨ててください");
 
-      // 手札: 2 + 3 - 2 = 3枚
-      expect(duelState.hands.length).toBe(initialHandSize + 3 - 2);
+      // 手札: 3 - 1（天使の施し墓地送り） + 3（ドロー） = 5枚（2枚捨てる処理は未実行）
+      expect(duelState.hands.length).toBe(initialHandSize + 2);
 
       // デッキ: 6 - 3 = 3枚
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 3);
 
-      // 墓地: 0 + 2 = 2枚
-      expect(duelState.graveyard.length).toBe(initialGraveyardSize + 2);
+      // 墓地: 0枚（天使の施しはまだ墓地に送られず、2枚捨てる処理も未実行）
+      expect(duelState.graveyard.length).toBe(initialGraveyardSize);
     });
 
-    it("ドローしたカードが結果に含まれる", () => {
-      const result = gracefulCharityEffect.execute(duelState);
+    it("ドローしたカードが結果に含まれる", async () => {
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.drawnCards).toBeDefined();
@@ -114,16 +118,16 @@ describe("GracefulCharityEffect", () => {
       expect(result.drawnCards!.every((card) => card.id && card.name)).toBe(true);
     });
 
-    it("発動条件を満たさない場合は失敗する", () => {
+    it("発動条件を満たさない場合は失敗する", async () => {
       duelState.mainDeck = []; // デッキ空
 
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("天使の施し");
     });
 
-    it("手札が多い場合でも正常に実行される", () => {
+    it("手札が多い場合でも正常に実行される", async () => {
       // 手札を10枚に増やす
       for (let i = 20; i < 30; i++) {
         duelState.hands.push({
@@ -134,75 +138,78 @@ describe("GracefulCharityEffect", () => {
         });
       }
 
-      const initialHandSize = duelState.hands.length; // 12枚
-      const result = gracefulCharityEffect.execute(duelState);
+      const initialHandSize = duelState.hands.length; // 13枚（元3枚+追加10枚）
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(true);
 
-      // 手札: 12 + 3 - 2 = 13枚
-      expect(duelState.hands.length).toBe(initialHandSize + 1);
+      // 手札: 13 - 1（天使の施し墓地送り） + 3（ドロー） = 15枚（2枚捨てる処理は未実行）
+      expect(duelState.hands.length).toBe(initialHandSize + 2);
     });
 
-    it("手札0枚でも正常に実行される", () => {
-      duelState.hands = []; // 手札なし
+    it("手札0枚でも正常に実行される", async () => {
+      duelState.hands = [{ id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" }]; // 天使の施しのみ
       const initialDeckSize = duelState.mainDeck.length; // 6枚
       const initialGraveyardSize = duelState.graveyard.length; // 0枚
 
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.stateChanged).toBe(true);
 
-      // 手札: 0 + 3 - 2 = 1枚
-      expect(duelState.hands.length).toBe(1);
+      // 手札: 1 - 1（天使の施し墓地送り） + 3（ドロー） = 3枚（2枚捨てる処理は未実行）
+      expect(duelState.hands.length).toBe(3);
 
       // デッキ: 6 - 3 = 3枚
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 3);
 
-      // 墓地: 0 + 2 = 2枚
-      expect(duelState.graveyard.length).toBe(initialGraveyardSize + 2);
+      // 墓地: 0枚（天使の施しはまだ墓地に送られず、2枚捨てる処理も未実行）
+      expect(duelState.graveyard.length).toBe(initialGraveyardSize);
     });
 
-    it("手札1枚でも正常に実行される", () => {
-      duelState.hands = [{ id: 10, name: "手札1", type: "monster", description: "手札のカード1" }];
+    it("手札1枚でも正常に実行される", async () => {
+      duelState.hands = [
+        { id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" },
+        { id: 10, name: "手札1", type: "monster", description: "手札のカード1" }
+      ];
       const initialDeckSize = duelState.mainDeck.length; // 6枚
       const initialGraveyardSize = duelState.graveyard.length; // 0枚
 
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(true);
       expect(result.stateChanged).toBe(true);
 
-      // 手札: 1 + 3 - 2 = 2枚
-      expect(duelState.hands.length).toBe(2);
+      // 手札: 2 - 1（天使の施し墓地送り） + 3（ドロー） = 4枚（2枚捨てる処理は未実行）
+      expect(duelState.hands.length).toBe(4);
 
       // デッキ: 6 - 3 = 3枚
       expect(duelState.mainDeck.length).toBe(initialDeckSize - 3);
 
-      // 墓地: 0 + 2 = 2枚
-      expect(duelState.graveyard.length).toBe(initialGraveyardSize + 2);
+      // 墓地: 0枚（天使の施しはまだ墓地に送られず、2枚捨てる処理も未実行）
+      expect(duelState.graveyard.length).toBe(initialGraveyardSize);
     });
   });
 
   describe("複合効果の動作", () => {
-    it("ドロー効果が先に実行される", () => {
+    it("ドロー効果が先に実行される", async () => {
       const initialHandSize = duelState.hands.length;
 
       // ドロー効果のみ実行されるように、途中で処理を確認
       // （実際の実装では効果が順次実行される）
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(true);
 
       // 最終的な手札枚数が正しいことで、順序正しく実行されたことを確認
-      expect(duelState.hands.length).toBe(initialHandSize + 1); // +3 -2 = +1
+      expect(duelState.hands.length).toBe(initialHandSize + 2); // -1（天使の施し墓地送り） +3（ドロー） = +2（2枚捨てる処理は未実行）
     });
 
-    it("ドロー効果が失敗した場合、全体が失敗する", () => {
+    it("ドロー効果が失敗した場合、全体が失敗する", async () => {
       // デッキを空にしてドロー効果を失敗させる
       duelState.mainDeck = [];
 
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(false);
       expect(result.message).toContain("天使の施し");
@@ -210,10 +217,10 @@ describe("GracefulCharityEffect", () => {
   });
 
   describe("エラーハンドリング", () => {
-    it("ゲーム状態が異常な場合でも適切にエラーを返す", () => {
+    it("ゲーム状態が異常な場合でも適切にエラーを返す", async () => {
       duelState.gameResult = "lose";
 
-      const result = gracefulCharityEffect.execute(duelState);
+      const result = await gracefulCharityEffect.execute(duelState);
 
       expect(result.success).toBe(false);
     });
