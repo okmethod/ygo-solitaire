@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Modal } from "@skeletonlabs/skeleton-svelte";
+
   interface EffectResolutionModalProps {
     isOpen: boolean;
     title: string;
@@ -9,17 +11,6 @@
   }
 
   let { isOpen, title, message, onConfirm, onCancel, showCancel = false }: EffectResolutionModalProps = $props();
-
-  let modal: HTMLDialogElement;
-
-  // モーダルの開閉制御
-  $effect(() => {
-    if (isOpen && modal) {
-      modal.showModal();
-    } else if (!isOpen && modal) {
-      modal.close();
-    }
-  });
 
   function handleConfirm() {
     onConfirm();
@@ -41,29 +32,21 @@
   }
 </script>
 
-<dialog bind:this={modal} class="modal modal-bottom sm:modal-middle" onkeydown={handleKeydown}>
-  <div class="modal-box bg-surface-100-800-token">
-    <!-- ヘッダー -->
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="font-bold text-lg text-primary-600-300-token">{title}</h3>
+{#if isOpen}
+  <Modal>
+    <div slot="header" class="text-xl font-bold text-primary-600-300-token">
+      {title}
     </div>
 
-    <!-- メッセージ -->
     <div class="py-4">
       <p class="text-center text-lg">{message}</p>
     </div>
 
-    <!-- ボタンエリア -->
-    <div class="modal-action">
+    <div slot="footer" class="flex justify-end gap-2">
       {#if showCancel}
         <button class="btn variant-ghost" onclick={handleCancel}> キャンセル </button>
       {/if}
       <button class="btn variant-filled-primary" onclick={handleConfirm}> OK </button>
     </div>
-  </div>
-  
-  <!-- 背景クリックを無効化（効果解決中なので） -->
-  <form method="dialog" class="modal-backdrop">
-    <button type="button"></button>
-  </form>
-</dialog>
+  </Modal>
+{/if}
