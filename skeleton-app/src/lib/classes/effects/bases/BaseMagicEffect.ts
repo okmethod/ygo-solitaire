@@ -95,7 +95,7 @@ export abstract class BaseMagicEffect extends BaseEffect {
    * 2. 効果解決（サブクラスで実装）
    * 3. ゾーンから墓地に送る（継続系以外）
    */
-  execute(state: DuelState): EffectResult {
+  async execute(state: DuelState): Promise<EffectResult> {
     console.log(`[${this.name}] 魔法カードの発動処理を開始します`);
 
     // 発動条件の確認
@@ -111,7 +111,7 @@ export abstract class BaseMagicEffect extends BaseEffect {
 
     // 2. 効果解決（サブクラスで実装）
     console.log(`[${this.name}] 効果解決を実行します`);
-    const effectResult = this.resolveMagicEffect(state);
+    const effectResult = await this.resolveMagicEffect(state);
 
     // 3. インタラクティブな効果の場合、後処理コールバックを設定
     if (effectResult.success && this.isInteractiveEffect(effectResult)) {
@@ -130,7 +130,7 @@ export abstract class BaseMagicEffect extends BaseEffect {
    */
   protected activateToField(state: DuelState): EffectResult {
     // このeffectのcardIdに一致する最初のカードを手札から探す
-    const cardInHandIndex = state.hands.findIndex(card => card.id === this.cardId);
+    const cardInHandIndex = state.hands.findIndex((card) => card.id === this.cardId);
     if (cardInHandIndex === -1) {
       return this.createErrorResult(`手札に${this.name}が見つかりません`);
     }
@@ -138,7 +138,7 @@ export abstract class BaseMagicEffect extends BaseEffect {
     const cardInHand = state.hands[cardInHandIndex];
 
     // 魔法・罠ゾーンに空きがあるかチェック
-    const emptyZoneIndex = state.field.spellTrapZones.findIndex(zone => zone === null);
+    const emptyZoneIndex = state.field.spellTrapZones.findIndex((zone) => zone === null);
     if (emptyZoneIndex === -1) {
       return this.createErrorResult("魔法・罠ゾーンに空きがありません");
     }
@@ -159,13 +159,13 @@ export abstract class BaseMagicEffect extends BaseEffect {
   /**
    * 魔法効果の解決（サブクラスで実装）
    */
-  protected abstract resolveMagicEffect(state: DuelState): EffectResult;
+  protected abstract resolveMagicEffect(state: DuelState): EffectResult | Promise<EffectResult>;
 
   /**
    * インタラクティブな効果かどうかを判定
    */
   protected isInteractiveEffect(result: EffectResult): result is InteractiveEffectResult {
-    return 'requiresCardSelection' in result;
+    return "requiresCardSelection" in result;
   }
 
   /**
@@ -174,14 +174,14 @@ export abstract class BaseMagicEffect extends BaseEffect {
   protected setupInteractiveEffectCallback(result: InteractiveEffectResult, state: DuelState): void {
     if (result.requiresCardSelection) {
       const originalCallback = result.requiresCardSelection.onSelection;
-      
+
       // 元のコールバックをラップして、完了後に墓地送りを実行
       result.requiresCardSelection.onSelection = (selectedCards) => {
         console.log(`[${this.name}] インタラクティブ効果のコールバック実行`);
-        
+
         // 元の処理を実行
         originalCallback(selectedCards);
-        
+
         // 効果解決完了後、魔法カードを墓地に送る
         if (this.shouldSendToGraveyardAfterResolution()) {
           console.log(`[${this.name}] インタラクティブ効果完了後、魔法カードを墓地に送ります`);
@@ -220,13 +220,13 @@ export abstract class BaseMagicEffect extends BaseEffect {
         const card = state.field.spellTrapZones[i]!;
         const newSpellTrapZones = [...state.field.spellTrapZones];
         const newGraveyard = [...state.graveyard];
-        
+
         newSpellTrapZones[i] = null;
         newGraveyard.push(card);
-        
+
         state.field.spellTrapZones = newSpellTrapZones;
         state.graveyard = newGraveyard;
-        
+
         console.log(`[${this.name}] 効果解決後、魔法・罠ゾーンから墓地に送りました`);
         return;
       }

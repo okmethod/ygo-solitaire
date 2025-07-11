@@ -134,7 +134,7 @@ export class DuelState {
     const drawnCards: Card[] = [];
     const newHands = [...this.hands];
     const newMainDeck = [...this.mainDeck];
-    
+
     for (let i = 0; i < count && newMainDeck.length > 0; i++) {
       const card = newMainDeck.pop();
       if (card) {
@@ -142,12 +142,14 @@ export class DuelState {
         drawnCards.push(card);
       }
     }
-    
+
     // 配列を新しい参照で更新（Svelteのリアクティビティのため）
     this.hands = newHands;
     this.mainDeck = newMainDeck;
-    
-    console.log(`[DuelState] ${drawnCards.length}枚ドロー完了。手札: ${this.hands.length}枚、デッキ: ${this.mainDeck.length}枚`);
+
+    console.log(
+      `[DuelState] ${drawnCards.length}枚ドロー完了。手札: ${this.hands.length}枚、デッキ: ${this.mainDeck.length}枚`,
+    );
     return drawnCards;
   }
 
@@ -194,14 +196,16 @@ export class DuelState {
       // 配列を新しい参照で更新（Svelteのリアクティビティのため）
       const newHands = [...this.hands];
       const newGraveyard = [...this.graveyard];
-      
+
       const card = newHands.splice(cardIndex, 1)[0];
       newGraveyard.push(card);
-      
+
       this.hands = newHands;
       this.graveyard = newGraveyard;
-      
-      console.log(`[DuelState] カード「${card.name}」を手札から墓地に送りました。手札: ${this.hands.length}枚、墓地: ${this.graveyard.length}枚`);
+
+      console.log(
+        `[DuelState] カード「${card.name}」を手札から墓地に送りました。手札: ${this.hands.length}枚、墓地: ${this.graveyard.length}枚`,
+      );
       return true;
     } else {
       // フィールドから墓地へ
@@ -381,7 +385,10 @@ export class DuelState {
   getEffectsForCard(cardId: number): Effect[] {
     const effects = EffectRepository.getEffects(cardId);
     if (effects.length > 0) {
-      console.log(`[DuelState] カードID ${cardId} の効果取得: ${effects.length}個`, effects.map(e => e.name));
+      console.log(
+        `[DuelState] カードID ${cardId} の効果取得: ${effects.length}個`,
+        effects.map((e) => e.name),
+      );
     }
     return effects;
   }
@@ -389,7 +396,7 @@ export class DuelState {
   /**
    * 効果を実行する
    */
-  executeEffect(effect: Effect): EffectResult {
+  async executeEffect(effect: Effect): Promise<EffectResult> {
     if (!effect.canActivate(this)) {
       return {
         success: false,
@@ -398,7 +405,7 @@ export class DuelState {
       };
     }
 
-    const result = effect.execute(this);
+    const result = await effect.execute(this);
 
     // 効果実行後にゲーム状態をチェック
     if (result.gameEnded) {
@@ -411,7 +418,7 @@ export class DuelState {
   /**
    * カードIDから効果を実行する
    */
-  executeCardEffect(cardId: number, effectId?: string): EffectResult {
+  async executeCardEffect(cardId: number, effectId?: string): Promise<EffectResult> {
     const effects = this.getEffectsForCard(cardId);
 
     if (effects.length === 0) {
@@ -426,7 +433,7 @@ export class DuelState {
     if (effectId) {
       const targetEffect = effects.find((effect) => effect.id === effectId);
       if (targetEffect) {
-        return this.executeEffect(targetEffect);
+        return await this.executeEffect(targetEffect);
       } else {
         return {
           success: false,
@@ -437,7 +444,7 @@ export class DuelState {
     }
 
     // 効果IDが指定されていない場合は最初の効果を実行
-    return this.executeEffect(effects[0]);
+    return await this.executeEffect(effects[0]);
   }
 
   // ユーティリティメソッド

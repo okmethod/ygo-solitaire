@@ -51,7 +51,7 @@ export interface Effect {
    * @param state 現在のデュエル状態
    * @returns 実行結果
    */
-  execute(state: DuelState): EffectResult;
+  execute(state: DuelState): EffectResult | Promise<EffectResult>;
 }
 
 /**

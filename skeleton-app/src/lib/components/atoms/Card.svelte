@@ -39,7 +39,7 @@
   // カードクリック処理
   function handleClick() {
     console.log(`[Card] クリックイベント発生: clickable=${clickable}, card=${card?.name}, hasOnClick=${!!onClick}`);
-    
+
     if (clickable && card && onClick) {
       console.log(`[Card] onClickコールバックを実行します: ${card.name}`);
       onClick(card);

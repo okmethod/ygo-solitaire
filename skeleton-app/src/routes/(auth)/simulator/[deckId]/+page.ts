@@ -23,7 +23,10 @@ export const load: PageLoad = async ({ params, fetch }) => {
   duelState.drawInitialHands();
 
   console.log(`[PageLoad] 初期手札: ${duelState.hands.length}枚`);
-  console.log(`[PageLoad] 手札カード:`, duelState.hands.map(card => `${card.name}(${card.id})`));
+  console.log(
+    `[PageLoad] 手札カード:`,
+    duelState.hands.map((card) => `${card.name}(${card.id})`),
+  );
 
   return {
     duelState,

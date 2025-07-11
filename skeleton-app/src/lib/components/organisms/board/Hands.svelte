@@ -1,9 +1,11 @@
 <script lang="ts">
   import CardComponent from "$lib/components/atoms/Card.svelte";
   import CardSelectionModal from "$lib/components/modals/CardSelectionModal.svelte";
+  import EffectResolutionModal from "$lib/components/modals/EffectResolutionModal.svelte";
   import type { Card } from "$lib/types/card";
   import type { DuelState } from "$lib/classes/DuelState";
   import type { EffectResult, InteractiveEffectResult } from "$lib/types/effect";
+  import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
 
   interface HandsProps {
     cards: Card[];
@@ -20,6 +22,9 @@
   let cardSelectionCards = $state<Card[]>([]);
   let cardSelectionMaxSelections = $state(0);
   let cardSelectionCallback: ((selectedCards: Card[]) => void) | null = null;
+
+  // 効果解決ストアの状態を購読
+  const effectResolutionState = effectResolutionStore;
 
   // カード枚数に応じたレイアウトクラスを計算
   const layoutClasses = $derived(() => {
@@ -40,13 +45,13 @@
   });
 
   // カードクリック処理 - 効果発動
-  function handleCardClick(card: Card) {
+  async function handleCardClick(card: Card) {
     console.log(`[Hands] *** カード「${card.name}」(ID: ${card.id})がクリックされました ***`);
 
     // カードに効果があるかチェック
     const effects = duelState.getEffectsForCard(card.id);
     console.log(`[Hands] 効果チェック結果: ${effects.length}個の効果`, effects);
-    
+
     if (effects.length === 0) {
       console.log(`[Hands] カード「${card.name}」には効果がありません`);
       return;
@@ -54,27 +59,56 @@
 
     console.log(`[Hands] 効果実行を開始します...`);
 
-    // 効果実行
-    const result = duelState.executeCardEffect(card.id) as InteractiveEffectResult;
-    console.log(`[Hands] 効果実行結果:`, result);
+    // 効果実行 - ステップバイステップで実行
+    await executeEffectStepByStep(card);
+  }
 
-    // インタラクティブな結果の場合はカード選択モーダルを表示
-    if (result.success && result.requiresCardSelection) {
-      console.log(`[Hands] カード選択モーダルを表示します`);
-      const selection = result.requiresCardSelection;
-      cardSelectionTitle = selection.title;
-      cardSelectionDescription = selection.description;
-      cardSelectionCards = selection.cards;
-      cardSelectionMaxSelections = selection.maxSelections;
-      cardSelectionCallback = selection.onSelection;
-      isCardSelectionOpen = true;
-    }
+  // ステップバイステップで効果実行
+  async function executeEffectStepByStep(card: Card) {
+    // 効果解決ステップを作成
+    const steps = [
+      {
+        id: "activate-magic",
+        title: "魔法カード発動",
+        message: `${card.name}を発動します`,
+        action: async () => {
+          console.log(`[Hands] 魔法カード「${card.name}」を発動`);
+          // 実際のカード発動処理はここでは行わない（次のステップで実行）
+        },
+      },
+      {
+        id: "resolve-effect",
+        title: "効果解決",
+        message: `${card.name}の効果を解決します`,
+        action: async () => {
+          console.log(`[Hands] 効果解決中...`);
+          // 実際の効果実行
+          const result = (await duelState.executeCardEffect(card.id)) as InteractiveEffectResult;
+          console.log(`[Hands] 効果実行結果:`, result);
 
-    // 結果を親コンポーネントに通知
-    if (onEffectResult) {
-      console.log(`[Hands] 親コンポーネントに結果を通知します`);
-      onEffectResult(result);
-    }
+          // インタラクティブな結果の場合はカード選択モーダルを表示
+          if (result.success && result.requiresCardSelection) {
+            console.log(`[Hands] カード選択モーダルを表示します`);
+            const selection = result.requiresCardSelection;
+            cardSelectionTitle = selection.title;
+            cardSelectionDescription = selection.description;
+            cardSelectionCards = selection.cards;
+            cardSelectionMaxSelections = selection.maxSelections;
+            cardSelectionCallback = selection.onSelection;
+            isCardSelectionOpen = true;
+          }
+
+          // 結果を親コンポーネントに通知
+          if (onEffectResult) {
+            console.log(`[Hands] 親コンポーネントに結果を通知します`);
+            onEffectResult(result);
+          }
+        },
+      },
+    ];
+
+    // ステップバイステップ実行を開始
+    effectResolutionStore.startResolution(steps);
   }
 
   // カード選択モーダルの確定処理
@@ -108,7 +142,10 @@
     const effects = duelState.getEffectsForCard(card.id);
     const hasEffects = effects.length > 0;
     if (hasEffects) {
-      console.log(`[Hands] カード「${card.name}」(${card.id})には${effects.length}個の効果があります:`, effects.map(e => e.name));
+      console.log(
+        `[Hands] カード「${card.name}」(${card.id})には${effects.length}個の効果があります:`,
+        effects.map((e) => e.name),
+      );
     }
     return hasEffects;
   }
@@ -189,4 +226,14 @@
   maxSelections={cardSelectionMaxSelections}
   onConfirm={handleCardSelectionConfirm}
   onCancel={handleCardSelectionCancel}
+/>
+
+<!-- 効果解決モーダル -->
+<EffectResolutionModal
+  isOpen={$effectResolutionState.isActive}
+  title={$effectResolutionState.currentStep?.title || ""}
+  message={$effectResolutionState.currentStep?.message || ""}
+  onConfirm={effectResolutionStore.confirmCurrentStep}
+  onCancel={$effectResolutionState.currentStep?.showCancel ? effectResolutionStore.cancelResolution : undefined}
+  showCancel={$effectResolutionState.currentStep?.showCancel || false}
 />

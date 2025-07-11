@@ -41,13 +41,15 @@ export class GracefulCharityEffect extends BaseMagicEffect {
   /**
    * 魔法効果の解決: 3枚ドロー → 手札選択UI表示
    */
-  protected resolveMagicEffect(state: DuelState): InteractiveEffectResult {
+  protected async resolveMagicEffect(state: DuelState): Promise<InteractiveEffectResult> {
     console.log(`[${this.name}] 効果解決: 3枚ドロー → 手札選択`);
 
-    // 1. まず3枚ドローする
-    const drawResult = this.drawEffect.execute(state);
+    // 1. ステップバイステップで3枚ドローする
+    const drawResult = await this.drawEffect.executeStepByStep(state);
     if (!drawResult.success) {
-      return this.createErrorResult(`${this.name}: ドロー効果実行に失敗 - ${drawResult.message}`) as InteractiveEffectResult;
+      return this.createErrorResult(
+        `${this.name}: ドロー効果実行に失敗 - ${drawResult.message}`,
+      ) as InteractiveEffectResult;
     }
 
     console.log(`[${this.name}] 3枚ドロー完了。手札選択UIを表示します`);
@@ -65,8 +67,8 @@ export class GracefulCharityEffect extends BaseMagicEffect {
         maxSelections: 2,
         onSelection: (selectedCards: Card[]) => {
           this.handleCardSelection(selectedCards, state);
-        }
-      }
+        },
+      },
     };
 
     return result;
@@ -76,8 +78,11 @@ export class GracefulCharityEffect extends BaseMagicEffect {
    * 手札選択後の処理
    */
   private handleCardSelection(selectedCards: Card[], state: DuelState): void {
-    console.log(`[${this.name}] 選択されたカード:`, selectedCards.map(c => c.name));
-    
+    console.log(
+      `[${this.name}] 選択されたカード:`,
+      selectedCards.map((c) => c.name),
+    );
+
     // 選択されたカードを墓地に送る
     for (const card of selectedCards) {
       const success = state.sendToGraveyard(card.id, "hand");
@@ -85,7 +90,7 @@ export class GracefulCharityEffect extends BaseMagicEffect {
         console.error(`[${this.name}] カード「${card.name}」を墓地に送れませんでした`);
       }
     }
-    
+
     console.log(`[${this.name}] 天使の施しの効果解決が完了しました`);
     // 注意: 魔法カード自体の墓地送りは、BaseMagicEffectがインタラクティブ効果完了後に自動実行する
   }
