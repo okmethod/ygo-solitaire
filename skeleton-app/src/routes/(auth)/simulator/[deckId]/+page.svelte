@@ -45,6 +45,8 @@
           deckCards={duelStats.mainDeckRemaining}
           extraDeckCards={duelState.extraDeck}
           graveyardCards={duelState.graveyard}
+          fieldCards={duelState.field.fieldSpell ? [duelState.field.fieldSpell] : []}
+          monsterCards={duelState.field.monsterZones}
           spellTrapCards={duelState.field.spellTrapZones}
         />
         <Hands cards={duelState.hands} {duelState} onEffectResult={handleEffectResult} />

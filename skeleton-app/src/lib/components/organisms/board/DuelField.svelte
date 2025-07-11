@@ -10,22 +10,16 @@
   const zones = [...Array(ZONE_COUNT).keys()];
 
   interface DuelFieldProps {
-    deckCards?: number;
-    extraDeckCards?: Card[];
-    graveyardCards?: Card[];
-    fieldCards?: Card[];
-    monsterCards?: (Card | null)[];
-    spellTrapCards?: (Card | null)[];
+    deckCards: number;
+    extraDeckCards: Card[];
+    graveyardCards: Card[];
+    fieldCards: Card[];
+    monsterCards: (Card | null)[];
+    spellTrapCards: (Card | null)[];
   }
 
-  let {
-    deckCards = 40,
-    extraDeckCards = [],
-    graveyardCards = [],
-    fieldCards = [],
-    monsterCards = [null, null, null, null, null],
-    spellTrapCards = [null, null, null, null, null],
-  }: DuelFieldProps = $props();
+  let { deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards }: DuelFieldProps =
+    $props();
 
   // カードクリック処理
   function handleCardClick(card: Card) {
