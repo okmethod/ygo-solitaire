@@ -22,31 +22,42 @@
     }
   }
 
-  // Enterキーでも確定できるように
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Enter") {
-      handleConfirm();
-    } else if (event.key === "Escape" && showCancel) {
+  function modalClose() {
+    if (showCancel && onCancel) {
       handleCancel();
+    }
+  }
+
+  function onOpenChange(event: { open: boolean }) {
+    if (!event.open && showCancel && onCancel) {
+      onCancel();
     }
   }
 </script>
 
-{#if isOpen}
-  <Modal>
-    <div slot="header" class="text-xl font-bold text-primary-600-300-token">
-      {title}
-    </div>
+<Modal
+  open={isOpen}
+  {onOpenChange}
+  contentBase="card bg-surface-100-800-token p-6 space-y-4 max-w-md"
+  modal={true}
+  trapFocus={true}
+  closeOnEscape={showCancel}
+  preventScroll={true}
+>
+  {#snippet content()}
+    <header class="text-center">
+      <h2 class="h3 font-bold text-primary-600-300-token">{title}</h2>
+    </header>
 
-    <div class="py-4">
-      <p class="text-center text-lg">{message}</p>
-    </div>
+    <article class="text-center">
+      <p class="text-lg">{message}</p>
+    </article>
 
-    <div slot="footer" class="flex justify-end gap-2">
+    <footer class="flex justify-end gap-2">
       {#if showCancel}
         <button class="btn variant-ghost" onclick={handleCancel}> キャンセル </button>
       {/if}
       <button class="btn variant-filled-primary" onclick={handleConfirm}> OK </button>
-    </div>
-  </Modal>
-{/if}
+    </footer>
+  {/snippet}
+</Modal>
