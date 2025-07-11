@@ -2,10 +2,9 @@
   import DuelField from "$lib/components/organisms/board/DuelField.svelte";
   import GameInfo from "$lib/components/organisms/GameInfo.svelte";
   import Hands from "$lib/components/organisms/board/Hands.svelte";
-  import ToastContainer from "$lib/components/organisms/ToastContainer.svelte";
   import type { PageData } from "./$types";
   import type { EffectResult } from "$lib/types/effect";
-  import { toastStore } from "$lib/stores/toastStore";
+  import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
 
   export let data: PageData;
 
@@ -18,12 +17,12 @@
 
     if (result.success) {
       // 成功時のフィードバック
-      toastStore.success(result.message);
+      showSuccessToast(result.message);
 
       // ドローしたカードがある場合は追加情報
       if (result.drawnCards && result.drawnCards.length > 0) {
         const cardNames = result.drawnCards.map((card) => card.name).join(", ");
-        toastStore.info(`ドローしたカード: ${cardNames}`);
+        showSuccessToast(`ドローしたカード: ${cardNames}`);
       }
 
       // DuelStateのリアクティブ更新を強制
@@ -32,7 +31,7 @@
       console.log("[Simulator] 手札更新後:", duelState.hands.length, "枚");
     } else {
       // 失敗時のフィードバック
-      toastStore.error(result.message);
+      showErrorToast(result.message);
     }
   }
 </script>
@@ -63,6 +62,3 @@
     </div>
   </main>
 </div>
-
-<!-- トーストコンテナ -->
-<ToastContainer />
