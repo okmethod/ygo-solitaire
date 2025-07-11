@@ -16,9 +16,7 @@ describe("PotOfGreedEffect", () => {
         { id: 4, name: "聖なるバリア", type: "trap", description: "攻撃無効化" },
         { id: 5, name: "サンダーボルト", type: "spell", description: "全体除去" },
       ],
-      hands: [
-        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
-      ],
+      hands: [{ id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" }],
     });
 
     // 現在のフェイズとゲーム結果を設定
@@ -145,7 +143,7 @@ describe("PotOfGreedEffect", () => {
       // 手札に複数の強欲な壺を追加
       duelState.hands.push(
         { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
-        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" }
+        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
       );
 
       // 1回目: 初期手札3枚、実行後 3-1+2=4枚

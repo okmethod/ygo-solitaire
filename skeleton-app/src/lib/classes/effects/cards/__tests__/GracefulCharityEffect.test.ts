@@ -18,7 +18,12 @@ describe("GracefulCharityEffect", () => {
         { id: 6, name: "カード6", type: "monster", description: "テストカード6" },
       ],
       hands: [
-        { id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" },
+        {
+          id: 79571449,
+          name: "天使の施し",
+          type: "spell",
+          description: "デッキから3枚ドローし、その後手札から2枚捨てる",
+        },
         { id: 10, name: "手札1", type: "monster", description: "手札のカード1" },
         { id: 11, name: "手札2", type: "spell", description: "手札のカード2" },
       ],
@@ -70,15 +75,27 @@ describe("GracefulCharityEffect", () => {
     });
 
     it("手札0枚でもドロー後に2枚捨てられるため発動可能", () => {
-      duelState.hands = [{ id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" }]; // 天使の施しのみ
+      duelState.hands = [
+        {
+          id: 79571449,
+          name: "天使の施し",
+          type: "spell",
+          description: "デッキから3枚ドローし、その後手札から2枚捨てる",
+        },
+      ]; // 天使の施しのみ
       // 1 + 3 = 4枚 → 2枚捨てる可能
       expect(gracefulCharityEffect.canActivate(duelState)).toBe(true);
     });
 
     it("手札1枚でもドロー後に2枚捨てられるため発動可能", () => {
       duelState.hands = [
-        { id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" },
-        { id: 10, name: "手札1", type: "monster", description: "手札のカード1" }
+        {
+          id: 79571449,
+          name: "天使の施し",
+          type: "spell",
+          description: "デッキから3枚ドローし、その後手札から2枚捨てる",
+        },
+        { id: 10, name: "手札1", type: "monster", description: "手札のカード1" },
       ];
       // 2 + 3 = 5枚 → 2枚捨てる可能
       expect(gracefulCharityEffect.canActivate(duelState)).toBe(true);
@@ -148,7 +165,14 @@ describe("GracefulCharityEffect", () => {
     });
 
     it("手札0枚でも正常に実行される", async () => {
-      duelState.hands = [{ id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" }]; // 天使の施しのみ
+      duelState.hands = [
+        {
+          id: 79571449,
+          name: "天使の施し",
+          type: "spell",
+          description: "デッキから3枚ドローし、その後手札から2枚捨てる",
+        },
+      ]; // 天使の施しのみ
       const initialDeckSize = duelState.mainDeck.length; // 6枚
       const initialGraveyardSize = duelState.graveyard.length; // 0枚
 
@@ -169,8 +193,13 @@ describe("GracefulCharityEffect", () => {
 
     it("手札1枚でも正常に実行される", async () => {
       duelState.hands = [
-        { id: 79571449, name: "天使の施し", type: "spell", description: "デッキから3枚ドローし、その後手札から2枚捨てる" },
-        { id: 10, name: "手札1", type: "monster", description: "手札のカード1" }
+        {
+          id: 79571449,
+          name: "天使の施し",
+          type: "spell",
+          description: "デッキから3枚ドローし、その後手札から2枚捨てる",
+        },
+        { id: 10, name: "手札1", type: "monster", description: "手札のカード1" },
       ];
       const initialDeckSize = duelState.mainDeck.length; // 6枚
       const initialGraveyardSize = duelState.graveyard.length; // 0枚

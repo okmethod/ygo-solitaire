@@ -19,9 +19,7 @@ describe("Effects Integration", () => {
         { id: 4, name: "カード4", type: "monster", description: "テスト4" },
         { id: 5, name: "カード5", type: "spell", description: "テスト5" },
       ],
-      hands: [
-        { id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" },
-      ],
+      hands: [{ id: 55144522, name: "強欲な壺", type: "spell", description: "デッキから2枚ドローする" }],
     });
     duelState.currentPhase = "メインフェイズ1";
     duelState.gameResult = "ongoing";
