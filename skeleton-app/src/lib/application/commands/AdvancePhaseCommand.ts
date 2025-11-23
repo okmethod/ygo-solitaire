@@ -1,0 +1,91 @@
+/**
+ * AdvancePhaseCommand - Advance to next game phase
+ *
+ * Implements the Command pattern for phase transitions.
+ * Validates phase transition rules before advancing.
+ *
+ * @module application/commands/AdvancePhaseCommand
+ */
+
+import { produce } from "immer";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { GameCommand, CommandResult } from "./GameCommand";
+import { createSuccessResult, createFailureResult } from "./GameCommand";
+import {
+  getNextValidPhase,
+  validatePhaseTransition,
+  canManuallyAdvancePhase,
+  getPhaseDisplayName,
+} from "$lib/domain/rules/PhaseRule";
+
+/**
+ * Command to advance to next phase
+ */
+export class AdvancePhaseCommand implements GameCommand {
+  readonly description: string;
+
+  constructor() {
+    this.description = "Advance to next phase";
+  }
+
+  /**
+   * Check if phase advance is allowed
+   *
+   * @param state - Current game state
+   * @returns True if can advance to next phase
+   */
+  canExecute(state: GameState): boolean {
+    // Check if game is already over
+    if (state.result.isGameOver) {
+      return false;
+    }
+
+    const nextPhase = getNextValidPhase(state.phase);
+
+    // Validate transition is allowed
+    const validation = validatePhaseTransition(state.phase, nextPhase);
+    if (!validation.valid) {
+      return false;
+    }
+
+    // Check manual advance is allowed (e.g., not Draw phase with empty deck)
+    const deckIsEmpty = state.zones.deck.length === 0;
+    return canManuallyAdvancePhase(state.phase, deckIsEmpty);
+  }
+
+  /**
+   * Execute phase advance command
+   *
+   * @param state - Current game state
+   * @returns Command result with new state
+   */
+  execute(state: GameState): CommandResult {
+    if (!this.canExecute(state)) {
+      return createFailureResult(state, `Cannot advance from ${state.phase} phase`);
+    }
+
+    const nextPhase = getNextValidPhase(state.phase);
+
+    // Use Immer to create new state with advanced phase
+    const newState = produce(state, (draft) => {
+      draft.phase = nextPhase;
+
+      // If advancing to End phase and it's end of turn, increment turn counter
+      // (In MVP, End phase loops to itself, so turn doesn't increment automatically)
+      // This will be expanded in future when turn cycling is implemented
+    });
+
+    const phaseDisplayName = getPhaseDisplayName(nextPhase);
+    return createSuccessResult(newState, `Advanced to ${phaseDisplayName}`);
+  }
+
+  /**
+   * Get the phase that would be advanced to
+   *
+   * @param state - Current game state
+   * @returns Next phase
+   */
+  getNextPhase(state: GameState): string {
+    return getNextValidPhase(state.phase);
+  }
+}
