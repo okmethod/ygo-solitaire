@@ -14,7 +14,7 @@ class SimpleDrawEffect extends BaseEffect {
     return state.mainDeck.length > 0;
   }
 
-  execute(state: DuelState): EffectResult {
+  async execute(state: DuelState): Promise<EffectResult> {
     if (state.mainDeck.length === 0) {
       return this.createErrorResult("デッキにカードがありません");
     }
@@ -50,7 +50,7 @@ describe("DuelState Effect Integration", () => {
   });
 
   describe("効果登録と取得", () => {
-    it("EffectRepositoryを通してカードに効果を登録できる", () => {
+    it("EffectRepositoryを通してカードに効果を登録できる", async () => {
       EffectRepository.register(55144522, () => [drawEffect]);
 
       const effects = duelState.getEffectsForCard(55144522);
@@ -58,12 +58,12 @@ describe("DuelState Effect Integration", () => {
       expect(effects[0].id).toBe("simple-draw");
     });
 
-    it("存在しないカードの効果は空配列を返す", () => {
+    it("存在しないカードの効果は空配列を返す", async () => {
       const effects = duelState.getEffectsForCard(99999);
       expect(effects).toHaveLength(0);
     });
 
-    it("複数の効果を同じカードに登録できる", () => {
+    it("複数の効果を同じカードに登録できる", async () => {
       const secondEffect = new (class extends BaseEffect {
         constructor() {
           super("simple-draw-2", "シンプルドロー2", "2枚目のドロー効果", 55144522);
@@ -71,7 +71,7 @@ describe("DuelState Effect Integration", () => {
         canActivate(): boolean {
           return true;
         }
-        execute(): EffectResult {
+        async execute(): Promise<EffectResult> {
           return this.createSuccessResult("テスト用効果", true);
         }
       })();
@@ -88,35 +88,35 @@ describe("DuelState Effect Integration", () => {
       EffectRepository.register(55144522, () => [drawEffect]);
     });
 
-    it("効果を直接実行できる", () => {
+    it("効果を直接実行できる", async () => {
       const initialHandSize = duelState.hands.length;
-      const result = duelState.executeEffect(drawEffect);
+      const result = await duelState.executeEffect(drawEffect);
 
       expect(result.success).toBe(true);
       expect(result.message).toBe("1枚ドローしました");
       expect(duelState.hands.length).toBe(initialHandSize + 1);
     });
 
-    it("カードIDから効果を実行できる", () => {
+    it("カードIDから効果を実行できる", async () => {
       const initialHandSize = duelState.hands.length;
-      const result = duelState.executeCardEffect(55144522);
+      const result = await duelState.executeCardEffect(55144522);
 
       expect(result.success).toBe(true);
       expect(duelState.hands.length).toBe(initialHandSize + 1);
     });
 
-    it("発動不可能な効果は実行されない", () => {
+    it("発動不可能な効果は実行されない", async () => {
       // デッキを空にする
       duelState.mainDeck = [];
 
-      const result = duelState.executeEffect(drawEffect);
+      const result = await duelState.executeEffect(drawEffect);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("シンプルドローは発動できません");
     });
 
-    it("存在しないカードの効果実行は失敗する", () => {
-      const result = duelState.executeCardEffect(99999);
+    it("存在しないカードの効果実行は失敗する", async () => {
+      const result = await duelState.executeCardEffect(99999);
 
       expect(result.success).toBe(false);
       expect(result.message).toBe("このカードには効果がありません");
@@ -128,7 +128,7 @@ describe("DuelState Effect Integration", () => {
       expect(duelState.gameResult).toBe("ongoing");
     });
 
-    it("勝利条件満了時にゲーム結果が更新される", () => {
+    it("勝利条件満了時にゲーム結果が更新される", async () => {
       // 勝利効果をモック
       const winEffect = new (class extends BaseEffect {
         constructor() {
@@ -139,7 +139,7 @@ describe("DuelState Effect Integration", () => {
           return true;
         }
 
-        execute(): EffectResult {
+        async execute(): Promise<EffectResult> {
           return {
             success: true,
             message: "勝利しました！",
@@ -149,7 +149,7 @@ describe("DuelState Effect Integration", () => {
         }
       })();
 
-      const result = duelState.executeEffect(winEffect);
+      const result = await duelState.executeEffect(winEffect);
 
       expect(result.gameEnded).toBe(true);
       expect(duelState.gameResult).toBe("win");
