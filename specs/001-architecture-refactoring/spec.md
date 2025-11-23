@@ -28,7 +28,7 @@ Geminiで生成した設計素案（docs/01-requirement.md, docs/02-architecture
 ## 成功基準
 - DuelStateクラスがSvelteに依存していない
 - domain/配下のコードがVitestで単体テスト可能
-- 新しいカード追加時にGameEngine本体を修正不要"
+- 新しいカード追加時に既存コードを修正不要"
 
 ## User Scenarios & Testing
 
@@ -50,15 +50,15 @@ Geminiで生成した設計素案（docs/01-requirement.md, docs/02-architecture
 
 ### User Story 2 - 新規カード効果の拡張性 (Priority: P2)
 
-開発者として、新しいカード効果を追加する際に、既存のGameEngineコードを修正せずに済む。
+開発者として、新しいカード効果を追加する際に、既存のコアロジックを修正せずに済む。
 
 **Why this priority**: 長期的な保守性の鍵。カードプールが増えても、コアロジックが壊れないことが拡張の前提条件。
 
-**Independent Test**: 新しいカード効果クラス（例：ThunderBolt）を作成し、CardRegistryに登録するだけで、GameEngineが自動的に認識・実行できる。
+**Independent Test**: 新しいカード効果クラス（例：ThunderBolt）を作成し、CardRegistryに登録するだけで、システムが自動的に認識・実行できる。
 
 **Acceptance Scenarios**:
 
-1. **Given** Strategy Patternに基づくCardBehaviorインターフェース, **When** 新しいカード効果クラスを実装, **Then** GameEngine本体のswitch文や条件分岐を修正せずに動作する
+1. **Given** Strategy Patternに基づくCardBehaviorインターフェース, **When** 新しいカード効果クラスを実装, **Then** 既存のコアロジック（GameFacade、Rules）のswitch文や条件分岐を修正せずに動作する
 2. **Given** Factory Patternに基づくCardRegistry, **When** 新しいカードIDと効果クラスを登録, **Then** ゲーム中に自動的にインスタンス化される
 3. **Given** 既存の全カード効果, **When** 新しいカードを追加, **Then** 既存カードのテストが全て成功したまま維持される
 
@@ -119,6 +119,6 @@ Geminiで生成した設計素案（docs/01-requirement.md, docs/02-architecture
 
 - **SC-001**: domain/配下のすべてのファイルで、Svelteへのimportが0件であること（静的解析で検証可能）
 - **SC-002**: domain/配下のコードに対する単体テストカバレッジが80%以上であること
-- **SC-003**: 新しいカード効果（例：サンダー・ボルト）を追加する際、GameEngine本体のコード変更行数が0行であること
+- **SC-003**: 新しいカード効果（例：サンダー・ボルト）を追加する際、既存のコアロジック（domain/rules/, application/GameFacade.ts）のコード変更行数が0行であること
 - **SC-004**: 既存のすべてのカード効果が、リファクタリング後も同じ挙動を保つこと（回帰テストで検証）
 - **SC-005**: GameStateの更新がすべてImmutableパターンで行われること（参照の変更を検知するテストで検証）

@@ -30,7 +30,15 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 
 - [ ] T001 Create project directory structure (domain/, application/, presentation/) in skeleton-app/src/lib/
 - [ ] T002 Install Immer.js dependency for immutable state management
-- [ ] T003 [P] Configure ESLint rules to enforce layer boundaries (domain cannot import from application/presentation)
+- [ ] T002.5 [P] Configure test coverage thresholds in skeleton-app/vitest.config.ts
+  - Set coverage.lines threshold to 80 (SC-002: 80%+ coverage for domain/)
+  - Set coverage.include to ['src/lib/domain/**/*.ts']
+  - Enable coverage.reporter: ['text', 'html', 'json-summary']
+  - Verify npm run test:coverage fails if threshold not met
+- [ ] T003 [P] Configure ESLint rules to enforce layer boundaries in skeleton-app/.eslintrc.js
+  - Add no-restricted-imports rule: domain/ cannot import from svelte, application/, presentation/
+  - Add no-restricted-imports rule: application/ cannot import from presentation/
+  - Create boundary violation test in skeleton-app/tests/unit/eslint-boundary.test.ts to verify TypeScript compile error on Svelte import
 
 ---
 
@@ -182,7 +190,12 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 - [ ] T062 Remove old DuelState.ts file from skeleton-app/src/lib/classes/DuelState.ts
 - [ ] T063 Remove old effect class imports from components
 - [ ] T064 Run full test suite (unit + integration + E2E) with npm test
-- [ ] T065 Performance validation: verify state updates complete in <50ms
+- [ ] T065 Performance validation with Vitest benchmark in skeleton-app/tests/unit/performance/benchmark.test.ts
+  - Measure updateGameState() execution time (average of 10 runs)
+  - Verify <50ms per state update (from plan.md Performance Goals)
+  - Measure UI re-render time with Svelte testing-library
+  - Verify 60fps rendering capability
+  - Document results in specs/001-architecture-refactoring/performance-results.md
 
 ---
 
