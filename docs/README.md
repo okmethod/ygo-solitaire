@@ -2,6 +2,29 @@
 
 このディレクトリには、遊戯王1ターンキルシミュレーターの**ストック情報**（永続的な知識）が整理されています。
 
+## 💡 プロジェクトコンセプト
+
+### 課題と目的
+
+**課題**:
+- TCGの「ソリティア（1人で延々とコンボを回す行為）」は、実カードでの練習が煩雑
+- 複雑な手順を記憶する必要があり、手順ミスが発生しやすい
+- 特定の初手から勝利までのルートを検証したいニーズがある
+
+**目的**:
+- Webブラウザ上で手軽に「先攻1ターンキル（FTK）」のコンボ練習ができる環境を提供
+- ルール処理を自動化し、正しい手順を学習できるようにする
+
+### コンセプト
+
+**「詰将棋」のような感覚でプレイする、TCG 1ターンキル・シミュレーター**
+
+- ユーザーはデッキを選ぶだけで、即座にゲームを開始できる
+- 面倒な対戦相手の思考待ち時間はゼロ（対戦相手はカカシ）
+- パズルを解くように勝利条件を目指す
+
+詳細なスコープと実装状況は [domain/overview.md](./domain/overview.md) を参照してください。
+
 ## 📚 ドキュメント構成
 
 ### 1. [domain/](./domain/) - ドメイン知識
@@ -44,10 +67,11 @@ specs/                         # ← フロー情報（プロジェクト単位�
 
 ### 新規参加者向け
 
-1. [domain/project-concept.md](./domain/project-concept.md) - プロジェクトの全体像を理解
-2. [development/setup.md](./development/setup.md) - 環境構築
-3. [architecture/overview.md](./architecture/overview.md) - コードの構造を理解
-4. [development/conventions.md](./development/conventions.md) - 開発ルールを確認
+1. このREADME - プロジェクトコンセプトを理解
+2. [domain/overview.md](./domain/overview.md) - スコープと実装状況を把握
+3. [development/setup.md](./development/setup.md) - 環境構築
+4. [architecture/overview.md](./architecture/overview.md) - コードの構造を理解
+5. [development/conventions.md](./development/conventions.md) - 開発ルールを確認
 
 ### コントリビューター向け
 
