@@ -171,6 +171,63 @@ describe("GameFacade", () => {
     });
   });
 
+  describe("activateSpell", () => {
+    it("should successfully activate spell card from hand", () => {
+      facade.initializeGame(["card1", "card2", "card3", "card4"]);
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw → Standby
+      facade.advancePhase(); // Standby → Main1
+
+      const state = get(gameStateStore);
+      const cardInstanceId = state.zones.hand[0].instanceId;
+      const initialHandSize = state.zones.hand.length;
+
+      const result = facade.activateSpell(cardInstanceId);
+
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("Spell card activated");
+
+      const newState = get(gameStateStore);
+      expect(newState.zones.hand.length).toBe(initialHandSize - 1);
+      expect(newState.zones.graveyard.length).toBe(1);
+    });
+
+    it("should fail when not in Main1 phase", () => {
+      facade.initializeGame(["card1"]);
+      facade.drawCard(1);
+      // Still in Draw phase
+
+      const state = get(gameStateStore);
+      const cardInstanceId = state.zones.hand[0].instanceId;
+
+      const result = facade.activateSpell(cardInstanceId);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("メインフェイズでのみ発動できます");
+    });
+
+    it("should fail when card is not in hand", () => {
+      facade.initializeGame(["card1", "card2", "card3"]);
+      facade.advancePhase(); // Draw → Standby
+      facade.advancePhase(); // Standby → Main1
+
+      const result = facade.activateSpell("non-existent-card-id");
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("見つかりません");
+    });
+
+    it("should not update store on failed activation", () => {
+      facade.initializeGame(["card1"]);
+      const initialState = get(gameStateStore);
+
+      facade.activateSpell("non-existent-card-id");
+
+      const newState = get(gameStateStore);
+      expect(newState).toEqual(initialState);
+    });
+  });
+
   describe("canActivateCard", () => {
     it("should return true for card in hand during Main1 phase", () => {
       facade.initializeGame(["card1", "card2", "card3"]); // Need multiple cards

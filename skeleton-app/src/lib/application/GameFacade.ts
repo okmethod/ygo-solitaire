@@ -12,6 +12,7 @@ import type { GamePhase } from "$lib/domain/models/constants";
 import { gameStateStore, resetGameState, getCurrentState } from "./stores/gameStateStore";
 import { DrawCardCommand } from "./commands/DrawCardCommand";
 import { AdvancePhaseCommand } from "./commands/AdvancePhaseCommand";
+import { ActivateSpellCommand } from "./commands/ActivateSpellCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 
@@ -103,6 +104,29 @@ export class GameFacade {
    */
   getGameState(): GameState {
     return getCurrentState();
+  }
+
+  /**
+   * Activate a spell card from hand
+   *
+   * @param cardInstanceId - Card instance ID to activate
+   * @returns Success/failure result
+   */
+  activateSpell(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+    const currentState = getCurrentState();
+    const command = new ActivateSpellCommand(cardInstanceId);
+
+    const result = command.execute(currentState);
+
+    if (result.success) {
+      gameStateStore.set(result.newState);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      error: result.error,
+    };
   }
 
   /**
