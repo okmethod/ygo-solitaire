@@ -55,7 +55,7 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 - [x] T008 [P] Implement updateGameState helper function using Immer in skeleton-app/src/lib/domain/models/GameState.ts
 - [x] T009 [P] Implement createInitialGameState factory function in skeleton-app/src/lib/domain/models/GameState.ts
 - [x] T010 Create test utilities (gameStateFactory, mockDeckRecipe) in skeleton-app/src/lib/__testUtils__/gameStateFactory.ts
-- [ ] T011 Create validation functions (validateGameState, GameStateInvariants) in skeleton-app/src/lib/domain/models/GameStateInvariants.ts
+- [x] T011 Create validation functions (validateGameState, GameStateInvariants) in skeleton-app/src/lib/domain/models/GameStateInvariants.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -141,7 +141,7 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 - [x] T037 [P] [US3] Create IGameCommand interface in skeleton-app/src/lib/application/commands/GameCommand.ts
 - [x] T038 [P] [US3] Implement DrawCardCommand (canExecute, execute, description) in skeleton-app/src/lib/application/commands/DrawCardCommand.ts
 - [x] T039 [P] [US3] Implement AdvancePhaseCommand using PhaseRule in skeleton-app/src/lib/application/commands/AdvancePhaseCommand.ts
-- [ ] T040 [US3] Implement ActivateSpellCommand (hand → field → effect → graveyard) in skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts
+- [x] T040 [US3] Implement ActivateSpellCommand (hand → field → effect → graveyard) in skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts
 
 ### Application Stores Implementation
 
@@ -156,7 +156,7 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 ### Application Layer Testing
 
 - [x] T045 [P] [US3] Integration test for DrawCardCommand with GameState in skeleton-app/tests/integration/commands/DrawCardCommand.test.ts
-- [ ] T046 [P] [US3] Integration test for ActivateSpellCommand with effect execution in skeleton-app/tests/integration/commands/ActivateSpellCommand.test.ts
+- [x] T046 [P] [US3] Integration test for ActivateSpellCommand with effect execution in skeleton-app/tests/integration/commands/ActivateSpellCommand.test.ts
 - [x] T047 [P] [US3] Integration test for AdvancePhaseCommand in skeleton-app/tests/integration/commands/AdvancePhaseCommand.test.ts
 - [x] T048 [US3] Integration test for GameFacade with store updates in skeleton-app/tests/integration/GameFacade.test.ts
 
@@ -251,30 +251,31 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 ## Current Progress Summary (2025-11-24)
 
 ### ✅ Completed Phases
-- **Phase 1: Setup** - Complete (T001-T003)
-- **Phase 2: Foundational** - 87.5% complete (T004-T010 done, T011 pending)
+- **Phase 1: Setup** - 100% complete (T001-T003)
+- **Phase 2: Foundational** - 100% complete (T004-T011)
 - **Phase 3: User Story 1** - 66% complete (Domain rules + tests done)
 
 ### 🚧 In Progress
-- **Phase 5: User Story 3** - 70% complete
-  - ✅ Commands (DrawCardCommand, AdvancePhaseCommand)
+- **Phase 5: User Story 3** - 80% complete
+  - ✅ Commands (DrawCardCommand, AdvancePhaseCommand, ActivateSpellCommand)
   - ✅ Stores (gameStateStore, derivedStores)
   - ✅ GameFacade with unit tests
   - ✅ GameStateAdapter + simulator-v2 demo page
-  - ⏳ Full UI migration pending
+  - ✅ All command tests (T045-T048)
+  - ⏳ Full UI migration pending (T050-T052)
 
 ### 📊 Test Results
-- **Total Tests**: 250/250 passing
+- **Total Tests**: 298/298 passing
 - **Coverage**: 80%+ for domain/ (vitest.config.ts enforced)
 - **Type Safety**: All type checks passing
 - **Linting**: All ESLint/Prettier checks passing
 
 ### 🎯 Next Steps
-1. Complete T011 (GameStateInvariants validation)
-2. Implement T040 (ActivateSpellCommand)
+1. ✅ ~~Complete T011 (GameStateInvariants validation)~~ - Done
+2. ✅ ~~Implement T040 (ActivateSpellCommand)~~ - Done
 3. Migrate existing UI components (T050-T052)
-4. Phase 2 (Effect System) migration
-5. E2E testing (T053-T055)
+4. E2E testing (T053-T055)
+5. Phase 4 (Effect System) migration
 
 ---
 
