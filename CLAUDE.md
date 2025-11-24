@@ -46,6 +46,12 @@ npm run test:run       # テストを一回実行
 npm run test:coverage  # カバレッジ付きでテスト実行
 npm run test:ui        # Vitest UIでテスト実行
 
+# 特定のテストファイルのみ実行
+npx vitest run src/lib/classes/effects/__tests__/BaseEffect.test.ts
+
+# テストファイルをウォッチモードで実行
+npx vitest src/lib/classes/effects/__tests__/BaseEffect.test.ts
+
 # バックエンド（fast-api-server/ 内で実行）
 uv run poe lint        # ruff format + ruff check + mypy
 uv run poe fix         # ruff format + ruff check --fix
@@ -100,49 +106,113 @@ npm run deploy         # build + gh-pages へのデプロイ
 - コミットする際はエラーがない状態で行ってください
 - ファイルを新規追加する場合、そのファイルが Github にPushするべきでないファイル判断した場合には、必ず.gitignoreに指定してください
 
-## コードアーキテクチャ詳細
+## ドキュメント体系
 
-### 遊戯王シミュレーターの核心システム
+プロジェクトドキュメントは**ストック情報**（永続的な知識）と**フロー情報**（プロジェクト単位の作業記録）に分かれています。
 
-#### ゲーム状態管理
-- **`DuelState.ts`**: ゲーム状態の中核管理クラス
-  - デッキ、手札、フィールド、墓地、除外の管理
-  - カードの移動（ドロー、召喚、墓地送り）
-  - 効果システムとの連携
+### 📚 ストック情報（永続的な知識）
 
-#### カード効果システム
-- **`EffectRepository.ts`**: カードIDと効果の対応管理
-  - ファクトリーパターンによる効果の遅延生成
-  - メモリ効率とパフォーマンス最適化
+**重要**: 新しいセッション開始時は、必ず [docs/README.md](docs/README.md) から読み始めてください。
 
-- **`BaseEffect.ts`**: 全効果の基底抽象クラス
-  - 共通処理（前処理、後処理、エラーハンドリング）
-  - 勝利条件チェック機能
+#### 1. プロジェクト全体の理解
+- **[docs/README.md](docs/README.md)**: ドキュメント目次とプロジェクトコンセプト
+  - プロジェクトの課題・目的・コンセプトを記載
+  - 各サブディレクトリへのナビゲーション
 
-- **効果継承階層**: `BaseEffect` → `DrawEffect` → `PotOfGreedEffect`
-  - `primitives/DrawEffect.ts`: 汎用ドロー効果
-  - `cards/PotOfGreedEffect.ts`: 強欲な壺（DrawEffectを継承）
+#### 2. ドメイン知識（遊戯王ルール）
+- **[docs/domain/](docs/domain/)**: ゲームルールとスコープ管理
+  - [overview.md](docs/domain/overview.md) ⭐: スコープ定義と実装状況マッピング
+    - やること/やらないことの明確化
+    - ドメイン実装状況（✅完全実装 / 🚧一部実装 / ⏳未実装）
+    - ドメイン知識とコードの対応表
+  - [yugioh-rules.md](docs/domain/yugioh-rules.md): 遊戯王OCG基本ルール
+    - ユビキタス言語（Zone, Action, Effect等）
+    - フェーズシステム、勝利条件、カード種別
 
-#### 効果登録システム
-- **`CardEffectRegistrar.ts`**: デッキレシピに基づく効果の動的登録
-- **`registry/cardEffectsRegistry.ts`**: 効果クラス登録設定
-  - 新しいカード効果は1行追加で登録可能
+#### 3. アーキテクチャ設計
+- **[docs/architecture/](docs/architecture/)**: 技術的な設計方針
+  - [overview.md](docs/architecture/overview.md): Clean Architecture概要
+    - 3層構造（Domain/Application/Presentation）
+    - レイヤー構成と依存関係
+    - 設計原則（不変性、Command Pattern）
+  - [testing-strategy.md](docs/architecture/testing-strategy.md): テスト戦略
+    - テストピラミッド、カバレッジ目標
+    - Unit/Integration/E2E Tests
 
-### 重要なファイルパス
-- **効果システム**: `src/lib/classes/effects/`
-- **コアクラス**: `src/lib/classes/DuelState.ts`
-- **UIコンポーネント**: `src/lib/components/organisms/board/DuelField.svelte`
-- **デッキ管理**: `src/lib/utils/deckLoader.ts`
-- **型定義**: `src/lib/types/`
+#### 4. 設計判断の記録
+- **[docs/adr/](docs/adr/)**: Architecture Decision Records
+  - [0001-adopt-clean-architecture.md](docs/adr/0001-adopt-clean-architecture.md): Clean Architecture採用
+  - [0002-use-immer-for-immutability.md](docs/adr/0002-use-immer-for-immutability.md): Immer.js不変性保証
+  - [0003-abolish-effect-system.md](docs/adr/0003-abolish-effect-system.md): Effect System廃止とCommand統一
 
-### 新しいカード効果の追加手順
-1. `src/lib/classes/effects/cards/` に新しい効果クラスを作成
-2. `BaseEffect` または適切な `atoms/` 効果を継承
-3. `src/lib/classes/effects/registry/cardEffectsRegistry.ts` に登録
-4. `src/lib/classes/effects/__tests__/` にテストファイルを作成
+#### 5. 開発ガイド
+- **[docs/development/](docs/development/)**: 実践的な手順書
+  - [setup.md](docs/development/setup.md): 開発環境セットアップ
+  - [conventions.md](docs/development/conventions.md): コーディング規約
+
+### 📋 フロー情報（プロジェクト単位）
+
+- **[specs/](specs/)**: 機能開発ごとの仕様・計画・タスク
+  - [001-architecture-refactoring/](specs/001-architecture-refactoring/): Clean Architectureリファクタリング（✅完了）
+    - spec.md: 要件定義
+    - plan.md: 実装計画
+    - tasks.md: タスク管理と進捗
+
+### 🎯 ドキュメント読み方ガイド
+
+**新規参加者**:
+1. [docs/README.md](docs/README.md) - プロジェクトコンセプト
+2. [docs/domain/overview.md](docs/domain/overview.md) - スコープと実装状況
+3. [docs/development/setup.md](docs/development/setup.md) - 環境構築
+4. [docs/architecture/overview.md](docs/architecture/overview.md) - アーキテクチャ理解
+
+**実装開始前**:
+1. [docs/domain/yugioh-rules.md](docs/domain/yugioh-rules.md) - ドメイン用語学習
+2. [docs/development/conventions.md](docs/development/conventions.md) - コーディング規約確認
+3. [docs/adr/](docs/adr/) - 過去の設計判断を理解
+
+**特定の機能実装時**:
+1. [docs/domain/overview.md](docs/domain/overview.md) で該当機能の実装状況を確認
+2. 必要に応じて [specs/](specs/) でフロー情報を参照
+
+## コードアーキテクチャ（概要）
+
+### Clean Architecture (3層構造)
+
+```
+Domain Layer (不変・純粋)
+  ↓ 依存
+Application Layer (Command Pattern)
+  ↓ 依存
+Presentation Layer (Svelte 5 Runes)
+```
+
+### 設計原則
+
+1. **不変性**: Immer.jsで状態を不変更新
+2. **Command Pattern**: すべての操作をCommandクラスで実装
+3. **単方向データフロー**: User Action → Command → State Update → Re-render
+4. **レイヤー境界遵守**: Domain LayerにSvelte依存コードを書かない
+
+### ディレクトリ構造
+
+```
+skeleton-app/src/lib/
+├── domain/         # ゲームルール（純粋TypeScript）
+├── application/    # ユースケース（Commands, Stores, Facade）
+└── components/     # UI（Svelte 5）
+```
+
+**詳細**: [docs/architecture/overview.md](docs/architecture/overview.md) を参照
 
 ## 開発時の注意事項
 - フロントエンドのスタイルは可能な限り TailwindCSS を使用する
+- Svelte 5 のルーン（`$state`, `$derived`, `$effect` など）を活用する
 - バックエンドのリクエスト/レスポンススキーマにはPydanticモデルを使う
-- APIのCORS設定は `fast-api-server/src/main.py:21` で管理
+- APIのCORS設定は `fast-api-server/src/main.py` で管理
 - 環境変数は `compose.yaml` の environment セクションで設定
+- **不変性保持**: すべての状態更新はImmer.jsの`produce()`を使用する
+- **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
+
+## Recent Changes
+- 001-architecture-refactoring: Clean Architecture完成、Effect System廃止（ADR-0003）、204/204 tests passing

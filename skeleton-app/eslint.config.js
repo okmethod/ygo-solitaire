@@ -33,4 +33,44 @@ export default ts.config(
       },
     },
   },
+  // Clean Architecture layer boundary enforcement
+  {
+    files: ["src/lib/domain/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "svelte",
+                "svelte/*",
+                "$lib/application/*",
+                "$lib/presentation/*",
+                "$lib/components/*",
+                "$lib/stores/*",
+              ],
+              message: "Domain layer must not depend on Svelte, application, or presentation layers",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/lib/application/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["$lib/presentation/*", "$lib/components/*"],
+              message: "Application layer must not depend on presentation layer",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

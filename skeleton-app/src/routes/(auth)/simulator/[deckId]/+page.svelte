@@ -1,64 +1,211 @@
 <script lang="ts">
-  import DuelField from "$lib/components/organisms/board/DuelField.svelte";
-  import GameInfo from "$lib/components/organisms/GameInfo.svelte";
-  import Hands from "$lib/components/organisms/board/Hands.svelte";
   import type { PageData } from "./$types";
-  import type { EffectResult } from "$lib/types/effect";
+  import { gameFacade } from "$lib/application/GameFacade";
+  import { gameStateStore } from "$lib/application/stores/gameStateStore";
+  import {
+    currentPhase,
+    currentTurn,
+    playerLP,
+    opponentLP,
+    handCardCount,
+    deckCardCount,
+    graveyardCardCount,
+    fieldCardCount,
+    exodiaPieceCount,
+    isGameOver,
+    gameResult,
+  } from "$lib/application/stores/derivedStores";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
 
   export let data: PageData;
 
-  let { duelState } = data;
-  $: duelStats = duelState.getDuelStats();
-
-  // 効果実行結果のハンドリング
-  function handleEffectResult(result: EffectResult) {
-    console.log("[Simulator] 効果実行結果:", result);
-
+  // Button handlers
+  function handleDrawCard() {
+    const result = gameFacade.drawCard(1);
     if (result.success) {
-      // 成功時のフィードバック
-      showSuccessToast(result.message);
-
-      // ドローしたカードがある場合は追加情報
-      if (result.drawnCards && result.drawnCards.length > 0) {
-        const cardNames = result.drawnCards.map((card) => card.name).join(", ");
-        showSuccessToast(`ドローしたカード: ${cardNames}`);
-      }
-
-      // DuelStateのリアクティブ更新を強制
-      console.log("[Simulator] 手札更新前:", duelState.hands.length, "枚");
-      duelState = duelState; // Svelteのリアクティビティをトリガー
-      console.log("[Simulator] 手札更新後:", duelState.hands.length, "枚");
+      showSuccessToast(result.message || "カードをドローしました");
     } else {
-      // 失敗時のフィードバック
-      showErrorToast(result.message);
+      showErrorToast(result.error || "ドローに失敗しました");
     }
+  }
+
+  function handleAdvancePhase() {
+    const result = gameFacade.advancePhase();
+    if (result.success) {
+      showSuccessToast(result.message || "フェイズを進めました");
+    } else {
+      showErrorToast(result.error || "フェイズ移行に失敗しました");
+    }
+  }
+
+  function handleCheckVictory() {
+    const result = gameFacade.checkVictory();
+    console.log("[Simulator-V2] Victory check:", result);
+  }
+
+  function handleActivateCard(cardInstanceId: string) {
+    const result = gameFacade.activateSpell(cardInstanceId);
+    if (result.success) {
+      showSuccessToast(result.message || "魔法カードを発動しました");
+    } else {
+      showErrorToast(result.error || "発動に失敗しました");
+    }
+  }
+
+  // Map phase to Japanese
+  function getPhaseJapanese(phase: string): string {
+    const phaseMap: Record<string, string> = {
+      Draw: "ドローフェイズ",
+      Standby: "スタンバイフェイズ",
+      Main1: "メインフェイズ1",
+      End: "エンドフェイズ",
+    };
+    return phaseMap[phase] || phase;
   }
 </script>
 
 <div class="container mx-auto p-4">
-  <main class="max-w-6xl mx-auto space-y-6">
-    <div class="grid grid-cols-6 gap-2 md:gap-2 sm:gap-1">
-      <div class="col-span-5">
-        <DuelField
-          deckCards={duelStats.mainDeckRemaining}
-          extraDeckCards={duelState.extraDeck}
-          graveyardCards={duelState.graveyard}
-          fieldCards={duelState.field.fieldSpell ? [duelState.field.fieldSpell] : []}
-          monsterCards={duelState.field.monsterZones}
-          spellTrapCards={duelState.field.spellTrapZones}
-        />
-        <Hands cards={duelState.hands} {duelState} onEffectResult={handleEffectResult} />
+  <main class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="card p-4">
+      <h1 class="text-2xl font-bold mb-2">New Architecture Simulator (V2)</h1>
+      <p class="text-sm opacity-75">Deck: {data.deckName}</p>
+    </div>
+
+    <!-- Game Info -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Left Column: Game Status -->
+      <div class="card p-4 space-y-4">
+        <h2 class="text-xl font-bold">Game Status</h2>
+
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Turn:</span>
+            <span class="font-bold">{$currentTurn}</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span>Phase:</span>
+            <span class="font-bold">{getPhaseJapanese($currentPhase)}</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span>Player LP:</span>
+            <span class="font-bold text-success-500">{$playerLP.toLocaleString()}</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span>Opponent LP:</span>
+            <span class="font-bold text-error-500">{$opponentLP.toLocaleString()}</span>
+          </div>
+        </div>
       </div>
-      <div class="col-span-1 p-4">
-        <GameInfo
-          deckName={duelStats.gameStatus.deckName}
-          playerLifePoints={duelStats.gameStatus.playerLifePoints}
-          opponentLifePoints={duelStats.gameStatus.opponentLifePoints}
-          currentTurn={duelStats.gameStatus.currentTurn}
-          currentPhase={duelStats.gameStatus.currentPhase}
-        />
+
+      <!-- Right Column: Zone Info -->
+      <div class="card p-4 space-y-4">
+        <h2 class="text-xl font-bold">Zone Info</h2>
+
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Deck:</span>
+            <span class="font-bold">{$deckCardCount} cards</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span>Hand:</span>
+            <span class="font-bold">{$handCardCount} cards</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span>Graveyard:</span>
+            <span class="font-bold">{$graveyardCardCount} cards</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span>Exodia Pieces:</span>
+            <span class="font-bold text-warning-500">{$exodiaPieceCount} / 5</span>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Field Zone -->
+    <div class="card p-4 space-y-4">
+      <h2 class="text-xl font-bold">Field</h2>
+
+      <div class="grid grid-cols-5 gap-2">
+        {#each $gameStateStore.zones.field as card (card.instanceId)}
+          <div class="card p-2 bg-surface-700">
+            <p class="text-xs text-center">{card.cardId}</p>
+            <p class="text-xs text-center opacity-75">{card.location}</p>
+          </div>
+        {:else}
+          <div class="col-span-5 text-center text-sm opacity-50">No cards on field</div>
+        {/each}
+      </div>
+
+      <div class="text-sm opacity-75">Field cards: {$fieldCardCount}</div>
+    </div>
+
+    <!-- Hand Zone -->
+    <div class="card p-4 space-y-4">
+      <h2 class="text-xl font-bold">Hand ({$handCardCount} cards)</h2>
+
+      <div class="grid grid-cols-5 gap-2">
+        {#each $gameStateStore.zones.hand as card (card.instanceId)}
+          <div class="card p-2 bg-surface-700 hover:bg-surface-600 cursor-pointer">
+            <p class="text-xs text-center font-bold">{card.cardId}</p>
+            <p class="text-xs text-center opacity-75">{card.instanceId}</p>
+            {#if $currentPhase === "Main1" && !$isGameOver}
+              <button
+                class="btn btn-sm variant-filled-primary w-full mt-2"
+                on:click={() => handleActivateCard(card.instanceId)}
+              >
+                Activate
+              </button>
+            {/if}
+          </div>
+        {:else}
+          <div class="col-span-5 text-center text-sm opacity-50">No cards in hand</div>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card p-4 space-y-4">
+      <h2 class="text-xl font-bold mb-4">Actions</h2>
+
+      <div class="grid grid-cols-3 gap-4">
+        <button class="btn variant-filled-primary" on:click={handleDrawCard} disabled={$isGameOver}> Draw Card </button>
+
+        <button class="btn variant-filled-secondary" on:click={handleAdvancePhase} disabled={$isGameOver}>
+          Advance Phase
+        </button>
+
+        <button class="btn variant-filled-tertiary" on:click={handleCheckVictory}>Check Victory</button>
+      </div>
+    </div>
+
+    <!-- Game Result -->
+    {#if $isGameOver}
+      <div class="card p-4 bg-success-500/10">
+        <h2 class="text-xl font-bold mb-2">Game Over!</h2>
+        <p class="text-lg">
+          Winner: <span class="font-bold">{$gameResult.winner === "player" ? "You" : "Opponent"}</span>
+        </p>
+        {#if $gameResult.reason}
+          <p class="text-sm opacity-75">Reason: {$gameResult.reason}</p>
+        {/if}
+        {#if $gameResult.message}
+          <p class="text-sm mt-2">{$gameResult.message}</p>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- Debug Info -->
+    <details class="card p-4">
+      <summary class="cursor-pointer font-bold">Debug Info</summary>
+      <pre class="text-xs mt-4 overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>
+    </details>
   </main>
 </div>
