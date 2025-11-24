@@ -184,7 +184,7 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 - [x] T065 Run formatter (npm run format) on all modified files
 - [x] T066 Verify test coverage is ≥80% for domain layer with npm run test:coverage (v8 coverage tool not installed, skipped for now)
 - [x] T067 Run full test suite (unit + integration + E2E) and ensure all pass (204/204 tests passing)
-- [ ] T068 Manual testing of simulator-v2 functionality
+- [x] T068 Manual testing of simulator functionality (accessible at http://localhost:5173/simulator/greedy-exodia-deck)
 
 ---
 
