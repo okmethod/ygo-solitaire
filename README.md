@@ -1,55 +1,104 @@
 # Yu-Gi-Oh! ソリティア
 
-## プロジェクト概要
-特定の遊戯王カードの1ターンキルコンボをシミュレートするWebアプリケーションを実装する。
-あらかじめ用意されたデッキから1つを選択して先攻1ターン目をプレイし、勝利条件を満たすことを目的とするゲームとする。
+> 「詰将棋」のような感覚でプレイする、遊戯王1ターンキル・シミュレーター
 
-## 設計のコンセプト
-- 静的なデッキレシピ管理と読み込み： `DeckLoader` クラス
-  - メインデッキ・EXデッキについて、カードID/効果クラス/枚数 を指定してデッキレシピを構築する
-    - 伝統的なワンキルデッキのデッキレシピを、あらかじめ用意しておく
-  - デッキを1つを選択し、ゲームで使用できるデッキデータとしてロードする
-    - カードの詳細情報は、YGOProDeckAPI を使用して取得する
-- 効果処理の登録管理: `EffectRepository` クラス
-  - 「要素効果」と「カード効果」を分けて考え、「要素効果」を再利用しつつ「カード効果」を実装する
-- ゲーム状態の一括管理: `DuelContext` クラス
-  - ゲームのセットアップ
-    - `DeckLoader` クラスにより、デッキデータをロードする
-    - `EffectRepository` クラスにより、デッキに含まれるカードの効果のみをロードする
-  - ゲームの進行
-    - ユーザのアクションを受け取り、可否判定し、効果処理し、状態反映する
-    - 描画用コンポーネントは、本クラスの一部を受け取り、表示と操作トリガーを担う
+## 🎮 プロジェクト概要
 
-## UI/UX
-- デッキ選択
-- デッキレシピ・デッキ解説の確認
-- デュエルシミュレーター（先攻1ターン目＋後攻1ターン目冒頭のみ）
+Webブラウザ上で手軽に遊戯王の「先攻1ターンキル」を挑戦・練習できるアプリケーション。
 
---- 
+- あらかじめ用意されたデッキを選択
+- 先攻1ターン目をプレイし、勝利条件（エクゾディア勝利等）を目指す
+- 対戦相手はカカシ（気兼ねも思考待ち時間もゼロ）
 
-## ローカルでの起動方法
+詳細なプロジェクトコンセプトは [docs/README.md](docs/README.md) を参照してください。
 
-- コンテナ起動
+## 🏗️ アーキテクチャ
 
-  ```sh
-  docker compose up
-  ```
+Clean Architecture（3層構造）を採用：
 
-- ブラウザでアクセス
+```
+Domain Layer     → ゲームルール（純粋TypeScript）
+Application Layer → ユースケース（Commands, Stores）
+Presentation Layer → UI（Svelte 5 + Skeleton UI）
+```
 
-  http://localhost:5173/
+**技術スタック**:
+- **フロントエンド**: SvelteKit + Svelte 5 + Skeleton UI + TailwindCSS
+- **状態管理**: Svelte Stores + Immer.js（不変性保証）
+- **テスト**: Vitest（204 tests） + Playwright（16 E2E tests）
+- **バックエンド**: FastAPI + Python（オプション）
+
+詳細は [docs/architecture/overview.md](docs/architecture/overview.md) を参照してください。
+
+## 📚 ドキュメント
+
+プロジェクトの詳細なドキュメントは [docs/](docs/) に整理されています：
+
+- **[docs/README.md](docs/README.md)**: ドキュメント目次とプロジェクトコンセプト
+- **[docs/domain/](docs/domain/)**: 遊戯王ルールとスコープ管理
+- **[docs/architecture/](docs/architecture/)**: アーキテクチャ設計とテスト戦略
+- **[docs/development/](docs/development/)**: 開発環境セットアップとコーディング規約
+- **[docs/adr/](docs/adr/)**: 設計判断記録（ADR）
 
 ---
 
-## インターネットへの公開方法
+## 🚀 クイックスタート
 
-- 静的アセットデプロイ
+### 1. 開発環境起動
 
-  ```sh
-  (cd skeleton-app && npm run build)
-  (cd skeleton-app && npm run deploy)
-  ```
+```bash
+# フロントエンドのみ起動
+cd skeleton-app
+npm install
+npm run dev
+```
 
-- ブラウザでアクセス
+ブラウザでアクセス: http://localhost:5173/
 
-  https://okmethod.github.io/ygo-solitaire/
+### 2. Docker Composeで起動（フルスタック）
+
+```bash
+docker compose up
+```
+
+- フロントエンド: http://localhost:5173/
+- バックエンドAPI: http://localhost:8000/
+
+### 3. テスト実行
+
+```bash
+cd skeleton-app
+npm run test:run      # Unit tests (204 tests)
+npm run test:e2e      # E2E tests (16 tests)
+npm run lint          # Linter check
+```
+
+詳細な開発手順は [docs/development/setup.md](docs/development/setup.md) を参照してください。
+
+---
+
+## 🌐 デプロイ
+
+GitHub Pagesへの静的デプロイ：
+
+```bash
+cd skeleton-app
+npm run build
+npm run deploy
+```
+
+**公開URL**: https://okmethod.github.io/ygo-solitaire/
+
+---
+
+## 🤝 コントリビューション
+
+コントリビューション歓迎！以下を参照してください：
+
+- [開発環境セットアップ](docs/development/setup.md)
+- [コーディング規約](docs/development/conventions.md)
+- [アーキテクチャ概要](docs/architecture/overview.md)
+
+---
+
+**メンテナー**: @okmethod

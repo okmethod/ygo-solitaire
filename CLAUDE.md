@@ -106,34 +106,78 @@ npm run deploy         # build + gh-pages へのデプロイ
 - コミットする際はエラーがない状態で行ってください
 - ファイルを新規追加する場合、そのファイルが Github にPushするべきでないファイル判断した場合には、必ず.gitignoreに指定してください
 
-## ドキュメント
+## ドキュメント体系
 
-プロジェクトの詳細なドキュメントは `docs/` ディレクトリに整理されています：
+プロジェクトドキュメントは**ストック情報**（永続的な知識）と**フロー情報**（プロジェクト単位の作業記録）に分かれています。
 
-### ストック情報（永続的な知識）
-- **[ドメイン知識](docs/domain/)**: 遊戯王ルール、プロジェクトコンセプト
-  - [遊戯王OCG基本ルール](docs/domain/yugioh-rules.md)
-  - [プロジェクトコンセプト](docs/domain/project-concept.md)
-- **[アーキテクチャ](docs/architecture/)**: Clean Architecture、テスト戦略
-  - [アーキテクチャ概要](docs/architecture/overview.md)
-  - [テスト戦略](docs/architecture/testing-strategy.md)
-- **[ADR](docs/adr/)**: 設計判断記録（Architecture Decision Records）
-  - [ADR-0001: Clean Architectureの採用](docs/adr/0001-adopt-clean-architecture.md)
-  - [ADR-0002: Immer.jsによる不変性保証](docs/adr/0002-use-immer-for-immutability.md)
-  - [ADR-0003: Effect System廃止](docs/adr/0003-abolish-effect-system.md)
-- **[開発ガイド](docs/development/)**: セットアップ、コーディング規約
-  - [開発環境セットアップ](docs/development/setup.md)
-  - [コーディング規約](docs/development/conventions.md)
+### 📚 ストック情報（永続的な知識）
 
-### フロー情報（プロジェクト単位）
+**重要**: 新しいセッション開始時は、必ず [docs/README.md](docs/README.md) から読み始めてください。
+
+#### 1. プロジェクト全体の理解
+- **[docs/README.md](docs/README.md)**: ドキュメント目次とプロジェクトコンセプト
+  - プロジェクトの課題・目的・コンセプトを記載
+  - 各サブディレクトリへのナビゲーション
+
+#### 2. ドメイン知識（遊戯王ルール）
+- **[docs/domain/](docs/domain/)**: ゲームルールとスコープ管理
+  - [overview.md](docs/domain/overview.md) ⭐: スコープ定義と実装状況マッピング
+    - やること/やらないことの明確化
+    - ドメイン実装状況（✅完全実装 / 🚧一部実装 / ⏳未実装）
+    - ドメイン知識とコードの対応表
+  - [yugioh-rules.md](docs/domain/yugioh-rules.md): 遊戯王OCG基本ルール
+    - ユビキタス言語（Zone, Action, Effect等）
+    - フェーズシステム、勝利条件、カード種別
+
+#### 3. アーキテクチャ設計
+- **[docs/architecture/](docs/architecture/)**: 技術的な設計方針
+  - [overview.md](docs/architecture/overview.md): Clean Architecture概要
+    - 3層構造（Domain/Application/Presentation）
+    - レイヤー構成と依存関係
+    - 設計原則（不変性、Command Pattern）
+  - [testing-strategy.md](docs/architecture/testing-strategy.md): テスト戦略
+    - テストピラミッド、カバレッジ目標
+    - Unit/Integration/E2E Tests
+
+#### 4. 設計判断の記録
+- **[docs/adr/](docs/adr/)**: Architecture Decision Records
+  - [0001-adopt-clean-architecture.md](docs/adr/0001-adopt-clean-architecture.md): Clean Architecture採用
+  - [0002-use-immer-for-immutability.md](docs/adr/0002-use-immer-for-immutability.md): Immer.js不変性保証
+  - [0003-abolish-effect-system.md](docs/adr/0003-abolish-effect-system.md): Effect System廃止とCommand統一
+
+#### 5. 開発ガイド
+- **[docs/development/](docs/development/)**: 実践的な手順書
+  - [setup.md](docs/development/setup.md): 開発環境セットアップ
+  - [conventions.md](docs/development/conventions.md): コーディング規約
+
+### 📋 フロー情報（プロジェクト単位）
+
 - **[specs/](specs/)**: 機能開発ごとの仕様・計画・タスク
-  - [001-architecture-refactoring](specs/001-architecture-refactoring/): Clean Architectureリファクタリング（完了）
+  - [001-architecture-refactoring/](specs/001-architecture-refactoring/): Clean Architectureリファクタリング（✅完了）
+    - spec.md: 要件定義
+    - plan.md: 実装計画
+    - tasks.md: タスク管理と進捗
 
-## コードアーキテクチャ
+### 🎯 ドキュメント読み方ガイド
+
+**新規参加者**:
+1. [docs/README.md](docs/README.md) - プロジェクトコンセプト
+2. [docs/domain/overview.md](docs/domain/overview.md) - スコープと実装状況
+3. [docs/development/setup.md](docs/development/setup.md) - 環境構築
+4. [docs/architecture/overview.md](docs/architecture/overview.md) - アーキテクチャ理解
+
+**実装開始前**:
+1. [docs/domain/yugioh-rules.md](docs/domain/yugioh-rules.md) - ドメイン用語学習
+2. [docs/development/conventions.md](docs/development/conventions.md) - コーディング規約確認
+3. [docs/adr/](docs/adr/) - 過去の設計判断を理解
+
+**特定の機能実装時**:
+1. [docs/domain/overview.md](docs/domain/overview.md) で該当機能の実装状況を確認
+2. 必要に応じて [specs/](specs/) でフロー情報を参照
+
+## コードアーキテクチャ（概要）
 
 ### Clean Architecture (3層構造)
-
-現在のアーキテクチャは**Clean Architecture**に基づいています：
 
 ```
 Domain Layer (不変・純粋)
@@ -143,56 +187,23 @@ Application Layer (Command Pattern)
 Presentation Layer (Svelte 5 Runes)
 ```
 
-### レイヤー構成
-
-#### Domain Layer (`src/lib/domain/`)
-- **責任**: ゲームルールの純粋なロジック
-- **依存**: なし（Pure TypeScript）
-- **主要コンポーネント**:
-  - `GameState`: 不変なゲーム状態（Immer.jsで更新）
-  - `VictoryRule`: 勝利条件判定
-  - `PhaseRule`: フェーズ遷移ルール
-  - `SpellActivationRule`: 魔法カード発動ルール
-
-#### Application Layer (`src/lib/application/`)
-- **責任**: ユースケースの実装（Command Pattern）
-- **主要コンポーネント**:
-  - `DrawCardCommand`: カードドロー
-  - `ActivateSpellCommand`: 魔法カード発動
-  - `AdvancePhaseCommand`: フェイズ進行
-  - `GameFacade`: UIからの単一窓口
-  - Svelte Stores: 状態管理
-
-#### Presentation Layer (`src/routes/`, `src/lib/components/`)
-- **責任**: UIの描画とユーザー入力
-- **技術**: Svelte 5 + Skeleton UI + TailwindCSS
-
 ### 設計原則
 
 1. **不変性**: Immer.jsで状態を不変更新
 2. **Command Pattern**: すべての操作をCommandクラスで実装
 3. **単方向データフロー**: User Action → Command → State Update → Re-render
-4. **Effect System廃止**: 旧システムは削除、Command Patternに統一（ADR-0003）
+4. **レイヤー境界遵守**: Domain LayerにSvelte依存コードを書かない
 
-### 重要なファイルパス
+### ディレクトリ構造
 
 ```
 skeleton-app/src/lib/
-├── domain/                    # Domain Layer
-│   ├── models/GameState.ts
-│   ├── rules/VictoryRule.ts
-│   └── factories/
-├── application/               # Application Layer
-│   ├── commands/
-│   │   ├── DrawCardCommand.ts
-│   │   └── ActivateSpellCommand.ts
-│   ├── GameFacade.ts
-│   └── stores/gameStateStore.ts
-└── components/                # Presentation Layer
-    └── organisms/board/DuelField.svelte
+├── domain/         # ゲームルール（純粋TypeScript）
+├── application/    # ユースケース（Commands, Stores, Facade）
+└── components/     # UI（Svelte 5）
 ```
 
-詳細は [アーキテクチャ概要](docs/architecture/overview.md) を参照してください。
+**詳細**: [docs/architecture/overview.md](docs/architecture/overview.md) を参照
 
 ## 開発時の注意事項
 - フロントエンドのスタイルは可能な限り TailwindCSS を使用する
