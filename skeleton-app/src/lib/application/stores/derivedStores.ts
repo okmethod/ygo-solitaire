@@ -56,6 +56,11 @@ export const deckCardCount = derived(gameStateStore, ($state) => $state.zones.de
 export const graveyardCardCount = derived(gameStateStore, ($state) => $state.zones.graveyard.length);
 
 /**
+ * Field card count (read-only)
+ */
+export const fieldCardCount = derived(gameStateStore, ($state) => $state.zones.field.length);
+
+/**
  * Number of Exodia pieces in hand (0-5) (read-only)
  */
 export const exodiaPieceCount = derived(gameStateStore, ($state) => countExodiaPiecesInHand($state));

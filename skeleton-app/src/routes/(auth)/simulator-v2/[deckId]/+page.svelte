@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { gameFacade } from "$lib/application/GameFacade";
+  import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
     currentPhase,
     currentTurn,
@@ -9,10 +10,12 @@
     handCardCount,
     deckCardCount,
     graveyardCardCount,
+    fieldCardCount,
     exodiaPieceCount,
     isGameOver,
     gameResult,
   } from "$lib/application/stores/derivedStores";
+  import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
 
   export let data: PageData;
 
@@ -20,24 +23,33 @@
   function handleDrawCard() {
     const result = gameFacade.drawCard(1);
     if (result.success) {
-      console.log("[Simulator-V2] Draw success:", result.message);
+      showSuccessToast(result.message || "カードをドローしました");
     } else {
-      console.error("[Simulator-V2] Draw failed:", result.error);
+      showErrorToast(result.error || "ドローに失敗しました");
     }
   }
 
   function handleAdvancePhase() {
     const result = gameFacade.advancePhase();
     if (result.success) {
-      console.log("[Simulator-V2] Phase advance success:", result.message);
+      showSuccessToast(result.message || "フェイズを進めました");
     } else {
-      console.error("[Simulator-V2] Phase advance failed:", result.error);
+      showErrorToast(result.error || "フェイズ移行に失敗しました");
     }
   }
 
   function handleCheckVictory() {
     const result = gameFacade.checkVictory();
     console.log("[Simulator-V2] Victory check:", result);
+  }
+
+  function handleActivateCard(cardInstanceId: string) {
+    const result = gameFacade.activateSpell(cardInstanceId);
+    if (result.success) {
+      showSuccessToast(result.message || "魔法カードを発動しました");
+    } else {
+      showErrorToast(result.error || "発動に失敗しました");
+    }
   }
 
   // Map phase to Japanese
@@ -114,6 +126,48 @@
             <span class="font-bold text-warning-500">{$exodiaPieceCount} / 5</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Field Zone -->
+    <div class="card p-4 space-y-4">
+      <h2 class="text-xl font-bold">Field</h2>
+
+      <div class="grid grid-cols-5 gap-2">
+        {#each $gameStateStore.zones.field as card (card.instanceId)}
+          <div class="card p-2 bg-surface-700">
+            <p class="text-xs text-center">{card.cardId}</p>
+            <p class="text-xs text-center opacity-75">{card.location}</p>
+          </div>
+        {:else}
+          <div class="col-span-5 text-center text-sm opacity-50">No cards on field</div>
+        {/each}
+      </div>
+
+      <div class="text-sm opacity-75">Field cards: {$fieldCardCount}</div>
+    </div>
+
+    <!-- Hand Zone -->
+    <div class="card p-4 space-y-4">
+      <h2 class="text-xl font-bold">Hand ({$handCardCount} cards)</h2>
+
+      <div class="grid grid-cols-5 gap-2">
+        {#each $gameStateStore.zones.hand as card (card.instanceId)}
+          <div class="card p-2 bg-surface-700 hover:bg-surface-600 cursor-pointer">
+            <p class="text-xs text-center font-bold">{card.cardId}</p>
+            <p class="text-xs text-center opacity-75">{card.instanceId}</p>
+            {#if $currentPhase === "Main1" && !$isGameOver}
+              <button
+                class="btn btn-sm variant-filled-primary w-full mt-2"
+                on:click={() => handleActivateCard(card.instanceId)}
+              >
+                Activate
+              </button>
+            {/if}
+          </div>
+        {:else}
+          <div class="col-span-5 text-center text-sm opacity-50">No cards in hand</div>
+        {/each}
       </div>
     </div>
 
