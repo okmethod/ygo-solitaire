@@ -106,63 +106,93 @@ npm run deploy         # build + gh-pages へのデプロイ
 - コミットする際はエラーがない状態で行ってください
 - ファイルを新規追加する場合、そのファイルが Github にPushするべきでないファイル判断した場合には、必ず.gitignoreに指定してください
 
-## コードアーキテクチャ詳細
+## ドキュメント
 
-### 遊戯王シミュレーターの核心システム
+プロジェクトの詳細なドキュメントは `docs/` ディレクトリに整理されています：
 
-#### ゲーム状態管理
-- **`DuelState.ts`**: ゲーム状態の中核管理クラス（`skeleton-app/src/lib/classes/DuelState.ts`）
-  - デッキ、手札、フィールド、墓地、除外の管理
-  - カードの移動（ドロー、召喚、墓地送り）
-  - 効果システムとの連携
-  - `registerEffectsFromDeckRecipe()`: デッキレシピから効果を動的登録
+### ストック情報（永続的な知識）
+- **[ドメイン知識](docs/domain/)**: 遊戯王ルール、プロジェクトコンセプト
+  - [遊戯王OCG基本ルール](docs/domain/yugioh-rules.md)
+  - [プロジェクトコンセプト](docs/domain/project-concept.md)
+- **[アーキテクチャ](docs/architecture/)**: Clean Architecture、テスト戦略
+  - [アーキテクチャ概要](docs/architecture/overview.md)
+  - [テスト戦略](docs/architecture/testing-strategy.md)
+- **[ADR](docs/adr/)**: 設計判断記録（Architecture Decision Records）
+  - [ADR-0001: Clean Architectureの採用](docs/adr/0001-adopt-clean-architecture.md)
+  - [ADR-0002: Immer.jsによる不変性保証](docs/adr/0002-use-immer-for-immutability.md)
+  - [ADR-0003: Effect System廃止](docs/adr/0003-abolish-effect-system.md)
+- **[開発ガイド](docs/development/)**: セットアップ、コーディング規約
+  - [開発環境セットアップ](docs/development/setup.md)
+  - [コーディング規約](docs/development/conventions.md)
 
-#### カード効果システム（`skeleton-app/src/lib/classes/effects/`）
-効果システムは非同期実行に統一されています（`execute(): Promise<EffectResult>`）
+### フロー情報（プロジェクト単位）
+- **[specs/](specs/)**: 機能開発ごとの仕様・計画・タスク
+  - [001-architecture-refactoring](specs/001-architecture-refactoring/): Clean Architectureリファクタリング（完了）
 
-- **`EffectRepository.ts`**: カードIDと効果インスタンスの対応管理
-  - Singleton パターンで効果インスタンスを一元管理
-  - カードID → Effect インスタンスのマッピング
+## コードアーキテクチャ
 
-- **`CardEffectRegistrar.ts`**: デッキレシピに基づく効果の動的登録
-  - デッキレシピから必要なカード効果のみを登録
-  - メモリ効率とパフォーマンス最適化
+### Clean Architecture (3層構造)
 
-- **基底クラス階層**（`bases/`）:
-  - **`BaseEffect.ts`**: 全効果の基底抽象クラス
-    - 共通処理（前処理、後処理、エラーハンドリング）
-    - 勝利条件チェック機能
-    - `canActivate()`: 発動可能性判定
-    - `execute()`: 効果実行（非同期）
-  - **`BaseMagicEffect.ts`**: 魔法カード効果の基底クラス（BaseEffectを継承）
+現在のアーキテクチャは**Clean Architecture**に基づいています：
 
-- **効果継承階層の例**: `BaseEffect` → `DrawEffect` → `PotOfGreedEffect`
-  - `primitives/DrawEffect.ts`: 汎用ドロー効果（再利用可能な要素効果）
-  - `cards/magic/normal/PotOfGreedEffect.ts`: 強欲な壺（DrawEffectを継承）
-  - `cards/magic/normal/GracefulCharityEffect.ts`: 天使の施し（DrawEffect + DiscardEffectを組み合わせ）
+```
+Domain Layer (不変・純粋)
+  ↓ 依存
+Application Layer (Command Pattern)
+  ↓ 依存
+Presentation Layer (Svelte 5 Runes)
+```
 
-- **効果登録システム**:
-  - **`cards/cardEffects.ts`**: カード固有効果クラスの登録レジストリ
-    - `CARD_EFFECTS` オブジェクトにクラスをエクスポート
-    - 新しいカード効果は1行追加で登録可能
+### レイヤー構成
+
+#### Domain Layer (`src/lib/domain/`)
+- **責任**: ゲームルールの純粋なロジック
+- **依存**: なし（Pure TypeScript）
+- **主要コンポーネント**:
+  - `GameState`: 不変なゲーム状態（Immer.jsで更新）
+  - `VictoryRule`: 勝利条件判定
+  - `PhaseRule`: フェーズ遷移ルール
+  - `SpellActivationRule`: 魔法カード発動ルール
+
+#### Application Layer (`src/lib/application/`)
+- **責任**: ユースケースの実装（Command Pattern）
+- **主要コンポーネント**:
+  - `DrawCardCommand`: カードドロー
+  - `ActivateSpellCommand`: 魔法カード発動
+  - `AdvancePhaseCommand`: フェイズ進行
+  - `GameFacade`: UIからの単一窓口
+  - Svelte Stores: 状態管理
+
+#### Presentation Layer (`src/routes/`, `src/lib/components/`)
+- **責任**: UIの描画とユーザー入力
+- **技術**: Svelte 5 + Skeleton UI + TailwindCSS
+
+### 設計原則
+
+1. **不変性**: Immer.jsで状態を不変更新
+2. **Command Pattern**: すべての操作をCommandクラスで実装
+3. **単方向データフロー**: User Action → Command → State Update → Re-render
+4. **Effect System廃止**: 旧システムは削除、Command Patternに統一（ADR-0003）
 
 ### 重要なファイルパス
-- **効果システム**: `skeleton-app/src/lib/classes/effects/`
-  - `bases/`: 基底クラス（BaseEffect, BaseMagicEffect）
-  - `primitives/`: 再利用可能な要素効果（DrawEffect, DiscardEffect）
-  - `cards/magic/normal/`: 通常魔法カード効果
-  - `__tests__/`: 効果システムのテスト
-- **コアクラス**: `skeleton-app/src/lib/classes/DuelState.ts`
-- **UIコンポーネント**: `skeleton-app/src/lib/components/organisms/board/DuelField.svelte`
-- **デッキ管理**: `skeleton-app/src/lib/utils/deckLoader.ts`
-- **型定義**: `skeleton-app/src/lib/types/`
 
-### 新しいカード効果の追加手順
-1. `skeleton-app/src/lib/classes/effects/cards/magic/normal/` に新しい効果クラスを作成
-2. `BaseEffect` または `BaseMagicEffect`、適切な `primitives/` 効果を継承
-3. `skeleton-app/src/lib/classes/effects/cards/cardEffects.ts` の `CARD_EFFECTS` に登録
-4. `skeleton-app/src/lib/classes/effects/cards/__tests__/` にテストファイルを作成
-5. デッキレシピ（`skeleton-app/src/lib/data/deck-recipes/`）に追加して動作確認
+```
+skeleton-app/src/lib/
+├── domain/                    # Domain Layer
+│   ├── models/GameState.ts
+│   ├── rules/VictoryRule.ts
+│   └── factories/
+├── application/               # Application Layer
+│   ├── commands/
+│   │   ├── DrawCardCommand.ts
+│   │   └── ActivateSpellCommand.ts
+│   ├── GameFacade.ts
+│   └── stores/gameStateStore.ts
+└── components/                # Presentation Layer
+    └── organisms/board/DuelField.svelte
+```
+
+詳細は [アーキテクチャ概要](docs/architecture/overview.md) を参照してください。
 
 ## 開発時の注意事項
 - フロントエンドのスタイルは可能な限り TailwindCSS を使用する
@@ -170,7 +200,8 @@ npm run deploy         # build + gh-pages へのデプロイ
 - バックエンドのリクエスト/レスポンススキーマにはPydanticモデルを使う
 - APIのCORS設定は `fast-api-server/src/main.py` で管理
 - 環境変数は `compose.yaml` の environment セクションで設定
-- 効果システムは非同期（Promise）で統一されているため、`await` を使用する
+- **不変性保持**: すべての状態更新はImmer.jsの`produce()`を使用する
+- **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
-- 001-architecture-refactoring: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+- 001-architecture-refactoring: Clean Architecture完成、Effect System廃止（ADR-0003）、204/204 tests passing
