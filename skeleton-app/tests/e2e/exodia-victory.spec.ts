@@ -12,7 +12,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Exodia Victory Flow", () => {
   test("should detect victory when drawing all 5 Exodia pieces", async ({ page }) => {
     // Navigate to simulator with a test deck ID
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Wait for page to load
     await expect(page.locator("h1")).toContainText("New Architecture Simulator");
@@ -55,7 +55,7 @@ test.describe("Exodia Victory Flow", () => {
   });
 
   test("should show Exodia piece count progression", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw cards one by one and check progression
     for (let i = 1; i <= 3; i++) {
@@ -72,7 +72,7 @@ test.describe("Exodia Victory Flow", () => {
   });
 
   test("should display game result with message", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw all 5 Exodia pieces
     for (let i = 0; i < 5; i++) {

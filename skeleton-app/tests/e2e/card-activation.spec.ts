@@ -12,7 +12,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Card Activation Flow", () => {
   test("should activate spell card from hand", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw a card
     await page.getByRole("button", { name: "Draw Card" }).click();
@@ -48,7 +48,7 @@ test.describe("Card Activation Flow", () => {
   });
 
   test("should not show Activate button outside Main1 phase", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw a card in Draw phase
     await page.getByRole("button", { name: "Draw Card" }).click();
@@ -73,7 +73,7 @@ test.describe("Card Activation Flow", () => {
   });
 
   test("should activate multiple cards in sequence", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw 3 cards
     for (let i = 0; i < 3; i++) {
@@ -110,7 +110,7 @@ test.describe("Card Activation Flow", () => {
   });
 
   test("should show error toast when activation fails", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Note: This test structure assumes there's a way to trigger activation failure
     // For now, we just verify the UI shows appropriate feedback
@@ -128,7 +128,7 @@ test.describe("Card Activation Flow", () => {
   });
 
   test("should disable activation after game over", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw cards until game over (assuming Exodia deck)
     for (let i = 0; i < 5; i++) {
@@ -147,7 +147,7 @@ test.describe("Card Activation Flow", () => {
   });
 
   test("should display card information in hand", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw a card
     await page.getByRole("button", { name: "Draw Card" }).click();
@@ -167,7 +167,7 @@ test.describe("Card Activation Flow", () => {
   });
 
   test("should show field zone updates after activation", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw a card
     await page.getByRole("button", { name: "Draw Card" }).click();

@@ -11,7 +11,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Phase Transition Flow", () => {
   test("should navigate through all phases correctly", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Wait for page to load
     await expect(page.locator("h1")).toContainText("New Architecture Simulator");
@@ -39,7 +39,7 @@ test.describe("Phase Transition Flow", () => {
   });
 
   test("should enable card activation only in Main1 phase", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw a card first
     await page.getByRole("button", { name: "Draw Card" }).click();
@@ -73,7 +73,7 @@ test.describe("Phase Transition Flow", () => {
   });
 
   test("should show toast notifications for phase transitions", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Advance phase and check for toast
     await page.getByRole("button", { name: "Advance Phase" }).click();
@@ -87,7 +87,7 @@ test.describe("Phase Transition Flow", () => {
   });
 
   test("should update turn number display", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Verify initial turn is 1
     const turnDisplay = page.locator("text=/Turn:/").locator("..");
@@ -104,7 +104,7 @@ test.describe("Phase Transition Flow", () => {
   });
 
   test("should disable phase advance when deck is empty in Draw phase", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Note: This test assumes the test deck has limited cards
     // We can't easily test this without knowing exact deck size
@@ -116,7 +116,7 @@ test.describe("Phase Transition Flow", () => {
   });
 
   test("should maintain phase state across actions", async ({ page }) => {
-    await page.goto("/simulator-v2/test-deck");
+    await page.goto("/simulator/test-deck");
 
     // Draw a card
     await page.getByRole("button", { name: "Draw Card" }).click();
