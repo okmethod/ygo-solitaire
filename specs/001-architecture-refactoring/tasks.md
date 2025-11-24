@@ -170,9 +170,9 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 
 ### E2E Testing
 
-- [ ] T053 [US3] E2E test for Exodia victory scenario (draw cards, activate spells, win) in skeleton-app/tests/e2e/exodia-victory.spec.ts
-- [ ] T054 [P] [US3] E2E test for phase transitions in skeleton-app/tests/e2e/phase-transitions.spec.ts
-- [ ] T055 [P] [US3] E2E test for spell activation flow in skeleton-app/tests/e2e/spell-activation.spec.ts
+- [x] T053 [US3] E2E test for Exodia victory scenario (draw cards, activate spells, win) in skeleton-app/tests/e2e/exodia-victory.spec.ts
+- [x] T054 [P] [US3] E2E test for phase transitions in skeleton-app/tests/e2e/phase-transitions.spec.ts
+- [x] T055 [P] [US3] E2E test for spell activation flow in skeleton-app/tests/e2e/card-activation.spec.ts
 
 **Checkpoint**: All user stories should now be independently functional - UI is completely decoupled from domain logic
 
@@ -256,14 +256,14 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 - **Phase 3: User Story 1** - 66% complete (Domain rules + tests done)
 
 ### 🚧 In Progress
-- **Phase 5: User Story 3** - 90% complete
+- **Phase 5: User Story 3** - 100% complete ✅
   - ✅ Commands (DrawCardCommand, AdvancePhaseCommand, ActivateSpellCommand)
   - ✅ Stores (gameStateStore, derivedStores with fieldCardCount)
   - ✅ GameFacade with unit tests
   - ✅ GameStateAdapter + simulator-v2 demo page
   - ✅ All command tests (T045-T048)
   - ✅ UI integration complete (T050-T052)
-  - ⏳ E2E testing pending (T053-T055)
+  - ✅ E2E testing complete (T053-T055)
 
 ### 📊 Test Results
 - **Total Tests**: 298/298 passing
@@ -275,8 +275,9 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 1. ✅ ~~Complete T011 (GameStateInvariants validation)~~ - Done
 2. ✅ ~~Implement T040 (ActivateSpellCommand)~~ - Done
 3. ✅ ~~Migrate existing UI components (T050-T052)~~ - Done
-4. E2E testing (T053-T055) - In Progress
-5. Phase 4 (Effect System) migration
+4. ✅ ~~E2E testing (T053-T055)~~ - Done
+5. **Phase 3 completion** (T012-T014, excluding ChainRule)
+6. Phase 4 (Effect System) migration
 
 ---
 
