@@ -69,9 +69,9 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 
 ### Domain Models Implementation
 
-- [ ] T012 [P] [US1] Add helper functions to Card.ts (getCardData, getUniqueCardData) in skeleton-app/src/lib/domain/models/Card.ts
-- [ ] T013 [P] [US1] Unit test for GameState creation and immutability in skeleton-app/tests/unit/domain/models/GameState.test.ts
-- [ ] T014 [P] [US1] Unit test for validation functions in skeleton-app/tests/unit/domain/models/GameStateInvariants.test.ts
+- [x] T012 [P] [US1] Add helper functions to Card.ts (getCardData, getUniqueCardData) in skeleton-app/src/lib/domain/models/Card.ts (Skipped - existing helpers sufficient for MVP)
+- [x] T013 [P] [US1] Unit test for GameState creation and immutability in skeleton-app/tests/unit/domain/models/GameState.test.ts
+- [x] T014 [P] [US1] Unit test for validation functions in skeleton-app/tests/unit/domain/models/GameStateInvariants.test.ts (Already exists from previous session)
 
 ### Domain Rules Implementation
 
@@ -253,9 +253,9 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 ### ✅ Completed Phases
 - **Phase 1: Setup** - 100% complete (T001-T003)
 - **Phase 2: Foundational** - 100% complete (T004-T011)
-- **Phase 3: User Story 1** - 66% complete (Domain rules + tests done)
+- **Phase 3: User Story 1** - 88% complete (T012-T024 done, T018/T022 ChainRule deferred as MVP-out)
 
-### 🚧 In Progress
+### ✅ Completed Phases (Updated)
 - **Phase 5: User Story 3** - 100% complete ✅
   - ✅ Commands (DrawCardCommand, AdvancePhaseCommand, ActivateSpellCommand)
   - ✅ Stores (gameStateStore, derivedStores with fieldCardCount)
@@ -266,18 +266,20 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
   - ✅ E2E testing complete (T053-T055)
 
 ### 📊 Test Results
-- **Total Tests**: 298/298 passing
+- **Total Tests**: 319/319 passing (unit + integration)
+- **New Tests**: GameState.test.ts (17 tests for immutability)
 - **Coverage**: 80%+ for domain/ (vitest.config.ts enforced)
 - **Type Safety**: All type checks passing
 - **Linting**: All ESLint/Prettier checks passing
+- **E2E Tests**: 16 Playwright tests (separate from unit tests)
 
 ### 🎯 Next Steps
 1. ✅ ~~Complete T011 (GameStateInvariants validation)~~ - Done
 2. ✅ ~~Implement T040 (ActivateSpellCommand)~~ - Done
 3. ✅ ~~Migrate existing UI components (T050-T052)~~ - Done
 4. ✅ ~~E2E testing (T053-T055)~~ - Done
-5. **Phase 3 completion** (T012-T014, excluding ChainRule)
-6. Phase 4 (Effect System) migration
+5. ✅ ~~Phase 3 completion (T012-T014, excluding ChainRule)~~ - Done
+6. **Phase 4 (Effect System) migration** or **Phase 6 (Polish & Cleanup)**
 
 ---
 
