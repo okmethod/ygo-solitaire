@@ -164,9 +164,9 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 
 - [x] T049 [US3] Create GameStateAdapter for DuelState ↔ GameState conversion in skeleton-app/src/lib/presentation/adapters/GameStateAdapter.ts (completed as alternative approach)
 - [x] T049.5 [US3] Create new simulator-v2 page demonstrating new architecture in skeleton-app/src/routes/(auth)/simulator-v2/[deckId]/ (completed as demo)
-- [ ] T050 [US3] Update hand rendering to use $gameState store in skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte
-- [ ] T051 [US3] Update card activation handlers to call GameFacade methods in skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte
-- [ ] T052 [US3] Update phase display to use derived stores in skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte
+- [x] T050 [US3] Update hand rendering to use $gameState store in skeleton-app/src/routes/(auth)/simulator-v2/[deckId]/+page.svelte
+- [x] T051 [US3] Update card activation handlers to call GameFacade methods in skeleton-app/src/routes/(auth)/simulator-v2/[deckId]/+page.svelte
+- [x] T052 [US3] Update phase display to use derived stores in skeleton-app/src/routes/(auth)/simulator-v2/[deckId]/+page.svelte
 
 ### E2E Testing
 
@@ -256,13 +256,14 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 - **Phase 3: User Story 1** - 66% complete (Domain rules + tests done)
 
 ### 🚧 In Progress
-- **Phase 5: User Story 3** - 80% complete
+- **Phase 5: User Story 3** - 90% complete
   - ✅ Commands (DrawCardCommand, AdvancePhaseCommand, ActivateSpellCommand)
-  - ✅ Stores (gameStateStore, derivedStores)
+  - ✅ Stores (gameStateStore, derivedStores with fieldCardCount)
   - ✅ GameFacade with unit tests
   - ✅ GameStateAdapter + simulator-v2 demo page
   - ✅ All command tests (T045-T048)
-  - ⏳ Full UI migration pending (T050-T052)
+  - ✅ UI integration complete (T050-T052)
+  - ⏳ E2E testing pending (T053-T055)
 
 ### 📊 Test Results
 - **Total Tests**: 298/298 passing
@@ -273,8 +274,8 @@ description: "Architecture Refactoring - Separating Game Logic from UI"
 ### 🎯 Next Steps
 1. ✅ ~~Complete T011 (GameStateInvariants validation)~~ - Done
 2. ✅ ~~Implement T040 (ActivateSpellCommand)~~ - Done
-3. Migrate existing UI components (T050-T052)
-4. E2E testing (T053-T055)
+3. ✅ ~~Migrate existing UI components (T050-T052)~~ - Done
+4. E2E testing (T053-T055) - In Progress
 5. Phase 4 (Effect System) migration
 
 ---
