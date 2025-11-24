@@ -59,10 +59,13 @@ export class DrawCardCommand implements GameCommand {
       );
     }
 
+    // Draw cards (returns new immutable zones object)
+    const newZones = drawCards(state.zones, this.count);
+
     // Use Immer to create new state with drawn cards
     const newState = produce(state, (draft) => {
-      // Draw cards (mutate draft)
-      draft.zones = drawCards(draft.zones, this.count);
+      // Replace zones with new zones (type cast to satisfy Immer)
+      draft.zones = newZones as typeof draft.zones;
     });
 
     // Check victory conditions after drawing

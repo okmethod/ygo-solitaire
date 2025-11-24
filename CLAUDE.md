@@ -46,6 +46,12 @@ npm run test:run       # テストを一回実行
 npm run test:coverage  # カバレッジ付きでテスト実行
 npm run test:ui        # Vitest UIでテスト実行
 
+# 特定のテストファイルのみ実行
+npx vitest run src/lib/classes/effects/__tests__/BaseEffect.test.ts
+
+# テストファイルをウォッチモードで実行
+npx vitest src/lib/classes/effects/__tests__/BaseEffect.test.ts
+
 # バックエンド（fast-api-server/ 内で実行）
 uv run poe lint        # ruff format + ruff check + mypy
 uv run poe fix         # ruff format + ruff check --fix
@@ -105,44 +111,66 @@ npm run deploy         # build + gh-pages へのデプロイ
 ### 遊戯王シミュレーターの核心システム
 
 #### ゲーム状態管理
-- **`DuelState.ts`**: ゲーム状態の中核管理クラス
+- **`DuelState.ts`**: ゲーム状態の中核管理クラス（`skeleton-app/src/lib/classes/DuelState.ts`）
   - デッキ、手札、フィールド、墓地、除外の管理
   - カードの移動（ドロー、召喚、墓地送り）
   - 効果システムとの連携
+  - `registerEffectsFromDeckRecipe()`: デッキレシピから効果を動的登録
 
-#### カード効果システム
-- **`EffectRepository.ts`**: カードIDと効果の対応管理
-  - ファクトリーパターンによる効果の遅延生成
+#### カード効果システム（`skeleton-app/src/lib/classes/effects/`）
+効果システムは非同期実行に統一されています（`execute(): Promise<EffectResult>`）
+
+- **`EffectRepository.ts`**: カードIDと効果インスタンスの対応管理
+  - Singleton パターンで効果インスタンスを一元管理
+  - カードID → Effect インスタンスのマッピング
+
+- **`CardEffectRegistrar.ts`**: デッキレシピに基づく効果の動的登録
+  - デッキレシピから必要なカード効果のみを登録
   - メモリ効率とパフォーマンス最適化
 
-- **`BaseEffect.ts`**: 全効果の基底抽象クラス
-  - 共通処理（前処理、後処理、エラーハンドリング）
-  - 勝利条件チェック機能
+- **基底クラス階層**（`bases/`）:
+  - **`BaseEffect.ts`**: 全効果の基底抽象クラス
+    - 共通処理（前処理、後処理、エラーハンドリング）
+    - 勝利条件チェック機能
+    - `canActivate()`: 発動可能性判定
+    - `execute()`: 効果実行（非同期）
+  - **`BaseMagicEffect.ts`**: 魔法カード効果の基底クラス（BaseEffectを継承）
 
-- **効果継承階層**: `BaseEffect` → `DrawEffect` → `PotOfGreedEffect`
-  - `primitives/DrawEffect.ts`: 汎用ドロー効果
-  - `cards/PotOfGreedEffect.ts`: 強欲な壺（DrawEffectを継承）
+- **効果継承階層の例**: `BaseEffect` → `DrawEffect` → `PotOfGreedEffect`
+  - `primitives/DrawEffect.ts`: 汎用ドロー効果（再利用可能な要素効果）
+  - `cards/magic/normal/PotOfGreedEffect.ts`: 強欲な壺（DrawEffectを継承）
+  - `cards/magic/normal/GracefulCharityEffect.ts`: 天使の施し（DrawEffect + DiscardEffectを組み合わせ）
 
-#### 効果登録システム
-- **`CardEffectRegistrar.ts`**: デッキレシピに基づく効果の動的登録
-- **`registry/cardEffectsRegistry.ts`**: 効果クラス登録設定
-  - 新しいカード効果は1行追加で登録可能
+- **効果登録システム**:
+  - **`cards/cardEffects.ts`**: カード固有効果クラスの登録レジストリ
+    - `CARD_EFFECTS` オブジェクトにクラスをエクスポート
+    - 新しいカード効果は1行追加で登録可能
 
 ### 重要なファイルパス
-- **効果システム**: `src/lib/classes/effects/`
-- **コアクラス**: `src/lib/classes/DuelState.ts`
-- **UIコンポーネント**: `src/lib/components/organisms/board/DuelField.svelte`
-- **デッキ管理**: `src/lib/utils/deckLoader.ts`
-- **型定義**: `src/lib/types/`
+- **効果システム**: `skeleton-app/src/lib/classes/effects/`
+  - `bases/`: 基底クラス（BaseEffect, BaseMagicEffect）
+  - `primitives/`: 再利用可能な要素効果（DrawEffect, DiscardEffect）
+  - `cards/magic/normal/`: 通常魔法カード効果
+  - `__tests__/`: 効果システムのテスト
+- **コアクラス**: `skeleton-app/src/lib/classes/DuelState.ts`
+- **UIコンポーネント**: `skeleton-app/src/lib/components/organisms/board/DuelField.svelte`
+- **デッキ管理**: `skeleton-app/src/lib/utils/deckLoader.ts`
+- **型定義**: `skeleton-app/src/lib/types/`
 
 ### 新しいカード効果の追加手順
-1. `src/lib/classes/effects/cards/` に新しい効果クラスを作成
-2. `BaseEffect` または適切な `atoms/` 効果を継承
-3. `src/lib/classes/effects/registry/cardEffectsRegistry.ts` に登録
-4. `src/lib/classes/effects/__tests__/` にテストファイルを作成
+1. `skeleton-app/src/lib/classes/effects/cards/magic/normal/` に新しい効果クラスを作成
+2. `BaseEffect` または `BaseMagicEffect`、適切な `primitives/` 効果を継承
+3. `skeleton-app/src/lib/classes/effects/cards/cardEffects.ts` の `CARD_EFFECTS` に登録
+4. `skeleton-app/src/lib/classes/effects/cards/__tests__/` にテストファイルを作成
+5. デッキレシピ（`skeleton-app/src/lib/data/deck-recipes/`）に追加して動作確認
 
 ## 開発時の注意事項
 - フロントエンドのスタイルは可能な限り TailwindCSS を使用する
+- Svelte 5 のルーン（`$state`, `$derived`, `$effect` など）を活用する
 - バックエンドのリクエスト/レスポンススキーマにはPydanticモデルを使う
-- APIのCORS設定は `fast-api-server/src/main.py:21` で管理
+- APIのCORS設定は `fast-api-server/src/main.py` で管理
 - 環境変数は `compose.yaml` の environment セクションで設定
+- 効果システムは非同期（Promise）で統一されているため、`await` を使用する
+
+## Recent Changes
+- 001-architecture-refactoring: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
