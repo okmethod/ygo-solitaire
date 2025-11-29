@@ -8,6 +8,13 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
+**Progress**: 51/72 tasks (71%) completed | 21 tasks DEFERRED
+
+**Status**:
+- ✅ Phase 1-8: Core implementation complete (T001-T066)
+- ✅ Documentation: Architecture design doc created, CLAUDE.md updated
+- ⏳ Deferred: T023-T025 (GameState migration), T043-T046 (UI migration), T059-T060 (type deletion), T062, T067-T071 (polish)
+
 ---
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -246,8 +253,8 @@ Phase 3では型定義の追加のみを完了し、実際の移行はPhase 4以
 
 ### ドキュメント作成
 
-- [ ] T065 [P] Create docs/architecture/data-model-design.md with data model design documentation (SC-005) (DEFERRED)
-- [ ] T066 [P] Update CLAUDE.md with new data model context (already done by update-agent-context.sh) (DEFERRED)
+- [X] T065 [P] Create docs/architecture/data-model-design.md with data model design documentation (SC-005) ✅
+- [X] T066 [P] Update CLAUDE.md with new data model context ✅
 
 **Checkpoint**: All user stories complete, old types removed, documentation updated
 
