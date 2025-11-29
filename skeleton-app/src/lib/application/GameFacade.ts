@@ -35,12 +35,23 @@ import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
  */
 export class GameFacade {
   /**
-   * Initialize a new game with given deck
+   * Initialize a new game with given deck (数値ID対応版)（T025）
    *
-   * @param deckCardIds - Array of card IDs for the main deck
+   * @param deckCardIds - Array of numeric card IDs for the main deck
    */
-  initializeGame(deckCardIds: string[]): void {
+  initializeGame(deckCardIds: number[]): void {
     resetGameState(deckCardIds);
+  }
+
+  /**
+   * Initialize a new game with given deck (文字列ID互換版)
+   *
+   * @deprecated Use initializeGame with number IDs (T025)
+   * @param deckCardIds - Array of string card IDs for the main deck
+   */
+  initializeGameFromStringIds(deckCardIds: string[]): void {
+    const numericIds = deckCardIds.map((id) => parseInt(id, 10));
+    this.initializeGame(numericIds);
   }
 
   /**

@@ -17,7 +17,7 @@ describe("GameFacade", () => {
 
   describe("initializeGame", () => {
     it("should initialize game with given deck", () => {
-      const deckCardIds = ["12345678", "87654321", "11111111"];
+      const deckCardIds = [12345678, 87654321, 11111111]; // 数値ID (T025)
 
       facade.initializeGame(deckCardIds);
 
@@ -29,17 +29,17 @@ describe("GameFacade", () => {
     });
 
     it("should reset state when called multiple times", () => {
-      facade.initializeGame(["11111111"]);
+      facade.initializeGame([11111111]); // 数値ID (T025)
       expect(get(gameStateStore).zones.deck.length).toBe(1);
 
-      facade.initializeGame(["22222222", "33333333"]);
+      facade.initializeGame([22222222, 33333333]); // 数値ID (T025)
       expect(get(gameStateStore).zones.deck.length).toBe(2);
     });
   });
 
   describe("drawCard", () => {
     beforeEach(() => {
-      facade.initializeGame(["card1", "card2", "card3", "card4", "card5"]);
+      facade.initializeGame([1001, 1002, 1003, 1004, 1005]); // 数値ID (T025)
     });
 
     it("should draw 1 card by default", () => {
@@ -87,7 +87,8 @@ describe("GameFacade", () => {
     it("should detect Exodia victory after drawing", () => {
       // Initialize with 4 Exodia pieces in deck (will be drawn)
       // and 1 Exodia piece already in hand
-      facade.initializeGame([...EXODIA_PIECE_IDS.slice(0, 4)]);
+      const exodiaNumericIds = EXODIA_PIECE_IDS.map((id) => parseInt(id, 10));
+      facade.initializeGame(exodiaNumericIds.slice(0, 4)); // 数値ID (T025)
 
       // Manually set 5th piece in hand (simulating previous draw)
       const state = get(gameStateStore);
@@ -111,7 +112,7 @@ describe("GameFacade", () => {
 
   describe("advancePhase", () => {
     beforeEach(() => {
-      facade.initializeGame(["card1", "card2", "card3"]);
+      facade.initializeGame([1001, 1002, 1003]);
     });
 
     it("should advance from Draw to Standby", () => {
@@ -150,7 +151,7 @@ describe("GameFacade", () => {
 
   describe("getCurrentPhase", () => {
     it("should return current phase", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
 
       expect(facade.getCurrentPhase()).toBe("Draw");
 
@@ -161,7 +162,7 @@ describe("GameFacade", () => {
 
   describe("getGameState", () => {
     it("should return current state snapshot", () => {
-      facade.initializeGame(["card1", "card2"]);
+      facade.initializeGame([1001, 1002]);
 
       const state = facade.getGameState();
 
@@ -173,7 +174,7 @@ describe("GameFacade", () => {
 
   describe("activateSpell", () => {
     it("should successfully activate spell card from hand", () => {
-      facade.initializeGame(["card1", "card2", "card3", "card4"]);
+      facade.initializeGame([1001, 1002, 1003, 1004]);
       facade.drawCard(1);
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
@@ -193,7 +194,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when not in Main1 phase", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
       facade.drawCard(1);
       // Still in Draw phase
 
@@ -207,7 +208,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when card is not in hand", () => {
-      facade.initializeGame(["card1", "card2", "card3"]);
+      facade.initializeGame([1001, 1002, 1003]);
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
 
@@ -218,7 +219,7 @@ describe("GameFacade", () => {
     });
 
     it("should not update store on failed activation", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
       const initialState = get(gameStateStore);
 
       facade.activateSpell("non-existent-card-id");
@@ -230,7 +231,7 @@ describe("GameFacade", () => {
 
   describe("canActivateCard", () => {
     it("should return true for card in hand during Main1 phase", () => {
-      facade.initializeGame(["card1", "card2", "card3"]); // Need multiple cards
+      facade.initializeGame([1001, 1002, 1003]); // Need multiple cards
       facade.drawCard(1);
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
@@ -245,13 +246,13 @@ describe("GameFacade", () => {
     });
 
     it("should return false for card not in hand", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
 
       expect(facade.canActivateCard("non-existent-id")).toBe(false);
     });
 
     it("should return false for card in wrong phase", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
       facade.drawCard(1);
       // Still in Draw phase
 
@@ -264,7 +265,7 @@ describe("GameFacade", () => {
 
   describe("checkVictory", () => {
     it("should return game not over initially", () => {
-      facade.initializeGame(["card1", "card2"]);
+      facade.initializeGame([1001, 1002]);
 
       const result = facade.checkVictory();
 
@@ -273,7 +274,8 @@ describe("GameFacade", () => {
     });
 
     it("should detect Exodia victory", () => {
-      facade.initializeGame([...EXODIA_PIECE_IDS]);
+      const exodiaNumericIds = EXODIA_PIECE_IDS.map((id) => parseInt(id, 10));
+      facade.initializeGame(exodiaNumericIds); // 数値ID (T025)
       facade.drawCard(5); // Draw all Exodia pieces
 
       const result = facade.checkVictory();
@@ -286,7 +288,7 @@ describe("GameFacade", () => {
 
   describe("getCurrentTurn", () => {
     it("should return current turn number", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
 
       expect(facade.getCurrentTurn()).toBe(1);
     });
@@ -294,7 +296,7 @@ describe("GameFacade", () => {
 
   describe("getPlayerLP and getOpponentLP", () => {
     it("should return initial life points", () => {
-      facade.initializeGame(["card1"]);
+      facade.initializeGame([1001]);
 
       expect(facade.getPlayerLP()).toBe(8000);
       expect(facade.getOpponentLP()).toBe(8000);

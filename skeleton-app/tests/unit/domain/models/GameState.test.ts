@@ -15,8 +15,8 @@ import { EXODIA_PIECE_IDS } from "$lib/domain/models/constants";
 
 describe("GameState", () => {
   describe("createInitialGameState", () => {
-    it("should create initial state with given deck", () => {
-      const deckCardIds = ["card1", "card2", "card3"];
+    it("should create initial state with given deck (numeric IDs)", () => {
+      const deckCardIds = [1001, 1002, 1003]; // 数値ID
       const state = createInitialGameState(deckCardIds);
 
       expect(state.zones.deck.length).toBe(3);
@@ -27,7 +27,7 @@ describe("GameState", () => {
     });
 
     it("should initialize with correct default values", () => {
-      const state = createInitialGameState(["card1"]);
+      const state = createInitialGameState([1001]); // 数値ID
 
       expect(state.lp.player).toBe(8000);
       expect(state.lp.opponent).toBe(8000);
@@ -38,7 +38,7 @@ describe("GameState", () => {
     });
 
     it("should create unique instance IDs for deck cards", () => {
-      const state = createInitialGameState(["card1", "card2", "card3"]);
+      const state = createInitialGameState([1001, 1002, 1003]); // 数値ID
 
       const instanceIds = state.zones.deck.map((card) => card.instanceId);
       const uniqueIds = new Set(instanceIds);
@@ -48,7 +48,7 @@ describe("GameState", () => {
     });
 
     it("should set correct location for deck cards", () => {
-      const state = createInitialGameState(["card1", "card2"]);
+      const state = createInitialGameState([1001, 1002]); // 数値ID
 
       state.zones.deck.forEach((card) => {
         expect(card.location).toBe("deck");
@@ -65,7 +65,7 @@ describe("GameState", () => {
 
   describe("Immutability with Immer", () => {
     it("should create new state instance when updated", () => {
-      const originalState = createInitialGameState(["card1", "card2", "card3"]);
+      const originalState = createInitialGameState([1001, 1002, 1003]); // 数値ID
 
       const newState = produce(originalState, (draft) => {
         draft.turn = 2;
@@ -77,7 +77,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating zones", () => {
-      const originalState = createInitialGameState(["card1", "card2", "card3"]);
+      const originalState = createInitialGameState([1001, 1002, 1003]); // 数値ID
       const originalDeckLength = originalState.zones.deck.length;
 
       const newState = produce(originalState, (draft) => {
@@ -94,7 +94,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating life points", () => {
-      const originalState = createInitialGameState(["card1"]);
+      const originalState = createInitialGameState([1001]); // 数値ID
 
       const newState = produce(originalState, (draft) => {
         draft.lp.player = 7000;
@@ -105,7 +105,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating phase", () => {
-      const originalState = createInitialGameState(["card1"]);
+      const originalState = createInitialGameState([1001]); // 数値ID
 
       const newState = produce(originalState, (draft) => {
         draft.phase = "Main1";
@@ -116,7 +116,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating chain stack", () => {
-      const originalState = createInitialGameState(["card1"]);
+      const originalState = createInitialGameState([1001]); // 数値ID
 
       const newState = produce(originalState, (draft) => {
         draft.chainStack.push({
@@ -130,7 +130,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating game result", () => {
-      const originalState = createInitialGameState(["card1"]);
+      const originalState = createInitialGameState([1001]); // 数値ID
 
       const newState = produce(originalState, (draft) => {
         draft.result.isGameOver = true;
@@ -145,7 +145,7 @@ describe("GameState", () => {
     });
 
     it("should support nested updates without mutation", () => {
-      const originalState = createInitialGameState(["card1", "card2"]);
+      const originalState = createInitialGameState([1001, 1002]); // 数値ID
 
       const newState = produce(originalState, (draft) => {
         // Move card from deck to hand
@@ -177,17 +177,17 @@ describe("GameState", () => {
   describe("Helper functions", () => {
     describe("findCardInstance", () => {
       it("should find card in deck", () => {
-        const state = createInitialGameState(["card1", "card2", "card3"]);
+        const state = createInitialGameState([1001, 1002, 1003]); // 数値ID
         const card = findCardInstance(state, "deck-0");
 
         expect(card).toBeDefined();
         expect(card?.instanceId).toBe("deck-0");
-        expect(card?.cardId).toBe("card1");
+        expect(card?.cardId).toBe("1001");
         expect(card?.location).toBe("deck");
       });
 
       it("should find card in hand", () => {
-        const state = produce(createInitialGameState(["card1"]), (draft) => {
+        const state = produce(createInitialGameState([1001]), (draft) => {
           const card = draft.zones.deck.pop();
           if (card) {
             card.location = "hand";
@@ -201,14 +201,14 @@ describe("GameState", () => {
       });
 
       it("should return undefined for non-existent card", () => {
-        const state = createInitialGameState(["card1"]);
+        const state = createInitialGameState([1001]); // 数値ID
         const card = findCardInstance(state, "non-existent-id");
 
         expect(card).toBeUndefined();
       });
 
       it("should search across all zones", () => {
-        const state = produce(createInitialGameState(["card1", "card2", "card3"]), (draft) => {
+        const state = produce(createInitialGameState([1001, 1002, 1003]), (draft) => {
           // Move cards to different zones
           const card1 = draft.zones.deck.pop();
           if (card1) {
@@ -231,7 +231,9 @@ describe("GameState", () => {
 
     describe("hasExodiaInHand", () => {
       it("should return true when all 5 Exodia pieces are in hand", () => {
-        const state = produce(createInitialGameState([...EXODIA_PIECE_IDS]), (draft) => {
+        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
+        const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
+        const state = produce(createInitialGameState(exodiaNumericIds), (draft) => {
           // Move all Exodia pieces to hand
           draft.zones.hand = draft.zones.deck.map((card) => ({
             ...card,
@@ -244,7 +246,9 @@ describe("GameState", () => {
       });
 
       it("should return false when only 4 Exodia pieces are in hand", () => {
-        const state = produce(createInitialGameState(EXODIA_PIECE_IDS.slice(0, 4)), (draft) => {
+        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
+        const exodiaNumericIds = EXODIA_PIECE_IDS.slice(0, 4).map((id) => parseInt(id, 10));
+        const state = produce(createInitialGameState(exodiaNumericIds), (draft) => {
           draft.zones.hand = draft.zones.deck.map((card) => ({
             ...card,
             location: "hand" as const,
@@ -256,13 +260,17 @@ describe("GameState", () => {
       });
 
       it("should return false when no cards are in hand", () => {
-        const state = createInitialGameState([...EXODIA_PIECE_IDS]);
+        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
+        const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
+        const state = createInitialGameState(exodiaNumericIds);
 
         expect(hasExodiaInHand(state)).toBe(false);
       });
 
       it("should return false when Exodia pieces are in different zones", () => {
-        const state = produce(createInitialGameState([...EXODIA_PIECE_IDS]), (draft) => {
+        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
+        const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
+        const state = produce(createInitialGameState(exodiaNumericIds), (draft) => {
           // Move only 3 pieces to hand, rest stay in deck
           for (let i = 0; i < 3; i++) {
             const card = draft.zones.deck.shift();
@@ -280,7 +288,7 @@ describe("GameState", () => {
 
   describe("Type safety", () => {
     it("should enforce readonly at compile time", () => {
-      const state = createInitialGameState(["card1"]);
+      const state = createInitialGameState([1001]); // 数値ID (T023)
 
       // These should cause TypeScript errors if uncommented:
       // state.turn = 2; // Error: Cannot assign to 'turn' because it is a read-only property

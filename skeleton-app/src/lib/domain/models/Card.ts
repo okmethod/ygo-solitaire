@@ -232,3 +232,78 @@ export function isDomainCardData(obj: unknown): obj is DomainCardData {
 
   return true;
 }
+
+// ==================== Phase 1: 互換層（T023-T025 Migration Support） ====================
+
+/**
+ * カードIDからカードタイプを推論（一時的な実装）（T018）
+ *
+ * GameState移行時の互換層として使用。
+ * 将来的にはYGOPRODeck APIから型情報を取得すべき。
+ *
+ * @deprecated API統合後は外部APIから取得すべき
+ * @param cardId - YGOPRODeck API互換の数値またはstring カードID
+ * @returns SimpleCardType
+ */
+export function inferCardTypeFromId(cardId: string | number): SimpleCardType {
+  const id = typeof cardId === "string" ? parseInt(cardId, 10) : cardId;
+
+  // 既知のカードIDのハードコード（一時的）
+  // TODO: 将来的にはYGOPRODeck APIから取得
+  const KNOWN_MONSTER_IDS = [
+    33396948, // Exodia the Forbidden One
+    7902349, // Right Arm of the Forbidden One
+    70903634, // Left Arm of the Forbidden One
+    8124921, // Right Leg of the Forbidden One
+    44519536, // Left Leg of the Forbidden One
+  ];
+  const KNOWN_SPELL_IDS = [
+    55144522, // Pot of Greed
+    79571449, // Graceful Charity
+  ];
+  const KNOWN_TRAP_IDS: number[] = [];
+
+  if (KNOWN_MONSTER_IDS.includes(id)) return "monster";
+  if (KNOWN_SPELL_IDS.includes(id)) return "spell";
+  if (KNOWN_TRAP_IDS.includes(id)) return "trap";
+
+  // デフォルトはmonster（後で修正）
+  console.warn(`Unknown card ID: ${id}, defaulting to "monster"`);
+  return "monster";
+}
+
+/**
+ * CardInstanceからDomainCardDataへの変換（一時的なヘルパー）（T023 Migration）
+ *
+ * @deprecated 移行完了後に削除予定
+ * @param instance - CardInstance オブジェクト
+ * @returns DomainCardData
+ */
+export function convertCardInstanceToDomainCardData(instance: CardInstance): DomainCardData {
+  return {
+    id: parseInt(instance.cardId, 10),
+    type: inferCardTypeFromId(instance.cardId),
+    frameType: undefined, // 必要に応じて取得
+  };
+}
+
+/**
+ * DomainCardDataからCardInstanceへの変換（一時的なヘルパー）（T023 Migration）
+ *
+ * @deprecated 移行完了後に削除予定
+ * @param card - DomainCardData オブジェクト
+ * @param instanceId - ユニークインスタンスID
+ * @param location - カードの現在位置
+ * @returns CardInstance
+ */
+export function convertDomainCardDataToCardInstance(
+  card: DomainCardData,
+  instanceId: string,
+  location: ZoneLocation,
+): CardInstance {
+  return {
+    instanceId,
+    cardId: card.id.toString(),
+    location,
+  };
+}
