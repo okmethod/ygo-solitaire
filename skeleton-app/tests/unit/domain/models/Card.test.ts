@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  isDomainCardData,
-  isDomainMonsterCard,
-  isDomainSpellCard,
-  isDomainTrapCard,
-} from "$lib/domain/models/Card";
+import { isDomainCardData, isDomainMonsterCard, isDomainSpellCard, isDomainTrapCard } from "$lib/domain/models/Card";
 import type { DomainCardData } from "$lib/domain/models/Card";
 
 describe("isDomainCardData (T026)", () => {

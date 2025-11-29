@@ -2,7 +2,7 @@
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import CardList from "$lib/components/organisms/CardList.svelte";
-  import type { Card, CardData } from "$lib/types/card";
+  import type { Card, CardData, CardDisplayData } from "$lib/types/card";
   import type { LoadedCardEntry } from "$lib/types/deck";
 
   interface CardListModalProps {
@@ -38,7 +38,7 @@
         existing.quantity += 1;
       } else {
         cardMap.set(card.id, {
-          cardData: card as CardData, // Card を CardData にキャスト
+          cardData: card as CardDisplayData, // Card を CardDisplayData にキャスト
           quantity: 1,
         });
       }

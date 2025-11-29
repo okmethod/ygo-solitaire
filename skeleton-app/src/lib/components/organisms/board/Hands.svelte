@@ -145,7 +145,7 @@
   function canActivateEffect(card: Card): boolean {
     const effects = duelState.getEffectsForCard(card.id);
     const canActivate = effects.some((effect: { canActivate: (state: DuelState) => boolean }) =>
-      effect.canActivate(duelState)
+      effect.canActivate(duelState),
     );
     if (effects.length > 0) {
       console.log(`[Hands] カード「${card.name}」効果発動可能: ${canActivate}`);

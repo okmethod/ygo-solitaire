@@ -13,7 +13,7 @@ const mockExodia: YGOProDeckCard = {
   name: "Exodia the Forbidden One",
   type: "Effect Monster",
   frameType: "effect",
-  desc: "If you have \"Right Leg of the Forbidden One\", \"Left Leg of the Forbidden One\", \"Right Arm of the Forbidden One\" and \"Left Arm of the Forbidden One\" in addition to this card in your hand, you win the Duel.",
+  desc: 'If you have "Right Leg of the Forbidden One", "Left Leg of the Forbidden One", "Right Arm of the Forbidden One" and "Left Arm of the Forbidden One" in addition to this card in your hand, you win the Duel.',
   atk: 1000,
   def: 1000,
   level: 3,
@@ -110,15 +110,12 @@ describe("getCardsByIds - with mock (T011, T012)", () => {
     const cards = await getCardsByIds(mockFetch2, [33396948, 55144522]);
 
     expect(cards).toHaveLength(2);
-    expect(cards.find(c => c.id === 33396948)?.name).toBe("Exodia the Forbidden One");
-    expect(cards.find(c => c.id === 55144522)?.name).toBe("Pot of Greed");
+    expect(cards.find((c) => c.id === 33396948)?.name).toBe("Exodia the Forbidden One");
+    expect(cards.find((c) => c.id === 55144522)?.name).toBe("Pot of Greed");
 
     // Pot of Greedのみリクエスト（Exodiaはキャッシュヒット）
     expect(mockFetch2).toHaveBeenCalledTimes(1);
-    expect(mockFetch2).toHaveBeenCalledWith(
-      expect.stringContaining("id=55144522"),
-      expect.any(Object)
-    );
+    expect(mockFetch2).toHaveBeenCalledWith(expect.stringContaining("id=55144522"), expect.any(Object));
   });
 
   it("should return empty array for empty input", async () => {
@@ -186,10 +183,7 @@ describe("Card ID Resolution Integration Test (T034)", () => {
     expect(cards[1].name).toBe("Pot of Greed");
 
     // APIリクエストが正しいIDで呼ばれたことを確認
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("id=33396948,55144522"),
-      expect.any(Object)
-    );
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("id=33396948,55144522"), expect.any(Object));
   });
 
   it("should handle batch card ID resolution", async () => {

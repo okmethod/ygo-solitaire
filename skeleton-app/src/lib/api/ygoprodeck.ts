@@ -32,10 +32,7 @@ export function clearCache(): void {
  * @returns {Promise<YGOProDeckResponseJson | null>} APIレスポンス（エラー時はnull）
  * @throws {Error} Rate limit exceeded (429)
  */
-async function fetchYGOProDeckAPI(
-  fetchFunction: typeof fetch,
-  path: string
-): Promise<YGOProDeckResponseJson | null> {
+async function fetchYGOProDeckAPI(fetchFunction: typeof fetch, path: string): Promise<YGOProDeckResponseJson | null> {
   const requestInit = constructRequestInit();
   const requestConfig = {
     ...requestInit,
@@ -52,9 +49,7 @@ async function fetchYGOProDeckAPI(
 
       // Rate limit検出（429 Too Many Requests）
       if (response.status === 429) {
-        throw new Error(
-          "YGOPRODeck API rate limit exceeded. Please reduce request frequency."
-        );
+        throw new Error("YGOPRODeck API rate limit exceeded. Please reduce request frequency.");
       }
 
       return null;
@@ -86,10 +81,7 @@ export async function getCardById(fetchFunction: typeof fetch, id: number): Prom
  * // キャッシュヒット率の向上（バッチリクエスト）
  * const cards = await getCardsByIds(fetch, [33396948, 70903634, 7902349]);
  */
-export async function getCardsByIds(
-  fetchFunction: typeof fetch,
-  ids: number[]
-): Promise<YGOProDeckCard[]> {
+export async function getCardsByIds(fetchFunction: typeof fetch, ids: number[]): Promise<YGOProDeckCard[]> {
   if (ids.length === 0) return [];
 
   // キャッシュヒット/ミスを分離（T010）

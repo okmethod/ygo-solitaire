@@ -1,10 +1,7 @@
 {
   "id": 33396948,
   "name": "Exodia the Forbidden One",
-  "typeline": [
-    "Spellcaster",
-    "Effect"
-  ],
+  "typeline": ["Spellcaster", "Effect"],
   "type": "Effect Monster",
   "humanReadableCardType": "Effect Monster",
   "frameType": "effect",

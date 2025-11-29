@@ -119,13 +119,13 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
   if (typeof entry.id !== "number" || !Number.isInteger(entry.id) || entry.id <= 0) {
     throw new Error(
       `Invalid card ID: ${entry.id}. ` +
-        `RecipeCardEntry must have a valid positive integer ID (YGOPRODeck API compatible).`
+        `RecipeCardEntry must have a valid positive integer ID (YGOPRODeck API compatible).`,
     );
   }
 
   if (typeof entry.quantity !== "number" || !Number.isInteger(entry.quantity) || entry.quantity <= 0) {
     throw new Error(
-      `Invalid quantity: ${entry.quantity} for card ID ${entry.id}. ` + `Quantity must be a positive integer.`
+      `Invalid quantity: ${entry.quantity} for card ID ${entry.id}. ` + `Quantity must be a positive integer.`,
     );
   }
 }

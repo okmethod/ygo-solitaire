@@ -42,7 +42,7 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
       mockFetch,
       expect.arrayContaining([
         expect.any(Number), // カードIDは数値であること
-      ])
+      ]),
     );
   });
 

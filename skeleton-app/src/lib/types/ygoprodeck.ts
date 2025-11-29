@@ -58,8 +58,7 @@ function normalizeType(type: string): CardType {
   // 未知のカードタイプはエラーとして扱う（T007）
   console.error(`Unknown card type: ${type}`);
   throw new Error(
-    `Unable to normalize card type: "${type}". ` +
-      `Expected type containing "monster", "spell", or "trap".`
+    `Unable to normalize card type: "${type}". ` + `Expected type containing "monster", "spell", or "trap".`,
   );
 }
 
