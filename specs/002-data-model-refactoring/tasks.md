@@ -156,14 +156,14 @@ Phase 3では型定義の追加のみを完了し、実際の移行はPhase 4以
 
 ### Presentation Layer型定義の追加
 
-- [ ] T037 [P] [US2] Add CardDisplayData interface in skeleton-app/src/lib/types/card.ts
-- [ ] T038 [P] [US2] Add CardImages interface in skeleton-app/src/lib/types/card.ts
-- [ ] T039 [P] [US2] Add MonsterAttributes interface in skeleton-app/src/lib/types/card.ts
-- [ ] T040 [P] [US2] Add @deprecated marker to existing Card type in skeleton-app/src/lib/types/card.ts
+- [X] T037 [P] [US2] Add CardDisplayData interface in skeleton-app/src/lib/types/card.ts
+- [X] T038 [P] [US2] Add CardImages interface in skeleton-app/src/lib/types/card.ts
+- [X] T039 [P] [US2] Add MonsterAttributes interface in skeleton-app/src/lib/types/card.ts
+- [X] T040 [P] [US2] Add @deprecated marker to existing Card type in skeleton-app/src/lib/types/card.ts
 
 ### データ変換関数の実装
 
-- [ ] T041 [US2] Implement convertToCardDisplayData() function in skeleton-app/src/lib/types/ygoprodeck.ts
+- [X] T041 [US2] Implement convertToCardDisplayData() function in skeleton-app/src/lib/types/ygoprodeck.ts
 
 ### Presentation Layerファイルの移行
 

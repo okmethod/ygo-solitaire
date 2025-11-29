@@ -231,7 +231,7 @@ describe("GameState", () => {
 
     describe("hasExodiaInHand", () => {
       it("should return true when all 5 Exodia pieces are in hand", () => {
-        const state = produce(createInitialGameState(EXODIA_PIECE_IDS), (draft) => {
+        const state = produce(createInitialGameState([...EXODIA_PIECE_IDS]), (draft) => {
           // Move all Exodia pieces to hand
           draft.zones.hand = draft.zones.deck.map((card) => ({
             ...card,
@@ -256,13 +256,13 @@ describe("GameState", () => {
       });
 
       it("should return false when no cards are in hand", () => {
-        const state = createInitialGameState(EXODIA_PIECE_IDS);
+        const state = createInitialGameState([...EXODIA_PIECE_IDS]);
 
         expect(hasExodiaInHand(state)).toBe(false);
       });
 
       it("should return false when Exodia pieces are in different zones", () => {
-        const state = produce(createInitialGameState(EXODIA_PIECE_IDS), (draft) => {
+        const state = produce(createInitialGameState([...EXODIA_PIECE_IDS]), (draft) => {
           // Move only 3 pieces to hand, rest stay in deck
           for (let i = 0; i < 3; i++) {
             const card = draft.zones.deck.shift();

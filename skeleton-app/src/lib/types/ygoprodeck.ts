@@ -1,4 +1,4 @@
-import type { Card, CardData, CardType } from "$lib/types/card";
+import type { Card, CardData, CardDisplayData, CardImages, MonsterAttributes, CardType } from "$lib/types/card";
 
 interface YGOProDeckCardImage {
   id: number;
@@ -114,4 +114,50 @@ export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard): Card {
  */
 export function convertYGOProDeckCardsToCards(apiCards: YGOProDeckCard[]): Card[] {
   return apiCards.map((card) => convertYGOProDeckCardToCard(card));
+}
+
+/**
+ * YGOPRODeck API カードデータをCardDisplayDataに変換（T041）
+ *
+ * Presentation Layer用の新しい変換関数。
+ * CardDataとは異なり、画像とモンスター属性を明示的な型で返す。
+ *
+ * @param apiCard - YGOPRODeck APIから取得したカードデータ
+ * @returns CardDisplayData - UI表示用カードデータ
+ */
+export function convertToCardDisplayData(apiCard: YGOProDeckCard): CardDisplayData {
+  const cardType = normalizeType(apiCard.type);
+  const cardImage = apiCard.card_images[0];
+
+  // 画像データの変換
+  const images: CardImages | undefined = cardImage
+    ? {
+        image: cardImage.image_url,
+        imageSmall: cardImage.image_url_small,
+        imageCropped: cardImage.image_url_cropped,
+      }
+    : undefined;
+
+  // モンスターカード属性の変換
+  const monsterAttributes: MonsterAttributes | undefined =
+    cardType === "monster" && apiCard.atk !== undefined && apiCard.def !== undefined && apiCard.level !== undefined
+      ? {
+          attack: apiCard.atk,
+          defense: apiCard.def,
+          level: apiCard.level,
+          attribute: apiCard.attribute ?? "",
+          race: apiCard.race ?? "",
+        }
+      : undefined;
+
+  return {
+    id: apiCard.id,
+    name: apiCard.name,
+    type: cardType,
+    description: apiCard.desc,
+    frameType: apiCard.frameType,
+    archetype: apiCard.archetype,
+    monsterAttributes,
+    images,
+  };
 }

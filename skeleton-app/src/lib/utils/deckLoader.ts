@@ -107,6 +107,30 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
 }
 
 /**
+ * RecipeCardEntry のバリデーション（T032）
+ *
+ * カードIDが有効な数値であることを確認。
+ * YGOPRODeck API互換性を保証する。
+ *
+ * @param entry - RecipeCardEntry オブジェクト
+ * @throws Error カードIDが無効な場合
+ */
+function validateRecipeCardEntry(entry: RecipeCardEntry): void {
+  if (typeof entry.id !== "number" || !Number.isInteger(entry.id) || entry.id <= 0) {
+    throw new Error(
+      `Invalid card ID: ${entry.id}. ` +
+        `RecipeCardEntry must have a valid positive integer ID (YGOPRODeck API compatible).`
+    );
+  }
+
+  if (typeof entry.quantity !== "number" || !Number.isInteger(entry.quantity) || entry.quantity <= 0) {
+    throw new Error(
+      `Invalid quantity: ${entry.quantity} for card ID ${entry.id}. ` + `Quantity must be a positive integer.`
+    );
+  }
+}
+
+/**
  * デッキレシピからデッキデータを生成する
  */
 export async function loadDeckData(deckId: string, fetch: typeof window.fetch): Promise<DeckData> {
@@ -117,6 +141,12 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
 
   // メインデッキとエクストラデッキの全カード ID を取得
   const allCardEntries = [...recipe.mainDeck, ...recipe.extraDeck];
+
+  // RecipeCardEntry のバリデーション（T032）
+  for (const entry of allCardEntries) {
+    validateRecipeCardEntry(entry);
+  }
+
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
   // API でカード情報を取得
