@@ -27,7 +27,7 @@ export interface YGOProDeckCard {
   id: number;
   name: string;
   type: string;
-  frameType: string;
+  frameType?: string; // ✅ オプショナルフィールドに変更（T005）
   desc: string;
   atk?: number;
   def?: number;
@@ -41,15 +41,26 @@ export interface YGOProDeckCard {
   card_prices?: YGOProDeckCardPrice[];
 }
 
-// カードタイプを正規化する内部関数
+/**
+ * カードタイプを正規化する内部関数（T007改善）
+ *
+ * YGOPRODeck APIのtype文字列をCardTypeに変換
+ * @param {string} type - YGOPRODeck APIのtype文字列
+ * @returns {CardType} 正規化されたカードタイプ
+ * @throws {Error} 未知のカードタイプ
+ */
 function normalizeType(type: string): CardType {
   const lowerType = type.toLowerCase();
   if (lowerType.includes("monster")) return "monster";
   if (lowerType.includes("spell")) return "spell";
   if (lowerType.includes("trap")) return "trap";
 
-  // デフォルトはmonster（安全のため）
-  return "monster";
+  // 未知のカードタイプはエラーとして扱う（T007）
+  console.error(`Unknown card type: ${type}`);
+  throw new Error(
+    `Unable to normalize card type: "${type}". ` +
+      `Expected type containing "monster", "spell", or "trap".`
+  );
 }
 
 export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardData {

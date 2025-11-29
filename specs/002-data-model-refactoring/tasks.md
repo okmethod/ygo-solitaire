@@ -38,16 +38,16 @@
 
 ### Setup Tasks
 
-- [ ] T001 Create test fixtures directory at skeleton-app/tests/fixtures/ygoprodeck/
-- [ ] T002 [P] Create fixture file for Exodia at skeleton-app/tests/fixtures/ygoprodeck/exodia.json
-- [ ] T003 [P] Create fixture file for Pot of Greed at skeleton-app/tests/fixtures/ygoprodeck/pot-of-greed.json
-- [ ] T004 [P] Create fixture file for Graceful Charity at skeleton-app/tests/fixtures/ygoprodeck/graceful-charity.json
+- [X] T001 Create test fixtures directory at skeleton-app/tests/fixtures/ygoprodeck/
+- [X] T002 [P] Create fixture file for Exodia at skeleton-app/tests/fixtures/ygoprodeck/exodia.json
+- [X] T003 [P] Create fixture file for Pot of Greed at skeleton-app/tests/fixtures/ygoprodeck/pot-of-greed.json
+- [X] T004 [P] Create fixture file for Graceful Charity at skeleton-app/tests/fixtures/ygoprodeck/graceful-charity.json
 
 ### YGOPRODeck API型定義の修正（すべてのUser Storiesの基盤）
 
-- [ ] T005 Update YGOProDeckCard interface in skeleton-app/src/lib/types/ygoprodeck.ts (frameType → optional)
-- [ ] T006 [P] Improve fetchYGOProDeckAPI error handling in skeleton-app/src/lib/api/ygoprodeck.ts (add logging, 429 detection)
-- [ ] T007 [P] Improve normalizeType function in skeleton-app/src/lib/types/ygoprodeck.ts (throw error for unknown types)
+- [X] T005 Update YGOProDeckCard interface in skeleton-app/src/lib/types/ygoprodeck.ts (frameType → optional)
+- [X] T006 [P] Improve fetchYGOProDeckAPI error handling in skeleton-app/src/lib/api/ygoprodeck.ts (add logging, 429 detection)
+- [X] T007 [P] Improve normalizeType function in skeleton-app/src/lib/types/ygoprodeck.ts (throw error for unknown types)
 
 **Checkpoint**: YGOPRODeck API型定義が修正され、エラーハンドリングが強化された
 
@@ -61,15 +61,15 @@
 
 ### キャッシュ実装
 
-- [ ] T008 Add memory cache (Map<number, YGOProDeckCard>) in skeleton-app/src/lib/api/ygoprodeck.ts
-- [ ] T009 Implement clearCache() function in skeleton-app/src/lib/api/ygoprodeck.ts
-- [ ] T010 Update getCardsByIds() to use cache in skeleton-app/src/lib/api/ygoprodeck.ts
+- [X] T008 Add memory cache (Map<number, YGOProDeckCard>) in skeleton-app/src/lib/api/ygoprodeck.ts
+- [X] T009 Implement clearCache() function in skeleton-app/src/lib/api/ygoprodeck.ts
+- [X] T010 Update getCardsByIds() to use cache in skeleton-app/src/lib/api/ygoprodeck.ts
 
 ### テストモック基盤
 
-- [ ] T011 [P] Create Vitest unit test file at skeleton-app/tests/unit/api/ygoprodeck.test.ts
-- [ ] T012 [P] Implement cache hit/miss test in skeleton-app/tests/unit/api/ygoprodeck.test.ts
-- [ ] T013 [P] Update E2E test to mock YGOPRODeck API in skeleton-app/tests/e2e/playwright/specs/deck-loading.spec.ts
+- [X] T011 [P] Create Vitest unit test file at skeleton-app/tests/unit/api/ygoprodeck.test.ts
+- [X] T012 [P] Implement cache hit/miss test in skeleton-app/tests/unit/api/ygoprodeck.test.ts
+- [X] T013 [P] Update E2E test to mock YGOPRODeck API in skeleton-app/tests/e2e/deck-loading.spec.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
