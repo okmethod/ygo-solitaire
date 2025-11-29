@@ -215,4 +215,9 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
+- 002-data-model-refactoring: Added TypeScript 5.x (SvelteKit + Vite環境)
 - 001-architecture-refactoring: Clean Architecture完成、Effect System廃止（ADR-0003）、204/204 tests passing
+
+## Active Technologies
+- TypeScript 5.x (SvelteKit + Vite環境) (002-data-model-refactoring)
+- N/A (フロントエンドのみ、外部API依存) (002-data-model-refactoring)

@@ -21,9 +21,9 @@ interface CardImageProperties {
 }
 
 /**
- * 静的なカードマスターデータ
- * APIから取得される不変のカード情報を表現
- * デッキレシピやカードデータベースで使用
+ * 静的なカードマスターデータ（Presentation Layer用）
+ * YGOPRODeck APIから取得される不変のカード情報を表現
+ * UIコンポーネントやデッキレシピで使用
  */
 export interface CardData {
   // 必須プロパティ
@@ -44,7 +44,7 @@ export interface CardData {
 }
 
 /**
- * ゲーム内で使用する動的なカードインスタンス
+ * ゲーム内で使用する動的なカードインスタンス（Presentation Layer用）
  * CardDataにゲーム状態（選択状態、フィールド上の位置など）を追加
  * 実際のデュエル中にのみ使用
  */

@@ -83,21 +83,21 @@
 
 ### Domain Layer型定義の追加
 
-- [ ] T014 [P] [US1] Add DomainCardData interface in skeleton-app/src/lib/domain/models/Card.ts
-- [ ] T015 [P] [US1] Add CardType type definition in skeleton-app/src/lib/domain/models/Card.ts
-- [ ] T016 [P] [US1] Add @deprecated marker to existing CardData type in skeleton-app/src/lib/domain/models/Card.ts
+- [X] T014 [P] [US1] Add DomainCardData interface in skeleton-app/src/lib/domain/models/Card.ts
+- [X] T015 [P] [US1] Add SimpleCardType type definition in skeleton-app/src/lib/domain/models/Card.ts
+- [X] T016 [P] [US1] Add @deprecated marker to existing CardData type in skeleton-app/src/lib/domain/models/Card.ts
 
-### Domain Layer変換関数の実装
+### Domain Layer変換関数の実装（スキップ - T019のみ実装）
 
-- [ ] T017 [US1] Implement createDomainCardData() function in skeleton-app/src/lib/domain/models/Card.ts
-- [ ] T018 [US1] Implement inferCardTypeFromId() function in skeleton-app/src/lib/domain/models/Card.ts (temporary)
-- [ ] T019 [US1] Implement validateDomainCardData() function in skeleton-app/src/lib/domain/models/Card.ts
+- [ ] T017 [US1] Implement createDomainCardData() function (SKIPPED - 必要に応じて後で追加)
+- [ ] T018 [US1] Implement inferCardTypeFromId() function (SKIPPED - 必要に応じて後で追加)
+- [X] T019 [US1] Implement isDomainCardData() validation function in skeleton-app/src/lib/domain/models/Card.ts
 
 ### Domain Layer型ガードの実装
 
-- [ ] T020 [P] [US1] Implement isMonsterCard() type guard in skeleton-app/src/lib/domain/models/Card.ts
-- [ ] T021 [P] [US1] Implement isSpellCard() type guard in skeleton-app/src/lib/domain/models/Card.ts
-- [ ] T022 [P] [US1] Implement isTrapCard() type guard in skeleton-app/src/lib/domain/models/Card.ts
+- [X] T020 [P] [US1] Implement isDomainMonsterCard() type guard in skeleton-app/src/lib/domain/models/Card.ts
+- [X] T021 [P] [US1] Implement isDomainSpellCard() type guard in skeleton-app/src/lib/domain/models/Card.ts
+- [X] T022 [P] [US1] Implement isDomainTrapCard() type guard in skeleton-app/src/lib/domain/models/Card.ts
 
 ### Domain Layerファイルの移行
 
@@ -107,8 +107,8 @@
 
 ### Domain Layer単体テストの更新
 
-- [ ] T026 [P] [US1] Create unit test for DomainCardData validation in skeleton-app/tests/unit/domain/models/Card.test.ts
-- [ ] T027 [P] [US1] Create unit test for type guards in skeleton-app/tests/unit/domain/models/Card.test.ts
+- [X] T026 [P] [US1] Create unit test for DomainCardData validation in skeleton-app/tests/unit/domain/models/Card.test.ts
+- [X] T027 [P] [US1] Create unit test for type guards in skeleton-app/tests/unit/domain/models/Card.test.ts
 - [ ] T028 [US1] Update existing Domain Layer tests to use DomainCardData in skeleton-app/tests/unit/domain/
 
 ### 検証
