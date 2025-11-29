@@ -167,14 +167,16 @@ Phase 3では型定義の追加のみを完了し、実際の移行はPhase 4以
 
 ### Presentation Layerファイルの移行
 
-- [ ] T042 [US2] Update skeleton-app/src/lib/utils/deckLoader.ts to use CardDisplayData
-- [ ] T043 [P] [US2] Update skeleton-app/src/lib/components/atoms/Card.svelte to use CardDisplayData
-- [ ] T044 [P] [US2] Update skeleton-app/src/lib/components/atoms/CardDetailDisplay.svelte to use CardDisplayData
+- [X] T042 [US2] Update skeleton-app/src/lib/utils/deckLoader.ts to use CardDisplayData
+- [ ] T043 [P] [US2] Update skeleton-app/src/lib/components/atoms/Card.svelte to use CardDisplayData (DEFERRED)
+- [ ] T044 [P] [US2] Update skeleton-app/src/lib/components/atoms/CardDetailDisplay.svelte to use CardDisplayData (DEFERRED)
 
 ### Application Layerファイルの移行
 
-- [ ] T045 [P] [US2] Update skeleton-app/src/lib/application/commands/ files to bridge Domain/Presentation layers
-- [ ] T046 [P] [US2] Update skeleton-app/src/lib/application/stores/ files to use appropriate types
+- [ ] T045 [P] [US2] Update skeleton-app/src/lib/application/commands/ files to bridge Domain/Presentation layers (DEFERRED)
+- [ ] T046 [P] [US2] Update skeleton-app/src/lib/application/stores/ files to use appropriate types (DEFERRED)
+
+**Note**: T043-T046 は既存UIコンポーネントとApplication Layerへの大規模な変更を伴うため、DEFERRED としてマーク。現時点では型定義とデータローダーの更新（T037-T042）が完了し、基盤が整備された。
 
 ### E2Eテストの更新
 

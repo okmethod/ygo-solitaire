@@ -1,4 +1,4 @@
-import type { CardData } from "$lib/types/card";
+import type { CardData, CardDisplayData } from "$lib/types/card";
 
 /**
  * レシピ保存時のカードエントリー（ID + 枚数 + 効果情報）
@@ -11,11 +11,20 @@ export interface RecipeCardEntry {
 }
 
 /**
- * ロード済みカードエントリー（CardData + 枚数）
+ * ロード済みカードエントリー（CardDisplayData + 枚数）（T042）
  * APIからロードしたカードデータと枚数の組み合わせ
- * UI表示やゲーム処理で使用
+ * UI表示用の新しいPresentation Layer型を使用
  */
 export interface LoadedCardEntry {
+  cardData: CardDisplayData; // カードのUI表示データ
+  quantity: number; // 枚数
+}
+
+/**
+ * レガシーロード済みカードエントリー
+ * @deprecated Use LoadedCardEntry with CardDisplayData (T042)
+ */
+export interface LegacyLoadedCardEntry {
   cardData: CardData; // カードの静的データ
   quantity: number; // 枚数
 }

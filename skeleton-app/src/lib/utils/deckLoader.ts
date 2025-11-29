@@ -7,7 +7,7 @@ import type {
   MainDeckData,
   ExtraDeckData,
 } from "$lib/types/deck";
-import { convertYGOProDeckCardToCardData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
+import { convertToCardDisplayData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
 import { getCardsByIds } from "$lib/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
@@ -20,7 +20,7 @@ function buildMainDeckData(ygoCardMap: Map<number, YGOProDeckCard>, entries: Rec
   for (const entry of entries) {
     const ygoCard = ygoCardMap.get(entry.id);
     if (ygoCard) {
-      const cardData = convertYGOProDeckCardToCardData(ygoCard);
+      const cardData = convertToCardDisplayData(ygoCard);
       const loadedEntry: LoadedCardEntry = {
         cardData: cardData,
         quantity: entry.quantity,
@@ -53,7 +53,7 @@ function buildExtraDeckData(ygoCardMap: Map<number, YGOProDeckCard>, entries: Re
   for (const entry of entries) {
     const ygoCard = ygoCardMap.get(entry.id);
     if (ygoCard) {
-      const cardData = convertYGOProDeckCardToCardData(ygoCard);
+      const cardData = convertToCardDisplayData(ygoCard);
       const loadedEntry: LoadedCardEntry = {
         cardData: cardData,
         quantity: entry.quantity,
