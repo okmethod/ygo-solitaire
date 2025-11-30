@@ -2,14 +2,14 @@
  * Card - Type definitions for card data and instances
  *
  * Defines:
- * - DomainCardData: Minimal card data for game logic 
+ * - DomainCardData: Minimal card data for game logic
  * - CardInstance: Runtime representation with unique instanceId
  *
  * @module domain/models/Card
  */
 
 /**
- * Simplified card type for Domain Layer 
+ * Simplified card type for Domain Layer
  *
  * YGOPRODeck API互換の簡略化型。
  * ゲームロジックに必要な最小限の3カテゴリのみを表現。

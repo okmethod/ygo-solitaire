@@ -1,0 +1,140 @@
+/**
+ * cardDisplayStore - CardInstance → CardDisplayData変換ストア
+ *
+ * gameStateStoreの変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
+ * YGOPRODeck APIからカード詳細情報を取得し、UI表示用のデータを提供する。
+ *
+ * @module application/stores/cardDisplayStore
+ */
+
+import { derived, type Readable } from "svelte/store";
+import { gameStateStore } from "./gameStateStore";
+import { getCardsByIds } from "$lib/api/ygoprodeck";
+import { convertYGOProDeckCardsToCards } from "$lib/types/ygoprodeck";
+import type { CardDisplayData } from "$lib/types/card";
+
+/**
+ * 手札のCardDisplayData配列を提供
+ *
+ * gameStateStoreの変更を監視し、自動的にYGOPRODeck APIから取得。
+ * キャッシュヒット時は即座に返す。
+ * エラー時は空配列を返す（placeholder表示）。
+ *
+ * Usage:
+ * ```svelte
+ * <script>
+ *   import { handCards } from '$lib/application/stores/cardDisplayStore';
+ * </script>
+ * <div>Hand: {$handCards.length} cards</div>
+ * {#each $handCards as card (card.id)}
+ *   <Card {card} />
+ * {/each}
+ * ```
+ */
+export const handCards: Readable<CardDisplayData[]> = derived(
+  gameStateStore,
+  ($gameState, set) => {
+    const cardIds = $gameState.zones.hand.map((c) => parseInt(c.cardId, 10));
+
+    if (cardIds.length === 0) {
+      set([]);
+      return;
+    }
+
+    getCardsByIds(fetch, cardIds)
+      .then((apiCards) => {
+        const cards = convertYGOProDeckCardsToCards(apiCards);
+        set(cards);
+      })
+      .catch((err) => {
+        console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
+        set([]); // エラー時は空配列（placeholder表示）
+      });
+  },
+  [] as CardDisplayData[], // 初期値
+);
+
+/**
+ * フィールドのCardDisplayData配列を提供
+ *
+ * gameStateStoreのzones.fieldを監視。
+ * モンスター・魔法・罠すべてを含む。
+ */
+export const fieldCards: Readable<CardDisplayData[]> = derived(
+  gameStateStore,
+  ($gameState, set) => {
+    const cardIds = $gameState.zones.field.map((c) => parseInt(c.cardId, 10));
+
+    if (cardIds.length === 0) {
+      set([]);
+      return;
+    }
+
+    getCardsByIds(fetch, cardIds)
+      .then((apiCards) => {
+        const cards = convertYGOProDeckCardsToCards(apiCards);
+        set(cards);
+      })
+      .catch((err) => {
+        console.error("[cardDisplayStore] Failed to fetch field cards:", err);
+        set([]);
+      });
+  },
+  [] as CardDisplayData[],
+);
+
+/**
+ * 墓地のCardDisplayData配列を提供
+ *
+ * gameStateStoreのzones.graveyardを監視。
+ */
+export const graveyardCards: Readable<CardDisplayData[]> = derived(
+  gameStateStore,
+  ($gameState, set) => {
+    const cardIds = $gameState.zones.graveyard.map((c) => parseInt(c.cardId, 10));
+
+    if (cardIds.length === 0) {
+      set([]);
+      return;
+    }
+
+    getCardsByIds(fetch, cardIds)
+      .then((apiCards) => {
+        const cards = convertYGOProDeckCardsToCards(apiCards);
+        set(cards);
+      })
+      .catch((err) => {
+        console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
+        set([]);
+      });
+  },
+  [] as CardDisplayData[],
+);
+
+/**
+ * 除外ゾーンのCardDisplayData配列を提供
+ *
+ * gameStateStoreのzones.banishedを監視。
+ */
+export const banishedCards: Readable<CardDisplayData[]> = derived(
+  gameStateStore,
+  ($gameState, set) => {
+    const cardIds = $gameState.zones.banished.map((c) => parseInt(c.cardId, 10));
+
+    if (cardIds.length === 0) {
+      set([]);
+      return;
+    }
+
+    getCardsByIds(fetch, cardIds)
+      .then((apiCards) => {
+        const cards = convertYGOProDeckCardsToCards(apiCards);
+        set(cards);
+      })
+      .catch((err) => {
+        console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
+        set([]);
+      });
+  },
+  [] as CardDisplayData[],
+);

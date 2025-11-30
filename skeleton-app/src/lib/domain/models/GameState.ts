@@ -83,7 +83,7 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
 }
 
 /**
- * Helper to check if the player has won via Exodia 
+ * Helper to check if the player has won via Exodia
  *
  * 数値ID比較に更新（先頭ゼロの問題を回避）
  *

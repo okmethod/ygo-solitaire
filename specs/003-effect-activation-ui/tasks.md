@@ -27,11 +27,11 @@
 
 **Purpose**: プロジェクト初期化と基本構造確認
 
-- [ ] T001 開発環境セットアップ確認（Node.js 18+、npm依存関係インストール済み）
-- [ ] T002 [P] ブランチ `003-effect-activation-ui` の作業準備確認
-- [ ] T003 [P] 既存のgameStateStore、derivedStores動作確認（skeleton-app/src/lib/application/stores/）
+- [X] T001 開発環境セットアップ確認（Node.js 18+、npm依存関係インストール済み）
+- [X] T002 [P] ブランチ `003-effect-activation-ui` の作業準備確認
+- [X] T003 [P] 既存のgameStateStore、derivedStores動作確認（skeleton-app/src/lib/application/stores/）
 
-**Checkpoint**: 開発環境準備完了
+**Checkpoint**: ✅ 開発環境準備完了
 
 ---
 
@@ -41,16 +41,16 @@
 
 **⚠️ CRITICAL**: このフェーズが完了するまで、ユーザーストーリー作業は開始できない
 
-- [ ] T004 cardDisplayStore.tsの骨格作成（skeleton-app/src/lib/application/stores/cardDisplayStore.ts）- derivedストア4つのexport定義
-- [ ] T005 [P] handCards derivedストアの実装（gameStateStore.zones.handを監視、getCardsByIds()呼び出し）
-- [ ] T006 [P] fieldCards derivedストアの実装（gameStateStore.zones.fieldを監視）
-- [ ] T007 [P] graveyardCards derivedストアの実装（gameStateStore.zones.graveyardを監視）
-- [ ] T008 [P] banishedCards derivedストアの実装（gameStateStore.zones.banishedを監視）
-- [ ] T009 エラーハンドリング追加（API失敗時の空配列返却、console.errorログ）
-- [ ] T010 cardDisplayStore単体テスト作成（skeleton-app/src/lib/application/stores/__tests__/cardDisplayStore.test.ts）
-- [ ] T011 テスト実行・合格確認（`npm run test:run`）
+- [X] T004 cardDisplayStore.tsの骨格作成（skeleton-app/src/lib/application/stores/cardDisplayStore.ts）- derivedストア4つのexport定義
+- [X] T005 [P] handCards derivedストアの実装（gameStateStore.zones.handを監視、getCardsByIds()呼び出し）
+- [X] T006 [P] fieldCards derivedストアの実装（gameStateStore.zones.fieldを監視）
+- [X] T007 [P] graveyardCards derivedストアの実装（gameStateStore.zones.graveyardを監視）
+- [X] T008 [P] banishedCards derivedストアの実装（gameStateStore.zones.banishedを監視）
+- [X] T009 エラーハンドリング追加（API失敗時の空配列返却、console.errorログ）
+- [X] T010 cardDisplayStore単体テスト作成（tests/unit/cardDisplayStore.test.ts - 10テストケース）
+- [X] T011 テスト実行・合格確認（`npm run test:run` - 249/249 tests passing）
 
-**Checkpoint**: cardDisplayStoreが完全に動作し、テスト合格
+**Checkpoint**: ✅ cardDisplayStoreが完全に動作し、テスト合格
 
 ---
 
