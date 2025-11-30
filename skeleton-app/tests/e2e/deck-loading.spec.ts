@@ -4,9 +4,9 @@
 import { test, expect } from "@playwright/test";
 
 // フィクスチャのインポート（実際のYGOPRODeck APIレスポンスと同じ形式）
-import exodiaFixture from "../fixtures/ygoprodeck/exodia.json";
-import potOfGreedFixture from "../fixtures/ygoprodeck/pot-of-greed.json";
-import gracefulCharityFixture from "../fixtures/ygoprodeck/graceful-charity.json";
+import exodiaFixture from "../fixtures/ygoprodeck/exodia.json" assert { type: "json" };
+import potOfGreedFixture from "../fixtures/ygoprodeck/pot-of-greed.json" assert { type: "json" };
+import gracefulCharityFixture from "../fixtures/ygoprodeck/graceful-charity.json" assert { type: "json" };
 
 test.describe("Deck Loading with mocked API (T013)", () => {
   test.beforeEach(async ({ page }) => {
