@@ -135,6 +135,14 @@ npm run deploy         # build + gh-pages へのデプロイ
     - 3層構造（Domain/Application/Presentation）
     - レイヤー構成と依存関係
     - 設計原則（不変性、Command Pattern）
+  - [data-model-design.md](docs/architecture/data-model-design.md): データモデル設計 ⭐
+    - 3層データモデル（DomainCardData / CardDisplayData）
+    - YGOPRODeck API統合とキャッシング戦略
+    - 型の互換性と段階的移行パス
+  - [migration-strategy.md](docs/architecture/migration-strategy.md): GameState/Rules 段階的移行戦略
+    - 文字列ID → 数値ID移行（T023-T025）
+    - ファイル単位の段階的移行計画
+    - リスク管理とテスト戦略
   - [testing-strategy.md](docs/architecture/testing-strategy.md): テスト戦略
     - テストピラミッド、カバレッジ目標
     - Unit/Integration/E2E Tests
@@ -187,23 +195,89 @@ Application Layer (Command Pattern)
 Presentation Layer (Svelte 5 Runes)
 ```
 
+### データモデル設計 (重要)
+
+**3層データモデル構造**（詳細: [docs/architecture/data-model-design.md](docs/architecture/data-model-design.md)）:
+
+```
+┌─────────────────────────────────────────┐
+│     Presentation Layer                  │
+│  CardDisplayData (UI表示用完全データ)    │
+│  - 全プロパティ (name, images, etc.)     │
+└─────────────────────────────────────────┘
+              ▲
+              │ convertToCardDisplayData()
+              │
+┌─────────────────────────────────────────┐
+│     Application Layer                   │
+│  YGOPRODeck API統合・データ変換         │
+│  - getCardsByIds() (バッチ+キャッシュ)   │
+└─────────────────────────────────────────┘
+              ▲
+              │ API Response
+              │
+┌─────────────────────────────────────────┐
+│     Domain Layer                        │
+│  DomainCardData (ゲームロジック用)       │
+│  - id: number, type, frameType のみ     │
+└─────────────────────────────────────────┘
+```
+
+**重要な型定義**:
+- **`DomainCardData`**: ゲームロジック用最小データ (`src/lib/domain/models/Card.ts`)
+  ```typescript
+  interface DomainCardData {
+    id: number;              // YGOPRODeck API互換
+    type: SimpleCardType;    // "monster" | "spell" | "trap"
+    frameType?: string;
+  }
+  ```
+
+- **`CardDisplayData`**: UI表示用完全データ (`src/lib/types/card.ts`)
+  ```typescript
+  interface CardDisplayData {
+    id: number;
+    name: string;
+    type: CardType;
+    description: string;
+    monsterAttributes?: MonsterAttributes;
+    images?: CardImages;
+    // ... 他の表示用プロパティ
+  }
+  ```
+
+**データ変換フロー**:
+```
+YGOPRODeck API → YGOProDeckCard → convertToCardDisplayData() → CardDisplayData
+```
+
+**API最適化**:
+- **バッチリクエスト**: `getCardsByIds([id1, id2, ...])` で複数カードを一度に取得
+- **メモリキャッシュ**: セッション単位でカードデータをキャッシュ（重複リクエスト防止）
+
 ### 設計原則
 
 1. **不変性**: Immer.jsで状態を不変更新
 2. **Command Pattern**: すべての操作をCommandクラスで実装
 3. **単方向データフロー**: User Action → Command → State Update → Re-render
 4. **レイヤー境界遵守**: Domain LayerにSvelte依存コードを書かない
+5. **データ分離**: Domain層は最小データ、Presentation層は完全データ
 
 ### ディレクトリ構造
 
 ```
 skeleton-app/src/lib/
 ├── domain/         # ゲームルール（純粋TypeScript）
+│   └── models/     # DomainCardData, GameState
 ├── application/    # ユースケース（Commands, Stores, Facade）
+├── types/          # Presentation Layer型（CardDisplayData）
+├── api/            # YGOPRODeck API統合
 └── components/     # UI（Svelte 5）
 ```
 
-**詳細**: [docs/architecture/overview.md](docs/architecture/overview.md) を参照
+**詳細**:
+- アーキテクチャ全体: [docs/architecture/overview.md](docs/architecture/overview.md)
+- データモデル設計: [docs/architecture/data-model-design.md](docs/architecture/data-model-design.md)
 
 ## 開発時の注意事項
 - フロントエンドのスタイルは可能な限り TailwindCSS を使用する
@@ -215,4 +289,13 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
+- 002-data-model-refactoring: 3層データモデル実装完了（DomainCardData/CardDisplayData）
+  - YGOPRODeck API統合とキャッシング機能追加
+  - 239/239 tests passing
+  - アーキテクチャドキュメント整備（docs/architecture/data-model-design.md）
 - 001-architecture-refactoring: Clean Architecture完成、Effect System廃止（ADR-0003）、204/204 tests passing
+
+## Active Technologies
+- TypeScript 5.x (SvelteKit + Vite環境) (002-data-model-refactoring)
+- YGOPRODeck API v7（カードデータ取得、バッチリクエスト、メモリキャッシュ）
+- N/A (フロントエンドのみ、外部API依存) (002-data-model-refactoring)

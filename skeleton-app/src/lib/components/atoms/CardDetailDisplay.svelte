@@ -3,6 +3,7 @@
   import Icon from "@iconify/svelte";
   import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
+  import type { MonsterAttributes } from "$lib/types/card";
 
   const isVisible = $derived(!!$selectedCardForDisplay);
 
@@ -67,11 +68,12 @@
     </div>
 
     <div id="card-image-description" class="text-sm space-y-2">
-      {#if $selectedCardForDisplay.type === "monster" && $selectedCardForDisplay.monster}
+      {#if $selectedCardForDisplay.type === "monster" && $selectedCardForDisplay.monsterAttributes}
+        {@const monsterData: MonsterAttributes = $selectedCardForDisplay.monsterAttributes}
         <div class="flex justify-between">
-          <span class="text-surface-600-300-token"> ⭐︎{$selectedCardForDisplay.monster.level} </span>
-          <span class="text-surface-600-300-token"> ATK / {$selectedCardForDisplay.monster.attack} </span>
-          <span class="text-surface-600-300-token"> DEF / {$selectedCardForDisplay.monster.defense} </span>
+          <span class="text-surface-600-300-token"> ⭐︎{monsterData.level} </span>
+          <span class="text-surface-600-300-token"> ATK / {monsterData.attack} </span>
+          <span class="text-surface-600-300-token"> DEF / {monsterData.defense} </span>
         </div>
       {/if}
 

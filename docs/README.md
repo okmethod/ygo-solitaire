@@ -20,7 +20,7 @@
 
 - ユーザーはデッキを選ぶだけで、即座にゲームを開始できる
 - 対戦相手はカカシで、気兼ねも思考待ち時間もゼロ
-- パズルを解くように勝利条件を目指す
+- カードプールを絞ることで、大量かつ複雑な実装は不要
 
 詳細なスコープと実装状況は [domain/overview.md](./domain/overview.md) を参照してください。
 
@@ -51,6 +51,14 @@ specs/
 | **adr/** | 重要な技術的決定をした時 |
 | **development/** | 開発手順や規約が変わった時 |
 
+### 最近の重要な更新 ⭐
+
+- **[architecture/data-model-design.md](architecture/data-model-design.md)** (2025-11-29)
+  - 3層データモデル設計（DomainCardData / CardDisplayData）
+  - YGOPRODeck API統合とキャッシング戦略
+- **[architecture/migration-strategy.md](architecture/migration-strategy.md)** (2025-11-29)
+  - GameState/Rules の段階的移行戦略（文字列ID → 数値ID）
+
 ## 📚 関連リソース
 
 - **[README.md](../README.md)**: ユーザー向けプロジェクト説明
@@ -59,5 +67,5 @@ specs/
 
 ---
 
-**最終更新**: 2024-11-24
+**最終更新**: 2025-11-29
 **メンテナー**: @okmethod

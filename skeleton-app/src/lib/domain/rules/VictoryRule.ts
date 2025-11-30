@@ -11,7 +11,6 @@
 
 import type { GameState, GameResult } from "../models/GameState";
 import { hasExodiaInHand } from "../models/GameState";
-import { EXODIA_PIECE_IDS } from "../models/constants";
 
 /**
  * Check victory conditions and return game result
@@ -109,21 +108,58 @@ export function hasDeckOutDefeat(state: GameState): boolean {
 /**
  * Get missing Exodia pieces (for UI hints)
  *
+ * 数値ID比較に更新（先頭ゼロの問題を回避）
+ *
  * @param state - Current game state
- * @returns Array of missing Exodia piece card IDs
+ * @returns Array of missing Exodia piece card IDs (as strings with leading zeros)
  */
 export function getMissingExodiaPieces(state: GameState): string[] {
-  const handCardIds = state.zones.hand.map((card) => card.cardId);
-  return EXODIA_PIECE_IDS.filter((pieceId) => !handCardIds.includes(pieceId));
+  const exodiaPieceNumericIds = [
+    33396948, // Exodia the Forbidden One (head)
+    7902349, // Right Arm of the Forbidden One
+    70903634, // Left Arm of the Forbidden One
+    8124921, // Right Leg of the Forbidden One
+    44519536, // Left Leg of the Forbidden One
+  ];
+
+  // CardInstance.cardIdは文字列なので、数値に変換して比較
+  const handCardNumericIds = state.zones.hand.map((card) => parseInt(card.cardId, 10));
+  const missingNumericIds = exodiaPieceNumericIds.filter((pieceId) => !handCardNumericIds.includes(pieceId));
+
+  // 戻り値は文字列配列（EXODIA_PIECE_IDsとの互換性を維持するため、数値→文字列マッピングを使用）
+  // 数値をEXODIA_PIECE_IDS形式（先頭ゼロ付き8桁）に変換
+  return missingNumericIds.map((id) => {
+    const idStr = id.toString();
+    // EXODIA_PIECE_IDsと同じ形式（先頭ゼロを保持）を返すため、逆引き
+    const exodiaIdMap: Record<number, string> = {
+      33396948: "33396948",
+      7902349: "07902349",
+      70903634: "70903634",
+      8124921: "08124921",
+      44519536: "44519536",
+    };
+    return exodiaIdMap[id] || idStr.padStart(8, "0");
+  });
 }
 
 /**
  * Get number of Exodia pieces in hand (for UI display)
  *
+ * 数値ID比較に更新（先頭ゼロの問題を回避）
+ *
  * @param state - Current game state
  * @returns Number of Exodia pieces currently in hand (0-5)
  */
 export function countExodiaPiecesInHand(state: GameState): number {
-  const handCardIds = state.zones.hand.map((card) => card.cardId);
-  return EXODIA_PIECE_IDS.filter((pieceId) => handCardIds.includes(pieceId)).length;
+  const exodiaPieceNumericIds = [
+    33396948, // Exodia the Forbidden One (head)
+    7902349, // Right Arm of the Forbidden One
+    70903634, // Left Arm of the Forbidden One
+    8124921, // Right Leg of the Forbidden One
+    44519536, // Left Leg of the Forbidden One
+  ];
+
+  // CardInstance.cardIdは文字列なので、数値に変換して比較
+  const handCardNumericIds = state.zones.hand.map((card) => parseInt(card.cardId, 10));
+  return exodiaPieceNumericIds.filter((pieceId) => handCardNumericIds.includes(pieceId)).length;
 }

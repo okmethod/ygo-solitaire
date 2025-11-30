@@ -37,9 +37,9 @@ export class GameFacade {
   /**
    * Initialize a new game with given deck
    *
-   * @param deckCardIds - Array of card IDs for the main deck
+   * @param deckCardIds - Array of numeric card IDs for the main deck
    */
-  initializeGame(deckCardIds: string[]): void {
+  initializeGame(deckCardIds: number[]): void {
     resetGameState(deckCardIds);
   }
 

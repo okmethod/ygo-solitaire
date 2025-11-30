@@ -11,27 +11,27 @@ export const load: PageLoad = async ({ params, fetch }) => {
   // Load deck data from API
   const deckData = await loadDeckData(deckId, fetch);
 
-  // Extract card IDs from deck
-  const deckCardIds: string[] = [];
+  // Extract card IDs from deck (数値ID対応)（T025）
+  const deckCardIds: number[] = [];
 
   // Main deck monsters
   deckData.mainDeck.monsters.forEach((entry) => {
     for (let i = 0; i < entry.quantity; i++) {
-      deckCardIds.push(String(entry.cardData.id)); // Convert number to string
+      deckCardIds.push(entry.cardData.id); // 数値IDをそのまま使用
     }
   });
 
   // Main deck spells
   deckData.mainDeck.spells.forEach((entry) => {
     for (let i = 0; i < entry.quantity; i++) {
-      deckCardIds.push(String(entry.cardData.id)); // Convert number to string
+      deckCardIds.push(entry.cardData.id); // 数値IDをそのまま使用
     }
   });
 
   // Main deck traps
   deckData.mainDeck.traps.forEach((entry) => {
     for (let i = 0; i < entry.quantity; i++) {
-      deckCardIds.push(String(entry.cardData.id)); // Convert number to string
+      deckCardIds.push(entry.cardData.id); // 数値IDをそのまま使用
     }
   });
 

@@ -39,9 +39,9 @@ export const gameStateStore = writable<GameState>(createEmptyGameState());
 /**
  * Reset store to initial state
  *
- * @param deckCardIds - Array of card IDs for the deck
+ * @param deckCardIds - Array of numeric card IDs for the deck
  */
-export function resetGameState(deckCardIds: string[]): void {
+export function resetGameState(deckCardIds: number[]): void {
   gameStateStore.set(createInitialGameState(deckCardIds));
 }
 

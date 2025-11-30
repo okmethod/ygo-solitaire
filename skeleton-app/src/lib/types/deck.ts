@@ -1,4 +1,4 @@
-import type { CardData } from "$lib/types/card";
+import type { CardDisplayData } from "$lib/types/card";
 
 /**
  * レシピ保存時のカードエントリー（ID + 枚数 + 効果情報）
@@ -11,12 +11,12 @@ export interface RecipeCardEntry {
 }
 
 /**
- * ロード済みカードエントリー（CardData + 枚数）
+ * ロード済みカードエントリー（CardDisplayData + 枚数）
  * APIからロードしたカードデータと枚数の組み合わせ
- * UI表示やゲーム処理で使用
+ * UI表示用のPresentation Layer型を使用
  */
 export interface LoadedCardEntry {
-  cardData: CardData; // カードの静的データ
+  cardData: CardDisplayData; // カードのUI表示データ
   quantity: number; // 枚数
 }
 
@@ -66,7 +66,7 @@ export interface ExtraDeckData {
 
 /**
  * ロード済みデッキデータ
- * CardDataと枚数を保持し、カードタイプ別に事前分類済み
+ * CardDisplayDataと枚数を保持し、カードタイプ別に事前分類済み
  * フィルタリング処理を不要にしてパフォーマンス向上
  */
 export interface DeckData extends DeckBase {

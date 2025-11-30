@@ -1,4 +1,4 @@
-import type { Card, CardData, CardType } from "$lib/types/card";
+import type { Card, CardDisplayData, CardImages, MonsterAttributes, CardType } from "$lib/types/card";
 
 interface YGOProDeckCardImage {
   id: number;
@@ -27,7 +27,7 @@ export interface YGOProDeckCard {
   id: number;
   name: string;
   type: string;
-  frameType: string;
+  frameType?: string; // Optional field for card frame type
   desc: string;
   atk?: number;
   def?: number;
@@ -41,22 +41,77 @@ export interface YGOProDeckCard {
   card_prices?: YGOProDeckCardPrice[];
 }
 
-// カードタイプを正規化する内部関数
+/**
+ * カードタイプを正規化する内部関数
+ *
+ * YGOPRODeck APIのtype文字列をCardTypeに変換
+ * @param {string} type - YGOPRODeck APIのtype文字列
+ * @returns {CardType} 正規化されたカードタイプ
+ * @throws {Error} 未知のカードタイプ
+ */
 function normalizeType(type: string): CardType {
   const lowerType = type.toLowerCase();
   if (lowerType.includes("monster")) return "monster";
   if (lowerType.includes("spell")) return "spell";
   if (lowerType.includes("trap")) return "trap";
 
-  // デフォルトはmonster（安全のため）
-  return "monster";
+  // 未知のカードタイプはエラーとして扱う
+  console.error(`Unknown card type: ${type}`);
+  throw new Error(
+    `Unable to normalize card type: "${type}". ` + `Expected type containing "monster", "spell", or "trap".`,
+  );
 }
 
-export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardData {
-  // 画像URL を取得（最初の画像を使用）
+/**
+ * YGOPRODeck API カードデータをCardに変換
+ *
+ * @param apiCard - YGOPRODeck APIから取得したカードデータ
+ * @returns Card - UI表示用カードデータ
+ */
+export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard): Card {
+  return convertToCardDisplayData(apiCard);
+}
+
+/**
+ * 複数の YGOPRODeck カードを Card 配列に変換
+ */
+export function convertYGOProDeckCardsToCards(apiCards: YGOProDeckCard[]): Card[] {
+  return apiCards.map((card) => convertToCardDisplayData(card));
+}
+
+/**
+ * YGOPRODeck API カードデータをCardDisplayDataに変換
+ *
+ * Presentation Layer用の変換関数。
+ * CardDataとは異なり、画像とモンスター属性を明示的な型で返す。
+ *
+ * @param apiCard - YGOPRODeck APIから取得したカードデータ
+ * @returns CardDisplayData - UI表示用カードデータ
+ */
+export function convertToCardDisplayData(apiCard: YGOProDeckCard): CardDisplayData {
+  const cardType = normalizeType(apiCard.type);
   const cardImage = apiCard.card_images[0];
 
-  const cardType = normalizeType(apiCard.type);
+  // 画像データの変換
+  const images: CardImages | undefined = cardImage
+    ? {
+        image: cardImage.image_url,
+        imageSmall: cardImage.image_url_small,
+        imageCropped: cardImage.image_url_cropped,
+      }
+    : undefined;
+
+  // モンスターカード属性の変換
+  const monsterAttributes: MonsterAttributes | undefined =
+    cardType === "monster" && apiCard.atk !== undefined && apiCard.def !== undefined && apiCard.level !== undefined
+      ? {
+          attack: apiCard.atk,
+          defense: apiCard.def,
+          level: apiCard.level,
+          attribute: apiCard.attribute ?? "",
+          race: apiCard.race ?? "",
+        }
+      : undefined;
 
   return {
     id: apiCard.id,
@@ -65,42 +120,7 @@ export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardDa
     description: apiCard.desc,
     frameType: apiCard.frameType,
     archetype: apiCard.archetype,
-
-    // モンスターカード専用プロパティ
-    monster:
-      cardType === "monster"
-        ? {
-            attack: apiCard.atk,
-            defense: apiCard.def,
-            level: apiCard.level,
-            attribute: apiCard.attribute,
-            race: apiCard.race,
-          }
-        : undefined,
-
-    // 画像プロパティ
-    images: cardImage
-      ? {
-          image: cardImage.image_url,
-          imageSmall: cardImage.image_url_small,
-          imageCropped: cardImage.image_url_cropped,
-        }
-      : undefined,
+    monsterAttributes,
+    images,
   };
-}
-
-export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard): Card {
-  const cardData = convertYGOProDeckCardToCardData(apiCard);
-
-  return {
-    ...cardData,
-    // ゲーム状態プロパティは初期値なし（必要に応じて後で設定）
-  };
-}
-
-/**
- * 複数の YGOPRODeck カードを Card 配列に変換
- */
-export function convertYGOProDeckCardsToCards(apiCards: YGOProDeckCard[]): Card[] {
-  return apiCards.map((card) => convertYGOProDeckCardToCard(card));
 }

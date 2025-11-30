@@ -6,50 +6,57 @@ export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "pendulum" | "l
 export type MagicSubType = "normal" | "effect" | "ritual" | "quick-play" | "field" | "equip";
 export type TrapSubType = "normal" | "continuous" | "counter";
 
-interface MonsterCardProperties {
-  attack?: number;
-  defense?: number;
-  level?: number;
-  attribute?: string;
-  race?: string;
-}
-
-interface CardImageProperties {
-  image?: string; // URL to card image
-  imageSmall?: string; // URL to small card image
-  imageCropped?: string; // URL to cropped card image
+/**
+ * カード画像データ
+ * YGOPRODeck APIから取得されるカード画像URL情報
+ */
+export interface CardImages {
+  image: string; // メイン画像URL
+  imageSmall: string; // サムネイル画像URL
+  imageCropped: string; // クロップ画像URL
 }
 
 /**
- * 静的なカードマスターデータ
- * APIから取得される不変のカード情報を表現
- * デッキレシピやカードデータベースで使用
+ * モンスターカード属性情報
+ * YGOPRODeck APIから取得されるモンスターカード固有のデータ
  */
-export interface CardData {
+export interface MonsterAttributes {
+  attack: number;
+  defense: number;
+  level: number;
+  attribute: string; // DARK, LIGHT, EARTH, etc.
+  race: string; // Spellcaster, Dragon, etc.
+}
+
+/**
+ * UI表示用カードデータ
+ * YGOPRODeck APIから取得されたカード情報をUIコンポーネントで表示するための型
+ * CardDataを置き換えるPresentation Layer型定義
+ */
+export interface CardDisplayData {
   // 必須プロパティ
   id: number; // YGOPRODeck API uses numeric IDs
   name: string;
   type: CardType;
-  description: string; // API always provides description
+  description: string; // カード効果テキスト
 
   // オプショナルなAPIプロパティ
-  frameType?: string; // API provides frameType like "normal", "effect", etc.
-  archetype?: string; // API provides archetype information
+  frameType?: string; // "normal", "effect", "xyz", etc.
+  archetype?: string; // アーキタイプ名（例: "Blue-Eyes"）
 
-  // モンスターカード専用プロパティ
-  monster?: MonsterCardProperties;
+  // モンスターカード専用プロパティ（存在する場合のみ）
+  monsterAttributes?: MonsterAttributes;
 
-  // 画像プロパティ
-  images?: CardImageProperties;
+  // 画像プロパティ（存在する場合のみ）
+  images?: CardImages;
 }
 
 /**
- * ゲーム内で使用する動的なカードインスタンス
- * CardDataにゲーム状態（選択状態、フィールド上の位置など）を追加
- * 実際のデュエル中にのみ使用
+ * Card type alias for CardDisplayData
+ *
+ * CardDisplayDataのエイリアス。既存コードとの互換性のために提供。
+ *
+ * Note: 旧Card型が持っていたUI状態（instanceId, isSelected, position）は
+ * コンポーネントのローカルstateで管理してください。
  */
-export interface Card extends CardData {
-  instanceId?: string; // 同じカードの複数インスタンスを区別するための一意ID
-  isSelected?: boolean; // UI上での選択状態
-  position?: "attack" | "defense" | "facedown"; // フィールド上での表示形式
-}
+export type Card = CardDisplayData;

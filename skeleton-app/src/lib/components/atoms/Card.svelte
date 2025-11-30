@@ -5,11 +5,15 @@
   import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
+  /**
+   * Card型はCardDisplayDataのエイリアスです
+   */
   interface CardComponentProps {
     card?: Card;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
+    isSelected?: boolean; // UI状態を外部から制御
     placeholder?: boolean;
     placeholderText?: string;
     rotation?: number;
@@ -24,6 +28,7 @@
     size = "medium",
     clickable = false,
     selectable = false,
+    isSelected = false, // 初期値はfalse
     placeholder = false,
     placeholderText = "カード",
     rotation = 0,
@@ -34,7 +39,7 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let isSelected = $state(card?.isSelected || false);
+  let selectedState = $state(isSelected); // ローカルstate
 
   // カードクリック処理
   function handleClick() {
@@ -45,10 +50,10 @@
       onClick(card);
     }
     if (selectable) {
-      isSelected = !isSelected;
-      if (card) card.isSelected = isSelected;
+      selectedState = !selectedState; // ローカルstateを更新
     }
     if (showDetailOnClick && card) {
+      // Card型はCardDisplayDataのエイリアス
       showCardDetailDisplay(card);
     }
   }
@@ -83,7 +88,7 @@
   );
 
   // 選択状態クラス
-  const selectedClasses = $derived(isSelected ? "ring-2 ring-primary-500 shadow-lg" : "");
+  const selectedClasses = $derived(selectedState ? "ring-2 ring-primary-500 shadow-lg" : "");
 
   // 回転スタイル
   const rotationStyle = $derived(rotation !== 0 ? `transform: rotate(${rotation}deg);` : "");
@@ -151,12 +156,12 @@
   {/if}
 
   <!-- 選択状態インジケーター -->
-  {#if isSelected}
+  {#if selectedState}
     <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
   {/if}
 
   <!-- フェードアニメーション用オーバーレイ -->
-  {#if animate && (isHovered || isSelected)}
+  {#if animate && (isHovered || selectedState)}
     <div class="absolute inset-0 bg-primary-500 opacity-10 pointer-events-none"></div>
   {/if}
 {/snippet}

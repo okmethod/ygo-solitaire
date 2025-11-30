@@ -53,15 +53,15 @@ export interface GameState {
 /**
  * Create initial game state
  *
- * @param deckCardIds - Array of card IDs for the main deck
+ * @param deckCardIds - Array of numeric card IDs for the main deck
  * @returns Initial GameState
  */
-export function createInitialGameState(deckCardIds: string[]): GameState {
+export function createInitialGameState(deckCardIds: number[]): GameState {
   return {
     zones: {
       deck: deckCardIds.map((cardId, index) => ({
         instanceId: `deck-${index}`,
-        cardId,
+        cardId: cardId.toString(),
         location: "deck" as const,
       })),
       hand: [],
@@ -83,22 +83,25 @@ export function createInitialGameState(deckCardIds: string[]): GameState {
 }
 
 /**
- * Helper to check if the player has won via Exodia
+ * Helper to check if the player has won via Exodia 
+ *
+ * 数値ID比較に更新（先頭ゼロの問題を回避）
  *
  * @param state - Current game state
  * @returns True if player has all 5 Exodia pieces in hand
  */
 export function hasExodiaInHand(state: GameState): boolean {
-  const exodiaPieceIds = [
-    "33396948", // Exodia the Forbidden One (head)
-    "07902349", // Right Arm of the Forbidden One
-    "70903634", // Left Arm of the Forbidden One
-    "08124921", // Right Leg of the Forbidden One
-    "44519536", // Left Leg of the Forbidden One
+  const exodiaPieceNumericIds = [
+    33396948, // Exodia the Forbidden One (head)
+    7902349, // Right Arm of the Forbidden One
+    70903634, // Left Arm of the Forbidden One
+    8124921, // Right Leg of the Forbidden One
+    44519536, // Left Leg of the Forbidden One
   ];
 
-  const handCardIds = state.zones.hand.map((card) => card.cardId);
-  return exodiaPieceIds.every((pieceId) => handCardIds.includes(pieceId));
+  // CardInstance.cardIdは文字列なので、数値に変換して比較
+  const handCardNumericIds = state.zones.hand.map((card) => parseInt(card.cardId, 10));
+  return exodiaPieceNumericIds.every((pieceId) => handCardNumericIds.includes(pieceId));
 }
 
 /**

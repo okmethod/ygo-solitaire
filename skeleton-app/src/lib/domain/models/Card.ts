@@ -1,88 +1,34 @@
 /**
  * Card - Type definitions for card data and instances
  *
- * Distinguishes between:
- * - CardData: Static, immutable card information (from API/database)
+ * Defines:
+ * - DomainCardData: Minimal card data for game logic 
  * - CardInstance: Runtime representation with unique instanceId
  *
  * @module domain/models/Card
  */
 
 /**
- * Card type categories
+ * Simplified card type for Domain Layer 
+ *
+ * YGOPRODeck API互換の簡略化型。
+ * ゲームロジックに必要な最小限の3カテゴリのみを表現。
  */
-export type CardType =
-  | "Effect Monster"
-  | "Normal Monster"
-  | "Ritual Monster"
-  | "Fusion Monster"
-  | "Synchro Monster"
-  | "XYZ Monster"
-  | "Link Monster"
-  | "Spell Card"
-  | "Trap Card";
+export type SimpleCardType = "monster" | "spell" | "trap";
 
 /**
- * Monster card attributes
+ * Domain Layer用の最小限カードデータ
+ *
+ * ゲームロジック実装に必要な最小限のプロパティのみを保持。
+ * 表示用データ（name, description, imagesなど）は含まない。
+ *
+ * 用途: GameState, Rule実装などのDomain Layer内部処理
+ * 利点: YGOPRODeck APIに依存せず、ユニットテストがネットワーク不要
  */
-export type Attribute = "DARK" | "LIGHT" | "EARTH" | "WATER" | "FIRE" | "WIND" | "DIVINE";
-
-/**
- * Monster card race/species
- */
-export type Race =
-  | "Spellcaster"
-  | "Dragon"
-  | "Zombie"
-  | "Warrior"
-  | "Beast-Warrior"
-  | "Beast"
-  | "Winged Beast"
-  | "Fiend"
-  | "Fairy"
-  | "Insect"
-  | "Dinosaur"
-  | "Reptile"
-  | "Fish"
-  | "Sea Serpent"
-  | "Machine"
-  | "Thunder"
-  | "Aqua"
-  | "Pyro"
-  | "Rock"
-  | "Plant"
-  | "Psychic"
-  | "Divine-Beast"
-  | "Creator God"
-  | "Wyrm"
-  | "Cyberse";
-
-/**
- * Spell card race/category
- */
-export type SpellRace = "Normal" | "Field" | "Equip" | "Continuous" | "Quick-Play" | "Ritual";
-
-/**
- * Trap card race/category
- */
-export type TrapRace = "Normal" | "Continuous" | "Counter";
-
-/**
- * Static card data (immutable, from API/database)
- * This represents the card's official information
- */
-export interface CardData {
-  readonly id: string; // Card ID (e.g., "33396948" for Exodia)
-  readonly name: string;
-  readonly type: CardType;
-  readonly desc: string;
-  readonly race: Race | SpellRace | TrapRace;
-  readonly atk?: number; // For monster cards
-  readonly def?: number; // For monster cards
-  readonly level?: number; // For monster cards
-  readonly attribute?: Attribute; // For monster cards
-  readonly archetype?: string;
-  readonly imageUrl?: string;
+export interface DomainCardData {
+  readonly id: number; // カードを一意に識別するID（YGOPRODeck API ID）
+  readonly type: SimpleCardType; // カードタイプ（"monster" | "spell" | "trap"）
+  readonly frameType?: string; // カードフレームタイプ（"normal", "effect"など）
 }
 
 /**
@@ -92,7 +38,7 @@ export interface CardData {
  */
 export interface CardInstance {
   readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
-  readonly cardId: string; // References CardData.id
+  readonly cardId: string; // References card ID (number as string)
   readonly location: ZoneLocation; // Current location
   readonly position?: "faceUp" | "faceDown"; // For field cards
 }
@@ -103,43 +49,62 @@ export interface CardInstance {
 export type ZoneLocation = "deck" | "hand" | "field" | "graveyard" | "banished";
 
 /**
- * Helper to check if a card is a monster
+ * DomainCardData型ガード: monster type
+ *
+ * @param card - DomainCardData オブジェクト
+ * @returns カードタイプがmonsterの場合true
  */
-export function isMonsterCard(cardData: CardData): boolean {
-  return cardData.type.includes("Monster") && cardData.atk !== undefined && cardData.def !== undefined;
+export function isDomainMonsterCard(card: DomainCardData): boolean {
+  return card.type === "monster";
 }
 
 /**
- * Helper to check if a card is a spell
+ * DomainCardData型ガード: spell type
+ *
+ * @param card - DomainCardData オブジェクト
+ * @returns カードタイプがspellの場合true
  */
-export function isSpellCard(cardData: CardData): boolean {
-  return cardData.type === "Spell Card";
+export function isDomainSpellCard(card: DomainCardData): boolean {
+  return card.type === "spell";
 }
 
 /**
- * Helper to check if a card is a trap
+ * DomainCardData型ガード: trap type
+ *
+ * @param card - DomainCardData オブジェクト
+ * @returns カードタイプがtrapの場合true
  */
-export function isTrapCard(cardData: CardData): boolean {
-  return cardData.type === "Trap Card";
+export function isDomainTrapCard(card: DomainCardData): boolean {
+  return card.type === "trap";
 }
 
 /**
- * Helper to check if a spell is a Normal spell
+ * DomainCardData検証関数
+ *
+ * オブジェクトがDomainCardDataの必須プロパティを持つかを検証。
+ *
+ * @param obj - 検証対象のオブジェクト
+ * @returns DomainCardDataの型を満たす場合はtrue
  */
-export function isNormalSpell(cardData: CardData): boolean {
-  return isSpellCard(cardData) && cardData.race === "Normal";
-}
+export function isDomainCardData(obj: unknown): obj is DomainCardData {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
 
-/**
- * Helper to check if a card is an Exodia piece
- */
-export function isExodiaPiece(cardId: string): boolean {
-  const exodiaPieceIds = [
-    "33396948", // Exodia the Forbidden One (head)
-    "07902349", // Right Arm of the Forbidden One
-    "70903634", // Left Arm of the Forbidden One
-    "08124921", // Right Leg of the Forbidden One
-    "44519536", // Left Leg of the Forbidden One
-  ];
-  return exodiaPieceIds.includes(cardId);
+  const data = obj as Record<string, unknown>;
+
+  // 必須プロパティの検証
+  if (typeof data.id !== "number") return false;
+  if (typeof data.type !== "string") return false;
+
+  // typeが有効な値かを検証
+  const validTypes: SimpleCardType[] = ["monster", "spell", "trap"];
+  if (!validTypes.includes(data.type as SimpleCardType)) return false;
+
+  // frameTypeはオプショナルだが、存在する場合はstringであること
+  if (data.frameType !== undefined && typeof data.frameType !== "string") {
+    return false;
+  }
+
+  return true;
 }
