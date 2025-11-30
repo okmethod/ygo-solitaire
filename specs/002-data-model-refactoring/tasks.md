@@ -8,17 +8,18 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**Progress**: 65/72 tasks (90%) completed | 7 tasks DEFERRED
+**Progress**: 66/72 tasks (92%) completed | 6 tasks DEFERRED
 
 **Status**:
-- ✅ Phase 1-9: Core implementation complete (T001-T066, T023-T025, T028, T031-T036, T043-T046)
+- ✅ Phase 1-9: Core implementation complete (T001-T066, T023-T025, T028, T031-T036, T043-T046, T059)
 - ✅ Phase 9 (Data Model Migration): GameState.ts, Rules layer, Application layer migrated to numeric IDs
 - ✅ Phase 4 (API Compatibility): YGOPRODeck API compatibility verified with integration tests
 - ✅ Phase 5 (Presentation Layer): Card.svelte, CardDetailDisplay.svelte, stores/ migrated to CardDisplayData with backward compatibility
 - ✅ Documentation: Architecture design doc created, CLAUDE.md updated
 - ✅ T028: Domain Layer tests verified (126 tests passing with DomainCardData)
 - ✅ T043-T046: UI components and stores migrated with Card/CardDisplayData compatibility layer
-- ⏳ Deferred: T059-T060 (type deletion), T062, T067-T071 (polish)
+- ✅ T059: Domain Layer deprecated CardData type and helper functions removed
+- ⏳ Deferred: T060 (Presentation Layer Card type - 18 files require migration), T062, T067-T071 (polish)
 
 ---
 
@@ -244,10 +245,10 @@
 
 ### 旧型定義の削除
 
-- [ ] T059 Remove @deprecated CardData type from skeleton-app/src/lib/domain/models/Card.ts (DEFERRED)
-- [ ] T060 Remove @deprecated Card type from skeleton-app/src/lib/types/card.ts (DEFERRED)
+- [X] T059 Remove @deprecated CardData type from skeleton-app/src/lib/domain/models/Card.ts - CardData interface, CardType, Attribute, Race, SpellRace, TrapRace型、isMonsterCard/isSpellCard/isTrapCard/isNormalSpell関数を削除。全239テスト通過、ビルド成功。
+- [ ] T060 Remove @deprecated Card type from skeleton-app/src/lib/types/card.ts (DEFERRED - 18ファイルで使用中、T043-T046の互換性レイヤーにより段階的移行可能)
 
-**Note**: T059-T060 は既存コードへの影響が大きいため DEFERRED。@deprecated マーカーは設定済み。
+**Note**: T059完了。T060は18ファイル（DuelField.svelte、Hands.svelte、Graveyard.svelte、deckLoader.ts、ygoprodeck.ts等）で使用中のため DEFERRED。T043-T046で導入したCardLike互換性レイヤーにより段階的移行が可能。
 
 ### 最終検証
 
