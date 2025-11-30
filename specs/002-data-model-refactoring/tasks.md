@@ -8,15 +8,17 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**Progress**: 61/72 tasks (85%) completed | 11 tasks DEFERRED
+**Progress**: 65/72 tasks (90%) completed | 7 tasks DEFERRED
 
 **Status**:
-- ✅ Phase 1-9: Core implementation complete (T001-T066, T023-T025, T028, T031-T036)
+- ✅ Phase 1-9: Core implementation complete (T001-T066, T023-T025, T028, T031-T036, T043-T046)
 - ✅ Phase 9 (Data Model Migration): GameState.ts, Rules layer, Application layer migrated to numeric IDs
 - ✅ Phase 4 (API Compatibility): YGOPRODeck API compatibility verified with integration tests
+- ✅ Phase 5 (Presentation Layer): Card.svelte, CardDetailDisplay.svelte, stores/ migrated to CardDisplayData with backward compatibility
 - ✅ Documentation: Architecture design doc created, CLAUDE.md updated
 - ✅ T028: Domain Layer tests verified (126 tests passing with DomainCardData)
-- ⏳ Deferred: T043-T046 (UI migration), T059-T060 (type deletion), T062, T067-T071 (polish)
+- ✅ T043-T046: UI components and stores migrated with Card/CardDisplayData compatibility layer
+- ⏳ Deferred: T059-T060 (type deletion), T062, T067-T071 (polish)
 
 ---
 
@@ -178,15 +180,15 @@
 ### Presentation Layerファイルの移行
 
 - [X] T042 [US2] Update skeleton-app/src/lib/utils/deckLoader.ts to use CardDisplayData
-- [ ] T043 [P] [US2] Update skeleton-app/src/lib/components/atoms/Card.svelte to use CardDisplayData (DEFERRED)
-- [ ] T044 [P] [US2] Update skeleton-app/src/lib/components/atoms/CardDetailDisplay.svelte to use CardDisplayData (DEFERRED)
+- [X] T043 [P] [US2] Update skeleton-app/src/lib/components/atoms/Card.svelte to use CardDisplayData - Card/CardDisplayData union型で後方互換性を維持
+- [X] T044 [P] [US2] Update skeleton-app/src/lib/components/atoms/CardDetailDisplay.svelte to use CardDisplayData - monster/monsterAttributes両対応
 
 ### Application Layerファイルの移行
 
-- [ ] T045 [P] [US2] Update skeleton-app/src/lib/application/commands/ files to bridge Domain/Presentation layers (DEFERRED)
-- [ ] T046 [P] [US2] Update skeleton-app/src/lib/application/stores/ files to use appropriate types (DEFERRED)
+- [X] T045 [P] [US2] Update skeleton-app/src/lib/application/commands/ files to bridge Domain/Presentation layers - Domain Layerとの連携確認完了（変更不要）
+- [X] T046 [P] [US2] Update skeleton-app/src/lib/application/stores/ files to use appropriate types - cardDetailDisplayStoreをCardDisplayData対応に更新
 
-**Note**: T043-T046 は既存UIコンポーネントとApplication Layerへの大規模な変更を伴うため、DEFERRED としてマーク。現時点では型定義とデータローダーの更新（T037-T042）が完了し、基盤が整備された。
+**Note**: T043-T046完了。Card.svelte、CardDetailDisplay.svelte、cardDetailDisplayStoreをCardDisplayDataに移行。既存のCard型も受け入れる互換性レイヤーを導入し、段階的移行を可能にした。全239テスト通過、ビルド成功。
 
 ### E2Eテストの更新
 

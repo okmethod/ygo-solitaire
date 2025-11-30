@@ -1,22 +1,29 @@
 <script lang="ts">
-  import type { Card } from "$lib/types/card";
+  import type { Card, CardDisplayData } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
   import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
+  /**
+   * カード型の互換性（T043）
+   * CardDisplayDataを優先しますが、既存のCard型も受け入れます
+   */
+  type CardLike = CardDisplayData | Card;
+
   interface CardComponentProps {
-    card?: Card;
+    card?: CardLike;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
+    isSelected?: boolean; // UI状態を外部から制御（T043）
     placeholder?: boolean;
     placeholderText?: string;
     rotation?: number;
     animate?: boolean;
     showDetailOnClick?: boolean;
-    onClick?: (card: Card) => void;
-    onHover?: (card: Card | null) => void;
+    onClick?: (card: CardLike) => void;
+    onHover?: (card: CardLike | null) => void;
   }
 
   let {
@@ -24,6 +31,7 @@
     size = "medium",
     clickable = false,
     selectable = false,
+    isSelected = false, // 初期値はfalse（T043）
     placeholder = false,
     placeholderText = "カード",
     rotation = 0,
@@ -34,7 +42,7 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let isSelected = $state(card?.isSelected || false);
+  let selectedState = $state(isSelected); // ローカルstate（T043）
 
   // カードクリック処理
   function handleClick() {
@@ -45,11 +53,11 @@
       onClick(card);
     }
     if (selectable) {
-      isSelected = !isSelected;
-      if (card) card.isSelected = isSelected;
+      selectedState = !selectedState; // ローカルstateを更新（T043）
     }
     if (showDetailOnClick && card) {
-      showCardDetailDisplay(card);
+      // CardDisplayDataまたはCardを受け入れる（T043）
+      showCardDetailDisplay(card as CardDisplayData);
     }
   }
 
@@ -83,7 +91,7 @@
   );
 
   // 選択状態クラス
-  const selectedClasses = $derived(isSelected ? "ring-2 ring-primary-500 shadow-lg" : "");
+  const selectedClasses = $derived(selectedState ? "ring-2 ring-primary-500 shadow-lg" : "");
 
   // 回転スタイル
   const rotationStyle = $derived(rotation !== 0 ? `transform: rotate(${rotation}deg);` : "");
@@ -151,12 +159,12 @@
   {/if}
 
   <!-- 選択状態インジケーター -->
-  {#if isSelected}
+  {#if selectedState}
     <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
   {/if}
 
   <!-- フェードアニメーション用オーバーレイ -->
-  {#if animate && (isHovered || isSelected)}
+  {#if animate && (isHovered || selectedState)}
     <div class="absolute inset-0 bg-primary-500 opacity-10 pointer-events-none"></div>
   {/if}
 {/snippet}

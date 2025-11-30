@@ -67,12 +67,19 @@
     </div>
 
     <div id="card-image-description" class="text-sm space-y-2">
-      {#if $selectedCardForDisplay.type === "monster" && $selectedCardForDisplay.monster}
-        <div class="flex justify-between">
-          <span class="text-surface-600-300-token"> ⭐︎{$selectedCardForDisplay.monster.level} </span>
-          <span class="text-surface-600-300-token"> ATK / {$selectedCardForDisplay.monster.attack} </span>
-          <span class="text-surface-600-300-token"> DEF / {$selectedCardForDisplay.monster.defense} </span>
-        </div>
+      {#if $selectedCardForDisplay.type === "monster"}
+        {@const monsterData = "monsterAttributes" in $selectedCardForDisplay
+          ? $selectedCardForDisplay.monsterAttributes
+          : "monster" in $selectedCardForDisplay
+            ? $selectedCardForDisplay.monster
+            : null}
+        {#if monsterData}
+          <div class="flex justify-between">
+            <span class="text-surface-600-300-token"> ⭐︎{monsterData.level} </span>
+            <span class="text-surface-600-300-token"> ATK / {monsterData.attack} </span>
+            <span class="text-surface-600-300-token"> DEF / {monsterData.defense} </span>
+          </div>
+        {/if}
       {/if}
 
       {#if $selectedCardForDisplay.description}
