@@ -37,23 +37,12 @@ function createEmptyGameState(): GameState {
 export const gameStateStore = writable<GameState>(createEmptyGameState());
 
 /**
- * Reset store to initial state (数値ID対応版)
+ * Reset store to initial state
  *
  * @param deckCardIds - Array of numeric card IDs for the deck
  */
 export function resetGameState(deckCardIds: number[]): void {
   gameStateStore.set(createInitialGameState(deckCardIds));
-}
-
-/**
- * Reset store to initial state (文字列ID互換版)
- *
- * @deprecated Use resetGameState with number IDs 
- * @param deckCardIds - Array of string card IDs for the deck
- */
-export function resetGameStateFromStringIds(deckCardIds: string[]): void {
-  const numericIds = deckCardIds.map((id) => parseInt(id, 10));
-  resetGameState(numericIds);
 }
 
 /**

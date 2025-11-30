@@ -63,53 +63,7 @@ function normalizeType(type: string): CardType {
 }
 
 /**
- * YGOPRODeck API カードデータをCardDataに変換
- *
- * @deprecated Use convertToCardDisplayData instead
- * @param apiCard - YGOPRODeck APIから取得したカードデータ
- * @returns CardData - 旧形式のカードデータ
- */
-export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardData {
-  // 画像URL を取得（最初の画像を使用）
-  const cardImage = apiCard.card_images[0];
-
-  const cardType = normalizeType(apiCard.type);
-
-  return {
-    id: apiCard.id,
-    name: apiCard.name,
-    type: cardType,
-    description: apiCard.desc,
-    frameType: apiCard.frameType,
-    archetype: apiCard.archetype,
-
-    // モンスターカード専用プロパティ
-    monster:
-      cardType === "monster"
-        ? {
-            attack: apiCard.atk,
-            defense: apiCard.def,
-            level: apiCard.level,
-            attribute: apiCard.attribute,
-            race: apiCard.race,
-          }
-        : undefined,
-
-    // 画像プロパティ
-    images: cardImage
-      ? {
-          image: cardImage.image_url,
-          imageSmall: cardImage.image_url_small,
-          imageCropped: cardImage.image_url_cropped,
-        }
-      : undefined,
-  };
-}
-
-/**
  * YGOPRODeck API カードデータをCardに変換
- *
- * Card = CardDisplayDataとなったため、convertToCardDisplayDataを使用。
  *
  * @param apiCard - YGOPRODeck APIから取得したカードデータ
  * @returns Card - UI表示用カードデータ

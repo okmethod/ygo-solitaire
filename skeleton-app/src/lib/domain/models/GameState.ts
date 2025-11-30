@@ -51,7 +51,7 @@ export interface GameState {
 }
 
 /**
- * Create initial game state (数値ID対応版)
+ * Create initial game state
  *
  * @param deckCardIds - Array of numeric card IDs for the main deck
  * @returns Initial GameState
@@ -80,18 +80,6 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
       isGameOver: false,
     },
   };
-}
-
-/**
- * Create initial game state (文字列ID互換版)
- *
- * @deprecated Use createInitialGameState with number IDs 
- * @param deckCardIds - Array of string card IDs for the main deck
- * @returns Initial GameState
- */
-export function createInitialGameStateFromStringIds(deckCardIds: string[]): GameState {
-  const numericIds = deckCardIds.map((id) => parseInt(id, 10));
-  return createInitialGameState(numericIds);
 }
 
 /**

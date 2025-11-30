@@ -6,20 +6,6 @@ export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "pendulum" | "l
 export type MagicSubType = "normal" | "effect" | "ritual" | "quick-play" | "field" | "equip";
 export type TrapSubType = "normal" | "continuous" | "counter";
 
-interface MonsterCardProperties {
-  attack?: number;
-  defense?: number;
-  level?: number;
-  attribute?: string;
-  race?: string;
-}
-
-interface CardImageProperties {
-  image?: string; // URL to card image
-  imageSmall?: string; // URL to small card image
-  imageCropped?: string; // URL to cropped card image
-}
-
 /**
  * カード画像データ
  * YGOPRODeck APIから取得されるカード画像URL情報
@@ -66,35 +52,9 @@ export interface CardDisplayData {
 }
 
 /**
- * 静的なカードマスターデータ（Presentation Layer用）
- * YGOPRODeck APIから取得される不変のカード情報を表現
- * UIコンポーネントやデッキレシピで使用
- *
- * @deprecated Use CardDisplayData instead
- */
-export interface CardData {
-  // 必須プロパティ
-  id: number; // YGOPRODeck API uses numeric IDs
-  name: string;
-  type: CardType;
-  description: string; // API always provides description
-
-  // オプショナルなAPIプロパティ
-  frameType?: string; // API provides frameType like "normal", "effect", etc.
-  archetype?: string; // API provides archetype information
-
-  // モンスターカード専用プロパティ
-  monster?: MonsterCardProperties;
-
-  // 画像プロパティ
-  images?: CardImageProperties;
-}
-
-/**
  * Card type alias for CardDisplayData
  *
  * CardDisplayDataのエイリアス。既存コードとの互換性のために提供。
- * 新規コードではCardDisplayDataを直接使用してください。
  *
  * Note: 旧Card型が持っていたUI状態（instanceId, isSelected, position）は
  * コンポーネントのローカルstateで管理してください。
