@@ -8,13 +8,14 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**Progress**: 60/72 tasks (83%) completed | 12 tasks DEFERRED
+**Progress**: 61/72 tasks (85%) completed | 11 tasks DEFERRED
 
 **Status**:
-- ✅ Phase 1-9: Core implementation complete (T001-T066, T023-T025, T031-T036)
+- ✅ Phase 1-9: Core implementation complete (T001-T066, T023-T025, T028, T031-T036)
 - ✅ Phase 9 (Data Model Migration): GameState.ts, Rules layer, Application layer migrated to numeric IDs
 - ✅ Phase 4 (API Compatibility): YGOPRODeck API compatibility verified with integration tests
 - ✅ Documentation: Architecture design doc created, CLAUDE.md updated
+- ✅ T028: Domain Layer tests verified (126 tests passing with DomainCardData)
 - ⏳ Deferred: T043-T046 (UI migration), T059-T060 (type deletion), T062, T067-T071 (polish)
 
 ---
@@ -121,7 +122,7 @@
 
 - [X] T026 [P] [US1] Create unit test for DomainCardData validation in skeleton-app/tests/unit/domain/models/Card.test.ts
 - [X] T027 [P] [US1] Create unit test for type guards in skeleton-app/tests/unit/domain/models/Card.test.ts
-- [ ] T028 [US1] Update existing Domain Layer tests to use DomainCardData (DEFERRED - Phase 4以降)
+- [X] T028 [US1] Update existing Domain Layer tests to use DomainCardData - Phase 9で完了、126 tests passing (domain: 42, rules: 84)
 
 ### 検証
 
