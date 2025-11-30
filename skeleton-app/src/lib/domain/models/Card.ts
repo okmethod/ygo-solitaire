@@ -2,14 +2,14 @@
  * Card - Type definitions for card data and instances
  *
  * Defines:
- * - DomainCardData: Minimal card data for game logic (T014, T015)
+ * - DomainCardData: Minimal card data for game logic 
  * - CardInstance: Runtime representation with unique instanceId
  *
  * @module domain/models/Card
  */
 
 /**
- * Simplified card type for Domain Layer (T014)
+ * Simplified card type for Domain Layer 
  *
  * YGOPRODeck API互換の簡略化型。
  * ゲームロジックに必要な最小限の3カテゴリのみを表現。
@@ -17,7 +17,7 @@
 export type SimpleCardType = "monster" | "spell" | "trap";
 
 /**
- * Domain Layer用の最小限カードデータ（T014）
+ * Domain Layer用の最小限カードデータ
  *
  * ゲームロジック実装に必要な最小限のプロパティのみを保持。
  * 表示用データ（name, description, imagesなど）は含まない。
@@ -49,7 +49,7 @@ export interface CardInstance {
 export type ZoneLocation = "deck" | "hand" | "field" | "graveyard" | "banished";
 
 /**
- * DomainCardData型ガード: monster type（T020）
+ * DomainCardData型ガード: monster type
  *
  * @param card - DomainCardData オブジェクト
  * @returns カードタイプがmonsterの場合true
@@ -59,7 +59,7 @@ export function isDomainMonsterCard(card: DomainCardData): boolean {
 }
 
 /**
- * DomainCardData型ガード: spell type（T021）
+ * DomainCardData型ガード: spell type
  *
  * @param card - DomainCardData オブジェクト
  * @returns カードタイプがspellの場合true
@@ -69,7 +69,7 @@ export function isDomainSpellCard(card: DomainCardData): boolean {
 }
 
 /**
- * DomainCardData型ガード: trap type（T022）
+ * DomainCardData型ガード: trap type
  *
  * @param card - DomainCardData オブジェクト
  * @returns カードタイプがtrapの場合true
@@ -79,7 +79,7 @@ export function isDomainTrapCard(card: DomainCardData): boolean {
 }
 
 /**
- * DomainCardData検証関数（T019）
+ * DomainCardData検証関数
  *
  * オブジェクトがDomainCardDataの必須プロパティを持つかを検証。
  *
@@ -109,10 +109,10 @@ export function isDomainCardData(obj: unknown): obj is DomainCardData {
   return true;
 }
 
-// ==================== Phase 1: 互換層（T023-T025 Migration Support） ====================
+// ==================== Phase 1: 互換層 ====================
 
 /**
- * カードIDからカードタイプを推論（一時的な実装）（T018）
+ * カードIDからカードタイプを推論（一時的な実装）
  *
  * GameState移行時の互換層として使用。
  * 将来的にはYGOPRODeck APIから型情報を取得すべき。
@@ -149,7 +149,7 @@ export function inferCardTypeFromId(cardId: string | number): SimpleCardType {
 }
 
 /**
- * CardInstanceからDomainCardDataへの変換（一時的なヘルパー）（T023 Migration）
+ * CardInstanceからDomainCardDataへの変換（一時的なヘルパー）
  *
  * @deprecated 移行完了後に削除予定
  * @param instance - CardInstance オブジェクト
@@ -164,7 +164,7 @@ export function convertCardInstanceToDomainCardData(instance: CardInstance): Dom
 }
 
 /**
- * DomainCardDataからCardInstanceへの変換（一時的なヘルパー）（T023 Migration）
+ * DomainCardDataからCardInstanceへの変換（一時的なヘルパー）
  *
  * @deprecated 移行完了後に削除予定
  * @param card - DomainCardData オブジェクト

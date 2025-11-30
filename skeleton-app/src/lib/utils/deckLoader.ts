@@ -107,7 +107,7 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
 }
 
 /**
- * RecipeCardEntry のバリデーション（T032）
+ * RecipeCardEntry のバリデーション
  *
  * カードIDが有効な数値であることを確認。
  * YGOPRODeck API互換性を保証する。
@@ -142,7 +142,7 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
   // メインデッキとエクストラデッキの全カード ID を取得
   const allCardEntries = [...recipe.mainDeck, ...recipe.extraDeck];
 
-  // RecipeCardEntry のバリデーション（T032）
+  // RecipeCardEntry のバリデーション
   for (const entry of allCardEntries) {
     validateRecipeCardEntry(entry);
   }

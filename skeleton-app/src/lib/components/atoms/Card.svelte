@@ -6,14 +6,14 @@
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   /**
-   * Card型はCardDisplayDataのエイリアスです（T060）
+   * Card型はCardDisplayDataのエイリアスです
    */
   interface CardComponentProps {
     card?: Card;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
-    isSelected?: boolean; // UI状態を外部から制御（T043）
+    isSelected?: boolean; // UI状態を外部から制御
     placeholder?: boolean;
     placeholderText?: string;
     rotation?: number;
@@ -28,7 +28,7 @@
     size = "medium",
     clickable = false,
     selectable = false,
-    isSelected = false, // 初期値はfalse（T043）
+    isSelected = false, // 初期値はfalse
     placeholder = false,
     placeholderText = "カード",
     rotation = 0,
@@ -39,7 +39,7 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let selectedState = $state(isSelected); // ローカルstate（T043）
+  let selectedState = $state(isSelected); // ローカルstate
 
   // カードクリック処理
   function handleClick() {
@@ -50,10 +50,10 @@
       onClick(card);
     }
     if (selectable) {
-      selectedState = !selectedState; // ローカルstateを更新（T043）
+      selectedState = !selectedState; // ローカルstateを更新
     }
     if (showDetailOnClick && card) {
-      // Card型はCardDisplayDataのエイリアス（T060）
+      // Card型はCardDisplayDataのエイリアス
       showCardDetailDisplay(card);
     }
   }

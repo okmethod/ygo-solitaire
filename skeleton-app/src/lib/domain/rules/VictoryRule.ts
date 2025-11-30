@@ -106,7 +106,7 @@ export function hasDeckOutDefeat(state: GameState): boolean {
 }
 
 /**
- * Get missing Exodia pieces (for UI hints)（T024 Migration）
+ * Get missing Exodia pieces (for UI hints)
  *
  * 数値ID比較に更新（先頭ゼロの問題を回避）
  *
@@ -143,7 +143,7 @@ export function getMissingExodiaPieces(state: GameState): string[] {
 }
 
 /**
- * Get number of Exodia pieces in hand (for UI display)（T024 Migration）
+ * Get number of Exodia pieces in hand (for UI display)
  *
  * 数値ID比較に更新（先頭ゼロの問題を回避）
  *

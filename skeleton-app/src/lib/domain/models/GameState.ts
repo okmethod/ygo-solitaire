@@ -51,7 +51,7 @@ export interface GameState {
 }
 
 /**
- * Create initial game state (数値ID対応版)（T023）
+ * Create initial game state (数値ID対応版)
  *
  * @param deckCardIds - Array of numeric card IDs for the main deck
  * @returns Initial GameState
@@ -85,7 +85,7 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
 /**
  * Create initial game state (文字列ID互換版)
  *
- * @deprecated Use createInitialGameState with number IDs (T023)
+ * @deprecated Use createInitialGameState with number IDs 
  * @param deckCardIds - Array of string card IDs for the main deck
  * @returns Initial GameState
  */
@@ -95,7 +95,7 @@ export function createInitialGameStateFromStringIds(deckCardIds: string[]): Game
 }
 
 /**
- * Helper to check if the player has won via Exodia (T023)
+ * Helper to check if the player has won via Exodia 
  *
  * 数値ID比較に更新（先頭ゼロの問題を回避）
  *

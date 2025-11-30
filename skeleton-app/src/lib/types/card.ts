@@ -21,7 +21,7 @@ interface CardImageProperties {
 }
 
 /**
- * カード画像データ（T038）
+ * カード画像データ
  * YGOPRODeck APIから取得されるカード画像URL情報
  */
 export interface CardImages {
@@ -31,7 +31,7 @@ export interface CardImages {
 }
 
 /**
- * モンスターカード属性情報（T039）
+ * モンスターカード属性情報
  * YGOPRODeck APIから取得されるモンスターカード固有のデータ
  */
 export interface MonsterAttributes {
@@ -43,9 +43,9 @@ export interface MonsterAttributes {
 }
 
 /**
- * UI表示用カードデータ（T037）
+ * UI表示用カードデータ
  * YGOPRODeck APIから取得されたカード情報をUIコンポーネントで表示するための型
- * CardDataを置き換える新しいPresentation Layer型定義
+ * CardDataを置き換えるPresentation Layer型定義
  */
 export interface CardDisplayData {
   // 必須プロパティ
@@ -70,7 +70,7 @@ export interface CardDisplayData {
  * YGOPRODeck APIから取得される不変のカード情報を表現
  * UIコンポーネントやデッキレシピで使用
  *
- * @deprecated Use CardDisplayData instead (T060)
+ * @deprecated Use CardDisplayData instead
  */
 export interface CardData {
   // 必須プロパティ
@@ -91,12 +91,12 @@ export interface CardData {
 }
 
 /**
- * Card type alias for CardDisplayData (T060)
+ * Card type alias for CardDisplayData
  *
  * CardDisplayDataのエイリアス。既存コードとの互換性のために提供。
  * 新規コードではCardDisplayDataを直接使用してください。
  *
  * Note: 旧Card型が持っていたUI状態（instanceId, isSelected, position）は
- * コンポーネントのローカルstateで管理してください（T043参照）。
+ * コンポーネントのローカルstateで管理してください。
  */
 export type Card = CardDisplayData;

@@ -2,10 +2,10 @@ import { writable } from "svelte/store";
 import type { Card } from "$lib/types/card";
 
 /**
- * カード詳細表示用のストア（T046, T060）
+ * カード詳細表示用のストア
  * UIコンポーネントで表示するカード情報を管理
  *
- * Note: Card型はCardDisplayDataのエイリアスです（T060）
+ * Note: Card型はCardDisplayDataのエイリアスです
  */
 export const selectedCardForDisplay = writable<Card | null>(null);
 

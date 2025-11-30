@@ -11,9 +11,9 @@ export interface RecipeCardEntry {
 }
 
 /**
- * ロード済みカードエントリー（CardDisplayData + 枚数）（T042）
+ * ロード済みカードエントリー（CardDisplayData + 枚数）
  * APIからロードしたカードデータと枚数の組み合わせ
- * UI表示用の新しいPresentation Layer型を使用
+ * UI表示用のPresentation Layer型を使用
  */
 export interface LoadedCardEntry {
   cardData: CardDisplayData; // カードのUI表示データ
@@ -22,7 +22,7 @@ export interface LoadedCardEntry {
 
 /**
  * レガシーロード済みカードエントリー
- * @deprecated Use LoadedCardEntry with CardDisplayData (T042)
+ * @deprecated Use LoadedCardEntry with CardDisplayData
  */
 export interface LegacyLoadedCardEntry {
   cardData: CardData; // カードの静的データ

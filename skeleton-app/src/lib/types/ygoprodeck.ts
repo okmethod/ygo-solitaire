@@ -27,7 +27,7 @@ export interface YGOProDeckCard {
   id: number;
   name: string;
   type: string;
-  frameType?: string; // ✅ オプショナルフィールドに変更（T005）
+  frameType?: string; // Optional field for card frame type
   desc: string;
   atk?: number;
   def?: number;
@@ -42,7 +42,7 @@ export interface YGOProDeckCard {
 }
 
 /**
- * カードタイプを正規化する内部関数（T007改善）
+ * カードタイプを正規化する内部関数
  *
  * YGOPRODeck APIのtype文字列をCardTypeに変換
  * @param {string} type - YGOPRODeck APIのtype文字列
@@ -55,7 +55,7 @@ function normalizeType(type: string): CardType {
   if (lowerType.includes("spell")) return "spell";
   if (lowerType.includes("trap")) return "trap";
 
-  // 未知のカードタイプはエラーとして扱う（T007）
+  // 未知のカードタイプはエラーとして扱う
   console.error(`Unknown card type: ${type}`);
   throw new Error(
     `Unable to normalize card type: "${type}". ` + `Expected type containing "monster", "spell", or "trap".`,
@@ -65,7 +65,7 @@ function normalizeType(type: string): CardType {
 /**
  * YGOPRODeck API カードデータをCardDataに変換
  *
- * @deprecated Use convertToCardDisplayData instead (T060)
+ * @deprecated Use convertToCardDisplayData instead
  * @param apiCard - YGOPRODeck APIから取得したカードデータ
  * @returns CardData - 旧形式のカードデータ
  */
@@ -107,7 +107,7 @@ export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardDa
 }
 
 /**
- * YGOPRODeck API カードデータをCardに変換（T060）
+ * YGOPRODeck API カードデータをCardに変換
  *
  * Card = CardDisplayDataとなったため、convertToCardDisplayDataを使用。
  *
@@ -119,16 +119,16 @@ export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard): Card {
 }
 
 /**
- * 複数の YGOPRODeck カードを Card 配列に変換（T060）
+ * 複数の YGOPRODeck カードを Card 配列に変換
  */
 export function convertYGOProDeckCardsToCards(apiCards: YGOProDeckCard[]): Card[] {
   return apiCards.map((card) => convertToCardDisplayData(card));
 }
 
 /**
- * YGOPRODeck API カードデータをCardDisplayDataに変換（T041）
+ * YGOPRODeck API カードデータをCardDisplayDataに変換
  *
- * Presentation Layer用の新しい変換関数。
+ * Presentation Layer用の変換関数。
  * CardDataとは異なり、画像とモンスター属性を明示的な型で返す。
  *
  * @param apiCard - YGOPRODeck APIから取得したカードデータ

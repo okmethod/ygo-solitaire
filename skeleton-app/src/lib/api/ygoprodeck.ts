@@ -8,7 +8,7 @@ interface YGOProDeckResponseJson {
 const API_BASE_URL = "https://db.ygoprodeck.com/api/v7";
 
 /**
- * YGOPRODeck APIレスポンスのメモリキャッシュ（T008）
+ * YGOPRODeck APIレスポンスのメモリキャッシュ
  *
  * セッション単位でカードデータをキャッシュし、重複リクエストを防ぐ。
  * ライフサイクル: ページリロードまで（メモリ上のみ）
@@ -16,7 +16,7 @@ const API_BASE_URL = "https://db.ygoprodeck.com/api/v7";
 const cardCache = new Map<number, YGOProDeckCard>();
 
 /**
- * キャッシュをクリアする（テスト用）（T009）
+ * キャッシュをクリアする（テスト用）
  *
  * @internal
  */
@@ -25,7 +25,7 @@ export function clearCache(): void {
 }
 
 /**
- * YGOPRODeck APIへのリクエストを実行（T006改善）
+ * YGOPRODeck APIへのリクエストを実行
  *
  * @param {typeof fetch} fetchFunction - fetchインスタンス
  * @param {string} path - APIパス
@@ -44,7 +44,7 @@ async function fetchYGOProDeckAPI(fetchFunction: typeof fetch, path: string): Pr
     const response = await fetchApi(fetchFunction, url, requestConfig);
 
     if (!response.ok) {
-      // エラー詳細をログ出力（T006）
+      // エラー詳細をログ出力
       console.error(`YGOPRODeck API Error: ${response.status} ${response.statusText} - ${url}`);
 
       // Rate limit検出（429 Too Many Requests）
@@ -69,7 +69,7 @@ export async function getCardById(fetchFunction: typeof fetch, id: number): Prom
 }
 
 /**
- * カードIDのリストから複数のカードデータを取得（T010: キャッシュ対応）
+ * カードIDのリストから複数のカードデータを取得
  *
  * キャッシュを優先的に使用し、未キャッシュのカードのみAPIリクエスト。
  *
@@ -84,7 +84,7 @@ export async function getCardById(fetchFunction: typeof fetch, id: number): Prom
 export async function getCardsByIds(fetchFunction: typeof fetch, ids: number[]): Promise<YGOProDeckCard[]> {
   if (ids.length === 0) return [];
 
-  // キャッシュヒット/ミスを分離（T010）
+  // キャッシュヒット/ミスを分離
   const cachedCards: YGOProDeckCard[] = [];
   const uncachedIds: number[] = [];
 
