@@ -38,7 +38,7 @@ export interface DomainCardData {
  */
 export interface CardInstance {
   readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
-  readonly cardId: string; // References CardData.id
+  readonly cardId: string; // References card ID (number as string)
   readonly location: ZoneLocation; // Current location
   readonly position?: "faceUp" | "faceDown"; // For field cards
 }

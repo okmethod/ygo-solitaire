@@ -75,7 +75,7 @@ export interface ExtraDeckData {
 
 /**
  * ロード済みデッキデータ
- * CardDataと枚数を保持し、カードタイプ別に事前分類済み
+ * CardDisplayDataと枚数を保持し、カードタイプ別に事前分類済み
  * フィルタリング処理を不要にしてパフォーマンス向上
  */
 export interface DeckData extends DeckBase {

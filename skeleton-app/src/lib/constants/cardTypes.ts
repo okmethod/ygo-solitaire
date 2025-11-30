@@ -11,6 +11,10 @@ export const CARD_TYPE_BACKGROUND_CLASSES: Record<CardType, string> = {
 
 /**
  * カードタイプに応じた背景色クラスを取得する
+ *
+ * @param cardType - カードタイプ（"monster" | "spell" | "trap"）
+ * @param fallback - カードタイプが指定されていない場合のフォールバック値
+ * @returns TailwindCSS背景色クラス文字列
  */
 export function getCardTypeBackgroundClass(cardType?: CardType, fallback: string = "bg-surface-100-600-token"): string {
   if (!cardType) return fallback;
