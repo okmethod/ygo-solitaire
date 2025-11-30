@@ -1,4 +1,4 @@
-import type { Card, CardData, CardDisplayData, CardImages, MonsterAttributes, CardType } from "$lib/types/card";
+import type { Card, CardDisplayData, CardImages, MonsterAttributes, CardType } from "$lib/types/card";
 
 interface YGOProDeckCardImage {
   id: number;
