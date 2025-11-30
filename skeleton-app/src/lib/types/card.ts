@@ -69,6 +69,8 @@ export interface CardDisplayData {
  * 静的なカードマスターデータ（Presentation Layer用）
  * YGOPRODeck APIから取得される不変のカード情報を表現
  * UIコンポーネントやデッキレシピで使用
+ *
+ * @deprecated Use CardDisplayData instead (T060)
  */
 export interface CardData {
   // 必須プロパティ
@@ -89,14 +91,12 @@ export interface CardData {
 }
 
 /**
- * ゲーム内で使用する動的なカードインスタンス（Presentation Layer用）
- * CardDataにゲーム状態（選択状態、フィールド上の位置など）を追加
- * 実際のデュエル中にのみ使用
+ * Card type alias for CardDisplayData (T060)
  *
- * @deprecated Use CardDisplayData for new code (T040)
+ * CardDisplayDataのエイリアス。既存コードとの互換性のために提供。
+ * 新規コードではCardDisplayDataを直接使用してください。
+ *
+ * Note: 旧Card型が持っていたUI状態（instanceId, isSelected, position）は
+ * コンポーネントのローカルstateで管理してください（T043参照）。
  */
-export interface Card extends CardData {
-  instanceId?: string; // 同じカードの複数インスタンスを区別するための一意ID
-  isSelected?: boolean; // UI上での選択状態
-  position?: "attack" | "defense" | "facedown"; // フィールド上での表示形式
-}
+export type Card = CardDisplayData;

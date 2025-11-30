@@ -1,18 +1,15 @@
 <script lang="ts">
-  import type { Card, CardDisplayData } from "$lib/types/card";
+  import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
   import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   /**
-   * カード型の互換性（T043）
-   * CardDisplayDataを優先しますが、既存のCard型も受け入れます
+   * Card型はCardDisplayDataのエイリアスです（T060）
    */
-  type CardLike = CardDisplayData | Card;
-
   interface CardComponentProps {
-    card?: CardLike;
+    card?: Card;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
@@ -22,8 +19,8 @@
     rotation?: number;
     animate?: boolean;
     showDetailOnClick?: boolean;
-    onClick?: (card: CardLike) => void;
-    onHover?: (card: CardLike | null) => void;
+    onClick?: (card: Card) => void;
+    onHover?: (card: Card | null) => void;
   }
 
   let {
@@ -56,8 +53,8 @@
       selectedState = !selectedState; // ローカルstateを更新（T043）
     }
     if (showDetailOnClick && card) {
-      // CardDisplayDataまたはCardを受け入れる（T043）
-      showCardDetailDisplay(card as CardDisplayData);
+      // Card型はCardDisplayDataのエイリアス（T060）
+      showCardDetailDisplay(card);
     }
   }
 

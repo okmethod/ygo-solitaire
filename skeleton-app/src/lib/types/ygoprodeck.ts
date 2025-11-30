@@ -62,6 +62,13 @@ function normalizeType(type: string): CardType {
   );
 }
 
+/**
+ * YGOPRODeck API カードデータをCardDataに変換
+ *
+ * @deprecated Use convertToCardDisplayData instead (T060)
+ * @param apiCard - YGOPRODeck APIから取得したカードデータ
+ * @returns CardData - 旧形式のカードデータ
+ */
 export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardData {
   // 画像URL を取得（最初の画像を使用）
   const cardImage = apiCard.card_images[0];
@@ -99,20 +106,23 @@ export function convertYGOProDeckCardToCardData(apiCard: YGOProDeckCard): CardDa
   };
 }
 
+/**
+ * YGOPRODeck API カードデータをCardに変換（T060）
+ *
+ * Card = CardDisplayDataとなったため、convertToCardDisplayDataを使用。
+ *
+ * @param apiCard - YGOPRODeck APIから取得したカードデータ
+ * @returns Card - UI表示用カードデータ
+ */
 export function convertYGOProDeckCardToCard(apiCard: YGOProDeckCard): Card {
-  const cardData = convertYGOProDeckCardToCardData(apiCard);
-
-  return {
-    ...cardData,
-    // ゲーム状態プロパティは初期値なし（必要に応じて後で設定）
-  };
+  return convertToCardDisplayData(apiCard);
 }
 
 /**
- * 複数の YGOPRODeck カードを Card 配列に変換
+ * 複数の YGOPRODeck カードを Card 配列に変換（T060）
  */
 export function convertYGOProDeckCardsToCards(apiCards: YGOProDeckCard[]): Card[] {
-  return apiCards.map((card) => convertYGOProDeckCardToCard(card));
+  return apiCards.map((card) => convertToCardDisplayData(card));
 }
 
 /**
