@@ -67,7 +67,7 @@
 - [ ] T014 [US1] 手札カードとinstanceIdのマッピングロジック実装（$gameStateStore.zones.handと$handCardsの組み合わせ）
 - [ ] T015 [US1] Card.svelteへのprops渡し修正：card={cardData} size="medium" で画像表示
 - [ ] T016 [US1] ローディング中のplaceholder表示実装（cardDataがundefinedの場合）
-- [ ] T017 [US1] 動作確認：シミュレーターページでDraw Card → 手札にカードイラスト表示
+- [ ] T017 [US1] 動作確認：シミュレーターページでDraw Card → 手札にカードイラスト表示、既存ゲームコントロール（Draw Card/Advance Phaseボタン）との統合確認
 
 **Checkpoint**: US1完全動作 - 手札カードがイラスト表示され、カードIDのみの表示は0件
 
@@ -84,7 +84,7 @@
 - [ ] T018 [P] [US2] handleCardClick関数の実装（card: CardDisplayData, instanceId: stringを受け取る）
 - [ ] T019 [P] [US2] フェーズチェックロジック追加（$currentPhase === "Main1"のみ発動可能）
 - [ ] T020 [P] [US2] 魔法発動可否チェック追加（$canActivateSpellsを使用）
-- [ ] T021 [US2] GameFacade.activateSpell(instanceId)呼び出し実装
+- [ ] T021 [US2] GameFacade.activateSpell(instanceId)呼び出し実装（魔法カード専用、将来的にモンスター効果も追加可能）
 - [ ] T022 [US2] トーストメッセージ表示ロジック追加（成功時はshowSuccessToast、失敗時はshowErrorToast）
 - [ ] T023 [US2] Card.svelteのclickableとonClickプロパティ設定（Main1フェーズかつcanActivateSpellsがtrueの場合のみclickable）
 - [ ] T024 [US2] 動作確認：Advance Phase → Main1 → 手札魔法カードクリック → トースト表示 → カード移動確認
@@ -124,7 +124,7 @@
 - [ ] T032 [P] [US1] 魔法・罠ゾーン用カード配列作成（type === "spell" | "trap" かつ frameType !== "field"、5枚固定）
 - [ ] T033 [US1] DuelFieldコンポーネントへのprops渡し実装（deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards）
 - [ ] T034 [US1] 既存の手札表示エリアをDuelFieldと併用する形で配置調整
-- [ ] T035 [US1] 動作確認：全ゾーン（手札、フィールド、墓地、デッキ）でカードイラスト表示確認
+- [ ] T035 [US1] 動作確認：全ゾーン（手札、フィールド、墓地、デッキ）でカードイラスト表示確認、既存ゲームコントロールとの統合維持確認（FR-008対応）
 
 **Checkpoint**: DuelField統合完了 - 全ゾーンでカードイラスト表示され、遊戯王らしいフィールドレイアウト実現
 
@@ -138,8 +138,8 @@
 - [ ] T037 [P] Formatter実行（`npm run format`）
 - [ ] T038 [P] 全単体テスト実行・合格確認（`npm run test:run`）
 - [ ] T039 [P] ビルド確認（`npm run build`）
-- [ ] T040 パフォーマンス検証：40枚同時表示でフレームレート30fps以上維持確認
-- [ ] T041 API呼び出し頻度確認：キャッシュヒット時は追加リクエスト0件
+- [ ] T040 パフォーマンス検証：40枚同時表示でフレームレート30fps以上維持確認（失敗時はリファクタリングorスコープ縮小の判断を記録）
+- [ ] T041 API呼び出し頻度確認：キャッシュヒット時は追加リクエスト0件（失敗時はキャッシュロジック見直し）
 - [ ] T042 E2Eテスト作成・実行（skeleton-app/tests/e2e/effect-activation-ui.test.ts）
 - [ ] T043 [P] quickstart.md検証：各フェーズの手順通りに動作することを確認
 - [ ] T044 コミット：各フェーズごとに適切なコミットメッセージでコミット
