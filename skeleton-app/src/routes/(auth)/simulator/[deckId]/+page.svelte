@@ -15,7 +15,9 @@
     isGameOver,
     gameResult,
   } from "$lib/application/stores/derivedStores";
+  import { handCards } from "$lib/application/stores/cardDisplayStore";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
+  import Card from "$lib/components/atoms/Card.svelte";
 
   export let data: PageData;
 
@@ -62,6 +64,12 @@
     };
     return phaseMap[phase] || phase;
   }
+
+  // 手札カードとinstanceIdのマッピング
+  $: handCardsWithInstanceId = $gameStateStore.zones.hand.map((instance, index) => ({
+    card: $handCards[index],
+    instanceId: instance.instanceId,
+  }));
 </script>
 
 <div class="container mx-auto p-4">
@@ -152,19 +160,23 @@
       <h2 class="text-xl font-bold">Hand ({$handCardCount} cards)</h2>
 
       <div class="grid grid-cols-5 gap-2">
-        {#each $gameStateStore.zones.hand as card (card.instanceId)}
-          <div class="card p-2 bg-surface-700 hover:bg-surface-600 cursor-pointer">
-            <p class="text-xs text-center font-bold">{card.cardId}</p>
-            <p class="text-xs text-center opacity-75">{card.instanceId}</p>
-            {#if $currentPhase === "Main1" && !$isGameOver}
-              <button
-                class="btn btn-sm variant-filled-primary w-full mt-2"
-                on:click={() => handleActivateCard(card.instanceId)}
-              >
-                Activate
-              </button>
-            {/if}
-          </div>
+        {#each handCardsWithInstanceId as { card, instanceId } (instanceId)}
+          {#if card}
+            <div class="relative">
+              <Card {card} size="medium" clickable={false} />
+              {#if $currentPhase === "Main1" && !$isGameOver}
+                <button
+                  class="btn btn-sm variant-filled-primary w-full mt-2"
+                  on:click={() => handleActivateCard(instanceId)}
+                >
+                  Activate
+                </button>
+              {/if}
+            </div>
+          {:else}
+            <!-- ローディング中のplaceholder -->
+            <Card placeholder={true} placeholderText="..." size="medium" />
+          {/if}
         {:else}
           <div class="col-span-5 text-center text-sm opacity-50">No cards in hand</div>
         {/each}

@@ -11,6 +11,7 @@ import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/appli
 import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
 import * as ygoprodeckApi from "$lib/api/ygoprodeck";
 import type { YGOProDeckCard } from "$lib/types/ygoprodeck";
+import type { CardDisplayData } from "$lib/types/card";
 import potOfGreedFixture from "../fixtures/ygoprodeck/pot-of-greed.json";
 import gracefulCharityFixture from "../fixtures/ygoprodeck/graceful-charity.json";
 
