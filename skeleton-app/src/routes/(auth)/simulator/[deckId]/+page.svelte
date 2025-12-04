@@ -185,6 +185,7 @@
               size="medium"
               clickable={$currentPhase === "Main1" && $canActivateSpells && !$isGameOver}
               onClick={(clickedCard) => handleCardClick(clickedCard, instanceId)}
+              showDetailOnClick={true}
             />
           {:else}
             <!-- ローディング中のplaceholder -->

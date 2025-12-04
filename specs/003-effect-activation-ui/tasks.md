@@ -101,10 +101,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Card.svelteのshowDetailOnClickプロパティを有効化（既存機能を活用）
-- [ ] T026 [US3] 手札カードにshowDetailOnClick={true}を設定
+- [X] T025 [P] [US3] Card.svelteのshowDetailOnClickプロパティを有効化（既存機能を活用）
+- [X] T026 [US3] 手札カードにshowDetailOnClick={true}を設定
 - [ ] T027 [US3] フィールドカードにもshowDetailOnClick={true}を設定（将来のDuelField統合時）
-- [ ] T028 [US3] 動作確認：カードクリック → CardDetailDisplayモーダル表示 → 詳細情報確認
+- [X] T028 [US3] 動作確認：カードクリック → CardDetailDisplayモーダル表示 → 詳細情報確認
 
 **Checkpoint**: US3完全動作 - カード詳細をモーダルで確認可能
 
