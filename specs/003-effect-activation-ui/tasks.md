@@ -118,13 +118,13 @@
 
 ### Implementation for DuelField Integration
 
-- [ ] T029 [P] [US1] DuelFieldコンポーネントのインポート追加（skeleton-app/src/routes/(auth)/simulator/[deckId]/+page.svelte）
-- [ ] T030 [P] [US1] フィールド魔法ゾーン用カード抽出ロジック実装（$fieldCardsからframeType === "field"をフィルタ）
-- [ ] T031 [P] [US1] モンスターゾーン用カード配列作成（type === "monster"、5枚固定、null埋め）
-- [ ] T032 [P] [US1] 魔法・罠ゾーン用カード配列作成（type === "spell" | "trap" かつ frameType !== "field"、5枚固定）
-- [ ] T033 [US1] DuelFieldコンポーネントへのprops渡し実装（deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards）
-- [ ] T034 [US1] 既存の手札表示エリアをDuelFieldと併用する形で配置調整
-- [ ] T035 [US1] 動作確認：全ゾーン（手札、フィールド、墓地、デッキ）でカードイラスト表示確認、既存ゲームコントロールとの統合維持確認（FR-008対応）
+- [X] T029 [P] [US1] DuelFieldコンポーネントのインポート追加（skeleton-app/src/routes/(auth)/simulator/[deckId]/+page.svelte）
+- [X] T030 [P] [US1] フィールド魔法ゾーン用カード抽出ロジック実装（$fieldCardsからframeType === "field"をフィルタ）
+- [X] T031 [P] [US1] モンスターゾーン用カード配列作成（type === "monster"、5枚固定、null埋め）
+- [X] T032 [P] [US1] 魔法・罠ゾーン用カード配列作成（type === "spell" | "trap" かつ frameType !== "field"、5枚固定）
+- [X] T033 [US1] DuelFieldコンポーネントへのprops渡し実装（deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards）
+- [X] T034 [US1] 既存の手札表示エリアをDuelFieldと併用する形で配置調整
+- [X] T035 [US1] 動作確認：全ゾーン（手札、フィールド、墓地、デッキ）でカードイラスト表示確認、既存ゲームコントロールとの統合維持確認（FR-008対応）
 
 **Checkpoint**: DuelField統合完了 - 全ゾーンでカードイラスト表示され、遊戯王らしいフィールドレイアウト実現
 

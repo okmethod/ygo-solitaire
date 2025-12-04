@@ -16,9 +16,10 @@
     gameResult,
     canActivateSpells,
   } from "$lib/application/stores/derivedStores";
-  import { handCards } from "$lib/application/stores/cardDisplayStore";
+  import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
   import Card from "$lib/components/atoms/Card.svelte";
+  import DuelField from "$lib/components/organisms/board/DuelField.svelte";
   import type { Card as CardDisplayData } from "$lib/types/card";
 
   export let data: PageData;
@@ -88,6 +89,32 @@
     card: $handCards[index],
     instanceId: instance.instanceId,
   }));
+
+  // T030-T032: DuelField用のゾーンデータ抽出
+  // T030: フィールド魔法ゾーン用カード（frameType === "field"）
+  $: fieldMagicCards = $fieldCards.filter((card) => card.frameType === "field");
+
+  // T031: モンスターゾーン用カード配列（5枚固定、null埋め）
+  $: monsterZoneCards = (() => {
+    const monsters = $fieldCards.filter((card) => card.type === "monster");
+    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
+    monsters.forEach((card, i) => {
+      if (i < 5) zone[i] = card;
+    });
+    return zone;
+  })();
+
+  // T032: 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
+  $: spellTrapZoneCards = (() => {
+    const spellsTraps = $fieldCards.filter(
+      (card) => (card.type === "spell" || card.type === "trap") && card.frameType !== "field",
+    );
+    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
+    spellsTraps.forEach((card, i) => {
+      if (i < 5) zone[i] = card;
+    });
+    return zone;
+  })();
 </script>
 
 <div class="container mx-auto p-4">
@@ -155,23 +182,15 @@
       </div>
     </div>
 
-    <!-- Field Zone -->
-    <div class="card p-4 space-y-4">
-      <h2 class="text-xl font-bold">Field</h2>
-
-      <div class="grid grid-cols-5 gap-2">
-        {#each $gameStateStore.zones.field as card (card.instanceId)}
-          <div class="card p-2 bg-surface-700">
-            <p class="text-xs text-center">{card.cardId}</p>
-            <p class="text-xs text-center opacity-75">{card.location}</p>
-          </div>
-        {:else}
-          <div class="col-span-5 text-center text-sm opacity-50">No cards on field</div>
-        {/each}
-      </div>
-
-      <div class="text-sm opacity-75">Field cards: {$fieldCardCount}</div>
-    </div>
+    <!-- DuelField Integration (T033-T034) -->
+    <DuelField
+      deckCards={$deckCardCount}
+      extraDeckCards={[]}
+      graveyardCards={$graveyardCards}
+      fieldCards={fieldMagicCards}
+      monsterCards={monsterZoneCards}
+      spellTrapCards={spellTrapZoneCards}
+    />
 
     <!-- Hand Zone -->
     <div class="card p-4 space-y-4">
