@@ -10,7 +10,6 @@
     handCardCount,
     deckCardCount,
     graveyardCardCount,
-    fieldCardCount,
     exodiaPieceCount,
     isGameOver,
     gameResult,
