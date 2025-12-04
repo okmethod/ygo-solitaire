@@ -87,7 +87,7 @@
 - [X] T021 [US2] GameFacade.activateSpell(instanceId)呼び出し実装（魔法カード専用、将来的にモンスター効果も追加可能）
 - [X] T022 [US2] トーストメッセージ表示ロジック追加（成功時はshowSuccessToast、失敗時はshowErrorToast）
 - [X] T023 [US2] Card.svelteのclickableとonClickプロパティ設定（Main1フェーズかつcanActivateSpellsがtrueの場合のみclickable）
-- [ ] T024 [US2] 動作確認：Advance Phase → Main1 → 手札魔法カードクリック → トースト表示 → カード移動確認
+- [X] T024 [US2] 動作確認：Advance Phase → Main1 → 手札魔法カードクリック → トースト表示 → カード移動確認
 
 **Checkpoint**: US2完全動作 - カードクリックで効果発動でき、ゲーム状態がリアルタイムでUI反映
 
