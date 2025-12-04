@@ -62,12 +62,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] V2シミュレーターページへのcardDisplayStoreインポート追加（skeleton-app/src/routes/(auth)/simulator/[deckId]/+page.svelte）
-- [ ] T013 [P] [US1] 手札表示ロジック修正：$handCardsからCardDisplayDataを取得し、Card.svelteに渡す
-- [ ] T014 [US1] 手札カードとinstanceIdのマッピングロジック実装（$gameStateStore.zones.handと$handCardsの組み合わせ）
-- [ ] T015 [US1] Card.svelteへのprops渡し修正：card={cardData} size="medium" で画像表示
-- [ ] T016 [US1] ローディング中のplaceholder表示実装（cardDataがundefinedの場合）
-- [ ] T017 [US1] 動作確認：シミュレーターページでDraw Card → 手札にカードイラスト表示、既存ゲームコントロール（Draw Card/Advance Phaseボタン）との統合確認
+- [X] T012 [P] [US1] V2シミュレーターページへのcardDisplayStoreインポート追加（skeleton-app/src/routes/(auth)/simulator/[deckId]/+page.svelte）
+- [X] T013 [P] [US1] 手札表示ロジック修正：$handCardsからCardDisplayDataを取得し、Card.svelteに渡す
+- [X] T014 [US1] 手札カードとinstanceIdのマッピングロジック実装（$gameStateStore.zones.handと$handCardsの組み合わせ）
+- [X] T015 [US1] Card.svelteへのprops渡し修正：card={cardData} size="medium" で画像表示
+- [X] T016 [US1] ローディング中のplaceholder表示実装（cardDataがundefinedの場合）
+- [X] T017 [US1] 動作確認：シミュレーターページでDraw Card → 手札にカードイラスト表示、既存ゲームコントロール（Draw Card/Advance Phaseボタン）との統合確認
 
 **Checkpoint**: US1完全動作 - 手札カードがイラスト表示され、カードIDのみの表示は0件
 
@@ -81,12 +81,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] handleCardClick関数の実装（card: CardDisplayData, instanceId: stringを受け取る）
-- [ ] T019 [P] [US2] フェーズチェックロジック追加（$currentPhase === "Main1"のみ発動可能）
-- [ ] T020 [P] [US2] 魔法発動可否チェック追加（$canActivateSpellsを使用）
-- [ ] T021 [US2] GameFacade.activateSpell(instanceId)呼び出し実装（魔法カード専用、将来的にモンスター効果も追加可能）
-- [ ] T022 [US2] トーストメッセージ表示ロジック追加（成功時はshowSuccessToast、失敗時はshowErrorToast）
-- [ ] T023 [US2] Card.svelteのclickableとonClickプロパティ設定（Main1フェーズかつcanActivateSpellsがtrueの場合のみclickable）
+- [X] T018 [P] [US2] handleCardClick関数の実装（card: CardDisplayData, instanceId: stringを受け取る）
+- [X] T019 [P] [US2] フェーズチェックロジック追加（$currentPhase === "Main1"のみ発動可能）
+- [X] T020 [P] [US2] 魔法発動可否チェック追加（$canActivateSpellsを使用）
+- [X] T021 [US2] GameFacade.activateSpell(instanceId)呼び出し実装（魔法カード専用、将来的にモンスター効果も追加可能）
+- [X] T022 [US2] トーストメッセージ表示ロジック追加（成功時はshowSuccessToast、失敗時はshowErrorToast）
+- [X] T023 [US2] Card.svelteのclickableとonClickプロパティ設定（Main1フェーズかつcanActivateSpellsがtrueの場合のみclickable）
 - [ ] T024 [US2] 動作確認：Advance Phase → Main1 → 手札魔法カードクリック → トースト表示 → カード移動確認
 
 **Checkpoint**: US2完全動作 - カードクリックで効果発動でき、ゲーム状態がリアルタイムでUI反映

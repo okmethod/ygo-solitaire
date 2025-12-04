@@ -14,10 +14,12 @@
     exodiaPieceCount,
     isGameOver,
     gameResult,
+    canActivateSpells,
   } from "$lib/application/stores/derivedStores";
   import { handCards } from "$lib/application/stores/cardDisplayStore";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
   import Card from "$lib/components/atoms/Card.svelte";
+  import type { Card as CardDisplayData } from "$lib/types/card";
 
   export let data: PageData;
 
@@ -45,10 +47,26 @@
     console.log("[Simulator-V2] Victory check:", result);
   }
 
-  function handleActivateCard(cardInstanceId: string) {
-    const result = gameFacade.activateSpell(cardInstanceId);
+  // T018-T022: User Story 2 - カードクリックで効果発動
+  function handleCardClick(card: CardDisplayData, instanceId: string) {
+    // T019: フェーズチェック（Main1フェーズのみ発動可能）
+    if ($currentPhase !== "Main1") {
+      showErrorToast("メインフェイズ1でのみカードを発動できます");
+      return;
+    }
+
+    // T020: 魔法発動可否チェック
+    if (!$canActivateSpells) {
+      showErrorToast("現在カードを発動できません");
+      return;
+    }
+
+    // T021: GameFacade.activateSpell呼び出し
+    const result = gameFacade.activateSpell(instanceId);
+
+    // T022: トーストメッセージ表示
     if (result.success) {
-      showSuccessToast(result.message || "魔法カードを発動しました");
+      showSuccessToast(result.message || `${card.name}を発動しました`);
     } else {
       showErrorToast(result.error || "発動に失敗しました");
     }
@@ -162,17 +180,12 @@
       <div class="grid grid-cols-5 gap-2">
         {#each handCardsWithInstanceId as { card, instanceId } (instanceId)}
           {#if card}
-            <div class="relative">
-              <Card {card} size="medium" clickable={false} />
-              {#if $currentPhase === "Main1" && !$isGameOver}
-                <button
-                  class="btn btn-sm variant-filled-primary w-full mt-2"
-                  on:click={() => handleActivateCard(instanceId)}
-                >
-                  Activate
-                </button>
-              {/if}
-            </div>
+            <Card
+              {card}
+              size="medium"
+              clickable={$currentPhase === "Main1" && $canActivateSpells && !$isGameOver}
+              onClick={(clickedCard) => handleCardClick(clickedCard, instanceId)}
+            />
           {:else}
             <!-- ローディング中のplaceholder -->
             <Card placeholder={true} placeholderText="..." size="medium" />
