@@ -47,24 +47,24 @@
     console.log("[Simulator-V2] Victory check:", result);
   }
 
-  // T018-T022: User Story 2 - カードクリックで効果発動
+  // User Story 2: カードクリックで効果発動
   function handleCardClick(card: CardDisplayData, instanceId: string) {
-    // T019: フェーズチェック（Main1フェーズのみ発動可能）
+    // フェーズチェック（Main1フェーズのみ発動可能）
     if ($currentPhase !== "Main1") {
       showErrorToast("メインフェイズ1でのみカードを発動できます");
       return;
     }
 
-    // T020: 魔法発動可否チェック
+    // 魔法発動可否チェック
     if (!$canActivateSpells) {
       showErrorToast("現在カードを発動できません");
       return;
     }
 
-    // T021: GameFacade.activateSpell呼び出し
+    // GameFacade.activateSpell呼び出し
     const result = gameFacade.activateSpell(instanceId);
 
-    // T022: トーストメッセージ表示
+    // トーストメッセージ表示
     if (result.success) {
       showSuccessToast(result.message || `${card.name}を発動しました`);
     } else {
@@ -89,11 +89,11 @@
     instanceId: instance.instanceId,
   }));
 
-  // T030-T032: DuelField用のゾーンデータ抽出
-  // T030: フィールド魔法ゾーン用カード（frameType === "field"）
+  // DuelField用のゾーンデータ抽出
+  // フィールド魔法ゾーン用カード（frameType === "field"）
   $: fieldMagicCards = $fieldCards.filter((card) => card.frameType === "field");
 
-  // T031: モンスターゾーン用カード配列（5枚固定、null埋め）
+  // モンスターゾーン用カード配列（5枚固定、null埋め）
   $: monsterZoneCards = (() => {
     const monsters = $fieldCards.filter((card) => card.type === "monster");
     const zone: (CardDisplayData | null)[] = Array(5).fill(null);
@@ -103,7 +103,7 @@
     return zone;
   })();
 
-  // T032: 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
+  // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   $: spellTrapZoneCards = (() => {
     const spellsTraps = $fieldCards.filter(
       (card) => (card.type === "spell" || card.type === "trap") && card.frameType !== "field",
@@ -181,7 +181,7 @@
       </div>
     </div>
 
-    <!-- DuelField Integration (T033-T034) -->
+    <!-- DuelField Integration -->
     <DuelField
       deckCards={$deckCardCount}
       extraDeckCards={[]}

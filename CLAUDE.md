@@ -5,6 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## ALWAYS YOU MUST:
 - 回答は日本語で行ってください。
 - TODO にはブランチ作成・実装内容のテスト・コミット・push・PR作成（まだ作成されていない場合）が含めてください。
+- **タスクID（T0xxなど）の使用ルール**:
+  - タスクIDは**フロー情報**（`specs/*/tasks.md`）内でのみ使用する
+  - **ストック情報**（ソースコード、`docs/`内のドキュメント）にはタスクIDを記載しない
+  - コミットメッセージにはタスクIDを含めても良い（履歴として有用）
+  - フロー情報は一時的な作業管理用、ストック情報は永続的な知識ベース
 
 ## GitHub Repository
 - **リポジトリ**: https://github.com/okmethod/ygo-solitaire
