@@ -322,7 +322,6 @@ test.describe("Effect Activation UI - Integration Tests", () => {
     await page.goto("/simulator/test-deck");
 
     // Verify DuelField component is rendered
-    const duelField = page.locator(".duel-field, [data-testid='duel-field']");
     // Note: Actual selector depends on DuelField.svelte implementation
 
     // Draw cards and verify they appear in DuelField zones
