@@ -114,19 +114,27 @@ specs/004-card-effect-execution/
 ```text
 skeleton-app/
 ├── src/lib/
-│   ├── domain/                          # Domain Layer (既存)
+│   ├── domain/                          # Domain Layer
 │   │   ├── models/
 │   │   │   ├── GameState.ts             # (既存)
 │   │   │   ├── Card.ts                  # (既存)
 │   │   │   └── Zone.ts                  # (既存) drawCards, sendToGraveyard
-│   │   └── rules/
-│   │       └── SpellActivationRule.ts   # (既存)
+│   │   ├── rules/
+│   │   │   └── SpellActivationRule.ts   # (既存)
+│   │   └── effects/                     # 🆕 Card Effect Architecture
+│   │       ├── CardEffect.ts            # 🆕 新規 - インターフェース
+│   │       ├── SpellEffect.ts           # 🆕 新規 - 魔法効果基底クラス
+│   │       ├── NormalSpellEffect.ts     # 🆕 新規 - 通常魔法基底クラス
+│   │       ├── CardEffectRegistry.ts    # 🆕 新規 - カードID→効果マッピング
+│   │       └── cards/
+│   │           ├── PotOfGreedEffect.ts       # 🆕 新規 - 強欲な壺
+│   │           └── GracefulCharityEffect.ts  # 🆕 新規 - 天使の施し
 │   │
 │   ├── application/                     # Application Layer
 │   │   ├── commands/
 │   │   │   ├── GameCommand.ts           # (既存)
 │   │   │   ├── DrawCardCommand.ts       # (既存)
-│   │   │   ├── ActivateSpellCommand.ts  # (既存 - 拡張必要)
+│   │   │   ├── ActivateSpellCommand.ts  # (既存 - CardEffectRegistry使用に変更)
 │   │   │   └── DiscardCardsCommand.ts   # 🆕 新規
 │   │   ├── stores/
 │   │   │   ├── gameStateStore.ts        # (既存)
@@ -145,8 +153,9 @@ skeleton-app/
 │
 └── tests/
     ├── unit/
+    │   ├── CardEffects.test.ts          # 🆕 新規 - カード効果テスト
     │   ├── DiscardCardsCommand.test.ts  # 🆕 新規
-    │   └── ActivateSpellCommand.test.ts # (既存 - 拡張)
+    │   └── ActivateSpellCommand.test.ts # (既存 - Commandフローのみテスト)
     ├── integration/
     │   └── CardEffectExecution.test.ts  # 🆕 新規
     └── e2e/
@@ -156,6 +165,95 @@ skeleton-app/
 **Structure Decision**:
 既存のClean Architecture（Domain/Application/Presentation 3層）を維持し、各層に最小限の追加を行う。effectResolutionStoreやActivateSpellCommandなど、Feature 003で確立したパターンを最大限活用する。
 
+## Card Effect Architecture Design
+
+### Design Decision: Strategy Pattern with Class Hierarchy
+
+**Problem**: 現在の`ActivateSpellCommand`でカードIDごとに分岐を増やすと、Open/Closed Principle違反となり、カード追加のたびに`ActivateSpellCommand.ts`を修正する必要がある。
+
+**Solution**: かつての`BaseMagicEffect` → `PotOfGreedEffect`の設計を、新しいアーキテクチャ（GameState + effectResolutionStore）に適合させた**Strategy Pattern**を採用する。
+
+### Class Hierarchy
+
+```typescript
+CardEffect (interface)
+  ↓
+SpellEffect (abstract class) - 魔法カード共通処理
+  ↓
+NormalSpellEffect (abstract class) - 通常魔法共通処理
+  ↓
+PotOfGreedEffect (concrete class) - 強欲な壺固有処理
+```
+
+### Component Responsibilities
+
+#### 1. CardEffect (Interface)
+```typescript
+interface CardEffect {
+  readonly cardId: number;
+  canActivate(state: GameState): boolean;
+  createSteps(state: GameState): EffectResolutionStep[];
+}
+```
+
+#### 2. SpellEffect (Abstract Class)
+- **責務**: 魔法カード共通のフェーズチェック、ゲームオーバーチェック
+- **メソッド**:
+  - `canActivate()`: ゲーム継続中チェック + フェーズチェック + サブクラス固有チェック
+  - `canActivateSpell()`: サブクラスで実装（魔法固有の条件）
+
+#### 3. NormalSpellEffect (Abstract Class)
+- **責務**: 通常魔法共通の「Main1フェーズのみ発動可能」チェック
+- **メソッド**: `spellType = "normal"` を定義
+
+#### 4. PotOfGreedEffect / GracefulCharityEffect (Concrete Classes)
+- **責務**: 各カード固有の効果処理
+- **メソッド**:
+  - `cardId`: カードID定義
+  - `canActivateSpell()`: デッキ枚数チェック
+  - `createSteps()`: EffectResolutionStep配列を生成
+
+#### 5. CardEffectRegistry
+- **責務**: カードID → CardEffectインスタンスのマッピング
+- **メソッド**:
+  - `get(cardId: number): CardEffect | undefined`
+
+### Integration with ActivateSpellCommand
+
+```typescript
+// Before (Bad)
+if (cardId === 55144522) {
+  // Pot of Greed処理
+} else if (cardId === 79571449) {
+  // Graceful Charity処理
+}
+
+// After (Good)
+const effect = CardEffectRegistry.get(cardId);
+if (effect) {
+  if (!effect.canActivate(state)) {
+    return createFailureResult(state, "Cannot activate card effect");
+  }
+  const steps = effect.createSteps(state);
+  effectResolutionStore.startResolution(steps);
+}
+```
+
+### Benefits
+
+1. **Open/Closed Principle遵守**: 新しいカード追加時、`ActivateSpellCommand`を変更しない
+2. **単一責任**: 各カードの効果ロジックが1クラスに集約
+3. **テストしやすい**: 各カード効果を独立してテスト可能
+4. **遊戯王ルールに忠実**: 魔法/罠/モンスター効果の階層を表現可能
+5. **共通処理の集約**: `SpellEffect`でフェーズチェックを一元管理
+
+### Future Extensibility
+
+- 速攻魔法: `QuickPlaySpellEffect extends SpellEffect`
+- 永続魔法: `ContinuousSpellEffect extends SpellEffect`
+- 罠カード: `TrapEffect extends CardEffect`
+- モンスター効果: `MonsterEffect extends CardEffect`
+
 ## Complexity Tracking
 
-**No violations** - この機能は既存アーキテクチャの自然な拡張であり、憲法のすべての原則に準拠している。
+**No violations** - この機能は既存アーキテクチャの自然な拡張であり、憲法のすべての原則に準拠している。Card Effect Architectureの導入により、Open/Closed Principleとコードの保守性が向上する。
