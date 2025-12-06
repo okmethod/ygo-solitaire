@@ -13,14 +13,10 @@
 import type { GameState } from "$lib/domain/models/GameState";
 
 /**
- * Result of command execution
+ * Re-export CommandResult from Domain Layer for backward compatibility
  */
-export interface CommandResult {
-  readonly success: boolean;
-  readonly newState: GameState;
-  readonly message?: string;
-  readonly error?: string;
-}
+export type { CommandResult } from "$lib/domain/commands/CommandResult";
+import type { CommandResult } from "$lib/domain/commands/CommandResult";
 
 /**
  * Base interface for all game commands

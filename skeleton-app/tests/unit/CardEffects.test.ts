@@ -56,11 +56,10 @@
  * @module tests/unit/CardEffects
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
 import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
 import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
-import { get } from "svelte/store";
 
 describe("Card Effects", () => {
   describe("Pot of Greed (55144522)", () => {

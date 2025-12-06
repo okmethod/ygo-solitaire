@@ -1,12 +1,8 @@
 import { writable } from "svelte/store";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
 
-export interface EffectResolutionStep {
-  id: string;
-  title: string;
-  message: string;
-  action: () => Promise<void> | void;
-  showCancel?: boolean;
-}
+// Re-export EffectResolutionStep from Domain Layer for backward compatibility
+export type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 
 interface EffectResolutionState {
   isActive: boolean;
@@ -46,8 +42,14 @@ function createEffectResolutionStore() {
       const state = get(effectResolutionStore);
 
       if (state.currentStep) {
-        // 現在のステップのアクションを実行
-        await state.currentStep.action();
+        // 現在のGameStateを取得してactionに注入（Dependency Injection）
+        const currentGameState = get(gameStateStore);
+        const result = await state.currentStep.action(currentGameState);
+
+        // actionの結果を反映
+        if (result.success) {
+          gameStateStore.set(result.newState);
+        }
 
         // 次のステップに進む
         const nextIndex = state.currentIndex + 1;

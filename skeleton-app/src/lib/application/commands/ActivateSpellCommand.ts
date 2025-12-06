@@ -13,7 +13,6 @@
  */
 
 import { produce } from "immer";
-import { get } from "svelte/store";
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
@@ -21,10 +20,8 @@ import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
+import { CardEffectRegistry } from "$lib/application/effects";
 import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
-import type { EffectResolutionStep } from "$lib/stores/effectResolutionStore";
-import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import { DrawCardCommand } from "./DrawCardCommand";
 
 /**
  * Command to activate a spell card
@@ -59,13 +56,13 @@ export class ActivateSpellCommand implements GameCommand {
       return false;
     }
 
-    // Check card-specific requirements
+    // Check card-specific effect requirements (if registered)
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (cardInstance) {
       const cardId = parseInt(cardInstance.cardId, 10);
+      const effect = CardEffectRegistry.get(cardId);
 
-      // Pot of Greed: requires at least 2 cards in deck
-      if (cardId === 55144522 && state.zones.deck.length < 2) {
+      if (effect && !effect.canActivate(state)) {
         return false;
       }
     }
@@ -97,25 +94,18 @@ export class ActivateSpellCommand implements GameCommand {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
     }
 
-    const cardId = parseInt(cardInstance.cardId, 10);
+    // Create intermediate state for effect resolution
+    const stateAfterActivation = produce(state, (draft) => {
+      draft.zones = zonesAfterActivation as typeof draft.zones;
+    });
 
-    // Card ID detection and effect resolution
-    if (cardId === 55144522) {
-      // Pot of Greed (強欲な壺): Draw 2 cards
-      const steps: EffectResolutionStep[] = [
-        {
-          id: "pot-of-greed-draw",
-          title: "カードをドローします",
-          message: "デッキから2枚ドローします",
-          action: () => {
-            const drawCmd = new DrawCardCommand(2);
-            const result = drawCmd.execute(get(gameStateStore));
-            if (result.success) {
-              gameStateStore.set(result.newState);
-            }
-          },
-        },
-      ];
+    // Check if card has registered effect
+    const cardId = parseInt(cardInstance.cardId, 10);
+    const effect = CardEffectRegistry.get(cardId);
+
+    if (effect && effect.canActivate(stateAfterActivation)) {
+      // Card has effect - trigger effect resolution
+      const steps = effect.createSteps(stateAfterActivation);
       effectResolutionStore.startResolution(steps);
     }
 
