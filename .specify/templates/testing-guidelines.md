@@ -89,6 +89,47 @@ description: "Testing strategy guidelines for ygo-solitaire project"
 
 ---
 
+## Test Responsibility Separation
+
+**Principle**: Separate tests by responsibility to avoid file bloat and maintain clarity.
+
+### Command Tests vs Card-Specific Tests
+
+**DO NOT** add card-specific logic tests to Command test files (e.g., `ActivateSpellCommand.test.ts`).
+
+**Instead**, separate tests into:
+
+1. **Command Test File** (`ActivateSpellCommand.test.ts`)
+   - ✅ Test Command pattern implementation
+   - ✅ Test universal flow (hand → field → graveyard)
+   - ✅ Test phase checks, game-over checks
+   - ✅ Test immutability (Immer)
+   - ❌ DO NOT test card-specific effects
+
+2. **Card Effects Test File** (`CardEffects.test.ts`)
+   - ✅ Test individual card effect processing
+   - ✅ Test effectResolutionStore calls for specific cards
+   - ✅ Test card-specific validation (deck size, hand requirements)
+   - ✅ Group all card effects in one file (20-30 cards)
+
+**File Structure**:
+```
+tests/unit/
+├── ActivateSpellCommand.test.ts  → Command flow (universal)
+└── CardEffects.test.ts            → Card-specific effects
+```
+
+**When to create subdirectories** (only if card count > 30):
+```
+tests/unit/
+├── ActivateSpellCommand.test.ts
+└── card-effects/
+    ├── PotOfGreed.test.ts
+    └── GracefulCharity.test.ts
+```
+
+---
+
 ## Task Planning Checklist
 
 When creating test tasks for a new feature, ask:
@@ -126,13 +167,19 @@ When creating test tasks for a new feature, ask:
 
 ---
 
-### ✅ GOOD: Vitest-centric approach
+### ✅ GOOD: Vitest-centric approach with test separation
 
 ```markdown
 ### Unit Tests for User Story 1
 
-- [ ] T013 [P] [US1] Unit Test追加（カードID判定）: `tests/unit/ActivateSpellCommand.test.ts` にPot of Greed（cardId 55144522）のeffectResolutionStore呼び出しテストを追加
-- [ ] T014 [P] [US1] Unit Test追加（デッキ枚数チェック）: デッキ1枚の状態でPot of Greed発動時に`canExecute()`がfalseを返すテストを追加
+**Note**: 個別カードの効果処理テストは `CardEffects.test.ts` に集約し、`ActivateSpellCommand.test.ts` は普遍的なCommandフローのみをテストする方針（テストの責務分離）
+
+- [ ] T013 [P] [US1] Unit Test作成: `tests/unit/CardEffects.test.ts` を新規作成し、Pot of Greed（cardId 55144522）の効果処理テストを追加
+  - effectResolutionStore.startResolution() 呼び出しを検証
+  - EffectResolutionStep の内容（id, title, message, action）を検証
+  - actionが DrawCardCommand(2) を実行することを検証
+- [ ] T014 [P] [US1] Unit Test追加: `CardEffects.test.ts` にPot of Greedのデッキ枚数チェック（>= 2）テストを追加
+  - デッキ1枚の状態で `canExecute()` が false を返すことを検証
 - [ ] T015 [US1] Unit Test実行: `npm test` で全テスト通過確認（既存テスト含む）
 
 **Note**: UI統合は既存E2Eテスト（card-activation.spec.ts）で確認済み
@@ -143,6 +190,7 @@ When creating test tasks for a new feature, ask:
 - ✅ Low maintenance cost
 - ✅ Reuses existing E2E tests
 - ✅ Focused on logic verification
+- ✅ Test responsibility separation (Command flow vs Card-specific effects)
 
 ---
 

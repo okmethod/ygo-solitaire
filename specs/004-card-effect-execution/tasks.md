@@ -70,8 +70,14 @@ description: "Task list for Card Effect Execution System implementation"
 
 ### Unit Tests for User Story 1
 
-- [ ] T013 [P] [US1] Unit Test追加（カードID判定）: `skeleton-app/tests/unit/ActivateSpellCommand.test.ts` にPot of Greed（cardId 55144522）のeffectResolutionStore呼び出しテストを追加
-- [ ] T014 [P] [US1] Unit Test追加（デッキ枚数チェック）: デッキ1枚の状態でPot of Greed発動時に`canExecute()`がfalseを返すテストを追加
+**Note**: 個別カードの効果処理テストは `CardEffects.test.ts` に集約し、`ActivateSpellCommand.test.ts` は普遍的なCommandフローのみをテストする方針（テストの責務分離）
+
+- [ ] T013 [P] [US1] Unit Test作成: `skeleton-app/tests/unit/CardEffects.test.ts` を新規作成し、Pot of Greed（cardId 55144522）の効果処理テストを追加
+  - effectResolutionStore.startResolution() 呼び出しを検証
+  - EffectResolutionStep の内容（id, title, message, action）を検証
+  - actionが DrawCardCommand(2) を実行することを検証
+- [ ] T014 [P] [US1] Unit Test追加: `CardEffects.test.ts` にPot of Greedのデッキ枚数チェック（>= 2）テストを追加
+  - デッキ1枚の状態で `canExecute()` が false を返すことを検証
 - [ ] T015 [US1] Unit Test実行: `npm test` で全テスト通過確認（既存テスト含む）
 
 **Checkpoint**: User Story 1完了 - 強欲な壺のロジックがUnit Testで検証され、既存E2Eテスト（card-activation.spec.ts）で統合動作確認済み
