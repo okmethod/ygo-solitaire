@@ -10,12 +10,16 @@
     handCardCount,
     deckCardCount,
     graveyardCardCount,
-    fieldCardCount,
     exodiaPieceCount,
     isGameOver,
     gameResult,
+    canActivateSpells,
   } from "$lib/application/stores/derivedStores";
+  import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
+  import Card from "$lib/components/atoms/Card.svelte";
+  import DuelField from "$lib/components/organisms/board/DuelField.svelte";
+  import type { Card as CardDisplayData } from "$lib/types/card";
 
   export let data: PageData;
 
@@ -43,10 +47,26 @@
     console.log("[Simulator-V2] Victory check:", result);
   }
 
-  function handleActivateCard(cardInstanceId: string) {
-    const result = gameFacade.activateSpell(cardInstanceId);
+  // User Story 2: カードクリックで効果発動
+  function handleCardClick(card: CardDisplayData, instanceId: string) {
+    // フェーズチェック（Main1フェーズのみ発動可能）
+    if ($currentPhase !== "Main1") {
+      showErrorToast("メインフェイズ1でのみカードを発動できます");
+      return;
+    }
+
+    // 魔法発動可否チェック
+    if (!$canActivateSpells) {
+      showErrorToast("現在カードを発動できません");
+      return;
+    }
+
+    // GameFacade.activateSpell呼び出し
+    const result = gameFacade.activateSpell(instanceId);
+
+    // トーストメッセージ表示
     if (result.success) {
-      showSuccessToast(result.message || "魔法カードを発動しました");
+      showSuccessToast(result.message || `${card.name}を発動しました`);
     } else {
       showErrorToast(result.error || "発動に失敗しました");
     }
@@ -62,6 +82,38 @@
     };
     return phaseMap[phase] || phase;
   }
+
+  // 手札カードとinstanceIdのマッピング
+  $: handCardsWithInstanceId = $gameStateStore.zones.hand.map((instance, index) => ({
+    card: $handCards[index],
+    instanceId: instance.instanceId,
+  }));
+
+  // DuelField用のゾーンデータ抽出
+  // フィールド魔法ゾーン用カード（frameType === "field"）
+  $: fieldMagicCards = $fieldCards.filter((card) => card.frameType === "field");
+
+  // モンスターゾーン用カード配列（5枚固定、null埋め）
+  $: monsterZoneCards = (() => {
+    const monsters = $fieldCards.filter((card) => card.type === "monster");
+    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
+    monsters.forEach((card, i) => {
+      if (i < 5) zone[i] = card;
+    });
+    return zone;
+  })();
+
+  // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
+  $: spellTrapZoneCards = (() => {
+    const spellsTraps = $fieldCards.filter(
+      (card) => (card.type === "spell" || card.type === "trap") && card.frameType !== "field",
+    );
+    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
+    spellsTraps.forEach((card, i) => {
+      if (i < 5) zone[i] = card;
+    });
+    return zone;
+  })();
 </script>
 
 <div class="container mx-auto p-4">
@@ -129,42 +181,34 @@
       </div>
     </div>
 
-    <!-- Field Zone -->
-    <div class="card p-4 space-y-4">
-      <h2 class="text-xl font-bold">Field</h2>
-
-      <div class="grid grid-cols-5 gap-2">
-        {#each $gameStateStore.zones.field as card (card.instanceId)}
-          <div class="card p-2 bg-surface-700">
-            <p class="text-xs text-center">{card.cardId}</p>
-            <p class="text-xs text-center opacity-75">{card.location}</p>
-          </div>
-        {:else}
-          <div class="col-span-5 text-center text-sm opacity-50">No cards on field</div>
-        {/each}
-      </div>
-
-      <div class="text-sm opacity-75">Field cards: {$fieldCardCount}</div>
-    </div>
+    <!-- DuelField Integration -->
+    <DuelField
+      deckCards={$deckCardCount}
+      extraDeckCards={[]}
+      graveyardCards={$graveyardCards}
+      fieldCards={fieldMagicCards}
+      monsterCards={monsterZoneCards}
+      spellTrapCards={spellTrapZoneCards}
+    />
 
     <!-- Hand Zone -->
     <div class="card p-4 space-y-4">
       <h2 class="text-xl font-bold">Hand ({$handCardCount} cards)</h2>
 
       <div class="grid grid-cols-5 gap-2">
-        {#each $gameStateStore.zones.hand as card (card.instanceId)}
-          <div class="card p-2 bg-surface-700 hover:bg-surface-600 cursor-pointer">
-            <p class="text-xs text-center font-bold">{card.cardId}</p>
-            <p class="text-xs text-center opacity-75">{card.instanceId}</p>
-            {#if $currentPhase === "Main1" && !$isGameOver}
-              <button
-                class="btn btn-sm variant-filled-primary w-full mt-2"
-                on:click={() => handleActivateCard(card.instanceId)}
-              >
-                Activate
-              </button>
-            {/if}
-          </div>
+        {#each handCardsWithInstanceId as { card, instanceId } (instanceId)}
+          {#if card}
+            <Card
+              {card}
+              size="medium"
+              clickable={$currentPhase === "Main1" && $canActivateSpells && !$isGameOver}
+              onClick={(clickedCard) => handleCardClick(clickedCard, instanceId)}
+              showDetailOnClick={true}
+            />
+          {:else}
+            <!-- ローディング中のplaceholder -->
+            <Card placeholder={true} placeholderText="..." size="medium" />
+          {/if}
         {:else}
           <div class="col-span-5 text-center text-sm opacity-50">No cards in hand</div>
         {/each}

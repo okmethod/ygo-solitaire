@@ -5,6 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## ALWAYS YOU MUST:
 - 回答は日本語で行ってください。
 - TODO にはブランチ作成・実装内容のテスト・コミット・push・PR作成（まだ作成されていない場合）が含めてください。
+- **タスクID（T0xxなど）の使用ルール**:
+  - **基本方針**: 実装中は書く → 完了後に削除する
+    - 実装中: タスクIDをコメントに記載して作業効率を上げる
+    - 実装完了時: ストック情報からタスクIDを機械的に削除する
+  - **フロー情報**（`specs/*/tasks.md`）: タスクIDを使用（一時的な作業管理）
+  - **ストック情報**（ソースコード、`docs/`）: タスクIDを記載しない（最終的に削除）
+  - **コミットメッセージ**: タスクIDを含めても良い（履歴として有用、git blameで追跡可能）
+  - **削除タイミング**: 機能実装完了後、Grep + Editで`T0\d{2}`パターンを削除
+  - **理由**: 実装中の作業効率（tasks.mdとコードの明確な対応）を優先しつつ、最終的なコード品質も維持
 
 ## GitHub Repository
 - **リポジトリ**: https://github.com/okmethod/ygo-solitaire
@@ -289,6 +298,7 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
+- 003-effect-activation-ui: Added TypeScript 5.x (SvelteKit環境)
 - 002-data-model-refactoring: 3層データモデル実装完了（DomainCardData/CardDisplayData）
   - YGOPRODeck API統合とキャッシング機能追加
   - 239/239 tests passing
@@ -296,6 +306,5 @@ skeleton-app/src/lib/
 - 001-architecture-refactoring: Clean Architecture完成、Effect System廃止（ADR-0003）、204/204 tests passing
 
 ## Active Technologies
-- TypeScript 5.x (SvelteKit + Vite環境) (002-data-model-refactoring)
-- YGOPRODeck API v7（カードデータ取得、バッチリクエスト、メモリキャッシュ）
-- N/A (フロントエンドのみ、外部API依存) (002-data-model-refactoring)
+- TypeScript 5.x (SvelteKit環境) (003-effect-activation-ui)
+- メモリキャッシュ（セッション単位、YGOPRODeck APIレスポンス） (003-effect-activation-ui)
