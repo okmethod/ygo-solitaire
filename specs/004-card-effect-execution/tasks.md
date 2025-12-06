@@ -157,55 +157,57 @@ description: "Task list for Card Effect Execution System implementation"
   - `npm run test:run` で254 tests passing維持
   - 新規テスト: CardEffectRegistry.test.ts, PotOfGreedEffect（CardEffects.test.ts内）
 
-**Checkpoint**: Card Effect Architecture実装完了 - ActivateSpellCommandリファクタリングを開始可能
+**Checkpoint**: Card Effect Architecture実装完了 - Clean Architecture違反修正を開始可能
 
 ---
 
-## Phase 4: Migrate Pot of Greed to New Architecture
+## Phase 3.5: Clean Architecture Violation Fix (Callback Pattern + DI)
 
-**Purpose**: 既存のPot of Greedロジックを新アーキテクチャに移行する
+**Purpose**: Domain LayerのApplication Layer依存を解消し、Clean Architectureの原則に準拠する
 
-**⚠️ IMPORTANT**: リファクタリング後も既存テストがすべて通過することを確認
+**⚠️ CRITICAL**: Callback Pattern + Dependency Injectionにより、Domain Layerの純粋性を確保
 
-### Refactoring Tasks
+### Architecture Refactoring
 
-- [ ] T021 ActivateSpellCommand リファクタリング: execute()メソッド
+- [x] T021 EffectResolutionStepインターフェース変更（Callback Pattern導入）
+  - `skeleton-app/src/lib/domain/effects/EffectResolutionStep.ts` を新規作成
+  - `action: () => void` → `action: (state: GameState) => CommandResult` に変更
+  - Domain Layerに配置（Application Layerへの依存排除）
+
+- [x] T022 effectResolutionStore.confirmCurrentStep()変更（DI実装）
+  - `skeleton-app/src/lib/stores/effectResolutionStore.ts` を更新
+  - GameStateを注入してactionを実行: `const result = await state.currentStep.action(currentGameState);`
+  - actionの結果を反映: `if (result.success) gameStateStore.set(result.newState);`
+
+- [x] T023 PotOfGreedEffect.createSteps()修正（コールバックパラメータ使用）
+  - `skeleton-app/src/lib/domain/effects/cards/PotOfGreedEffect.ts` を更新
+  - gameStateStoreへの直接依存を削除
+  - Domain関数（drawCards, checkVictoryConditions）を直接使用
+
+- [x] T024 CardEffect系ファイルをDomain Layerに移動
+  - CommandResultをDomain Layerに移動: `skeleton-app/src/lib/domain/commands/CommandResult.ts`
+  - Application Layerで再エクスポート: `skeleton-app/src/lib/application/commands/GameCommand.ts`
+
+- [x] T025 ActivateSpellCommandにCardEffectRegistry統合追加
   - `skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts` を更新
-  - 行103-120のカードID分岐（`if (cardId === 55144522)`）を削除
-  - CardEffectRegistry.get(cardId)を使用する実装に変更
-  - `const effect = CardEffectRegistry.get(cardId);`
-  - `if (effect) { const steps = effect.createSteps(state); effectResolutionStore.startResolution(steps); }`
+  - CardEffectRegistry.get()でカード効果を取得
+  - canActivate()でバリデーション、createSteps()で効果ステップ生成
+  - effectResolutionStore.startResolution()で効果実行
 
-- [ ] T022 ActivateSpellCommand リファクタリング: canExecute()メソッド
-  - `skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts` を更新
-  - 行62-71のカード固有チェック（`if (cardId === 55144522 && state.zones.deck.length < 2)`）を削除
-  - CardEffect.canActivate()に委譲: `const effect = CardEffectRegistry.get(cardId); if (effect && !effect.canActivate(state)) { return false; }`
-
-- [ ] T023 CardEffectRegistry にPotOfGreedEffect登録
-  - `skeleton-app/src/lib/domain/effects/CardEffectRegistry.ts` を更新
-  - `import { PotOfGreedEffect } from "./cards/PotOfGreedEffect";`
-  - `private static effects: CardEffect[] = [new PotOfGreedEffect()];`
-
-### Test Updates
-
-- [ ] T024 既存テスト修正
-  - `skeleton-app/tests/unit/ActivateSpellCommand.test.ts`: Commandフローのみテスト（カード固有ロジックは削除）
-  - `skeleton-app/tests/unit/CardEffects.test.ts`: 新アーキテクチャに完全対応
-
-- [ ] T025 E2Eテスト実行確認
-  - `npm run test:e2e` で既存E2Eテスト通過確認
-  - `card-activation.spec.ts` で統合動作確認（手札→発動→墓地）
-
-- [ ] T026 全テスト通過確認（リファクタリング完了）
-  - `npm run test:run` で254 tests passing維持
+- [x] T026 テスト実行・lint・format
+  - `npm run test:run` で274 tests passing確認
   - `npm run lint` で静的解析通過確認
-  - `npm run check` でTypeScriptコンパイル確認
+  - `npm run format` でコード整形
 
-**Checkpoint**: User Story 1完了 - 強欲な壺が新アーキテクチャで動作確認済み、既存テストもすべて通過
+- [x] T027 コミット・push・PR作成
+  - コミット: "refactor: Clean Architecture違反を修正（Phase 3.5完了）"
+  - PR #49作成: https://github.com/okmethod/ygo-solitaire/pull/49
+
+**Checkpoint**: Phase 3.5完了 - Domain Layer純粋性確保、274/274 tests passing
 
 ---
 
-## Phase 5: User Story 2 - Activate "Graceful Charity" (Priority: P2)
+## Phase 4: User Story 2 - Activate "Graceful Charity" (Priority: P2)
 
 **Goal**: プレイヤーがメインフェイズ1で「天使の施し」を手札から発動すると、まず3枚ドローし、その後手札から2枚を選択して捨てることができる
 
@@ -213,59 +215,60 @@ description: "Task list for Card Effect Execution System implementation"
 
 ### Implementation for User Story 2 - Part 1: Core Command
 
-- [ ] T027 [P] [US2] `DiscardCardsCommand`作成: `skeleton-app/src/lib/application/commands/DiscardCardsCommand.ts` を新規作成し、`GameCommand`インターフェースを実装
-- [ ] T028 [US2] `DiscardCardsCommand.canExecute()`実装: すべてのカードIDが手札に存在するか検証
-- [ ] T029 [US2] `DiscardCardsCommand.execute()`実装: `sendToGraveyard()`を複数回呼び出し、Immer.jsで不変更新
-- [ ] T030 [P] [US2] `DiscardCardsCommand`単体テスト作成: `skeleton-app/tests/unit/DiscardCardsCommand.test.ts` で破棄処理を検証
+- [ ] T028 [P] [US2] `DiscardCardsCommand`作成: `skeleton-app/src/lib/application/commands/DiscardCardsCommand.ts` を新規作成し、`GameCommand`インターフェースを実装
+- [ ] T029 [US2] `DiscardCardsCommand.canExecute()`実装: すべてのカードIDが手札に存在するか検証
+- [ ] T030 [US2] `DiscardCardsCommand.execute()`実装: `sendToGraveyard()`を複数回呼び出し、Immer.jsで不変更新
+- [ ] T031 [P] [US2] `DiscardCardsCommand`単体テスト作成: `skeleton-app/tests/unit/DiscardCardsCommand.test.ts` で破棄処理を検証
 
 ### Implementation for User Story 2 - Part 2: Selection Store
 
-- [ ] T031 [P] [US2] `cardSelectionStore`作成: `skeleton-app/src/lib/application/stores/cardSelectionStore.ts` を新規作成
-- [ ] T032 [US2] `cardSelectionStore`メソッド実装: `startSelection()`, `toggleCard()`, `confirmSelection()`, `reset()`
-- [ ] T033 [P] [US2] `cardSelectionStore`単体テスト作成: `skeleton-app/tests/unit/cardSelectionStore.test.ts` で選択ロジック検証
+- [ ] T032 [P] [US2] `cardSelectionStore`作成: `skeleton-app/src/lib/application/stores/cardSelectionStore.ts` を新規作成
+- [ ] T033 [US2] `cardSelectionStore`メソッド実装: `startSelection()`, `toggleCard()`, `confirmSelection()`, `reset()`
+- [ ] T034 [P] [US2] `cardSelectionStore`単体テスト作成: `skeleton-app/tests/unit/cardSelectionStore.test.ts` で選択ロジック検証
 
 ### Implementation for User Story 2 - Part 3: Graceful Charity Effect
 
-- [ ] T034 [US2] GracefulCharityEffect実装
+- [ ] T035 [US2] GracefulCharityEffect実装
   - `skeleton-app/src/lib/domain/effects/cards/GracefulCharityEffect.ts` を新規作成
   - `NormalSpellEffect` を継承
   - `cardId = 79571449` を定義
   - `canActivateSpell()`: `state.zones.deck.length >= 3` チェック
   - `createSteps()`: 2ステップ（3枚ドロー + 2枚選択）
 
-- [ ] T035 [US2] CardEffectRegistry にGracefulCharityEffect登録
-  - `skeleton-app/src/lib/domain/effects/CardEffectRegistry.ts` を更新
-  - `effects` 配列に `new GracefulCharityEffect()` を追加
+- [ ] T036 [US2] CardEffectRegistry にGracefulCharityEffect登録
+  - `skeleton-app/src/lib/application/effects/index.ts` を更新
+  - `import { GracefulCharityEffect } from "$lib/domain/effects/cards/GracefulCharityEffect";`
+  - `CardEffectRegistry.register(79571449, new GracefulCharityEffect());`
 
-- [ ] T036 [P] [US2] CardEffects.test.ts 更新: GracefulCharityEffect テスト追加
+- [ ] T037 [P] [US2] CardEffects.test.ts 更新: GracefulCharityEffect テスト追加
   - `effect.canActivate()` のテスト（デッキ枚数チェック >= 3）
   - `effect.createSteps()` のテスト（2ステップ構造確認）
 
 ### Implementation for User Story 2 - Part 4: Selection UI
 
-- [ ] T037 [P] [US2] `CardSelectionModal.svelte`作成: `skeleton-app/src/lib/components/modals/CardSelectionModal.svelte` を新規作成
-- [ ] T038 [US2] CardSelectionModal ロジック実装: cardSelectionStoreと連携し、選択状態を表示
-- [ ] T039 [US2] CardSelectionModal UI実装: Skeleton UI v3のModalコンポーネントを使用、TailwindCSSでスタイリング
-- [ ] T040 [US2] Card.svelte 選択モード対応: `skeleton-app/src/lib/components/atoms/Card.svelte` に`isSelected`プロパティ追加
+- [ ] T038 [P] [US2] `CardSelectionModal.svelte`作成: `skeleton-app/src/lib/components/modals/CardSelectionModal.svelte` を新規作成
+- [ ] T039 [US2] CardSelectionModal ロジック実装: cardSelectionStoreと連携し、選択状態を表示
+- [ ] T040 [US2] CardSelectionModal UI実装: Skeleton UI v3のModalコンポーネントを使用、TailwindCSSでスタイリング
+- [ ] T041 [US2] Card.svelte 選択モード対応: `skeleton-app/src/lib/components/atoms/Card.svelte` に`isSelected`プロパティ追加
 
 ### Unit Tests for User Story 2
 
 **Note**: 個別カードの効果処理テストは `CardEffects.test.ts` に集約し、`ActivateSpellCommand.test.ts` は普遍的なCommandフローのみをテストする方針（テストの責務分離）
 
-- [ ] T041 [P] [US2] Unit Test実行: `npm test` で全テスト通過確認（新規テスト含む）
+- [ ] T042 [P] [US2] Unit Test実行: `npm test` で全テスト通過確認（新規テスト含む）
 
 ### E2E Tests for User Story 2
 
-- [ ] T042 [P] [US2] E2Eテスト作成（正常系）: `skeleton-app/tests/e2e/graceful-charity.spec.ts` を新規作成
+- [ ] T043 [P] [US2] E2Eテスト作成（正常系）: `skeleton-app/tests/e2e/graceful-charity.spec.ts` を新規作成
   - シナリオ1: 3枚ドロー → カード選択モーダル表示 → 2枚選択 → 確定 → 墓地送り
-- [ ] T043 [P] [US2] E2Eテスト作成（エラー系）: デッキ2枚で発動失敗、1枚選択で確定ボタン無効化
-- [ ] T044 [US2] E2Eテスト実行: `npm run test:e2e` で全テスト通過確認
+- [ ] T044 [P] [US2] E2Eテスト作成（エラー系）: デッキ2枚で発動失敗、1枚選択で確定ボタン無効化
+- [ ] T045 [US2] E2Eテスト実行: `npm run test:e2e` で全テスト通過確認
 
 **Checkpoint**: User Story 2完了 - 天使の施しが動作し、全テスト通過
 
 ---
 
-## Phase 6: User Story 3 - Effect Resolution Progress Display (Priority: P3)
+## Phase 5: User Story 3 - Effect Resolution Progress Display (Priority: P3)
 
 **Goal**: 効果解決中は、プレイヤーに現在の解決ステップが視覚的に表示される
 
@@ -273,41 +276,41 @@ description: "Task list for Card Effect Execution System implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T045 [P] [US3] `EffectResolutionModal.svelte` UI改善: `skeleton-app/src/lib/components/modals/EffectResolutionModal.svelte` を更新
-- [ ] T046 [US3] 進行状況表示追加: ステップ番号（1/2, 2/2）とプログレスバーを追加
-- [ ] T047 [US3] モーダル外クリック無効化: 効果解決中はモーダルを閉じられないように設定
+- [ ] T046 [P] [US3] `EffectResolutionModal.svelte` UI改善: `skeleton-app/src/lib/components/modals/EffectResolutionModal.svelte` を更新
+- [ ] T047 [US3] 進行状況表示追加: ステップ番号（1/2, 2/2）とプログレスバーを追加
+- [ ] T048 [US3] モーダル外クリック無効化: 効果解決中はモーダルを閉じられないように設定
 
 ### E2E Tests for User Story 3
 
-- [ ] T048 [P] [US3] E2Eテスト作成: 進行状況表示確認、モーダル外クリック無効化確認
-- [ ] T049 [US3] E2Eテスト実行: `npm run test:e2e` で全テスト通過確認
+- [ ] T049 [P] [US3] E2Eテスト作成: 進行状況表示確認、モーダル外クリック無効化確認
+- [ ] T050 [US3] E2Eテスト実行: `npm run test:e2e` で全テスト通過確認
 
 **Checkpoint**: User Story 3完了 - 効果解決進行状況が視覚的に表示される
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: ドキュメント最終更新、コード品質向上
 
-- [ ] T050 [P] ストック情報最終確認
+- [ ] T051 [P] ストック情報最終確認
   - `docs/architecture/data-model-design.md` の実装反映確認
   - `docs/adr/0005-card-effect-architecture.md` の実装反映確認
   - `docs/architecture/testing-strategy.md` の実装反映確認
 
-- [ ] T051 [P] README/quickstart.md更新: Feature 004の機能を追加
+- [ ] T052 [P] README/quickstart.md更新: Feature 004の機能を追加
 
-- [ ] T052 コード品質チェック
+- [ ] T053 コード品質チェック
   - `npm run lint` でESLint + Prettier通過
   - `npm run check` でTypeScript型チェック通過
   - 未使用importの削除
 
-- [ ] T053 全テスト最終実行
+- [ ] T054 全テスト最終実行
   - `npm run test:run` で全Unit/Integrationテスト通過
   - `npm run test:e2e` で全E2Eテスト通過
   - `npm run test:coverage` でカバレッジ確認
 
-- [ ] T054 ブラウザ動作確認
+- [ ] T055 ブラウザ動作確認
   - `npm run dev` でローカル起動
   - 強欲な壺発動確認
   - 天使の施し発動確認（カード選択含む）
@@ -325,17 +328,18 @@ description: "Task list for Card Effect Execution System implementation"
 - **Foundational (Phase 2)**: Depends on Setup completion
 - **Design & Documentation (Phase 2.5)**: Depends on Foundational completion - BLOCKS implementation
 - **Architecture Implementation (Phase 3)**: Depends on Phase 2.5 completion
-- **Pot of Greed Migration (Phase 4)**: Depends on Phase 3 completion
-- **Graceful Charity (Phase 5)**: Depends on Phase 4 completion
-- **Progress Display (Phase 6)**: Depends on Phase 5 completion
-- **Polish (Phase 7)**: Depends on all feature phases completion
+- **Clean Architecture Fix (Phase 3.5)**: Depends on Phase 3 completion - CRITICAL for layer separation
+- **Graceful Charity (Phase 4)**: Depends on Phase 3.5 completion
+- **Progress Display (Phase 5)**: Depends on Phase 4 completion
+- **Polish (Phase 6)**: Depends on all feature phases completion
 
 ### Within Each Phase
 
 - **Phase 2.5**: All documentation tasks can run in parallel ([P] marked)
 - **Phase 3**: T013-T015 can run in parallel ([P] marked), T016-T017 can run in parallel
-- **Phase 4**: T021-T023 are sequential (refactoring), T024-T025 are sequential (testing)
-- **Phase 5**: Many tasks can run in parallel within each Part
+- **Phase 3.5**: T021-T027 are sequential (architectural refactoring)
+- **Phase 4**: Many tasks can run in parallel within each Part
+- **Phase 5**: UI improvement tasks can run in parallel ([P] marked)
 
 ### Parallel Opportunities
 
@@ -353,18 +357,18 @@ Task: T013 + T014 + T015 (parallel)
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1-2: Setup + Foundational
-2. Complete Phase 2.5: Design & Documentation (CRITICAL)
-3. Complete Phase 3: Architecture Implementation
-4. Complete Phase 4: Migrate Pot of Greed
-5. **STOP and VALIDATE**: Test independently
+1. Complete Phase 1-2: Setup + Foundational ✅
+2. Complete Phase 2.5: Design & Documentation (CRITICAL) ✅
+3. Complete Phase 3: Architecture Implementation ✅
+4. Complete Phase 3.5: Clean Architecture Fix ✅
+5. **STOP and VALIDATE**: Test independently ← 現在ここ
 6. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational + Design → Foundation ready
-2. Add Architecture + Pot of Greed Migration → Test independently → Deploy/Demo (MVP!)
-3. Add Graceful Charity → Test independently → Deploy/Demo
+1. Complete Setup + Foundational + Design → Foundation ready ✅
+2. Add Architecture + Clean Architecture Fix → Test independently → Deploy/Demo (MVP!) ✅
+3. Add Graceful Charity → Test independently → Deploy/Demo ← 次のフェーズ
 4. Add Progress Display → Test independently → Deploy/Demo
 5. Each increment adds value without breaking previous features
 
