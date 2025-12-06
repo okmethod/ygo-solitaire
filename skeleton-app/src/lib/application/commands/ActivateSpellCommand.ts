@@ -13,12 +13,18 @@
  */
 
 import { produce } from "immer";
+import { get } from "svelte/store";
 import type { GameState } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
+import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
+import type { EffectResolutionStep } from "$lib/stores/effectResolutionStore";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
+import { DrawCardCommand } from "./DrawCardCommand";
 
 /**
  * Command to activate a spell card
@@ -49,7 +55,22 @@ export class ActivateSpellCommand implements GameCommand {
 
     // Check spell activation rules
     const validation = canActivateSpell(state, this.cardInstanceId);
-    return validation.canActivate;
+    if (!validation.canActivate) {
+      return false;
+    }
+
+    // Check card-specific requirements
+    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    if (cardInstance) {
+      const cardId = parseInt(cardInstance.cardId, 10);
+
+      // Pot of Greed: requires at least 2 cards in deck
+      if (cardId === 55144522 && state.zones.deck.length < 2) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -70,9 +91,33 @@ export class ActivateSpellCommand implements GameCommand {
     // Step 1: Move card from hand to field (activation)
     const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", "field", "faceUp");
 
-    // Step 2: [Effect execution would go here]
-    // For MVP, we skip effect execution
-    // TODO: Integrate with Effect system (BaseEffect, DrawEffect, etc.)
+    // Step 2: Effect execution based on card ID
+    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    if (!cardInstance) {
+      return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
+    }
+
+    const cardId = parseInt(cardInstance.cardId, 10);
+
+    // Card ID detection and effect resolution
+    if (cardId === 55144522) {
+      // Pot of Greed (強欲な壺): Draw 2 cards
+      const steps: EffectResolutionStep[] = [
+        {
+          id: "pot-of-greed-draw",
+          title: "カードをドローします",
+          message: "デッキから2枚ドローします",
+          action: () => {
+            const drawCmd = new DrawCardCommand(2);
+            const result = drawCmd.execute(get(gameStateStore));
+            if (result.success) {
+              gameStateStore.set(result.newState);
+            }
+          },
+        },
+      ];
+      effectResolutionStore.startResolution(steps);
+    }
 
     // Step 3: Move card from field to graveyard (resolution)
     const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);

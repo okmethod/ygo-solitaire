@@ -33,9 +33,9 @@ description: "Task list for Card Effect Execution System implementation"
 
 **Purpose**: ブランチ作成と開発環境セットアップ
 
-- [ ] T001 ブランチ`feature/004-card-effect-execution`を作成済み確認（既に作成済み）
-- [ ] T002 [P] 依存関係インストール確認: `cd skeleton-app && npm install`
-- [ ] T003 [P] 開発サーバー起動確認: `npm run dev` でアプリケーション起動
+- [x] T001 ブランチ`feature/004-card-effect-execution`を作成済み確認（既に作成済み）
+- [x] T002 [P] 依存関係インストール確認: `cd skeleton-app && npm install`
+- [x] T003 [P] 開発サーバー起動確認: `npm run dev` でアプリケーション起動
 
 ---
 
@@ -45,10 +45,10 @@ description: "Task list for Card Effect Execution System implementation"
 
 **⚠️ CRITICAL**: このフェーズが完了するまで、User Story実装を開始できません
 
-- [ ] T004 既存の`DrawCardCommand`を確認: `skeleton-app/src/lib/application/commands/DrawCardCommand.ts` が複数枚ドロー対応済みか確認
-- [ ] T005 既存の`ActivateSpellCommand`の拡張ポイント確認: `skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts` 行73-75のTODOコメント確認
-- [ ] T006 既存の`effectResolutionStore`インターフェース確認: `skeleton-app/src/lib/stores/effectResolutionStore.ts` の`EffectResolutionStep`型確認
-- [ ] T007 既存のDomain関数確認: `skeleton-app/src/lib/domain/models/Zone.ts` の`drawCards()`, `sendToGraveyard()`, `moveCard()`確認
+- [x] T004 既存の`DrawCardCommand`を確認: `skeleton-app/src/lib/application/commands/DrawCardCommand.ts` が複数枚ドロー対応済みか確認
+- [x] T005 既存の`ActivateSpellCommand`の拡張ポイント確認: `skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts` 行73-75のTODOコメント確認
+- [x] T006 既存の`effectResolutionStore`インターフェース確認: `skeleton-app/src/lib/stores/effectResolutionStore.ts` の`EffectResolutionStep`型確認
+- [x] T007 既存のDomain関数確認: `skeleton-app/src/lib/domain/models/Zone.ts` の`drawCards()`, `sendToGraveyard()`, `moveCard()`確認
 
 **Checkpoint**: 既存アーキテクチャ確認完了 - User Story実装を開始可能
 
@@ -62,19 +62,19 @@ description: "Task list for Card Effect Execution System implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] `ActivateSpellCommand.ts`にカードID判定ロジック追加: `skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts` 行73-75を修正し、カードID 55144522（強欲な壺）の効果処理を追加
-- [ ] T009 [US1] 強欲な壺の`EffectResolutionStep`配列作成: 1ステップ（2枚ドロー）のステップ定義をActivateSpellCommand内に実装
-- [ ] T010 [US1] `effectResolutionStore.startResolution()`呼び出し: 強欲な壺発動時にステップ配列を渡して効果解決フロー開始
-- [ ] T011 [US1] デッキ枚数チェック追加: `ActivateSpellCommand.canExecute()`で`deck.length >= 2`を検証
-- [ ] T012 [US1] カード発動後の墓地送り処理確認: 強欲な壺が効果解決後に墓地に送られることを確認（既存処理の検証）
+- [x] T008 [US1] `ActivateSpellCommand.ts`にカードID判定ロジック追加: `skeleton-app/src/lib/application/commands/ActivateSpellCommand.ts` 行73-75を修正し、カードID 55144522（強欲な壺）の効果処理を追加
+- [x] T009 [US1] 強欲な壺の`EffectResolutionStep`配列作成: 1ステップ（2枚ドロー）のステップ定義をActivateSpellCommand内に実装
+- [x] T010 [US1] `effectResolutionStore.startResolution()`呼び出し: 強欲な壺発動時にステップ配列を渡して効果解決フロー開始
+- [x] T011 [US1] デッキ枚数チェック追加: `ActivateSpellCommand.canExecute()`で`deck.length >= 2`を検証
+- [x] T012 [US1] カード発動後の墓地送り処理確認: 強欲な壺が効果解決後に墓地に送られることを確認（既存処理の検証）
 
-### E2E Tests for User Story 1
+### Unit Tests for User Story 1
 
-- [ ] T013 [P] [US1] E2Eテスト作成（正常系）: `skeleton-app/tests/e2e/pot-of-greed.spec.ts` を作成し、強欲な壺発動→2枚ドロー→手札増加を検証
-- [ ] T014 [P] [US1] E2Eテスト作成（エラー系）: デッキ1枚の状態で強欲な壺発動→エラーメッセージ表示を検証
-- [ ] T015 [US1] E2Eテスト実行: `npm run test:e2e -- pot-of-greed.spec.ts` で全テスト通過確認
+- [ ] T013 [P] [US1] Unit Test追加（カードID判定）: `skeleton-app/tests/unit/ActivateSpellCommand.test.ts` にPot of Greed（cardId 55144522）のeffectResolutionStore呼び出しテストを追加
+- [ ] T014 [P] [US1] Unit Test追加（デッキ枚数チェック）: デッキ1枚の状態でPot of Greed発動時に`canExecute()`がfalseを返すテストを追加
+- [ ] T015 [US1] Unit Test実行: `npm test` で全テスト通過確認（既存テスト含む）
 
-**Checkpoint**: User Story 1完了 - 強欲な壺が正しく動作し、独立してテスト可能
+**Checkpoint**: User Story 1完了 - 強欲な壺のロジックがUnit Testで検証され、既存E2Eテスト（card-activation.spec.ts）で統合動作確認済み
 
 ---
 
@@ -119,14 +119,18 @@ description: "Task list for Card Effect Execution System implementation"
 - [ ] T037 [US2] カード選択→破棄フロー統合: `CardSelectionModal`の確定ボタンで`GameFacade.discardCards()`呼び出し、その後`effectResolutionStore.confirmCurrentStep()`実行
 - [ ] T038 [US2] デッキ枚数チェック追加: `ActivateSpellCommand.canExecute()`で`deck.length >= 3`を検証
 
-### E2E Tests for User Story 2
+### Unit Tests for User Story 2
 
-- [ ] T039 [P] [US2] E2Eテスト作成（正常系）: `skeleton-app/tests/e2e/graceful-charity.spec.ts` を作成し、天使の施し発動→3枚ドロー→モーダル表示→2枚選択→墓地送りを検証
-- [ ] T040 [P] [US2] E2Eテスト作成（選択UI）: カード選択モーダルで2枚選択するまで確定ボタンが無効化されることを検証
-- [ ] T041 [P] [US2] E2Eテスト作成（エラー系）: デッキ2枚の状態で天使の施し発動→エラーメッセージ表示を検証
-- [ ] T042 [US2] E2Eテスト実行: `npm run test:e2e -- graceful-charity.spec.ts` で全テスト通過確認
+- [ ] T039 [P] [US2] `DiscardCardsCommand`単体テスト拡張: 複数枚破棄、不変性、エラーケースを検証
+- [ ] T040 [P] [US2] `cardSelectionStore`単体テスト: 選択/解除、maxSelection制限、reset動作を検証
+- [ ] T041 [P] [US2] `ActivateSpellCommand`テスト追加: 天使の施し（cardId 79571449）のeffectResolutionStore呼び出し、デッキ枚数チェック（>= 3）を検証
+- [ ] T042 [US2] Unit Test実行: `npm test` で全テスト通過確認
 
-**Checkpoint**: User Story 2完了 - 天使の施しが正しく動作し、独立してテスト可能
+### E2E Tests for User Story 2（UI統合確認のみ）
+
+- [ ] T043 [P] [US2] E2Eテスト作成（UI統合）: `skeleton-app/tests/e2e/graceful-charity.spec.ts` を作成し、カード選択モーダルの表示→2枚選択→確定ボタン有効化→墓地送りのUI動作を検証
+
+**Checkpoint**: User Story 2完了 - 天使の施しのロジックはUnit Test検証済み、UI統合はE2E Test確認済み
 
 ---
 
@@ -144,9 +148,13 @@ description: "Task list for Card Effect Execution System implementation"
 - [ ] T046 [US3] モーダル外クリック無効化: 効果解決中はモーダルが閉じられないように設定
 - [ ] T047 [US3] スタイリング調整: TailwindCSSで視覚的に見やすいデザイン適用
 
-### E2E Tests for User Story 3
+### Unit Tests for User Story 3
 
-- [ ] T048 [P] [US3] E2Eテスト作成（表示確認）: 天使の施し発動時に「デッキから3枚ドローします」メッセージが表示されることを検証
+- [ ] T048 [P] [US3] `effectResolutionStore`テスト拡張: 現在のステップ取得、ステップ進行、メッセージ表示の状態管理を検証
+
+### E2E Tests for User Story 3（UI表示確認のみ）
+
+- [ ] T049 [P] [US3] E2Eテスト作成（UI表示）: 天使の施し発動時に効果解決モーダルが表示され、「デッキから3枚ドローします」メッセージと進捗（Step 1/2）が表示されることを検証
 - [ ] T049 [P] [US3] E2Eテスト作成（ステップ遷移）: ドロー後に「手札から2枚選択して捨ててください」メッセージに更新されることを検証
 - [ ] T050 [US3] E2Eテスト実行: `npm run test:e2e` で全User Storyのテスト通過確認
 
