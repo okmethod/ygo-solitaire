@@ -128,6 +128,48 @@ tests/unit/
     └── GracefulCharity.test.ts
 ```
 
+### Card Effect Architecture: 3-Layer Test Pattern
+
+With the introduction of Card Effect Architecture (Strategy Pattern), tests are now organized into **3 layers**:
+
+```
+Layer 1: CardEffect Unit Tests
+  tests/unit/card-effects/PotOfGreedEffect.test.ts
+  ✅ canActivate() validation logic
+  ✅ createSteps() EffectResolutionStep generation
+  ❌ DO NOT test ActivateSpellCommand integration
+
+Layer 2: CardEffectRegistry Tests
+  tests/unit/CardEffectRegistry.test.ts
+  ✅ register() / get() / clear() functionality
+  ✅ Card ID → CardEffect instance mapping
+  ❌ DO NOT test individual card effects
+
+Layer 3: Integration Tests
+  tests/unit/CardEffects.test.ts
+  ✅ ActivateSpellCommand + CardEffect integration
+  ✅ effectResolutionStore call verification
+  ✅ EffectResolutionStep content validation
+  ❌ DO NOT duplicate Layer 1 tests
+```
+
+**Test Task Example** (Card Effect Architecture):
+
+```markdown
+### Phase 3: Card Effect Architecture - Testing
+
+- [ ] T017 [P] Unit Test作成: `tests/unit/CardEffectRegistry.test.ts` でRegistry登録・取得を検証
+  - register(cardId, effect) の動作確認
+  - get(cardId) でCardEffectインスタンス取得
+  - get(unknown) でundefined返却
+- [ ] T019 [P] Unit Test作成: `tests/unit/card-effects/PotOfGreedEffect.test.ts` でPot of Greed効果を検証
+  - canActivate(): ゲーム終了時false、Main1以外false、デッキ<2枚false
+  - createSteps(): EffectResolutionStep生成（id, title, message, action）
+- [ ] T020 [P] Unit Test実行: `npm test` で全テスト通過確認
+```
+
+**Reference**: [docs/architecture/testing-strategy.md#card-effect-architecture-テストパターン](../../docs/architecture/testing-strategy.md)
+
 ---
 
 ## Task Planning Checklist

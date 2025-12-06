@@ -261,6 +261,324 @@ export default defineConfig({
 });
 ```
 
+## Card Effect Architecture テストパターン
+
+### テスト責務の分離
+
+Card Effect Architectureでは、テストを3層に分離します：
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 1. CardEffect Unit Tests                            │
+│    - 個別カード効果クラスのテスト                    │
+│    - tests/unit/card-effects/PotOfGreedEffect.test.ts│
+│    - canActivate(), createSteps() の検証            │
+└─────────────────────────────────────────────────────┘
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 2. CardEffectRegistry Tests                         │
+│    - Registry登録・取得のテスト                      │
+│    - tests/unit/CardEffectRegistry.test.ts           │
+│    - カードID → CardEffectインスタンスのマッピング   │
+└─────────────────────────────────────────────────────┘
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│ 3. Integration Tests (CardEffects.test.ts)          │
+│    - ActivateSpellCommandとCardEffectの統合          │
+│    - tests/unit/CardEffects.test.ts                  │
+│    - effectResolutionStore呼び出しの検証             │
+└─────────────────────────────────────────────────────┘
+```
+
+### 1. CardEffect Unit Tests
+
+各CardEffectクラスの単体テスト。
+
+**ファイルパス**: `tests/unit/card-effects/{CardName}Effect.test.ts`
+
+**テスト対象**:
+- `canActivate()`: バリデーションロジック
+- `createSteps()`: EffectResolutionStep生成
+
+**テストケース例**:
+
+```typescript
+// tests/unit/card-effects/PotOfGreedEffect.test.ts
+import { describe, it, expect } from "vitest";
+import { PotOfGreedEffect } from "$lib/domain/effects/cards/PotOfGreedEffect";
+import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
+
+describe("PotOfGreedEffect", () => {
+  describe("canActivate", () => {
+    it("should return false when game is over", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
+        result: { isGameOver: true, winner: "opponent" },
+      });
+      const effect = new PotOfGreedEffect();
+
+      expect(effect.canActivate(state)).toBe(false);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      const state = createMockGameState({
+        phase: "Draw",
+        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
+      });
+      const effect = new PotOfGreedEffect();
+
+      expect(effect.canActivate(state)).toBe(false);
+    });
+
+    it("should return false when deck has only 1 card", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: { deck: createCardInstances(["card1"], "deck") },
+      });
+      const effect = new PotOfGreedEffect();
+
+      expect(effect.canActivate(state)).toBe(false);
+    });
+
+    it("should return true when deck has 2 or more cards", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
+      });
+      const effect = new PotOfGreedEffect();
+
+      expect(effect.canActivate(state)).toBe(true);
+    });
+  });
+
+  describe("createSteps", () => {
+    it("should create draw step with correct properties", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
+      });
+      const effect = new PotOfGreedEffect();
+      const steps = effect.createSteps(state);
+
+      expect(steps).toHaveLength(1);
+      expect(steps[0]).toMatchObject({
+        id: "pot-of-greed-draw",
+        title: "カードをドローします",
+        message: "デッキから2枚ドローします",
+      });
+      expect(steps[0].action).toBeTypeOf("function");
+    });
+  });
+});
+```
+
+### 2. CardEffectRegistry Tests
+
+Registry登録・取得の検証。
+
+**ファイルパス**: `tests/unit/CardEffectRegistry.test.ts`
+
+**テスト対象**:
+- `register()`: カードID → CardEffectインスタンスの登録
+- `get()`: カードIDによる取得
+- `clear()`: テスト用クリーニング
+
+**テストケース例**:
+
+```typescript
+// tests/unit/CardEffectRegistry.test.ts
+import { describe, it, expect, beforeEach } from "vitest";
+import { CardEffectRegistry } from "$lib/domain/effects/CardEffectRegistry";
+import { PotOfGreedEffect } from "$lib/domain/effects/cards/PotOfGreedEffect";
+import { GracefulCharityEffect } from "$lib/domain/effects/cards/GracefulCharityEffect";
+
+describe("CardEffectRegistry", () => {
+  beforeEach(() => {
+    // 各テスト前にRegistryをクリア
+    CardEffectRegistry.clear();
+  });
+
+  describe("register and get", () => {
+    it("should register and return Pot of Greed effect", () => {
+      const effect = new PotOfGreedEffect();
+      CardEffectRegistry.register(55144522, effect);
+
+      const retrieved = CardEffectRegistry.get(55144522);
+
+      expect(retrieved).toBe(effect);
+      expect(retrieved).toBeInstanceOf(PotOfGreedEffect);
+    });
+
+    it("should register and return Graceful Charity effect", () => {
+      const effect = new GracefulCharityEffect();
+      CardEffectRegistry.register(79571449, effect);
+
+      const retrieved = CardEffectRegistry.get(79571449);
+
+      expect(retrieved).toBe(effect);
+      expect(retrieved).toBeInstanceOf(GracefulCharityEffect);
+    });
+
+    it("should return undefined for unregistered card ID", () => {
+      const retrieved = CardEffectRegistry.get(99999999);
+
+      expect(retrieved).toBeUndefined();
+    });
+
+    it("should handle multiple registrations", () => {
+      CardEffectRegistry.register(55144522, new PotOfGreedEffect());
+      CardEffectRegistry.register(79571449, new GracefulCharityEffect());
+
+      expect(CardEffectRegistry.get(55144522)).toBeInstanceOf(PotOfGreedEffect);
+      expect(CardEffectRegistry.get(79571449)).toBeInstanceOf(GracefulCharityEffect);
+    });
+  });
+
+  describe("clear", () => {
+    it("should clear all registered effects", () => {
+      CardEffectRegistry.register(55144522, new PotOfGreedEffect());
+      CardEffectRegistry.register(79571449, new GracefulCharityEffect());
+
+      CardEffectRegistry.clear();
+
+      expect(CardEffectRegistry.get(55144522)).toBeUndefined();
+      expect(CardEffectRegistry.get(79571449)).toBeUndefined();
+    });
+  });
+});
+```
+
+### 3. Integration Tests (CardEffects.test.ts)
+
+ActivateSpellCommandとCardEffectの統合テスト。
+
+**ファイルパス**: `tests/unit/CardEffects.test.ts`
+
+**テスト対象**:
+- `ActivateSpellCommand.execute()` → `CardEffectRegistry.get()` → `effect.createSteps()` → `effectResolutionStore.startResolution()`
+- カード固有のバリデーション（`canExecute()`）
+- EffectResolutionStepの内容検証
+
+**テストケース例**:
+
+```typescript
+// tests/unit/CardEffects.test.ts
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
+import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
+import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
+
+describe("Card Effects Integration", () => {
+  describe("Pot of Greed (55144522)", () => {
+    const potOfGreedCardId = "55144522";
+
+    beforeEach(() => {
+      effectResolutionStore.reset();
+    });
+
+    it("should call effectResolutionStore.startResolution when activated", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
+        },
+      });
+
+      const spy = vi.spyOn(effectResolutionStore, "startResolution");
+      const command = new ActivateSpellCommand("pot-1");
+      command.execute(state);
+
+      expect(spy).toHaveBeenCalledOnce();
+      spy.mockRestore();
+    });
+
+    it("should create correct EffectResolutionStep structure", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
+        },
+      });
+
+      const spy = vi.spyOn(effectResolutionStore, "startResolution");
+      const command = new ActivateSpellCommand("pot-1");
+      command.execute(state);
+
+      const [[steps]] = spy.mock.calls;
+      expect(steps).toHaveLength(1);
+      expect(steps[0]).toMatchObject({
+        id: "pot-of-greed-draw",
+        title: "カードをドローします",
+        message: "デッキから2枚ドローします",
+      });
+
+      spy.mockRestore();
+    });
+
+    it("canExecute should return false when deck has only 1 card", () => {
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1"], "deck"),
+          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
+        },
+      });
+
+      const command = new ActivateSpellCommand("pot-1");
+
+      expect(command.canExecute(state)).toBe(false);
+    });
+  });
+
+  describe("Graceful Charity (79571449)", () => {
+    // 同様のテストケース
+  });
+});
+```
+
+### テストカバレッジ目標
+
+| レイヤー | 対象 | カバレッジ目標 |
+|---------|------|---------------|
+| Domain Layer | CardEffect, SpellEffect, NormalSpellEffect | 90%以上 |
+| Domain Layer | CardEffectRegistry | 100% |
+| Application Layer | ActivateSpellCommand統合 | 80%以上 |
+
+### テスト実行順序
+
+```bash
+# 1. CardEffect Unit Tests
+npm test tests/unit/card-effects/
+
+# 2. CardEffectRegistry Tests
+npm test tests/unit/CardEffectRegistry.test.ts
+
+# 3. Integration Tests
+npm test tests/unit/CardEffects.test.ts
+
+# 4. 全Unit Tests
+npm run test:run
+```
+
+### モック戦略
+
+**CardEffect Unit Tests**:
+- GameState: `createMockGameState()` でモック生成
+- Stores: モック不要（純粋関数）
+
+**CardEffectRegistry Tests**:
+- CardEffectインスタンス: 実オブジェクトを使用
+- モック不要（Registry自体がシンプル）
+
+**Integration Tests**:
+- `effectResolutionStore`: `vi.spyOn()` でスパイ
+- `gameStateStore`: `get(store)` で同期的に値取得
+
+---
+
 ## モック戦略
 
 ### Domain Layer

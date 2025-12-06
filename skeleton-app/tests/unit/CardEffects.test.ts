@@ -1,7 +1,7 @@
 /**
- * Card Effects Tests
+ * Card Effects Tests (Integration Layer)
  *
- * Tests for individual card effect processing.
+ * Tests for individual card effect processing integrated with ActivateSpellCommand.
  * Each card's specific logic is tested here, separated from the universal
  * ActivateSpellCommand flow tests.
  *
@@ -9,6 +9,49 @@
  * - effectResolutionStore calls for specific cards
  * - EffectResolutionStep content validation
  * - Card-specific validation (deck size, hand requirements)
+ *
+ * Test Architecture (3-Layer Pattern):
+ *
+ * Layer 1: CardEffect Unit Tests
+ *   - tests/unit/card-effects/PotOfGreedEffect.test.ts
+ *   - Tests: canActivate(), createSteps() in isolation
+ *
+ * Layer 2: CardEffectRegistry Tests
+ *   - tests/unit/CardEffectRegistry.test.ts
+ *   - Tests: register(), get(), clear()
+ *
+ * Layer 3: Integration Tests (THIS FILE)
+ *   - tests/unit/CardEffects.test.ts
+ *   - Tests: ActivateSpellCommand + CardEffect integration
+ *
+ * TODO (Phase 3 - T022): After Card Effect Architecture implementation
+ *
+ * Update Strategy:
+ * 1. Add CardEffectRegistry setup in beforeEach()
+ *    - CardEffectRegistry.clear()
+ *    - CardEffectRegistry.register(55144522, new PotOfGreedEffect())
+ *
+ * 2. Update test expectations for new architecture:
+ *    - Current: ActivateSpellCommand contains if/else for cardId
+ *    - New: ActivateSpellCommand calls CardEffectRegistry.get(cardId)
+ *
+ * 3. Add test for CardEffectRegistry integration:
+ *    - "should use CardEffectRegistry to resolve card effects"
+ *    - Spy on CardEffectRegistry.get(cardId)
+ *    - Verify it's called with correct cardId
+ *
+ * 4. Keep existing tests as-is (integration behavior unchanged):
+ *    - effectResolutionStore.startResolution() still called
+ *    - EffectResolutionStep structure unchanged
+ *    - canExecute() validation logic unchanged
+ *
+ * 5. Add Graceful Charity tests (Phase 5):
+ *    - describe("Graceful Charity (79571449)", () => { ... })
+ *    - Similar test structure to Pot of Greed
+ *
+ * Reference:
+ * - docs/architecture/testing-strategy.md#card-effect-architecture-テストパターン
+ * - .specify/templates/testing-guidelines.md#card-effect-architecture-3-layer-test-pattern
  *
  * @module tests/unit/CardEffects
  */
