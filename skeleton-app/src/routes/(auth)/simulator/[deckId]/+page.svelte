@@ -52,6 +52,12 @@
 
   // User Story 2: カードクリックで効果発動
   function handleCardClick(card: CardDisplayData, instanceId: string) {
+    // 罠カードチェック（罠カードは手札から直接発動できない）
+    if (card.type === "trap") {
+      showErrorToast("罠カードは手札から直接発動できません（セットが必要です）");
+      return;
+    }
+
     // フェーズチェック（Main1フェーズのみ発動可能）
     if ($currentPhase !== "Main1") {
       showErrorToast("メインフェイズ1でのみカードを発動できます");
