@@ -105,11 +105,15 @@ export class ActivateSpellCommand implements GameCommand {
 
     if (effect && effect.canActivate(stateAfterActivation)) {
       // Card has effect - trigger effect resolution
-      const steps = effect.createSteps(stateAfterActivation);
+      // Pass cardInstanceId to effect for graveyard-sending step
+      const steps = effect.createSteps(stateAfterActivation, this.cardInstanceId);
       effectResolutionStore.startResolution(steps);
+
+      // Early return - effect resolution will handle graveyard-sending
+      return createSuccessResult(stateAfterActivation, `Spell card activated: ${this.cardInstanceId}`);
     }
 
-    // Step 3: Move card from field to graveyard (resolution)
+    // No effect registered - send directly to graveyard
     const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
 
     // Create new state with updated zones
@@ -125,7 +129,7 @@ export class ActivateSpellCommand implements GameCommand {
       draft.result = victoryResult;
     });
 
-    return createSuccessResult(finalState, `Spell card activated: ${this.cardInstanceId}`);
+    return createSuccessResult(finalState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }
 
   /**

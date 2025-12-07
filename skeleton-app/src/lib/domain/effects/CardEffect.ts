@@ -77,12 +77,13 @@ export interface CardEffect {
    * - action: Function to execute the effect (GameState mutation via Commands)
    *
    * @param state - Current game state (immutable)
+   * @param activatedCardInstanceId - Instance ID of the activated card (for graveyard-sending)
    * @returns Array of EffectResolutionStep to be executed
    *
    * @example
    * ```typescript
    * // PotOfGreedEffect
-   * createSteps(state: GameState): EffectResolutionStep[] {
+   * createSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
    *   return [
    *     {
    *       id: "pot-of-greed-draw",
@@ -98,5 +99,5 @@ export interface CardEffect {
    * }
    * ```
    */
-  createSteps(state: GameState): EffectResolutionStep[];
+  createSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
 }

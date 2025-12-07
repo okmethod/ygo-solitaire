@@ -89,17 +89,19 @@ export class PotOfGreedEffect extends NormalSpellEffect {
   }
 
   /**
-   * Create effect resolution steps for Pot of Greed
+   * Create card-specific effect resolution steps for Pot of Greed
    *
    * Effect Resolution:
-   * 1. Draw 2 cards from deck to hand (using DrawCardCommand)
+   * 1. Draw 2 cards from deck to hand
+   *
+   * Note: Graveyard-sending step is automatically appended by NormalSpellEffect
    *
    * @param state - Current game state (immutable)
-   * @returns Array of EffectResolutionStep (1 step for Pot of Greed)
+   * @returns Array of card-specific EffectResolutionStep (1 step for Pot of Greed)
    *
    * @example
    * ```typescript
-   * const steps = effect.createSteps(state);
+   * const steps = effect.createCardSteps(state);
    * // [
    * //   {
    * //     id: "pot-of-greed-draw",
@@ -108,9 +110,10 @@ export class PotOfGreedEffect extends NormalSpellEffect {
    * //     action: () => { ... }
    * //   }
    * // ]
+   * // NormalSpellEffect will append graveyard-sending step
    * ```
    */
-  createSteps(): EffectResolutionStep[] {
+  protected createCardSteps(): EffectResolutionStep[] {
     return [
       {
         id: "pot-of-greed-draw",

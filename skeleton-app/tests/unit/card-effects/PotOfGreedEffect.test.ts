@@ -176,31 +176,61 @@ describe("PotOfGreedEffect", () => {
     it("should create correct EffectResolutionStep structure", () => {
       // Arrange
       const effect = new PotOfGreedEffect();
+      const mockState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1", "card2"], "deck"),
+          hand: [],
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
 
       // Act
-      const steps = effect.createSteps();
+      const steps = effect.createSteps(mockState, "test-card-1");
 
-      // Assert: Check step structure
-      expect(steps).toHaveLength(1);
+      // Assert: NormalSpellEffect automatically appends graveyard-sending step
+      expect(steps).toHaveLength(2);
+
+      // Card-specific step
       expect(steps[0]).toMatchObject({
         id: "pot-of-greed-draw",
         title: "カードをドローします",
         message: "デッキから2枚ドローします",
       });
       expect(steps[0].action).toBeTypeOf("function");
+
+      // Graveyard-sending step (added by NormalSpellEffect)
+      expect(steps[1]).toMatchObject({
+        id: "PotOfGreedEffect-to-graveyard",
+        title: "墓地に送ります",
+        message: "効果解決後、カードを墓地に送ります",
+      });
+      expect(steps[1].action).toBeTypeOf("function");
     });
 
     it("should create the same step structure regardless of deck size", () => {
       // Arrange
       const effect = new PotOfGreedEffect();
+      const mockState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1", "card2"], "deck"),
+          hand: [],
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
 
       // Act
-      const steps1 = effect.createSteps();
-      const steps2 = effect.createSteps();
+      const steps1 = effect.createSteps(mockState, "test-card-1");
+      const steps2 = effect.createSteps(mockState, "test-card-2");
 
       // Assert: Both should have the same structure
-      expect(steps1).toHaveLength(1);
-      expect(steps2).toHaveLength(1);
+      expect(steps1).toHaveLength(2);
+      expect(steps2).toHaveLength(2);
       expect(steps1[0]).toMatchObject({
         id: "pot-of-greed-draw",
         title: "カードをドローします",
@@ -216,12 +246,23 @@ describe("PotOfGreedEffect", () => {
     it("should have action function in step", () => {
       // Arrange
       const effect = new PotOfGreedEffect();
+      const mockState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1", "card2"], "deck"),
+          hand: [],
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
 
       // Act
-      const steps = effect.createSteps();
+      const steps = effect.createSteps(mockState, "test-card-1");
 
       // Assert: action should be a function
       expect(typeof steps[0].action).toBe("function");
+      expect(typeof steps[1].action).toBe("function");
     });
   });
 });

@@ -121,13 +121,22 @@ describe("Card Effects", () => {
       expect(startResolutionSpy).toHaveBeenCalledOnce();
       const [[steps]] = startResolutionSpy.mock.calls;
 
-      expect(steps).toHaveLength(1);
+      // NormalSpellEffect automatically appends graveyard-sending step
+      expect(steps).toHaveLength(2);
       expect(steps[0]).toMatchObject({
         id: "pot-of-greed-draw",
         title: "カードをドローします",
         message: "デッキから2枚ドローします",
       });
       expect(steps[0].action).toBeTypeOf("function");
+
+      // Verify graveyard-sending step
+      expect(steps[1]).toMatchObject({
+        id: "PotOfGreedEffect-to-graveyard",
+        title: "墓地に送ります",
+        message: "効果解決後、カードを墓地に送ります",
+      });
+      expect(steps[1].action).toBeTypeOf("function");
 
       // Restore spy
       startResolutionSpy.mockRestore();

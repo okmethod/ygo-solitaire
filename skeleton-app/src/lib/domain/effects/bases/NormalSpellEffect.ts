@@ -19,6 +19,8 @@
 
 import { SpellEffect } from "./SpellEffect";
 import type { GameState } from "$lib/domain/models/GameState";
+import type { EffectResolutionStep } from "../EffectResolutionStep";
+import { sendToGraveyard } from "$lib/domain/models/Zone";
 
 /**
  * NormalSpellEffect - Abstract base class for Normal Spell cards
@@ -131,4 +133,79 @@ export abstract class NormalSpellEffect extends SpellEffect {
    * ```
    */
   protected abstract canActivateNormalSpell(state: GameState): boolean;
+
+  /**
+   * Create effect resolution steps with automatic graveyard-sending
+   *
+   * Template Method Pattern:
+   * 1. Call createCardSteps() to get card-specific effect steps
+   * 2. Append graveyard-sending step (Normal Spell game rule)
+   *
+   * Game Rule: Normal Spells are sent to graveyard after effect resolution
+   *
+   * @param state - Current game state (immutable)
+   * @param activatedCardInstanceId - Instance ID of the activated card
+   * @returns Array of EffectResolutionStep (card effects + graveyard step)
+   *
+   * @final - Subclasses should NOT override this method
+   *
+   * @example
+   * ```typescript
+   * // PotOfGreedEffect returns: [draw step, graveyard step]
+   * // GracefulCharityEffect returns: [draw step, discard step, graveyard step]
+   * ```
+   */
+  override createSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+    // Get card-specific effect steps from subclass
+    const cardSpecificSteps = this.createCardSteps(state);
+
+    // Append graveyard-sending step (Normal Spell rule)
+    const graveyardStep: EffectResolutionStep = {
+      id: `${this.constructor.name}-to-graveyard`,
+      title: "墓地に送ります",
+      message: "効果解決後、カードを墓地に送ります",
+      action: (currentState: GameState) => {
+        const zones = sendToGraveyard(currentState.zones, activatedCardInstanceId);
+        return {
+          success: true,
+          newState: { ...currentState, zones },
+          message: "Spell card sent to graveyard",
+        };
+      },
+    };
+
+    return [...cardSpecificSteps, graveyardStep];
+  }
+
+  /**
+   * Create card-specific effect steps
+   *
+   * Hook method for Template Method Pattern.
+   * Subclasses override this to define card-specific effect logic.
+   *
+   * Subclass Responsibilities:
+   * - PotOfGreedEffect: Return [draw 2 cards step]
+   * - GracefulCharityEffect: Return [draw 3 cards step, discard 2 cards step]
+   *
+   * @param state - Current game state (immutable)
+   * @returns Array of card-specific EffectResolutionStep (without graveyard step)
+   *
+   * @abstract - Subclasses MUST override this method
+   *
+   * @example
+   * ```typescript
+   * // PotOfGreedEffect
+   * protected createCardSteps(state: GameState): EffectResolutionStep[] {
+   *   return [
+   *     {
+   *       id: "pot-of-greed-draw",
+   *       title: "カードをドローします",
+   *       message: "デッキから2枚ドローします",
+   *       action: (currentState) => { ... }
+   *     }
+   *   ];
+   * }
+   * ```
+   */
+  protected abstract createCardSteps(state: GameState): EffectResolutionStep[];
 }

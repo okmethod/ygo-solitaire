@@ -108,6 +108,7 @@ export abstract class SpellEffect implements CardEffect {
    * Returns an array of EffectResolutionStep to be executed sequentially.
    *
    * @param state - Current game state (immutable)
+   * @param activatedCardInstanceId - Instance ID of the activated card (for graveyard-sending)
    * @returns Array of EffectResolutionStep to be executed
    *
    * @abstract - Subclasses MUST override this method
@@ -115,7 +116,7 @@ export abstract class SpellEffect implements CardEffect {
    * @example
    * ```typescript
    * // PotOfGreedEffect
-   * createSteps(state: GameState): EffectResolutionStep[] {
+   * createSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
    *   return [
    *     {
    *       id: "pot-of-greed-draw",
@@ -131,5 +132,5 @@ export abstract class SpellEffect implements CardEffect {
    * }
    * ```
    */
-  abstract createSteps(state: GameState): EffectResolutionStep[];
+  abstract createSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
 }

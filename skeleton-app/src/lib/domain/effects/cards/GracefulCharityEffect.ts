@@ -92,19 +92,21 @@ export class GracefulCharityEffect extends NormalSpellEffect {
   }
 
   /**
-   * Create effect resolution steps for Graceful Charity
+   * Create card-specific effect resolution steps for Graceful Charity
    *
    * Effect Resolution:
    * 1. Draw 3 cards from deck to hand
    * 2. Wait for player to select 2 cards from hand (via CardSelectionModal)
    * 3. Discard selected 2 cards to graveyard
    *
+   * Note: Graveyard-sending step is automatically appended by NormalSpellEffect
+   *
    * @param state - Current game state (immutable)
-   * @returns Array of EffectResolutionStep (2 steps for Graceful Charity)
+   * @returns Array of card-specific EffectResolutionStep (2 steps for Graceful Charity)
    *
    * @example
    * ```typescript
-   * const steps = effect.createSteps(state);
+   * const steps = effect.createCardSteps(state);
    * // [
    * //   {
    * //     id: "graceful-charity-draw",
@@ -120,9 +122,10 @@ export class GracefulCharityEffect extends NormalSpellEffect {
    * //     action: (state, selectedInstanceIds) => { ... }
    * //   }
    * // ]
+   * // NormalSpellEffect will append graveyard-sending step
    * ```
    */
-  createSteps(state: GameState): EffectResolutionStep[] {
+  protected createCardSteps(state: GameState): EffectResolutionStep[] {
     return [
       // Step 1: Draw 3 cards
       {
