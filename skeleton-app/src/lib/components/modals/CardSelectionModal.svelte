@@ -2,7 +2,7 @@
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import CardComponent from "$lib/components/atoms/Card.svelte";
   import { cardSelectionStore } from "$lib/stores/cardSelectionStore.svelte";
-  import { cardDisplayStore } from "$lib/application/stores/cardDisplayStore";
+  import { handCards } from "$lib/application/stores/cardDisplayStore";
   import type { CardDisplayData } from "$lib/types/card";
 
   // cardSelectionStoreの状態を購読
@@ -10,9 +10,6 @@
   const config = $derived(cardSelectionStore.config);
   const selectedCount = $derived(cardSelectionStore.selectedCount);
   const isValidSelection = $derived(cardSelectionStore.isValidSelection);
-
-  // 手札カードの表示データを取得
-  const handCards = $derived(cardDisplayStore.handCards);
 
   // Modal の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
@@ -47,7 +44,7 @@
 
   // instanceIdからCardDisplayDataを取得
   function getCardDisplay(instanceId: string): CardDisplayData | undefined {
-    return handCards.find((card) => {
+    return $handCards.find((card: CardDisplayData) => {
       // handCardsはCardDisplayData[]なので、instanceIdと照合するため
       // config.availableCardsからinstanceIdに対応するcardIdを取得
       const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);

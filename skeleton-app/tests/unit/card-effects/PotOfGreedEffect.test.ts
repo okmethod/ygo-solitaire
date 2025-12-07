@@ -189,7 +189,7 @@ describe("PotOfGreedEffect", () => {
       const effect = new PotOfGreedEffect();
 
       // Act
-      const steps = effect.createSteps(state);
+      const steps = effect.createSteps();
 
       // Assert: Check step structure
       expect(steps).toHaveLength(1);
@@ -228,8 +228,8 @@ describe("PotOfGreedEffect", () => {
       const effect = new PotOfGreedEffect();
 
       // Act
-      const steps1 = effect.createSteps(state1);
-      const steps2 = effect.createSteps(state2);
+      const steps1 = effect.createSteps();
+      const steps2 = effect.createSteps();
 
       // Assert: Both should have the same structure
       expect(steps1).toHaveLength(1);
@@ -262,7 +262,7 @@ describe("PotOfGreedEffect", () => {
       const effect = new PotOfGreedEffect();
 
       // Act
-      const steps = effect.createSteps(state);
+      const steps = effect.createSteps();
 
       // Assert: action should be a function
       expect(typeof steps[0].action).toBe("function");

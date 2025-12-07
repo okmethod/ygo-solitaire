@@ -25,6 +25,7 @@ import type { GameState } from "../../models/GameState";
 import type { EffectResolutionStep } from "../EffectResolutionStep";
 import { drawCards } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
+import { DiscardCardsCommand } from "../../../application/commands/DiscardCardsCommand";
 
 /**
  * GracefulCharityEffect - Graceful Charity card effect
@@ -115,37 +116,38 @@ export class GracefulCharityEffect extends NormalSpellEffect {
    * //     id: "graceful-charity-discard",
    * //     title: "カードを破棄します",
    * //     message: "手札から2枚選んで破棄してください",
-   * //     action: (state) => { ... }
+   * //     cardSelectionConfig: { ... },
+   * //     action: (state, selectedInstanceIds) => { ... }
    * //   }
    * // ]
    * ```
    */
-  createSteps(): EffectResolutionStep[] {
+  createSteps(state: GameState): EffectResolutionStep[] {
     return [
       // Step 1: Draw 3 cards
       {
         id: "graceful-charity-draw",
         title: "カードをドローします",
         message: "デッキから3枚ドローします",
-        action: (state: GameState) => {
+        action: (currentState: GameState) => {
           // Draw 3 cards directly using domain functions
           // GameState is injected by confirmCurrentStep() (Dependency Injection)
 
           // Validate deck has enough cards
-          if (state.zones.deck.length < 3) {
+          if (currentState.zones.deck.length < 3) {
             return {
               success: false,
-              newState: state,
+              newState: currentState,
               error: "Cannot draw 3 cards. Not enough cards in deck.",
             };
           }
 
           // Draw cards (returns new immutable zones object)
-          const newZones = drawCards(state.zones, 3);
+          const newZones = drawCards(currentState.zones, 3);
 
           // Create new state with drawn cards
           const newState: GameState = {
-            ...state,
+            ...currentState,
             zones: newZones,
           };
 
@@ -171,18 +173,29 @@ export class GracefulCharityEffect extends NormalSpellEffect {
         id: "graceful-charity-discard",
         title: "カードを破棄します",
         message: "手札から2枚選んで破棄してください",
-        action: (state: GameState) => {
-          // This step waits for player input via CardSelectionModal
-          // The actual discard is performed by the onConfirm callback
-          // which is set up by CardEffectPanel when rendering this step
+        // Card selection configuration (Domain Layer)
+        // Application Layer will open CardSelectionModal with this config
+        cardSelectionConfig: {
+          availableCards: state.zones.hand,
+          minCards: 2,
+          maxCards: 2,
+          title: "カードを破棄",
+          message: "手札から2枚選んで破棄してください",
+        },
+        // Action receives selected card instance IDs from user selection
+        action: (currentState: GameState, selectedInstanceIds?: string[]) => {
+          // Validate selectedInstanceIds is provided
+          if (!selectedInstanceIds || selectedInstanceIds.length !== 2) {
+            return {
+              success: false,
+              newState: currentState,
+              error: "Must select exactly 2 cards to discard",
+            };
+          }
 
-          // For now, just return success to allow the step to proceed
-          // The actual discard logic will be handled by cardSelectionStore
-          return {
-            success: true,
-            newState: state,
-            message: "Waiting for card selection",
-          };
+          // Execute discard command
+          const command = new DiscardCardsCommand(selectedInstanceIds);
+          return command.execute(currentState);
         },
       },
     ];
