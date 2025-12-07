@@ -56,8 +56,8 @@
 <Modal
   open={isActive}
   onOpenChange={handleOpenChange}
-  contentBase="card bg-surface-100-800-token p-6 space-y-4 max-w-4xl max-h-[90vh] overflow-auto"
-  backdropClasses="backdrop-blur-sm"
+  contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+  backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}
   closeOnEscape={true}
@@ -75,8 +75,10 @@
       <p class="text-sm text-surface-600-300-token mb-4">{config.message}</p>
 
       <!-- 選択状況 -->
-      <div class="flex justify-between items-center mb-4 p-3 bg-surface-100-800-token rounded-lg">
-        <span class="text-sm">
+      <div
+        class="flex justify-between items-center mb-4 p-3 bg-surface-200 dark:bg-surface-800 rounded-lg border border-surface-300 dark:border-surface-600"
+      >
+        <span class="text-sm font-semibold">
           選択中: {selectedCount} / {config.maxCards}枚
         </span>
         <div class="flex gap-2">
