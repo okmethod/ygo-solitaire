@@ -175,17 +175,6 @@ describe("PotOfGreedEffect", () => {
   describe("createSteps()", () => {
     it("should create correct EffectResolutionStep structure", () => {
       // Arrange
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2"], "deck"),
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
       const effect = new PotOfGreedEffect();
 
       // Act
@@ -202,29 +191,7 @@ describe("PotOfGreedEffect", () => {
     });
 
     it("should create the same step structure regardless of deck size", () => {
-      // Arrange: Different deck sizes
-      const state1 = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2"], "deck"),
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
-      const state2 = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
+      // Arrange
       const effect = new PotOfGreedEffect();
 
       // Act
@@ -248,17 +215,6 @@ describe("PotOfGreedEffect", () => {
 
     it("should have action function in step", () => {
       // Arrange
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2"], "deck"),
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
       const effect = new PotOfGreedEffect();
 
       // Act
