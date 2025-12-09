@@ -7,8 +7,9 @@
  * @module domain/rules/PhaseRule
  */
 
-import type { GamePhase } from "../models/constants";
-import { GAME_PHASES, getNextPhase, shouldAutoDrawInPhase } from "../models/constants";
+import type { GamePhase } from "../models/Phase";
+import { getNextPhase, GAME_PHASES } from "../models/Phase";
+import { shouldAutoDrawInPhase } from "../models/constants";
 
 /**
  * Validate if phase transition is allowed

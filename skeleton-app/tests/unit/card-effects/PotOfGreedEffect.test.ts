@@ -62,9 +62,9 @@ describe("PotOfGreedEffect", () => {
     });
 
     it("should return false when phase is not Main1", () => {
-      // Arrange: Battle Phase (not Main1)
+      // Arrange: End Phase (not Main1)
       const state = createMockGameState({
-        phase: "Battle",
+        phase: "End",
         zones: {
           deck: createCardInstances(["card1", "card2"], "deck"),
           hand: [],
