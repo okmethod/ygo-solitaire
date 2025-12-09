@@ -63,8 +63,8 @@
 | カード種別 | 実装状況 | 実装箇所 | 備考 |
 |-----------|---------|---------|------|
 | **Monster** | ✅ データのみ | `Card` type | エクゾディアパーツのみ |
-| **Spell (Normal)** | ✅ 基本実装 | `ActivateSpellCommand` | 通常魔法のみ |
-| **Trap** | ❌ 未実装 | - | スコープ外 |
+| **Spell (Normal)** | ✅ 完全実装 | `ActivateSpellCommand`, Effect System | Pot of Greed, Graceful Charity |
+| **Trap** | 🚧 一部実装 | `SpellActivationRule`, `cardDatabase.ts` | 発動判定のみ（Jar of Greed定義済） |
 
 ---
 
@@ -87,9 +87,52 @@
 | ルール | 実装状況 | 実装箇所 |
 |--------|---------|---------|
 | **発動可能フェーズ判定** | ✅ 完全実装 | `SpellActivationRule` |
+| **罠カード発動判定** | ✅ 完全実装 | `SpellActivationRule` (手札から直接発動不可) |
 | **発動後の墓地送り** | ✅ 完全実装 | `ActivateSpellCommand` |
+| **カード効果処理** | ✅ 完全実装 | Effect System (Strategy Pattern + Registry) |
 | **コスト処理** | ❌ 未実装 | - |
 | **対象選択** | ❌ 未実装 | - |
+
+---
+
+#### カード効果システム (Effect System)
+**ドキュメント**: [ADR-0005: Card Effect Strategy Pattern](../adr/0005-card-effect-strategy-pattern.md)
+
+| コンポーネント | 実装状況 | 実装箇所 | 備考 |
+|--------------|---------|---------|------|
+| **CardEffect Interface** | ✅ 完全実装 | `domain/effects/CardEffect.ts` | すべてのカード効果の基底 |
+| **CardEffectRegistry** | ✅ 完全実装 | `application/effects/CardEffectRegistry.ts` | カードID→Effect インスタンスマッピング |
+| **SpellEffect** | ✅ 完全実装 | `domain/effects/bases/SpellEffect.ts` | 魔法カード共通処理 |
+| **NormalSpellEffect** | ✅ 完全実装 | `domain/effects/bases/NormalSpellEffect.ts` | 通常魔法共通処理 |
+| **PotOfGreedEffect** | ✅ 完全実装 | `domain/effects/cards/PotOfGreedEffect.ts` | 強欲な壺（2枚ドロー） |
+| **GracefulCharityEffect** | ✅ 完全実装 | `domain/effects/cards/GracefulCharityEffect.ts` | 天使の施し（3ドロー2捨て） |
+
+**アーキテクチャ**: Strategy Pattern + Registry Pattern
+**特徴**: Open/Closed Principle遵守、カード固有ロジックの分離
+
+---
+
+#### Domain Layer カードデータベース
+**実装**: [domain/data/cardDatabase.ts](../../skeleton-app/src/lib/domain/data/cardDatabase.ts)
+
+| 機能 | 実装状況 | 説明 |
+|------|---------|------|
+| **CARD_DATABASE** | ✅ 完全実装 | カードID→DomainCardData マッピング |
+| **getCardData()** | ✅ 完全実装 | カードデータ取得（存在チェック付き） |
+| **getCardType()** | ✅ 完全実装 | カードタイプ取得（GameState初期化に使用） |
+| **hasCardData()** | ✅ 完全実装 | カード存在確認 |
+
+**目的**: YGOPRODeck APIから独立したDomain Layerカードレジストリ
+**利点**:
+- ゲームルールバリデーションがAPI非依存
+- ユニットテストがネットワーク不要
+- CardInstance.type の自動設定
+
+**登録カード**:
+- Exodia 5パーツ (Monster)
+- Pot of Greed, Graceful Charity (Spell)
+- Jar of Greed (Trap)
+- テスト用カード (1001-1005, 11111111-87654321)
 
 ---
 
@@ -114,10 +157,17 @@
 
 - **デッキ**: 「封印されしエクゾディア」デッキ 1種
 - **機能**:
-  - 手札からの魔法発動
-  - ドロー
+  - 手札からの魔法発動（Pot of Greed, Graceful Charity）
+  - カード効果処理（Effect System: Strategy Pattern）
+  - ドロー（複数枚対応）
+  - カード破棄（手札選択UI）
   - エクゾディア勝利判定
-- **UI**: カードをクリックでプレイできる最低限の画面
+  - 罠カード発動判定（手札から直接発動不可）
+- **UI**:
+  - カードをクリックでプレイ
+  - カード効果解決モーダル
+  - カード選択モーダル（破棄時）
+  - カード画像表示（YGOPRODeck API統合）
 
 ### 🚧 次の拡張候補
 
