@@ -17,6 +17,16 @@
 export type SimpleCardType = "monster" | "spell" | "trap";
 
 /**
+ * Spell card subtypes
+ */
+export type SpellSubType = "normal" | "quick-play" | "continuous" | "field" | "equip" | "ritual";
+
+/**
+ * Trap card subtypes
+ */
+export type TrapSubType = "normal" | "continuous" | "counter";
+
+/**
  * Domain Layer用の最小限カードデータ
  *
  * ゲームロジック実装に必要な最小限のプロパティのみを保持。
@@ -29,6 +39,12 @@ export interface DomainCardData {
   readonly id: number; // カードを一意に識別するID（YGOPRODeck API ID）
   readonly type: SimpleCardType; // カードタイプ（"monster" | "spell" | "trap"）
   readonly frameType?: string; // カードフレームタイプ（"normal", "effect"など）
+  readonly spellType?: SpellSubType; // 魔法カード種別（spellの場合のみ）
+  readonly trapType?: TrapSubType; // 罠カード種別（trapの場合のみ）
+  // 将来拡張用:
+  // readonly attack?: number;
+  // readonly defense?: number;
+  // readonly level?: number;
 }
 
 /**
@@ -39,6 +55,7 @@ export interface DomainCardData {
 export interface CardInstance {
   readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
   readonly cardId: string; // References card ID (number as string)
+  readonly type: SimpleCardType; // Card type for game rule validation
   readonly location: ZoneLocation; // Current location
   readonly position?: "faceUp" | "faceDown"; // For field cards
 }

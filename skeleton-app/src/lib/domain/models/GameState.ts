@@ -9,6 +9,7 @@
 
 import type { Zones } from "./Zone";
 import type { GamePhase } from "./constants";
+import { getCardType } from "../data/cardDatabase";
 
 /**
  * Life Points for both players
@@ -62,6 +63,7 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
       deck: deckCardIds.map((cardId, index) => ({
         instanceId: `deck-${index}`,
         cardId: cardId.toString(),
+        type: getCardType(cardId), // Get type from domain card database
         location: "deck" as const,
       })),
       hand: [],

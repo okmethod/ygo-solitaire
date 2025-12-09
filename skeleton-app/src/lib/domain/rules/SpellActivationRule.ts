@@ -46,6 +46,14 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
     };
   }
 
+  // Check card type: trap cards cannot be activated from hand (must be set first)
+  if (cardInHand.type === "trap") {
+    return {
+      canActivate: false,
+      reason: `罠カードは手札から直接発動できません（セットが必要です）`,
+    };
+  }
+
   // All checks passed
   return {
     canActivate: true,
