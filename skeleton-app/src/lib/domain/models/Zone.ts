@@ -104,6 +104,35 @@ export function sendToGraveyard(zones: Zones, instanceId: string): Zones {
 }
 
 /**
+ * Helper to discard multiple cards from hand to graveyard
+ *
+ * @param zones - Current zones state
+ * @param instanceIds - Array of card instance IDs to discard
+ * @returns Updated zones object
+ * @throws Error if any card is not found in hand
+ *
+ * @example
+ * const newZones = discardCards(zones, ["hand-0", "hand-2"]);
+ */
+export function discardCards(zones: Zones, instanceIds: string[]): Zones {
+  // Validate all cards are in hand
+  for (const instanceId of instanceIds) {
+    const cardInHand = zones.hand.find((c) => c.instanceId === instanceId);
+    if (!cardInHand) {
+      throw new Error(`Card with instanceId ${instanceId} not found in hand`);
+    }
+  }
+
+  // Move cards one by one to graveyard
+  let updatedZones = zones;
+  for (const instanceId of instanceIds) {
+    updatedZones = moveCard(updatedZones, instanceId, "hand", "graveyard");
+  }
+
+  return updatedZones;
+}
+
+/**
  * Helper to banish a card
  *
  * @param zones - Current zones state

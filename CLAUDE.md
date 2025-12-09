@@ -298,13 +298,12 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
+- 004-card-effect-execution: Added TypeScript 5.x (SvelteKit環境)
 - 003-effect-activation-ui: Added TypeScript 5.x (SvelteKit環境)
 - 002-data-model-refactoring: 3層データモデル実装完了（DomainCardData/CardDisplayData）
   - YGOPRODeck API統合とキャッシング機能追加
   - 239/239 tests passing
   - アーキテクチャドキュメント整備（docs/architecture/data-model-design.md）
-- 001-architecture-refactoring: Clean Architecture完成、Effect System廃止（ADR-0003）、204/204 tests passing
 
 ## Active Technologies
-- TypeScript 5.x (SvelteKit環境) (003-effect-activation-ui)
-- メモリキャッシュ（セッション単位、YGOPRODeck APIレスポンス） (003-effect-activation-ui)
+- メモリ内状態管理（gameStateStore, effectResolutionStore, cardSelectionStore） (004-card-effect-execution)

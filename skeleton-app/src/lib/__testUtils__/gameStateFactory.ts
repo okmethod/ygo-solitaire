@@ -66,17 +66,20 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
  * @param cardIds - Array of card IDs
  * @param location - Zone location for the cards
  * @param prefix - Prefix for instance IDs (default: location name)
+ * @param type - Card type (default: "spell" for test compatibility)
  * @returns Array of CardInstance
  */
 export function createCardInstances(
   cardIds: string[],
   location: "deck" | "hand" | "field" | "graveyard" | "banished",
   prefix?: string,
+  type: "monster" | "spell" | "trap" = "spell",
 ): CardInstance[] {
   const instancePrefix = prefix || location;
   return cardIds.map((cardId, index) => ({
     instanceId: `${instancePrefix}-${index}`,
     cardId,
+    type,
     location,
   }));
 }

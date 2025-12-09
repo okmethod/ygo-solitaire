@@ -697,6 +697,343 @@ try {
 
 ---
 
+## Card Effect Architecture データフロー
+
+### 概要
+
+Card Effect Architectureは、Strategy Patternに基づいたカード効果処理システムです。各カードの効果を独立したクラスとして実装し、`CardEffectRegistry`で管理することで、Open/Closed Principleを実現します。
+
+### アーキテクチャ図
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Presentation Layer                        │
+│  (UI Components, Effect Resolution Modal)                    │
+│                                                               │
+│  Components: EffectResolutionModal.svelte                    │
+│  Stores: effectResolutionStore                               │
+└─────────────────────────────────────────────────────────────┘
+                              ▲
+                              │ EffectResolutionStep[]
+                              │
+┌─────────────────────────────────────────────────────────────┐
+│                    Application Layer                         │
+│  (Command Pattern, Effect Resolution Management)             │
+│                                                               │
+│  Command: ActivateSpellCommand                               │
+│  Registry: CardEffectRegistry                                │
+└─────────────────────────────────────────────────────────────┘
+                              ▲
+                              │ CardEffect.createSteps()
+                              │
+┌─────────────────────────────────────────────────────────────┐
+│                      Domain Layer                            │
+│  (Card Effect Strategy Pattern)                              │
+│                                                               │
+│  Interface: CardEffect                                       │
+│  Classes: SpellEffect → NormalSpellEffect → PotOfGreedEffect│
+└─────────────────────────────────────────────────────────────┘
+```
+
+### データフロー詳細
+
+#### 1. カード効果実行フロー
+
+```
+User Action (カードクリック)
+        ▼
+ActivateSpellCommand.execute()
+        ▼
+CardEffectRegistry.get(cardId)  ← カードID → CardEffectインスタンス
+        ▼
+CardEffect.canActivate(state)   ← バリデーション
+        ▼
+CardEffect.createSteps(state)   ← EffectResolutionStep[] 生成
+        ▼
+effectResolutionStore.startResolution(steps)
+        ▼
+EffectResolutionModal表示 → ユーザー確認 → 効果実行
+```
+
+#### 2. CardEffect階層構造
+
+```typescript
+// CardEffect (interface) - すべてのカード効果の基底
+interface CardEffect {
+  canActivate(state: GameState): boolean;
+  createSteps(state: GameState): EffectResolutionStep[];
+}
+
+// SpellEffect (abstract class) - 魔法カード共通処理
+abstract class SpellEffect implements CardEffect {
+  canActivate(state: GameState): boolean {
+    // 共通バリデーション: ゲーム終了チェック
+    if (state.result.isGameOver) return false;
+    return this.canActivateSpell(state);
+  }
+
+  protected abstract canActivateSpell(state: GameState): boolean;
+  abstract createSteps(state: GameState): EffectResolutionStep[];
+}
+
+// NormalSpellEffect (abstract class) - 通常魔法カード共通処理
+abstract class NormalSpellEffect extends SpellEffect {
+  protected canActivateSpell(state: GameState): boolean {
+    // 通常魔法のみのバリデーション: Main1フェーズチェック
+    if (state.phase !== "Main1") return false;
+    return this.canActivateNormalSpell(state);
+  }
+
+  protected abstract canActivateNormalSpell(state: GameState): boolean;
+}
+
+// PotOfGreedEffect (concrete class) - 強欲な壺固有処理
+class PotOfGreedEffect extends NormalSpellEffect {
+  protected canActivateNormalSpell(state: GameState): boolean {
+    // カード固有のバリデーション: デッキ2枚以上
+    return state.zones.deck.length >= 2;
+  }
+
+  createSteps(state: GameState): EffectResolutionStep[] {
+    return [
+      {
+        id: "pot-of-greed-draw",
+        title: "カードをドローします",
+        message: "デッキから2枚ドローします",
+        action: () => {
+          const drawCmd = new DrawCardCommand(2);
+          const result = drawCmd.execute(get(gameStateStore));
+          if (result.success) {
+            gameStateStore.set(result.newState);
+          }
+        },
+      },
+    ];
+  }
+}
+```
+
+#### 3. CardEffectRegistry
+
+カードIDとCardEffectインスタンスのマッピングを管理します。
+
+```typescript
+/**
+ * CardEffectRegistry - カードID → CardEffect インスタンスのマッピング
+ *
+ * Open/Closed Principle:
+ * - 新しいカード追加時: Registry登録のみ（既存コード変更不要）
+ * - ActivateSpellCommand: if/else分岐を削除
+ */
+class CardEffectRegistry {
+  private static effects = new Map<number, CardEffect>();
+
+  static register(cardId: number, effect: CardEffect): void {
+    this.effects.set(cardId, effect);
+  }
+
+  static get(cardId: number): CardEffect | undefined {
+    return this.effects.get(cardId);
+  }
+}
+
+// 初期化（アプリケーション起動時）
+CardEffectRegistry.register(55144522, new PotOfGreedEffect());       // 強欲な壺
+CardEffectRegistry.register(79571449, new GracefulCharityEffect());  // 天使の施し
+```
+
+#### 4. ActivateSpellCommandとの統合
+
+```typescript
+// Before (アンチパターン): if/else分岐
+class ActivateSpellCommand {
+  execute(state: GameState): CommandResult {
+    const cardId = parseInt(cardInstance.cardId, 10);
+
+    if (cardId === 55144522) {
+      // Pot of Greed処理
+    } else if (cardId === 79571449) {
+      // Graceful Charity処理
+    }
+    // ... 新しいカード追加のたびに分岐が増える
+  }
+}
+
+// After (改善版): Strategy Pattern
+class ActivateSpellCommand {
+  execute(state: GameState): CommandResult {
+    const cardId = parseInt(cardInstance.cardId, 10);
+    const effect = CardEffectRegistry.get(cardId);
+
+    if (effect) {
+      if (!effect.canActivate(state)) {
+        return createFailureResult(state, "Cannot activate card effect");
+      }
+      const steps = effect.createSteps(state);
+      effectResolutionStore.startResolution(steps);
+    }
+
+    // 墓地送り処理（共通）
+    const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
+    // ...
+  }
+}
+```
+
+### 設計原則
+
+#### Open/Closed Principle（開放閉鎖原則）
+
+- **開放**: 新しいカード追加時は新しいCardEffectクラスを作成し、Registry登録するのみ
+- **閉鎖**: ActivateSpellCommandなど既存コードの変更は不要
+
+#### Strategy Pattern
+
+- **Context**: ActivateSpellCommand（効果実行の文脈）
+- **Strategy**: CardEffect（効果処理の戦略）
+- **Concrete Strategy**: PotOfGreedEffect, GracefulCharityEffect（具体的な戦略）
+
+#### Liskov Substitution Principle（リスコフの置換原則）
+
+- CardEffectインスタンスはすべて同じインターフェースで扱える
+- ActivateSpellCommandは具体的なカード種別を知る必要がない
+
+### ファイル構成
+
+```
+src/lib/domain/effects/
+├── CardEffect.ts              # CardEffect interface定義
+├── CardEffectRegistry.ts      # Registry実装
+├── bases/
+│   ├── SpellEffect.ts         # 魔法カード基底クラス
+│   └── NormalSpellEffect.ts   # 通常魔法カード基底クラス
+└── cards/
+    ├── PotOfGreedEffect.ts    # 強欲な壺
+    └── GracefulCharityEffect.ts # 天使の施し
+```
+
+### テスト戦略
+
+#### 1. CardEffect Unit Tests
+
+各CardEffectクラスの単体テスト（`tests/unit/card-effects/`）。
+
+```typescript
+describe("PotOfGreedEffect", () => {
+  it("canActivate should return false when deck has only 1 card", () => {
+    const state = createMockGameState({
+      phase: "Main1",
+      zones: { deck: createCardInstances(["card1"], "deck") },
+    });
+    const effect = new PotOfGreedEffect();
+    expect(effect.canActivate(state)).toBe(false);
+  });
+
+  it("createSteps should create draw step", () => {
+    const state = createMockGameState({
+      phase: "Main1",
+      zones: { deck: createCardInstances(["card1", "card2"], "deck") },
+    });
+    const effect = new PotOfGreedEffect();
+    const steps = effect.createSteps(state);
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0].id).toBe("pot-of-greed-draw");
+  });
+});
+```
+
+#### 2. CardEffectRegistry Unit Tests
+
+Registry登録・取得の検証（`tests/unit/CardEffectRegistry.test.ts`）。
+
+```typescript
+describe("CardEffectRegistry", () => {
+  it("should return registered effect for valid card ID", () => {
+    CardEffectRegistry.register(55144522, new PotOfGreedEffect());
+    const effect = CardEffectRegistry.get(55144522);
+    expect(effect).toBeInstanceOf(PotOfGreedEffect);
+  });
+
+  it("should return undefined for unregistered card ID", () => {
+    const effect = CardEffectRegistry.get(99999999);
+    expect(effect).toBeUndefined();
+  });
+});
+```
+
+#### 3. Integration Tests (CardEffects.test.ts)
+
+ActivateSpellCommandとの統合テスト（既存の`tests/unit/CardEffects.test.ts`）。
+
+```typescript
+describe("Card Effects Integration", () => {
+  it("should call effectResolutionStore for Pot of Greed", () => {
+    const state = createMockGameState({
+      phase: "Main1",
+      zones: {
+        deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+        hand: [{ instanceId: "pot-1", cardId: "55144522", location: "hand" }],
+      },
+    });
+
+    const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
+    const command = new ActivateSpellCommand("pot-1");
+    command.execute(state);
+
+    expect(startResolutionSpy).toHaveBeenCalledOnce();
+  });
+});
+```
+
+### パフォーマンス考慮事項
+
+#### Registry初期化
+
+- **タイミング**: アプリケーション起動時（`src/lib/domain/effects/index.ts`）
+- **コスト**: O(n) - nはカード種類数（現在2枚、最大50-100枚想定）
+- **影響**: 初回ロード時のみ、ユーザー体感なし
+
+#### 効果検索
+
+- **データ構造**: `Map<number, CardEffect>`
+- **検索コスト**: O(1) - カードID直接参照
+- **メモリ使用量**: カード種類数 × CardEffectインスタンスサイズ（軽量）
+
+### 将来の拡張性
+
+#### 速攻魔法・永続魔法への対応
+
+```typescript
+// QuickPlaySpellEffect (速攻魔法)
+abstract class QuickPlaySpellEffect extends SpellEffect {
+  protected canActivateSpell(state: GameState): boolean {
+    // 速攻魔法: Main1/Main2/Battle/相手ターンで発動可能
+    const validPhases = ["Main1", "Main2", "Battle"];
+    return validPhases.includes(state.phase);
+  }
+}
+
+// ContinuousSpellEffect (永続魔法)
+abstract class ContinuousSpellEffect extends SpellEffect {
+  // 永続魔法: フィールドに残る処理が必要
+}
+```
+
+#### 罠カードへの対応
+
+```typescript
+// TrapEffect (罠カード基底クラス)
+abstract class TrapEffect implements CardEffect {
+  canActivate(state: GameState): boolean {
+    // 罠カード: セット後1ターン経過が必要
+    // (実装詳細は将来のspecで定義)
+  }
+}
+```
+
+---
+
 ## 今後の拡張計画
 
 ### Phase 1: Domain Layer完全移行（T023-T025）
@@ -760,6 +1097,7 @@ GameState/Rules を DomainCardData に移行。
 
 | バージョン | 日付 | 著者 | 変更内容 |
 |----------|------|------|---------|
+| 1.1.0 | 2025-12-07 | Claude Code | Card Effect Architectureセクション追加（T008） |
 | 1.0.0 | 2025-11-29 | Claude Code | 初版作成（T065） |
 
 ---

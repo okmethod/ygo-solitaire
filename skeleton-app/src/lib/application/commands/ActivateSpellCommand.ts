@@ -14,11 +14,14 @@
 
 import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
+import { CardEffectRegistry } from "$lib/application/effects";
+import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
 
 /**
  * Command to activate a spell card
@@ -49,7 +52,22 @@ export class ActivateSpellCommand implements GameCommand {
 
     // Check spell activation rules
     const validation = canActivateSpell(state, this.cardInstanceId);
-    return validation.canActivate;
+    if (!validation.canActivate) {
+      return false;
+    }
+
+    // Check card-specific effect requirements (if registered)
+    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    if (cardInstance) {
+      const cardId = parseInt(cardInstance.cardId, 10);
+      const effect = CardEffectRegistry.get(cardId);
+
+      if (effect && !effect.canActivate(state)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -70,11 +88,32 @@ export class ActivateSpellCommand implements GameCommand {
     // Step 1: Move card from hand to field (activation)
     const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", "field", "faceUp");
 
-    // Step 2: [Effect execution would go here]
-    // For MVP, we skip effect execution
-    // TODO: Integrate with Effect system (BaseEffect, DrawEffect, etc.)
+    // Step 2: Effect execution based on card ID
+    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    if (!cardInstance) {
+      return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
+    }
 
-    // Step 3: Move card from field to graveyard (resolution)
+    // Create intermediate state for effect resolution
+    const stateAfterActivation = produce(state, (draft) => {
+      draft.zones = zonesAfterActivation as typeof draft.zones;
+    });
+
+    // Check if card has registered effect
+    const cardId = parseInt(cardInstance.cardId, 10);
+    const effect = CardEffectRegistry.get(cardId);
+
+    if (effect && effect.canActivate(stateAfterActivation)) {
+      // Card has effect - trigger effect resolution
+      // Pass cardInstanceId to effect for graveyard-sending step
+      const steps = effect.createSteps(stateAfterActivation, this.cardInstanceId);
+      effectResolutionStore.startResolution(steps);
+
+      // Early return - effect resolution will handle graveyard-sending
+      return createSuccessResult(stateAfterActivation, `Spell card activated: ${this.cardInstanceId}`);
+    }
+
+    // No effect registered - send directly to graveyard
     const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
 
     // Create new state with updated zones
@@ -90,7 +129,7 @@ export class ActivateSpellCommand implements GameCommand {
       draft.result = victoryResult;
     });
 
-    return createSuccessResult(finalState, `Spell card activated: ${this.cardInstanceId}`);
+    return createSuccessResult(finalState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }
 
   /**

@@ -1,12 +1,10 @@
 import { writable } from "svelte/store";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
+import { cardSelectionStore } from "./cardSelectionStore.svelte";
+import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 
-export interface EffectResolutionStep {
-  id: string;
-  title: string;
-  message: string;
-  action: () => Promise<void> | void;
-  showCancel?: boolean;
-}
+// Re-export EffectResolutionStep from Domain Layer for backward compatibility
+export type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 
 interface EffectResolutionState {
   isActive: boolean;
@@ -46,26 +44,88 @@ function createEffectResolutionStore() {
       const state = get(effectResolutionStore);
 
       if (state.currentStep) {
-        // 現在のステップのアクションを実行
-        await state.currentStep.action();
+        // 現在のGameStateを取得してactionに注入（Dependency Injection）
+        const currentGameState = get(gameStateStore);
 
-        // 次のステップに進む
-        const nextIndex = state.currentIndex + 1;
-        if (nextIndex < state.steps.length) {
-          update((s) => ({
-            ...s,
-            currentIndex: nextIndex,
-            currentStep: s.steps[nextIndex],
-          }));
+        // カード選択が必要な場合（cardSelectionConfigがある場合）
+        if (state.currentStep.cardSelectionConfig) {
+          // CardSelectionModalを開いてユーザー入力を待つ
+          return new Promise<void>((resolve) => {
+            // IMPORTANT: Use currentGameState.zones.hand instead of original config's availableCards
+            // This ensures we're selecting from the CURRENT hand after any previous effects (e.g., drawing cards)
+            cardSelectionStore.startSelection({
+              ...state.currentStep!.cardSelectionConfig!,
+              availableCards: currentGameState.zones.hand,
+              onConfirm: async (selectedInstanceIds: string[]) => {
+                // ユーザーがカードを選択したら、actionを実行
+                const result = await state.currentStep!.action(currentGameState, selectedInstanceIds);
+
+                // actionの結果を反映
+                if (result.success) {
+                  gameStateStore.set(result.newState);
+                }
+
+                // 次のステップに進む
+                const nextIndex = state.currentIndex + 1;
+                if (nextIndex < state.steps.length) {
+                  update((s) => ({
+                    ...s,
+                    currentIndex: nextIndex,
+                    currentStep: s.steps[nextIndex],
+                  }));
+                } else {
+                  // 全ステップ完了
+                  update((s) => ({
+                    ...s,
+                    isActive: false,
+                    currentStep: null,
+                    steps: [],
+                    currentIndex: -1,
+                  }));
+                }
+
+                resolve();
+              },
+              onCancel: () => {
+                // キャンセル時は効果解決を中止
+                update((s) => ({
+                  ...s,
+                  isActive: false,
+                  currentStep: null,
+                  steps: [],
+                  currentIndex: -1,
+                }));
+                resolve();
+              },
+            });
+          });
         } else {
-          // 全ステップ完了
-          update((s) => ({
-            ...s,
-            isActive: false,
-            currentStep: null,
-            steps: [],
-            currentIndex: -1,
-          }));
+          // カード選択不要な場合（従来の動作）
+          const result = await state.currentStep.action(currentGameState);
+
+          // actionの結果を反映
+          if (result.success) {
+            gameStateStore.set(result.newState);
+          }
+
+          // 次のステップに進む
+          const nextIndex = state.currentIndex + 1;
+          if (nextIndex < state.steps.length) {
+            update((s) => ({
+              ...s,
+              currentIndex: nextIndex,
+              currentStep: s.steps[nextIndex],
+            }));
+          } else {
+            // 全ステップ完了
+            update((s) => ({
+              ...s,
+              isActive: false,
+              currentStep: null,
+              steps: [],
+              currentIndex: -1,
+            }));
+          }
         }
       }
     },

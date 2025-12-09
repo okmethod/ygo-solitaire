@@ -16,9 +16,12 @@
     canActivateSpells,
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
+  import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
   import Card from "$lib/components/atoms/Card.svelte";
   import DuelField from "$lib/components/organisms/board/DuelField.svelte";
+  import EffectResolutionModal from "$lib/components/modals/EffectResolutionModal.svelte";
+  import CardSelectionModal from "$lib/components/modals/CardSelectionModal.svelte";
   import type { Card as CardDisplayData } from "$lib/types/card";
 
   export let data: PageData;
@@ -61,7 +64,7 @@
       return;
     }
 
-    // GameFacade.activateSpell呼び出し
+    // GameFacade.activateSpell呼び出し（罠カード判定はDomain Layerで実施）
     const result = gameFacade.activateSpell(instanceId);
 
     // トーストメッセージ表示
@@ -82,6 +85,9 @@
     };
     return phaseMap[phase] || phase;
   }
+
+  // 効果解決ストアの状態を購読
+  const effectResolutionState = effectResolutionStore;
 
   // 手札カードとinstanceIdのマッピング
   $: handCardsWithInstanceId = $gameStateStore.zones.hand.map((instance, index) => ({
@@ -253,3 +259,16 @@
     </details>
   </main>
 </div>
+
+<!-- 効果解決モーダル -->
+<EffectResolutionModal
+  isOpen={$effectResolutionState.isActive}
+  title={$effectResolutionState.currentStep?.title || ""}
+  message={$effectResolutionState.currentStep?.message || ""}
+  onConfirm={effectResolutionStore.confirmCurrentStep}
+  onCancel={$effectResolutionState.currentStep?.showCancel ? effectResolutionStore.cancelResolution : undefined}
+  showCancel={$effectResolutionState.currentStep?.showCancel || false}
+/>
+
+<!-- カード選択モーダル -->
+<CardSelectionModal />

@@ -32,7 +32,8 @@
 <Modal
   open={isOpen}
   {onOpenChange}
-  contentBase="card bg-surface-100-800-token p-6 space-y-4 max-w-md"
+  contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-md shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+  backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}
   closeOnEscape={showCancel}
