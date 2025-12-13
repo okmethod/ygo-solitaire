@@ -1,11 +1,11 @@
 /**
- * Card Effects Tests (Integration Layer)
+ * Normal Spell Card Effects Tests (Integration Layer)
  *
- * Tests card-specific scenarios integrated with the full application layer.
+ * Tests Normal Spell card-specific scenarios integrated with the full application layer.
  * Focuses on actual gameplay scenarios rather than implementation details.
  *
  * Test Responsibility:
- * - Card-specific activation scenarios (end-to-end gameplay flow)
+ * - Normal Spell card activation scenarios (end-to-end gameplay flow)
  * - Registry integration (cardId → Effect retrieval → Effect execution)
  * - Side effects (effectResolutionStore.startResolution calls)
  * - Actual game state changes (deck → hand, hand → graveyard)
@@ -23,7 +23,7 @@
  * - Scenario-based tests detect real bugs more effectively
  * - Easy to add new cards without duplicating base class tests
  *
- * @module tests/integration/CardEffects
+ * @module tests/integration/card-effects/NormalSpells
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -31,7 +31,7 @@ import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCom
 import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
 import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
 
-describe("Card Effects", () => {
+describe("Normal Spell Card Effects", () => {
   beforeEach(() => {
     // Reset effectResolutionStore before each test
     effectResolutionStore.reset();

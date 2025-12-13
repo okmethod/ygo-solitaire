@@ -102,14 +102,15 @@ tests/
 
 配置: `tests/integration/card-effects/`
 
-- **Registry統合**: カードID → Effect取得 → startResolution呼び出し
-- **強欲な壺**: デッキ2枚ドロー → 手札増加
-- **天使の施し**: 3枚ドロー → 2枚捨て → 手札1枚増加
+- **NormalSpells.test.ts**: 通常魔法カードのシナリオテスト
+  - Registry統合: カードID → Effect取得 → startResolution呼び出し
+  - 強欲な壺: デッキ2枚ドロー → 手札増加
+  - 天使の施し: 3枚ドロー → 2枚捨て → 手札1枚増加
 
 **理由**:
 - カード固有の`canActivate()`（例: `deck.length >= 2`）は実装の裏返しで価値が薄い
 - シナリオベースのテストの方が実際のバグを検出しやすい
-- 将来カードが増えても、Integration Testに追加するだけで済む
+- カードタイプごとにファイル分割することで、1ファイルあたりのテスト数を適切に保つ
 
 ### モック戦略
 
