@@ -53,17 +53,15 @@
 ```
 tests/
 ├── unit/                          # Unit Tests（src/lib配下の構成に準拠）
-│   ├── api/                       # API Client tests
-│   ├── application/               # Commands, Stores tests
-│   ├── domain/                    # Domain layer tests
-│   │   ├── effects/
-│   │   │   └── bases/             # Base class tests (SpellEffect, NormalSpellEffect)
-│   │   └── models/                # GameState, Card tests
-│   └── utils/                     # Utility functions tests
+│   ├── api/                       # API クライアントのテスト
+│   ├── application/               # Application 層のテスト
+│   ├── domain/                    # Domain 層のテスト
+│   ├── stores/                    # Presentation 層のテスト
+│   └── utils/                     # ユーティリティのテスト
 │
 ├── integration/                   # Integration Tests
-│   ├── CardEffects.test.ts        # Card-specific scenario tests
-│   └── GameFacade.test.ts         # Application layer integration
+│   ├── card-effects/              # 固有カード効果のシナリオテスト
+│   └── game-processing/           # ゲーム進行管理の統合テスト
 │
 └── e2e/                           # E2E Tests
     └── *.spec.ts                  # Playwright E2E tests
@@ -82,7 +80,7 @@ tests/
 ### 対象
 - Domain Layer: Rules, Effects, Models
 - Application Layer: Commands, Stores, Facade
-- Presentation Layer: Stores (cardDisplayStore, cardSelectionStore等)
+- Presentation Layer: Stores
 - Infrastructure: API Client, Utilities
 
 ### カバレッジ目標
@@ -102,7 +100,7 @@ tests/
 
 **Integration Tests**: カード固有シナリオを検証
 
-配置: `tests/integration/CardEffects.test.ts`
+配置: `tests/integration/card-effects/`
 
 - **Registry統合**: カードID → Effect取得 → startResolution呼び出し
 - **強欲な壺**: デッキ2枚ドロー → 手札増加
