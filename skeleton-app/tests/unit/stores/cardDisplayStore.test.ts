@@ -12,8 +12,8 @@ import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gam
 import * as ygoprodeckApi from "$lib/api/ygoprodeck";
 import type { YGOProDeckCard } from "$lib/types/ygoprodeck";
 import type { CardDisplayData } from "$lib/types/card";
-import potOfGreedFixture from "../fixtures/ygoprodeck/pot-of-greed.json";
-import gracefulCharityFixture from "../fixtures/ygoprodeck/graceful-charity.json";
+import potOfGreedFixture from "../../fixtures/ygoprodeck/pot-of-greed.json";
+import gracefulCharityFixture from "../../fixtures/ygoprodeck/graceful-charity.json";
 
 // Mock YGOPRODeck API
 vi.mock("$lib/api/ygoprodeck", async (importOriginal) => {
