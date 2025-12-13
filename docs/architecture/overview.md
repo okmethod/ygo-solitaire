@@ -182,16 +182,16 @@ return produce(state, draft => {
 
 ### 3. Strategy Pattern
 
-カードごとの異なる効果処理を交換可能にする（将来拡張用）：
+カードごとの異なる効果処理を交換可能にする：
 
 ```typescript
-interface CardBehavior {
-  canActivate(state: GameState, card: Card): boolean;
-  onActivate(state: GameState, card: Card): GameState;
+interface CardEffect {
+  canActivate(state: GameState): boolean;
+  execute(state: GameState): Promise<EffectResult>;
 }
 ```
 
-**注**: 現在の実装ではEffect Systemは廃止され、Commandパターンに統一されています（ADR-0003参照）
+**実装**: Effect System (Strategy Pattern + Registry Pattern) により、カード効果を実装しています（ADR-0005参照）。ADR-0003でCommand統一を決定しましたが、カード効果の複雑性に対応するため、ADR-0005でEffect Systemを再導入しました。
 
 ### 4. Observer Pattern
 
@@ -216,11 +216,23 @@ skeleton-app/src/lib/
 ├── domain/                    # Domain Layer
 │   ├── models/
 │   │   ├── GameState.ts       # ゲーム状態定義
-│   │   └── Card.ts            # カード型定義
+│   │   ├── Card.ts            # カード型定義
+│   │   ├── Phase.ts           # フェーズ型定義
+│   │   └── constants.ts       # ドメイン定数
 │   ├── rules/
 │   │   ├── VictoryRule.ts     # 勝利条件判定
 │   │   ├── PhaseRule.ts       # フェーズ遷移ルール
 │   │   └── SpellActivationRule.ts
+│   ├── effects/               # カード効果（Strategy Pattern）
+│   │   ├── CardEffect.ts      # Effect Interface
+│   │   ├── bases/
+│   │   │   ├── SpellEffect.ts
+│   │   │   └── NormalSpellEffect.ts
+│   │   └── implementations/
+│   │       ├── PotOfGreedEffect.ts
+│   │       └── GracefulCharityEffect.ts
+│   ├── data/
+│   │   └── cardDatabase.ts    # Domain Layer用カードDB
 │   └── factories/
 │       └── GameStateFactory.ts
 │
@@ -230,9 +242,12 @@ skeleton-app/src/lib/
 │   │   ├── DrawCardCommand.ts
 │   │   ├── ActivateSpellCommand.ts
 │   │   └── AdvancePhaseCommand.ts
+│   ├── effects/
+│   │   └── CardEffectRegistry.ts  # カードID→Effectマッピング
 │   ├── GameFacade.ts          # UIからの窓口
 │   └── stores/
 │       ├── gameStateStore.ts
+│       ├── effectResolutionStore.ts
 │       └── derivedStores.ts
 │
 └── components/                # Presentation Layer

@@ -23,10 +23,9 @@ Clean Architectureの概要と設計原則
 テスト戦略と実装方法
 
 **内容**:
-- テストピラミッド
-- Unit Tests（204 tests）
-- Integration Tests
-- E2E Tests（16 tests）
+- テストピラミッド（Unit/Integration/E2E）
+- Vitestテスト（Unit + Integration）
+- Playwrightテスト（E2E）
 - カバレッジ目標（Domain Layer 80%以上）
 - テスト実行フロー
 

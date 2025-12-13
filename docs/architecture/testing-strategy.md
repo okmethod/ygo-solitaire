@@ -6,25 +6,47 @@
 
 ## テストピラミッド
 
+**E2E Tests (少数)**
+- ツール: Playwright (`tests/e2e/`)
+- 対象: Domain + Application + Presentation の連携
+- 目的: ブラウザ上での実際の操作フロー検証
+
+**Integration Tests**
+- ツール: Vitest (`tests/integration/`)
+- 対象: Domain + Application の連携
+- 目的: レイヤー間の統合動作検証
+
+**Unit Tests (多数)**
+- ツール: Vitest (`tests/unit/`)
+- 対象: 個別クラス・関数（全レイヤー）
+- 目的: 各コンポーネントの単体動作検証
+
+## Vitest テスト (Unit + Integration)
+
+Vitestで実行されるテストは、以下のディレクトリ構造で配置されます。
+
 ```
-        ┌─────────────┐
-        │   E2E Tests │  ← 16 tests (Playwright)
-        │   (少数)    │
-        ├─────────────┤
-        │ Integration │  ← Domain + Application
-        │   Tests     │
-        ├─────────────┤
-        │   Unit      │  ← 204 tests (Vitest)
-        │   Tests     │
-        │   (多数)    │
-        └─────────────┘
+tests/
+├── unit/           # Unit Tests（単一クラス・関数）
+│   ├── domain/
+│   ├── application/
+│   └── card-effects/
+├── integration/    # Integration Tests（レイヤー間連携）
+│   ├── GameFacade.test.ts
+│   └── CardEffects.test.ts
+└── e2e/           # E2E Tests（Playwright）
 ```
 
-## Unit Tests (単体テスト)
+**メリット**:
+- テストの目的が一目で区別できる
+- `npx vitest run tests/unit/` のように個別実行可能
+- 別々のカバレッジ設定が可能
 
 ### 対象
-- Domain Layer: GameState, Rules
-- Application Layer: Commands, GameFacade
+- Domain Layer: Rules, Effects, Models
+- Application Layer: Commands, Stores, Facade
+- Presentation Layer: Stores (cardDisplayStore, cardSelectionStore等)
+- Infrastructure: API Client, Utilities
 
 ### ツール
 - **Vitest**: 高速なTypeScript対応テストランナー
