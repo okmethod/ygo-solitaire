@@ -1,5 +1,5 @@
-import { constructRequestInit, fetchApi } from "$lib/utils/request";
-import type { YGOProDeckCard } from "$lib/types/ygoprodeck";
+import { constructRequestInit, fetchApi } from "$lib/shared/utils/request";
+import type { YGOProDeckCard } from "$lib/presentation/types/ygoprodeck";
 
 interface YGOProDeckResponseJson {
   data: YGOProDeckCard[];

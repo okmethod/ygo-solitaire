@@ -11,7 +11,7 @@ import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
-import type { CardDisplayData } from "$lib/types/card";
+import type { CardDisplayData } from "$lib/presentation/types/card";
 
 // Dependency Injection: Production実装を注入
 const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();

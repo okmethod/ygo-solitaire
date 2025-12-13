@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Segment } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
-  import { waveTypes } from "$lib/utils/beep";
-  import { sampleMelody, type MelodyNote } from "$lib/utils/melody";
-  import MelodyButton from "$lib/components/buttons/MelodyButton.svelte";
+  import { waveTypes } from "$lib/shared/utils/beep";
+  import { sampleMelody, type MelodyNote } from "$lib/shared/utils/melody";
+  import MelodyButton from "$lib/presentation/components/buttons/MelodyButton.svelte";
 
   let selectedWaveType: OscillatorType = "square";
   let editableMelody: (MelodyNote | null)[] = [...sampleMelody.melodyNotes];

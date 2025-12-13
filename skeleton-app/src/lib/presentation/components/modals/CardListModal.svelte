@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
-  import CardList from "$lib/components/organisms/CardList.svelte";
-  import type { Card, CardDisplayData } from "$lib/types/card";
-  import type { LoadedCardEntry } from "$lib/types/deck";
+  import CardList from "$lib/presentation/components/organisms/CardList.svelte";
+  import type { Card, CardDisplayData } from "$lib/presentation/types/card";
+  import type { LoadedCardEntry } from "$lib/presentation/types/deck";
 
   interface CardListModalProps {
     cards: Card[];

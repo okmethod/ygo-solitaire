@@ -1,9 +1,9 @@
 <script lang="ts">
-  import CardComponent from "$lib/components/atoms/Card.svelte";
-  import Graveyard from "$lib/components/organisms/board/Graveyard.svelte";
-  import ExtraDeck from "$lib/components/organisms/board/ExtraDeck.svelte";
-  import MainDeck from "$lib/components/organisms/board/MainDeck.svelte";
-  import type { Card } from "$lib/types/card";
+  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import Graveyard from "$lib/presentation/components/organisms/board/Graveyard.svelte";
+  import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
+  import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
+  import type { Card } from "$lib/presentation/types/card";
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;

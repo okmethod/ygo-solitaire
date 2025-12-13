@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getCardsByIds, clearCache } from "$lib/infrastructure/api/ygoprodeck";
-import type { YGOProDeckCard } from "$lib/types/ygoprodeck";
+import type { YGOProDeckCard } from "$lib/presentation/types/ygoprodeck";
 
 // モックフィクスチャ（実際のYGOPRODeck APIレスポンス形式）
 const mockExodia: YGOProDeckCard = {

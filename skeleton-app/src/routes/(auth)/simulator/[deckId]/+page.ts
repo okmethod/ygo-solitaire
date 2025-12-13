@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import { loadDeckData } from "$lib/utils/deckLoader";
+import { loadDeckData } from "$lib/shared/utils/deckLoader";
 import { gameFacade } from "$lib/application/GameFacade";
 
 /**

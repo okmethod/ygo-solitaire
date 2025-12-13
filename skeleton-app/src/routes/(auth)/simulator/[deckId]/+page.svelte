@@ -17,12 +17,12 @@
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
   import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
-  import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
-  import Card from "$lib/components/atoms/Card.svelte";
-  import DuelField from "$lib/components/organisms/board/DuelField.svelte";
-  import EffectResolutionModal from "$lib/components/modals/EffectResolutionModal.svelte";
-  import CardSelectionModal from "$lib/components/modals/CardSelectionModal.svelte";
-  import type { Card as CardDisplayData } from "$lib/types/card";
+  import { showSuccessToast, showErrorToast } from "$lib/shared/utils/toaster";
+  import Card from "$lib/presentation/components/atoms/Card.svelte";
+  import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
+  import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
+  import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
+  import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   export let data: PageData;
 

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import CardComponent from "$lib/components/atoms/Card.svelte";
+  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
   import { handCards } from "$lib/application/stores/cardDisplayStore";
-  import type { CardDisplayData } from "$lib/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
 
   // cardSelectionStoreの状態を購読
   const isActive = $derived(cardSelectionStore.isActive);

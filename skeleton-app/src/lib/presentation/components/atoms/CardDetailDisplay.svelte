@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
-  import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
-  import type { MonsterAttributes } from "$lib/types/card";
+  import { getCardTypeBackgroundClass } from "$lib/shared/constants/cardTypes";
+  import type { MonsterAttributes } from "$lib/presentation/types/card";
 
   const isVisible = $derived(!!$selectedCardForDisplay);
 

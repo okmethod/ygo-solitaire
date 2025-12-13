@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { navigateTo } from "$lib/utils/navigation";
-  import CardList from "$lib/components/organisms/CardList.svelte";
+  import { navigateTo } from "$lib/shared/utils/navigation";
+  import CardList from "$lib/presentation/components/organisms/CardList.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();

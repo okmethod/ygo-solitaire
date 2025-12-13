@@ -1,4 +1,4 @@
-import type { CardDisplayData } from "$lib/types/card";
+import type { CardDisplayData } from "$lib/presentation/types/card";
 
 /**
  * Port: カードデータ取得の抽象インターフェース

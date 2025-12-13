@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import type { Card } from "$lib/types/card";
+import type { Card } from "$lib/presentation/types/card";
 
 /**
  * カード詳細表示用のストア

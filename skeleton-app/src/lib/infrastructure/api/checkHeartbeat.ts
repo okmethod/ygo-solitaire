@@ -1,4 +1,4 @@
-import { constructRequestInit, fetchApi } from "$lib/utils/request";
+import { constructRequestInit, fetchApi } from "$lib/shared/utils/request";
 import { pathHeartbeat } from "$lib/infrastructure/api/paths";
 
 interface ResponseJson {

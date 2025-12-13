@@ -6,10 +6,10 @@ import type {
   DeckStats,
   MainDeckData,
   ExtraDeckData,
-} from "$lib/types/deck";
-import { convertToCardDisplayData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
+} from "$lib/presentation/types/deck";
+import { convertToCardDisplayData, type YGOProDeckCard } from "$lib/presentation/types/ygoprodeck";
 import { getCardsByIds } from "$lib/infrastructure/api/ygoprodeck";
-import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
+import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
 
 // デッキエントリーからカードタイプ別に分類したMainDeckDataを作成する内部関数
 function buildMainDeckData(ygoCardMap: Map<number, YGOProDeckCard>, entries: RecipeCardEntry[]): MainDeckData {

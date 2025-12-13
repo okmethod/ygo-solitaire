@@ -1,10 +1,10 @@
 <script lang="ts">
-  import CardComponent from "$lib/components/atoms/Card.svelte";
-  import CardSelectionModal from "$lib/components/modals/CardSelectionModal.svelte";
-  import EffectResolutionModal from "$lib/components/modals/EffectResolutionModal.svelte";
-  import type { Card } from "$lib/types/card";
+  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
+  import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
+  import type { Card } from "$lib/presentation/types/card";
   import type { DuelState } from "$lib/classes/DuelState";
-  import type { EffectResult, InteractiveEffectResult } from "$lib/types/effect";
+  import type { EffectResult, InteractiveEffectResult } from "$lib/presentation/types/effect";
   import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 
   interface HandsProps {

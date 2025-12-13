@@ -1,7 +1,7 @@
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
-import type { CardDisplayData } from "$lib/types/card";
+import type { CardDisplayData } from "$lib/presentation/types/card";
 import { getCardsByIds as apiGetCardsByIds, getCardById as apiGetCardById } from "$lib/infrastructure/api/ygoprodeck";
-import { convertToCardDisplayData } from "$lib/types/ygoprodeck";
+import { convertToCardDisplayData } from "$lib/presentation/types/ygoprodeck";
 
 /**
  * Adapter: YGOPRODeck APIを使用したカードデータ取得実装

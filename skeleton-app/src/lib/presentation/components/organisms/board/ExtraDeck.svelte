@@ -1,8 +1,8 @@
 <script lang="ts">
-  import CountBadge from "$lib/components/atoms/CountBadge.svelte";
-  import CardListModal from "$lib/components/modals/CardListModal.svelte";
-  import type { Card } from "$lib/types/card";
-  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
+  import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
+  import CardListModal from "$lib/presentation/components/modals/CardListModal.svelte";
+  import type { Card } from "$lib/presentation/types/card";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/shared/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface ExtraDeckProps {

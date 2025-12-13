@@ -1,4 +1,4 @@
-import type { CardType } from "$lib/types/card";
+import type { CardType } from "$lib/presentation/types/card";
 
 /**
  * カードタイプ別の背景色クラス

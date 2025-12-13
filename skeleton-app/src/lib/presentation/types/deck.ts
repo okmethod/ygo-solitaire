@@ -1,4 +1,4 @@
-import type { CardDisplayData } from "$lib/types/card";
+import type { CardDisplayData } from "$lib/presentation/types/card";
 
 /**
  * レシピ保存時のカードエントリー（ID + 枚数 + 効果情報）

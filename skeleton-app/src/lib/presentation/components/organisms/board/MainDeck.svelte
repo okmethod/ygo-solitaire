@@ -1,6 +1,6 @@
 <script lang="ts">
-  import CountBadge from "$lib/components/atoms/CountBadge.svelte";
-  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
+  import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/shared/constants/sizes";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   interface MainDeckProps {
