@@ -298,12 +298,29 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
-- 004-card-effect-execution: Added TypeScript 5.x (SvelteKit環境)
-- 003-effect-activation-ui: Added TypeScript 5.x (SvelteKit環境)
+- 005-documentation-update (2024-12-09): ストック情報整備
+  - domain/overview.md: 実装状況更新（Trap/Effect System/Domain DB）
+  - architecture/data-model-design.md: Domain Layer Card Database セクション追加
+  - adr/0003: Effect System再導入（ADR-0005）との関係性を明記
+- PR#50 (2024-12-08): 罠カード判定をDomain Layerに移行
+  - SpellActivationRule: 罠カード手札発動禁止ルールを実装
+  - cardDatabase.ts: Jar of Greed (trap) 定義追加
+  - 246/246 tests passing
+- PR#49 (2024-12-07): Effect System導入（Strategy Pattern + Registry）
+  - ADR-0005: Card Effect Strategy Pattern採用記録
+  - CardEffect interface, CardEffectRegistry, NormalSpellEffect 実装
+  - PotOfGreedEffect, GracefulCharityEffect 実装
+  - Clean Architecture遵守（Effect SystemをDomain Layer配置）
+- PR#48 (2024-12-06): Effect Activation UI with Card Illustrations
+  - YGOPRODeck API統合によるカード画像表示
+  - Effect Resolution Modal, Card Selection Modal 実装
+  - E2E テスト追加（effect-activation-ui.spec.ts）
 - 002-data-model-refactoring: 3層データモデル実装完了（DomainCardData/CardDisplayData）
   - YGOPRODeck API統合とキャッシング機能追加
   - 239/239 tests passing
   - アーキテクチャドキュメント整備（docs/architecture/data-model-design.md）
 
 ## Active Technologies
-- メモリ内状態管理（gameStateStore, effectResolutionStore, cardSelectionStore） (004-card-effect-execution)
+- Strategy Pattern + Registry Pattern (Effect System) (PR#49)
+- Domain Layer Card Database (cardDatabase.ts) (PR#50)
+- メモリ内状態管理（gameStateStore, effectResolutionStore, cardSelectionStore）

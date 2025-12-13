@@ -276,10 +276,44 @@ const CARD_EFFECTS: Record<string, (state: GameState) => GameState> = {
 
 **決定**: 必要になった時点で再検討（YAGNI原則）
 
+## Update: Effect System の再導入 (2024-12-07)
+
+### 現状
+
+**ADR-0005により、Strategy Pattern based Effect Systemが再導入されました。**
+
+- **参照**: [ADR-0005: Card Effect Strategy Pattern](./0005-card-effect-strategy-pattern.md)
+- **理由**: カード数増加（ADR-0003の "Future Considerations" で予告）
+- **実装**: PR #49 (spec/004-card-effect-execution)
+
+### ADR-0003 vs ADR-0005 の違い
+
+| 観点 | ADR-0003で廃止したEffect System | ADR-0005で再導入したEffect System |
+|------|-------------------------------|--------------------------------|
+| **基底状態モデル** | `DuelState` (mutable class) | `GameState` (immutable interface) |
+| **アーキテクチャ適合** | ❌ Clean Architecture違反 | ✅ Clean Architecture遵守 |
+| **責務の重複** | Command Patternと重複 | Strategy Pattern（Command内で使用） |
+| **拡張性** | 継承階層複雑 | Open/Closed Principle遵守 |
+| **実装コスト** | 15ファイル、2,000行 | 10ファイル、500行（効率化） |
+
+### なぜ再導入したのか
+
+1. **当初の予告どおり**: ADR-0003の "Future Considerations" でStrategy Patternを予告
+2. **カード実装の増加**: 2カード実装時点でCommandの肥大化が顕在化
+3. **Open/Closed Principle違反**: `ActivateSpellCommand`にif/else分岐が増加
+4. **GameState対応**: 新Effect Systemは不変なGameStateに対応（旧システムの問題を解決）
+
+### 結論
+
+**ADR-0003の決定は正しかった。** 旧Effect System（DuelState依存）の削除により、GameState（immutable）への移行が可能になり、その基盤の上に新Effect System（Strategy Pattern）を構築できた。
+
+**このADRは引き続き有効**: 「DuelState依存の旧Effect Systemを廃止した記録」として保存
+
 ## Related Documents
 
 - [ADR-0001: Clean Architectureの採用](./0001-adopt-clean-architecture.md)
 - [ADR-0002: Immer.jsによる不変性保証](./0002-use-immer-for-immutability.md)
+- **[ADR-0005: Card Effect Strategy Pattern](./0005-card-effect-strategy-pattern.md)** ← 新Effect System
 - [アーキテクチャ概要](../architecture/overview.md)
 - [specs/001-architecture-refactoring/tasks.md](../../specs/001-architecture-refactoring/tasks.md)
 
@@ -287,4 +321,5 @@ const CARD_EFFECTS: Record<string, (state: GameState) => GameState> = {
 
 - Git commit: `db19f69` "refactor: 旧システム削除とClean Architecture完成"
 - PR #46: Clean Architecture リファクタリング完了
+- PR #49: Effect System再導入（Strategy Pattern）
 - Discussion: Phase 4スキップの判断（セッション 2024-11-24）

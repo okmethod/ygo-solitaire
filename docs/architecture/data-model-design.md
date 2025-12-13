@@ -67,31 +67,39 @@ YGO Solitaire アプリケーションのデータモデルは、Clean Architect
  * ゲーム状態管理に必要な最小限のカード情報のみを保持
  */
 export interface DomainCardData {
-  id: number;               // YGOPRODeck API互換のカードID
-  type: SimpleCardType;     // "monster" | "spell" | "trap"
-  frameType?: string;       // 効果判定用（例: "effect", "fusion"）
+  readonly id: number;                // YGOPRODeck API互換のカードID
+  readonly type: SimpleCardType;      // "monster" | "spell" | "trap"
+  readonly frameType?: string;        // 効果判定用（例: "effect", "fusion"）
+  readonly spellType?: SpellSubType;  // 魔法カード種別（"normal", "quick-play", etc.）
+  readonly trapType?: TrapSubType;    // 罠カード種別（"normal", "continuous", "counter"）
 }
 ```
 
 **設計原則**:
 - **最小限のデータ**: ゲームロジックに必要なプロパティのみ
-- **数値ID**: YGOPRODeck APIとの互換性を確保
+- **数値ID**: YGOPRODeck API との互換性を確保
 - **型安全性**: SimpleCardType で厳密な型チェック
+- **サブタイプ拡張**: `spellType`/`trapType`で詳細なルール判定が可能（PR#50で追加）
 
 #### `SimpleCardType`
 3種類のカードタイプを厳密に定義。
 
 ```typescript
 export type SimpleCardType = "monster" | "spell" | "trap";
+export type SpellSubType = "normal" | "quick-play" | "continuous" | "field" | "equip" | "ritual";
+export type TrapSubType = "normal" | "continuous" | "counter";
 ```
 
 ### ファイル構成
 
 ```
-src/lib/domain/models/
-├── Card.ts                 # Domain Layer型定義と型ガード
-└── __tests__/
-    └── Card.test.ts        # 型ガード関数のテスト (T026, T027)
+src/lib/domain/
+├── models/
+│   ├── Card.ts             # Domain Layer型定義と型ガード
+│   └── __tests__/
+│       └── Card.test.ts    # 型ガード関数のテスト (T026, T027)
+└── data/
+    └── cardDatabase.ts     # Domain Layerカードレジストリ（PR#50で追加）
 ```
 
 ### 型ガード関数
@@ -124,6 +132,78 @@ export function isDomainMonsterCard(card: DomainCardData): boolean {
 
 - **T026**: `isDomainCardData()` の検証（15テストケース）
 - **T027**: カードタイプ判定関数の検証（9テストケース）
+
+---
+
+### Domain Layer Card Database
+
+#### 目的
+YGOPRODeck APIから独立したDomain Layerカードレジストリを提供し、ゲームルールバリデーションをAPI非依存にする。
+
+#### 実装
+
+**ファイル**: `src/lib/domain/data/cardDatabase.ts` (PR#50で追加)
+
+```typescript
+/**
+ * Card database registry
+ * Maps card ID to domain card data
+ */
+const CARD_DATABASE: Record<number, DomainCardData> = {
+  // Exodia pieces (monster)
+  33396948: { id: 33396948, type: "monster" },
+  7902349: { id: 7902349, type: "monster" },
+  // ...
+
+  // Spell cards
+  55144522: { id: 55144522, type: "spell", spellType: "normal" }, // Pot of Greed
+  79571449: { id: 79571449, type: "spell", spellType: "normal" }, // Graceful Charity
+
+  // Trap cards
+  83968380: { id: 83968380, type: "trap", trapType: "normal" }, // Jar of Greed
+};
+
+export function getCardData(cardId: number): DomainCardData {
+  const card = CARD_DATABASE[cardId];
+  if (!card) {
+    throw new Error(`Card data not found in domain database: ${cardId}`);
+  }
+  return card;
+}
+
+export function getCardType(cardId: number): SimpleCardType {
+  return getCardData(cardId).type;
+}
+```
+
+#### 主要機能
+
+| 関数 | 説明 | 使用箇所 |
+|------|------|---------|
+| `getCardData(cardId)` | カードデータ取得（存在チェック付き） | ルールバリデーション |
+| `getCardType(cardId)` | カードタイプ取得 | `GameState.createInitialGameState()` |
+| `hasCardData(cardId)` | カード存在確認 | テストユーティリティ |
+
+#### 利点
+
+1. **API非依存**:
+   - ゲームルールがYGOPRODeck APIに依存しない
+   - オフライン環境でもユニットテストが実行可能
+
+2. **CardInstance.type の自動設定**:
+   - `createInitialGameState()`でデッキ初期化時に自動でtype情報を付与
+   - 罠カード発動判定などのルールバリデーションが可能
+
+3. **Clean Architecture遵守**:
+   - Domain Layerが外部APIから完全独立
+   - Presentation Layer（CardDisplayData）とは別のデータソース
+
+#### 登録カード
+
+- **Exodia 5パーツ** (Monster)
+- **Pot of Greed, Graceful Charity** (Spell/Normal)
+- **Jar of Greed** (Trap/Normal)
+- **テスト用カード** (1001-1005, 11111111-87654321)
 
 ---
 

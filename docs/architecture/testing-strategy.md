@@ -2,628 +2,161 @@
 
 ## 基本方針
 
-カードゲームのロジックはバグの温床になりやすいため、自動テストを重視します。
+テストピラミッドを意識し、低コストかつ効果的なテストを目指す。
 
-## テストピラミッド
+### Unit Tests (コード網羅・多数)
+
+**ツール**: Vitest (`tests/unit/`)
+
+**検証するもの**:
+- 純粋関数のロジック（入力→出力）
+- 共通基底クラスのバリデーション（SpellEffect, NormalSpellEffect）
+- ドメインルール（VictoryRule, PhaseRule）
+- 状態不変性（GameState更新後の整合性）
+
+**検証しないもの**:
+- レイヤー間の連携（→ Integration Testで検証）
+- 副作用（Store更新、API呼び出し）（→ Integration Testで検証）
+- カード固有の発動シナリオ（→ Integration Testで検証）
+
+### Integration Tests (シナリオ・適量)
+
+**ツール**: Vitest (`tests/integration/`)
+
+**検証するもの**:
+- レイヤー間の連携（Application → Domain）
+- カード発動シナリオ（Command実行 → Effect解決 → Store更新）
+- 副作用の発生（effectResolutionStore.startResolution呼び出し）
+- 実際のゲームフロー（ドロー → 発動 → 墓地送り）
+
+**検証しないもの**:
+- 個別関数のエッジケース（→ Unit Testで検証）
+- UI操作・ブラウザ動作（→ E2E Testで検証）
+
+### E2E Tests (厳選・少数)
+
+**ツール**: Playwright (`tests/e2e/`)
+
+**検証するもの**:
+- ユーザーの実際の操作フロー
+- UI表示・インタラクション
+- ブラウザ固有の動作
+
+**検証しないもの**:
+- ドメインロジックの詳細（→ Unit Testで検証）
+- 内部処理の分岐（→ Unit/Integration Testで検証）
+
+---
+
+## ディレクトリ構造
 
 ```
-        ┌─────────────┐
-        │   E2E Tests │  ← 16 tests (Playwright)
-        │   (少数)    │
-        ├─────────────┤
-        │ Integration │  ← Domain + Application
-        │   Tests     │
-        ├─────────────┤
-        │   Unit      │  ← 204 tests (Vitest)
-        │   Tests     │
-        │   (多数)    │
-        └─────────────┘
+tests/
+├── unit/                          # Unit Tests（src/lib配下の構成に準拠）
+│   ├── api/                       # API クライアントのテスト
+│   ├── application/               # Application 層のテスト
+│   ├── domain/                    # Domain 層のテスト
+│   ├── stores/                    # Presentation 層のテスト
+│   └── utils/                     # ユーティリティのテスト
+│
+├── integration/                   # Integration Tests
+│   ├── card-effects/              # 固有カード効果のシナリオテスト
+│   └── game-processing/           # ゲーム進行管理の統合テスト
+│
+└── e2e/                           # E2E Tests
+    └── *.spec.ts                  # Playwright E2E tests
 ```
 
-## Unit Tests (単体テスト)
+**メリット**:
+- テストの目的が一目で区別できる
+- `npx vitest run tests/unit/` のように個別実行可能
+- 別々のカバレッジ設定が可能
+- src/lib配下の構成と一致するため、テスト対象が明確
+
+---
+
+## Vitest テスト (Unit + Integration)
 
 ### 対象
-- Domain Layer: GameState, Rules
-- Application Layer: Commands, GameFacade
-
-### ツール
-- **Vitest**: 高速なTypeScript対応テストランナー
-- **@testing-library/svelte**: Svelteコンポーネントテスト
-
-### 実行コマンド
-```bash
-npm test              # ウォッチモード
-npm run test:run      # 一回実行
-npm run test:coverage # カバレッジ付き
-npm run test:ui       # Vitest UI
-```
+- Domain Layer: Rules, Effects, Models
+- Application Layer: Commands, Stores, Facade
+- Presentation Layer: Stores
+- Infrastructure: API Client, Utilities
 
 ### カバレッジ目標
 
 **Domain Layer**: 80%以上必須
 
-```typescript
-// vitest.config.ts
-coverage: {
-  provider: "v8",
-  include: ["src/lib/domain/**/*.ts"],
-  thresholds: {
-    lines: 80,
-    functions: 80,
-    branches: 80,
-    statements: 80,
-  },
-}
-```
+設定: [vitest.config.ts](../../skeleton-app/vitest.config.ts)
 
-### テストケース例
+### カード効果テストの責務分離
 
-#### Domain Layer: VictoryRule
+**Unit Tests**: 共通基底クラスを中心に検証
 
-```typescript
-// VictoryRule.test.ts
-describe('VictoryRule', () => {
-  it('should detect Exodia victory when all 5 pieces are in hand', () => {
-    const state = createStateWithExodia();
-    const result = victoryRule.check(state);
+配置: `tests/unit/domain/effects/bases/`
 
-    expect(result).not.toBeNull();
-    expect(result?.winner).toBe('player');
-    expect(result?.reason).toBe('exodia');
-  });
+- **SpellEffect.test.ts**: ゲーム終了時の発動不可チェック
+- **NormalSpellEffect.test.ts**: Main1フェーズチェック、墓地送りステップ生成
 
-  it('should return null when Exodia is incomplete', () => {
-    const state = createStateWithCards(['exodia-head', 'exodia-right-arm']);
-    const result = victoryRule.check(state);
+**Integration Tests**: カード固有シナリオを検証
 
-    expect(result).toBeNull();
-  });
-});
-```
+配置: `tests/integration/card-effects/`
 
-#### Application Layer: DrawCardCommand
+- **NormalSpells.test.ts**: 通常魔法カードのシナリオテスト
+  - Registry統合: カードID → Effect取得 → startResolution呼び出し
+  - 強欲な壺: デッキ2枚ドロー → 手札増加
+  - 天使の施し: 3枚ドロー → 2枚捨て → 手札1枚増加
 
-```typescript
-// DrawCardCommand.test.ts
-describe('DrawCardCommand', () => {
-  it('should move card from deck to hand', () => {
-    const initialState = createStateWithDeck(['pot-of-greed']);
-    const command = new DrawCardCommand();
+**理由**:
+- カード固有の`canActivate()`（例: `deck.length >= 2`）は実装の裏返しで価値が薄い
+- シナリオベースのテストの方が実際のバグを検出しやすい
+- カードタイプごとにファイル分割することで、1ファイルあたりのテスト数を適切に保つ
 
-    const newState = command.execute(initialState);
+### モック戦略
 
-    expect(newState.zones.deck.length).toBe(0);
-    expect(newState.zones.hand.length).toBe(1);
-    expect(newState.zones.hand[0].cardId).toBe('pot-of-greed');
-  });
+- **Domain Layer**: モック不要（純粋関数のため実オブジェクトでテスト）
+- **Application Layer**: `vi.spyOn()` でstoreをスパイ、`get(store)` で同期的に値取得
+- **Presentation Layer**: Playwrightの `route` でAPI/Toast動作を検証
 
-  it('should handle empty deck gracefully', () => {
-    const initialState = createStateWithEmptyDeck();
-    const command = new DrawCardCommand();
+---
 
-    expect(() => command.execute(initialState)).not.toThrow();
-  });
-});
-```
-
-### テストヘルパー
-
-```typescript
-// test/helpers.ts
-export function createStateWithCards(cardIds: string[]): GameState {
-  return {
-    zones: {
-      deck: [],
-      hand: cardIds.map(id => createCard(id)),
-      field: [],
-      graveyard: [],
-    },
-    turnNumber: 1,
-    currentPhase: 'Draw',
-    gameResult: null,
-  };
-}
-```
-
-## Integration Tests (統合テスト)
+## E2E Tests (Playwright)
 
 ### 対象
-- Domain + Application の連携
-- GameFacade経由の操作フロー
-
-### テストケース例
-
-```typescript
-// GameFacade.integration.test.ts
-describe('GameFacade Integration', () => {
-  it('should complete full Exodia combo', () => {
-    const facade = new GameFacade();
-    facade.initializeGame('exodia-deck');
-
-    // 5枚ドロー
-    for (let i = 0; i < 5; i++) {
-      facade.drawCard();
-    }
-
-    // 勝利判定
-    const state = facade.getState();
-    expect(state.gameResult?.winner).toBe('player');
-  });
-});
-```
-
-## E2E Tests (エンドツーエンドテスト)
-
-### 対象
-- ユーザーの実際の操作フロー
 - ブラウザ上での動作検証
-
-### ツール
-- **Playwright**: クロスブラウザE2Eテスト
-
-### 実行コマンド
-```bash
-npm run test:e2e        # Headlessモード
-npm run test:e2e:ui     # UIモード
-npm run test:e2e:debug  # デバッグモード
-```
+- ユーザーの実際の操作フロー
 
 ### テストスイート構成
 
-#### 1. Phase Transition Flow
-```typescript
-// phase-transitions.spec.ts
-test('should navigate through all phases correctly', async ({ page }) => {
-  await page.goto('/simulator/test-deck');
+- **Phase Transition Flow**: フェーズ遷移の検証
+- **Card Activation Flow**: カード発動フローの検証
+- **Exodia Victory Flow**: 勝利条件判定の検証
 
-  // Draw → Standby → Main1 → End
-  await page.getByRole('button', { name: 'Advance Phase' }).click();
-  await expect(page.getByText('スタンバイフェイズ')).toBeVisible();
-});
-```
+設定: [playwright.config.ts](../../skeleton-app/playwright.config.ts)
 
-#### 2. Card Activation Flow
-```typescript
-// card-activation.spec.ts
-test('should activate spell card from hand', async ({ page }) => {
-  await page.goto('/simulator/test-deck');
-  await page.getByRole('button', { name: 'Draw Card' }).click();
+---
 
-  // Main1に進む
-  await page.getByRole('button', { name: 'Advance Phase' }).click();
-  await page.getByRole('button', { name: 'Advance Phase' }).click();
-
-  // カード発動
-  await page.getByRole('button', { name: 'Activate' }).click();
-  await expect(page.getByText('Hand: 0 cards')).toBeVisible();
-});
-```
-
-#### 3. Exodia Victory Flow
-```typescript
-// exodia-victory.spec.ts
-test('should detect victory when drawing all 5 Exodia pieces', async ({ page }) => {
-  await page.goto('/simulator/test-deck');
-
-  for (let i = 0; i < 5; i++) {
-    await page.getByRole('button', { name: 'Draw Card' }).click();
-  }
-
-  await expect(page.locator('h2:has-text("Game Over!")')).toBeVisible();
-  await expect(page.locator('text=/Reason: exodia/')).toBeVisible();
-});
-```
-
-## テスト実行フロー
+## 実行コマンド
 
 ### 開発時
 ```bash
-# Unit tests (ウォッチモード)
-npm test
+npm test              # Unit + Integration (ウォッチモード)
+npm run test:run      # 一回実行
+npm run test:coverage # カバレッジ付き
+npm run test:ui       # Vitest UI
 
-# E2E tests (UIモード)
-npm run test:e2e:ui
+npm run test:e2e        # E2E (Headlessモード)
+npm run test:e2e:ui     # E2E UIモード
 ```
 
-### CI/CD (GitHub Actions)
+### CI/CD
 ```bash
-# 全テスト実行
 npm run test:run      # Unit + Integration
 npm run test:e2e      # E2E
 npm run test:coverage # カバレッジレポート生成
 ```
 
-## テスト分離
-
-### Vitest設定
-```typescript
-// vitest.config.ts
-export default defineConfig({
-  test: {
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/tests/e2e/**", // PlaywrightテストをVitestから除外
-    ],
-  },
-});
-```
-
-### Playwright設定
-```typescript
-// playwright.config.ts
-export default defineConfig({
-  testDir: './tests/e2e',
-  webServer: {
-    command: 'npm run dev',
-    port: 5173,
-  },
-});
-```
-
-## Card Effect Architecture テストパターン
-
-### テスト責務の分離
-
-Card Effect Architectureでは、テストを3層に分離します：
-
-```
-┌─────────────────────────────────────────────────────┐
-│ 1. CardEffect Unit Tests                            │
-│    - 個別カード効果クラスのテスト                    │
-│    - tests/unit/card-effects/PotOfGreedEffect.test.ts│
-│    - canActivate(), createSteps() の検証            │
-└─────────────────────────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│ 2. CardEffectRegistry Tests                         │
-│    - Registry登録・取得のテスト                      │
-│    - tests/unit/CardEffectRegistry.test.ts           │
-│    - カードID → CardEffectインスタンスのマッピング   │
-└─────────────────────────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────┐
-│ 3. Integration Tests (CardEffects.test.ts)          │
-│    - ActivateSpellCommandとCardEffectの統合          │
-│    - tests/unit/CardEffects.test.ts                  │
-│    - effectResolutionStore呼び出しの検証             │
-└─────────────────────────────────────────────────────┘
-```
-
-### 1. CardEffect Unit Tests
-
-各CardEffectクラスの単体テスト。
-
-**ファイルパス**: `tests/unit/card-effects/{CardName}Effect.test.ts`
-
-**テスト対象**:
-- `canActivate()`: バリデーションロジック
-- `createSteps()`: EffectResolutionStep生成
-
-**テストケース例**:
-
-```typescript
-// tests/unit/card-effects/PotOfGreedEffect.test.ts
-import { describe, it, expect } from "vitest";
-import { PotOfGreedEffect } from "$lib/domain/effects/cards/PotOfGreedEffect";
-import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
-
-describe("PotOfGreedEffect", () => {
-  describe("canActivate", () => {
-    it("should return false when game is over", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
-        result: { isGameOver: true, winner: "opponent" },
-      });
-      const effect = new PotOfGreedEffect();
-
-      expect(effect.canActivate(state)).toBe(false);
-    });
-
-    it("should return false when not in Main1 phase", () => {
-      const state = createMockGameState({
-        phase: "Draw",
-        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
-      });
-      const effect = new PotOfGreedEffect();
-
-      expect(effect.canActivate(state)).toBe(false);
-    });
-
-    it("should return false when deck has only 1 card", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: { deck: createCardInstances(["card1"], "deck") },
-      });
-      const effect = new PotOfGreedEffect();
-
-      expect(effect.canActivate(state)).toBe(false);
-    });
-
-    it("should return true when deck has 2 or more cards", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
-      });
-      const effect = new PotOfGreedEffect();
-
-      expect(effect.canActivate(state)).toBe(true);
-    });
-  });
-
-  describe("createSteps", () => {
-    it("should create draw step with correct properties", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: { deck: createCardInstances(["card1", "card2"], "deck") },
-      });
-      const effect = new PotOfGreedEffect();
-      const steps = effect.createSteps(state);
-
-      expect(steps).toHaveLength(1);
-      expect(steps[0]).toMatchObject({
-        id: "pot-of-greed-draw",
-        title: "カードをドローします",
-        message: "デッキから2枚ドローします",
-      });
-      expect(steps[0].action).toBeTypeOf("function");
-    });
-  });
-});
-```
-
-### 2. CardEffectRegistry Tests
-
-Registry登録・取得の検証。
-
-**ファイルパス**: `tests/unit/CardEffectRegistry.test.ts`
-
-**テスト対象**:
-- `register()`: カードID → CardEffectインスタンスの登録
-- `get()`: カードIDによる取得
-- `clear()`: テスト用クリーニング
-
-**テストケース例**:
-
-```typescript
-// tests/unit/CardEffectRegistry.test.ts
-import { describe, it, expect, beforeEach } from "vitest";
-import { CardEffectRegistry } from "$lib/domain/effects/CardEffectRegistry";
-import { PotOfGreedEffect } from "$lib/domain/effects/cards/PotOfGreedEffect";
-import { GracefulCharityEffect } from "$lib/domain/effects/cards/GracefulCharityEffect";
-
-describe("CardEffectRegistry", () => {
-  beforeEach(() => {
-    // 各テスト前にRegistryをクリア
-    CardEffectRegistry.clear();
-  });
-
-  describe("register and get", () => {
-    it("should register and return Pot of Greed effect", () => {
-      const effect = new PotOfGreedEffect();
-      CardEffectRegistry.register(55144522, effect);
-
-      const retrieved = CardEffectRegistry.get(55144522);
-
-      expect(retrieved).toBe(effect);
-      expect(retrieved).toBeInstanceOf(PotOfGreedEffect);
-    });
-
-    it("should register and return Graceful Charity effect", () => {
-      const effect = new GracefulCharityEffect();
-      CardEffectRegistry.register(79571449, effect);
-
-      const retrieved = CardEffectRegistry.get(79571449);
-
-      expect(retrieved).toBe(effect);
-      expect(retrieved).toBeInstanceOf(GracefulCharityEffect);
-    });
-
-    it("should return undefined for unregistered card ID", () => {
-      const retrieved = CardEffectRegistry.get(99999999);
-
-      expect(retrieved).toBeUndefined();
-    });
-
-    it("should handle multiple registrations", () => {
-      CardEffectRegistry.register(55144522, new PotOfGreedEffect());
-      CardEffectRegistry.register(79571449, new GracefulCharityEffect());
-
-      expect(CardEffectRegistry.get(55144522)).toBeInstanceOf(PotOfGreedEffect);
-      expect(CardEffectRegistry.get(79571449)).toBeInstanceOf(GracefulCharityEffect);
-    });
-  });
-
-  describe("clear", () => {
-    it("should clear all registered effects", () => {
-      CardEffectRegistry.register(55144522, new PotOfGreedEffect());
-      CardEffectRegistry.register(79571449, new GracefulCharityEffect());
-
-      CardEffectRegistry.clear();
-
-      expect(CardEffectRegistry.get(55144522)).toBeUndefined();
-      expect(CardEffectRegistry.get(79571449)).toBeUndefined();
-    });
-  });
-});
-```
-
-### 3. Integration Tests (CardEffects.test.ts)
-
-ActivateSpellCommandとCardEffectの統合テスト。
-
-**ファイルパス**: `tests/unit/CardEffects.test.ts`
-
-**テスト対象**:
-- `ActivateSpellCommand.execute()` → `CardEffectRegistry.get()` → `effect.createSteps()` → `effectResolutionStore.startResolution()`
-- カード固有のバリデーション（`canExecute()`）
-- EffectResolutionStepの内容検証
-
-**テストケース例**:
-
-```typescript
-// tests/unit/CardEffects.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
-import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
-import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
-
-describe("Card Effects Integration", () => {
-  describe("Pot of Greed (55144522)", () => {
-    const potOfGreedCardId = "55144522";
-
-    beforeEach(() => {
-      effectResolutionStore.reset();
-    });
-
-    it("should call effectResolutionStore.startResolution when activated", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
-          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
-        },
-      });
-
-      const spy = vi.spyOn(effectResolutionStore, "startResolution");
-      const command = new ActivateSpellCommand("pot-1");
-      command.execute(state);
-
-      expect(spy).toHaveBeenCalledOnce();
-      spy.mockRestore();
-    });
-
-    it("should create correct EffectResolutionStep structure", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
-          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
-        },
-      });
-
-      const spy = vi.spyOn(effectResolutionStore, "startResolution");
-      const command = new ActivateSpellCommand("pot-1");
-      command.execute(state);
-
-      const [[steps]] = spy.mock.calls;
-      expect(steps).toHaveLength(1);
-      expect(steps[0]).toMatchObject({
-        id: "pot-of-greed-draw",
-        title: "カードをドローします",
-        message: "デッキから2枚ドローします",
-      });
-
-      spy.mockRestore();
-    });
-
-    it("canExecute should return false when deck has only 1 card", () => {
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1"], "deck"),
-          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
-        },
-      });
-
-      const command = new ActivateSpellCommand("pot-1");
-
-      expect(command.canExecute(state)).toBe(false);
-    });
-  });
-
-  describe("Graceful Charity (79571449)", () => {
-    // 同様のテストケース
-  });
-});
-```
-
-### テストカバレッジ目標
-
-| レイヤー | 対象 | カバレッジ目標 |
-|---------|------|---------------|
-| Domain Layer | CardEffect, SpellEffect, NormalSpellEffect | 90%以上 |
-| Domain Layer | CardEffectRegistry | 100% |
-| Application Layer | ActivateSpellCommand統合 | 80%以上 |
-
-### テスト実行順序
-
-```bash
-# 1. CardEffect Unit Tests
-npm test tests/unit/card-effects/
-
-# 2. CardEffectRegistry Tests
-npm test tests/unit/CardEffectRegistry.test.ts
-
-# 3. Integration Tests
-npm test tests/unit/CardEffects.test.ts
-
-# 4. 全Unit Tests
-npm run test:run
-```
-
-### モック戦略
-
-**CardEffect Unit Tests**:
-- GameState: `createMockGameState()` でモック生成
-- Stores: モック不要（純粋関数）
-
-**CardEffectRegistry Tests**:
-- CardEffectインスタンス: 実オブジェクトを使用
-- モック不要（Registry自体がシンプル）
-
-**Integration Tests**:
-- `effectResolutionStore`: `vi.spyOn()` でスパイ
-- `gameStateStore`: `get(store)` で同期的に値取得
-
 ---
-
-## モック戦略
-
-### Domain Layer
-- **モック不要**: 純粋関数のため実オブジェクトでテスト
-
-### Application Layer
-- **GameState**: テストヘルパーで生成
-- **Stores**: `get(store)` で同期的に値取得
-
-### Presentation Layer
-- **API**: Playwrightの `route` でモック
-- **Toast**: 実際のtoaster動作を検証
-
-## テストデータ
-
-### テスト用デッキ
-```typescript
-// test-deck.ts
-export const TEST_DECK = {
-  id: 'test-deck',
-  name: 'Test Deck',
-  cards: [
-    'exodia-head',
-    'exodia-right-arm',
-    'exodia-left-arm',
-    'exodia-right-leg',
-    'exodia-left-leg',
-  ],
-};
-```
-
-## CI/CD統合
-
-### GitHub Actions
-```yaml
-- name: Run Tests
-  run: |
-    npm run test:run
-    npm run test:coverage
-
-- name: Run E2E Tests
-  run: |
-    npx playwright install --with-deps
-    npm run test:e2e
-```
 
 ## 今後の課題
 
