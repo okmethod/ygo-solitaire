@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Card } from "$lib/presentation/types/card";
-  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/shared/constants/sizes";
-  import { getCardTypeBackgroundClass } from "$lib/shared/constants/cardTypes";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import { getCardTypeBackgroundClass } from "$lib/presentation/constants/cardTypes";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
-  import cardBackImage from "$lib/assets/CardBack.jpg";
+  import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
   /**
    * Card型はCardDisplayDataのエイリアスです

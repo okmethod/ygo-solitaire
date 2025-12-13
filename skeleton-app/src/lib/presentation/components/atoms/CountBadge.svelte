@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BADGE_SIZE_CLASSES, type ComponentSize } from "$lib/shared/constants/sizes";
+  import { BADGE_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
 
   interface CountBadgeProps {
     count: number;

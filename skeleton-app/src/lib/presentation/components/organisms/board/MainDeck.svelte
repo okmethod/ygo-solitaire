@@ -1,7 +1,7 @@
 <script lang="ts">
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
-  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/shared/constants/sizes";
-  import cardBackImage from "$lib/assets/CardBack.jpg";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
   interface MainDeckProps {
     cardCount: number; // メインデッキはカード数のみを表示
