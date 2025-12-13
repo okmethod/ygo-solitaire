@@ -983,13 +983,15 @@ class ActivateSpellCommand {
 ```
 src/lib/domain/effects/
 ├── CardEffect.ts              # CardEffect interface定義
-├── CardEffectRegistry.ts      # Registry実装
 ├── bases/
 │   ├── SpellEffect.ts         # 魔法カード基底クラス
 │   └── NormalSpellEffect.ts   # 通常魔法カード基底クラス
 └── cards/
     ├── PotOfGreedEffect.ts    # 強欲な壺
     └── GracefulCharityEffect.ts # 天使の施し
+
+src/lib/application/effects/
+└── CardEffectRegistry.ts      # Registry実装 (Application Layer)
 ```
 
 ### テスト戦略

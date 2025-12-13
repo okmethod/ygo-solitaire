@@ -9,15 +9,15 @@ import { get } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/application/stores/cardDisplayStore";
 import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
-import * as ygoprodeckApi from "$lib/api/ygoprodeck";
+import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
 import type { YGOProDeckCard } from "$lib/types/ygoprodeck";
 import type { CardDisplayData } from "$lib/types/card";
 import potOfGreedFixture from "../../fixtures/ygoprodeck/pot-of-greed.json";
 import gracefulCharityFixture from "../../fixtures/ygoprodeck/graceful-charity.json";
 
 // Mock YGOPRODeck API
-vi.mock("$lib/api/ygoprodeck", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("$lib/api/ygoprodeck")>();
+vi.mock("$lib/infrastructure/api/ygoprodeck", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("$lib/infrastructure/api/ygoprodeck")>();
   return {
     ...actual,
     getCardsByIds: vi.fn(),

@@ -1,35 +1,31 @@
 # アーキテクチャ概要
 
-## コンセプト
+## コンセプト: 4層構造 かつドメイン中心の Clean Architecture 
 
-UIとゲームロジックを完全に分離し、変更に強くテストしやすい構成にする。
+ゲームロジックをUI・外部リソースから完全に分離し、変更に強くテストしやすい構成にする。
 
-## Clean Architecture (3層構造)
+1. **Domain Layer** : 外部に依存しない静的ゲームルール
+2. **Application Layer** : ユースケース・動的ゲーム状態管理
+3. **Infrastructure Layer** : DBアクセス・外部APIアクセス
+4. **Presentation Layer** : UI・Controller
 
+```mermaid
+  graph LR
+    subgraph Game Core Logic
+        D[Domain Layer<br>静的ゲームルール]
+        A[Application Layer<br>動的ゲーム状態管理]
+        IP(Port Interface<br>抽象インターフェース)
+    end
+    P[Presentation Layer<br>UI・Controller]
+    I[Infrastructure Layer<br>外部アクセス]
+
+    P --> A
+    A --> D
+    A --> IP    
+    I ---> IP
 ```
-┌─────────────────────────────────────────────┐
-│        Presentation Layer (UI)              │
-│    Svelte 5 Components + Skeleton UI        │
-│    - Routes, Components, Stores             │
-└──────────────────┬──────────────────────────┘
-                   │ User Actions
-                   ↓
-┌─────────────────────────────────────────────┐
-│      Application Layer (Use Cases)          │
-│    Commands + GameFacade + Stores           │
-│    - DrawCardCommand                        │
-│    - ActivateSpellCommand                   │
-│    - AdvancePhaseCommand                    │
-└──────────────────┬──────────────────────────┘
-                   │ Domain Operations
-                   ↓
-┌─────────────────────────────────────────────┐
-│        Domain Layer (Core Logic)            │
-│    GameState + Rules (Pure TypeScript)      │
-│    - VictoryRule, PhaseRule                 │
-│    - SpellActivationRule                    │
-└─────────────────────────────────────────────┘
-```
+
+---
 
 ## レイヤー構成
 
@@ -113,22 +109,61 @@ class GameFacade {
 - ゲームの状態（GameState）はSvelteの`writable`で保持
 - UIはstoreを購読（subscribe）して自動更新
 
+### Infrastructure Layer (外部アクセス)
+
+**場所**: `skeleton-app/src/lib/infrastructure/`
+
+**責任**:
+- 外部APIとの統合（YGOPRODeck API v7等）
+- Port/Adapterパターンによる抽象化
+- Application Layerから外部リソースへの依存を隔離
+
+**主要コンポーネント**:
+- **Adapters**: Port（抽象インターフェース）の具象実装
+  - `YGOProDeckCardRepository`: カードデータ取得の実装
+- **API Clients**: 外部API呼び出しロジック
+  - `ygoprodeck.ts`: YGOPRODeck API v7 統合
+  - `checkHeartbeat.ts`: API死活監視
+
+**依存性逆転**:
+- Application Layerは `ICardDataRepository` (Port) に依存
+- Infrastructure Layerが `YGOProDeckCardRepository` (Adapter) を提供
+- これによりApplication LayerはAPI実装詳細から完全に分離
+
 ### Presentation Layer (見た目)
 
-**場所**: `skeleton-app/src/lib/components/`, `skeleton-app/src/routes/`
+**場所**: `skeleton-app/src/lib/presentation/` (将来移行予定), 現在は `skeleton-app/src/lib/components/`, `skeleton-app/src/lib/stores/`, `skeleton-app/src/routes/`
 
 **責任**:
 - Storeの状態を画面に描画
 - ユーザー入力を受け取る
+- UI状態管理（モーダル表示、カード選択等）
 
 **技術スタック**:
 - Svelte 5 (Runes: `$state`, `$derived`, `$effect`)
 - Skeleton UI v3
 - TailwindCSS v4
 
+**主要コンポーネント**:
+
+- **Components** (`components/`): UI部品
+  - `atoms/`: 基本UI部品（ボタン、カード等）
+  - `organisms/`: 複合UI部品（DuelFieldBoard等）
+  - `modals/`: モーダルダイアログ
+
+- **Stores** (`stores/`): UI状態管理
+  - `cardSelectionStore.svelte.ts`: カード選択UI状態（Svelte Runes使用）
+  - `cardDetailDisplayStore.ts`: カード詳細モーダル表示制御
+  - `theme.ts`: テーマ切り替え設定
+  - `audio.ts`: 音声設定
+
+- **Types** (`types/`): Presentation層専用型定義
+  - `CardDisplayData`: UI表示用カード完全データ（名前、画像、説明文等を含む）
+
 **ロジック**:
 - 「カードが光るアニメーション」などの表示ロジックのみ
 - 「攻撃力が計算される」などのゲームロジックは持たない
+- ゲームロジックはすべてApplication/Domain Layerに委譲
 
 ## データフロー (Unidirectional)
 
@@ -192,6 +227,8 @@ interface CardEffect {
 ```
 
 **実装**: Effect System (Strategy Pattern + Registry Pattern) により、カード効果を実装しています（ADR-0005参照）。ADR-0003でCommand統一を決定しましたが、カード効果の複雑性に対応するため、ADR-0005でEffect Systemを再導入しました。
+
+**詳細な実装例**: カード効果の具体的な実装方法、データモデル設計については [data-model-design.md](./data-model-design.md) を参照してください。
 
 ### 4. Observer Pattern
 

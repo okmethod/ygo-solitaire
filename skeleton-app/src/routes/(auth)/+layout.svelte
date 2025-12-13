@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
-  import checkHeartbeat from "$lib/api/checkHeartbeat";
+  import checkHeartbeat from "$lib/infrastructure/api/checkHeartbeat";
 
   let authorized = false;
 

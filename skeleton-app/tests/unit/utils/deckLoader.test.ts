@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loadDeckData } from "$lib/utils/deckLoader";
-import * as ygoprodeckApi from "$lib/api/ygoprodeck";
+import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
 import exodiaFixture from "../../fixtures/ygoprodeck/exodia.json";
 import potOfGreedFixture from "../../fixtures/ygoprodeck/pot-of-greed.json";
 import gracefulCharityFixture from "../../fixtures/ygoprodeck/graceful-charity.json";
 
 // YGOPRODeck APIをモック
-vi.mock("$lib/api/ygoprodeck", () => ({
+vi.mock("$lib/infrastructure/api/ygoprodeck", () => ({
   getCardsByIds: vi.fn(),
   clearCache: vi.fn(),
 }));

@@ -1,5 +1,5 @@
 import { constructRequestInit, fetchApi } from "$lib/utils/request";
-import { pathHeartbeat } from "$lib/api/paths";
+import { pathHeartbeat } from "$lib/infrastructure/api/paths";
 
 interface ResponseJson {
   message: string;

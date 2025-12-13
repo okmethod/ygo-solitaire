@@ -4,7 +4,7 @@
  * Tests for cache hit/miss behavior and API integration
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getCardsByIds, clearCache } from "$lib/api/ygoprodeck";
+import { getCardsByIds, clearCache } from "$lib/infrastructure/api/ygoprodeck";
 import type { YGOProDeckCard } from "$lib/types/ygoprodeck";
 
 // モックフィクスチャ（実際のYGOPRODeck APIレスポンス形式）

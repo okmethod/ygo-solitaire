@@ -8,7 +8,7 @@ import type {
   ExtraDeckData,
 } from "$lib/types/deck";
 import { convertToCardDisplayData, type YGOProDeckCard } from "$lib/types/ygoprodeck";
-import { getCardsByIds } from "$lib/api/ygoprodeck";
+import { getCardsByIds } from "$lib/infrastructure/api/ygoprodeck";
 import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
 
 // デッキエントリーからカードタイプ別に分類したMainDeckDataを作成する内部関数
