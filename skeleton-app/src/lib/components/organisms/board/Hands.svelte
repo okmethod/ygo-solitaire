@@ -5,7 +5,7 @@
   import type { Card } from "$lib/types/card";
   import type { DuelState } from "$lib/classes/DuelState";
   import type { EffectResult, InteractiveEffectResult } from "$lib/types/effect";
-  import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
+  import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 
   interface HandsProps {
     cards: Card[];

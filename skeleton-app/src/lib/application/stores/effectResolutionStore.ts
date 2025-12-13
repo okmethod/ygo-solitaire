@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import { cardSelectionStore } from "./cardSelectionStore.svelte";
+import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 
 // Re-export EffectResolutionStep from Domain Layer for backward compatibility

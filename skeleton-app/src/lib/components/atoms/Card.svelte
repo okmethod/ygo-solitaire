@@ -2,7 +2,7 @@
   import type { Card } from "$lib/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/constants/sizes";
   import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
-  import { showCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
+  import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/assets/CardBack.jpg";
 
   /**

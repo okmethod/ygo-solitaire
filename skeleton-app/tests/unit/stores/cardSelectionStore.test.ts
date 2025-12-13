@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { cardSelectionStore } from "$lib/stores/cardSelectionStore.svelte";
+import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
 import { createCardInstances } from "$lib/__testUtils__/gameStateFactory";
-import type { CardSelectionConfig } from "$lib/stores/cardSelectionStore.svelte";
+import type { CardSelectionConfig } from "$lib/presentation/stores/cardSelectionStore.svelte";
 
 describe("cardSelectionStore", () => {
   // Reset store before each test

@@ -16,7 +16,7 @@
     canActivateSpells,
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
-  import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
+  import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
   import { showSuccessToast, showErrorToast } from "$lib/utils/toaster";
   import Card from "$lib/components/atoms/Card.svelte";
   import DuelField from "$lib/components/organisms/board/DuelField.svelte";

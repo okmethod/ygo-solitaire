@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
-  import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/stores/cardDetailDisplayStore";
+  import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import { getCardTypeBackgroundClass } from "$lib/constants/cardTypes";
   import type { MonsterAttributes } from "$lib/types/card";
 

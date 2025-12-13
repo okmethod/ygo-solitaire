@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from "@iconify/svelte";
   import { Switch } from "@skeletonlabs/skeleton-svelte";
-  import { getAudioOn, setAudioOn } from "$lib/stores/audio";
+  import { getAudioOn, setAudioOn } from "$lib/presentation/stores/audio";
 
   let currentAudioOn: boolean = getAudioOn();
 

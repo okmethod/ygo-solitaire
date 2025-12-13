@@ -6,7 +6,7 @@
   import ThemeSwitchModal from "$lib/components/modals/ThemeSwitchModal.svelte";
   import AudioToggle from "$lib/components/buttons/AudioToggle.svelte";
   import CardDetailDisplay from "$lib/components/atoms/CardDetailDisplay.svelte";
-  import { applyTheme } from "$lib/stores/theme";
+  import { applyTheme } from "$lib/presentation/stores/theme";
   import { toaster } from "$lib/utils/toaster";
   import { base } from "$app/paths";
 
