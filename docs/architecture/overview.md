@@ -79,35 +79,43 @@ class PhaseRule {
 **責任**:
 - ユーザーの操作（「カードをクリックした」）をドメインの言葉（「発動アクション」）に変換
 - エンジンの処理結果をStoreに反映
+- Domain/Presentation Layer間のデータ変換
 
 **主要コンポーネント**:
 
-```typescript
-// Commands: すべての操作をコマンド化
-abstract class GameCommand {
-  abstract execute(state: GameState): GameState;
-}
+- **Commands** (`application/commands/`): すべての操作をコマンド化
+  - `DrawCardCommand.ts`: デッキ→手札へのドロー処理
+  - `ActivateSpellCommand.ts`: 魔法カード発動処理
+  - `AdvancePhaseCommand.ts`: フェーズ遷移処理
+  - `DiscardCardsCommand.ts`: 手札破棄処理
+  - 各CommandはImmer.jsで不変更新を実現
 
-class DrawCardCommand extends GameCommand {
-  execute(state: GameState): GameState {
-    // Immer.jsで不変更新
-    return produce(state, draft => {
-      // ドロー処理
-    });
-  }
-}
+- **Effects** (`application/effects/`): カード効果管理
+  - `CardEffectRegistry.ts`: カードID→Effectインスタンスマッピング
+  - Strategy Patternによる効果処理の抽象化
 
-// GameFacade: UIからの単一窓口
-class GameFacade {
-  drawCard(): void
-  activateSpell(cardId: string): void
-  advancePhase(): void
-}
-```
+- **Ports** (`application/ports/`): 抽象インターフェース
+  - `ICardDataRepository.ts`: カードデータ取得Port（Infrastructure層への依存を抽象化）
 
-**State Management**:
-- ゲームの状態（GameState）はSvelteの`writable`で保持
-- UIはstoreを購読（subscribe）して自動更新
+- **Types** (`application/types/`): Application層型定義（DTO）
+  - `card.ts`: `CardDisplayData`（UI表示用完全データ）
+  - `deck.ts`: `DeckRecipe`, `DeckData`（デッキ構造定義）
+
+- **Data** (`application/data/`): アプリケーションデータ
+  - `sampleDeckRecipes.ts`: サンプルデッキレシピ定義
+
+- **Utils** (`application/utils/`): Application層ユーティリティ
+  - `deckLoader.ts`: デッキレシピ読み込み、YGOPRODeck API統合、データ変換
+
+- **Stores** (`application/stores/`): アプリケーション状態管理
+  - `gameStateStore.ts`: ゲーム状態（Svelte writable）
+  - `effectResolutionStore.ts`: カード効果解決フロー状態
+  - `cardDisplayStore.ts`: カード表示データキャッシュ
+
+- **GameFacade** (`application/GameFacade.ts`): UIからの単一窓口
+  - `drawCard()`: ドロー実行
+  - `activateSpell()`: 魔法発動
+  - `advancePhase()`: フェーズ進行
 
 ### Infrastructure Layer (外部アクセス)
 
@@ -119,16 +127,38 @@ class GameFacade {
 - Application Layerから外部リソースへの依存を隔離
 
 **主要コンポーネント**:
-- **Adapters**: Port（抽象インターフェース）の具象実装
-  - `YGOProDeckCardRepository`: カードデータ取得の実装
-- **API Clients**: 外部API呼び出しロジック
-  - `ygoprodeck.ts`: YGOPRODeck API v7 統合
+
+- **Adapters** (`infrastructure/adapters/`): Port実装
+  - `YGOProDeckCardRepository.ts`: `ICardDataRepository`の具象実装（設計完了・実装予定）
+
+- **API Clients** (`infrastructure/api/`): 外部API統合
+  - `ygoprodeck.ts`: YGOPRODeck API v7統合
+    - `getCardById()`: 単一カード取得
+    - `getCardsByIds()`: バッチリクエスト（複数カード一括取得）
+    - `searchCardsByName()`: カード名検索
+    - メモリキャッシュ（セッション単位、重複リクエスト防止）
   - `checkHeartbeat.ts`: API死活監視
+  - `paths.ts`: APIエンドポイント定義
+
+- **Types** (`infrastructure/types/`): Infrastructure層型定義
+  - `ygoprodeck.ts`: YGOProDeckCard型（外部API互換）
+    - YGOPRODeck APIレスポンス型
+    - 画像URL、価格情報等の外部データ構造
+
+- **Utils** (`infrastructure/utils/`): Infrastructure層ユーティリティ
+  - `request.ts`: HTTP通信ヘルパー
+    - `fetchApi()`: 統一されたfetchラッパー
+    - `constructRequestInit()`: リクエスト設定構築
 
 **依存性逆転**:
 - Application Layerは `ICardDataRepository` (Port) に依存
 - Infrastructure Layerが `YGOProDeckCardRepository` (Adapter) を提供
 - これによりApplication LayerはAPI実装詳細から完全に分離
+
+**キャッシング戦略**:
+- **メモリキャッシュ**: `Map<number, YGOProDeckCard>`でセッション単位キャッシュ
+- **ライフサイクル**: ページリロードまで（メモリ上のみ）
+- **効果**: 重複APIリクエスト防止、レスポンス時間短縮
 
 ### Presentation Layer (見た目)
 
