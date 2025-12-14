@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from "@iconify/svelte";
   import { audioContextProvider } from "$lib/presentation/stores/audio";
-  import { playMelody, type MelodyNote } from "$lib/shared/utils/melody";
+  import { playMelody, type MelodyNote } from "$lib/presentation/utils/melody";
 
   export let waveType: OscillatorType;
   export let melody: (MelodyNote | null)[];

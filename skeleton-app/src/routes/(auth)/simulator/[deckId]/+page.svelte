@@ -17,7 +17,7 @@
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
   import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
-  import { showSuccessToast, showErrorToast } from "$lib/shared/utils/toaster";
+  import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import Card from "$lib/presentation/components/atoms/Card.svelte";
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
   import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";

@@ -7,7 +7,7 @@
   import AudioToggle from "$lib/presentation/components/buttons/AudioToggle.svelte";
   import CardDetailDisplay from "$lib/presentation/components/atoms/CardDetailDisplay.svelte";
   import { applyTheme } from "$lib/presentation/stores/theme";
-  import { toaster } from "$lib/shared/utils/toaster";
+  import { toaster } from "$lib/presentation/utils/toaster";
   import { base } from "$app/paths";
   import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";

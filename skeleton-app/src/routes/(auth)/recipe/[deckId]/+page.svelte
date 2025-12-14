@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigateTo } from "$lib/shared/utils/navigation";
+  import { navigateTo } from "$lib/presentation/utils/navigation";
   import CardList from "$lib/presentation/components/organisms/CardList.svelte";
   import type { PageData } from "./$types";
 

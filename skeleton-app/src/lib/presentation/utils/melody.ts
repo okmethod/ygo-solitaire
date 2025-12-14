@@ -1,5 +1,5 @@
-import { getFrequency } from "$lib/shared/utils/musicalNote";
-import { playBeep } from "$lib/shared/utils//beep";
+import { getFrequency } from "$lib/presentation/utils/musicalNote";
+import { playBeep } from "$lib/presentation/utils/beep";
 
 export interface MelodyNote {
   name: string;
