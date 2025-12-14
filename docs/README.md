@@ -2,6 +2,8 @@
 
 このディレクトリには、 `Yu-Gi-Oh! ソリティア` の**ストック情報**（永続的な知識）が整理されています。
 
+--
+
 ## 💡 プロジェクトコンセプト
 
 ### 課題と目的
@@ -23,6 +25,8 @@
 - カードプールを絞ることで、大量かつ複雑な実装は不要
 
 詳細なスコープと実装状況は [domain/overview.md](./domain/overview.md) を参照してください。
+
+---
 
 ## 🗂️ ドキュメント構成
 
@@ -58,6 +62,20 @@ specs/
   - YGOPRODeck API統合とキャッシング戦略
 - **[architecture/migration-strategy.md](architecture/migration-strategy.md)** (2025-11-29)
   - GameState/Rules の段階的移行戦略（文字列ID → 数値ID）
+
+---
+
+## 🔧 技術スタック
+
+### フロントエンド
+- **フレームワーク**: SvelteKit + Svelte 5
+- **UIライブラリ**: Skeleton UI v3
+- **CSS**: TailwindCSS v4
+- **状態管理**: Svelte Stores + Immer.js
+- **型チェック**: TypeScript (Strict mode)
+- **テスト**: Vitest + Playwright
+
+---
 
 ## 📚 関連リソース
 

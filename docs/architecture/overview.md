@@ -25,46 +25,14 @@
     I ---> IP
 ```
 
----
-
-## ファイル構造
+**ディレクトリ構造**
 
 ```
 skeleton-app/src/lib/
 ├── domain/          # Domain Layer
-│   ├── models/
-│   ├── rules/
-│   ├── effects/               # カード効果（Strategy Pattern）
-│   ├── commands/
-│   └── data/
-│
-├── application/               # Application Layer
-│   ├── commands/
-│   ├── effects/
-│   ├── ports/                 # Port Interfaces
-│   ├── types/                 # Application Layer型定義
-│   ├── data/
-│   ├── utils/
-│   ├── stores/
-│   └── GameFacade.ts          # presentation 層との窓口
-│
-├── infrastructure/            # Infrastructure Layer
-│   ├── adapters/
-│   ├── api/
-│   ├── types/
-│   └── utils/
-│
-└── presentation/              # Presentation Layer
-    ├── components/
-    │   ├── atoms/
-    │   ├── molecules/
-    │   ├── organisms/
-    │   └── modals/
-    ├── stores/
-    ├── types/
-    ├── utils/
-    ├── assets/
-    └── constants/
+├── application/     # Application Layer
+├── infrastructure/  # Infrastructure Layer
+└── presentation/    # Presentation Layer
 ```
 
 ---
@@ -73,92 +41,110 @@ skeleton-app/src/lib/
 
 ### Domain Layer
 
-**場所**: `skeleton-app/src/lib/domain/`
-
 **責任**:
 - 「遊戯王のルール」そのものを表現する
-- 不変性を保証した純粋なゲームロジック
+- 外部に依存しない静的ゲームルール
 
-**依存**:
-- 何にも依存しない（Pure TypeScript）
-- SvelteやDOMのコードは一切含まない
+**ディレクトリ構造**
 
-**主要コンポーネント**:
-
-```typescript
-// GameState: 不変なゲーム状態
-interface GameState {
-  readonly zones: {
-    readonly deck: readonly CardInstance[];
-    readonly hand: readonly CardInstance[];
-    readonly field: readonly CardInstance[];
-    readonly graveyard: readonly CardInstance[];
-  };
-  readonly turnNumber: number;
-  readonly currentPhase: Phase;
-  readonly gameResult: GameResult | null;
-}
-
-// Rules: ゲームルールの判定
-class VictoryRule {
-  check(state: GameState): GameResult | null
-}
-
-class PhaseRule {
-  canAdvance(state: GameState): boolean
-  getNextPhase(current: Phase): Phase
-}
+```
+skeleton-app/src/lib/domain/
+├── models/    # データモデル
+├── rules/     # ゲームルール定義
+├── effects/   # カード効果（Strategy Pattern実装）
+├── commands/  # Command基底クラス
+└── data/      # ゲームルールに不可欠なカードデータ
 ```
 
 **重要**:
+- 何にも依存しない（Pure TypeScript）
 - ここには Svelte や DOM のコードを一切書かない
 - ロジック単体でのテストが可能
 
-### Application Layer (接着剤)
+**主要コンポーネント**:
 
-**場所**: `skeleton-app/src/lib/application/`
+- **GameState**: 不変なゲーム状態
+  - すべてのゾーン（デッキ、手札、フィールド、墓地）を保持
+  - ターン数、現在のフェーズ、ゲーム結果を管理
+  - `readonly` 修飾子で不変性を保証
+  - オブジェクトの一部を書き換えるのではなく、変更があった部分をコピーして新しいオブジェクトを作る
+
+- **Rules**: ゲームルールの判定
+  - VictoryRule: 勝利条件の判定（エクゾディア、ライフポイント等）
+  - PhaseRule: フェーズ遷移の可否判定と次フェーズの決定
+  - SpellActivationRule: 魔法・罠カードの発動可否判定
+
+- **CardEffect**: カード効果の基底クラス（Strategy Pattern）
+  - 統一された`canActivate()` / `execute()`インターフェース
+  - カード種別ごとの階層構造（CardEffect → SpellEffect → NormalSpellEffect → PotOfGreedEffect）
+  - カードごとに異なる効果処理を交換可能に
+
+- **GameCommand**: すべての操作の基底クラス（Command Pattern）
+  - 統一された`execute()`インターフェース
+  - ゲーム状態の不変更新を保証
+  - 行動履歴の追跡とテストが容易
+
+### Application Layer
 
 **責任**:
-- ユーザーの操作（「カードをクリックした」）をドメインの言葉（「発動アクション」）に変換
-- エンジンの処理結果をStoreに反映
-- Domain/Presentation Layer間のデータ変換
+- ユーザーの操作を、Command として Domain に伝える（ユースケース）
+- Domain の処理結果を Store に反映（動的ゲーム状態管理）
+- Domain と Presentation の間のデータ変換
+
+**ディレクトリ構造**
+
+```
+skeleton-app/src/lib/application/
+├── commands/      # Command Pattern実装（ドロー、発動、フェーズ遷移等）
+├── effects/       # CardEffectRegistry（Strategy Patternによる効果管理）
+├── ports/         # Port Interface（Infrastructure層への依存抽象化）
+├── types/         # DTO（CardDisplayData, DeckRecipe等）
+├── data/          # サンプルデッキレシピ等の静的データ
+├── utils/         # デッキローダー等のユーティリティ
+├── stores/        # Svelte Storeによる状態管理
+└── GameFacade.ts  # Presentation Layer との単一窓口
+```
 
 **主要コンポーネント**:
 
-```typescript
-// Commands: すべての操作をコマンド化（Command Pattern）
-abstract class GameCommand {
-  abstract execute(state: GameState): GameState;
-}
+- **Commands**: Domain Layerの`GameCommand`を具象化
+  - 例
+    - DrawCardCommand: デッキからカードをドロー
+    - ActivateSpellCommand: 魔法カードの発動処理
+    - AdvancePhaseCommand: フェーズ遷移処理
+  - Immer.jsで不変更新を実現
 
-// 各CommandはImmer.jsで不変更新を実現
-// 例: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand
+- **CardEffectRegistry**: Domain Layerの`CardEffect`を中央管理（Registry Pattern）
+  - カードID → CardEffectインスタンスのマッピング
+  - カード効果を動的に取得し、登録する
 
-// GameFacade: UIからの単一窓口（Facade Pattern）
-class GameFacade {
-  drawCard(): void
-  activateSpell(cardId: string): void
-  advancePhase(): void
-}
-```
+- **GameFacade**: UIからの単一窓口（Facade Pattern）
+  - Presentation LayerとDomain Layerの橋渡し
+  - すべてのゲーム操作をシンプルなメソッドで提供
+  - Store更新の責任を一元管理
 
-**ディレクトリ構成**:
-- `commands/`: Command Pattern実装（ドロー、発動、フェーズ遷移等）
-- `effects/`: CardEffectRegistry（Strategy Patternによる効果管理）
-- `ports/`: Port Interface（Infrastructure層への依存抽象化）
-- `types/`: DTO（CardDisplayData, DeckRecipe等）
-- `stores/`: Svelte Storeによる状態管理
-- `utils/`: デッキローダー等のユーティリティ
-- `data/`: サンプルデッキレシピ等の静的データ
+- **Stores**: 状態管理（Observer Pattern）
+  - Svelte Store（`writable`, `derived`）による実装
+  - 状態の変化をUIに通知
+  - Derived Storesで計算コストの高い派生値をキャッシュ
+  - 不変オブジェクトによる更新検知でSvelteの再描画を最適化
 
-### Infrastructure Layer (外部アクセス)
-
-**場所**: `skeleton-app/src/lib/infrastructure/`
+### Infrastructure Layer
 
 **責任**:
 - 外部APIとの統合（YGOPRODeck API v7等）
 - Port/Adapterパターンによる抽象化
 - Application Layerから外部リソースへの依存を隔離
+
+**ディレクトリ構造**
+
+```
+skeleton-app/src/lib/infrastructure/
+├── adapters/  # Port/Adapter実装（YGOProDeckCardRepository等）
+├── api/       # 外部API統合（YGOPRODeck API v7、死活監視）
+├── types/     # 外部API型定義（YGOProDeckCard等）
+└── utils/     # HTTP通信ヘルパー（fetch wrapper）
+```
 
 **主要コンポーネント**:
 
@@ -185,9 +171,7 @@ class GameFacade {
 - セッション単位メモリキャッシュ（ページリロードまで）
 - 重複APIリクエスト防止、レスポンス時間短縮
 
-### Presentation Layer (見た目)
-
-**場所**: `skeleton-app/src/lib/presentation/`
+### Presentation Layer
 
 **責任**:
 - Storeの状態を画面に描画
@@ -195,10 +179,21 @@ class GameFacade {
 - UI状態管理（モーダル表示、カード選択等）
 - UI専用のユーティリティ機能（ナビゲーション、アニメーション、音声再生等）
 
-**技術スタック**:
-- Svelte 5 (Runes: `$state`, `$derived`, `$effect`)
-- Skeleton UI v3
-- TailwindCSS v4
+**ディレクトリ構造**
+
+```
+skeleton-app/src/lib/presentation/
+├── components/  # UIコンポーネント（Atomic Design）
+│   ├── atoms/      # 基本UI部品（Button, Card等）
+│   ├── molecules/  # 組み合わせUI（CardList等）
+│   ├── organisms/  # 複合UI（DuelField, Hands等）
+│   └── modals/     # モーダルダイアログ
+├── stores/      # UI状態管理（カード選択、モーダル表示、テーマ、音声）
+├── types/       # Application Layerからの型再エクスポート（後方互換性）
+├── utils/       # UI専用ユーティリティ（ナビゲーション、音声再生等）
+├── assets/      # 画像ファイル
+└── constants/   # UI定数値
+```
 
 **主要コンポーネント**:
 
@@ -211,6 +206,8 @@ class GameFacade {
 **ロジックの責務**:
 - ✅ 表示ロジック（アニメーション、モーダル制御等）
 - ❌ ゲームロジック（攻撃力計算等）→ Application/Domain Layerに委譲
+
+---
 
 ## データフロー (Unidirectional)
 
@@ -232,101 +229,7 @@ class GameFacade {
    Svelte が変更を検知し、画面を再描画
 ```
 
-## 設計原則
-
-### 1. 不変性 (Immutability)
-
-**実装**: Immer.js + TypeScript `readonly` 修飾子
-
-```typescript
-// ❌ Bad: 直接書き換え
-state.zones.hand.push(card);
-
-// ✅ Good: Immerで不変更新
-return produce(state, draft => {
-  draft.zones.hand.push(card);
-});
-```
-
-**メリット**:
-- 変更履歴の追跡が容易
-- Svelte Storeとの相性が良い
-- バグの原因となる意図しない状態変更を防ぐ
-
-### 2. Command Pattern
-
-すべての操作をCommandクラスで実装：
-
-**メリット**:
-- 行動履歴（ログ）の保存が容易
-- 将来的に「Undo」機能を実装する際に対応しやすい
-- テストが書きやすい
-
-### 3. Strategy Pattern
-
-カードごとの異なる効果処理を交換可能にする：
-
-```typescript
-interface CardEffect {
-  canActivate(state: GameState): boolean;
-  execute(state: GameState): Promise<EffectResult>;
-}
-```
-
-**実装**: Effect System (Strategy Pattern + Registry Pattern) により、カード効果を実装しています（ADR-0005参照）。ADR-0003でCommand統一を決定しましたが、カード効果の複雑性に対応するため、ADR-0005でEffect Systemを再導入しました。
-
-**詳細な実装例**: カード効果の具体的な実装方法、データモデル設計については [data-model-design.md](./data-model-design.md) を参照してください。
-
-### 4. Observer Pattern
-
-状態の変化をUIに通知：
-
-**実装**: Svelte Store (`writable`, `derived`)
-
-```typescript
-// Store定義
-export const gameStateStore = writable<GameState>(initialState);
-
-// UI購読
-<script>
-  const gameState = $gameStateStore; // Svelte 5 Runes
-</script>
-```
-
 ---
-
-## 技術スタック
-
-### フロントエンド
-- **フレームワーク**: SvelteKit + Svelte 5
-- **UIライブラリ**: Skeleton UI v3
-- **CSS**: TailwindCSS v4
-- **状態管理**: Svelte Stores + Immer.js
-- **型チェック**: TypeScript (Strict mode)
-- **テスト**: Vitest + Playwright
-
-### バックエンド（開発時のみ）
-- **フレームワーク**: FastAPI + Python
-- **用途**: カードデータAPI提供
-- **本番**: 静的ビルド（GitHub Pages）でバックエンド不要
-
-## パフォーマンス最適化
-
-### 不変オブジェクトによる更新検知
-
-- GameState の更新は、オブジェクトの一部を書き換えるのではなく、変更があった部分をコピーして新しいオブジェクトを作る
-- Svelte は参照の変更を検知して再描画するため、無駄なレンダリングを防ぐ
-
-### Derived Stores
-
-計算コストの高い派生値はキャッシュ：
-
-```typescript
-export const handCardCount = derived(
-  gameStateStore,
-  $state => $state.zones.hand.length
-);
-```
 
 ## 関連ドキュメント
 
