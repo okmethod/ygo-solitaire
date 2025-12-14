@@ -10,10 +10,10 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/application/stores/cardDisplayStore";
 import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
 import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
-import type { YGOProDeckCard } from "$lib/presentation/types/ygoprodeck";
-import type { CardDisplayData } from "$lib/presentation/types/card";
-import potOfGreedFixture from "../../fixtures/ygoprodeck/pot-of-greed.json";
-import gracefulCharityFixture from "../../fixtures/ygoprodeck/graceful-charity.json";
+import type { YGOProDeckCard } from "$lib/infrastructure/types/ygoprodeck";
+import type { CardDisplayData } from "$lib/application/types/card";
+import potOfGreedFixture from "../../../fixtures/ygoprodeck/pot-of-greed.json";
+import gracefulCharityFixture from "../../../fixtures/ygoprodeck/graceful-charity.json";
 
 // Mock YGOPRODeck API
 vi.mock("$lib/infrastructure/api/ygoprodeck", async (importOriginal) => {
