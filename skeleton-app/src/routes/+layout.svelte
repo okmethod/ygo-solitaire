@@ -9,11 +9,18 @@
   import { applyTheme } from "$lib/presentation/stores/theme";
   import { toaster } from "$lib/shared/utils/toaster";
   import { base } from "$app/paths";
+  import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+  import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
 
   let { children } = $props();
 
   let isLoaded = $state(false);
   onMount(async () => {
+    // Store間の依存関係をDIで解決（Presentation層の責務）
+    effectResolutionStore.registerCardSelectionHandler((config) => {
+      cardSelectionStore.startSelection(config);
+    });
+
     function wait(ms: number) {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }

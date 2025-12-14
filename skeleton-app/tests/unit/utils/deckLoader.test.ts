@@ -37,9 +37,10 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
     expect(deckData.stats).toBeDefined();
 
     // YGOPRODeck API互換のカードIDが正しく解決されたことを確認
+    // Note: Repository経由で呼ばれるため、直接的なfetch引数はない
     expect(ygoprodeckApi.getCardsByIds).toHaveBeenCalledOnce();
     expect(ygoprodeckApi.getCardsByIds).toHaveBeenCalledWith(
-      mockFetch,
+      expect.any(Function), // global fetch function
       expect.arrayContaining([
         expect.any(Number), // カードIDは数値であること
       ]),

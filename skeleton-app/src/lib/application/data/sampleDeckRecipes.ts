@@ -1,4 +1,4 @@
-import type { DeckRecipe } from "$lib/presentation/types/deck";
+import type { DeckRecipe } from "$lib/application/types/deck";
 
 // YGOProDeckAPI の ID を使用したサンプルデッキレシピ
 // 例) https://db.ygoprodeck.com/api/v7/cardinfo.php?id=33396948

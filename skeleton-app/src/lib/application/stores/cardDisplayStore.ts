@@ -11,7 +11,7 @@ import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
-import type { CardDisplayData } from "$lib/presentation/types/card";
+import type { CardDisplayData } from "$lib/application/types/card";
 
 // Dependency Injection: Production実装を注入
 const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
@@ -44,7 +44,8 @@ export const handCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    cardRepository.getCardsByIds(cardIds)
+    cardRepository
+      .getCardsByIds(cardIds)
       .then((cards) => {
         set(cards);
       })
@@ -72,7 +73,8 @@ export const fieldCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    cardRepository.getCardsByIds(cardIds)
+    cardRepository
+      .getCardsByIds(cardIds)
       .then((cards) => {
         set(cards);
       })
@@ -99,7 +101,8 @@ export const graveyardCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    cardRepository.getCardsByIds(cardIds)
+    cardRepository
+      .getCardsByIds(cardIds)
       .then((cards) => {
         set(cards);
       })
@@ -126,7 +129,8 @@ export const banishedCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    cardRepository.getCardsByIds(cardIds)
+    cardRepository
+      .getCardsByIds(cardIds)
       .then((cards) => {
         set(cards);
       })

@@ -1,16 +1,33 @@
 import { writable } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
+import type { CardInstance } from "$lib/domain/models/Card";
 
 // Re-export EffectResolutionStep from Domain Layer for backward compatibility
 export type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
+
+/**
+ * Card selection handler callback type
+ * Presentation層のcardSelectionStoreが実装を提供する
+ */
+export interface CardSelectionHandler {
+  (config: {
+    availableCards: readonly CardInstance[];
+    minCards: number;
+    maxCards: number;
+    title: string;
+    message: string;
+    onConfirm: (selectedInstanceIds: string[]) => void;
+    onCancel?: () => void;
+  }): void;
+}
 
 interface EffectResolutionState {
   isActive: boolean;
   currentStep: EffectResolutionStep | null;
   steps: EffectResolutionStep[];
   currentIndex: number;
+  cardSelectionHandler: CardSelectionHandler | null;
 }
 
 function createEffectResolutionStore() {
@@ -19,10 +36,22 @@ function createEffectResolutionStore() {
     currentStep: null,
     steps: [],
     currentIndex: -1,
+    cardSelectionHandler: null,
   });
 
   return {
     subscribe,
+
+    /**
+     * カード選択ハンドラを登録（Dependency Injection）
+     * Presentation層の初期化時に呼ばれる
+     */
+    registerCardSelectionHandler: (handler: CardSelectionHandler) => {
+      update((state) => ({
+        ...state,
+        cardSelectionHandler: handler,
+      }));
+    },
 
     /**
      * 効果解決シーケンスを開始
@@ -49,11 +78,17 @@ function createEffectResolutionStore() {
 
         // カード選択が必要な場合（cardSelectionConfigがある場合）
         if (state.currentStep.cardSelectionConfig) {
+          // ハンドラが未登録の場合はエラー
+          if (!state.cardSelectionHandler) {
+            console.error("Card selection handler not registered");
+            return;
+          }
+
           // CardSelectionModalを開いてユーザー入力を待つ
           return new Promise<void>((resolve) => {
             // IMPORTANT: Use currentGameState.zones.hand instead of original config's availableCards
             // This ensures we're selecting from the CURRENT hand after any previous effects (e.g., drawing cards)
-            cardSelectionStore.startSelection({
+            state.cardSelectionHandler!({
               ...state.currentStep!.cardSelectionConfig!,
               availableCards: currentGameState.zones.hand,
               onConfirm: async (selectedInstanceIds: string[]) => {
@@ -134,24 +169,26 @@ function createEffectResolutionStore() {
      * 効果解決をキャンセル（可能な場合）
      */
     cancelResolution: () => {
-      set({
+      update((state) => ({
+        ...state,
         isActive: false,
         currentStep: null,
         steps: [],
         currentIndex: -1,
-      });
+      }));
     },
 
     /**
      * 現在の状態をリセット
      */
     reset: () => {
-      set({
+      update((state) => ({
+        ...state,
         isActive: false,
         currentStep: null,
         steps: [],
         currentIndex: -1,
-      });
+      }));
     },
   };
 }

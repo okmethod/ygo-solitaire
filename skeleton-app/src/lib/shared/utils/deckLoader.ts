@@ -7,20 +7,19 @@ import type {
   MainDeckData,
   ExtraDeckData,
 } from "$lib/presentation/types/deck";
-import { convertToCardDisplayData, type YGOProDeckCard } from "$lib/presentation/types/ygoprodeck";
-import { getCardsByIds } from "$lib/infrastructure/api/ygoprodeck";
+import type { CardDisplayData } from "$lib/application/types/card";
+import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
 
 // デッキエントリーからカードタイプ別に分類したMainDeckDataを作成する内部関数
-function buildMainDeckData(ygoCardMap: Map<number, YGOProDeckCard>, entries: RecipeCardEntry[]): MainDeckData {
+function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): MainDeckData {
   const monsters: LoadedCardEntry[] = [];
   const spells: LoadedCardEntry[] = [];
   const traps: LoadedCardEntry[] = [];
 
   for (const entry of entries) {
-    const ygoCard = ygoCardMap.get(entry.id);
-    if (ygoCard) {
-      const cardData = convertToCardDisplayData(ygoCard);
+    const cardData = cardDataMap.get(entry.id);
+    if (cardData) {
       const loadedEntry: LoadedCardEntry = {
         cardData: cardData,
         quantity: entry.quantity,
@@ -45,22 +44,21 @@ function buildMainDeckData(ygoCardMap: Map<number, YGOProDeckCard>, entries: Rec
 }
 
 // エクストラデッキをモンスタータイプ別に分類したExtraDeckDataを作成する内部関数
-function buildExtraDeckData(ygoCardMap: Map<number, YGOProDeckCard>, entries: RecipeCardEntry[]): ExtraDeckData {
+function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): ExtraDeckData {
   const fusion: LoadedCardEntry[] = [];
   const synchro: LoadedCardEntry[] = [];
   const xyz: LoadedCardEntry[] = [];
 
   for (const entry of entries) {
-    const ygoCard = ygoCardMap.get(entry.id);
-    if (ygoCard) {
-      const cardData = convertToCardDisplayData(ygoCard);
+    const cardData = cardDataMap.get(entry.id);
+    if (cardData) {
       const loadedEntry: LoadedCardEntry = {
         cardData: cardData,
         quantity: entry.quantity,
       };
 
       // frameTypeでエクストラデッキモンスターを分類
-      const frameType = ygoCard.frameType?.toLowerCase() || "";
+      const frameType = cardData.frameType?.toLowerCase() || "";
       if (frameType.includes("fusion")) {
         fusion.push(loadedEntry);
       } else if (frameType.includes("synchro")) {
@@ -133,7 +131,7 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
 /**
  * デッキレシピからデッキデータを生成する
  */
-export async function loadDeckData(deckId: string, fetch: typeof window.fetch): Promise<DeckData> {
+export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch): Promise<DeckData> {
   const recipe = sampleDeckRecipes[deckId];
   if (!recipe) {
     throw error(404, "デッキが見つかりません");
@@ -149,23 +147,24 @@ export async function loadDeckData(deckId: string, fetch: typeof window.fetch): 
 
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
-  // API でカード情報を取得
-  let ygoCards: YGOProDeckCard[];
+  // Repository経由でカード情報を取得（変換済みのCardDisplayData）
+  const repository = new YGOProDeckCardRepository();
+  let cardDataList: CardDisplayData[];
   try {
-    ygoCards = await getCardsByIds(fetch, uniqueCardIds);
+    cardDataList = await repository.getCardsByIds(uniqueCardIds);
   } catch (err) {
     console.error("カード情報のAPI取得に失敗しました:", err);
     throw error(500, "カード情報の取得に失敗しました");
   }
 
   // カード情報をマップに変換
-  const ygoCardMap = new Map(ygoCards.map((card) => [card.id, card]));
+  const cardDataMap = new Map(cardDataList.map((card) => [card.id, card]));
 
   // メインデッキをカードタイプ別に分類
-  const mainDeckData = buildMainDeckData(ygoCardMap, recipe.mainDeck);
+  const mainDeckData = buildMainDeckData(cardDataMap, recipe.mainDeck);
 
   // エクストラデッキをモンスタータイプ別に分類
-  const extraDeckData = buildExtraDeckData(ygoCardMap, recipe.extraDeck);
+  const extraDeckData = buildExtraDeckData(cardDataMap, recipe.extraDeck);
 
   // 統計情報を計算
   const stats = calculateDeckStats(mainDeckData, extraDeckData);

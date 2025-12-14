@@ -1,4 +1,4 @@
-import type { CardDisplayData } from "$lib/presentation/types/card";
+import type { CardDisplayData } from "$lib/application/types/card";
 
 /**
  * Port: カードデータ取得の抽象インターフェース
@@ -12,27 +12,27 @@ import type { CardDisplayData } from "$lib/presentation/types/card";
  * - YGOPRODeck APIの実装詳細から完全に分離
  */
 export interface ICardDataRepository {
-	/**
-	 * カードIDリストから複数のカードデータを取得
-	 *
-	 * @param cardIds - カードIDの配列（YGOPRODeck API互換の数値ID）
-	 * @returns Promise<CardDisplayData[]> - カード表示データの配列
-	 *
-	 * @remarks
-	 * - バッチリクエストにより複数カードを一度に取得
-	 * - 実装側でキャッシングを行う想定
-	 * - 存在しないIDがあった場合のエラーハンドリングは実装に委ねる
-	 */
-	getCardsByIds(cardIds: number[]): Promise<CardDisplayData[]>;
+  /**
+   * カードIDリストから複数のカードデータを取得
+   *
+   * @param cardIds - カードIDの配列（YGOPRODeck API互換の数値ID）
+   * @returns Promise<CardDisplayData[]> - カード表示データの配列
+   *
+   * @remarks
+   * - バッチリクエストにより複数カードを一度に取得
+   * - 実装側でキャッシングを行う想定
+   * - 存在しないIDがあった場合のエラーハンドリングは実装に委ねる
+   */
+  getCardsByIds(cardIds: number[]): Promise<CardDisplayData[]>;
 
-	/**
-	 * 単一のカードデータを取得
-	 *
-	 * @param cardId - カードID（YGOPRODeck API互換の数値ID）
-	 * @returns Promise<CardDisplayData> - カード表示データ
-	 *
-	 * @remarks
-	 * - 内部的には getCardsByIds([cardId]) を呼び出す想定
-	 */
-	getCardById(cardId: number): Promise<CardDisplayData>;
+  /**
+   * 単一のカードデータを取得
+   *
+   * @param cardId - カードID（YGOPRODeck API互換の数値ID）
+   * @returns Promise<CardDisplayData> - カード表示データ
+   *
+   * @remarks
+   * - 内部的には getCardsByIds([cardId]) を呼び出す想定
+   */
+  getCardById(cardId: number): Promise<CardDisplayData>;
 }
