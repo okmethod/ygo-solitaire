@@ -22,20 +22,31 @@ YGO Solitaire アプリケーションのデータモデルは、Clean Architect
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Presentation Layer                        │
-│  (UI Components, Deck Loader, Card Display)                  │
+│  (UI Components, Card Display)                               │
 │                                                               │
-│  Types: CardDisplayData, CardImages, MonsterAttributes       │
-│  Files: src/lib/types/card.ts, src/lib/types/deck.ts        │
+│  Types: Re-exports from Application Layer (backward compat)  │
+│  Files: src/lib/presentation/types/                          │
 └─────────────────────────────────────────────────────────────┘
                               ▲
                               │ convertToCardDisplayData()
                               │
 ┌─────────────────────────────────────────────────────────────┐
 │                    Application Layer                         │
-│  (Data Conversion, API Integration, Caching)                 │
+│  (Data Conversion, API Integration, Deck Loader)             │
 │                                                               │
 │  Functions: convertToCardDisplayData(), getCardsByIds()      │
-│  Files: src/lib/types/ygoprodeck.ts, src/lib/api/           │
+│  Types: CardDisplayData, DeckRecipe                          │
+│  Files: src/lib/application/types/, src/lib/application/utils/│
+└─────────────────────────────────────────────────────────────┘
+                              ▲
+                              │ YGOPRODeck API Response
+                              │
+┌─────────────────────────────────────────────────────────────┐
+│                    Infrastructure Layer                      │
+│  (External API Integration, Caching)                         │
+│                                                               │
+│  Types: YGOProDeckCard                                        │
+│  Files: src/lib/infrastructure/types/, src/lib/infrastructure/api/│
 └─────────────────────────────────────────────────────────────┘
                               ▲
                               │ YGOPRODeck API Response
@@ -99,7 +110,7 @@ src/lib/domain/
 │   └── __tests__/
 │       └── Card.test.ts    # 型ガード関数のテスト (T026, T027)
 └── data/
-    └── cardDatabase.ts     # Domain Layerカードレジストリ（PR#50で追加）
+    └── exodiaPartNames.ts  # ドメインデータ（Exodia勝利判定用）
 ```
 
 ### 型ガード関数
@@ -132,78 +143,6 @@ export function isDomainMonsterCard(card: DomainCardData): boolean {
 
 - **T026**: `isDomainCardData()` の検証（15テストケース）
 - **T027**: カードタイプ判定関数の検証（9テストケース）
-
----
-
-### Domain Layer Card Database
-
-#### 目的
-YGOPRODeck APIから独立したDomain Layerカードレジストリを提供し、ゲームルールバリデーションをAPI非依存にする。
-
-#### 実装
-
-**ファイル**: `src/lib/domain/data/cardDatabase.ts` (PR#50で追加)
-
-```typescript
-/**
- * Card database registry
- * Maps card ID to domain card data
- */
-const CARD_DATABASE: Record<number, DomainCardData> = {
-  // Exodia pieces (monster)
-  33396948: { id: 33396948, type: "monster" },
-  7902349: { id: 7902349, type: "monster" },
-  // ...
-
-  // Spell cards
-  55144522: { id: 55144522, type: "spell", spellType: "normal" }, // Pot of Greed
-  79571449: { id: 79571449, type: "spell", spellType: "normal" }, // Graceful Charity
-
-  // Trap cards
-  83968380: { id: 83968380, type: "trap", trapType: "normal" }, // Jar of Greed
-};
-
-export function getCardData(cardId: number): DomainCardData {
-  const card = CARD_DATABASE[cardId];
-  if (!card) {
-    throw new Error(`Card data not found in domain database: ${cardId}`);
-  }
-  return card;
-}
-
-export function getCardType(cardId: number): SimpleCardType {
-  return getCardData(cardId).type;
-}
-```
-
-#### 主要機能
-
-| 関数 | 説明 | 使用箇所 |
-|------|------|---------|
-| `getCardData(cardId)` | カードデータ取得（存在チェック付き） | ルールバリデーション |
-| `getCardType(cardId)` | カードタイプ取得 | `GameState.createInitialGameState()` |
-| `hasCardData(cardId)` | カード存在確認 | テストユーティリティ |
-
-#### 利点
-
-1. **API非依存**:
-   - ゲームルールがYGOPRODeck APIに依存しない
-   - オフライン環境でもユニットテストが実行可能
-
-2. **CardInstance.type の自動設定**:
-   - `createInitialGameState()`でデッキ初期化時に自動でtype情報を付与
-   - 罠カード発動判定などのルールバリデーションが可能
-
-3. **Clean Architecture遵守**:
-   - Domain Layerが外部APIから完全独立
-   - Presentation Layer（CardDisplayData）とは別のデータソース
-
-#### 登録カード
-
-- **Exodia 5パーツ** (Monster)
-- **Pot of Greed, Graceful Charity** (Spell/Normal)
-- **Jar of Greed** (Trap/Normal)
-- **テスト用カード** (1001-1005, 11111111-87654321)
 
 ---
 
@@ -261,10 +200,11 @@ export interface MonsterAttributes {
 ### ファイル構成
 
 ```
-src/lib/types/
-├── card.ts                 # Presentation Layer型定義
-├── deck.ts                 # デッキ関連型定義
-└── ygoprodeck.ts          # YGOPRODeck API型定義と変換関数
+src/lib/presentation/types/
+├── card.ts                 # UI表示用型（Application Layerから再エクスポート）
+├── deck.ts                 # デッキ関連型（Application Layerから再エクスポート）
+├── effect.ts               # UI効果表示用型
+└── phase.ts                # フェーズUI表示用型
 ```
 
 ---
@@ -983,10 +923,11 @@ class ActivateSpellCommand {
 ```
 src/lib/domain/effects/
 ├── CardEffect.ts              # CardEffect interface定義
+├── EffectResolutionStep.ts    # エフェクト解決ステップ型
 ├── bases/
 │   ├── SpellEffect.ts         # 魔法カード基底クラス
 │   └── NormalSpellEffect.ts   # 通常魔法カード基底クラス
-└── cards/
+└── implementations/
     ├── PotOfGreedEffect.ts    # 強欲な壺
     └── GracefulCharityEffect.ts # 天使の施し
 
@@ -1168,10 +1109,10 @@ GameState/Rules を DomainCardData に移行。
 
 ### コードベース
 
-- **Domain Layer**: `src/lib/domain/models/Card.ts`
-- **Presentation Layer**: `src/lib/types/card.ts`, `src/lib/types/deck.ts`
-- **Application Layer**: `src/lib/types/ygoprodeck.ts`, `src/lib/api/ygoprodeck.ts`
-- **Deck Loader**: `src/lib/utils/deckLoader.ts`
+- **Domain Layer**: `src/lib/domain/models/Card.ts`, `src/lib/domain/effects/`
+- **Application Layer**: `src/lib/application/types/`, `src/lib/application/utils/deckLoader.ts`, `src/lib/application/effects/`
+- **Infrastructure Layer**: `src/lib/infrastructure/types/ygoprodeck.ts`, `src/lib/infrastructure/api/ygoprodeck.ts`
+- **Presentation Layer**: `src/lib/presentation/types/` (再エクスポート)
 
 ---
 

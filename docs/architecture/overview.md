@@ -132,12 +132,13 @@ class GameFacade {
 
 ### Presentation Layer (見た目)
 
-**場所**: `skeleton-app/src/lib/presentation/` (将来移行予定), 現在は `skeleton-app/src/lib/components/`, `skeleton-app/src/lib/stores/`, `skeleton-app/src/routes/`
+**場所**: `skeleton-app/src/lib/presentation/`
 
 **責任**:
 - Storeの状態を画面に描画
 - ユーザー入力を受け取る
 - UI状態管理（モーダル表示、カード選択等）
+- UI専用のユーティリティ機能（ナビゲーション、アニメーション、音声再生等）
 
 **技術スタック**:
 - Svelte 5 (Runes: `$state`, `$derived`, `$effect`)
@@ -146,19 +147,32 @@ class GameFacade {
 
 **主要コンポーネント**:
 
-- **Components** (`components/`): UI部品
+- **Components** (`presentation/components/`): UI部品
   - `atoms/`: 基本UI部品（ボタン、カード等）
-  - `organisms/`: 複合UI部品（DuelFieldBoard等）
-  - `modals/`: モーダルダイアログ
+  - `molecules/`: 中間UI部品（CardList等）
+  - `organisms/`: 複合UI部品（DuelFieldBoard、Hands等）
+  - `modals/`: モーダルダイアログ（CardDetailModal、CardSelectionModal）
 
-- **Stores** (`stores/`): UI状態管理
+- **Stores** (`presentation/stores/`): UI状態管理
   - `cardSelectionStore.svelte.ts`: カード選択UI状態（Svelte Runes使用）
   - `cardDetailDisplayStore.ts`: カード詳細モーダル表示制御
   - `theme.ts`: テーマ切り替え設定
   - `audio.ts`: 音声設定
 
-- **Types** (`types/`): Presentation層専用型定義
-  - `CardDisplayData`: UI表示用カード完全データ（名前、画像、説明文等を含む）
+- **Types** (`presentation/types/`): Presentation層型定義
+  - `card.ts`: UI表示用型の再エクスポート（後方互換性）
+  - `deck.ts`: デッキ型の再エクスポート（後方互換性）
+  - `effect.ts`: UI効果表示用型
+  - `phase.ts`: フェーズUI表示用型
+
+- **Utils** (`presentation/utils/`): UI専用ユーティリティ
+  - `navigation.ts`: ページ遷移制御
+  - `transitions.ts`: 画面トランジション設定
+  - `beep.ts`, `melody.ts`, `musicalNote.ts`: 音声再生機能
+  - `toaster.ts`: トースト通知
+
+- **Assets & Constants** (`presentation/assets/`, `presentation/constants/`):
+  - 画像ファイル、UI定数値
 
 **ロジック**:
 - 「カードが光るアニメーション」などの表示ロジックのみ
@@ -253,7 +267,7 @@ skeleton-app/src/lib/
 ├── domain/                    # Domain Layer
 │   ├── models/
 │   │   ├── GameState.ts       # ゲーム状態定義
-│   │   ├── Card.ts            # カード型定義
+│   │   ├── Card.ts            # カード型定義・DomainCardData
 │   │   ├── Phase.ts           # フェーズ型定義
 │   │   └── constants.ts       # ドメイン定数
 │   ├── rules/
@@ -262,39 +276,84 @@ skeleton-app/src/lib/
 │   │   └── SpellActivationRule.ts
 │   ├── effects/               # カード効果（Strategy Pattern）
 │   │   ├── CardEffect.ts      # Effect Interface
+│   │   ├── EffectResolutionStep.ts
 │   │   ├── bases/
 │   │   │   ├── SpellEffect.ts
 │   │   │   └── NormalSpellEffect.ts
 │   │   └── implementations/
 │   │       ├── PotOfGreedEffect.ts
 │   │       └── GracefulCharityEffect.ts
-│   ├── data/
-│   │   └── cardDatabase.ts    # Domain Layer用カードDB
-│   └── factories/
-│       └── GameStateFactory.ts
+│   ├── commands/
+│   │   └── GameCommand.ts     # Command基底クラス
+│   └── data/
+│       └── exodiaPartNames.ts # ドメインデータ
 │
 ├── application/               # Application Layer
 │   ├── commands/
-│   │   ├── GameCommand.ts     # 基底クラス
 │   │   ├── DrawCardCommand.ts
 │   │   ├── ActivateSpellCommand.ts
-│   │   └── AdvancePhaseCommand.ts
+│   │   ├── AdvancePhaseCommand.ts
+│   │   └── DiscardCardsCommand.ts
 │   ├── effects/
 │   │   └── CardEffectRegistry.ts  # カードID→Effectマッピング
-│   ├── GameFacade.ts          # UIからの窓口
-│   └── stores/
-│       ├── gameStateStore.ts
-│       ├── effectResolutionStore.ts
-│       └── derivedStores.ts
+│   ├── ports/                 # Port Interfaces
+│   │   └── ICardDataRepository.ts
+│   ├── types/                 # Application Layer型定義
+│   │   ├── card.ts            # CardDisplayData (DTO)
+│   │   └── deck.ts            # DeckRecipe等 (DTO)
+│   ├── data/
+│   │   └── sampleDeckRecipes.ts
+│   ├── utils/
+│   │   └── deckLoader.ts      # デッキロード処理
+│   ├── stores/
+│   │   ├── gameStateStore.ts
+│   │   ├── effectResolutionStore.ts
+│   │   └── cardDisplayStore.ts
+│   └── GameFacade.ts          # UIからの窓口
 │
-└── components/                # Presentation Layer
-    ├── organisms/
-    │   └── board/
-    │       ├── DuelField.svelte
-    │       ├── HandArea.svelte
-    │       └── FieldArea.svelte
-    └── molecules/
-        └── CardView.svelte
+├── infrastructure/            # Infrastructure Layer
+│   ├── adapters/
+│   │   └── YGOProDeckCardRepository.ts  # ICardDataRepository実装
+│   ├── api/
+│   │   ├── ygoprodeck.ts      # YGOPRODeck API v7統合
+│   │   ├── checkHeartbeat.ts
+│   │   └── paths.ts
+│   ├── types/
+│   │   └── ygoprodeck.ts      # YGOProDeckCard型
+│   └── utils/
+│       └── request.ts         # HTTP通信ヘルパー
+│
+└── presentation/              # Presentation Layer
+    ├── components/
+    │   ├── atoms/
+    │   ├── molecules/
+    │   ├── organisms/
+    │   │   └── board/
+    │   │       ├── DuelField.svelte
+    │   │       ├── Hands.svelte
+    │   │       └── Field.svelte
+    │   └── modals/
+    │       ├── CardDetailModal.svelte
+    │       └── CardSelectionModal.svelte
+    ├── stores/
+    │   ├── cardSelectionStore.svelte.ts
+    │   ├── cardDetailDisplayStore.ts
+    │   ├── theme.ts
+    │   └── audio.ts
+    ├── types/                 # Presentation型（再エクスポート）
+    │   ├── card.ts
+    │   ├── deck.ts
+    │   ├── effect.ts
+    │   └── phase.ts
+    ├── utils/
+    │   ├── navigation.ts
+    │   ├── transitions.ts
+    │   ├── beep.ts
+    │   └── toaster.ts
+    ├── assets/
+    │   └── images/
+    └── constants/
+        └── ui.ts
 ```
 
 ## 技術スタック

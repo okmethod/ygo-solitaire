@@ -39,7 +39,6 @@
 | **Card Actions** | [yugioh-rules.md - 行動](./yugioh-rules.md#行動-action) | `application/commands/` |
 | **Card Effects** | [yugioh-rules.md - 概念](./yugioh-rules.md#概念-concept) | `domain/effects/`, `application/effects/CardEffectRegistry.ts` |
 | **Activation Rules** | [yugioh-rules.md - カード種別](./yugioh-rules.md#カード種別) | `domain/rules/SpellActivationRule.ts` |
-| **Card Database** | - | `domain/data/cardDatabase.ts` |
 
 ### 🎮 ゲームフロー
 
@@ -117,12 +116,6 @@
 
 ---
 
-#### カードデータベース (Database for Domain Layer)
-
-| 目的 | 実装状況 | 実装箇所 | 備考 |
-|---------|---------|------|------|
-| Domain Layerで必要なカード定義を提供 | ✅ 完全実装 | `cardDatabase.ts`  | API独立、ルールバリデーションがオフライン可能 |
-
 ---
 
 ### 🌐 Infrastructure Layer実装状況
@@ -133,8 +126,8 @@
 
 | API名 | 実装状況 | 実装箇所 | 備考 |
 |-------|---------|---------|------|
-| **YGOPRODeck API v7** | ✅ 完全実装 | `api/ygoprodeck.ts` (移行予定: `infrastructure/api/ygoprodeck.ts`) | カードデータ取得、バッチリクエスト対応 |
-| **API Heartbeat** | ✅ 完全実装 | `api/checkHeartbeat.ts` (移行予定: `infrastructure/api/checkHeartbeat.ts`) | API死活監視 |
+| **YGOPRODeck API v7** | ✅ 完全実装 | `infrastructure/api/ygoprodeck.ts` | カードデータ取得、バッチリクエスト対応、メモリキャッシュ |
+| **API Heartbeat** | ✅ 完全実装 | `infrastructure/api/checkHeartbeat.ts` | API死活監視 |
 
 #### Port/Adapter実装状況
 
