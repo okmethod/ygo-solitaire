@@ -27,7 +27,9 @@ graph TD
     Foundational --> US2[US2: Infrastructure Layer]
     US1 --> US3[US3: Stores Placement]
     US2 --> US3
+    US2 --> US5[US5: Layer Dependency Fix]
     US3 --> US4[US4: Directory 4-Layer]
+    US5 --> US4
     US4 --> Polish[Polish Phase]
 ```
 
@@ -37,8 +39,9 @@ graph TD
 3. US1 Tasks（P1: ドキュメント構造明確化）
 4. US2 Tasks（P2: Infrastructure Layer分離）- 並行実行可能
 5. US3 Tasks（P2: Stores配置統一）
-6. US4 Tasks（P3: ディレクトリ4層化）
-7. Polish Phase（最終レビュー、PR作成）
+6. US5 Tasks（P1: レイヤー依存関係是正）- US2完了後に実行推奨
+7. US4 Tasks（P3: ディレクトリ4層化）
+8. Polish Phase（最終レビュー、PR作成）
 
 ---
 
@@ -277,6 +280,142 @@ graph TD
 
 ---
 
+## User Story 5: レイヤー依存関係の是正 (P1)
+
+**Goal**: Application層・Infrastructure層からPresentation層への依存をゼロにし、Clean Architectureの依存関係ルールを遵守
+
+**Background**: 現在、以下の依存関係違反が存在する:
+- Application層 → Presentation層: 4件（ICardDataRepository, sampleDeckRecipes, cardDisplayStore, effectResolutionStore）
+- Infrastructure層 → Presentation層: 3件（ygoprodeck.ts, YGOProDeckCardRepository）
+
+**Strategy**: 型定義をApplication/Infrastructure層に移動し、Store間依存は依存性注入で解決
+
+### 型定義の移動
+
+- [ ] [T088] [P1] [US5] `application/types/` ディレクトリを作成
+- [ ] [T089] [P1] [US5] `CardDisplayData` 型を `application/types/card.ts` に移動（元: `presentation/types/card.ts`）
+  - 型定義をコピー
+  - JSDocコメントに「Application層のDTO」と明記
+- [ ] [T090] [P1] [US5] `DeckRecipe` 型を `application/types/deck.ts` に移動（元: `presentation/types/deck.ts`）
+  - 型定義をコピー
+  - JSDocコメントに「デッキレシピのDTO」と明記
+- [ ] [T091] [P1] [US5] `infrastructure/types/` ディレクトリを作成
+- [ ] [T092] [P1] [US5] `YGOProDeckCard` 型を `infrastructure/types/ygoprodeck.ts` に移動（元: `presentation/types/ygoprodeck.ts`）
+  - 型定義をコピー
+  - JSDocコメントに「YGOPRODeck API外部型」と明記
+
+**Dependencies**: なし（独立タスク）
+**Estimated Time**: 30分
+**Success Criteria**: 新しいディレクトリと型定義ファイルが作成される
+
+### Application層のimport path更新
+
+- [ ] [T093] [P1] [US5] `ICardDataRepository.ts` のimport pathを更新（`presentation/types/card` → `application/types/card`）
+- [ ] [T094] [P1] [US5] `cardDisplayStore.ts` のimport pathを更新（`presentation/types/card` → `application/types/card`）
+- [ ] [T095] [P1] [US5] `sampleDeckRecipes.ts` のimport pathを更新（`presentation/types/deck` → `application/types/deck`）
+
+**Dependencies**: T089, T090完了
+**Estimated Time**: 15分
+**Success Criteria**: Application層のすべてのファイルがPresentation層の型を直接importしない
+
+### Infrastructure層のimport path更新
+
+- [ ] [T096] [P1] [US5] `ygoprodeck.ts` のimport pathを更新（`presentation/types/ygoprodeck` → `infrastructure/types/ygoprodeck`）
+- [ ] [T097] [P1] [US5] `YGOProDeckCardRepository.ts` のimport pathを更新
+  - `CardDisplayData`: `presentation/types/card` → `application/types/card`
+  - `convertToCardDisplayData`: Presentation層から削除し、Adapter内で実装
+- [ ] [T098] [P1] [US5] `convertToCardDisplayData()` 関数を `YGOProDeckCardRepository.ts` 内にprivateメソッドとして実装
+  - 元の `presentation/types/ygoprodeck.ts` から移動
+  - Infrastructure層の責務として配置
+
+**Dependencies**: T089, T092完了
+**Estimated Time**: 30分
+**Success Criteria**: Infrastructure層のすべてのファイルがPresentation層の型を直接importしない
+
+### Presentation層への型エイリアス追加（後方互換性）
+
+- [ ] [T099] [P2] [US5] `presentation/types/card.ts` に `CardDisplayData` の型エイリアスを追加
+  ```typescript
+  // Backward compatibility (Application層のDTOを再エクスポート)
+  export type { CardDisplayData } from "$lib/application/types/card";
+  ```
+- [ ] [T100] [P2] [US5] `presentation/types/deck.ts` に `DeckRecipe` の型エイリアスを追加
+  ```typescript
+  export type { DeckRecipe } from "$lib/application/types/deck";
+  ```
+- [ ] [T101] [P2] [US5] `presentation/types/ygoprodeck.ts` に `YGOProDeckCard` の型エイリアスを追加
+  ```typescript
+  export type { YGOProDeckCard } from "$lib/infrastructure/types/ygoprodeck";
+  ```
+
+**Dependencies**: T093-T098完了
+**Estimated Time**: 15分
+**Success Criteria**: Presentation層のコンポーネントが既存のimport pathで引き続き動作する
+
+### Store間依存の解消（effectResolutionStore → cardSelectionStore）
+
+- [ ] [T102] [P1] [US5] `effectResolutionStore.ts` にコールバック注入の仕組みを追加
+  - `onCardSelectionStart?: (config: CardSelectionConfig) => void` をstate内部に保持
+  - `registerCardSelectionHandler(handler)` メソッドを追加
+  - `startResolution()` 内で直接 `cardSelectionStore` を呼ぶ代わりに、コールバックを実行
+- [ ] [T103] [P1] [US5] `effectResolutionStore.ts` から `cardSelectionStore` への直接importを削除
+- [ ] [T104] [P2] [US5] Presentation層（`+page.svelte` または初期化スクリプト）で `cardSelectionStore` を登録
+  ```typescript
+  effectResolutionStore.registerCardSelectionHandler((config) => {
+    cardSelectionStore.startSelection(config);
+  });
+  ```
+
+**Dependencies**: T093-T098完了
+**Estimated Time**: 1時間
+**Success Criteria**: effectResolutionStoreがcardSelectionStoreに直接依存しない、DI経由で動作する
+
+### 静的解析による検証
+
+- [ ] [T105] [P1] [US5] Application層 → Presentation層の依存が0件であることを確認
+  ```bash
+  grep -r 'from "$lib/presentation' skeleton-app/src/lib/application/
+  ```
+  - 結果が0件であることを確認
+- [ ] [T106] [P1] [US5] Infrastructure層 → Presentation層の依存が0件であることを確認
+  ```bash
+  grep -r 'from "$lib/presentation' skeleton-app/src/lib/infrastructure/
+  ```
+  - 結果が0件であることを確認
+
+**Dependencies**: T104完了
+**Estimated Time**: 10分
+**Success Criteria**: SC-007達成（Application→Presentation、Infrastructure→Presentationの依存が0件）
+
+### テストとビルド検証
+
+- [ ] [T107] [P1] [US5] 全テスト（312テスト）を実行し、100%passすることを確認
+- [ ] [T108] [P1] [US5] ビルドを実行し、エラーゼロを確認
+- [ ] [T109] [P1] [US5] Linter/Formatterを実行し、コードスタイル違反がないことを確認
+
+**Dependencies**: T105, T106完了
+**Estimated Time**: 20分
+**Success Criteria**: FR-025達成（静的解析で依存違反0件）、全テストpass、ビルド成功
+
+### ドキュメント更新
+
+- [ ] [T110] [P2] [US5] `docs/architecture/overview.md` に型配置戦略を追記
+  - Application/Infrastructure層の型定義ディレクトリの説明
+  - Presentation層は型エイリアスのみを持つことを明記
+- [ ] [T111] [P2] [US5] `docs/architecture/data-model-design.md` に依存性注入パターンを追記
+  - effectResolutionStore → cardSelectionStore のDI実装例
+  - レイヤー間の結合解消戦略
+
+**Dependencies**: T109完了
+**Estimated Time**: 30分
+**Success Criteria**: ドキュメントが実際のコードと一致
+
+**Dependencies（US5全体）**: US2完了（Infrastructure Layer導入済み）が望ましいが、独立実行可能
+**Estimated Time（US5全体）**: 4時間
+**Success Criteria**: SC-007達成、FR-020～FR-025すべて達成、全テストpass
+
+---
+
 ## Polish Phase
 
 ### 最終ドキュメント更新
@@ -327,13 +466,14 @@ graph TD
 ## Summary
 
 ### Task Counts
-- **Total Tasks**: 87
+- **Total Tasks**: 111
 - **Setup Phase**: 3 tasks
 - **Foundational Phase**: 10 tasks
 - **US1 (P1)**: 11 tasks
 - **US2 (P2)**: 17 tasks
 - **US3 (P2)**: 13 tasks
 - **US4 (P3)**: 17 tasks
+- **US5 (P1)**: 24 tasks
 - **Polish Phase**: 16 tasks
 
 ### Estimated Timeline
@@ -343,8 +483,9 @@ graph TD
 - **US2 (P2)**: 6時間
 - **US3 (P2)**: 4時間
 - **US4 (P3)**: 5時間
+- **US5 (P1)**: 4時間
 - **Polish Phase**: 2時間
-- **Total**: 約27時間（3-4日相当）
+- **Total**: 約31時間（4-5日相当）
 
 ### Parallel Execution Opportunities
 

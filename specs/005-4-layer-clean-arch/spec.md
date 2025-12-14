@@ -72,6 +72,23 @@
 
 ---
 
+### User Story 5 - レイヤー依存関係の是正 (Priority: P1)
+
+Application層・Infrastructure層がPresentation層の型に依存している状態を解消し、Clean Architectureの依存関係ルール（外側のレイヤーから内側への単方向依存）を遵守する。
+
+**Why this priority**: 依存関係違反はClean Architectureの根本原則に反しており、P1のドキュメント整備と同等に重要。コードリファクタリングの前提条件として、正しいデータモデル配置戦略を確立する必要がある。
+
+**Independent Test**: Application層・Infrastructure層のすべてのファイルがPresentation層（`$lib/presentation/types/`、`$lib/presentation/stores/`）への直接importを持たないことを静的解析で検証可能。
+
+**Acceptance Scenarios**:
+
+1. **Given** Application層のPort定義が存在する、**When** `ICardDataRepository.ts`を確認する、**Then** Application層またはShared層の型のみを使用している
+2. **Given** Infrastructure層のAdapter実装が存在する、**When** `YGOProDeckCardRepository.ts`を確認する、**Then** Presentation層の型に直接依存していない
+3. **Given** 型定義ファイルが適切に配置されている、**When** ディレクトリ構造を確認する、**Then** `CardDisplayData`、`DeckRecipe`、`YGOProDeckCard`がApplication層またはInfrastructure層に配置されている
+4. **Given** 全ファイルの依存関係を解析した、**When** 静的解析を実行する、**Then** Application→Presentation、Infrastructure→Presentationの依存が0件である
+
+---
+
 ### Edge Cases
 
 - **ドキュメント更新時の整合性**: 3つのドキュメント（`overview.md`, `data-model-design.md`, `domain/overview.md`）を更新する際、相互に矛盾する記載が発生しないか？ → 各ドキュメントの責任範囲を明確に定義し、相互参照を活用する
@@ -114,6 +131,15 @@
 - **FR-018**: Domain層の型は `domain/models/`、Presentation層の型は `presentation/types/` に配置すること
 - **FR-019**: ファイル移動後、全テスト（Unit/Integration/E2E）がpassすること
 
+#### レイヤー依存関係是正
+
+- **FR-020**: Application層の型定義（`CardDisplayData`、`DeckRecipe`等）を `application/types/` に配置すること
+- **FR-021**: Infrastructure層の外部API型（`YGOProDeckCard`）を `infrastructure/types/` に配置すること
+- **FR-022**: Application層のPort定義（`ICardDataRepository`）がPresentation層の型に依存しないこと
+- **FR-023**: Infrastructure層のAdapter実装がPresentation層の型に直接依存しないこと
+- **FR-024**: Application層の`effectResolutionStore`がPresentation層の`cardSelectionStore`に直接依存しないこと（依存性注入またはイベント駆動で解決）
+- **FR-025**: 静的解析により、Application→Presentation、Infrastructure→Presentationの依存が0件であることを検証すること
+
 ### Key Entities
 
 - **ドキュメント構造**: 3つのドキュメント（`overview.md`, `data-model-design.md`, `domain/overview.md`）の役割分担と相互関係
@@ -131,6 +157,7 @@
 - **SC-004**: `src/lib/` 配下のディレクトリ構造が4層に明確に分かれており、開発者が「どこに何を配置すべきか」を迷わない（レビューで全員が合意）
 - **SC-005**: ドキュメントとコードの乖離が0件（リファクタリング完了後のレビューで確認）
 - **SC-006**: ファイル移動によるimport path破損が0件（TypeScriptコンパイラエラー0件、全テストpass）
+- **SC-007**: Application層・Infrastructure層からPresentation層への直接依存が0件（静的解析で検証）
 
 ## Scope & Boundaries *(mandatory)*
 
@@ -224,3 +251,29 @@
 - **Phase 2**: Stores配置統一（Application/Presentation振り分け）
 - **Phase 3**: 全体ディレクトリ整理（4層構造完成）
 - 各Phaseの完了時に全テスト（312テスト）がpassすることを確認
+
+---
+
+### Decision 4: レイヤー依存関係違反の解決戦略
+
+**Decision**: 型定義をApplication/Infrastructure層に移動し、依存性注入でPresentation層との結合を解消（Option A）
+
+**Rationale**:
+- `CardDisplayData`、`DeckRecipe`はApplication層が定義すべきデータ契約（DTO: Data Transfer Object）
+- `YGOProDeckCard`はInfrastructure層の外部API型として配置すべき
+- `effectResolutionStore`と`cardSelectionStore`の直接依存は、イベント駆動またはコールバック注入で解決
+- Presentation層は「UIコンポーネント+型のエイリアス」のみを持つべき
+
+**Implications**:
+- **型の移動**:
+  - `CardDisplayData` → `application/types/card.ts`（Application層のDTO）
+  - `DeckRecipe` → `application/types/deck.ts`
+  - `YGOProDeckCard` → `infrastructure/types/ygoprodeck.ts`
+  - Presentation層には型エイリアスのみ残す（後方互換性のため）
+- **Store間依存の解消**:
+  - `effectResolutionStore`に`onCardSelectionStart`コールバックを注入
+  - Presentation層が`cardSelectionStore`を初期化時に登録
+- **影響範囲**:
+  - Application層: `ICardDataRepository`, `cardDisplayStore`, `sampleDeckRecipes`
+  - Infrastructure層: `ygoprodeck.ts`, `YGOProDeckCardRepository`
+  - 全テストのimport path更新が必要
