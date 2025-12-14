@@ -83,39 +83,31 @@ class PhaseRule {
 
 **主要コンポーネント**:
 
-- **Commands** (`application/commands/`): すべての操作をコマンド化
-  - `DrawCardCommand.ts`: デッキ→手札へのドロー処理
-  - `ActivateSpellCommand.ts`: 魔法カード発動処理
-  - `AdvancePhaseCommand.ts`: フェーズ遷移処理
-  - `DiscardCardsCommand.ts`: 手札破棄処理
-  - 各CommandはImmer.jsで不変更新を実現
+```typescript
+// Commands: すべての操作をコマンド化（Command Pattern）
+abstract class GameCommand {
+  abstract execute(state: GameState): GameState;
+}
 
-- **Effects** (`application/effects/`): カード効果管理
-  - `CardEffectRegistry.ts`: カードID→Effectインスタンスマッピング
-  - Strategy Patternによる効果処理の抽象化
+// 各CommandはImmer.jsで不変更新を実現
+// 例: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand
 
-- **Ports** (`application/ports/`): 抽象インターフェース
-  - `ICardDataRepository.ts`: カードデータ取得Port（Infrastructure層への依存を抽象化）
+// GameFacade: UIからの単一窓口（Facade Pattern）
+class GameFacade {
+  drawCard(): void
+  activateSpell(cardId: string): void
+  advancePhase(): void
+}
+```
 
-- **Types** (`application/types/`): Application層型定義（DTO）
-  - `card.ts`: `CardDisplayData`（UI表示用完全データ）
-  - `deck.ts`: `DeckRecipe`, `DeckData`（デッキ構造定義）
-
-- **Data** (`application/data/`): アプリケーションデータ
-  - `sampleDeckRecipes.ts`: サンプルデッキレシピ定義
-
-- **Utils** (`application/utils/`): Application層ユーティリティ
-  - `deckLoader.ts`: デッキレシピ読み込み、YGOPRODeck API統合、データ変換
-
-- **Stores** (`application/stores/`): アプリケーション状態管理
-  - `gameStateStore.ts`: ゲーム状態（Svelte writable）
-  - `effectResolutionStore.ts`: カード効果解決フロー状態
-  - `cardDisplayStore.ts`: カード表示データキャッシュ
-
-- **GameFacade** (`application/GameFacade.ts`): UIからの単一窓口
-  - `drawCard()`: ドロー実行
-  - `activateSpell()`: 魔法発動
-  - `advancePhase()`: フェーズ進行
+**ディレクトリ構成**:
+- `commands/`: Command Pattern実装（ドロー、発動、フェーズ遷移等）
+- `effects/`: CardEffectRegistry（Strategy Patternによる効果管理）
+- `ports/`: Port Interface（Infrastructure層への依存抽象化）
+- `types/`: DTO（CardDisplayData, DeckRecipe等）
+- `stores/`: Svelte Storeによる状態管理
+- `utils/`: デッキローダー等のユーティリティ
+- `data/`: サンプルデッキレシピ等の静的データ
 
 ### Infrastructure Layer (外部アクセス)
 
@@ -128,37 +120,28 @@ class PhaseRule {
 
 **主要コンポーネント**:
 
-- **Adapters** (`infrastructure/adapters/`): Port実装
-  - `YGOProDeckCardRepository.ts`: `ICardDataRepository`の具象実装（設計完了・実装予定）
+- **Adapters**: Port/Adapter Pattern実装
+  - Application Layer定義のPortを実装
+  - 例: `YGOProDeckCardRepository`（ICardDataRepository実装）
 
-- **API Clients** (`infrastructure/api/`): 外部API統合
-  - `ygoprodeck.ts`: YGOPRODeck API v7統合
-    - `getCardById()`: 単一カード取得
-    - `getCardsByIds()`: バッチリクエスト（複数カード一括取得）
-    - `searchCardsByName()`: カード名検索
-    - メモリキャッシュ（セッション単位、重複リクエスト防止）
-  - `checkHeartbeat.ts`: API死活監視
-  - `paths.ts`: APIエンドポイント定義
+- **API Clients**: 外部API統合
+  - YGOPRODeck API v7統合（バッチリクエスト、メモリキャッシュ）
+  - API死活監視
 
-- **Types** (`infrastructure/types/`): Infrastructure層型定義
-  - `ygoprodeck.ts`: YGOProDeckCard型（外部API互換）
-    - YGOPRODeck APIレスポンス型
-    - 画像URL、価格情報等の外部データ構造
+- **Types**: 外部API型定義
+  - YGOProDeckCard型（外部APIレスポンス構造）
 
-- **Utils** (`infrastructure/utils/`): Infrastructure層ユーティリティ
-  - `request.ts`: HTTP通信ヘルパー
-    - `fetchApi()`: 統一されたfetchラッパー
-    - `constructRequestInit()`: リクエスト設定構築
+- **Utils**: HTTP通信ヘルパー
+  - 統一されたfetch wrapper
 
-**依存性逆転**:
-- Application Layerは `ICardDataRepository` (Port) に依存
-- Infrastructure Layerが `YGOProDeckCardRepository` (Adapter) を提供
-- これによりApplication LayerはAPI実装詳細から完全に分離
+**依存性逆転（Port/Adapter Pattern）**:
+- Application Layerは抽象Port（`ICardDataRepository`）に依存
+- Infrastructure Layerが具象Adapter（`YGOProDeckCardRepository`）を提供
+- → Application LayerはAPI実装詳細から完全に分離
 
 **キャッシング戦略**:
-- **メモリキャッシュ**: `Map<number, YGOProDeckCard>`でセッション単位キャッシュ
-- **ライフサイクル**: ページリロードまで（メモリ上のみ）
-- **効果**: 重複APIリクエスト防止、レスポンス時間短縮
+- セッション単位メモリキャッシュ（ページリロードまで）
+- 重複APIリクエスト防止、レスポンス時間短縮
 
 ### Presentation Layer (見た目)
 
@@ -177,37 +160,15 @@ class PhaseRule {
 
 **主要コンポーネント**:
 
-- **Components** (`presentation/components/`): UI部品
-  - `atoms/`: 基本UI部品（ボタン、カード等）
-  - `molecules/`: 中間UI部品（CardList等）
-  - `organisms/`: 複合UI部品（DuelFieldBoard、Hands等）
-  - `modals/`: モーダルダイアログ（CardDetailModal、CardSelectionModal）
+- **Components**: Atomic Design構成（atoms/molecules/organisms/modals）
+- **Stores**: UI状態管理（カード選択、モーダル表示、テーマ、音声）
+- **Types**: Application Layerからの型再エクスポート（後方互換性）
+- **Utils**: UI専用ユーティリティ（ナビゲーション、トランジション、音声再生）
+- **Assets & Constants**: 画像ファイル、UI定数値
 
-- **Stores** (`presentation/stores/`): UI状態管理
-  - `cardSelectionStore.svelte.ts`: カード選択UI状態（Svelte Runes使用）
-  - `cardDetailDisplayStore.ts`: カード詳細モーダル表示制御
-  - `theme.ts`: テーマ切り替え設定
-  - `audio.ts`: 音声設定
-
-- **Types** (`presentation/types/`): Presentation層型定義
-  - `card.ts`: UI表示用型の再エクスポート（後方互換性）
-  - `deck.ts`: デッキ型の再エクスポート（後方互換性）
-  - `effect.ts`: UI効果表示用型
-  - `phase.ts`: フェーズUI表示用型
-
-- **Utils** (`presentation/utils/`): UI専用ユーティリティ
-  - `navigation.ts`: ページ遷移制御
-  - `transitions.ts`: 画面トランジション設定
-  - `beep.ts`, `melody.ts`, `musicalNote.ts`: 音声再生機能
-  - `toaster.ts`: トースト通知
-
-- **Assets & Constants** (`presentation/assets/`, `presentation/constants/`):
-  - 画像ファイル、UI定数値
-
-**ロジック**:
-- 「カードが光るアニメーション」などの表示ロジックのみ
-- 「攻撃力が計算される」などのゲームロジックは持たない
-- ゲームロジックはすべてApplication/Domain Layerに委譲
+**ロジックの責務**:
+- ✅ 表示ロジック（アニメーション、モーダル制御等）
+- ❌ ゲームロジック（攻撃力計算等）→ Application/Domain Layerに委譲
 
 ## データフロー (Unidirectional)
 
