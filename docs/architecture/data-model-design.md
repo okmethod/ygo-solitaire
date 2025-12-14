@@ -108,35 +108,6 @@ YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
 
 ---
 
-## 型の互換性と移行戦略
-
-### 段階的移行
-
-プロジェクトは以下の3フェーズで型を移行しました。
-
-**Phase 1: Domain Layer** (T023-T025)
-- GameState/Rules を DomainCardData に移行
-- 文字列ID → 数値IDへの変換
-
-**Phase 2: UI/Application Layer** (T043-T046)
-- 全UIコンポーネントを CardDisplayData に移行
-
-**Phase 3: 旧型削除** (T059-T060)
-- 非推奨型のクリーンアップ
-
-### 後方互換性
-
-移行期間中は型エイリアスで後方互換性を維持:
-
-```typescript
-/**
- * @deprecated Use DomainCardData instead
- */
-export type Card = DomainCardData;
-```
-
----
-
 ## テスト戦略
 
 ### 単体テスト
