@@ -28,7 +28,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
-import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 
 describe("Normal Spell Card Effects", () => {

@@ -17,7 +17,7 @@
 
 import { describe, it, expect } from "vitest";
 import { NormalSpellEffect } from "$lib/domain/effects/bases/NormalSpellEffect";
-import { createMockGameState } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 

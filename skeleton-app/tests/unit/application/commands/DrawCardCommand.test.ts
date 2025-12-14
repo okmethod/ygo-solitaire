@@ -9,7 +9,7 @@ import {
   createExodiaVictoryState,
   createMockGameState,
   createCardInstances,
-} from "$lib/__testUtils__/gameStateFactory";
+} from "../../../__testUtils__/gameStateFactory";
 import { EXODIA_PIECE_IDS } from "$lib/domain/models/constants";
 
 describe("DrawCardCommand", () => {

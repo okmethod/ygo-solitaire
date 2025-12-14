@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
-import { createMockGameState } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
 
 describe("ActivateSpellCommand", () => {

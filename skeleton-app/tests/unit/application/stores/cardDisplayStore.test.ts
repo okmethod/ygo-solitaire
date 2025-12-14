@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { get } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/application/stores/cardDisplayStore";
-import { createMockGameState, createCardInstances } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances } from "../../../__testUtils__/gameStateFactory";
 import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
 import type { YGOProDeckCard } from "$lib/infrastructure/types/ygoprodeck";
 import type { CardDisplayData } from "$lib/application/types/card";

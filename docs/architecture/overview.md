@@ -27,9 +27,51 @@
 
 ---
 
+## ファイル構造
+
+```
+skeleton-app/src/lib/
+├── domain/          # Domain Layer
+│   ├── models/
+│   ├── rules/
+│   ├── effects/               # カード効果（Strategy Pattern）
+│   ├── commands/
+│   └── data/
+│
+├── application/               # Application Layer
+│   ├── commands/
+│   ├── effects/
+│   ├── ports/                 # Port Interfaces
+│   ├── types/                 # Application Layer型定義
+│   ├── data/
+│   ├── utils/
+│   ├── stores/
+│   └── GameFacade.ts          # presentation 層との窓口
+│
+├── infrastructure/            # Infrastructure Layer
+│   ├── adapters/
+│   ├── api/
+│   ├── types/
+│   └── utils/
+│
+└── presentation/              # Presentation Layer
+    ├── components/
+    │   ├── atoms/
+    │   ├── molecules/
+    │   ├── organisms/
+    │   └── modals/
+    ├── stores/
+    ├── types/
+    ├── utils/
+    ├── assets/
+    └── constants/
+```
+
+---
+
 ## レイヤー構成
 
-### Domain Layer (核心)
+### Domain Layer
 
 **場所**: `skeleton-app/src/lib/domain/`
 
@@ -251,101 +293,7 @@ export const gameStateStore = writable<GameState>(initialState);
 </script>
 ```
 
-## ファイル構造
-
-```
-skeleton-app/src/lib/
-├── domain/                    # Domain Layer
-│   ├── models/
-│   │   ├── GameState.ts       # ゲーム状態定義
-│   │   ├── Card.ts            # カード型定義・DomainCardData
-│   │   ├── Phase.ts           # フェーズ型定義
-│   │   └── constants.ts       # ドメイン定数
-│   ├── rules/
-│   │   ├── VictoryRule.ts     # 勝利条件判定
-│   │   ├── PhaseRule.ts       # フェーズ遷移ルール
-│   │   └── SpellActivationRule.ts
-│   ├── effects/               # カード効果（Strategy Pattern）
-│   │   ├── CardEffect.ts      # Effect Interface
-│   │   ├── EffectResolutionStep.ts
-│   │   ├── bases/
-│   │   │   ├── SpellEffect.ts
-│   │   │   └── NormalSpellEffect.ts
-│   │   └── implementations/
-│   │       ├── PotOfGreedEffect.ts
-│   │       └── GracefulCharityEffect.ts
-│   ├── commands/
-│   │   └── GameCommand.ts     # Command基底クラス
-│   └── data/
-│       └── exodiaPartNames.ts # ドメインデータ
-│
-├── application/               # Application Layer
-│   ├── commands/
-│   │   ├── DrawCardCommand.ts
-│   │   ├── ActivateSpellCommand.ts
-│   │   ├── AdvancePhaseCommand.ts
-│   │   └── DiscardCardsCommand.ts
-│   ├── effects/
-│   │   └── CardEffectRegistry.ts  # カードID→Effectマッピング
-│   ├── ports/                 # Port Interfaces
-│   │   └── ICardDataRepository.ts
-│   ├── types/                 # Application Layer型定義
-│   │   ├── card.ts            # CardDisplayData (DTO)
-│   │   └── deck.ts            # DeckRecipe等 (DTO)
-│   ├── data/
-│   │   └── sampleDeckRecipes.ts
-│   ├── utils/
-│   │   └── deckLoader.ts      # デッキロード処理
-│   ├── stores/
-│   │   ├── gameStateStore.ts
-│   │   ├── effectResolutionStore.ts
-│   │   └── cardDisplayStore.ts
-│   └── GameFacade.ts          # UIからの窓口
-│
-├── infrastructure/            # Infrastructure Layer
-│   ├── adapters/
-│   │   └── YGOProDeckCardRepository.ts  # ICardDataRepository実装
-│   ├── api/
-│   │   ├── ygoprodeck.ts      # YGOPRODeck API v7統合
-│   │   ├── checkHeartbeat.ts
-│   │   └── paths.ts
-│   ├── types/
-│   │   └── ygoprodeck.ts      # YGOProDeckCard型
-│   └── utils/
-│       └── request.ts         # HTTP通信ヘルパー
-│
-└── presentation/              # Presentation Layer
-    ├── components/
-    │   ├── atoms/
-    │   ├── molecules/
-    │   ├── organisms/
-    │   │   └── board/
-    │   │       ├── DuelField.svelte
-    │   │       ├── Hands.svelte
-    │   │       └── Field.svelte
-    │   └── modals/
-    │       ├── CardDetailModal.svelte
-    │       └── CardSelectionModal.svelte
-    ├── stores/
-    │   ├── cardSelectionStore.svelte.ts
-    │   ├── cardDetailDisplayStore.ts
-    │   ├── theme.ts
-    │   └── audio.ts
-    ├── types/                 # Presentation型（再エクスポート）
-    │   ├── card.ts
-    │   ├── deck.ts
-    │   ├── effect.ts
-    │   └── phase.ts
-    ├── utils/
-    │   ├── navigation.ts
-    │   ├── transitions.ts
-    │   ├── beep.ts
-    │   └── toaster.ts
-    ├── assets/
-    │   └── images/
-    └── constants/
-        └── ui.ts
-```
+---
 
 ## 技術スタック
 

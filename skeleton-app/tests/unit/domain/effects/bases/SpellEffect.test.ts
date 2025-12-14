@@ -16,7 +16,7 @@
 
 import { describe, it, expect } from "vitest";
 import { SpellEffect } from "$lib/domain/effects/bases/SpellEffect";
-import { createMockGameState } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 
