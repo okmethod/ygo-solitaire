@@ -52,19 +52,18 @@
 
 ```
 tests/
-├── unit/                          # Unit Tests（src/lib配下の構成に準拠）
-│   ├── api/                       # API クライアントのテスト
-│   ├── application/               # Application 層のテスト
-│   ├── domain/                    # Domain 層のテスト
-│   ├── stores/                    # Presentation 層のテスト
-│   └── utils/                     # ユーティリティのテスト
+├── unit/                 # Unit Tests（src/lib配下の構成に準拠）
+│   ├── application/      # Application 層のテスト
+│   ├── domain/           # Domain 層のテスト
+│   ├── infrastructure/   # Infrastructure 層のテスト
+│   └── presentation/     # Presentation 層のテスト
 │
-├── integration/                   # Integration Tests
-│   ├── card-effects/              # 固有カード効果のシナリオテスト
-│   └── game-processing/           # ゲーム進行管理の統合テスト
+├── integration/          # Integration Tests
+│   ├── card-effects/     # 固有カード効果のシナリオテスト
+│   └── game-processing/  # ゲーム進行管理の統合テスト
 │
-└── e2e/                           # E2E Tests
-    └── *.spec.ts                  # Playwright E2E tests
+└── e2e/                  # E2E Tests
+    └── *.spec.ts         # Playwright E2E tests
 ```
 
 **メリット**:
