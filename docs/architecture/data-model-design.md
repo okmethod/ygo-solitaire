@@ -108,28 +108,6 @@ YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
 
 ---
 
-## テスト戦略
-
-### 単体テスト
-
-- **Domain Layer**: 型ガード関数 (`isDomainCardData`, `isDomainMonsterCard`)
-- **Application Layer**: データ変換関数、デッキローダー
-- **Presentation Layer**: CardDisplayDataの型検証
-
-### E2Eテスト
-
-- デッキローディング
-- カード表示
-- API統合
-
-### カバレッジ
-
-- **単体テスト**: 239テスト（全パス）
-- **型チェック**: TypeScript strict mode
-- **リンター**: ESLint + Prettier
-
----
-
 ## 参考資料
 
 ### 関連ドキュメント
