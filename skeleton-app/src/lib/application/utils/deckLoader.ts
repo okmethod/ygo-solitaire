@@ -1,4 +1,3 @@
-import { error } from "@sveltejs/kit";
 import type {
   RecipeCardEntry,
   LoadedCardEntry,
@@ -6,7 +5,7 @@ import type {
   DeckStats,
   MainDeckData,
   ExtraDeckData,
-} from "$lib/presentation/types/deck";
+} from "$lib/application/types/deck";
 import type { CardDisplayData } from "$lib/application/types/card";
 import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
@@ -130,11 +129,15 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
 
 /**
  * デッキレシピからデッキデータを生成する
+ *
+ * @param deckId - デッキID
+ * @param _fetch - (未使用) SvelteKitのfetch関数（シグネチャ互換性のため保持）
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch): Promise<DeckData> {
   const recipe = sampleDeckRecipes[deckId];
   if (!recipe) {
-    throw error(404, "デッキが見つかりません");
+    throw new Error(`Deck not found: ${deckId}`);
   }
 
   // メインデッキとエクストラデッキの全カード ID を取得
@@ -154,7 +157,7 @@ export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch)
     cardDataList = await repository.getCardsByIds(uniqueCardIds);
   } catch (err) {
     console.error("カード情報のAPI取得に失敗しました:", err);
-    throw error(500, "カード情報の取得に失敗しました");
+    throw new Error(`Failed to fetch card data: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   // カード情報をマップに変換

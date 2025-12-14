@@ -31,7 +31,7 @@ interface EffectResolutionState {
 }
 
 function createEffectResolutionStore() {
-  const { subscribe, set, update } = writable<EffectResolutionState>({
+  const { subscribe, update } = writable<EffectResolutionState>({
     isActive: false,
     currentStep: null,
     steps: [],

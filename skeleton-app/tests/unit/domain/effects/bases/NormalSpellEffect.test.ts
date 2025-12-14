@@ -26,13 +26,15 @@ import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionS
  * (NormalSpellEffect is abstract, so we need a test double)
  */
 class TestNormalSpellEffect extends NormalSpellEffect {
-  protected canActivateNormalSpell(state: GameState): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected canActivateNormalSpell(_state: GameState): boolean {
     // Test double: Always return true for card-specific validation
     // (We only test the phase check and graveyard step in this file)
     return true;
   }
 
-  protected createCardSteps(state: GameState): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected createCardSteps(_state: GameState): EffectResolutionStep[] {
     // Test double: Return a single mock card step
     return [
       {

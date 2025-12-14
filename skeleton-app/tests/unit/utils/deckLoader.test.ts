@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { loadDeckData } from "$lib/shared/utils/deckLoader";
+import { loadDeckData } from "$lib/application/utils/deckLoader";
 import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
 import exodiaFixture from "../../fixtures/ygoprodeck/exodia.json";
 import potOfGreedFixture from "../../fixtures/ygoprodeck/pot-of-greed.json";
