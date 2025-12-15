@@ -1,6 +1,23 @@
 # Architecture Decision Records (ADR)
 
-このディレクトリには、プロジェクトの重要な技術的決定を記録したADRが格納されています。
+このディレクトリには、プロジェクトの重要な技術的決定を記録した ADR が格納されています。
+
+## ADRの価値
+
+### なぜADRが重要か？
+
+1. **意思決定の透明性**: なぜその技術・方針を選んだかの根拠を明確にする
+2. **歴史の記録**: 過去の判断を振り返れる
+3. **オンボーディング**: 新メンバーが設計思想を理解しやすい
+4. **議論の土台**: 変更提案時に過去の判断を参照できる
+
+### ADRの限界
+
+- **実装の詳細**: コードコメントやdocstringに記載
+- **運用手順**: CLAUDE.mdに記載
+- **ドメイン知識**: domain/に記載
+
+---
 
 ## ADR一覧
 
@@ -16,8 +33,6 @@
 
 詳細: [0001-adopt-clean-architecture.md](./0001-adopt-clean-architecture.md)
 
----
-
 ### 0002: Immer.jsによる不変性保証
 **Status**: ✅ Accepted (2024-11-23)
 
@@ -29,8 +44,6 @@
 - TypeScript `readonly`との併用で型安全性
 
 詳細: [0002-use-immer-for-immutability.md](./0002-use-immer-for-immutability.md)
-
----
 
 ### 0003: Effect System廃止
 **Status**: ✅ Accepted (2024-11-24)
@@ -46,8 +59,6 @@
 
 詳細: [0003-abolish-effect-system.md](./0003-abolish-effect-system.md)
 
----
-
 ### 0004: データモデルのレイヤー分離
 **Status**: ✅ Accepted (2024-11-29)
 
@@ -61,8 +72,6 @@
 **影響**: API統合とキャッシング戦略、段階的移行パス
 
 詳細: [0004-data-model-layer-separation.md](./0004-data-model-layer-separation.md)
-
----
 
 ### 0005: Card Effect ArchitectureにStrategy Pattern採用
 **Status**: ✅ Accepted (2024-12-07)
@@ -164,9 +173,9 @@
 | ❌ **Rejected** | 却下された | 代替案が採用された場合 |
 | ⏸️ **Superseded** | 別のADRに置き換えられた | ADR-0005がADR-0002を上書き |
 
-## 既存ADRの更新
+### 既存ADRの更新
 
-### 状況が変わった場合
+#### 状況が変わった場合
 
 既存ADRは**編集せず**、新しいADRを作成してください：
 
@@ -192,20 +201,7 @@ ADR-0002でImmer.jsを採用したが、パフォーマンス問題が発生...
 ⏸️ Superseded by [ADR-0005](./0005-adopt-immutable-js.md)
 ```
 
-## ADRの価値
-
-### なぜADRが重要か？
-
-1. **意思決定の透明性**: なぜその技術を選んだかが明確
-2. **歴史の記録**: 過去の判断を振り返れる
-3. **オンボーディング**: 新メンバーが設計思想を理解しやすい
-4. **議論の土台**: 変更提案時に過去の判断を参照できる
-
-### ADRの限界
-
-- **実装の詳細**: コードコメントやdocstringに記載
-- **運用手順**: CLAUDE.mdに記載
-- **ドメイン知識**: domain/に記載
+---
 
 ## 関連リソース
 
