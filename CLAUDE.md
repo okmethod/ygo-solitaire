@@ -194,12 +194,14 @@ npm run deploy         # build + gh-pages へのデプロイ
 
 ## コードアーキテクチャ（概要）
 
-### Clean Architecture (3層構造)
+### Clean Architecture (4層構造)
 
 ```
 Domain Layer (不変・純粋)
   ↓ 依存
 Application Layer (Command Pattern)
+  ↓ 依存
+Infrastructure Layer (Port/Adapter Pattern)
   ↓ 依存
 Presentation Layer (Svelte 5 Runes)
 ```
@@ -276,12 +278,25 @@ YGOPRODeck API → YGOProDeckCard → convertToCardDisplayData() → CardDisplay
 
 ```
 skeleton-app/src/lib/
-├── domain/         # ゲームルール（純粋TypeScript）
-│   └── models/     # DomainCardData, GameState
-├── application/    # ユースケース（Commands, Stores, Facade）
-├── types/          # Presentation Layer型（CardDisplayData）
-├── api/            # YGOPRODeck API統合
-└── components/     # UI（Svelte 5）
+├── domain/            # ゲームルール（純粋TypeScript）
+│   ├── models/        # DomainCardData, GameState
+│   ├── rules/         # SpellActivationRule, VictoryRule等
+│   └── effects/       # CardEffect, NormalSpellEffect等
+├── application/       # ユースケース（Commands, Stores, Facade）
+│   ├── commands/      # DrawCardCommand, ActivateSpellCommand等
+│   ├── stores/        # gameStateStore, cardDisplayStore等
+│   ├── ports/         # ICardDataRepository（Port Interface）
+│   └── types/         # CardDisplayData, DeckRecipe（Application DTOs）
+├── infrastructure/    # 外部システム統合
+│   ├── api/           # YGOPRODeck API統合
+│   ├── adapters/      # YGOProDeckCardRepository（Adapter実装）
+│   └── types/         # YGOProDeckCard（外部API型）
+└── presentation/      # UI層
+    ├── components/    # Svelte 5コンポーネント
+    ├── stores/        # cardSelectionStore, theme等（UI状態）
+    ├── types/         # UI型（型エイリアス）
+    ├── constants/     # UI定数
+    └── utils/         # UI utilities
 ```
 
 **詳細**:
@@ -298,6 +313,14 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
+- 005-4-layer-clean-arch (2024-12-15): 4層Clean Architectureへのリファクタリング完了
+  - 4層構造化（Domain/Application/Infrastructure/Presentation）
+  - Port/Adapterパターン導入（ICardDataRepository, YGOProDeckCardRepository）
+  - レイヤー依存関係是正（Application/Infrastructure→Presentation依存ゼロ）
+  - Stores配置統一（Application/Presentation層に責任分離）
+  - 型定義のレイヤー分離（Application/Infrastructure/Presentation）
+  - ドキュメント整備（overview.md, data-model-design.md簡素化）
+  - 312/312 tests passing
 - 005-documentation-update (2024-12-09): ストック情報整備
   - domain/overview.md: 実装状況更新（Trap/Effect System/Domain DB）
   - architecture/data-model-design.md: Domain Layer Card Database セクション追加
