@@ -166,4 +166,3 @@ npm run test:coverage # カバレッジレポート生成
 ## 関連ドキュメント
 
 - [アーキテクチャ概要](./overview.md)
-- [コーディング規約](../development/conventions.md)
