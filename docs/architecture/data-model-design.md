@@ -2,11 +2,21 @@
 
 ## 概要
 
-YGO Solitaire のデータモデルは、Clean Architecture の3層構造で設計されています。
+YGO Solitaire のデータモデルは、Clean Architecture の3層構造で設計されています:
 
 - **Domain Layer**: ゲームロジック用の最小限のカードデータ
 - **Application Layer**: データ変換とAPI統合
 - **Presentation Layer**: UI表示用の完全なカードデータ
+
+この3層構造により、以下を実現しています:
+
+1. **明確な責務分離**: Domain/Application/Presentation の各層が独立
+2. **型安全性**: TypeScript による厳密な型チェック
+3. **API互換性**: YGOPRODeck API とのシームレスな統合
+4. **段階的移行**: 既存コードへの影響を最小化
+5. **パフォーマンス**: バッチリクエストとキャッシング戦略
+
+この設計により、保守性・拡張性・テスタビリティの高いコードベースを実現しています。
 
 ---
 
@@ -44,7 +54,7 @@ UI表示に必要な全情報を含むカードデータ。
 - 画像: `images` (通常サイズ、小サイズ、クロップ)
 - その他: `frameType`, `archetype`
 
-**ファイル**: `src/lib/application/types/card.ts` (Application Layerで定義し、Presentation Layerで再エクスポート)
+**ファイル**: `src/lib/presentation/types/card.ts` (Application Layer の定義を、Presentation Layerで再エクスポート)
 
 ---
 
@@ -99,44 +109,10 @@ YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
 - **Base URL**: `https://db.ygoprodeck.com/api/v7`
 - **Rate Limit**: 20 requests/second
 - **Endpoint**: `cardinfo.php?id=<id1>,<id2>,...`
+- **HomePage**: https://db.ygoprodeck.com/api-guide/
 
 ### キャッシング戦略
 
 - **スコープ**: セッション単位（ページリロードまで）
 - **実装**: メモリキャッシュ (`Map<number, YGOProDeckCard>`)
 - **効果**: 重複APIリクエスト防止、レスポンス時間短縮
-
----
-
-## 参考資料
-
-### 関連ドキュメント
-
-- **アーキテクチャ概要**: [docs/architecture/overview.md](./overview.md)
-- **仕様書**: `specs/002-data-model-refactoring/spec.md`
-- **実装計画**: `specs/002-data-model-refactoring/plan.md`
-
-### 外部API
-
-- **YGOPRODeck API**: https://db.ygoprodeck.com/api-guide/
-
-### コードベース
-
-- **Domain Layer**: `src/lib/domain/models/Card.ts`
-- **Application Layer**: `src/lib/application/types/`, `src/lib/application/utils/`
-- **Infrastructure Layer**: `src/lib/infrastructure/api/ygoprodeck.ts`
-- **Presentation Layer**: `src/lib/presentation/types/`
-
----
-
-## まとめ
-
-YGO Solitaire のデータモデルは、Clean Architecture の3層構造により以下を実現しています:
-
-1. **明確な責務分離**: Domain/Application/Presentation の各層が独立
-2. **型安全性**: TypeScript による厳密な型チェック
-3. **API互換性**: YGOPRODeck API とのシームレスな統合
-4. **段階的移行**: 既存コードへの影響を最小化
-5. **パフォーマンス**: バッチリクエストとキャッシング戦略
-
-この設計により、保守性・拡張性・テスタビリティの高いコードベースを実現しています。
