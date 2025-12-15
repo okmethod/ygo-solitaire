@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { sampleDeckRecipes } from "$lib/data/sampleDeckRecipes";
-  import { navigateTo } from "$lib/utils/navigation";
+  import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
+  import { navigateTo } from "$lib/presentation/utils/navigation";
 
   // レシピのキーと値の配列を作成
   const recipeEntries = Object.entries(sampleDeckRecipes);

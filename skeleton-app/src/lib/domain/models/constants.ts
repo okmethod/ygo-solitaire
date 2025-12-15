@@ -83,7 +83,6 @@ export const DECK_RECIPE_IDS = {
   EXODIA: "exodia-draw-deck",
 } as const;
 
-
 /**
  * Helper to check if phase allows spell activation
  */

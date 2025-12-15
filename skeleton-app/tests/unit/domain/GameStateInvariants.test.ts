@@ -13,7 +13,7 @@ import {
   isValidGameState,
   assertValidGameState,
 } from "$lib/domain/models/GameStateInvariants";
-import { createMockGameState } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../__testUtils__/gameStateFactory";
 
 describe("GameStateInvariants", () => {
   describe("validateGameState", () => {

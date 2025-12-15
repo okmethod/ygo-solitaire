@@ -11,7 +11,7 @@ import {
   hasActivatableSpells,
   getActivatableSpellIds,
 } from "$lib/domain/rules/SpellActivationRule";
-import { createStateWithHand } from "$lib/__testUtils__/gameStateFactory";
+import { createStateWithHand } from "../../../__testUtils__/gameStateFactory";
 
 describe("SpellActivationRule", () => {
   describe("canActivateSpell", () => {

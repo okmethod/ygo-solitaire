@@ -9,9 +9,12 @@
 
 import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
-import { getCardsByIds } from "$lib/api/ygoprodeck";
-import { convertYGOProDeckCardsToCards } from "$lib/types/ygoprodeck";
-import type { CardDisplayData } from "$lib/types/card";
+import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
+import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import type { CardDisplayData } from "$lib/application/types/card";
+
+// Dependency Injection: Production実装を注入
+const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
 
 /**
  * 手札のCardDisplayData配列を提供
@@ -41,9 +44,9 @@ export const handCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    getCardsByIds(fetch, cardIds)
-      .then((apiCards) => {
-        const cards = convertYGOProDeckCardsToCards(apiCards);
+    cardRepository
+      .getCardsByIds(cardIds)
+      .then((cards) => {
         set(cards);
       })
       .catch((err) => {
@@ -70,9 +73,9 @@ export const fieldCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    getCardsByIds(fetch, cardIds)
-      .then((apiCards) => {
-        const cards = convertYGOProDeckCardsToCards(apiCards);
+    cardRepository
+      .getCardsByIds(cardIds)
+      .then((cards) => {
         set(cards);
       })
       .catch((err) => {
@@ -98,9 +101,9 @@ export const graveyardCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    getCardsByIds(fetch, cardIds)
-      .then((apiCards) => {
-        const cards = convertYGOProDeckCardsToCards(apiCards);
+    cardRepository
+      .getCardsByIds(cardIds)
+      .then((cards) => {
         set(cards);
       })
       .catch((err) => {
@@ -126,9 +129,9 @@ export const banishedCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
-    getCardsByIds(fetch, cardIds)
-      .then((apiCards) => {
-        const cards = convertYGOProDeckCardsToCards(apiCards);
+    cardRepository
+      .getCardsByIds(cardIds)
+      .then((cards) => {
         set(cards);
       })
       .catch((err) => {

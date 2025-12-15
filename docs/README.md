@@ -2,6 +2,8 @@
 
 このディレクトリには、 `Yu-Gi-Oh! ソリティア` の**ストック情報**（永続的な知識）が整理されています。
 
+--
+
 ## 💡 プロジェクトコンセプト
 
 ### 課題と目的
@@ -24,6 +26,8 @@
 
 詳細なスコープと実装状況は [domain/overview.md](./domain/overview.md) を参照してください。
 
+---
+
 ## 🗂️ ドキュメント構成
 
 ```
@@ -31,8 +35,7 @@
 docs/
 ├── domain/                    # ドメイン知識: ゲームルールとスコープ管理
 ├── architecture/              # アーキテクチャ: 技術的な構成・方針
-├── adr/                       # ADR: 設計判断の記録
-└── development/               # 開発ガイド: 具体的・実践的な
+└── adr/                       # ADR: 設計判断の記録
 
 # フロー情報（spec-kit による作業記録）
 specs/
@@ -49,7 +52,6 @@ specs/
 | **domain/** | 新しいゲームルールを検討する時or実装した時 |
 | **architecture/** | アーキテクチャを大きく変更した時 |
 | **adr/** | 重要な技術的決定をした時 |
-| **development/** | 開発手順や規約が変わった時 |
 
 ### 最近の重要な更新 ⭐
 
@@ -58,6 +60,20 @@ specs/
   - YGOPRODeck API統合とキャッシング戦略
 - **[architecture/migration-strategy.md](architecture/migration-strategy.md)** (2025-11-29)
   - GameState/Rules の段階的移行戦略（文字列ID → 数値ID）
+
+---
+
+## 🔧 技術スタック
+
+### フロントエンド
+- **フレームワーク**: SvelteKit + Svelte 5
+- **UIライブラリ**: Skeleton UI v3
+- **CSS**: TailwindCSS v4
+- **状態管理**: Svelte Stores + Immer.js
+- **型チェック**: TypeScript (Strict mode)
+- **テスト**: Vitest + Playwright
+
+---
 
 ## 📚 関連リソース
 

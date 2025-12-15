@@ -21,7 +21,7 @@ import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { CardEffectRegistry } from "$lib/application/effects";
-import { effectResolutionStore } from "$lib/stores/effectResolutionStore";
+import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 
 /**
  * Command to activate a spell card

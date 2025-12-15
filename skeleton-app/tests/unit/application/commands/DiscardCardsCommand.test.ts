@@ -8,7 +8,7 @@ import {
   createMockGameState,
   createCardInstances,
   createExodiaVictoryState,
-} from "$lib/__testUtils__/gameStateFactory";
+} from "../../../__testUtils__/gameStateFactory";
 
 describe("DiscardCardsCommand", () => {
   describe("canExecute", () => {

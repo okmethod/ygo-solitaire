@@ -16,7 +16,7 @@
 
 import { describe, it, expect } from "vitest";
 import { SpellEffect } from "$lib/domain/effects/bases/SpellEffect";
-import { createMockGameState } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 
@@ -25,13 +25,15 @@ import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionS
  * (SpellEffect is abstract, so we need a test double)
  */
 class TestSpellEffect extends SpellEffect {
-  protected canActivateSpell(state: GameState): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected canActivateSpell(_state: GameState): boolean {
     // Test double: Always return true for spell-specific validation
     // (We only test the game-over check in this file)
     return true;
   }
 
-  createSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createSteps(_state: GameState, _activatedCardInstanceId: string): EffectResolutionStep[] {
     // Test double: Return empty array
     return [];
   }

@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from "vitest";
 import { AdvancePhaseCommand } from "$lib/application/commands/AdvancePhaseCommand";
-import { createMockGameState, createExodiaVictoryState } from "$lib/__testUtils__/gameStateFactory";
+import { createMockGameState, createExodiaVictoryState } from "../../../__testUtils__/gameStateFactory";
 
 describe("AdvancePhaseCommand", () => {
   describe("canExecute", () => {
