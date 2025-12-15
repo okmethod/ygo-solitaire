@@ -87,6 +87,21 @@
 
 詳細: [0005-card-effect-strategy-pattern.md](./0005-card-effect-strategy-pattern.md)
 
+### 0006: 4層Clean Architectureへのリファクタリング
+**Status**: ✅ Accepted (2024-12-15)
+
+**決定内容**: 3層構造を4層構造（Domain/Application/Infrastructure/Presentation）に再編
+
+**理由**:
+- Infrastructure Layerの明確化（Port/Adapterパターン導入）
+- Stores配置の統一（責任に応じた配置基準確立）
+- レイヤー依存関係の是正（型定義の適切な配置）
+- ドキュメントとコードの一致
+
+**影響**: 大規模ディレクトリ移動、全312テスト引き続きpass、E2Eテスト1件に絞り込み
+
+詳細: [0006-four-layer-clean-architecture.md](./0006-four-layer-clean-architecture.md)
+
 ---
 
 ## ADRの書き方
