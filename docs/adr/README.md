@@ -48,6 +48,38 @@
 
 ---
 
+### 0004: データモデルのレイヤー分離
+**Status**: ✅ Accepted (2024-11-29)
+
+**決定内容**: 3層のカード型定義（DomainCardData / CardDisplayData / YGOProDeckCard）
+
+**理由**:
+- レイヤー間の責務分離
+- テスト容易性向上（ネットワーク不要）
+- 数値IDへの統一（文字列ID排除）
+
+**影響**: API統合とキャッシング戦略、段階的移行パス
+
+詳細: [0004-data-model-layer-separation.md](./0004-data-model-layer-separation.md)
+
+---
+
+### 0005: Card Effect ArchitectureにStrategy Pattern採用
+**Status**: ✅ Accepted (2024-12-07)
+
+**決定内容**: Strategy PatternとRegistry Patternでカード効果を実装
+
+**理由**:
+- Open/Closed Principle遵守
+- カード追加時にActivateSpellCommandの変更不要
+- テスト容易性とコードの再利用性向上
+
+**影響**: CardEffect階層構造、CardEffectRegistry導入
+
+詳細: [0005-card-effect-strategy-pattern.md](./0005-card-effect-strategy-pattern.md)
+
+---
+
 ## ADRの書き方
 
 ### ADRテンプレート
