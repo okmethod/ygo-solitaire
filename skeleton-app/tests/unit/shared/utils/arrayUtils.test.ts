@@ -10,88 +10,88 @@
  * 4. 不変性の保証（元の配列が変更されないこと）
  */
 
-import { describe, it, expect } from 'vitest';
-import { shuffleArray } from '$lib/shared/utils/arrayUtils';
+import { describe, it, expect } from "vitest";
+import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
-describe('shuffleArray', () => {
-	it('should preserve array length', () => {
-		const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-		const shuffled = shuffleArray(original);
+describe("shuffleArray", () => {
+  it("should preserve array length", () => {
+    const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const shuffled = shuffleArray(original);
 
-		expect(shuffled).toHaveLength(original.length);
-	});
+    expect(shuffled).toHaveLength(original.length);
+  });
 
-	it('should contain all original elements', () => {
-		const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-		const shuffled = shuffleArray(original);
+  it("should contain all original elements", () => {
+    const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const shuffled = shuffleArray(original);
 
-		// すべての元の要素が含まれていることを確認
-		expect(shuffled.sort()).toEqual(original.sort());
-	});
+    // すべての元の要素が含まれていることを確認
+    expect(shuffled.sort()).toEqual(original.sort());
+  });
 
-	it('should produce different orders on multiple calls (randomness check)', () => {
-		const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-		const results: string[] = [];
+  it("should produce different orders on multiple calls (randomness check)", () => {
+    const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const results: string[] = [];
 
-		// 10回シャッフルして、異なる結果が得られることを確認
-		for (let i = 0; i < 10; i++) {
-			const shuffled = shuffleArray(original);
-			results.push(JSON.stringify(shuffled));
-		}
+    // 10回シャッフルして、異なる結果が得られることを確認
+    for (let i = 0; i < 10; i++) {
+      const shuffled = shuffleArray(original);
+      results.push(JSON.stringify(shuffled));
+    }
 
-		// 少なくとも5回以上は異なる順序になるはず（統計的に妥当）
-		const uniqueResults = new Set(results);
-		expect(uniqueResults.size).toBeGreaterThanOrEqual(5);
-	});
+    // 少なくとも5回以上は異なる順序になるはず（統計的に妥当）
+    const uniqueResults = new Set(results);
+    expect(uniqueResults.size).toBeGreaterThanOrEqual(5);
+  });
 
-	it('should not mutate the original array (immutability)', () => {
-		const original = [1, 2, 3, 4, 5];
-		const originalCopy = [...original];
+  it("should not mutate the original array (immutability)", () => {
+    const original = [1, 2, 3, 4, 5];
+    const originalCopy = [...original];
 
-		shuffleArray(original);
+    shuffleArray(original);
 
-		// 元の配列が変更されていないことを確認
-		expect(original).toEqual(originalCopy);
-	});
+    // 元の配列が変更されていないことを確認
+    expect(original).toEqual(originalCopy);
+  });
 
-	it('should handle empty arrays', () => {
-		const empty: number[] = [];
-		const shuffled = shuffleArray(empty);
+  it("should handle empty arrays", () => {
+    const empty: number[] = [];
+    const shuffled = shuffleArray(empty);
 
-		expect(shuffled).toEqual([]);
-	});
+    expect(shuffled).toEqual([]);
+  });
 
-	it('should handle single-element arrays', () => {
-		const single = [42];
-		const shuffled = shuffleArray(single);
+  it("should handle single-element arrays", () => {
+    const single = [42];
+    const shuffled = shuffleArray(single);
 
-		expect(shuffled).toEqual([42]);
-	});
+    expect(shuffled).toEqual([42]);
+  });
 
-	it('should work with different data types', () => {
-		const strings = ['a', 'b', 'c', 'd', 'e'];
-		const shuffledStrings = shuffleArray(strings);
+  it("should work with different data types", () => {
+    const strings = ["a", "b", "c", "d", "e"];
+    const shuffledStrings = shuffleArray(strings);
 
-		expect(shuffledStrings).toHaveLength(5);
-		expect(shuffledStrings.sort()).toEqual(['a', 'b', 'c', 'd', 'e']);
-	});
+    expect(shuffledStrings).toHaveLength(5);
+    expect(shuffledStrings.sort()).toEqual(["a", "b", "c", "d", "e"]);
+  });
 
-	it('should work with complex objects', () => {
-		interface Card {
-			id: number;
-			name: string;
-		}
+  it("should work with complex objects", () => {
+    interface Card {
+      id: number;
+      name: string;
+    }
 
-		const cards: Card[] = [
-			{ id: 1, name: 'Card 1' },
-			{ id: 2, name: 'Card 2' },
-			{ id: 3, name: 'Card 3' }
-		];
+    const cards: Card[] = [
+      { id: 1, name: "Card 1" },
+      { id: 2, name: "Card 2" },
+      { id: 3, name: "Card 3" },
+    ];
 
-		const shuffled = shuffleArray(cards);
+    const shuffled = shuffleArray(cards);
 
-		expect(shuffled).toHaveLength(3);
-		// すべてのカードが含まれていることを確認
-		expect(shuffled.map((c) => c.id).sort()).toEqual([1, 2, 3]);
-	});
+    expect(shuffled).toHaveLength(3);
+    // すべてのカードが含まれていることを確認
+    expect(shuffled.map((c) => c.id).sort()).toEqual([1, 2, 3]);
+  });
 });

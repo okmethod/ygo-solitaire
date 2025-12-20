@@ -1,10 +1,7 @@
 {
   "id": 7902349,
   "name": "Left Arm of the Forbidden One",
-  "typeline": [
-    "Spellcaster",
-    "Normal"
-  ],
+  "typeline": ["Spellcaster", "Normal"],
   "type": "Normal Monster",
   "humanReadableCardType": "Normal Monster",
   "frameType": "normal",

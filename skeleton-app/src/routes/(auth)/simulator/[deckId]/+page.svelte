@@ -176,12 +176,7 @@
 
   $effect(() => {
     // ゲーム初期化完了後（ターン1、Drawフェーズ）かつゲームオーバーでない場合に一度だけ自動進行
-    if (
-      $currentTurn === 1 &&
-      $currentPhase === "Draw" &&
-      !hasAutoAdvanced &&
-      !$isGameOver
-    ) {
+    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$isGameOver) {
       // シャッフル後に実行するため、少し待機
       setTimeout(() => {
         autoAdvanceToMainPhase();
@@ -213,9 +208,7 @@
 
           <div class="flex justify-between">
             <span>Phase:</span>
-            <span class="font-bold" data-testid="current-phase"
-              >{getPhaseDisplay($currentPhase)}</span
-            >
+            <span class="font-bold" data-testid="current-phase">{getPhaseDisplay($currentPhase)}</span>
           </div>
 
           <div class="flex justify-between">
@@ -320,9 +313,7 @@
           <button class="btn variant-filled-secondary btn-sm" on:click={handleAdvancePhase} disabled={$isGameOver}>
             Advance Phase
           </button>
-          <button class="btn variant-filled-tertiary btn-sm" on:click={handleCheckVictory}>
-            Check Victory
-          </button>
+          <button class="btn variant-filled-tertiary btn-sm" on:click={handleCheckVictory}> Check Victory </button>
         </div>
 
         <pre class="text-xs overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>

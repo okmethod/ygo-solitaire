@@ -313,6 +313,14 @@ skeleton-app/src/lib/
 - **レイヤー境界**: Domain LayerにSvelte依存コードを書かない
 
 ## Recent Changes
+- 006-ux-automation (2024-12-20): UX改善（自動フェーズ進行・デッキシャッフル・自動勝利判定）実装完了
+  - デッキシャッフル機能（ShuffleDeckCommand, Fisher-Yates algorithm）
+  - 自動フェーズ進行（Draw→Standby→Main Phase 1）
+  - 自動勝利判定（カード効果解決後・フェーズ移行後）
+  - 不要なUIボタン削除（Draw Card, Advance Phase, Check Victory → Debug Infoセクションに移動）
+  - フェーズ名を英語に統一（文字エンコーディング問題解消）
+  - E2E テスト整備（playwright.config.ts環境変数設定、auto-phase progression test）
+  - 334/334 unit tests passing, 2/2 E2E tests passing
 - 005-4-layer-clean-arch (2024-12-15): 4層Clean Architectureへのリファクタリング完了
   - 4層構造化（Domain/Application/Infrastructure/Presentation）
   - Port/Adapterパターン導入（ICardDataRepository, YGOProDeckCardRepository）

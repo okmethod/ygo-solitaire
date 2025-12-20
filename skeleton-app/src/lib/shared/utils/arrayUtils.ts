@@ -22,15 +22,15 @@
  * // deck: [1, 2, 3, 4, 5] (元の配列は変更されない)
  */
 export function shuffleArray<T>(array: readonly T[]): T[] {
-	// 元の配列をコピーして不変性を保証
-	const shuffled = [...array];
+  // 元の配列をコピーして不変性を保証
+  const shuffled = [...array];
 
-	// Fisher-Yates (Knuth) シャッフル
-	// 配列の末尾から順に、ランダムな位置の要素と入れ替える
-	for (let i = shuffled.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-	}
+  // Fisher-Yates (Knuth) シャッフル
+  // 配列の末尾から順に、ランダムな位置の要素と入れ替える
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
 
-	return shuffled;
+  return shuffled;
 }

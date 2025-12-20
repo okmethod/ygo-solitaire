@@ -119,12 +119,12 @@
 **Purpose**: Quality assurance and final validation
 
 - [x] T023 [P] Run all existing unit tests and verify 334 tests pass (npm run test:run in skeleton-app/) - 334/334 passed
-- [ ] T024 [P] Run linter and formatter (npm run lint && npm run format in skeleton-app/)
+- [x] T024 [P] Run linter and formatter (npm run lint && npm run format in skeleton-app/)
 - [x] T025 [P] Run all E2E tests and verify smoke test passes (npx playwright test in skeleton-app/) - 2/2 E2E tests passed
 - [ ] T026 Manual validation: Reload game 10 times and verify different hand each time (Success Criterion SC-002)
 - [ ] T027 Manual validation: Verify game reaches Main Phase within 2 seconds (Success Criterion SC-001)
 - [ ] T028 Manual validation: Verify Exodia victory auto-triggers without clicking Check Victory button (Success Criterion SC-003)
-- [ ] T029 [P] Update CLAUDE.md Recent Changes section with 006-ux-automation completion status
+- [x] T029 [P] Update CLAUDE.md Recent Changes section with 006-ux-automation completion status
 - [x] T030 Commit all changes with conventional commit messages (feat: Phase 3-5実装完了, feat: Phase 6実装完了)
 - [x] T031 Push to remote branch 006-ux-automation
 - [x] T032 PR #55 already exists and has been updated with implementation summary
