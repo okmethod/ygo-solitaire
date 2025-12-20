@@ -27,5 +27,9 @@ export default defineConfig({
     url: "http://localhost:5174",
     reuseExistingServer: false,
     timeout: 120 * 1000,
+    env: {
+      // Set dummy API base URL to prevent Vite proxy error
+      VITE_API_BASE_URL: "http://localhost:8000",
+    },
   },
 });

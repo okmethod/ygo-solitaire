@@ -24,7 +24,7 @@
   import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
-  export let data: PageData;
+  const { data } = $props<{ data: PageData }>();
 
   // Button handlers
   function handleDrawCard() {
@@ -50,17 +50,37 @@
     console.log("[Simulator-V2] Victory check:", result);
   }
 
+  // US1: 自動フェーズ進行 - Draw → Standby → Main1 まで自動進行
+  async function autoAdvanceToMainPhase() {
+    // Draw → Standby → Main1 まで2回のフェーズ進行
+    for (let i = 0; i < 2; i++) {
+      // 300ms待機
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const result = gameFacade.advancePhase();
+      if (result.success) {
+        console.log(`[Simulator-V2] Phase advanced: ${result.message}`);
+        if (result.message) {
+          showSuccessToast(result.message);
+        }
+      } else {
+        showErrorToast(result.error || "フェーズ移行に失敗しました");
+        break;
+      }
+    }
+  }
+
   // User Story 2: カードクリックで効果発動
   function handleCardClick(card: CardDisplayData, instanceId: string) {
     // フェーズチェック（Main1フェーズのみ発動可能）
     if ($currentPhase !== "Main1") {
-      showErrorToast("メインフェイズ1でのみカードを発動できます");
+      showErrorToast("Can only activate cards during Main Phase 1");
       return;
     }
 
     // 魔法発動可否チェック
     if (!$canActivateSpells) {
-      showErrorToast("現在カードを発動できません");
+      showErrorToast("Cannot activate cards at this time");
       return;
     }
 
@@ -75,13 +95,13 @@
     }
   }
 
-  // Map phase to Japanese
-  function getPhaseJapanese(phase: string): string {
+  // Map phase to English display (avoid Japanese encoding issues)
+  function getPhaseDisplay(phase: string): string {
     const phaseMap: Record<string, string> = {
-      Draw: "ドローフェイズ",
-      Standby: "スタンバイフェイズ",
-      Main1: "メインフェイズ1",
-      End: "エンドフェイズ",
+      Draw: "Draw Phase",
+      Standby: "Standby Phase",
+      Main1: "Main Phase 1",
+      End: "End Phase",
     };
     return phaseMap[phase] || phase;
   }
@@ -89,28 +109,44 @@
   // 効果解決ストアの状態を購読
   const effectResolutionState = effectResolutionStore;
 
+  // US3: 効果解決完了時に自動勝利判定
+  $effect(() => {
+    // 効果解決が完了した時に勝利条件をチェック
+    if (!$effectResolutionState.isResolving && $effectResolutionState.pendingActions.length === 0) {
+      const victoryResult = gameFacade.checkVictory();
+
+      if (victoryResult.isGameOver && victoryResult.winner) {
+        // 勝利モーダル表示（次のフェーズで実装）
+        console.log("[Victory Check] Game Over:", victoryResult);
+        showSuccessToast(victoryResult.message || "Victory!");
+      }
+    }
+  });
+
   // 手札カードとinstanceIdのマッピング
-  $: handCardsWithInstanceId = $gameStateStore.zones.hand.map((instance, index) => ({
-    card: $handCards[index],
-    instanceId: instance.instanceId,
-  }));
+  const handCardsWithInstanceId = $derived(
+    $gameStateStore.zones.hand.map((instance, index) => ({
+      card: $handCards[index],
+      instanceId: instance.instanceId,
+    })),
+  );
 
   // DuelField用のゾーンデータ抽出
   // フィールド魔法ゾーン用カード（frameType === "field"）
-  $: fieldMagicCards = $fieldCards.filter((card) => card.frameType === "field");
+  const fieldMagicCards = $derived($fieldCards.filter((card) => card.frameType === "field"));
 
   // モンスターゾーン用カード配列（5枚固定、null埋め）
-  $: monsterZoneCards = (() => {
+  const monsterZoneCards = $derived.by(() => {
     const monsters = $fieldCards.filter((card) => card.type === "monster");
     const zone: (CardDisplayData | null)[] = Array(5).fill(null);
     monsters.forEach((card, i) => {
       if (i < 5) zone[i] = card;
     });
     return zone;
-  })();
+  });
 
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
-  $: spellTrapZoneCards = (() => {
+  const spellTrapZoneCards = $derived.by(() => {
     const spellsTraps = $fieldCards.filter(
       (card) => (card.type === "spell" || card.type === "trap") && card.frameType !== "field",
     );
@@ -119,7 +155,40 @@
       if (i < 5) zone[i] = card;
     });
     return zone;
-  })();
+  });
+
+  // US2: ゲーム開始時に一度だけデッキをシャッフル
+  let hasShuffled = $state(false);
+
+  $effect(() => {
+    // ゲーム初期化完了後（ターン1、Drawフェーズ）に一度だけシャッフル
+    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasShuffled) {
+      const result = gameFacade.shuffleDeck();
+      if (result.success) {
+        console.log("[Simulator-V2] Deck shuffled:", result.message);
+      }
+      hasShuffled = true;
+    }
+  });
+
+  // US1: ゲーム開始時に自動的にMain Phaseまでフェーズ進行
+  let hasAutoAdvanced = $state(false);
+
+  $effect(() => {
+    // ゲーム初期化完了後（ターン1、Drawフェーズ）かつゲームオーバーでない場合に一度だけ自動進行
+    if (
+      $currentTurn === 1 &&
+      $currentPhase === "Draw" &&
+      !hasAutoAdvanced &&
+      !$isGameOver
+    ) {
+      // シャッフル後に実行するため、少し待機
+      setTimeout(() => {
+        autoAdvanceToMainPhase();
+      }, 100);
+      hasAutoAdvanced = true;
+    }
+  });
 </script>
 
 <div class="container mx-auto p-4">
@@ -144,7 +213,9 @@
 
           <div class="flex justify-between">
             <span>Phase:</span>
-            <span class="font-bold">{getPhaseJapanese($currentPhase)}</span>
+            <span class="font-bold" data-testid="current-phase"
+              >{getPhaseDisplay($currentPhase)}</span
+            >
           </div>
 
           <div class="flex justify-between">
