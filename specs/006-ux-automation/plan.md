@@ -154,13 +154,15 @@ skeleton-app/
 │   │   │       ├── VictoryRule.ts    # 既存（呼び出すのみ）
 │   │   │       └── PhaseRule.ts      # 既存（呼び出すのみ）
 │   │   ├── application/               # ユースケース層
-│   │   │   ├── GameFacade.ts         # 既存（shuffleDeckメソッド追加）
+│   │   │   ├── GameFacade.ts         # 既存（ShuffleDeckCommandを呼び出す）
 │   │   │   ├── commands/
-│   │   │   │   └── AdvancePhaseCommand.ts  # 既存（呼び出すのみ）
-│   │   │   ├── stores/
-│   │   │   │   └── gameStateStore.ts # 既存（読み取りのみ）
+│   │   │   │   ├── ShuffleDeckCommand.ts  # 新規（デッキシャッフルCommand）
+│   │   │   │   └── AdvancePhaseCommand.ts # 既存（呼び出すのみ）
+│   │   │   └── stores/
+│   │   │       └── gameStateStore.ts # 既存（読み取りのみ）
+│   │   ├── shared/                   # 共通ユーティリティ
 │   │   │   └── utils/
-│   │   │       └── deckShuffler.ts   # 新規（Fisher-Yatesアルゴリズム）
+│   │   │       └── arrayUtils.ts     # 新規（shuffleArray<T>汎用関数）
 │   │   └── presentation/              # UI層（主な変更箇所）
 │   │       ├── components/            # 既存コンポーネント
 │   │       └── utils/
@@ -170,16 +172,19 @@ skeleton-app/
 │           └── +page.svelte          # 主な変更箇所（$effect追加、UIボタン削除）
 └── tests/
     ├── unit/
-    │   └── application/
+    │   ├── application/
+    │   │   └── commands/
+    │   │       └── ShuffleDeckCommand.test.ts  # 新規テスト
+    │   └── shared/
     │       └── utils/
-    │           └── deckShuffler.test.ts  # 新規テスト
+    │           └── arrayUtils.test.ts  # 新規テスト
     ├── integration/
     │   └── GameFacade.test.ts        # 既存（shuffleDeck追加テスト）
     └── e2e/
         └── ux-automation.spec.ts     # 新規E2Eテスト
 ```
 
-**Structure Decision**: 既存の4層Clean Architecture構造を維持。Presentation Layerに自動化ロジックを追加し、Application LayerにデッキシャッフルUtilityを追加。Domain Layerは変更不要。
+**Structure Decision**: 既存の4層Clean Architecture構造を維持。Command Patternに統一し、デッキシャッフルを`ShuffleDeckCommand`として実装。純粋関数（Fisher-Yates）は`shared/utils/arrayUtils.ts`に配置し、汎用性を確保。Domain Layerは変更不要。
 
 ## Complexity Tracking
 
@@ -220,28 +225,39 @@ $effect(() => {
 });
 ```
 
-#### 2. デッキシャッフルのアルゴリズム
+#### 2. デッキシャッフルのアルゴリズムと実装パターン
 
-**決定**: Fisher-Yates (Knuth) シャッフルアルゴリズム
+**決定**: Fisher-Yates (Knuth) シャッフルアルゴリズム + Command Pattern
 
 **根拠**:
-- O(n)の時間計算量で効率的
-- 完全にランダムな並び替えを保証（すべての順列が等確率）
-- 業界標準のシャッフルアルゴリズム
+- **アルゴリズム選択**: O(n)の時間計算量で効率的、完全にランダムな並び替えを保証（すべての順列が等確率）、業界標準
+- **実装パターン**: Command Patternに統一することで、他の操作（DrawCard, AdvancePhase等）と一貫性を保つ（憲法VI: 理解しやすさ最優先）
+- **汎用化**: `shuffleArray<T>()`として実装し、`shared/utils/`に配置することで、将来的に他の配列シャッフルにも再利用可能
 
 **代替案**:
 - `Array.sort(() => Math.random() - 0.5)` → 却下（バイアスあり、非推奨）
 - Lodash `_.shuffle` → 却下（追加依存、Fisher-Yatesと同等）
+- Utility関数のみ（Commandなし） → 却下（Command Patternとの一貫性欠如）
 
 **実装方針**:
 ```typescript
-export function shuffleDeck(cards: readonly CardInstance[]): CardInstance[] {
-  const shuffled = [...cards]; // 配列のコピー
+// shared/utils/arrayUtils.ts（純粋関数）
+export function shuffleArray<T>(array: readonly T[]): T[] {
+  const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+}
+
+// application/commands/ShuffleDeckCommand.ts（Command）
+export class ShuffleDeckCommand implements Command {
+  execute(state: GameState): CommandResult<GameState> {
+    return produce(state, (draft) => {
+      draft.zones.deck = shuffleArray(state.zones.deck);
+    });
+  }
 }
 ```
 
@@ -358,10 +374,11 @@ $effect(() => currentPhase変化)
 
 以下の実装タスクを順次実行（詳細はtasks.mdで定義）：
 
-1. **デッキシャッフル実装**
-   - [ ] `src/lib/application/utils/deckShuffler.ts` 作成（Fisher-Yatesアルゴリズム）
-   - [ ] `GameFacade.shuffleDeck()` メソッド追加
-   - [ ] ユニットテスト作成（統計的ランダム性検証）
+1. **デッキシャッフル実装（Command Pattern）**
+   - [ ] `src/lib/shared/utils/arrayUtils.ts` 作成（`shuffleArray<T>()` 汎用関数）
+   - [ ] `src/lib/application/commands/ShuffleDeckCommand.ts` 作成（Command実装）
+   - [ ] `GameFacade.shuffleDeck()` メソッド追加（ShuffleDeckCommandを実行）
+   - [ ] ユニットテスト作成（arrayUtils.test.ts, ShuffleDeckCommand.test.ts）
 
 2. **自動フェーズ進行実装**
    - [ ] `+page.svelte`に`$effect`追加（ターン1・Drawフェーズ検知）
@@ -379,7 +396,7 @@ $effect(() => currentPhase変化)
    - [ ] `<details>`タグで折りたたみ可能にする
 
 5. **テスト実装**
-   - [ ] ユニットテスト（deckShuffler.test.ts）
+   - [ ] ユニットテスト（arrayUtils.test.ts, ShuffleDeckCommand.test.ts）
    - [ ] 統合テスト（GameFacade.shuffleDeck, autoCheckVictory）
    - [ ] E2Eテスト（ux-automation.spec.ts）
 
@@ -400,34 +417,35 @@ $effect(() => currentPhase変化)
 
 ### 実装手順
 
-#### Step 1: デッキシャッフル機能実装
+#### Step 1: デッキシャッフル機能実装（Command Pattern）
 
 ```bash
-# 1. Utilityファイル作成
-touch skeleton-app/src/lib/application/utils/deckShuffler.ts
+# 1. 汎用シャッフル関数作成
+mkdir -p skeleton-app/src/lib/shared/utils
+touch skeleton-app/src/lib/shared/utils/arrayUtils.ts
 
-# 2. テストファイル作成
-mkdir -p skeleton-app/tests/unit/application/utils
-touch skeleton-app/tests/unit/application/utils/deckShuffler.test.ts
+# 2. ShuffleDeckCommand作成
+touch skeleton-app/src/lib/application/commands/ShuffleDeckCommand.ts
 
-# 3. 実装（Fisher-Yatesアルゴリズム）
-# skeleton-app/src/lib/application/utils/deckShuffler.ts
+# 3. テストファイル作成
+mkdir -p skeleton-app/tests/unit/shared/utils
+touch skeleton-app/tests/unit/shared/utils/arrayUtils.test.ts
+mkdir -p skeleton-app/tests/unit/application/commands
+touch skeleton-app/tests/unit/application/commands/ShuffleDeckCommand.test.ts
 ```
 
-**実装コード（deckShuffler.ts）**:
+**実装コード（arrayUtils.ts - 汎用シャッフル関数）**:
 
 ```typescript
-import type { CardInstance } from "$lib/domain/models/GameState";
-
 /**
  * Fisher-Yates (Knuth) シャッフルアルゴリズム
  * 配列をランダムにシャッフルする（完全な等確率保証）
  *
- * @param cards シャッフル対象のカード配列（readonly）
- * @returns シャッフルされた新しいカード配列
+ * @param array シャッフル対象の配列（readonly）
+ * @returns シャッフルされた新しい配列
  */
-export function shuffleDeck(cards: readonly CardInstance[]): CardInstance[] {
-  const shuffled = [...cards]; // Immer.jsの不変性を考慮してコピー
+export function shuffleArray<T>(array: readonly T[]): T[] {
+  const shuffled = [...array]; // 不変性を保持するためコピー
 
   // Fisher-Yatesアルゴリズム: O(n)で完全ランダム
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -439,56 +457,126 @@ export function shuffleDeck(cards: readonly CardInstance[]): CardInstance[] {
 }
 ```
 
-**テストコード（deckShuffler.test.ts）**:
+**実装コード（ShuffleDeckCommand.ts - Command）**:
+
+```typescript
+import { produce } from "immer";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { Command, CommandResult } from "$lib/application/commands/Command";
+import { shuffleArray } from "$lib/shared/utils/arrayUtils";
+
+/**
+ * デッキシャッフルCommand
+ * Fisher-Yatesアルゴリズムでデッキをランダムに並び替える
+ */
+export class ShuffleDeckCommand implements Command {
+  execute(state: GameState): CommandResult<GameState> {
+    try {
+      const newState = produce(state, (draft) => {
+        draft.zones.deck = shuffleArray(state.zones.deck);
+      });
+
+      return {
+        success: true,
+        state: newState,
+        message: "デッキをシャッフルしました",
+      };
+    } catch (error) {
+      console.error("[ShuffleDeckCommand] Error:", error);
+      return {
+        success: false,
+        state,
+        error: "デッキのシャッフルに失敗しました",
+      };
+    }
+  }
+}
+```
+
+**テストコード（arrayUtils.test.ts）**:
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import { shuffleDeck } from "$lib/application/utils/deckShuffler";
-import type { CardInstance } from "$lib/domain/models/GameState";
+import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
-describe("shuffleDeck", () => {
+describe("shuffleArray", () => {
   it("should return array with same length", () => {
-    const cards: CardInstance[] = [
-      { instanceId: "1", cardData: { id: 1, type: "spell" } },
-      { instanceId: "2", cardData: { id: 2, type: "spell" } },
-      { instanceId: "3", cardData: { id: 3, type: "spell" } },
-    ];
-
-    const shuffled = shuffleDeck(cards);
-    expect(shuffled).toHaveLength(cards.length);
+    const array = [1, 2, 3, 4, 5];
+    const shuffled = shuffleArray(array);
+    expect(shuffled).toHaveLength(array.length);
   });
 
-  it("should contain all original cards", () => {
-    const cards: CardInstance[] = [
-      { instanceId: "1", cardData: { id: 1, type: "spell" } },
-      { instanceId: "2", cardData: { id: 2, type: "spell" } },
-      { instanceId: "3", cardData: { id: 3, type: "spell" } },
-    ];
-
-    const shuffled = shuffleDeck(cards);
-    expect(shuffled).toEqual(expect.arrayContaining(cards));
+  it("should contain all original elements", () => {
+    const array = [1, 2, 3, 4, 5];
+    const shuffled = shuffleArray(array);
+    expect(shuffled).toEqual(expect.arrayContaining(array));
   });
 
-  it("should shuffle cards randomly (statistical test)", () => {
+  it("should shuffle elements randomly (statistical test)", () => {
+    const array = Array.from({ length: 10 }, (_, i) => i);
+    let sameOrderCount = 0;
+    const iterations = 1000;
+
+    for (let i = 0; i < iterations; i++) {
+      const shuffled = shuffleArray(array);
+      if (shuffled[0] === array[0]) {
+        sameOrderCount++;
+      }
+    }
+
+    // 統計的に約10%の確率で最初の要素が同じはず
+    const ratio = sameOrderCount / iterations;
+    expect(ratio).toBeGreaterThan(0.05); // 5%以上
+    expect(ratio).toBeLessThan(0.15);    // 15%以下
+  });
+
+  it("should not mutate original array", () => {
+    const array = [1, 2, 3];
+    const original = [...array];
+    shuffleArray(array);
+    expect(array).toEqual(original);
+  });
+});
+```
+
+**テストコード（ShuffleDeckCommand.test.ts）**:
+
+```typescript
+import { describe, it, expect } from "vitest";
+import { ShuffleDeckCommand } from "$lib/application/commands/ShuffleDeckCommand";
+import type { GameState, CardInstance } from "$lib/domain/models/GameState";
+
+describe("ShuffleDeckCommand", () => {
+  it("should shuffle deck successfully", () => {
     const cards: CardInstance[] = Array.from({ length: 10 }, (_, i) => ({
       instanceId: String(i),
       cardData: { id: i, type: "spell" as const },
     }));
 
-    let sameOrderCount = 0;
-    const iterations = 1000;
+    const initialState: GameState = {
+      zones: { deck: cards, hand: [], graveyard: [], field: [] },
+      // ... 他のプロパティ
+    } as GameState;
 
-    for (let i = 0; i < iterations; i++) {
-      const shuffled = shuffleDeck(cards);
-      if (shuffled[0].instanceId === cards[0].instanceId) {
-        sameOrderCount++;
-      }
-    }
+    const command = new ShuffleDeckCommand();
+    const result = command.execute(initialState);
 
-    // 統計的に約10%の確率で最初のカードが同じはず
-    const ratio = sameOrderCount / iterations;
-    expect(ratio).toBeGreaterThan(0.05); // 5%以上
-    expect(ratio).toBeLessThan(0.15);    // 15%以下
+    expect(result.success).toBe(true);
+    expect(result.state.zones.deck).toHaveLength(cards.length);
+    expect(result.state.zones.deck).toEqual(expect.arrayContaining(cards));
+  });
+
+  it("should not mutate original state", () => {
+    const initialState: GameState = {
+      zones: { deck: [{ instanceId: "1", cardData: { id: 1, type: "spell" } }], hand: [], graveyard: [], field: [] },
+      // ... 他のプロパティ
+    } as GameState;
+
+    const originalDeck = initialState.zones.deck;
+    const command = new ShuffleDeckCommand();
+    command.execute(initialState);
+
+    expect(initialState.zones.deck).toBe(originalDeck); // 参照が同じ（不変）
   });
 });
 ```
@@ -498,27 +586,23 @@ describe("shuffleDeck", () => {
 ```typescript
 // skeleton-app/src/lib/application/GameFacade.ts
 
-import { shuffleDeck as shuffleDeckUtil } from "$lib/application/utils/deckShuffler";
+import { ShuffleDeckCommand } from "$lib/application/commands/ShuffleDeckCommand";
 
 export class GameFacade {
   // ... 既存メソッド
 
   /**
    * デッキをシャッフルする
-   * Fisher-Yatesアルゴリズムでランダムな順序に並び替える
+   * ShuffleDeckCommandを実行してデッキをランダムに並び替える
    */
-  shuffleDeck(): { success: boolean; message?: string } {
-    try {
-      gameStateStore.update((state) =>
-        produce(state, (draft) => {
-          draft.zones.deck = shuffleDeckUtil(state.zones.deck);
-        })
-      );
+  shuffleDeck(): { success: boolean; message?: string; error?: string } {
+    const command = new ShuffleDeckCommand();
+    const result = this.executeCommand(command); // 既存のexecuteCommandメソッド利用
 
-      return { success: true, message: "デッキをシャッフルしました" };
-    } catch (error) {
-      console.error("[GameFacade] shuffleDeck error:", error);
-      return { success: false, message: "デッキのシャッフルに失敗しました" };
+    if (result.success) {
+      return { success: true, message: result.message };
+    } else {
+      return { success: false, error: result.error };
     }
   }
 }
