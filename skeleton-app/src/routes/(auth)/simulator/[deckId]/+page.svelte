@@ -292,21 +292,6 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="card p-4 space-y-4">
-      <h2 class="text-xl font-bold mb-4">Actions</h2>
-
-      <div class="grid grid-cols-3 gap-4">
-        <button class="btn variant-filled-primary" on:click={handleDrawCard} disabled={$isGameOver}> Draw Card </button>
-
-        <button class="btn variant-filled-secondary" on:click={handleAdvancePhase} disabled={$isGameOver}>
-          Advance Phase
-        </button>
-
-        <button class="btn variant-filled-tertiary" on:click={handleCheckVictory}>Check Victory</button>
-      </div>
-    </div>
-
     <!-- Game Result -->
     {#if $isGameOver}
       <div class="card p-4 bg-success-500/10">
@@ -326,7 +311,22 @@
     <!-- Debug Info -->
     <details class="card p-4">
       <summary class="cursor-pointer font-bold">Debug Info</summary>
-      <pre class="text-xs mt-4 overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>
+
+      <div class="mt-4 space-y-4">
+        <div class="grid grid-cols-3 gap-4">
+          <button class="btn variant-filled-primary btn-sm" on:click={handleDrawCard} disabled={$isGameOver}>
+            Draw Card
+          </button>
+          <button class="btn variant-filled-secondary btn-sm" on:click={handleAdvancePhase} disabled={$isGameOver}>
+            Advance Phase
+          </button>
+          <button class="btn variant-filled-tertiary btn-sm" on:click={handleCheckVictory}>
+            Check Victory
+          </button>
+        </div>
+
+        <pre class="text-xs overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>
+      </div>
     </details>
   </main>
 </div>
