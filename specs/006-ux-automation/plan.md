@@ -121,7 +121,7 @@
 **テストレベル** ✅
 1. **単体テスト**: デッキシャッフル関数（Fisher-Yatesアルゴリズム検証）
 2. **統合テスト**: GameFacade経由の自動フェーズ進行・自動勝利判定
-3. **E2Eテスト**: スモークテスト程度（アプリケーション起動とUIボタン削除確認のみ）
+3. **E2Eテスト**: 既存のdeck-loading.spec.tsを拡張（自動フェーズ進行の確認を追加）
 
 ### Constitution Violations
 
@@ -181,7 +181,7 @@ skeleton-app/
     ├── integration/
     │   └── GameFacade.test.ts        # 既存（shuffleDeck追加テスト）
     └── e2e/
-        └── ux-automation.spec.ts     # 新規E2Eテスト（スモークテスト程度）
+        └── deck-loading.spec.ts      # 既存（スモークテスト拡張: 自動フェーズ進行確認を追加）
 ```
 
 **Structure Decision**: 既存の4層Clean Architecture構造を維持。Command Patternに統一し、デッキシャッフルを`ShuffleDeckCommand`として実装。純粋関数（Fisher-Yates）は`shared/utils/arrayUtils.ts`に配置し、汎用性を確保。Domain Layerは変更不要。
@@ -398,7 +398,7 @@ $effect(() => currentPhase変化)
 5. **テスト実装**
    - [ ] ユニットテスト（arrayUtils.test.ts, ShuffleDeckCommand.test.ts）
    - [ ] 統合テスト（GameFacade.shuffleDeck, autoCheckVictory）
-   - [ ] E2Eテスト（ux-automation.spec.ts - スモークテスト: アプリ起動とUIボタン削除確認のみ）
+   - [ ] E2Eテスト（deck-loading.spec.ts拡張 - 自動フェーズ進行の確認を追加）
 
 6. **品質保証**
    - [ ] 既存312テスト全pass確認
@@ -702,74 +702,38 @@ export class GameFacade {
 </details>
 ```
 
-#### Step 4: E2Eスモークテスト追加
+#### Step 4: E2Eスモークテスト拡張
 
-既存の`deck-loading.spec.ts`を参考に、最小限のスモークテストを実装。
+既存の`deck-loading.spec.ts`に、自動フェーズ進行の確認を追加。
 
-**実装コード（ux-automation.spec.ts - スモークテストのみ）**:
+**拡張内容**:
 
 ```typescript
-/**
- * E2E Smoke Test: UX Automation feature
- * デッキシャッフル・自動フェーズ進行・自動勝利判定が実装された後のスモークテスト
- */
-import { test, expect } from "@playwright/test";
-import exodiaFixture from "../fixtures/ygoprodeck/exodia.json" assert { type: "json" };
-import potOfGreedFixture from "../fixtures/ygoprodeck/pot-of-greed.json" assert { type: "json" };
-import gracefulCharityFixture from "../fixtures/ygoprodeck/graceful-charity.json" assert { type: "json" };
+// skeleton-app/tests/e2e/deck-loading.spec.ts
 
-test.describe("UX Automation Smoke Test", () => {
-  test("should load application and hide manual action buttons", async ({ page }) => {
-    // YGOPRODeck APIをモック（既存のdeck-loading.spec.tsと同じ）
-    await page.route("**/api.ygoprodeck.com/api/v7/**", async (route) => {
-      const url = route.request().url();
-      if (url.includes("id=33396948")) {
-        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: [exodiaFixture] }) });
-        return;
-      }
-      if (url.includes("id=55144522")) {
-        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: [potOfGreedFixture] }) });
-        return;
-      }
-      if (url.includes("id=79571449")) {
-        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: [gracefulCharityFixture] }) });
-        return;
-      }
-      // バッチリクエスト対応
-      if (url.includes("id=")) {
-        const idMatch = url.match(/id=([0-9,]+)/);
-        if (idMatch) {
-          const ids = idMatch[1].split(",").map((id) => parseInt(id, 10));
-          const cards = ids.map((id) => {
-            if (id === 33396948) return exodiaFixture;
-            if (id === 55144522) return potOfGreedFixture;
-            if (id === 79571449) return gracefulCharityFixture;
-            return null;
-          }).filter(Boolean);
-          await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ data: cards }) });
-          return;
-        }
-      }
-      await route.abort("failed");
-    });
+test.describe("Application Smoke Test", () => {
+  test("should load application with mocked YGOPRODeck API", async ({ page }) => {
+    // ... 既存のAPIモック設定 ...
 
     // アプリケーションページに移動
     await page.goto("/");
 
-    // ページが正常に読み込まれることを確認
+    // ページが正常に読み込まれることを確認（既存）
     await expect(page).toHaveTitle(/.*/, { timeout: 5000 });
     await expect(page).not.toHaveURL(/error/);
 
-    // 手動操作ボタン（Draw Card, Advance Phase, Check Victory）がメインUI上に存在しないことを確認
-    // （Debug Infoセクション内には存在する可能性があるので、メインUIのみチェック）
-    const mainActionButtons = page.locator('button:has-text("Draw Card"), button:has-text("Advance Phase"), button:has-text("Check Victory")');
-    const visibleButtons = await mainActionButtons.filter({ hasNotText: "Debug" }).count();
-
-    // メインUI上には存在しない（Debug Infoセクション内のみ存在するはず）
-    expect(visibleButtons).toBeLessThanOrEqual(3); // Debug Info内のボタンのみ許容
+    // ✅ 新規追加: 自動フェーズ進行の確認
+    // ターン1開始時、自動的にMain Phaseまで進行することを確認
+    // （DOMに現在のフェーズが表示されている前提）
+    const phaseIndicator = page.locator('[data-testid="current-phase"]');
+    await expect(phaseIndicator).toContainText(/Main Phase|メインフェーズ/, { timeout: 3000 });
   });
 });
 ```
+
+**注意**:
+- `data-testid="current-phase"` 属性は、+page.svelteでフェーズ表示要素に追加する必要があります
+- フェーズ表示がない場合は、このテストはスキップして「ページ読み込み成功」のみ確認します
 
 **テスト実行**:
 
@@ -780,7 +744,7 @@ cd skeleton-app
 npm run test:run
 
 # E2Eスモークテスト実行
-npx playwright test tests/e2e/ux-automation.spec.ts
+npx playwright test tests/e2e/deck-loading.spec.ts
 
 # 全E2Eテスト実行
 npx playwright test
