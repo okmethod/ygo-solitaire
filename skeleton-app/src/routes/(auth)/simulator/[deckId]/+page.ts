@@ -40,6 +40,12 @@ export const load: PageLoad = async ({ params, fetch }) => {
   // Initialize game with GameFacade
   gameFacade.initializeGame(deckCardIds);
 
+  // Shuffle deck before drawing initial hand
+  const shuffleResult = gameFacade.shuffleDeck();
+  if (!shuffleResult.success) {
+    console.error("[PageLoad-V2] Failed to shuffle deck:", shuffleResult.error);
+  }
+
   // Draw initial hand (5 cards)
   const drawResult = gameFacade.drawCard(5);
   if (!drawResult.success) {
