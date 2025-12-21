@@ -75,8 +75,8 @@ docker compose up
 
 ```bash
 cd skeleton-app
-npm run test:run      # Unit tests (204 tests)
-npm run test:e2e      # E2E tests (16 tests)
+npm run test:run      # Unit tests
+npm run test:e2e      # E2E tests
 npm run lint          # Linter check
 ```
 
