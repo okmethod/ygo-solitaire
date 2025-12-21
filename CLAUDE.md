@@ -32,7 +32,6 @@
 
 - **リポジトリ**: https://github.com/okmethod/ygo-solitaire
 - **フロントエンド**: SvelteKit + Skeleton UI + TailwindCSS (`skeleton-app/`)
-- **バックエンド**: FastAPI (`fast-api-server/`) ※現在未使用
 - **アーキテクチャ**: 4層Clean Architecture（詳細: [docs/architecture/overview.md](docs/architecture/overview.md)）
 
 ## よく使うコマンド（skeleton-app/内）

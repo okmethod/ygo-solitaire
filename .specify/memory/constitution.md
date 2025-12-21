@@ -231,7 +231,7 @@ Follow-up TODOs:
 ### ツール（現時点）
 
 - **フロントエンド**: Vitest + Testing Library
-- **Linter**: ESLint + Prettier（フロントエンド）/ ruff + mypy（バックエンド）
+- **Linter**: ESLint + Prettier（フロントエンド）
 
 ---
 

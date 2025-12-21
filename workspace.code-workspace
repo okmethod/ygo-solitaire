@@ -6,9 +6,6 @@
 		{
 			"path": "skeleton-app"
 		},
-		{
-			"path": "fast-api-server"
-		},
 	],
 	"settings": {}
 }

@@ -20,8 +20,6 @@ Webブラウザ上で手軽に遊戯王の「先攻1ターンキル」に挑戦�
 ygo-solitaire/
 ├── skeleton-app       # フロントエンド
 │
-├── fast-api-server    # バックエンド（現在未使用）
-│
 ├── docs               # ストック情報（永続的な情報）
 │   ├── domain/        # ドメイン知識: ゲームルールとスコープ管理
 │   ├── architecture/  # アーキテクチャ: 技術的な構成・方針
@@ -47,7 +45,6 @@ Presentation Layer   : UI（Skeleton v3）
 - **フロントエンド**: Skeleton v3 (Svelte v5 + TailwindCSS v4 + Skeleton UI v3)
 - **状態管理**: Svelte Stores + Immer.js（不変性保証）
 - **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）
-- **バックエンド**: FastAPI + Python（現在未使用、将来的には利用するかも）
 
 詳細は [docs/architecture/overview.md](docs/architecture/overview.md) を参照してください。
 
@@ -73,7 +70,6 @@ docker compose up
 ```
 
 - フロントエンド: http://localhost:5173/
-- バックエンドAPI: http://localhost:8000/
 
 ### 3. テスト実行
 
