@@ -26,7 +26,6 @@
 1. [docs/README.md](docs/README.md) - プロジェクトコンセプト
 2. [docs/domain/overview.md](docs/domain/overview.md) - スコープと実装状況
 3. [docs/architecture/overview.md](docs/architecture/overview.md) - アーキテクチャ理解
-4. [docs/development/conventions.md](docs/development/conventions.md) - コーディング規約
 
 ## プロジェクト概要
 遊戯王カードの1ターンキルコンボシミュレータ（固定デッキで先行1ターン目をプレイ）

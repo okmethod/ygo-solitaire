@@ -334,7 +334,6 @@ coverage: {
 
 - [Testing Strategy](../../docs/architecture/testing-strategy.md) - Full testing approach
 - [Architecture Overview](../../docs/architecture/overview.md) - Clean Architecture layers
-- [Coding Conventions](../../docs/development/conventions.md) - Code style guide
 
 ---
 
