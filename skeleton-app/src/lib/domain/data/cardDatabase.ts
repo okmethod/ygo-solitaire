@@ -7,7 +7,7 @@
  * @module domain/data/cardDatabase
  */
 
-import type { DomainCardData, SimpleCardType } from "../models/Card";
+import type { CardData, SimpleCardType } from "../models/Card";
 
 /**
  * Card database registry
@@ -15,7 +15,7 @@ import type { DomainCardData, SimpleCardType } from "../models/Card";
  * Maps card ID to domain card data.
  * Only includes cards used in the game (not a complete database).
  */
-const CARD_DATABASE: Record<number, DomainCardData> = {
+const CARD_DATABASE: Record<number, CardData> = {
   // Exodia pieces (monster)
   33396948: { id: 33396948, type: "monster" }, // Exodia the Forbidden One
   7902349: { id: 7902349, type: "monster" }, // Right Arm of the Forbidden One
@@ -50,7 +50,7 @@ const CARD_DATABASE: Record<number, DomainCardData> = {
  * @returns Domain card data
  * @throws Error if card not found in database
  */
-export function getCardData(cardId: number): DomainCardData {
+export function getCardData(cardId: number): CardData {
   const card = CARD_DATABASE[cardId];
   if (!card) {
     throw new Error(

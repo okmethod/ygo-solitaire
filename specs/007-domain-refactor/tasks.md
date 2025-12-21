@@ -27,10 +27,10 @@
 
 **Purpose**: リファクタリング開始前の環境確認
 
-- [ ] T001 ブランチ`007-domain-refactor`がチェックアウトされていることを確認
-- [ ] T002 既存テストがすべてパスすることを確認 (`npm run test:run`)
-- [ ] T003 [P] Lint/Formatエラーがないことを確認 (`npm run lint`)
-- [ ] T004 [P] ドメインドキュメント (docs/domain/) が最新であることを確認
+- [x] T001 ブランチ`007-domain-refactor`がチェックアウトされていることを確認
+- [x] T002 既存テストがすべてパスすることを確認 (`npm run test:run`)
+- [x] T003 [P] Lint/Formatエラーがないことを確認 (`npm run lint`)
+- [x] T004 [P] ドメインドキュメント (docs/domain/) が最新であることを確認
 
 **Checkpoint**: 環境準備完了、リファクタリング開始可能
 
@@ -50,14 +50,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] `domain/models/Card.ts`で`DomainCardData`を`CardData`にリネーム
-- [ ] T006 [US1] `domain/models/Card.ts`で型ガード`isDomainCardData`を`isCardData`にリネーム
-- [ ] T007 [US1] `domain/data/cardDatabase.ts`のimport文を更新（`DomainCardData` → `CardData`）
-- [ ] T008 [US1] TypeScript コンパイルエラーを検出 (`npm run check`)
-- [ ] T009 [US1] すべてのimport文を手動修正（コンパイラエラーに従う）
-- [ ] T010 [US1] 全ファイルで`DomainCardData`が残っていないことをgrep検索で確認
-- [ ] T011 [US1] 型命名変更後のテスト実行 (`npm run test:run`)
-- [ ] T012 [US1] Lint/Format実行 (`npm run lint && npm run format`)
+- [x] T005 [US1] `domain/models/Card.ts`で`DomainCardData`を`CardData`にリネーム
+- [x] T006 [US1] `domain/models/Card.ts`で型ガード`isDomainCardData`を`isCardData`にリネーム
+- [x] T007 [US1] `domain/data/cardDatabase.ts`のimport文を更新（`DomainCardData` → `CardData`）
+- [x] T008 [US1] TypeScript コンパイルエラーを検出 (`npm run check`)
+- [x] T009 [US1] すべてのimport文を手動修正（コンパイラエラーに従う）
+- [x] T010 [US1] 全ファイルで`DomainCardData`が残っていないことをgrep検索で確認
+- [x] T011 [US1] 型命名変更後のテスト実行 (`npm run test:run`)
+- [x] T012 [US1] Lint/Format実行 (`npm run lint && npm run format`)
 
 **Checkpoint**: 型命名がドキュメントと一致。`CardData`型が一貫して使用されている。
 

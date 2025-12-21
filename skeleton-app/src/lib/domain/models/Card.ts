@@ -2,7 +2,7 @@
  * Card - Type definitions for card data and instances
  *
  * Defines:
- * - DomainCardData: Minimal card data for game logic
+ * - CardData: Minimal card data for game logic
  * - CardInstance: Runtime representation with unique instanceId
  *
  * @module domain/models/Card
@@ -35,7 +35,7 @@ export type TrapSubType = "normal" | "continuous" | "counter";
  * 用途: GameState, Rule実装などのDomain Layer内部処理
  * 利点: YGOPRODeck APIに依存せず、ユニットテストがネットワーク不要
  */
-export interface DomainCardData {
+export interface CardData {
   readonly id: number; // カードを一意に識別するID（YGOPRODeck API ID）
   readonly type: SimpleCardType; // カードタイプ（"monster" | "spell" | "trap"）
   readonly frameType?: string; // カードフレームタイプ（"normal", "effect"など）
@@ -66,44 +66,44 @@ export interface CardInstance {
 export type ZoneLocation = "deck" | "hand" | "field" | "graveyard" | "banished";
 
 /**
- * DomainCardData型ガード: monster type
+ * CardData型ガード: monster type
  *
- * @param card - DomainCardData オブジェクト
+ * @param card - CardData オブジェクト
  * @returns カードタイプがmonsterの場合true
  */
-export function isDomainMonsterCard(card: DomainCardData): boolean {
+export function isMonsterCard(card: CardData): boolean {
   return card.type === "monster";
 }
 
 /**
- * DomainCardData型ガード: spell type
+ * CardData型ガード: spell type
  *
- * @param card - DomainCardData オブジェクト
+ * @param card - CardData オブジェクト
  * @returns カードタイプがspellの場合true
  */
-export function isDomainSpellCard(card: DomainCardData): boolean {
+export function isSpellCard(card: CardData): boolean {
   return card.type === "spell";
 }
 
 /**
- * DomainCardData型ガード: trap type
+ * CardData型ガード: trap type
  *
- * @param card - DomainCardData オブジェクト
+ * @param card - CardData オブジェクト
  * @returns カードタイプがtrapの場合true
  */
-export function isDomainTrapCard(card: DomainCardData): boolean {
+export function isTrapCard(card: CardData): boolean {
   return card.type === "trap";
 }
 
 /**
- * DomainCardData検証関数
+ * CardData検証関数
  *
- * オブジェクトがDomainCardDataの必須プロパティを持つかを検証。
+ * オブジェクトがCardDataの必須プロパティを持つかを検証。
  *
  * @param obj - 検証対象のオブジェクト
- * @returns DomainCardDataの型を満たす場合はtrue
+ * @returns CardDataの型を満たす場合はtrue
  */
-export function isDomainCardData(obj: unknown): obj is DomainCardData {
+export function isCardData(obj: unknown): obj is CardData {
   if (typeof obj !== "object" || obj === null) {
     return false;
   }

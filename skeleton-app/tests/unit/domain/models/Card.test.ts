@@ -1,57 +1,57 @@
 import { describe, it, expect } from "vitest";
-import { isDomainCardData, isDomainMonsterCard, isDomainSpellCard, isDomainTrapCard } from "$lib/domain/models/Card";
-import type { DomainCardData } from "$lib/domain/models/Card";
+import { isCardData, isMonsterCard, isSpellCard, isTrapCard } from "$lib/domain/models/Card";
+import type { CardData } from "$lib/domain/models/Card";
 
-describe("isDomainCardData (T026)", () => {
-  it("should return true for valid DomainCardData - monster", () => {
-    const validData: DomainCardData = {
+describe("isCardData (T026)", () => {
+  it("should return true for valid CardData - monster", () => {
+    const validData: CardData = {
       id: 33396948,
       type: "monster",
     };
 
-    expect(isDomainCardData(validData)).toBe(true);
+    expect(isCardData(validData)).toBe(true);
   });
 
-  it("should return true for DomainCardData with optional frameType", () => {
-    const validData: DomainCardData = {
+  it("should return true for CardData with optional frameType", () => {
+    const validData: CardData = {
       id: 33396948,
       type: "monster",
       frameType: "effect",
     };
 
-    expect(isDomainCardData(validData)).toBe(true);
+    expect(isCardData(validData)).toBe(true);
   });
 
   it("should return true for spell type", () => {
-    const validData: DomainCardData = {
+    const validData: CardData = {
       id: 55144522,
       type: "spell",
     };
 
-    expect(isDomainCardData(validData)).toBe(true);
+    expect(isCardData(validData)).toBe(true);
   });
 
   it("should return true for trap type", () => {
-    const validData: DomainCardData = {
+    const validData: CardData = {
       id: 12345678,
       type: "trap",
     };
 
-    expect(isDomainCardData(validData)).toBe(true);
+    expect(isCardData(validData)).toBe(true);
   });
 
   it("should return false for null", () => {
-    expect(isDomainCardData(null)).toBe(false);
+    expect(isCardData(null)).toBe(false);
   });
 
   it("should return false for undefined", () => {
-    expect(isDomainCardData(undefined)).toBe(false);
+    expect(isCardData(undefined)).toBe(false);
   });
 
   it("should return false for non-object", () => {
-    expect(isDomainCardData("string")).toBe(false);
-    expect(isDomainCardData(123)).toBe(false);
-    expect(isDomainCardData(true)).toBe(false);
+    expect(isCardData("string")).toBe(false);
+    expect(isCardData(123)).toBe(false);
+    expect(isCardData(true)).toBe(false);
   });
 
   it("should return false for missing id", () => {
@@ -59,7 +59,7 @@ describe("isDomainCardData (T026)", () => {
       type: "monster",
     };
 
-    expect(isDomainCardData(invalidData)).toBe(false);
+    expect(isCardData(invalidData)).toBe(false);
   });
 
   it("should return false for missing type", () => {
@@ -67,7 +67,7 @@ describe("isDomainCardData (T026)", () => {
       id: 33396948,
     };
 
-    expect(isDomainCardData(invalidData)).toBe(false);
+    expect(isCardData(invalidData)).toBe(false);
   });
 
   it("should return false for invalid id type", () => {
@@ -76,7 +76,7 @@ describe("isDomainCardData (T026)", () => {
       type: "monster",
     };
 
-    expect(isDomainCardData(invalidData)).toBe(false);
+    expect(isCardData(invalidData)).toBe(false);
   });
 
   it("should return false for invalid type value", () => {
@@ -85,7 +85,7 @@ describe("isDomainCardData (T026)", () => {
       type: "invalid-type", // should be "monster" | "spell" | "trap"
     };
 
-    expect(isDomainCardData(invalidData)).toBe(false);
+    expect(isCardData(invalidData)).toBe(false);
   });
 
   it("should return false for invalid frameType type", () => {
@@ -95,93 +95,93 @@ describe("isDomainCardData (T026)", () => {
       frameType: 123, // should be string
     };
 
-    expect(isDomainCardData(invalidData)).toBe(false);
+    expect(isCardData(invalidData)).toBe(false);
   });
 });
 
-describe("isDomainMonsterCard (T027)", () => {
+describe("isMonsterCard (T027)", () => {
   it("should return true for monster card", () => {
-    const monsterCard: DomainCardData = {
+    const monsterCard: CardData = {
       id: 33396948,
       type: "monster",
     };
 
-    expect(isDomainMonsterCard(monsterCard)).toBe(true);
+    expect(isMonsterCard(monsterCard)).toBe(true);
   });
 
   it("should return false for spell card", () => {
-    const spellCard: DomainCardData = {
+    const spellCard: CardData = {
       id: 55144522,
       type: "spell",
     };
 
-    expect(isDomainMonsterCard(spellCard)).toBe(false);
+    expect(isMonsterCard(spellCard)).toBe(false);
   });
 
   it("should return false for trap card", () => {
-    const trapCard: DomainCardData = {
+    const trapCard: CardData = {
       id: 12345678,
       type: "trap",
     };
 
-    expect(isDomainMonsterCard(trapCard)).toBe(false);
+    expect(isMonsterCard(trapCard)).toBe(false);
   });
 });
 
-describe("isDomainSpellCard (T027)", () => {
+describe("isSpellCard (T027)", () => {
   it("should return true for spell card", () => {
-    const spellCard: DomainCardData = {
+    const spellCard: CardData = {
       id: 55144522,
       type: "spell",
     };
 
-    expect(isDomainSpellCard(spellCard)).toBe(true);
+    expect(isSpellCard(spellCard)).toBe(true);
   });
 
   it("should return false for monster card", () => {
-    const monsterCard: DomainCardData = {
+    const monsterCard: CardData = {
       id: 33396948,
       type: "monster",
     };
 
-    expect(isDomainSpellCard(monsterCard)).toBe(false);
+    expect(isSpellCard(monsterCard)).toBe(false);
   });
 
   it("should return false for trap card", () => {
-    const trapCard: DomainCardData = {
+    const trapCard: CardData = {
       id: 12345678,
       type: "trap",
     };
 
-    expect(isDomainSpellCard(trapCard)).toBe(false);
+    expect(isSpellCard(trapCard)).toBe(false);
   });
 });
 
-describe("isDomainTrapCard (T027)", () => {
+describe("isTrapCard (T027)", () => {
   it("should return true for trap card", () => {
-    const trapCard: DomainCardData = {
+    const trapCard: CardData = {
       id: 12345678,
       type: "trap",
     };
 
-    expect(isDomainTrapCard(trapCard)).toBe(true);
+    expect(isTrapCard(trapCard)).toBe(true);
   });
 
   it("should return false for monster card", () => {
-    const monsterCard: DomainCardData = {
+    const monsterCard: CardData = {
       id: 33396948,
       type: "monster",
     };
 
-    expect(isDomainTrapCard(monsterCard)).toBe(false);
+    expect(isTrapCard(monsterCard)).toBe(false);
   });
 
   it("should return false for spell card", () => {
-    const spellCard: DomainCardData = {
+    const spellCard: CardData = {
       id: 55144522,
       type: "spell",
     };
 
-    expect(isDomainTrapCard(spellCard)).toBe(false);
+    expect(isTrapCard(spellCard)).toBe(false);
   });
 });
