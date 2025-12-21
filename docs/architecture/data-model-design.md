@@ -2,17 +2,17 @@
 
 ## 概要
 
-YGO Solitaire のデータモデルは、Clean Architecture の3層構造で設計されています:
+YGO Solitaire のデータモデルは、Clean Architecture の 3 層構造で設計されています:
 
 - **Domain Layer**: ゲームロジック用の最小限のカードデータ
-- **Application Layer**: データ変換とAPI統合
-- **Presentation Layer**: UI表示用の完全なカードデータ
+- **Application Layer**: データ変換と API 統合
+- **Presentation Layer**: UI 表示用の完全なカードデータ
 
-この3層構造により、以下を実現しています:
+この 3 層構造により、以下を実現しています:
 
 1. **明確な責務分離**: Domain/Application/Presentation の各層が独立
 2. **型安全性**: TypeScript による厳密な型チェック
-3. **API互換性**: YGOPRODeck API とのシームレスな統合
+3. **API 互換性**: YGOPRODeck API とのシームレスな統合
 4. **段階的移行**: 既存コードへの影響を最小化
 5. **パフォーマンス**: バッチリクエストとキャッシング戦略
 
@@ -27,15 +27,17 @@ YGO Solitaire のデータモデルは、Clean Architecture の3層構造で設�
 ゲーム状態管理に必要な最小限のカード情報のみを保持。
 
 **主要プロパティ**:
-- `id: number` - YGOPRODeck API互換のカードID
+
+- `id: number` - YGOPRODeck API 互換のカード ID
 - `type: SimpleCardType` - カード種別 ("monster" | "spell" | "trap")
 - `frameType?: string` - 効果判定用（例: "effect", "fusion"）
 - `spellType?: SpellSubType` - 魔法カード詳細種別
 - `trapType?: TrapSubType` - 罠カード詳細種別
 
 **設計原則**:
+
 - ゲームロジックに必要なプロパティのみ
-- 数値IDでAPI互換性を確保
+- 数値 ID で API 互換性を確保
 - 型安全性による厳密な型チェック
 
 **ファイル**: `src/lib/domain/models/Card.ts`
@@ -46,15 +48,16 @@ YGO Solitaire のデータモデルは、Clean Architecture の3層構造で設�
 
 ### `CardDisplayData`
 
-UI表示に必要な全情報を含むカードデータ。
+UI 表示に必要な全情報を含むカードデータ。
 
 **主要プロパティ**:
+
 - 基本情報: `id`, `name`, `type`, `description`
 - モンスター属性: `monsterAttributes` (攻撃力、守備力、レベル等)
 - 画像: `images` (通常サイズ、小サイズ、クロップ)
 - その他: `frameType`, `archetype`
 
-**ファイル**: `src/lib/presentation/types/card.ts` (Application Layer の定義を、Presentation Layerで再エクスポート)
+**ファイル**: `src/lib/presentation/types/card.ts` (Application Layer の定義を、Presentation Layer で再エクスポート)
 
 ---
 
@@ -64,22 +67,24 @@ UI表示に必要な全情報を含むカードデータ。
 
 **`convertToCardDisplayData()`**
 
-YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
+YGOPRODeck API レスポンス → `CardDisplayData` への変換。
 
 **処理内容**:
-- API型からアプリケーション型への変換
+
+- API 型からアプリケーション型への変換
 - モンスターカードの属性抽出
-- 画像URL構造の整形
+- 画像 URL 構造の整形
 - デフォルト値の設定
 
-### API統合
+### API 統合
 
 **`getCardsByIds()`**
 
-複数カードIDから一括でカードデータを取得。
+複数カード ID から一括でカードデータを取得。
 
 **特徴**:
-- バッチリクエスト対応（N回 → 1回のAPIリクエスト）
+
+- バッチリクエスト対応（N 回 → 1 回の API リクエスト）
 - メモリキャッシュ（セッション単位）
 - エラーハンドリング
 
@@ -89,14 +94,15 @@ YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
 
 **`loadDeckData()`**
 
-デッキレシピからカードデータを読み込み、DomainCardDataとCardDisplayDataを生成。
+デッキレシピからカードデータを読み込み、DomainCardData と CardDisplayData を生成。
 
 **処理フロー**:
+
 1. デッキレシピ取得
-2. カードID一覧抽出
-3. API経由でカードデータ取得（バッチ+キャッシュ）
-4. DomainCardData配列生成
-5. CardDisplayData配列生成
+2. カード ID 一覧抽出
+3. API 経由でカードデータ取得（バッチ+キャッシュ）
+4. DomainCardData 配列生成
+5. CardDisplayData 配列生成
 
 **実装**: `src/lib/application/utils/deckLoader.ts`
 
@@ -104,7 +110,7 @@ YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
 
 ## YGOPRODeck API
 
-### API仕様
+### API 仕様
 
 - **Base URL**: `https://db.ygoprodeck.com/api/v7`
 - **Rate Limit**: 20 requests/second
@@ -115,4 +121,4 @@ YGOPRODeck APIレスポンス → `CardDisplayData` への変換。
 
 - **スコープ**: セッション単位（ページリロードまで）
 - **実装**: メモリキャッシュ (`Map<number, YGOProDeckCard>`)
-- **効果**: 重複APIリクエスト防止、レスポンス時間短縮
+- **効果**: 重複 API リクエスト防止、レスポンス時間短縮

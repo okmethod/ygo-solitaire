@@ -2,10 +2,10 @@
   "files.exclude": {
     "docs": true,
     "specs": true,
-    "skeleton-app": true,
+    "skeleton-app": true
   },
   "[makefile]": {
     "editor.insertSpaces": false,
     "editor.detectIndentation": false
-},
+  }
 }

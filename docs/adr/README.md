@@ -2,148 +2,170 @@
 
 このディレクトリには、プロジェクトの重要な技術的決定を記録した ADR が格納されています。
 
-## ADRの価値
+## ADR の価値
 
-### なぜADRが重要か？
+### なぜ ADR が重要か？
 
 1. **意思決定の透明性**: なぜその技術・方針を選んだかの根拠を明確にする
 2. **歴史の記録**: 過去の判断を振り返れる
 3. **オンボーディング**: 新メンバーが設計思想を理解しやすい
 4. **議論の土台**: 変更提案時に過去の判断を参照できる
 
-### ADRの限界
+### ADR の限界
 
-- **実装の詳細**: コードコメントやdocstringに記載
-- **運用手順**: CLAUDE.mdに記載
+- **実装の詳細**: コードコメントや docstring に記載
+- **運用手順**: CLAUDE.md に記載
 - **ドメイン知識**: domain/に記載
 
 ---
 
-## ADR一覧
+## ADR 一覧
 
-### 0001: Clean Architectureの採用
+### 0001: Clean Architecture の採用
+
 **Status**: ✅ Accepted (2024-11-23)
 
-**決定内容**: 3層Clean Architecture（Domain/Application/Presentation）を採用
+**決定内容**: 3 層 Clean Architecture（Domain/Application/Presentation）を採用
 
 **理由**:
+
 - テスト容易性向上
 - 変更への強さ
 - 責任の明確化
 
 詳細: [0001-adopt-clean-architecture.md](./0001-adopt-clean-architecture.md)
 
-### 0002: Immer.jsによる不変性保証
+### 0002: Immer.js による不変性保証
+
 **Status**: ✅ Accepted (2024-11-23)
 
-**決定内容**: Immer.jsを使用してGameStateの不変性を保証
+**決定内容**: Immer.js を使用して GameState の不変性を保証
 
 **理由**:
+
 - 直感的な書き方でイミュータブルな結果
-- Structural Sharingによるパフォーマンス最適化
+- Structural Sharing によるパフォーマンス最適化
 - TypeScript `readonly`との併用で型安全性
 
 詳細: [0002-use-immer-for-immutability.md](./0002-use-immer-for-immutability.md)
 
-### 0003: Effect System廃止
+### 0003: Effect System 廃止
+
 **Status**: ✅ Accepted (2024-11-24)
 
-**決定内容**: Phase 4をスキップし、Effect SystemをCommand Patternに統一
+**決定内容**: Phase 4 をスキップし、Effect System を Command Pattern に統一
 
 **理由**:
-- Command Patternで十分な機能カバー
-- 3,839行のコード削減
+
+- Command Pattern で十分な機能カバー
+- 3,839 行のコード削減
 - 設計のシンプル化
 
-**影響**: 旧DuelState + Effect System（24ファイル）を完全削除
+**影響**: 旧 DuelState + Effect System（24 ファイル）を完全削除
 
 詳細: [0003-abolish-effect-system.md](./0003-abolish-effect-system.md)
 
 ### 0004: データモデルのレイヤー分離
+
 **Status**: ✅ Accepted (2024-11-29)
 
-**決定内容**: 3層のカード型定義（DomainCardData / CardDisplayData / YGOProDeckCard）
+**決定内容**: 3 層のカード型定義（DomainCardData / CardDisplayData / YGOProDeckCard）
 
 **理由**:
+
 - レイヤー間の責務分離
 - テスト容易性向上（ネットワーク不要）
-- 数値IDへの統一（文字列ID排除）
+- 数値 ID への統一（文字列 ID 排除）
 
-**影響**: API統合とキャッシング戦略、段階的移行パス
+**影響**: API 統合とキャッシング戦略、段階的移行パス
 
 詳細: [0004-data-model-layer-separation.md](./0004-data-model-layer-separation.md)
 
-### 0005: Card Effect ArchitectureにStrategy Pattern採用
+### 0005: Card Effect Architecture に Strategy Pattern 採用
+
 **Status**: ✅ Accepted (2024-12-07)
 
-**決定内容**: Strategy PatternとRegistry Patternでカード効果を実装
+**決定内容**: Strategy Pattern と Registry Pattern でカード効果を実装
 
 **理由**:
-- Open/Closed Principle遵守
-- カード追加時にActivateSpellCommandの変更不要
+
+- Open/Closed Principle 遵守
+- カード追加時に ActivateSpellCommand の変更不要
 - テスト容易性とコードの再利用性向上
 
-**影響**: CardEffect階層構造、CardEffectRegistry導入
+**影響**: CardEffect 階層構造、CardEffectRegistry 導入
 
 詳細: [0005-card-effect-strategy-pattern.md](./0005-card-effect-strategy-pattern.md)
 
-### 0006: 4層Clean Architectureへのリファクタリング
+### 0006: 4 層 Clean Architecture へのリファクタリング
+
 **Status**: ✅ Accepted (2024-12-15)
 
-**決定内容**: 3層構造を4層構造（Domain/Application/Infrastructure/Presentation）に再編
+**決定内容**: 3 層構造を 4 層構造（Domain/Application/Infrastructure/Presentation）に再編
 
 **理由**:
-- Infrastructure Layerの明確化（Port/Adapterパターン導入）
-- Stores配置の統一（責任に応じた配置基準確立）
+
+- Infrastructure Layer の明確化（Port/Adapter パターン導入）
+- Stores 配置の統一（責任に応じた配置基準確立）
 - レイヤー依存関係の是正（型定義の適切な配置）
 - ドキュメントとコードの一致
 
-**影響**: 大規模ディレクトリ移動、全312テスト引き続きpass、E2Eテスト1件に絞り込み
+**影響**: 大規模ディレクトリ移動、全 312 テスト引き続き pass、E2E テスト 1 件に絞り込み
 
 詳細: [0006-four-layer-clean-architecture.md](./0006-four-layer-clean-architecture.md)
 
 ---
 
-## ADRの書き方
+## ADR の書き方
 
-### ADRテンプレート
+### ADR テンプレート
 
 ```markdown
 # ADR-000X: タイトル
 
 ## Status
+
 ✅ Accepted / ❌ Rejected / ⏸️ Superseded / 🤔 Proposed
 
 ## Context
+
 何が問題だったか？なぜこの決定が必要だったか？
 
 ## Decision
+
 何を決定したか？具体的な実装方針は？
 
 ## Consequences
 
 ### Positive
-✅ メリット1
-✅ メリット2
+
+✅ メリット 1
+✅ メリット 2
 
 ### Negative
-❌ デメリット1
-❌ デメリット2
+
+❌ デメリット 1
+❌ デメリット 2
 
 ### Neutral
+
 ⚖️ トレードオフ
 
 ## Alternatives Considered
+
 検討した代替案とその却下理由
 
 ## Implementation Notes
+
 実装時の注意点やコード例
 
 ## Related Documents
+
 関連するドキュメントへのリンク
 
 ## References
-- 関連PR/Issue
+
+- 関連 PR/Issue
 - 外部リソース
 ```
 
@@ -157,62 +179,72 @@
 4桁の連番
 ```
 
-### いつADRを書くか？
+### いつ ADR を書くか？
 
-以下の場合にADRを作成してください：
+以下の場合に ADR を作成してください：
 
 ✅ **アーキテクチャの大きな変更**
-- 例: Clean Architecture導入、レイヤー構成変更
+
+- 例: Clean Architecture 導入、レイヤー構成変更
 
 ✅ **技術スタック選定**
-- 例: Immer.js採用、テストフレームワーク選定
+
+- 例: Immer.js 採用、テストフレームワーク選定
 
 ✅ **設計パターンの採用/廃止**
-- 例: Effect System廃止、Command Pattern統一
+
+- 例: Effect System 廃止、Command Pattern 統一
 
 ✅ **パフォーマンス最適化の方針**
+
 - 例: 仮想スクロール導入、メモ化戦略
 
 ❌ **軽微な実装の詳細**
+
 - 例: 変数名変更、関数の分割
 
 ❌ **バグ修正**
-- 例: 型エラー修正、ロジック修正（ADRではなくコミットメッセージに記載）
+
+- 例: 型エラー修正、ロジック修正（ADR ではなくコミットメッセージに記載）
 
 ### ステータスの意味
 
-| Status | 説明 | 使用例 |
-|--------|------|--------|
-| 🤔 **Proposed** | 提案中（レビュー待ち） | PR作成前の議論段階 |
-| ✅ **Accepted** | 承認済み（実装済み） | マージ後 |
-| ❌ **Rejected** | 却下された | 代替案が採用された場合 |
-| ⏸️ **Superseded** | 別のADRに置き換えられた | ADR-0005がADR-0002を上書き |
+| Status            | 説明                      | 使用例                        |
+| ----------------- | ------------------------- | ----------------------------- |
+| 🤔 **Proposed**   | 提案中（レビュー待ち）    | PR 作成前の議論段階           |
+| ✅ **Accepted**   | 承認済み（実装済み）      | マージ後                      |
+| ❌ **Rejected**   | 却下された                | 代替案が採用された場合        |
+| ⏸️ **Superseded** | 別の ADR に置き換えられた | ADR-0005 が ADR-0002 を上書き |
 
-### 既存ADRの更新
+### 既存 ADR の更新
 
 #### 状況が変わった場合
 
-既存ADRは**編集せず**、新しいADRを作成してください：
+既存 ADR は**編集せず**、新しい ADR を作成してください：
 
 ```markdown
-# ADR-0005: Immer.js廃止とImmutable.js採用
+# ADR-0005: Immer.js 廃止と Immutable.js 採用
 
 ## Status
+
 ✅ Accepted
 
 ## Context
-ADR-0002でImmer.jsを採用したが、パフォーマンス問題が発生...
+
+ADR-0002 で Immer.js を採用したが、パフォーマンス問題が発生...
 
 ## Related Documents
+
 - Supersedes: [ADR-0002](./0002-use-immer-for-immutability.md)
 ```
 
-旧ADRには以下を追記：
+旧 ADR には以下を追記：
 
 ```markdown
-# ADR-0002: Immer.jsによる不変性保証
+# ADR-0002: Immer.js による不変性保証
 
 ## Status
+
 ⏸️ Superseded by [ADR-0005](./0005-adopt-immutable-js.md)
 ```
 
@@ -222,4 +254,4 @@ ADR-0002でImmer.jsを採用したが、パフォーマンス問題が発生...
 
 - [親ディレクトリ](../) - docs/全体の目次
 - [アーキテクチャ概要](../architecture/overview.md) - 現在のアーキテクチャ
-- [ADRの提唱者](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) - Michael Nygardの原文
+- [ADR の提唱者](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) - Michael Nygard の原文

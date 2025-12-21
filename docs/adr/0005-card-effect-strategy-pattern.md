@@ -1,6 +1,7 @@
-# ADR-0005: Card Effect ArchitectureにおけるStrategy Pattern採用
+# ADR-0005: Card Effect Architecture における Strategy Pattern 採用
 
 ## Status
+
 ✅ Accepted (2024-12-07)
 
 ## Context
@@ -9,7 +10,7 @@ spec/004-card-effect-execution（カード効果実行システム）の実装�
 
 ### 従来の実装（アンチパターン）
 
-`ActivateSpellCommand`にカードID分岐を直接実装する方法：
+`ActivateSpellCommand`にカード ID 分岐を直接実装する方法：
 
 ```typescript
 // ❌ Bad: Open/Closed Principle違反
@@ -50,27 +51,30 @@ class ActivateSpellCommand implements GameCommand {
 
 ### 問題点
 
-1. **Open/Closed Principle違反**:
+1. **Open/Closed Principle 違反**:
+
    - 新しいカード追加時に`ActivateSpellCommand`を変更しなければならない
-   - if/else分岐が肥大化し、保守性が低下
-   - 1つのクラスが複数のカード効果を知っている（Single Responsibility違反）
+   - if/else 分岐が肥大化し、保守性が低下
+   - 1 つのクラスが複数のカード効果を知っている（Single Responsibility 違反）
 
 2. **テスト困難性**:
-   - カード固有のテストと普遍的なCommandフローテストが混在
+
+   - カード固有のテストと普遍的な Command フローテストが混在
    - `ActivateSpellCommand.test.ts`が肥大化する
    - モックやスパイが複雑化
 
 3. **拡張性の欠如**:
+
    - カード種別（魔法/罠、通常/速攻/永続）の共通処理を再利用できない
    - デッキ枚数チェックなどのバリデーションが分散
 
 4. **過去の知見との乖離**:
-   - ADR-0003で削除された旧Effect Systemは、`BaseMagicEffect` → `PotOfGreedEffect`の階層構造を持っていた
-   - 削除理由はDuelState（mutable）との依存だったが、GameState（immutable）への移行後も階層構造の利点は有効
+   - ADR-0003 で削除された旧 Effect System は、`BaseMagicEffect` → `PotOfGreedEffect`の階層構造を持っていた
+   - 削除理由は DuelState（mutable）との依存だったが、GameState（immutable）への移行後も階層構造の利点は有効
 
 ## Decision
 
-**Strategy PatternとRegistryパターンを組み合わせたCard Effect Architectureを採用する**
+**Strategy Pattern と Registry パターンを組み合わせた Card Effect Architecture を採用する**
 
 ### アーキテクチャ概要
 
@@ -198,11 +202,11 @@ export class CardEffectRegistry {
 }
 
 // 初期化（src/lib/domain/effects/index.ts）
-CardEffectRegistry.register(55144522, new PotOfGreedEffect());       // 強欲な壺
-CardEffectRegistry.register(79571449, new GracefulCharityEffect());  // 天使の施し
+CardEffectRegistry.register(55144522, new PotOfGreedEffect()); // 強欲な壺
+CardEffectRegistry.register(79571449, new GracefulCharityEffect()); // 天使の施し
 ```
 
-#### 6. ActivateSpellCommandとの統合
+#### 6. ActivateSpellCommand との統合
 
 ```typescript
 // ✅ Good: Strategy Pattern
@@ -241,68 +245,81 @@ class ActivateSpellCommand implements GameCommand {
 
 ### Positive
 
-✅ **Open/Closed Principleの遵守**
-- 新しいカード追加時: 新しいCardEffectクラスを作成し、Registry登録のみ
+✅ **Open/Closed Principle の遵守**
+
+- 新しいカード追加時: 新しい CardEffect クラスを作成し、Registry 登録のみ
 - 既存コード（`ActivateSpellCommand`）への変更不要
 
 ✅ **テスト責務の明確化**
-- `ActivateSpellCommand.test.ts`: Commandフローの普遍的なテスト（手札→フィールド→墓地）
-- `CardEffects.test.ts`: カード固有の効果処理テスト（effectResolutionStore呼び出し）
-- `tests/unit/card-effects/PotOfGreedEffect.test.ts`: 個別カードのUnit Test
+
+- `ActivateSpellCommand.test.ts`: Command フローの普遍的なテスト（手札 → フィールド → 墓地）
+- `CardEffects.test.ts`: カード固有の効果処理テスト（effectResolutionStore 呼び出し）
+- `tests/unit/card-effects/PotOfGreedEffect.test.ts`: 個別カードの Unit Test
 
 ✅ **共通処理の再利用**
+
 - `SpellEffect`: すべての魔法カード共通（ゲーム終了チェック）
-- `NormalSpellEffect`: 通常魔法共通（Main1フェーズチェック）
+- `NormalSpellEffect`: 通常魔法共通（Main1 フェーズチェック）
 - `QuickPlaySpellEffect`: 速攻魔法共通（Main1/Main2/Battle/相手ターン）
 - 継承により共通バリデーションを自動適用
 
 ✅ **拡張性の確保**
+
 - 速攻魔法・永続魔法・罠カードへの対応が容易
 - カード種別ごとの基底クラスを追加するのみ
 
 ✅ **型安全性の向上**
-- CardEffectインターフェースにより、すべてのカード効果が同じ契約を満たす
-- ActivateSpellCommandは具体的なカード種別を知る必要がない（Liskov Substitution Principle）
+
+- CardEffect インターフェースにより、すべてのカード効果が同じ契約を満たす
+- ActivateSpellCommand は具体的なカード種別を知る必要がない（Liskov Substitution Principle）
 
 ### Negative
 
 ❌ **クラス数の増加**
-- 各カードに1つのクラス（50枚実装時 = 50クラス + 基底クラス数個）
+
+- 各カードに 1 つのクラス（50 枚実装時 = 50 クラス + 基底クラス数個）
 - ファイル数増加によるディレクトリ構造の複雑化
 
 **対策**:
-- カード数が10枚以下のうちは1ディレクトリに集約
-- 20枚を超えたら種別ごとにサブディレクトリ分割（`cards/normal-spells/`, `cards/quick-play-spells/`）
+
+- カード数が 10 枚以下のうちは 1 ディレクトリに集約
+- 20 枚を超えたら種別ごとにサブディレクトリ分割（`cards/normal-spells/`, `cards/quick-play-spells/`）
 
 ❌ **初期化コストの微増**
-- Registry登録処理（アプリケーション起動時）
-- O(n)のコスト（nはカード種類数）
+
+- Registry 登録処理（アプリケーション起動時）
+- O(n)のコスト（n はカード種類数）
 
 **対策**:
+
 - 初回ロード時のみ実行（セッション中は再実行不要）
-- カード数が100枚程度ならユーザー体感なし（<10ms）
+- カード数が 100 枚程度ならユーザー体感なし（<10ms）
 
 ❌ **シンプルなカードでもクラス作成が必要**
-- 効果を持たないカード（バニラモンスター等）もCardEffectインスタンスが必要
+
+- 効果を持たないカード（バニラモンスター等）も CardEffect インスタンスが必要
 
 **対策**:
+
 - `NoEffect`クラスを用意し、効果なしカードで共有
-- Registry登録不要（`CardEffectRegistry.get()`がundefinedを返す仕様）
+- Registry 登録不要（`CardEffectRegistry.get()`が undefined を返す仕様）
 
 ### Neutral
 
-⚖️ **旧Effect Systemとの類似性**
-- ADR-0003で削除された旧システムと階層構造が類似
-- 削除理由（DuelState依存）は解消済み（GameState使用）
+⚖️ **旧 Effect System との類似性**
+
+- ADR-0003 で削除された旧システムと階層構造が類似
+- 削除理由（DuelState 依存）は解消済み（GameState 使用）
 - 旧実装の知見を活用できる
 
 ⚖️ **学習コストの変化**
-- Strategy Patternの理解が必要（新規開発者）
+
+- Strategy Pattern の理解が必要（新規開発者）
 - 一度理解すれば、新しいカード追加は定型作業化
 
 ## Alternatives Considered
 
-### Alternative 1: if/else分岐をそのまま使用（現状維持）
+### Alternative 1: if/else 分岐をそのまま使用（現状維持）
 
 ```typescript
 // 却下された案
@@ -319,11 +336,12 @@ class ActivateSpellCommand {
 ```
 
 **却下理由**:
-- Open/Closed Principle違反
+
+- Open/Closed Principle 違反
 - カード数増加に伴う保守性の低下
 - テストの複雑化
 
-### Alternative 2: 関数ベースのStrategy Pattern
+### Alternative 2: 関数ベースの Strategy Pattern
 
 ```typescript
 // 却下された案
@@ -333,19 +351,24 @@ const CARD_EFFECTS: Record<number, (state: GameState) => EffectResolutionStep[]>
       id: "pot-of-greed-draw",
       title: "カードをドローします",
       message: "デッキから2枚ドローします",
-      action: () => { /* ... */ },
+      action: () => {
+        /* ... */
+      },
     },
   ],
-  79571449: (state) => { /* ... */ },
+  79571449: (state) => {
+    /* ... */
+  },
 };
 ```
 
 **却下理由**:
+
 - バリデーション（`canActivate`）と効果生成（`createSteps`）の分離が困難
 - 共通処理（SpellEffect, NormalSpellEffect）の再利用が不可能
 - 型安全性の低下（関数シグネチャの強制が弱い）
 
-### Alternative 3: CardEffectRegistryを使わず、各CardEffectクラスでカードIDを保持
+### Alternative 3: CardEffectRegistry を使わず、各 CardEffect クラスでカード ID を保持
 
 ```typescript
 // 却下された案
@@ -356,13 +379,14 @@ export class PotOfGreedEffect extends NormalSpellEffect {
 
 // ActivateSpellCommandで全CardEffectを検索
 const allEffects = [new PotOfGreedEffect(), new GracefulCharityEffect()];
-const effect = allEffects.find(e => e.cardId === cardId);
+const effect = allEffects.find((e) => e.cardId === cardId);
 ```
 
 **却下理由**:
-- 効果検索がO(n)（Registryを使えばO(1)）
+
+- 効果検索が O(n)（Registry を使えば O(1)）
 - カード数増加時のパフォーマンス懸念
-- 初期化コードが分散（各CardEffectクラスで`cardId`を定義）
+- 初期化コードが分散（各 CardEffect クラスで`cardId`を定義）
 
 ## Implementation
 
@@ -384,23 +408,23 @@ src/lib/domain/effects/
 
 ### 実装ステップ（T013-T020）
 
-1. ✅ T013: `CardEffect.ts` interface定義
+1. ✅ T013: `CardEffect.ts` interface 定義
 2. ✅ T014: `CardEffectRegistry.ts` 実装
 3. ✅ T015: `SpellEffect.ts` 基底クラス実装
 4. ✅ T016: `NormalSpellEffect.ts` 基底クラス実装
 5. ✅ T017: Unit Test - `CardEffectRegistry.test.ts`
 6. ✅ T018: `PotOfGreedEffect.ts` 実装
 7. ✅ T019: Unit Test - `PotOfGreedEffect.test.ts`
-8. ✅ T020: `index.ts` で Registry初期化
+8. ✅ T020: `index.ts` で Registry 初期化
 
 ### 移行ステップ（T021-T026）
 
-1. ✅ T021: `ActivateSpellCommand`のif/else分岐をRegistry呼び出しに置き換え
+1. ✅ T021: `ActivateSpellCommand`の if/else 分岐を Registry 呼び出しに置き換え
 2. ✅ T022: 既存テスト（`CardEffects.test.ts`）を新アーキテクチャに対応
-3. ✅ T023: Pot of Greed効果のE2Eテスト実行
-4. ✅ T024: 全Unit Test実行（239 tests passing）
-5. ✅ T025: Linter/Formatter実行
-6. ✅ T026: Phase 1完了確認
+3. ✅ T023: Pot of Greed 効果の E2E テスト実行
+4. ✅ T024: 全 Unit Test 実行（239 tests passing）
+5. ✅ T025: Linter/Formatter 実行
+6. ✅ T026: Phase 1 完了確認
 
 ## Validation
 
@@ -409,6 +433,7 @@ src/lib/domain/effects/
 #### 1. Unit Tests
 
 **CardEffectRegistry.test.ts**:
+
 ```typescript
 describe("CardEffectRegistry", () => {
   it("should return registered effect for valid card ID", () => {
@@ -423,6 +448,7 @@ describe("CardEffectRegistry", () => {
 ```
 
 **PotOfGreedEffect.test.ts**:
+
 ```typescript
 describe("PotOfGreedEffect", () => {
   it("canActivate should return false when deck has only 1 card", () => {
@@ -447,6 +473,7 @@ describe("PotOfGreedEffect", () => {
 #### 2. Integration Tests
 
 **CardEffects.test.ts**:
+
 ```typescript
 describe("Card Effects Integration", () => {
   it("should call effectResolutionStore for Pot of Greed", () => {
@@ -466,9 +493,9 @@ describe("Card Effects Integration", () => {
 
 ### パフォーマンス検証
 
-- **Registry初期化**: 2カード登録時 < 1ms
+- **Registry 初期化**: 2 カード登録時 < 1ms
 - **効果検索**: Map.get() = O(1) < 0.1ms
-- **全Unit Test実行時間**: 239 tests < 5秒
+- **全 Unit Test 実行時間**: 239 tests < 5 秒
 
 ## Future Considerations
 
@@ -517,9 +544,9 @@ src/lib/domain/effects/cards/
 
 ## Related Documents
 
-- [ADR-0001: Clean Architectureの採用](./0001-adopt-clean-architecture.md)
-- [ADR-0002: Immer.jsによる不変性保証](./0002-use-immer-for-immutability.md)
-- [ADR-0003: Effect System廃止とCommand Pattern統一](./0003-abolish-effect-system.md)
+- [ADR-0001: Clean Architecture の採用](./0001-adopt-clean-architecture.md)
+- [ADR-0002: Immer.js による不変性保証](./0002-use-immer-for-immutability.md)
+- [ADR-0003: Effect System 廃止と Command Pattern 統一](./0003-abolish-effect-system.md)
 - [Data Model Design](../architecture/data-model-design.md)
 - [Testing Strategy](../architecture/testing-strategy.md)
 - [spec/004-card-effect-execution/spec.md](../../specs/004-card-effect-execution/spec.md)
@@ -530,6 +557,6 @@ src/lib/domain/effects/cards/
 
 - **Design Patterns**: Gang of Four - Strategy Pattern
 - **SOLID Principles**: Open/Closed Principle, Liskov Substitution Principle
-- **Discussion**: spec/004 設計レビュー（2024-12-07セッション）
-- **Git commit**: TBD（Phase 3実装完了後）
-- **PR**: TBD（spec/004完了PR）
+- **Discussion**: spec/004 設計レビュー（2024-12-07 セッション）
+- **Git commit**: TBD（Phase 3 実装完了後）
+- **PR**: TBD（spec/004 完了 PR）
