@@ -103,3 +103,10 @@ npm run deploy        # GitHub Pages
 現在進行中または最近完了した仕様:
 
 - [specs/006-ux-automation/](specs/006-ux-automation/) - UX 改善（自動フェーズ進行・デッキシャッフル・自動勝利判定）✅ 完了
+
+## Active Technologies
+- TypeScript (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, TailwindCSS, Skeleton UI (007-domain-refactor)
+- なし（フロントエンドのみ、状態はメモリ内） (007-domain-refactor)
+
+## Recent Changes
+- 007-domain-refactor: Added TypeScript (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, TailwindCSS, Skeleton UI
