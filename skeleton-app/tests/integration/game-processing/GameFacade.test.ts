@@ -302,4 +302,55 @@ describe("GameFacade", () => {
       expect(facade.getOpponentLP()).toBe(8000);
     });
   });
+
+  describe("shuffleDeck", () => {
+    beforeEach(() => {
+      facade.initializeGame([1001, 1002, 1003, 1004, 1005]);
+    });
+
+    it("should shuffle the deck successfully", () => {
+      const result = facade.shuffleDeck();
+
+      expect(result.success).toBe(true);
+      expect(result.message).toBe("デッキをシャッフルしました");
+
+      const state = get(gameStateStore);
+      expect(state.zones.deck.length).toBe(5);
+    });
+
+    it("should preserve all card IDs after shuffling", () => {
+      const initialState = get(gameStateStore);
+      const originalCardIds = initialState.zones.deck.map((card) => card.cardId).sort();
+
+      const result = facade.shuffleDeck();
+
+      expect(result.success).toBe(true);
+
+      const state = get(gameStateStore);
+      const shuffledCardIds = state.zones.deck.map((card) => card.cardId).sort();
+      expect(shuffledCardIds).toEqual(originalCardIds);
+    });
+
+    it("should update store on successful shuffle", () => {
+      const initialState = get(gameStateStore);
+      const originalDeck = [...initialState.zones.deck];
+
+      facade.shuffleDeck();
+
+      const state = get(gameStateStore);
+      expect(state.zones.deck).not.toBe(originalDeck); // New array reference
+      expect(state.zones.deck.length).toBe(originalDeck.length);
+    });
+
+    it("should handle empty deck without errors", () => {
+      facade.initializeGame([]);
+
+      const result = facade.shuffleDeck();
+
+      expect(result.success).toBe(true);
+
+      const state = get(gameStateStore);
+      expect(state.zones.deck).toEqual([]);
+    });
+  });
 });

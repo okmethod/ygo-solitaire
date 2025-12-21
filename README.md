@@ -1,44 +1,55 @@
 # Yu-Gi-Oh! ソリティア
 
-> 「詰将棋」のような感覚でプレイする、遊戯王1ターンキル・シミュレーター
+> ソリティア感覚でプレイする、 1人プレイ用の遊戯王 1ターンキル・シミュレーター
 
 ## 🎮 プロジェクト概要
 
-Webブラウザ上で手軽に遊戯王の「先攻1ターンキル」を挑戦・練習できるアプリケーション。
+Webブラウザ上で手軽に遊戯王の「先攻1ターンキル」に挑戦・練習できるアプリケーション。
 
-- あらかじめ用意されたデッキを選択
-- 先攻1ターン目をプレイし、勝利条件（エクゾディア勝利等）を目指す
-- 対戦相手はカカシ（気兼ねも思考待ち時間もゼロ）
+- ユーザーはデッキを選ぶだけで、即座にゲームを開始できる
+- 対戦相手はカカシで、気兼ねも思考待ち時間もゼロ
+- カードプールを絞ることで、大量かつ複雑な実装は不要
 
 詳細なプロジェクトコンセプトは [docs/README.md](docs/README.md) を参照してください。
 
-## 🏗️ アーキテクチャ
+---
 
-Clean Architecture（3層構造）を採用：
+## 📚 ディレクトリ構成
 
 ```
-Domain Layer     → ゲームルール（純粋TypeScript）
-Application Layer → ユースケース（Commands, Stores）
-Presentation Layer → UI（Svelte 5 + Skeleton UI）
+ygo-solitaire/
+├── skeleton-app       # フロントエンド
+│
+├── fast-api-server    # バックエンド（現在未使用）
+│
+├── docs               # ストック情報（永続的な情報）
+│   ├── domain/        # ドメイン知識: ゲームルールとスコープ管理
+│   ├── architecture/  # アーキテクチャ: 技術的な構成・方針
+│   └── adr/           # ADR: 設計判断の記録
+│
+└── specs              # フロー情報（spec-kit による作業記録）
+```
+
+---
+
+## 🏗️ アーキテクチャ
+
+Clean Architecture（4層構造）を採用:
+
+```
+Domain Layer         : ゲームルール（純粋TypeScript）
+Application Layer    : ユースケース（Commands, Stores）
+Infrastructure Layer : 外部アクセス（YGOPRODeck API）
+Presentation Layer   : UI（Skeleton v3）
 ```
 
 **技術スタック**:
-- **フロントエンド**: SvelteKit + Svelte 5 + Skeleton UI + TailwindCSS
+- **フロントエンド**: Skeleton v3 (Svelte v5 + TailwindCSS v4 + Skeleton UI v3)
 - **状態管理**: Svelte Stores + Immer.js（不変性保証）
-- **テスト**: Vitest（204 tests） + Playwright（16 E2E tests）
-- **バックエンド**: FastAPI + Python（オプション）
+- **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）
+- **バックエンド**: FastAPI + Python（現在未使用、将来的には利用するかも）
 
 詳細は [docs/architecture/overview.md](docs/architecture/overview.md) を参照してください。
-
-## 📚 ドキュメント
-
-プロジェクトの詳細なドキュメントは [docs/](docs/) に整理されています：
-
-- **[docs/README.md](docs/README.md)**: ドキュメント目次とプロジェクトコンセプト
-- **[docs/domain/](docs/domain/)**: 遊戯王ルールとスコープ管理
-- **[docs/architecture/](docs/architecture/)**: アーキテクチャ設計とテスト戦略
-- **[docs/development/](docs/development/)**: 開発環境セットアップとコーディング規約
-- **[docs/adr/](docs/adr/)**: 設計判断記録（ADR）
 
 ---
 
@@ -73,13 +84,11 @@ npm run test:e2e      # E2E tests (16 tests)
 npm run lint          # Linter check
 ```
 
-詳細な開発手順は [docs/development/setup.md](docs/development/setup.md) を参照してください。
-
 ---
 
 ## 🌐 デプロイ
 
-GitHub Pagesへの静的デプロイ：
+GitHub Pagesへの静的デプロイ:
 
 ```bash
 cd skeleton-app
@@ -88,16 +97,6 @@ npm run deploy
 ```
 
 **公開URL**: https://okmethod.github.io/ygo-solitaire/
-
----
-
-## 🤝 コントリビューション
-
-コントリビューション歓迎！以下を参照してください：
-
-- [開発環境セットアップ](docs/development/setup.md)
-- [コーディング規約](docs/development/conventions.md)
-- [アーキテクチャ概要](docs/architecture/overview.md)
 
 ---
 

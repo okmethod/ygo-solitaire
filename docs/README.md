@@ -14,11 +14,11 @@
 - 特定のデッキで勝利までのルートに挑戦したいニーズがある
 
 **目的**:
-- Webブラウザ上で手軽に「先攻1ターンキル」を挑戦・練習できる環境を提供する
+- Webブラウザ上で手軽に「先攻1ターンキル」に挑戦・練習できる環境を提供する
 
 ### コンセプト
 
-**「詰将棋」のような感覚でプレイする、遊戯王 1ターンキル・シミュレーター**
+**ソリティア感覚でプレイする、 1人プレイ用の遊戯王 1ターンキル・シミュレーター**
 
 - ユーザーはデッキを選ぶだけで、即座にゲームを開始できる
 - 対戦相手はカカシで、気兼ねも思考待ち時間もゼロ
@@ -52,14 +52,6 @@ specs/
 | **domain/** | 新しいゲームルールを検討する時or実装した時 |
 | **architecture/** | アーキテクチャを大きく変更した時 |
 | **adr/** | 重要な技術的決定をした時 |
-
-### 最近の重要な更新 ⭐
-
-- **[architecture/data-model-design.md](architecture/data-model-design.md)** (2025-11-29)
-  - 3層データモデル設計（DomainCardData / CardDisplayData）
-  - YGOPRODeck API統合とキャッシング戦略
-- **[architecture/migration-strategy.md](architecture/migration-strategy.md)** (2025-11-29)
-  - GameState/Rules の段階的移行戦略（文字列ID → 数値ID）
 
 ---
 

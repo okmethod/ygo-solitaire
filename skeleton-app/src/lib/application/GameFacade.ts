@@ -13,6 +13,7 @@ import { gameStateStore, resetGameState, getCurrentState } from "./stores/gameSt
 import { DrawCardCommand } from "./commands/DrawCardCommand";
 import { AdvancePhaseCommand } from "./commands/AdvancePhaseCommand";
 import { ActivateSpellCommand } from "./commands/ActivateSpellCommand";
+import { ShuffleDeckCommand } from "./commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 
@@ -41,6 +42,28 @@ export class GameFacade {
    */
   initializeGame(deckCardIds: number[]): void {
     resetGameState(deckCardIds);
+  }
+
+  /**
+   * Shuffle the deck
+   *
+   * @returns Success/failure result
+   */
+  shuffleDeck(): { success: boolean; message?: string; error?: string } {
+    const currentState = getCurrentState();
+    const command = new ShuffleDeckCommand();
+
+    const result = command.execute(currentState);
+
+    if (result.success) {
+      gameStateStore.set(result.newState);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      error: result.error,
+    };
   }
 
   /**
