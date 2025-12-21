@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
-  import checkHeartbeat from "$lib/infrastructure/api/checkHeartbeat";
+  //import checkHeartbeat from "$lib/infrastructure/api/checkHeartbeat";
 
   let authorized = false;
 
+  /** 認証チェック関数の例
   async function checkAuth(fetch: typeof window.fetch): Promise<boolean> {
     try {
       const message = await checkHeartbeat(fetch);
@@ -15,10 +16,13 @@
     }
     return true;
   }
+  */
 
   onMount(async () => {
     if (browser) {
-      authorized = await checkAuth(window.fetch);
+      authorized = true;
+      // 認証する場合は、以下のコメントアウトを外して使用する
+      // authorized = await checkAuth(window.fetch);
     }
     if (!authorized) {
       // 未認証の場合の処理をここに書く
