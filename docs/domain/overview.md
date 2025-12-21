@@ -1,174 +1,162 @@
-# ドメイン実装概要
+# 遊戯王 OCG ルール概要
 
-プロジェクトのスコープと実装状況のマッピング。
+本アプリケーションで扱う遊戯王 OCG（オフィシャルカードゲーム）のルールを定義する。  
+原則、先攻 1 ターンキルシミュレーターに必要な範囲のみを記載する。
 
----
+**参考資料**
 
-## スコープ定義
-
-### ✅ やること (In Scope)
-
-| 機能                                | 説明                               | 実装状況                |
-| ----------------------------------- | ---------------------------------- | ----------------------- |
-| **デッキ選択**                      | あらかじめ定義されたデッキから選択 | ✅ 完全実装             |
-| **先攻 1 ターン目シミュレーション** | Draw → Standby → Main1 → End       | ✅ 完全実装             |
-| **エクゾディア勝利判定**            | 5 パーツが手札に揃う               | ✅ 完全実装             |
-| **ライフポイント勝利判定**          | 相手ライフ 0                       | ⏳ 未実装（枠組みのみ） |
-| **基本ルール処理**                  | カード発動、ドロー、墓地送り       | ✅ 基本実装             |
-| **プリセットカード**                | 選択可能なデッキのカードのみ       | ✅ 一部実装             |
-
-### ❌ やらないこと (Out of Scope)
-
-| 機能                    | 理由                      |
-| ----------------------- | ------------------------- |
-| **デッキ構築機能**      | 複雑度爆発の防止          |
-| **後攻・対戦相手の AI** | 先攻 1 ターン目限定       |
-| **バトルフェイズ**      | 先攻 1 ターン目は攻撃不可 |
-| **完全なルール網羅**    | MVP 範囲外のレアケース    |
-| **サーバーサイド**      | 完全クライアントサイド    |
+- [遊戯王 OCG 公式ルール](https://www.yugioh-card.com/japan/howto/)
+- [マスタールール(2020 年 4 月 1 日改訂版)対応公式ルールブック PDF 版](https://img.yugioh-card.com/japan/howto/data/rulebook_masterrule20200401_ver1.0.pdf)
 
 ---
 
-## ドメイン実装状況
+## Player: プレイヤー / 決闘者
 
-**ドメイン知識 → コード対応表**
+自由意志を持ってゲームを操作する主体。1 ゲームにつき 2 人存在する。
 
-| ドメイン概念           | ドキュメント                                                             | 実装クラス/ファイル                                            |
-| ---------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| **GameState**          | [yugioh-rules.md](./yugioh-rules.md)                                     | `domain/models/GameState.ts`                                   |
-| **Phase**              | [yugioh-rules.md - フェーズシステム](./yugioh-rules.md#フェーズシステム) | `domain/models/Phase.ts`, `domain/rules/PhaseRule.ts`          |
-| **Victory Conditions** | [yugioh-rules.md - 勝利条件](./yugioh-rules.md#勝利条件)                 | `domain/rules/VictoryRule.ts`                                  |
-| **Card Zones**         | [yugioh-rules.md - 領域](./yugioh-rules.md#領域-zone)                    | `GameState.zones`                                              |
-| **Card Types**         | [yugioh-rules.md - カード種別](./yugioh-rules.md#カード種別)             | `domain/models/Card.ts`                                        |
-| **Card Actions**       | [yugioh-rules.md - 行動](./yugioh-rules.md#行動-action)                  | `application/commands/`                                        |
-| **Card Effects**       | [yugioh-rules.md - 概念](./yugioh-rules.md#概念-concept)                 | `domain/effects/`, `application/effects/CardEffectRegistry.ts` |
-| **Activation Rules**   | [yugioh-rules.md - カード種別](./yugioh-rules.md#カード種別)             | `domain/rules/SpellActivationRule.ts`                          |
+- **You** : あなた / 自分
+- **Opponent** : 相手プレイヤー（意思決定が必要な場合は、本アプリが代行する）
 
-### フェーズシステム
-
-| フェーズ          | 実装状況    | 実装箇所       | 備考                     |
-| ----------------- | ----------- | -------------- | ------------------------ |
-| **Draw Phase**    | ✅ 完全実装 | `PhaseRule.ts` | 先攻 1T 目はドローしない |
-| **Standby Phase** | ✅ 完全実装 | `PhaseRule.ts` | スキップ可能             |
-| **Main Phase 1**  | ✅ 完全実装 | `PhaseRule.ts` | カード発動可能           |
-| **End Phase**     | ✅ 完全実装 | `PhaseRule.ts` | ゲーム終了               |
-
-**コマンド**: `AdvancePhaseCommand`
-
-#### 勝利条件
-
-| 勝利条件               | 実装状況      | 実装箇所                              | 備考             |
-| ---------------------- | ------------- | ------------------------------------- | ---------------- |
-| **エクゾディア勝利**   | ✅ 完全実装   | `VictoryRule.checkExodiaVictory()`    | 5 パーツ判定     |
-| **ライフポイント勝利** | ⏳ 枠組みのみ | `VictoryRule.checkLifePointVictory()` | 常に`null`を返す |
-
-**派生 Store**: `exodiaPieceCount`, `gameResult`
-
-### 領域 (Zone)
-
-| Zone           | 実装状況    | GameState 定義    | 操作                              |
-| -------------- | ----------- | ----------------- | --------------------------------- |
-| **Deck**       | ✅ 完全実装 | `zones.deck`      | DrawCommand                       |
-| **Hand**       | ✅ 完全実装 | `zones.hand`      | DrawCommand, ActivateSpellCommand |
-| **Field**      | ✅ 基本実装 | `zones.field`     | カード配置は未使用                |
-| **Graveyard**  | ✅ 完全実装 | `zones.graveyard` | ActivateSpellCommand              |
-| **Banishment** | ⏳ 定義のみ | -                 | 未使用                            |
-
-### カードシステム
-
-#### カード種別
-
-| カード種別         | 実装状況      | 実装箇所                                 | 備考                                |
-| ------------------ | ------------- | ---------------------------------------- | ----------------------------------- |
-| **Monster**        | ✅ データのみ | `Card` type                              | エクゾディアパーツのみ              |
-| **Spell (Normal)** | ✅ 完全実装   | `ActivateSpellCommand`, Effect System    | Pot of Greed, Graceful Charity      |
-| **Trap**           | 🚧 一部実装   | `SpellActivationRule`, `cardDatabase.ts` | 発動判定のみ（Jar of Greed 定義済） |
-
-#### カードアクション
-
-| アクション           | 実装状況    | 実装箇所               | 備考          |
-| -------------------- | ----------- | ---------------------- | ------------- |
-| **Draw**             | ✅ 完全実装 | `DrawCardCommand`      | デッキ → 手札 |
-| **Activate (Spell)** | ✅ 基本実装 | `ActivateSpellCommand` | 通常魔法のみ  |
-| **Summon**           | ❌ 未実装   | -                      | MVP 範囲外    |
-| **Set**              | ❌ 未実装   | -                      | MVP 範囲外    |
-| **Release**          | ❌ 未実装   | -                      | MVP 範囲外    |
-
-#### カード発動ルール
-
-| ルール                   | 実装状況    | 実装箇所                                    | 備考                 |
-| ------------------------ | ----------- | ------------------------------------------- | -------------------- |
-| **発動可能フェーズ判定** | ✅ 完全実装 | `SpellActivationRule`                       |                      |
-| **罠カード発動判定**     | ✅ 完全実装 | `SpellActivationRule`                       | 手札から直接発動不可 |
-| **発動後の墓地送り**     | ✅ 完全実装 | `ActivateSpellCommand`                      | -                    |
-| **カード効果処理**       | ✅ 完全実装 | Effect System (Strategy Pattern + Registry) | -                    |
-| **コスト処理**           | ❌ 未実装   | -                                           | -                    |
-| **対象選択**             | ❌ 未実装   | -                                           | -                    |
-
-#### カード効果システム (Effect System)
-
-| コンポーネント           | 実装状況    | 実装箇所                                    | 備考                                    |
-| ------------------------ | ----------- | ------------------------------------------- | --------------------------------------- |
-| **CardEffect Interface** | ✅ 完全実装 | `domain/effects/CardEffect.ts`              | すべてのカード効果の基底                |
-| **CardEffectRegistry**   | ✅ 完全実装 | `application/effects/CardEffectRegistry.ts` | カード ID→Effect インスタンスマッピング |
-| **SpellEffect**          | ✅ 完全実装 | `domain/effects/bases/SpellEffect.ts`       | 魔法カード共通処理                      |
-| **NormalSpellEffect**    | ✅ 完全実装 | `domain/effects/bases/NormalSpellEffect.ts` | 通常魔法共通処理                        |
-
-**実装済みカード効果**: Pot of Greed, Graceful Charity
+（カードの持ち主、カードのコントローラーという概念もあるが、本アプリでは今のところ考慮不要）
 
 ---
 
-## MVP (Minimum Viable Product)
+## Card: カード
 
-### ✅ 実装済み
+モンスターカード、魔法カード、罠カードの総称。
 
-- **デッキ**: 「封印されしエクゾディア」デッキ 1 種
-- **機能**:
-  - 手札からの魔法発動（Pot of Greed, Graceful Charity）
-  - カード効果処理（Effect System: Strategy Pattern）
-  - ドロー（複数枚対応）
-  - カード破棄（手札選択 UI）
-  - エクゾディア勝利判定
-  - 罠カード発動判定（手札から直接発動不可）
-- **UI**:
-  - カードをクリックでプレイ
-  - カード効果解決モーダル
-  - カード選択モーダル（破棄時）
-  - カード画像表示（YGOPRODeck API 統合）
+詳細は [カードモデル](./card-models.md) を参照。
 
-### 🚧 次の拡張候補
-
-1. **ライフポイント勝利の実装**
-
-   - バーンダメージ処理
-   - ライフポイント管理
-
-2. **新しいデッキ追加**
-
-   - バーンデッキ
-   - 特殊召喚デッキ
-
-3. **モンスター召喚**
-
-   - 通常召喚の実装
-   - フィールド配置
-
-4. **チェーンシステム**
-   - LIFO 処理
-   - チェーンブロック
+**実装箇所**: `domain/models/Card.ts`
 
 ---
 
-## 実装開始時の参照順序
+## Game State: ゲーム状態
 
-1. [yugioh-rules.md](./yugioh-rules.md) - ドメインルール確認
-2. この overview.md - 実装状況確認
-3. [architecture/overview.md](../architecture/overview.md) - 実装方針確認
+1 回のゲーム（公式ルールでいう「1 回のデュエル」） は以下の要素で構成される状態を持つ。  
+これらの要素をルールに従い更新しながら、ゲームを進行する。
+
+- **Zones** : 領域
+- **Turn** : ターン
+- **Phase** : フェイズ
+- **Chain** : チェーン
+- **Life Points** : ライフポイント
+- **Victory Decision** : 勝利判定
+
+TODO: 召喚権など、1 ターン中に回数制限があるものも管理する必要がある
+
+**実装箇所**: `domain/models/GameState.ts`
 
 ---
 
-## 関連ドキュメント
+## Game Operation: ゲーム操作
 
-- [yugioh-rules.md](./yugioh-rules.md) - 遊戯王 OCG 基本ルール
-- [architecture/overview.md](../architecture/overview.md) - 技術アーキテクチャ
-- [specs/001-architecture-refactoring/](../../specs/001-architecture-refactoring/) - リファクタリング記録
+ゲーム状態を変化させる手続きを定義し、これを処理することでゲームを進行させる。  
+ゲーム操作には、プレイヤーが選択可能な行動によってトリガーするものや、ルールやカード効果解決に従い自動的に処理されるものがある。
+
+すべてのゲーム操作は、変更前のゲーム状態に対して適用可能かの条件を判定し、満たしていれば変更後のゲーム状態を返す。
+
+詳細は [ゲーム操作モデル](./game-operations.md) を参照。
+
+**実装箇所**: `domain/commands/`, `application/GameFacade.ts`
+
+---
+
+## Zones: 領域
+
+カードが配置される領域。ゲーム中のすべてのカードは、いずれかの領域に存在する。  
+自分/相手のそれぞれに固有の領域がある。
+
+**実装箇所**: `domain/models/Zone.ts`
+
+### Deck: デッキ / メインデッキ / 山札
+
+- 当該ゲームで使われるカードプールの初期位置。
+- 枚数は公開情報、順番や内訳は非公開情報。
+
+### Extra Deck: エクストラデッキ
+
+- ルール上、メインデッキと区別して扱われるカードプール。
+- 融合・シンクロ・エクシーズ・リンクモンスターが含まれる。
+- 自分にとって、自分のエクストラデッキは公開情報。
+
+### Hand: 手札
+
+- プレイヤーが手に持っているカードが含まれる領域。
+- プレイの起点となり、手札からカードを発動・召喚したり、セットしたりする。
+- 自分にとって、自分の手札は公開情報。
+
+### Field: フィールド
+
+- カードを配置してプレイする領域。以下のゾーンの総称。
+  - メインモンスターゾーン: モンスターカードを置く領域（5 枚）
+  - エクストラモンスターゾーン(⏳ 未実装)
+  - 魔法＆罠ゾーン: 魔法カードまたは罠カードを置く領域（5 枚）
+  - フィールドゾーン: フィールド魔法カードを置く場所（1 枚）
+  - ペンデュラムゾーン(⏳ 未実装)
+- 自分にとって、自分フィールドは公開情報。
+
+### Graveyard: 墓地
+
+- 使用済みのカードが送られる場所。
+- 公開情報。
+
+### Banishment: 除外（⏳ 未実装）
+
+- ゲームから除外された場所。別名第二の墓地。
+- 公開情報。ただし裏側で除外されたカードは除く。
+
+---
+
+## Turn: ターン
+
+各プレイヤーがアクションを起こすことのできる順番。  
+ゲームの準備が整った後、先攻プレイヤーから第 1 ターンとして始まり、それ以降は後攻プレイヤーとで交互に行う。  
+本アプリでは、基本的に `1` で、ターンプレイヤーは自分となる。
+
+---
+
+## Phase: フェイズ
+
+ターンを構成する、手順を明確に区切ったもの。フェイズごとに選択可能なアクションが異なる。
+
+**先攻 1 ターン目のフェイズ遷移:**
+
+1. **Draw Phase** : ドローフェイズ。先行 1 ターン目はドローしない。
+2. **Standby Phase** : スタンバイフェイズ。特定のカード効果を処理するためのフェイズだが、先行 1 ターン目は何もしない。
+3. **Main Phase 1** : メインフェイズ 1。ターンプレイヤーがアクションできるフェイズ。このアプリの主役。
+4. **End Phase** : エンドフェイズ。ターンの終了処理を行う。
+
+2 ターン目以降は「バトルフェイズ」「メインフェイズ 2」があるが、本アプリには不要。
+
+**実装箇所**: `domain/models/Phase.ts`, `domain/rules/PhaseRule.ts`
+
+---
+
+## Chain: チェーン
+
+複数のカードの効果をスムーズに解決するシステム。
+
+詳細は [効果システム](./effect-system.md) および [チェーンシステム](./chain-system.md) を参照。
+
+**実装箇所**: `domain/effects/`, `application/effects/CardEffectRegistry.ts`
+
+---
+
+## Life Points: ライフポイント
+
+各プレイヤーの命。初期値は 8000 ポイント。0 ポイントになると敗北する。
+
+---
+
+## Victory Decision: 勝利判定
+
+プレイヤーが勝利条件を満たしているかどうかの判定結果。以下の 3 つに大別される。
+
+- 相手プレイヤーのライフポイントを 0 にする
+- 相手のデッキが 0 枚の状態で、相手がカードをドローする（デッキ切れ）
+- 各種カードの効果による勝利（特殊勝利）
+
+特殊勝利のバリエーションに関する詳細は [特殊勝利条件](./victory-conditions.md) を参照。
+
+**実装箇所**: `domain/rules/VictoryRule.ts`

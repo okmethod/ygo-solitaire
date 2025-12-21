@@ -26,8 +26,8 @@
 
 ### 新規参加者ガイド
 
-1. [docs/README.md](docs/README.md) - プロジェクトコンセプト
-2. [docs/domain/overview.md](docs/domain/overview.md) - スコープと実装状況
+1. [docs/README.md](docs/README.md) - プロジェクトコンセプトとスコープ方針
+2. [docs/domain/overview.md](docs/domain/overview.md) - ゲームルール理解
 3. [docs/architecture/overview.md](docs/architecture/overview.md) - アーキテクチャ理解
 
 ## プロジェクト概要
