@@ -4,6 +4,12 @@
 			"path": "."
 		},
 		{
+			"path": "docs"
+		},
+		{
+			"path": "specs"
+		},
+		{
 			"path": "skeleton-app"
 		},
 	],
