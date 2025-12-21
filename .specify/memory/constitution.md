@@ -1,22 +1,20 @@
 <!--
 Sync Impact Report:
-Version: 2.0.0 (major revision - fundamental principles redesigned)
+Version: 2.0.0 → 2.0.1 (patch - documentation clarity improvements)
 Modified Principles:
-  - 全原則を開発哲学ベースに再構築
-  - 実装詳細依存を排除し、普遍的な原則に変更
+  - なし（文言の明確化のみ）
 Added Sections:
-  - Planning Principles (要件定義の心得)
-  - Architecture Principles (設計の心得)
-  - Coding Principles (実装の心得)
-  - Project-Specific Principles (このプロジェクト固有の原則)
+  - なし
 Removed Sections:
-  - 旧Core Principles (実装詳細に依存した原則5つを削除)
+  - なし
 Templates Status:
-  - ✅ spec-template.md: Reviewed - 新しい原則と整合
-  - ✅ plan-template.md: Reviewed - Constitution Checkセクションで新原則を参照可能
-  - ✅ tasks-template.md: Reviewed - 新しいワークフローと整合
+  - ✅ spec-template.md: No changes required - already aligned
+  - ✅ plan-template.md: No changes required - already aligned
+  - ✅ tasks-template.md: No changes required - already aligned
+Command Files Updated:
+  - ✅ .claude/commands/speckit.constitution.md: エージェント固有の例を汎用的な表現に改善
 Follow-up TODOs:
-  - 次回の設計見直し時に、原則IVの各レイヤーの責務を具体化する可能性あり
+  - なし
 -->
 
 # Yu-Gi-Oh! ソリティア プロジェクト憲法
@@ -269,4 +267,4 @@ Follow-up TODOs:
 - [Architecting Guide](https://github.com/okmethod/okmethod/blob/main/docs/architecting-guide/README.md) - アーキテクチャ設計の心得
 - [Coding Guide](https://github.com/okmethod/okmethod/blob/main/docs/coding-guide/README.md) - コーディングの心得
 
-**Version**: 2.0.0 | **Ratified**: 2025-01-23 | **Last Amended**: 2025-01-23
+**Version**: 2.0.1 | **Ratified**: 2025-01-23 | **Last Amended**: 2025-12-21
