@@ -56,8 +56,5 @@
   },
   "overrides": {
     "cookie": "^1.0.2"
-  },
-  "dependencies": {
-    "immer": "^11.0.0"
   }
 }

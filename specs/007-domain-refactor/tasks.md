@@ -71,16 +71,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] `application/commands/DrawCardCommand.ts`のImmer削除、spread構文に置き換え
-- [ ] T014 [P] [US2] `application/commands/DiscardCardsCommand.ts`のImmer削除、spread構文に置き換え
-- [ ] T015 [P] [US2] `application/commands/ActivateSpellCommand.ts`のImmer削除、spread構文に置き換え
-- [ ] T016 [P] [US2] `application/commands/AdvancePhaseCommand.ts`のImmer削除、spread構文に置き換え
-- [ ] T017 [P] [US2] `application/commands/ShuffleDeckCommand.ts`のImmer削除、spread構文に置き換え
-- [ ] T018 [US2] `package.json`から`immer`パッケージをuninstall (`npm uninstall immer`)
-- [ ] T019 [US2] 全ファイルで`from "immer"`のimportが残っていないことをgrep検索で確認
-- [ ] T020 [US2] TypeScript コンパイル確認 (`npm run check`)
-- [ ] T021 [US2] Immer削除後のテスト実行（不変性検証含む） (`npm run test:run`)
-- [ ] T022 [US2] Lint/Format実行 (`npm run lint && npm run format`)
+- [x] T013 [P] [US2] `application/commands/DrawCardCommand.ts`のImmer削除、spread構文に置き換え
+- [x] T014 [P] [US2] `application/commands/DiscardCardsCommand.ts`のImmer削除、spread構文に置き換え
+- [x] T015 [P] [US2] `application/commands/ActivateSpellCommand.ts`のImmer削除、spread構文に置き換え
+- [x] T016 [P] [US2] `application/commands/AdvancePhaseCommand.ts`のImmer削除、spread構文に置き換え
+- [x] T017 [P] [US2] `application/commands/ShuffleDeckCommand.ts`のImmer削除、spread構文に置き換え
+- [x] T018 [US2] `package.json`から`immer`パッケージをuninstall (`npm uninstall immer`)
+- [x] T019 [US2] 全ファイルで`from "immer"`のimportが残っていないことをgrep検索で確認
+- [x] T020 [US2] TypeScript コンパイル確認 (`npm run check`)
+- [x] T021 [US2] Immer削除後のテスト実行（不変性検証含む） (`npm run test:run`)
+- [x] T022 [US2] Lint/Format実行 (`npm run lint && npm run format`)
 
 **Checkpoint**: Immer依存が完全に削除され、spread構文で不変性が保たれている。
 

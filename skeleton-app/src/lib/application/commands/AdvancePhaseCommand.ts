@@ -7,7 +7,6 @@
  * @module application/commands/AdvancePhaseCommand
  */
 
-import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
@@ -66,14 +65,14 @@ export class AdvancePhaseCommand implements GameCommand {
 
     const nextPhase = getNextValidPhase(state.phase);
 
-    // Use Immer to create new state with advanced phase
-    const newState = produce(state, (draft) => {
-      draft.phase = nextPhase;
-
+    // Create new state with advanced phase using spread syntax
+    const newState: GameState = {
+      ...state,
+      phase: nextPhase,
       // If advancing to End phase and it's end of turn, increment turn counter
       // (In MVP, End phase loops to itself, so turn doesn't increment automatically)
       // This will be expanded in future when turn cycling is implemented
-    });
+    };
 
     const phaseDisplayName = getPhaseDisplayName(nextPhase);
     return createSuccessResult(newState, `Advanced to ${phaseDisplayName}`);

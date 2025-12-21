@@ -12,7 +12,6 @@
  * @module application/commands/ActivateSpellCommand
  */
 
-import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
@@ -94,10 +93,11 @@ export class ActivateSpellCommand implements GameCommand {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
     }
 
-    // Create intermediate state for effect resolution
-    const stateAfterActivation = produce(state, (draft) => {
-      draft.zones = zonesAfterActivation as typeof draft.zones;
-    });
+    // Create intermediate state for effect resolution using spread syntax
+    const stateAfterActivation: GameState = {
+      ...state,
+      zones: zonesAfterActivation,
+    };
 
     // Check if card has registered effect
     const cardId = parseInt(cardInstance.cardId, 10);
@@ -116,18 +116,20 @@ export class ActivateSpellCommand implements GameCommand {
     // No effect registered - send directly to graveyard
     const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
 
-    // Create new state with updated zones
-    const newState = produce(state, (draft) => {
-      draft.zones = zonesAfterResolution as typeof draft.zones;
-    });
+    // Create new state with updated zones using spread syntax
+    const newState: GameState = {
+      ...state,
+      zones: zonesAfterResolution,
+    };
 
     // Check victory conditions after activation
     const victoryResult = checkVictoryConditions(newState);
 
-    // Update game result if victory/defeat occurred
-    const finalState = produce(newState, (draft) => {
-      draft.result = victoryResult;
-    });
+    // Update game result if victory/defeat occurred using spread syntax
+    const finalState: GameState = {
+      ...newState,
+      result: victoryResult,
+    };
 
     return createSuccessResult(finalState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }
