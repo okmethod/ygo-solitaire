@@ -61,9 +61,9 @@ specs/
 - **フレームワーク**: SvelteKit + Svelte 5
 - **UIライブラリ**: Skeleton UI v3
 - **CSS**: TailwindCSS v4
-- **状態管理**: Svelte Stores + Immer.js
+- **状態管理**: Svelte Stores + Immer.js（不変性保証）
 - **型チェック**: TypeScript (Strict mode)
-- **テスト**: Vitest + Playwright
+- **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）
 
 ---
 
@@ -72,8 +72,3 @@ specs/
 - **[README.md](../README.md)**: ユーザー向けプロジェクト説明
 - **[CLAUDE.md](../CLAUDE.md)**: Claude Codeへの指示書（クイックリファレンス）
 - **[specs/](../specs/)**: プロジェクト仕様（フロー情報）
-
----
-
-**最終更新**: 2025-11-29
-**メンテナー**: @okmethod
