@@ -30,8 +30,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import { EffectResolutionServiceImpl } from "$lib/application/services/EffectResolutionServiceImpl";
 
 describe("Normal Spell Card Effects", () => {
+  const effectResolutionService = new EffectResolutionServiceImpl();
+
   beforeEach(() => {
     // Reset effectResolutionStore before each test
     effectResolutionStore.reset();
@@ -57,7 +60,7 @@ describe("Normal Spell Card Effects", () => {
       const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
 
       // Act: Activate Pot of Greed
-      const command = new ActivateSpellCommand("pot-0"); // createCardInstances uses 0-based index
+      const command = new ActivateSpellCommand("pot-0", effectResolutionService); // createCardInstances uses 0-based index
       command.execute(state);
 
       // Assert: Effect resolution started
@@ -95,7 +98,7 @@ describe("Normal Spell Card Effects", () => {
       });
 
       // Act
-      const command = new ActivateSpellCommand("pot-0");
+      const command = new ActivateSpellCommand("pot-0", effectResolutionService);
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
@@ -123,7 +126,7 @@ describe("Normal Spell Card Effects", () => {
       const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
 
       // Act: Activate Graceful Charity
-      const command = new ActivateSpellCommand("charity-0");
+      const command = new ActivateSpellCommand("charity-0", effectResolutionService);
       command.execute(state);
 
       // Assert: Effect resolution started
@@ -166,7 +169,7 @@ describe("Normal Spell Card Effects", () => {
       });
 
       // Act
-      const command = new ActivateSpellCommand("charity-0");
+      const command = new ActivateSpellCommand("charity-0", effectResolutionService);
       const result = command.canExecute(state);
 
       // Assert: Cannot activate

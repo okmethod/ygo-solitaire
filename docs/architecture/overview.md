@@ -83,13 +83,13 @@ skeleton-app/src/lib/domain/
   - 統一された`canActivate()` / `createSteps()`インターフェース
   - カード種別ごとの階層構造（CardEffect → SpellEffect → NormalSpellEffect → PotOfGreedEffect）
   - カードごとに異なる効果処理を交換可能に
-  - CardEffectRegistry: カードID→CardEffectインスタンスのマッピング管理（Registry Pattern）
+  - CardEffectRegistry: カード ID→CardEffect インスタンスのマッピング管理（Registry Pattern）
 
 - **GameCommand**: ゲーム操作の具象実装（Command Pattern）
 
   - 統一された`canExecute()` / `execute()`インターフェース
-  - 具象実装: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand等
-  - spread構文によるゲーム状態の不変更新を保証
+  - 具象実装: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand 等
+  - spread 構文によるゲーム状態の不変更新を保証
   - 行動履歴の追跡とテストが容易
 
 ### Application Layer
@@ -114,29 +114,29 @@ skeleton-app/src/lib/application/
 
 **主要コンポーネント**:
 
-- **GameFacade**: UIからの単一窓口（Facade Pattern）
+- **GameFacade**: UI からの単一窓口（Facade Pattern）
 
-  - Presentation LayerとDomain Layerの橋渡し
-  - Domain層のCommandsを呼び出し、結果をStoreに反映
+  - Presentation Layer と Domain Layer の橋渡し
+  - Domain 層の Commands を呼び出し、結果を Store に反映
   - すべてのゲーム操作をシンプルなメソッドで提供
-  - Store更新の責任を一元管理
+  - Store 更新の責任を一元管理
 
 - **Stores**: 状態管理（Observer Pattern）
 
   - Svelte Store（`writable`, `derived`）による実装
-  - 状態の変化をUIに通知
-  - Derived Storesで計算コストの高い派生値をキャッシュ
-  - 不変オブジェクト（spread構文）による更新検知でSvelteの再描画を最適化
+  - 状態の変化を UI に通知
+  - Derived Stores で計算コストの高い派生値をキャッシュ
+  - 不変オブジェクト（spread 構文）による更新検知で Svelte の再描画を最適化
 
 - **Ports**: 抽象インターフェース（Port/Adapter Pattern）
 
-  - Infrastructure層への依存を抽象化
+  - Infrastructure 層への依存を抽象化
   - 例: `ICardDataRepository`（カードデータ取得の抽象）
 
-- **Types & DTOs**: Application層のデータ型
-  - `CardDisplayData`: UI表示用のカード情報
+- **Types & DTOs**: Application 層のデータ型
+  - `CardDisplayData`: UI 表示用のカード情報
   - `DeckRecipe`: デッキレシピ定義
-  - Domain層の型（`CardData`）とは明確に区別
+  - Domain 層の型（`CardData`）とは明確に区別
 
 ### Infrastructure Layer
 

@@ -20,8 +20,7 @@ import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { CardEffectRegistry } from "$lib/domain/effects";
-// eslint-disable-next-line no-restricted-imports -- TODO: Remove this dependency in future refactoring (Phase 6+)
-import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import type { IEffectResolutionService } from "$lib/domain/services/IEffectResolutionService";
 
 /**
  * Command to activate a spell card
@@ -33,8 +32,12 @@ export class ActivateSpellCommand implements GameCommand {
    * Create a new ActivateSpellCommand
    *
    * @param cardInstanceId - Card instance ID to activate
+   * @param effectResolutionService - Effect resolution service (injected)
    */
-  constructor(private readonly cardInstanceId: string) {
+  constructor(
+    private readonly cardInstanceId: string,
+    private readonly effectResolutionService: IEffectResolutionService,
+  ) {
     this.description = `Activate spell card ${cardInstanceId}`;
   }
 
@@ -108,7 +111,7 @@ export class ActivateSpellCommand implements GameCommand {
       // Card has effect - trigger effect resolution
       // Pass cardInstanceId to effect for graveyard-sending step
       const steps = effect.createSteps(stateAfterActivation, this.cardInstanceId);
-      effectResolutionStore.startResolution(steps);
+      this.effectResolutionService.startResolution(steps);
 
       // Early return - effect resolution will handle graveyard-sending
       return createSuccessResult(stateAfterActivation, `Spell card activated: ${this.cardInstanceId}`);
