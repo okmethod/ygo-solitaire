@@ -29,7 +29,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { CardEffectRegistry } from "$lib/application/effects/CardEffectRegistry";
+import { CardEffectRegistry } from "$lib/domain/effects/CardEffectRegistry";
 import { NormalSpellEffect } from "$lib/domain/effects/bases/NormalSpellEffect";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 import type { GameState } from "$lib/domain/models/GameState";

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { AdvancePhaseCommand } from "$lib/application/commands/AdvancePhaseCommand";
+import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createExodiaVictoryState } from "../../../__testUtils__/gameStateFactory";
 
 describe("AdvancePhaseCommand", () => {

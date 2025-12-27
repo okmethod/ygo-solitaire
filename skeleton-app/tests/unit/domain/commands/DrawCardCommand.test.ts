@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { DrawCardCommand } from "$lib/application/commands/DrawCardCommand";
+import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
 import {
   createExodiaDeckState,
   createExodiaVictoryState,

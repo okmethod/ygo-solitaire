@@ -19,7 +19,8 @@ import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
-import { CardEffectRegistry } from "$lib/application/effects";
+import { CardEffectRegistry } from "$lib/domain/effects";
+// eslint-disable-next-line no-restricted-imports -- TODO: Remove this dependency in future refactoring (Phase 6+)
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 
 /**

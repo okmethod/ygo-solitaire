@@ -27,7 +27,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 

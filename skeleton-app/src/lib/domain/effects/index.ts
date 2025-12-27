@@ -10,7 +10,7 @@
  *
  * Usage:
  * ```typescript
- * import { CardEffectRegistry } from "$lib/application/effects";
+ * import { CardEffectRegistry } from "$lib/domain/effects";
  *
  * // In ActivateSpellCommand
  * const cardId = parseInt(cardInstance.cardId, 10);
@@ -22,7 +22,7 @@
  * }
  * ```
  *
- * @module application/effects
+ * @module domain/effects
  */
 
 // ===========================

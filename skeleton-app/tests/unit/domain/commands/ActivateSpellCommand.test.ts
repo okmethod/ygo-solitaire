@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
 

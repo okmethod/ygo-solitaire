@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { ShuffleDeckCommand } from "$lib/application/commands/ShuffleDeckCommand";
+import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import {
   createExodiaDeckState,
   createMockGameState,

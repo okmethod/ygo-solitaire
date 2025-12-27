@@ -10,10 +10,10 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GamePhase } from "$lib/domain/models/constants";
 import { gameStateStore, resetGameState, getCurrentState } from "./stores/gameStateStore";
-import { DrawCardCommand } from "./commands/DrawCardCommand";
-import { AdvancePhaseCommand } from "./commands/AdvancePhaseCommand";
-import { ActivateSpellCommand } from "./commands/ActivateSpellCommand";
-import { ShuffleDeckCommand } from "./commands/ShuffleDeckCommand";
+import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
+import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 

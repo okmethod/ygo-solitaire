@@ -25,7 +25,7 @@ import type { GameState } from "../../models/GameState";
 import type { EffectResolutionStep } from "../EffectResolutionStep";
 import { drawCards } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
-import { DiscardCardsCommand } from "../../../application/commands/DiscardCardsCommand";
+import { DiscardCardsCommand } from "../../commands/DiscardCardsCommand";
 
 /**
  * GracefulCharityEffect - Graceful Charity card effect
