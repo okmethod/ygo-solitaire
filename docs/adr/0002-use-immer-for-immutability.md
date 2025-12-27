@@ -2,7 +2,11 @@
 
 ## Status
 
-✅ Accepted (2024-11-23)
+~~✅ Accepted (2024-11-23)~~
+
+❌ **Superseded** (2024-12-27) by [ADR-0007: Domain Layer Refactoring](./0007-domain-layer-refactoring.md)
+
+**理由**: GameStateのネスト構造が浅く、spread構文で十分対応可能。外部依存を削減し、Zone.tsの純粋関数パターンと統一。
 
 ## Context
 
