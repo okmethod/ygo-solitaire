@@ -9,7 +9,7 @@
 
 import type { Zones } from "./Zone";
 import type { GamePhase } from "./constants";
-import { getCardData } from "../data/cardDatabase";
+import { getCardData } from "../registries/CardDataRegistry";
 
 /**
  * Life Points for both players

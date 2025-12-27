@@ -1,21 +1,26 @@
 /**
- * Card Database - Domain Layer Card Registry
+ * CardDataRegistry - Domain Layer Card Data Registry (Registry Pattern)
  *
  * Provides card data for game logic without depending on external APIs.
- * This ensures Domain Layer independence from Presentation Layer (YGOPRODeck API).
+ * This ensures Domain Layer independence from Infrastructure Layer (YGOPRODeck API).
  *
- * @module domain/data/cardDatabase
+ * Registry Pattern:
+ * - Centralizes card data management
+ * - Provides O(1) lookup by card ID
+ * - Separates from Infrastructure Layer's "database" concept
+ *
+ * @module domain/registries/CardDataRegistry
  */
 
 import type { CardData, CardType } from "../models/Card";
 
 /**
- * Card database registry
+ * Card data registry (Registry Pattern)
  *
  * Maps card ID to domain card data.
  * Only includes cards used in the game (not a complete database).
  */
-const CARD_DATABASE: Record<number, CardData> = {
+const CARD_DATA_REGISTRY: Record<number, CardData> = {
   // Exodia pieces (monster)
   33396948: { id: 33396948, type: "monster", frameType: "effect" }, // Exodia the Forbidden One
   7902349: { id: 7902349, type: "monster", frameType: "normal" }, // Right Arm of the Forbidden One
@@ -44,25 +49,25 @@ const CARD_DATABASE: Record<number, CardData> = {
 };
 
 /**
- * Get card data from database
+ * Get card data from registry
  *
  * @param cardId - Card ID (YGOPRODeck compatible)
  * @returns Domain card data
- * @throws Error if card not found in database
+ * @throws Error if card not found in registry
  */
 export function getCardData(cardId: number): CardData {
-  const card = CARD_DATABASE[cardId];
+  const card = CARD_DATA_REGISTRY[cardId];
   if (!card) {
     throw new Error(
-      `Card data not found in domain database: ${cardId}. ` +
-        `Please add this card to CARD_DATABASE in cardDatabase.ts`,
+      `Card data not found in registry: ${cardId}. ` +
+        `Please add this card to CARD_DATA_REGISTRY in CardDataRegistry.ts`,
     );
   }
   return card;
 }
 
 /**
- * Get card type from database
+ * Get card type from registry
  *
  * @param cardId - Card ID
  * @returns Card type ("monster" | "spell" | "trap")
@@ -72,11 +77,11 @@ export function getCardType(cardId: number): CardType {
 }
 
 /**
- * Check if card exists in database
+ * Check if card exists in registry
  *
  * @param cardId - Card ID
  * @returns True if card exists
  */
 export function hasCardData(cardId: number): boolean {
-  return CARD_DATABASE[cardId] !== undefined;
+  return CARD_DATA_REGISTRY[cardId] !== undefined;
 }

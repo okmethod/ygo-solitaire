@@ -52,7 +52,7 @@ export interface CardData {
  *
  * Design Decision: CardInstance extends CardData to avoid data duplication
  * and ensure CardInstance always has access to all card properties without
- * requiring lookups to cardDatabase.
+ * requiring lookups to CardDataRegistry.
  */
 export interface CardInstance extends CardData {
   readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
