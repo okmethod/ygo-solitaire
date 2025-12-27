@@ -50,10 +50,10 @@ skeleton-app/src/lib/
 
 ```
 skeleton-app/src/lib/domain/
-├── models/    # データモデル
-├── rules/     # ゲームルール定義
-├── effects/   # カード効果（Strategy Pattern実装）
-├── commands/  # Command基底クラス
+├── models/    # データモデル（GameState, CardData, Zone等）
+├── rules/     # ゲームルール定義（VictoryRule, PhaseRule等）
+├── effects/   # カード効果（Strategy Pattern実装）+ CardEffectRegistry
+├── commands/  # Command Pattern実装（DrawCard, ActivateSpell等）
 └── data/      # ゲームルールに不可欠なカードデータ
 ```
 
@@ -80,13 +80,16 @@ skeleton-app/src/lib/domain/
 
 - **CardEffect**: カード効果の基底クラス（Strategy Pattern）
 
-  - 統一された`canActivate()` / `execute()`インターフェース
+  - 統一された`canActivate()` / `createSteps()`インターフェース
   - カード種別ごとの階層構造（CardEffect → SpellEffect → NormalSpellEffect → PotOfGreedEffect）
   - カードごとに異なる効果処理を交換可能に
+  - CardEffectRegistry: カードID→CardEffectインスタンスのマッピング管理（Registry Pattern）
 
-- **GameCommand**: すべての操作の基底クラス（Command Pattern）
-  - 統一された`execute()`インターフェース
-  - ゲーム状態の不変更新を保証
+- **GameCommand**: ゲーム操作の具象実装（Command Pattern）
+
+  - 統一された`canExecute()` / `execute()`インターフェース
+  - 具象実装: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand等
+  - spread構文によるゲーム状態の不変更新を保証
   - 行動履歴の追跡とテストが容易
 
 ### Application Layer
@@ -101,42 +104,39 @@ skeleton-app/src/lib/domain/
 
 ```
 skeleton-app/src/lib/application/
-├── commands/      # Command Pattern実装（ドロー、発動、フェーズ遷移等）
-├── effects/       # CardEffectRegistry（Strategy Patternによる効果管理）
 ├── ports/         # Port Interface（Infrastructure層への依存抽象化）
 ├── types/         # DTO（CardDisplayData, DeckRecipe等）
 ├── data/          # サンプルデッキレシピ等の静的データ
 ├── utils/         # デッキローダー等のユーティリティ
 ├── stores/        # Svelte Storeによる状態管理
-└── GameFacade.ts  # Presentation Layer との単一窓口
+└── GameFacade.ts  # Presentation LayerとDomain Layerの橋渡し（Facade Pattern）
 ```
 
 **主要コンポーネント**:
 
-- **Commands**: Domain Layer の`GameCommand`を具象化
+- **GameFacade**: UIからの単一窓口（Facade Pattern）
 
-  - 例
-    - DrawCardCommand: デッキからカードをドロー
-    - ActivateSpellCommand: 魔法カードの発動処理
-    - AdvancePhaseCommand: フェーズ遷移処理
-  - Immer.js で不変更新を実現
-
-- **CardEffectRegistry**: Domain Layer の`CardEffect`を中央管理（Registry Pattern）
-
-  - カード ID → CardEffect インスタンスのマッピング
-  - カード効果を動的に取得し、登録する
-
-- **GameFacade**: UI からの単一窓口（Facade Pattern）
-
-  - Presentation Layer と Domain Layer の橋渡し
+  - Presentation LayerとDomain Layerの橋渡し
+  - Domain層のCommandsを呼び出し、結果をStoreに反映
   - すべてのゲーム操作をシンプルなメソッドで提供
-  - Store 更新の責任を一元管理
+  - Store更新の責任を一元管理
 
 - **Stores**: 状態管理（Observer Pattern）
+
   - Svelte Store（`writable`, `derived`）による実装
-  - 状態の変化を UI に通知
-  - Derived Stores で計算コストの高い派生値をキャッシュ
-  - 不変オブジェクトによる更新検知で Svelte の再描画を最適化
+  - 状態の変化をUIに通知
+  - Derived Storesで計算コストの高い派生値をキャッシュ
+  - 不変オブジェクト（spread構文）による更新検知でSvelteの再描画を最適化
+
+- **Ports**: 抽象インターフェース（Port/Adapter Pattern）
+
+  - Infrastructure層への依存を抽象化
+  - 例: `ICardDataRepository`（カードデータ取得の抽象）
+
+- **Types & DTOs**: Application層のデータ型
+  - `CardDisplayData`: UI表示用のカード情報
+  - `DeckRecipe`: デッキレシピ定義
+  - Domain層の型（`CardData`）とは明確に区別
 
 ### Infrastructure Layer
 
