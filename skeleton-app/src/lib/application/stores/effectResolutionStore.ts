@@ -3,9 +3,6 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 
-// Re-export EffectResolutionStep from Domain Layer for backward compatibility
-export type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
-
 /**
  * Card selection handler callback type
  * Presentation層のcardSelectionStoreが実装を提供する

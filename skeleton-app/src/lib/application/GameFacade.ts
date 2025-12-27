@@ -8,7 +8,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GamePhase } from "$lib/domain/models/constants";
+import type { GamePhase } from "$lib/domain/models/Phase";
 import { gameStateStore, resetGameState, getCurrentState } from "./stores/gameStateStore";
 import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";

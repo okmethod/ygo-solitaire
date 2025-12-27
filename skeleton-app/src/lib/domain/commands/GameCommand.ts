@@ -11,12 +11,10 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-
-/**
- * Re-export CommandResult from Domain Layer for backward compatibility
- */
-export type { CommandResult } from "$lib/domain/commands/CommandResult";
 import type { CommandResult } from "$lib/domain/commands/CommandResult";
+
+// Re-export CommandResult for convenience (widely used with GameCommand)
+export type { CommandResult };
 
 /**
  * Base interface for all game commands
