@@ -105,7 +105,7 @@ export function validateZones(state: GameState): ValidationResult {
   }
 
   // Check all instances have valid IDs
-  const invalidInstances = allInstances.filter((card) => !card.instanceId || !card.cardId);
+  const invalidInstances = allInstances.filter((card) => !card.instanceId || !card.id);
   if (invalidInstances.length > 0) {
     errors.push(`Found ${invalidInstances.length} card instances with missing IDs`);
   }

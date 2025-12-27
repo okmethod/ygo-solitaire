@@ -58,7 +58,7 @@ export class ActivateSpellCommand implements GameCommand {
     // Check card-specific effect requirements (if registered)
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (cardInstance) {
-      const cardId = parseInt(cardInstance.cardId, 10);
+      const cardId = cardInstance.id; // CardInstance extends CardData
       const effect = CardEffectRegistry.get(cardId);
 
       if (effect && !effect.canActivate(state)) {
@@ -100,7 +100,7 @@ export class ActivateSpellCommand implements GameCommand {
     };
 
     // Check if card has registered effect
-    const cardId = parseInt(cardInstance.cardId, 10);
+    const cardId = cardInstance.id; // CardInstance extends CardData
     const effect = CardEffectRegistry.get(cardId);
 
     if (effect && effect.canActivate(stateAfterActivation)) {

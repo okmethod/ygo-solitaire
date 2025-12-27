@@ -7,7 +7,7 @@
  * @module domain/data/cardDatabase
  */
 
-import type { CardData, SimpleCardType } from "../models/Card";
+import type { CardData, CardType } from "../models/Card";
 
 /**
  * Card database registry
@@ -17,30 +17,30 @@ import type { CardData, SimpleCardType } from "../models/Card";
  */
 const CARD_DATABASE: Record<number, CardData> = {
   // Exodia pieces (monster)
-  33396948: { id: 33396948, type: "monster" }, // Exodia the Forbidden One
-  7902349: { id: 7902349, type: "monster" }, // Right Arm of the Forbidden One
-  70903634: { id: 70903634, type: "monster" }, // Left Arm of the Forbidden One
-  44519536: { id: 44519536, type: "monster" }, // Left Leg of the Forbidden One
-  8124921: { id: 8124921, type: "monster" }, // Right Leg of the Forbidden One
+  33396948: { id: 33396948, type: "monster", frameType: "effect" }, // Exodia the Forbidden One
+  7902349: { id: 7902349, type: "monster", frameType: "normal" }, // Right Arm of the Forbidden One
+  70903634: { id: 70903634, type: "monster", frameType: "normal" }, // Left Arm of the Forbidden One
+  44519536: { id: 44519536, type: "monster", frameType: "normal" }, // Left Leg of the Forbidden One
+  8124921: { id: 8124921, type: "monster", frameType: "normal" }, // Right Leg of the Forbidden One
 
   // Spell cards
-  55144522: { id: 55144522, type: "spell", spellType: "normal" }, // Pot of Greed
-  79571449: { id: 79571449, type: "spell", spellType: "normal" }, // Graceful Charity
+  55144522: { id: 55144522, type: "spell", frameType: "spell", spellType: "normal" }, // Pot of Greed
+  79571449: { id: 79571449, type: "spell", frameType: "spell", spellType: "normal" }, // Graceful Charity
 
   // Trap cards
-  83968380: { id: 83968380, type: "trap", trapType: "normal" }, // Jar of Greed
+  83968380: { id: 83968380, type: "trap", frameType: "trap", trapType: "normal" }, // Jar of Greed
 
   // Test card IDs (for unit tests)
-  1001: { id: 1001, type: "spell", spellType: "normal" },
-  1002: { id: 1002, type: "spell", spellType: "normal" },
-  1003: { id: 1003, type: "spell", spellType: "normal" },
-  1004: { id: 1004, type: "spell", spellType: "normal" },
-  1005: { id: 1005, type: "spell", spellType: "normal" },
-  11111111: { id: 11111111, type: "monster" },
-  12345678: { id: 12345678, type: "monster" },
-  22222222: { id: 22222222, type: "monster" },
-  33333333: { id: 33333333, type: "monster" },
-  87654321: { id: 87654321, type: "monster" },
+  1001: { id: 1001, type: "spell", frameType: "spell", spellType: "normal" },
+  1002: { id: 1002, type: "spell", frameType: "spell", spellType: "normal" },
+  1003: { id: 1003, type: "spell", frameType: "spell", spellType: "normal" },
+  1004: { id: 1004, type: "spell", frameType: "spell", spellType: "normal" },
+  1005: { id: 1005, type: "spell", frameType: "spell", spellType: "normal" },
+  11111111: { id: 11111111, type: "monster", frameType: "normal" },
+  12345678: { id: 12345678, type: "monster", frameType: "normal" },
+  22222222: { id: 22222222, type: "monster", frameType: "normal" },
+  33333333: { id: 33333333, type: "monster", frameType: "normal" },
+  87654321: { id: 87654321, type: "monster", frameType: "normal" },
 };
 
 /**
@@ -67,7 +67,7 @@ export function getCardData(cardId: number): CardData {
  * @param cardId - Card ID
  * @returns Card type ("monster" | "spell" | "trap")
  */
-export function getCardType(cardId: number): SimpleCardType {
+export function getCardType(cardId: number): CardType {
   return getCardData(cardId).type;
 }
 

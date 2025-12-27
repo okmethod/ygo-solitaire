@@ -46,7 +46,7 @@ describe("Normal Spell Card Effects", () => {
         phase: "Main1",
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
-          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
+          hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
           field: [],
           graveyard: [],
           banished: [],
@@ -57,7 +57,7 @@ describe("Normal Spell Card Effects", () => {
       const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
 
       // Act: Activate Pot of Greed
-      const command = new ActivateSpellCommand("pot-1");
+      const command = new ActivateSpellCommand("pot-0"); // createCardInstances uses 0-based index
       command.execute(state);
 
       // Assert: Effect resolution started
@@ -87,7 +87,7 @@ describe("Normal Spell Card Effects", () => {
         phase: "Main1",
         zones: {
           deck: createCardInstances(["card1"], "deck"),
-          hand: [{ instanceId: "pot-1", cardId: potOfGreedCardId, location: "hand" }],
+          hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
           field: [],
           graveyard: [],
           banished: [],
@@ -95,7 +95,7 @@ describe("Normal Spell Card Effects", () => {
       });
 
       // Act
-      const command = new ActivateSpellCommand("pot-1");
+      const command = new ActivateSpellCommand("pot-0");
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
@@ -112,7 +112,7 @@ describe("Normal Spell Card Effects", () => {
         phase: "Main1",
         zones: {
           deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
-          hand: [{ instanceId: "charity-1", cardId: gracefulCharityCardId, location: "hand" }],
+          hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
           field: [],
           graveyard: [],
           banished: [],
@@ -123,7 +123,7 @@ describe("Normal Spell Card Effects", () => {
       const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
 
       // Act: Activate Graceful Charity
-      const command = new ActivateSpellCommand("charity-1");
+      const command = new ActivateSpellCommand("charity-0");
       command.execute(state);
 
       // Assert: Effect resolution started
@@ -158,7 +158,7 @@ describe("Normal Spell Card Effects", () => {
         phase: "Main1",
         zones: {
           deck: createCardInstances(["card1", "card2"], "deck"),
-          hand: [{ instanceId: "charity-1", cardId: gracefulCharityCardId, location: "hand" }],
+          hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
           field: [],
           graveyard: [],
           banished: [],
@@ -166,7 +166,7 @@ describe("Normal Spell Card Effects", () => {
       });
 
       // Act
-      const command = new ActivateSpellCommand("charity-1");
+      const command = new ActivateSpellCommand("charity-0");
       const result = command.canExecute(state);
 
       // Assert: Cannot activate

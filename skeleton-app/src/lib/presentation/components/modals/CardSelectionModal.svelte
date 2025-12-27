@@ -46,9 +46,9 @@
   function getCardDisplay(instanceId: string): CardDisplayData | undefined {
     return $handCards.find((card: CardDisplayData) => {
       // handCardsはCardDisplayData[]なので、instanceIdと照合するため
-      // config.availableCardsからinstanceIdに対応するcardIdを取得
+      // config.availableCardsからinstanceIdに対応するcard.idを取得
       const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);
-      return cardInstance && card.id.toString() === cardInstance.cardId;
+      return cardInstance && card.id === cardInstance.id; // CardInstance extends CardData
     });
   }
 </script>

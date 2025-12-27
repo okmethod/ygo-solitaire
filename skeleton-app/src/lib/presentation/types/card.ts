@@ -12,9 +12,9 @@
 // Application層のDTOを再エクスポート
 export type {
   CardType,
-  MonsterType,
+  MainMonsterSubType,
   ExtraMonsterSubType,
-  MagicSubType,
+  SpellSubType,
   TrapSubType,
   CardImages,
   MonsterAttributes,

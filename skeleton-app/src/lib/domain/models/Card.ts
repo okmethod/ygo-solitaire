@@ -9,21 +9,17 @@
  */
 
 /**
- * Simplified card type for Domain Layer
- *
- * YGOPRODeck API互換の簡略化型。
- * ゲームロジックに必要な最小限の3カテゴリのみを表現。
+ * Card type for Domain Layer
  */
-export type SimpleCardType = "monster" | "spell" | "trap";
+export type CardType = "monster" | "spell" | "trap";
 
 /**
- * Spell card subtypes
+ * Sub type for Domain Layer
  */
+export type MainMonsterSubType = "normal" | "effect" | "ritual" | "pendulum";
+export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "link";
+export type FrameSubType = MainMonsterSubType | ExtraMonsterSubType | "spell" | "trap";
 export type SpellSubType = "normal" | "quick-play" | "continuous" | "field" | "equip" | "ritual";
-
-/**
- * Trap card subtypes
- */
 export type TrapSubType = "normal" | "continuous" | "counter";
 
 /**
@@ -37,8 +33,8 @@ export type TrapSubType = "normal" | "continuous" | "counter";
  */
 export interface CardData {
   readonly id: number; // カードを一意に識別するID（YGOPRODeck API ID）
-  readonly type: SimpleCardType; // カードタイプ（"monster" | "spell" | "trap"）
-  readonly frameType?: string; // カードフレームタイプ（"normal", "effect"など）
+  readonly type: CardType; // カードタイプ
+  readonly frameType: FrameSubType; // カードフレームタイプ
   readonly spellType?: SpellSubType; // 魔法カード種別（spellの場合のみ）
   readonly trapType?: TrapSubType; // 罠カード種別（trapの場合のみ）
   // 将来拡張用:
@@ -49,13 +45,17 @@ export interface CardData {
 
 /**
  * Card instance in game (runtime)
- * Each physical card in the deck has a unique instanceId
- * Multiple copies of the same card have different instanceIds but same cardId
+ *
+ * Extends CardData to include all card properties plus runtime instance information.
+ * Each physical card in the deck has a unique instanceId.
+ * Multiple copies of the same card have different instanceIds but same id (CardData.id).
+ *
+ * Design Decision: CardInstance extends CardData to avoid data duplication
+ * and ensure CardInstance always has access to all card properties without
+ * requiring lookups to cardDatabase.
  */
-export interface CardInstance {
+export interface CardInstance extends CardData {
   readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
-  readonly cardId: string; // References card ID (number as string)
-  readonly type: SimpleCardType; // Card type for game rule validation
   readonly location: ZoneLocation; // Current location
   readonly position?: "faceUp" | "faceDown"; // For field cards
 }
@@ -115,8 +115,8 @@ export function isCardData(obj: unknown): obj is CardData {
   if (typeof data.type !== "string") return false;
 
   // typeが有効な値かを検証
-  const validTypes: SimpleCardType[] = ["monster", "spell", "trap"];
-  if (!validTypes.includes(data.type as SimpleCardType)) return false;
+  const validTypes: CardType[] = ["monster", "spell", "trap"];
+  if (!validTypes.includes(data.type as CardType)) return false;
 
   // frameTypeはオプショナルだが、存在する場合はstringであること
   if (data.frameType !== undefined && typeof data.frameType !== "string") {

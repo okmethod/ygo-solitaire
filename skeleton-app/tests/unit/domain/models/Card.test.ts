@@ -7,6 +7,7 @@ describe("isCardData (T026)", () => {
     const validData: CardData = {
       id: 33396948,
       type: "monster",
+      frameType: "normal",
     };
 
     expect(isCardData(validData)).toBe(true);
@@ -26,6 +27,7 @@ describe("isCardData (T026)", () => {
     const validData: CardData = {
       id: 55144522,
       type: "spell",
+      frameType: "spell",
     };
 
     expect(isCardData(validData)).toBe(true);
@@ -35,6 +37,7 @@ describe("isCardData (T026)", () => {
     const validData: CardData = {
       id: 12345678,
       type: "trap",
+      frameType: "trap",
     };
 
     expect(isCardData(validData)).toBe(true);
@@ -104,6 +107,7 @@ describe("isMonsterCard (T027)", () => {
     const monsterCard: CardData = {
       id: 33396948,
       type: "monster",
+      frameType: "normal",
     };
 
     expect(isMonsterCard(monsterCard)).toBe(true);
@@ -113,6 +117,7 @@ describe("isMonsterCard (T027)", () => {
     const spellCard: CardData = {
       id: 55144522,
       type: "spell",
+      frameType: "spell",
     };
 
     expect(isMonsterCard(spellCard)).toBe(false);
@@ -122,6 +127,7 @@ describe("isMonsterCard (T027)", () => {
     const trapCard: CardData = {
       id: 12345678,
       type: "trap",
+      frameType: "trap",
     };
 
     expect(isMonsterCard(trapCard)).toBe(false);
@@ -133,6 +139,7 @@ describe("isSpellCard (T027)", () => {
     const spellCard: CardData = {
       id: 55144522,
       type: "spell",
+      frameType: "spell",
     };
 
     expect(isSpellCard(spellCard)).toBe(true);
@@ -142,6 +149,7 @@ describe("isSpellCard (T027)", () => {
     const monsterCard: CardData = {
       id: 33396948,
       type: "monster",
+      frameType: "normal",
     };
 
     expect(isSpellCard(monsterCard)).toBe(false);
@@ -151,6 +159,7 @@ describe("isSpellCard (T027)", () => {
     const trapCard: CardData = {
       id: 12345678,
       type: "trap",
+      frameType: "trap",
     };
 
     expect(isSpellCard(trapCard)).toBe(false);
@@ -162,6 +171,7 @@ describe("isTrapCard (T027)", () => {
     const trapCard: CardData = {
       id: 12345678,
       type: "trap",
+      frameType: "trap",
     };
 
     expect(isTrapCard(trapCard)).toBe(true);
@@ -171,6 +181,7 @@ describe("isTrapCard (T027)", () => {
     const monsterCard: CardData = {
       id: 33396948,
       type: "monster",
+      frameType: "normal",
     };
 
     expect(isTrapCard(monsterCard)).toBe(false);
@@ -180,6 +191,7 @@ describe("isTrapCard (T027)", () => {
     const spellCard: CardData = {
       id: 55144522,
       type: "spell",
+      frameType: "spell",
     };
 
     expect(isTrapCard(spellCard)).toBe(false);

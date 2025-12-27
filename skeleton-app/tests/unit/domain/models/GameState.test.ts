@@ -202,7 +202,7 @@ describe("GameState", () => {
 
         expect(card).toBeDefined();
         expect(card?.instanceId).toBe("deck-0");
-        expect(card?.cardId).toBe("1001");
+        expect(card?.id).toBe(1001); // CardInstance extends CardData
         expect(card?.location).toBe("deck");
       });
 

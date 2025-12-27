@@ -7,13 +7,19 @@
  * @module application/types/card
  */
 
-export type CardType = "monster" | "spell" | "trap";
+import type {
+  CardType,
+  MainMonsterSubType,
+  ExtraMonsterSubType,
+  SpellSubType,
+  TrapSubType,
+} from "$lib/domain/models/Card";
 
-export type MonsterType = "normal" | "effect";
-// チューナー, デュアル, リバース などは後回しにする
-export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "pendulum" | "link";
-export type MagicSubType = "normal" | "effect" | "ritual" | "quick-play" | "field" | "equip";
-export type TrapSubType = "normal" | "continuous" | "counter";
+/**
+ * CardType - Re-export from domain layer
+ * Domain層のCardTypeを再エクスポート
+ */
+export type { CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
 
 /**
  * カード画像データ

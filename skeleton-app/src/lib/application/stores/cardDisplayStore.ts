@@ -37,7 +37,7 @@ const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
 export const handCards: Readable<CardDisplayData[]> = derived(
   gameStateStore,
   ($gameState, set) => {
-    const cardIds = $gameState.zones.hand.map((c) => parseInt(c.cardId, 10));
+    const cardIds = $gameState.zones.hand.map((c) => c.id); // CardInstance extends CardData
 
     if (cardIds.length === 0) {
       set([]);
@@ -66,7 +66,7 @@ export const handCards: Readable<CardDisplayData[]> = derived(
 export const fieldCards: Readable<CardDisplayData[]> = derived(
   gameStateStore,
   ($gameState, set) => {
-    const cardIds = $gameState.zones.field.map((c) => parseInt(c.cardId, 10));
+    const cardIds = $gameState.zones.field.map((c) => c.id); // CardInstance extends CardData
 
     if (cardIds.length === 0) {
       set([]);
@@ -94,7 +94,7 @@ export const fieldCards: Readable<CardDisplayData[]> = derived(
 export const graveyardCards: Readable<CardDisplayData[]> = derived(
   gameStateStore,
   ($gameState, set) => {
-    const cardIds = $gameState.zones.graveyard.map((c) => parseInt(c.cardId, 10));
+    const cardIds = $gameState.zones.graveyard.map((c) => c.id); // CardInstance extends CardData
 
     if (cardIds.length === 0) {
       set([]);
@@ -122,7 +122,7 @@ export const graveyardCards: Readable<CardDisplayData[]> = derived(
 export const banishedCards: Readable<CardDisplayData[]> = derived(
   gameStateStore,
   ($gameState, set) => {
-    const cardIds = $gameState.zones.banished.map((c) => parseInt(c.cardId, 10));
+    const cardIds = $gameState.zones.banished.map((c) => c.id); // CardInstance extends CardData
 
     if (cardIds.length === 0) {
       set([]);

@@ -31,7 +31,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CardEffectRegistry } from "$lib/application/effects/CardEffectRegistry";
 import { NormalSpellEffect } from "$lib/domain/effects/bases/NormalSpellEffect";
-import type { EffectResolutionStep } from "$lib/stores/effectResolutionStore";
+import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
+import type { GameState } from "$lib/domain/models/GameState";
 
 /**
  * Mock CardEffect for testing
@@ -47,13 +48,13 @@ class MockCardEffect extends NormalSpellEffect {
     return true;
   }
 
-  createSteps(): EffectResolutionStep[] {
+  protected createCardSteps(): EffectResolutionStep[] {
     return [
       {
         id: `${this.cardName}-effect`,
         title: `${this.cardName} Effect`,
         message: `${this.cardName} effect message`,
-        action: (state) => {
+        action: (state: GameState) => {
           // Mock action - returns CommandResult with unchanged state
           return { success: true, newState: state };
         },

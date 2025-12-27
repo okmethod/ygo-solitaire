@@ -85,7 +85,6 @@ describe("SpellEffect", () => {
         phase: "Main1",
         result: {
           isGameOver: false,
-          winner: null,
         },
       });
 

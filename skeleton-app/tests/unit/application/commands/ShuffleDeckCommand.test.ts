@@ -43,8 +43,8 @@ describe("ShuffleDeckCommand", () => {
       const state = createMockGameState({
         result: {
           isGameOver: true,
-          victory: true,
-          victoryReason: "Exodia",
+          winner: "player",
+          reason: "exodia",
         },
       });
       const command = new ShuffleDeckCommand();
@@ -69,12 +69,12 @@ describe("ShuffleDeckCommand", () => {
 
     it("should preserve all card IDs after shuffling", () => {
       const state = createExodiaDeckState();
-      const originalCardIds = state.zones.deck.map((card) => card.cardId).sort();
+      const originalCardIds = state.zones.deck.map((card) => card.id).sort();
       const command = new ShuffleDeckCommand();
 
       const result = command.execute(state);
 
-      const shuffledCardIds = result.newState.zones.deck.map((card) => card.cardId).sort();
+      const shuffledCardIds = result.newState.zones.deck.map((card) => card.id).sort();
       expect(shuffledCardIds).toEqual(originalCardIds);
     });
 
@@ -95,8 +95,8 @@ describe("ShuffleDeckCommand", () => {
       const state = createMockGameState({
         result: {
           isGameOver: true,
-          victory: true,
-          victoryReason: "Exodia",
+          winner: "player",
+          reason: "exodia",
         },
       });
       const command = new ShuffleDeckCommand();
@@ -142,7 +142,7 @@ describe("ShuffleDeckCommand", () => {
 
       expect(result.success).toBe(true);
       expect(result.newState.zones.deck.length).toBe(1);
-      expect(result.newState.zones.deck[0].cardId).toBe("12345678");
+      expect(result.newState.zones.deck[0].id).toBe(12345678); // CardInstance extends CardData
     });
   });
 
