@@ -85,9 +85,9 @@ tests/
 
 ### 対象
 
-- Domain Layer: Rules, Effects, Models
-- Application Layer: Commands, Stores, Facade
-- Presentation Layer: Stores
+- Domain Layer: Rules, Effects, Commands, Models
+- Application Layer: Stores, Facade, Utils
+- Presentation Layer: Stores, Components
 - Infrastructure: API Client, Utilities
 
 ### カバレッジ目標
