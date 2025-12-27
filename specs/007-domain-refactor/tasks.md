@@ -152,9 +152,9 @@
 - [x] T049 [P] ADR0007に設計判断を記録（Context, Decision, Consequences, Alternatives）
 - [x] T050 最終テスト実行（すべてのテストが100%パス） (`npm run test:run`)
 - [x] T051 最終Lint/Format実行 (`npm run lint && npm run format`)
-- [ ] T052 git status確認（ADRファイルのコミット準備）
-- [ ] T053 PR作成準備（コミットメッセージ確認、変更内容確認）
-- [ ] T054 Pull Request作成（spec.mdを本文に含める）
+- [x] T052 git status確認（ADRファイルのコミット完了）
+- [x] T053 PR作成準備（コミットメッセージ確認、変更内容確認）
+- [x] T054 Pull Request作成（spec.mdを本文に含める）→ https://github.com/okmethod/ygo-solitaire/pull/56
 
 ---
 
