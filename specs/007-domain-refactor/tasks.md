@@ -96,49 +96,49 @@
 
 #### 3.1. ディレクトリ作成とファイル移動
 
-- [ ] T023 [US3] `skeleton-app/src/lib/domain/commands/`ディレクトリを作成
-- [ ] T024 [US3] `application/commands/GameCommand.ts`を`domain/commands/`に移動 (`git mv`)
-- [ ] T025 [P] [US3] `application/commands/DrawCardCommand.ts`を`domain/commands/`に移動 (`git mv`)
-- [ ] T026 [P] [US3] `application/commands/DiscardCardsCommand.ts`を`domain/commands/`に移動 (`git mv`)
-- [ ] T027 [P] [US3] `application/commands/ActivateSpellCommand.ts`を`domain/commands/`に移動 (`git mv`)
-- [ ] T028 [P] [US3] `application/commands/AdvancePhaseCommand.ts`を`domain/commands/`に移動 (`git mv`)
-- [ ] T029 [P] [US3] `application/commands/ShuffleDeckCommand.ts`を`domain/commands/`に移動 (`git mv`)
+- [x] T023 [US3] `skeleton-app/src/lib/domain/commands/`ディレクトリを作成
+- [x] T024 [US3] `application/commands/GameCommand.ts`を`domain/commands/`に移動 (`git mv`)
+- [x] T025 [P] [US3] `application/commands/DrawCardCommand.ts`を`domain/commands/`に移動 (`git mv`)
+- [x] T026 [P] [US3] `application/commands/DiscardCardsCommand.ts`を`domain/commands/`に移動 (`git mv`)
+- [x] T027 [P] [US3] `application/commands/ActivateSpellCommand.ts`を`domain/commands/`に移動 (`git mv`)
+- [x] T028 [P] [US3] `application/commands/AdvancePhaseCommand.ts`を`domain/commands/`に移動 (`git mv`)
+- [x] T029 [P] [US3] `application/commands/ShuffleDeckCommand.ts`を`domain/commands/`に移動 (`git mv`)
 
 #### 3.2. テストファイル移動
 
-- [ ] T030 [US3] `tests/unit/application/commands/`を`tests/unit/domain/commands/`に移動 (`git mv`)
+- [x] T030 [US3] `tests/unit/application/commands/`を`tests/unit/domain/commands/`に移動 (`git mv`)
 
 #### 3.3. CardEffectRegistry移動
 
-- [ ] T031 [US3] `application/effects/CardEffectRegistry.ts`を`domain/effects/`に移動 (`git mv`)
-- [ ] T032 [US3] `application/effects/index.ts`を`domain/effects/`に移動（Re-export用） (`git mv`)
+- [x] T031 [US3] `application/effects/CardEffectRegistry.ts`を`domain/effects/`に移動 (`git mv`)
+- [x] T032 [US3] `application/effects/index.ts`を`domain/effects/`に移動（Re-export用） (`git mv`)
 
 #### 3.4. 空ディレクトリ削除
 
-- [ ] T033 [US3] `application/commands/`ディレクトリを削除 (`rmdir`)
-- [ ] T034 [US3] `application/effects/`ディレクトリを削除 (`rmdir`)
+- [x] T033 [US3] `application/commands/`ディレクトリを削除 (`rmdir`)
+- [x] T034 [US3] `application/effects/`ディレクトリを削除 (`rmdir`)
 
 #### 3.5. Import文の更新
 
-- [ ] T035 [US3] TypeScript コンパイルエラーを検出 (`npm run check`)
-- [ ] T036 [US3] `application/GameFacade.ts`のimport文を更新（`$lib/domain/commands/`に変更）
-- [ ] T037 [P] [US3] `domain/effects/cards/PotOfGreedEffect.ts`のimport文を更新
-- [ ] T038 [P] [US3] `domain/effects/cards/GracefulCharityEffect.ts`のimport文を更新
-- [ ] T039 [US3] Presentationレイヤー（Svelteコンポーネント）のimport文を更新（必要に応じて）
-- [ ] T040 [US3] すべてのimport文が正しく解決されることを確認 (`npm run check`)
+- [x] T035 [US3] TypeScript コンパイルエラーを検出 (`npm run check`)
+- [x] T036 [US3] `application/GameFacade.ts`のimport文を更新（`$lib/domain/commands/`に変更）
+- [x] T037 [P] [US3] `domain/effects/cards/PotOfGreedEffect.ts`のimport文を更新
+- [x] T038 [P] [US3] `domain/effects/cards/GracefulCharityEffect.ts`のimport文を更新
+- [x] T039 [US3] Presentationレイヤー（Svelteコンポーネント）のimport文を更新（必要に応じて）
+- [x] T040 [US3] すべてのimport文が正しく解決されることを確認 (`npm run check`)
 
 #### 3.6. Re-export設定
 
-- [ ] T041 [US3] `domain/effects/index.ts`でCardEffectRegistry等をre-export
+- [x] T041 [US3] `domain/effects/index.ts`でCardEffectRegistry等をre-export
 
 #### 3.7. 動作確認
 
-- [ ] T042 [US3] TypeScript コンパイル確認 (`npm run check`)
-- [ ] T043 [US3] ビルド成功確認 (`npm run build`)
-- [ ] T044 [US3] Domain層移管後のテスト実行 (`npm run test:run`)
-- [ ] T045 [US3] Lint/Format実行 (`npm run lint && npm run format`)
-- [ ] T046 [US3] E2Eテスト実行（任意） (`npx playwright test`)
-- [ ] T047 [US3] 開発サーバー起動確認 (`npm run dev`)
+- [x] T042 [US3] TypeScript コンパイル確認 (`npm run check`)
+- [x] T043 [US3] ビルド成功確認 (`npm run build`)
+- [x] T044 [US3] Domain層移管後のテスト実行 (`npm run test:run`)
+- [x] T045 [US3] Lint/Format実行 (`npm run lint && npm run format`)
+- [x] T046 [US3] E2Eテスト実行（任意） (`npx playwright test`)
+- [x] T047 [US3] 開発サーバー起動確認 (`npm run dev`)
 
 **Checkpoint**: Commands と CardEffectRegistry がDomain層に配置され、Clean Architecture準拠。
 
