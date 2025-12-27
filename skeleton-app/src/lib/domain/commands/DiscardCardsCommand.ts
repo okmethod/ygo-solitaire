@@ -7,7 +7,6 @@
  * @module application/commands/DiscardCardsCommand
  */
 
-import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
@@ -65,11 +64,11 @@ export class DiscardCardsCommand implements GameCommand {
     // Discard cards (returns new immutable zones object)
     const newZones = discardCards(state.zones, this.instanceIds);
 
-    // Use Immer to create new state with discarded cards
-    const newState = produce(state, (draft) => {
-      // Replace zones with new zones (type cast to satisfy Immer)
-      draft.zones = newZones as typeof draft.zones;
-    });
+    // Create new state with discarded cards using spread syntax
+    const newState: GameState = {
+      ...state,
+      zones: newZones,
+    };
 
     return createSuccessResult(
       newState,

@@ -92,11 +92,20 @@ describe("GameFacade", () => {
 
       // Manually set 5th piece in hand (simulating previous draw)
       const state = get(gameStateStore);
+      const fifthPieceId = parseInt(EXODIA_PIECE_IDS[4], 10);
       gameStateStore.set({
         ...state,
         zones: {
           ...state.zones,
-          hand: [{ instanceId: "hand-0", cardId: EXODIA_PIECE_IDS[4], location: "hand" }],
+          hand: [
+            {
+              instanceId: "hand-0",
+              id: fifthPieceId,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "hand" as const,
+            },
+          ],
         },
       });
 
@@ -320,14 +329,14 @@ describe("GameFacade", () => {
 
     it("should preserve all card IDs after shuffling", () => {
       const initialState = get(gameStateStore);
-      const originalCardIds = initialState.zones.deck.map((card) => card.cardId).sort();
+      const originalCardIds = initialState.zones.deck.map((card) => card.id).sort();
 
       const result = facade.shuffleDeck();
 
       expect(result.success).toBe(true);
 
       const state = get(gameStateStore);
-      const shuffledCardIds = state.zones.deck.map((card) => card.cardId).sort();
+      const shuffledCardIds = state.zones.deck.map((card) => card.id).sort();
       expect(shuffledCardIds).toEqual(originalCardIds);
     });
 

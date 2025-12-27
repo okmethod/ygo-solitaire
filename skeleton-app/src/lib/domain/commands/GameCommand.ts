@@ -11,19 +11,18 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdateResult";
+export { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdateResult";
 
-/**
- * Re-export CommandResult from Domain Layer for backward compatibility
- */
-export type { CommandResult } from "$lib/domain/commands/CommandResult";
-import type { CommandResult } from "$lib/domain/commands/CommandResult";
+// Re-export as CommandResult for convenience in Command context
+export type { GameStateUpdateResult as CommandResult };
 
 /**
  * Base interface for all game commands
  *
  * Commands follow the Command Pattern:
  * 1. canExecute() - Pre-validation (checks rules without mutating state)
- * 2. execute() - Returns new GameState (immutability via Immer.js)
+ * 2. execute() - Returns new GameState (immutability via spread syntax)
  * 3. description - Human-readable action name (for logs/history)
  */
 export interface GameCommand {
@@ -48,27 +47,5 @@ export interface GameCommand {
    * @returns Command result with new state
    * @throws Error if canExecute() returns false
    */
-  execute(state: GameState): CommandResult;
-}
-
-/**
- * Helper to create a successful command result
- */
-export function createSuccessResult(newState: GameState, message?: string): CommandResult {
-  return {
-    success: true,
-    newState,
-    message,
-  };
-}
-
-/**
- * Helper to create a failed command result
- */
-export function createFailureResult(state: GameState, error: string): CommandResult {
-  return {
-    success: false,
-    newState: state, // Return unchanged state on failure
-    error,
-  };
+  execute(state: GameState): GameStateUpdateResult;
 }

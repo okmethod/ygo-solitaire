@@ -8,11 +8,9 @@
  */
 
 import type { GamePhase } from "./Phase";
-import { GAME_PHASES, PHASE_NAMES } from "./Phase";
 
-// Re-export phase types and constants for backward compatibility
+// Re-export GamePhase for convenience (widely used across domain layer)
 export type { GamePhase };
-export { GAME_PHASES, PHASE_NAMES };
 
 /**
  * Exodia piece card IDs

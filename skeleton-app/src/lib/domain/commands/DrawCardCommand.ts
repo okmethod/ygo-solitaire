@@ -7,7 +7,6 @@
  * @module application/commands/DrawCardCommand
  */
 
-import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
@@ -62,19 +61,20 @@ export class DrawCardCommand implements GameCommand {
     // Draw cards (returns new immutable zones object)
     const newZones = drawCards(state.zones, this.count);
 
-    // Use Immer to create new state with drawn cards
-    const newState = produce(state, (draft) => {
-      // Replace zones with new zones (type cast to satisfy Immer)
-      draft.zones = newZones as typeof draft.zones;
-    });
+    // Create new state with drawn cards using spread syntax
+    const newState: GameState = {
+      ...state,
+      zones: newZones,
+    };
 
     // Check victory conditions after drawing
     const victoryResult = checkVictoryConditions(newState);
 
     // Update game result if victory/defeat occurred
-    const finalState = produce(newState, (draft) => {
-      draft.result = victoryResult;
-    });
+    const finalState: GameState = {
+      ...newState,
+      result: victoryResult,
+    };
 
     return createSuccessResult(finalState, `Drew ${this.count} card${this.count > 1 ? "s" : ""}`);
   }

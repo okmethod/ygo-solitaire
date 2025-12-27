@@ -3,9 +3,17 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { ActivateSpellCommand } from "$lib/application/commands/ActivateSpellCommand";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
+import type { IEffectResolutionService } from "$lib/domain/services/IEffectResolutionService";
+
+// Mock effect resolution service for testing
+const mockEffectResolutionService: IEffectResolutionService = {
+  startResolution: () => {
+    // No-op in tests
+  },
+};
 
 describe("ActivateSpellCommand", () => {
   let initialState: GameState;
@@ -17,12 +25,36 @@ describe("ActivateSpellCommand", () => {
       phase: "Main1",
       zones: {
         deck: [
-          { instanceId: "deck-0", cardId: "card0", location: "deck" },
-          { instanceId: "deck-1", cardId: "card1", location: "deck" },
+          {
+            instanceId: "deck-0",
+            id: 1001,
+            type: "spell" as const,
+            frameType: "spell" as const,
+            location: "deck" as const,
+          },
+          {
+            instanceId: "deck-1",
+            id: 1002,
+            type: "spell" as const,
+            frameType: "spell" as const,
+            location: "deck" as const,
+          },
         ],
         hand: [
-          { instanceId: spellCardId, cardId: "pot-of-greed", location: "hand" },
-          { instanceId: "hand-2", cardId: "card2", location: "hand" },
+          {
+            instanceId: spellCardId,
+            id: 55144522,
+            type: "spell" as const,
+            frameType: "spell" as const,
+            location: "hand" as const,
+          }, // Pot of Greed
+          {
+            instanceId: "hand-2",
+            id: 1003,
+            type: "spell" as const,
+            frameType: "spell" as const,
+            location: "hand" as const,
+          },
         ],
         field: [],
         graveyard: [],
@@ -33,13 +65,13 @@ describe("ActivateSpellCommand", () => {
 
   describe("canExecute", () => {
     it("should return true when spell can be activated (Main1 phase, card in hand)", () => {
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       expect(command.canExecute(initialState)).toBe(true);
     });
 
     it("should return false when card is not in hand", () => {
-      const command = new ActivateSpellCommand("non-existent-card");
+      const command = new ActivateSpellCommand("non-existent-card", mockEffectResolutionService);
 
       expect(command.canExecute(initialState)).toBe(false);
     });
@@ -49,14 +81,22 @@ describe("ActivateSpellCommand", () => {
         phase: "Draw",
         zones: {
           deck: [],
-          hand: [{ instanceId: spellCardId, cardId: "pot-of-greed", location: "hand" }],
+          hand: [
+            {
+              instanceId: spellCardId,
+              id: 55144522,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "hand" as const,
+            },
+          ],
           field: [],
           graveyard: [],
           banished: [],
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       expect(command.canExecute(drawPhaseState)).toBe(false);
     });
@@ -66,7 +106,15 @@ describe("ActivateSpellCommand", () => {
         phase: "Main1",
         zones: {
           deck: [],
-          hand: [{ instanceId: spellCardId, cardId: "pot-of-greed", location: "hand" }],
+          hand: [
+            {
+              instanceId: spellCardId,
+              id: 55144522,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "hand" as const,
+            },
+          ],
           field: [],
           graveyard: [],
           banished: [],
@@ -79,7 +127,7 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       expect(command.canExecute(gameOverState)).toBe(false);
     });
@@ -87,7 +135,7 @@ describe("ActivateSpellCommand", () => {
 
   describe("execute", () => {
     it("should successfully activate spell card (hand → field → graveyard)", () => {
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       const result = command.execute(initialState);
 
@@ -98,14 +146,14 @@ describe("ActivateSpellCommand", () => {
       expect(result.newState.zones.hand.length).toBe(1);
       expect(result.newState.zones.hand.some((c) => c.instanceId === spellCardId)).toBe(false);
 
-      // Check card ended up in graveyard (not field)
-      expect(result.newState.zones.field.length).toBe(0);
-      expect(result.newState.zones.graveyard.length).toBe(1);
-      expect(result.newState.zones.graveyard.some((c) => c.instanceId === spellCardId)).toBe(true);
+      // Pot of Greed has registered effect, so it stays on field (effect will send to graveyard later)
+      expect(result.newState.zones.field.length).toBe(1);
+      expect(result.newState.zones.field.some((c) => c.instanceId === spellCardId)).toBe(true);
+      expect(result.newState.zones.graveyard.length).toBe(0);
     });
 
     it("should fail when card is not in hand", () => {
-      const command = new ActivateSpellCommand("non-existent-card");
+      const command = new ActivateSpellCommand("non-existent-card", mockEffectResolutionService);
 
       const result = command.execute(initialState);
 
@@ -121,14 +169,22 @@ describe("ActivateSpellCommand", () => {
         phase: "Draw",
         zones: {
           deck: [],
-          hand: [{ instanceId: spellCardId, cardId: "pot-of-greed", location: "hand" }],
+          hand: [
+            {
+              instanceId: spellCardId,
+              id: 55144522,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "hand" as const,
+            },
+          ],
           field: [],
           graveyard: [],
           banished: [],
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       const result = command.execute(drawPhaseState);
 
@@ -140,7 +196,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should preserve other zones during activation", () => {
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       const result = command.execute(initialState);
 
@@ -150,9 +206,10 @@ describe("ActivateSpellCommand", () => {
       expect(result.newState.zones.deck).toEqual(initialState.zones.deck);
       expect(result.newState.zones.banished).toEqual(initialState.zones.banished);
 
-      // Only hand and graveyard should change
+      // Only hand and field should change (Pot of Greed has effect, so stays on field)
       expect(result.newState.zones.hand.length).toBe(initialState.zones.hand.length - 1);
-      expect(result.newState.zones.graveyard.length).toBe(initialState.zones.graveyard.length + 1);
+      expect(result.newState.zones.field.length).toBe(initialState.zones.field.length + 1);
+      expect(result.newState.zones.graveyard.length).toBe(initialState.zones.graveyard.length);
     });
 
     it("should check victory conditions after activation", () => {
@@ -162,12 +219,48 @@ describe("ActivateSpellCommand", () => {
         zones: {
           deck: [],
           hand: [
-            { instanceId: spellCardId, cardId: "pot-of-greed", location: "hand" },
-            { instanceId: "exodia-head", cardId: "8124921", location: "hand" }, // Exodia the Forbidden One
-            { instanceId: "exodia-right-arm", cardId: "70903634", location: "hand" },
-            { instanceId: "exodia-left-arm", cardId: "7902349", location: "hand" },
-            { instanceId: "exodia-right-leg", cardId: "44519536", location: "hand" },
-            { instanceId: "exodia-left-leg", cardId: "8124921", location: "hand" },
+            {
+              instanceId: spellCardId,
+              id: 55144522,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "hand" as const,
+            },
+            {
+              instanceId: "exodia-head",
+              id: 33396948,
+              type: "monster" as const,
+              frameType: "effect" as const,
+              location: "hand" as const,
+            }, // Exodia the Forbidden One
+            {
+              instanceId: "exodia-right-arm",
+              id: 7902349,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "hand" as const,
+            },
+            {
+              instanceId: "exodia-left-arm",
+              id: 70903634,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "hand" as const,
+            },
+            {
+              instanceId: "exodia-right-leg",
+              id: 8124921,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "hand" as const,
+            },
+            {
+              instanceId: "exodia-left-leg",
+              id: 44519536,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "hand" as const,
+            },
           ],
           field: [],
           graveyard: [],
@@ -175,7 +268,7 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       const result = command.execute(exodiaState);
 
@@ -187,7 +280,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should maintain immutability (original state unchanged)", () => {
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       const originalHandLength = initialState.zones.hand.length;
       const originalGraveyardLength = initialState.zones.graveyard.length;
@@ -202,7 +295,7 @@ describe("ActivateSpellCommand", () => {
 
   describe("getCardInstanceId", () => {
     it("should return the card instance ID being activated", () => {
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       expect(command.getCardInstanceId()).toBe(spellCardId);
     });
@@ -210,7 +303,7 @@ describe("ActivateSpellCommand", () => {
 
   describe("description", () => {
     it("should have descriptive command description", () => {
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
 
       expect(command.description).toContain("Activate spell card");
       expect(command.description).toContain(spellCardId);

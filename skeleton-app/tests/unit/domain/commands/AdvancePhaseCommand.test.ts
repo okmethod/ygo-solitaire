@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { AdvancePhaseCommand } from "$lib/application/commands/AdvancePhaseCommand";
+import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createExodiaVictoryState } from "../../../__testUtils__/gameStateFactory";
 
 describe("AdvancePhaseCommand", () => {
@@ -12,7 +12,15 @@ describe("AdvancePhaseCommand", () => {
       const state = createMockGameState({
         phase: "Draw",
         zones: {
-          deck: [{ instanceId: "deck-0", cardId: "12345678", location: "deck" }],
+          deck: [
+            {
+              instanceId: "deck-0",
+              id: 12345678,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "deck" as const,
+            },
+          ],
           hand: [],
           field: [],
           graveyard: [],
@@ -74,7 +82,15 @@ describe("AdvancePhaseCommand", () => {
       const state = createMockGameState({
         phase: "Draw",
         zones: {
-          deck: [{ instanceId: "deck-0", cardId: "12345678", location: "deck" }],
+          deck: [
+            {
+              instanceId: "deck-0",
+              id: 12345678,
+              type: "monster" as const,
+              frameType: "normal" as const,
+              location: "deck" as const,
+            },
+          ],
           hand: [],
           field: [],
           graveyard: [],

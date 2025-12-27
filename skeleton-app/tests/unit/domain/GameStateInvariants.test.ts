@@ -52,7 +52,9 @@ describe("GameStateInvariants", () => {
     it("should fail if deck exceeds 60 cards", () => {
       const largeDeck = Array.from({ length: 61 }, (_, i) => ({
         instanceId: `deck-${i}`,
-        cardId: `card-${i}`,
+        id: 1000 + i,
+        type: "spell" as const,
+        frameType: "spell" as const,
         location: "deck" as const,
       }));
 
@@ -75,7 +77,9 @@ describe("GameStateInvariants", () => {
     it("should fail if hand exceeds 10 cards", () => {
       const largeHand = Array.from({ length: 11 }, (_, i) => ({
         instanceId: `hand-${i}`,
-        cardId: `card-${i}`,
+        id: 1000 + i,
+        type: "spell" as const,
+        frameType: "spell" as const,
         location: "hand" as const,
       }));
 
@@ -98,7 +102,9 @@ describe("GameStateInvariants", () => {
     it("should fail if field exceeds 5 cards", () => {
       const largeField = Array.from({ length: 6 }, (_, i) => ({
         instanceId: `field-${i}`,
-        cardId: `card-${i}`,
+        id: 1000 + i,
+        type: "spell" as const,
+        frameType: "spell" as const,
         location: "field" as const,
       }));
 
@@ -122,8 +128,20 @@ describe("GameStateInvariants", () => {
       const state = createMockGameState({
         zones: {
           deck: [
-            { instanceId: "duplicate", cardId: "card1", location: "deck" },
-            { instanceId: "duplicate", cardId: "card2", location: "deck" },
+            {
+              instanceId: "duplicate",
+              id: 1001,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+            },
+            {
+              instanceId: "duplicate",
+              id: 1002,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+            },
           ],
           hand: [],
           field: [],
@@ -142,7 +160,13 @@ describe("GameStateInvariants", () => {
       const state = createMockGameState({
         zones: {
           deck: [
-            { instanceId: "", cardId: "card1", location: "deck" }, // Missing instanceId
+            {
+              instanceId: "",
+              id: 1001,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+            }, // Missing instanceId
           ],
           hand: [],
           field: [],
@@ -161,7 +185,13 @@ describe("GameStateInvariants", () => {
       const state = createMockGameState({
         zones: {
           deck: [
-            { instanceId: "card1", cardId: "card1", location: "hand" }, // Wrong location
+            {
+              instanceId: "card1",
+              id: 1001,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "hand" as const,
+            }, // Wrong location
           ],
           hand: [],
           field: [],

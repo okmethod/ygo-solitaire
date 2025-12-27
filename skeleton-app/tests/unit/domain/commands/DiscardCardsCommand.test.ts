@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { DiscardCardsCommand } from "$lib/application/commands/DiscardCardsCommand";
+import { DiscardCardsCommand } from "$lib/domain/commands/DiscardCardsCommand";
 import {
   createMockGameState,
   createCardInstances,

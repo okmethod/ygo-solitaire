@@ -3,14 +3,14 @@
  *
  * Tests:
  * - createInitialGameState factory function
- * - Immutability enforcement via Immer
+ * - Immutability enforcement via spread syntax
  * - Readonly properties cannot be mutated
  * - Original state remains unchanged after updates
  */
 
 import { describe, it, expect } from "vitest";
 import { createInitialGameState, findCardInstance, hasExodiaInHand } from "$lib/domain/models/GameState";
-import { produce } from "immer";
+import type { GameState } from "$lib/domain/models/GameState";
 import { EXODIA_PIECE_IDS } from "$lib/domain/models/constants";
 
 describe("GameState", () => {
@@ -63,13 +63,14 @@ describe("GameState", () => {
     });
   });
 
-  describe("Immutability with Immer", () => {
+  describe("Immutability with spread syntax", () => {
     it("should create new state instance when updated", () => {
       const originalState = createInitialGameState([1001, 1002, 1003]); // 数値ID
 
-      const newState = produce(originalState, (draft) => {
-        draft.turn = 2;
-      });
+      const newState: GameState = {
+        ...originalState,
+        turn: 2,
+      };
 
       expect(newState).not.toBe(originalState);
       expect(newState.turn).toBe(2);
@@ -80,12 +81,15 @@ describe("GameState", () => {
       const originalState = createInitialGameState([1001, 1002, 1003]); // 数値ID
       const originalDeckLength = originalState.zones.deck.length;
 
-      const newState = produce(originalState, (draft) => {
-        const card = draft.zones.deck.pop();
-        if (card) {
-          draft.zones.hand.push(card);
-        }
-      });
+      const card = originalState.zones.deck[originalState.zones.deck.length - 1];
+      const newState: GameState = {
+        ...originalState,
+        zones: {
+          ...originalState.zones,
+          deck: originalState.zones.deck.slice(0, -1),
+          hand: [...originalState.zones.hand, card],
+        },
+      };
 
       expect(originalState.zones.deck.length).toBe(originalDeckLength);
       expect(originalState.zones.hand.length).toBe(0);
@@ -96,9 +100,13 @@ describe("GameState", () => {
     it("should not mutate original state when updating life points", () => {
       const originalState = createInitialGameState([1001]); // 数値ID
 
-      const newState = produce(originalState, (draft) => {
-        draft.lp.player = 7000;
-      });
+      const newState: GameState = {
+        ...originalState,
+        lp: {
+          ...originalState.lp,
+          player: 7000,
+        },
+      };
 
       expect(originalState.lp.player).toBe(8000);
       expect(newState.lp.player).toBe(7000);
@@ -107,9 +115,10 @@ describe("GameState", () => {
     it("should not mutate original state when updating phase", () => {
       const originalState = createInitialGameState([1001]); // 数値ID
 
-      const newState = produce(originalState, (draft) => {
-        draft.phase = "Main1";
-      });
+      const newState: GameState = {
+        ...originalState,
+        phase: "Main1",
+      };
 
       expect(originalState.phase).toBe("Draw");
       expect(newState.phase).toBe("Main1");
@@ -118,12 +127,16 @@ describe("GameState", () => {
     it("should not mutate original state when updating chain stack", () => {
       const originalState = createInitialGameState([1001]); // 数値ID
 
-      const newState = produce(originalState, (draft) => {
-        draft.chainStack.push({
-          cardInstanceId: "test-card",
-          effectDescription: "Test effect",
-        });
-      });
+      const newState: GameState = {
+        ...originalState,
+        chainStack: [
+          ...originalState.chainStack,
+          {
+            cardInstanceId: "test-card",
+            effectDescription: "Test effect",
+          },
+        ],
+      };
 
       expect(originalState.chainStack.length).toBe(0);
       expect(newState.chainStack.length).toBe(1);
@@ -132,11 +145,15 @@ describe("GameState", () => {
     it("should not mutate original state when updating game result", () => {
       const originalState = createInitialGameState([1001]); // 数値ID
 
-      const newState = produce(originalState, (draft) => {
-        draft.result.isGameOver = true;
-        draft.result.winner = "player";
-        draft.result.reason = "exodia";
-      });
+      const newState: GameState = {
+        ...originalState,
+        result: {
+          ...originalState.result,
+          isGameOver: true,
+          winner: "player",
+          reason: "exodia",
+        },
+      };
 
       expect(originalState.result.isGameOver).toBe(false);
       expect(originalState.result.winner).toBeUndefined();
@@ -147,18 +164,21 @@ describe("GameState", () => {
     it("should support nested updates without mutation", () => {
       const originalState = createInitialGameState([1001, 1002]); // 数値ID
 
-      const newState = produce(originalState, (draft) => {
-        // Move card from deck to hand
-        const card = draft.zones.deck.pop();
-        if (card) {
-          card.location = "hand";
-          draft.zones.hand.push(card);
-        }
-        // Update life points
-        draft.lp.player = 7500;
-        // Update phase
-        draft.phase = "Standby";
-      });
+      // Move card from deck to hand
+      const card = { ...originalState.zones.deck[originalState.zones.deck.length - 1], location: "hand" as const };
+      const newState: GameState = {
+        ...originalState,
+        zones: {
+          ...originalState.zones,
+          deck: originalState.zones.deck.slice(0, -1),
+          hand: [...originalState.zones.hand, card],
+        },
+        lp: {
+          ...originalState.lp,
+          player: 7500,
+        },
+        phase: "Standby",
+      };
 
       // Original state unchanged
       expect(originalState.zones.deck.length).toBe(2);
@@ -182,18 +202,21 @@ describe("GameState", () => {
 
         expect(card).toBeDefined();
         expect(card?.instanceId).toBe("deck-0");
-        expect(card?.cardId).toBe("1001");
+        expect(card?.id).toBe(1001); // CardInstance extends CardData
         expect(card?.location).toBe("deck");
       });
 
       it("should find card in hand", () => {
-        const state = produce(createInitialGameState([1001]), (draft) => {
-          const card = draft.zones.deck.pop();
-          if (card) {
-            card.location = "hand";
-            draft.zones.hand.push(card);
-          }
-        });
+        const initialState = createInitialGameState([1001]);
+        const movedCard = { ...initialState.zones.deck[0], location: "hand" as const };
+        const state: GameState = {
+          ...initialState,
+          zones: {
+            ...initialState.zones,
+            deck: [],
+            hand: [movedCard],
+          },
+        };
 
         const card = findCardInstance(state, "deck-0");
         expect(card).toBeDefined();
@@ -208,20 +231,18 @@ describe("GameState", () => {
       });
 
       it("should search across all zones", () => {
-        const state = produce(createInitialGameState([1001, 1002, 1003]), (draft) => {
-          // Move cards to different zones
-          const card1 = draft.zones.deck.pop();
-          if (card1) {
-            card1.location = "hand";
-            draft.zones.hand.push(card1);
-          }
-
-          const card2 = draft.zones.deck.pop();
-          if (card2) {
-            card2.location = "graveyard";
-            draft.zones.graveyard.push(card2);
-          }
-        });
+        const initialState = createInitialGameState([1001, 1002, 1003]);
+        const card1 = { ...initialState.zones.deck[2], location: "hand" as const };
+        const card2 = { ...initialState.zones.deck[1], location: "graveyard" as const };
+        const state: GameState = {
+          ...initialState,
+          zones: {
+            ...initialState.zones,
+            deck: [initialState.zones.deck[0]],
+            hand: [card1],
+            graveyard: [card2],
+          },
+        };
 
         expect(findCardInstance(state, "deck-0")).toBeDefined();
         expect(findCardInstance(state, "deck-1")).toBeDefined();
@@ -233,14 +254,18 @@ describe("GameState", () => {
       it("should return true when all 5 Exodia pieces are in hand", () => {
         // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
         const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
-        const state = produce(createInitialGameState(exodiaNumericIds), (draft) => {
-          // Move all Exodia pieces to hand
-          draft.zones.hand = draft.zones.deck.map((card) => ({
-            ...card,
-            location: "hand" as const,
-          }));
-          draft.zones.deck = [];
-        });
+        const initialState = createInitialGameState(exodiaNumericIds);
+        const state: GameState = {
+          ...initialState,
+          zones: {
+            ...initialState.zones,
+            hand: initialState.zones.deck.map((card) => ({
+              ...card,
+              location: "hand" as const,
+            })),
+            deck: [],
+          },
+        };
 
         expect(hasExodiaInHand(state)).toBe(true);
       });
@@ -248,13 +273,18 @@ describe("GameState", () => {
       it("should return false when only 4 Exodia pieces are in hand", () => {
         // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
         const exodiaNumericIds = EXODIA_PIECE_IDS.slice(0, 4).map((id) => parseInt(id, 10));
-        const state = produce(createInitialGameState(exodiaNumericIds), (draft) => {
-          draft.zones.hand = draft.zones.deck.map((card) => ({
-            ...card,
-            location: "hand" as const,
-          }));
-          draft.zones.deck = [];
-        });
+        const initialState = createInitialGameState(exodiaNumericIds);
+        const state: GameState = {
+          ...initialState,
+          zones: {
+            ...initialState.zones,
+            hand: initialState.zones.deck.map((card) => ({
+              ...card,
+              location: "hand" as const,
+            })),
+            deck: [],
+          },
+        };
 
         expect(hasExodiaInHand(state)).toBe(false);
       });
@@ -270,16 +300,20 @@ describe("GameState", () => {
       it("should return false when Exodia pieces are in different zones", () => {
         // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
         const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
-        const state = produce(createInitialGameState(exodiaNumericIds), (draft) => {
-          // Move only 3 pieces to hand, rest stay in deck
-          for (let i = 0; i < 3; i++) {
-            const card = draft.zones.deck.shift();
-            if (card) {
-              card.location = "hand";
-              draft.zones.hand.push(card);
-            }
-          }
-        });
+        const initialState = createInitialGameState(exodiaNumericIds);
+        // Move only 3 pieces to hand, rest stay in deck
+        const movedCards = initialState.zones.deck.slice(0, 3).map((card) => ({
+          ...card,
+          location: "hand" as const,
+        }));
+        const state: GameState = {
+          ...initialState,
+          zones: {
+            ...initialState.zones,
+            deck: initialState.zones.deck.slice(3),
+            hand: movedCards,
+          },
+        };
 
         expect(hasExodiaInHand(state)).toBe(false);
       });
@@ -295,10 +329,11 @@ describe("GameState", () => {
       // state.zones.deck = []; // Error: Cannot assign to 'deck' because it is a read-only property
       // state.lp.player = 7000; // Error: Cannot assign to 'player' because it is a read-only property
 
-      // Instead, we must use Immer's produce()
-      const newState = produce(state, (draft) => {
-        draft.turn = 2;
-      });
+      // Instead, we must use spread syntax
+      const newState: GameState = {
+        ...state,
+        turn: 2,
+      };
 
       expect(newState.turn).toBe(2);
       expect(state.turn).toBe(1);

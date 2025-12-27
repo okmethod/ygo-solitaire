@@ -9,7 +9,7 @@
 
 import type { Zones } from "./Zone";
 import type { GamePhase } from "./constants";
-import { getCardType } from "../data/cardDatabase";
+import { getCardData } from "../data/cardDatabase";
 
 /**
  * Life Points for both players
@@ -60,12 +60,14 @@ export interface GameState {
 export function createInitialGameState(deckCardIds: number[]): GameState {
   return {
     zones: {
-      deck: deckCardIds.map((cardId, index) => ({
-        instanceId: `deck-${index}`,
-        cardId: cardId.toString(),
-        type: getCardType(cardId), // Get type from domain card database
-        location: "deck" as const,
-      })),
+      deck: deckCardIds.map((cardId, index) => {
+        const cardData = getCardData(cardId);
+        return {
+          ...cardData,
+          instanceId: `deck-${index}`,
+          location: "deck" as const,
+        };
+      }),
       hand: [],
       field: [],
       graveyard: [],
@@ -101,8 +103,8 @@ export function hasExodiaInHand(state: GameState): boolean {
     44519536, // Left Leg of the Forbidden One
   ];
 
-  // CardInstance.cardIdは文字列なので、数値に変換して比較
-  const handCardNumericIds = state.zones.hand.map((card) => parseInt(card.cardId, 10));
+  // CardInstance extends CardData なので、card.id (number) を直接使用
+  const handCardNumericIds = state.zones.hand.map((card) => card.id);
   return exodiaPieceNumericIds.every((pieceId) => handCardNumericIds.includes(pieceId));
 }
 
@@ -113,10 +115,7 @@ export function hasExodiaInHand(state: GameState): boolean {
  * @param instanceId - Card instance ID to find
  * @returns Card instance or undefined if not found
  */
-export function findCardInstance(
-  state: GameState,
-  instanceId: string,
-): { instanceId: string; cardId: string; location: string } | undefined {
+export function findCardInstance(state: GameState, instanceId: string) {
   const allZones = [
     ...state.zones.deck,
     ...state.zones.hand,

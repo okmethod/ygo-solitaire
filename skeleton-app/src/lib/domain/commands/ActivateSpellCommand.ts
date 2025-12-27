@@ -12,7 +12,6 @@
  * @module application/commands/ActivateSpellCommand
  */
 
-import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
@@ -20,8 +19,8 @@ import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
-import { CardEffectRegistry } from "$lib/application/effects";
-import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import { CardEffectRegistry } from "$lib/domain/effects";
+import type { IEffectResolutionService } from "$lib/domain/services/IEffectResolutionService";
 
 /**
  * Command to activate a spell card
@@ -33,8 +32,12 @@ export class ActivateSpellCommand implements GameCommand {
    * Create a new ActivateSpellCommand
    *
    * @param cardInstanceId - Card instance ID to activate
+   * @param effectResolutionService - Effect resolution service (injected)
    */
-  constructor(private readonly cardInstanceId: string) {
+  constructor(
+    private readonly cardInstanceId: string,
+    private readonly effectResolutionService: IEffectResolutionService,
+  ) {
     this.description = `Activate spell card ${cardInstanceId}`;
   }
 
@@ -59,7 +62,7 @@ export class ActivateSpellCommand implements GameCommand {
     // Check card-specific effect requirements (if registered)
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (cardInstance) {
-      const cardId = parseInt(cardInstance.cardId, 10);
+      const cardId = cardInstance.id; // CardInstance extends CardData
       const effect = CardEffectRegistry.get(cardId);
 
       if (effect && !effect.canActivate(state)) {
@@ -94,20 +97,21 @@ export class ActivateSpellCommand implements GameCommand {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
     }
 
-    // Create intermediate state for effect resolution
-    const stateAfterActivation = produce(state, (draft) => {
-      draft.zones = zonesAfterActivation as typeof draft.zones;
-    });
+    // Create intermediate state for effect resolution using spread syntax
+    const stateAfterActivation: GameState = {
+      ...state,
+      zones: zonesAfterActivation,
+    };
 
     // Check if card has registered effect
-    const cardId = parseInt(cardInstance.cardId, 10);
+    const cardId = cardInstance.id; // CardInstance extends CardData
     const effect = CardEffectRegistry.get(cardId);
 
     if (effect && effect.canActivate(stateAfterActivation)) {
       // Card has effect - trigger effect resolution
       // Pass cardInstanceId to effect for graveyard-sending step
       const steps = effect.createSteps(stateAfterActivation, this.cardInstanceId);
-      effectResolutionStore.startResolution(steps);
+      this.effectResolutionService.startResolution(steps);
 
       // Early return - effect resolution will handle graveyard-sending
       return createSuccessResult(stateAfterActivation, `Spell card activated: ${this.cardInstanceId}`);
@@ -116,18 +120,20 @@ export class ActivateSpellCommand implements GameCommand {
     // No effect registered - send directly to graveyard
     const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
 
-    // Create new state with updated zones
-    const newState = produce(state, (draft) => {
-      draft.zones = zonesAfterResolution as typeof draft.zones;
-    });
+    // Create new state with updated zones using spread syntax
+    const newState: GameState = {
+      ...state,
+      zones: zonesAfterResolution,
+    };
 
     // Check victory conditions after activation
     const victoryResult = checkVictoryConditions(newState);
 
-    // Update game result if victory/defeat occurred
-    const finalState = produce(newState, (draft) => {
-      draft.result = victoryResult;
-    });
+    // Update game result if victory/defeat occurred using spread syntax
+    const finalState: GameState = {
+      ...newState,
+      result: victoryResult,
+    };
 
     return createSuccessResult(finalState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }

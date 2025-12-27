@@ -8,14 +8,15 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GamePhase } from "$lib/domain/models/constants";
+import type { GamePhase } from "$lib/domain/models/Phase";
 import { gameStateStore, resetGameState, getCurrentState } from "./stores/gameStateStore";
-import { DrawCardCommand } from "./commands/DrawCardCommand";
-import { AdvancePhaseCommand } from "./commands/AdvancePhaseCommand";
-import { ActivateSpellCommand } from "./commands/ActivateSpellCommand";
-import { ShuffleDeckCommand } from "./commands/ShuffleDeckCommand";
+import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
+import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
+import { EffectResolutionServiceImpl } from "$lib/application/services/EffectResolutionServiceImpl";
 
 /**
  * GameFacade class
@@ -35,6 +36,8 @@ import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
  * ```
  */
 export class GameFacade {
+  private readonly effectResolutionService = new EffectResolutionServiceImpl();
+
   /**
    * Initialize a new game with given deck
    *
@@ -137,7 +140,7 @@ export class GameFacade {
    */
   activateSpell(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
     const currentState = getCurrentState();
-    const command = new ActivateSpellCommand(cardInstanceId);
+    const command = new ActivateSpellCommand(cardInstanceId, this.effectResolutionService);
 
     const result = command.execute(currentState);
 

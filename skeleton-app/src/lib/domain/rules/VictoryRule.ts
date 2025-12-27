@@ -122,8 +122,8 @@ export function getMissingExodiaPieces(state: GameState): string[] {
     44519536, // Left Leg of the Forbidden One
   ];
 
-  // CardInstance.cardIdは文字列なので、数値に変換して比較
-  const handCardNumericIds = state.zones.hand.map((card) => parseInt(card.cardId, 10));
+  // CardInstance extends CardData なので、card.id (number) を直接使用
+  const handCardNumericIds = state.zones.hand.map((card) => card.id);
   const missingNumericIds = exodiaPieceNumericIds.filter((pieceId) => !handCardNumericIds.includes(pieceId));
 
   // 戻り値は文字列配列（EXODIA_PIECE_IDsとの互換性を維持するため、数値→文字列マッピングを使用）
@@ -159,7 +159,7 @@ export function countExodiaPiecesInHand(state: GameState): number {
     44519536, // Left Leg of the Forbidden One
   ];
 
-  // CardInstance.cardIdは文字列なので、数値に変換して比較
-  const handCardNumericIds = state.zones.hand.map((card) => parseInt(card.cardId, 10));
+  // CardInstance extends CardData なので、card.id (number) を直接使用
+  const handCardNumericIds = state.zones.hand.map((card) => card.id);
   return exodiaPieceNumericIds.filter((pieceId) => handCardNumericIds.includes(pieceId)).length;
 }

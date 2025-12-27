@@ -7,7 +7,6 @@
  * @module application/commands/ShuffleDeckCommand
  */
 
-import { produce } from "immer";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
@@ -52,9 +51,16 @@ export class ShuffleDeckCommand implements GameCommand {
 
     try {
       // Shuffle deck using Fisher-Yates algorithm
-      const newState = produce(state, (draft) => {
-        draft.zones.deck = shuffleArray(state.zones.deck);
-      });
+      const shuffledDeck = shuffleArray(state.zones.deck);
+
+      // Create new state with shuffled deck using spread syntax
+      const newState: GameState = {
+        ...state,
+        zones: {
+          ...state.zones,
+          deck: shuffledDeck,
+        },
+      };
 
       return createSuccessResult(newState, "デッキをシャッフルしました");
     } catch (error) {

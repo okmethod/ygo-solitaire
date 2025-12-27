@@ -59,7 +59,6 @@ describe("NormalSpellEffect", () => {
         phase: "End",
         result: {
           isGameOver: false,
-          winner: null,
         },
       });
 
@@ -78,7 +77,6 @@ describe("NormalSpellEffect", () => {
         phase: "Main1",
         result: {
           isGameOver: false,
-          winner: null,
         },
       });
 
@@ -125,7 +123,7 @@ describe("NormalSpellEffect", () => {
       expect(steps[1].action).toBeTypeOf("function");
     });
 
-    it("should include activatedCardInstanceId in graveyard step action", () => {
+    it("should include activatedCardInstanceId in graveyard step action", async () => {
       // Arrange
       const effect = new TestNormalSpellEffect();
       const state = createMockGameState({
@@ -138,6 +136,7 @@ describe("NormalSpellEffect", () => {
               instanceId: "test-card-instance-1",
               location: "hand",
               type: "spell",
+              frameType: "spell",
             },
           ],
           field: [],
@@ -150,7 +149,7 @@ describe("NormalSpellEffect", () => {
       // Act
       const steps = effect.createSteps(state, activatedCardInstanceId);
       const graveyardStep = steps[1];
-      const result = graveyardStep.action(state);
+      const result = await graveyardStep.action(state);
 
       // Assert: Card should be moved from hand to graveyard
       expect(result.success).toBe(true);
