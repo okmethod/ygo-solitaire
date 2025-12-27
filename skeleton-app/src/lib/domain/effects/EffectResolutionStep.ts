@@ -8,7 +8,7 @@
  */
 
 import type { GameState } from "../models/GameState";
-import type { CommandResult } from "../commands/CommandResult";
+import type { GameStateUpdateResult } from "../models/GameStateUpdateResult";
 import type { CardInstance } from "../models/Card";
 
 /**
@@ -109,14 +109,14 @@ export interface EffectResolutionStep {
    *
    * Callback Pattern + Dependency Injection:
    * - GameState is injected by Application Layer at execution time
-   * - Returns CommandResult with new state
-   * - Can be async (Promise<CommandResult>) or sync (CommandResult)
+   * - Returns GameStateUpdateResult with new state
+   * - Can be async (Promise<GameStateUpdateResult>) or sync (GameStateUpdateResult)
    *
    * If cardSelectionConfig is provided:
    * - selectedInstanceIds parameter will contain user-selected card instance IDs
    * - Otherwise, selectedInstanceIds will be undefined
    */
-  action: (state: GameState, selectedInstanceIds?: string[]) => Promise<CommandResult> | CommandResult;
+  action: (state: GameState, selectedInstanceIds?: string[]) => Promise<GameStateUpdateResult> | GameStateUpdateResult;
 
   /** Whether to show cancel button (optional) */
   showCancel?: boolean;
