@@ -16,8 +16,9 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       { id: 8124921, quantity: 1 }, // 封印されし者の右足
 
       // 魔法カード
-      { id: 55144522, quantity: 20, effectClass: "PotOfGreedEffect" }, // 強欲な壺
-      { id: 79571449, quantity: 12, effectClass: "GracefulCharityEffect" }, // 天使の施し
+      { id: 55144522, quantity: 20 }, // 強欲な壺
+      { id: 79571449, quantity: 6 }, // 天使の施し
+      { id: 67616300, quantity: 6 }, // チキンレース
 
       // 罠カード
       { id: 83968380, quantity: 3 }, // 強欲な瓶（未実装）

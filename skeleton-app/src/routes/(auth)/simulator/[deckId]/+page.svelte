@@ -70,7 +70,7 @@
     }
   }
 
-  // User Story 2: カードクリックで効果発動
+  // User Story 2: カードクリックで効果発動（手札のカード）
   function handleCardClick(card: CardDisplayData, instanceId: string) {
     // フェーズチェック（Main1フェーズのみ発動可能）
     if ($currentPhase !== "Main1") {
@@ -92,6 +92,33 @@
       showSuccessToast(result.message || `${card.name}を発動しました`);
     } else {
       showErrorToast(result.error || "発動に失敗しました");
+    }
+  }
+
+  // フィールドカードクリックで起動効果発動
+  function handleFieldCardClick(card: CardDisplayData) {
+    // フェーズチェック（Main1フェーズのみ発動可能）
+    if ($currentPhase !== "Main1") {
+      showErrorToast("Can only activate effects during Main Phase 1");
+      return;
+    }
+
+    // Find the card instance ID from field cards
+    const currentState = gameFacade.getGameState();
+    const fieldCard = currentState.zones.field.find((c) => c.id === card.id);
+    if (!fieldCard) {
+      showErrorToast("Card not found on field");
+      return;
+    }
+
+    // Activate ignition effect
+    const result = gameFacade.activateIgnitionEffect(fieldCard.instanceId);
+
+    // トーストメッセージ表示
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}の効果を発動しました`);
+    } else {
+      showErrorToast(result.error || "効果発動に失敗しました");
     }
   }
 
@@ -259,6 +286,7 @@
       fieldCards={fieldMagicCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
+      onFieldCardClick={handleFieldCardClick}
     />
 
     <!-- Hand Zone -->

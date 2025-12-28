@@ -16,14 +16,24 @@
     fieldCards: Card[];
     monsterCards: (Card | null)[];
     spellTrapCards: (Card | null)[];
+    onFieldCardClick?: (card: Card) => void;
   }
 
-  let { deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards }: DuelFieldProps =
-    $props();
+  let {
+    deckCards,
+    extraDeckCards,
+    graveyardCards,
+    fieldCards,
+    monsterCards,
+    spellTrapCards,
+    onFieldCardClick,
+  }: DuelFieldProps = $props();
 
   // カードクリック処理
   function handleCardClick(card: Card) {
-    console.log("Card clicked:", card.name);
+    if (onFieldCardClick) {
+      onFieldCardClick(card);
+    }
   }
 </script>
 

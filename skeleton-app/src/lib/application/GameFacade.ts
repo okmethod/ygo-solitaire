@@ -17,6 +17,8 @@ import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
+import { findCardInstance } from "$lib/domain/models/GameState";
 import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
 
 /**
@@ -169,6 +171,73 @@ export class GameFacade {
     const currentState = getCurrentState();
     const validation = canActivateSpell(currentState, cardInstanceId);
     return validation.canActivate;
+  }
+
+  /**
+   * Activate an ignition effect from a field card
+   *
+   * @param cardInstanceId - Card instance ID to activate ignition effect from
+   * @returns Success/failure result
+   */
+  activateIgnitionEffect(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+    const currentState = getCurrentState();
+
+    // Find the card
+    const cardInstance = findCardInstance(currentState, cardInstanceId);
+    if (!cardInstance) {
+      return {
+        success: false,
+        error: "Card not found",
+      };
+    }
+
+    // Currently only Chicken Game (67616300) has an ignition effect
+    if (cardInstance.id !== 67616300) {
+      return {
+        success: false,
+        error: "This card has no ignition effect",
+      };
+    }
+
+    // Create ChickenGameIgnitionEffect instance
+    const ignitionEffect = new ChickenGameIgnitionEffect(cardInstanceId);
+
+    // Check if it can be activated
+    if (!ignitionEffect.canActivate(currentState)) {
+      return {
+        success: false,
+        error: "Cannot activate ignition effect (check phase, LP, or once-per-turn limit)",
+      };
+    }
+
+    // Execute activation steps immediately
+    const activationSteps = ignitionEffect.createActivationSteps(currentState);
+    let stateAfterActivation = currentState;
+
+    for (const step of activationSteps) {
+      const result = step.action(stateAfterActivation);
+      if (!result.success) {
+        return {
+          success: false,
+          error: result.error,
+        };
+      }
+      stateAfterActivation = result.newState;
+    }
+
+    // Update game state with activation results
+    gameStateStore.set(stateAfterActivation);
+
+    // Get resolution steps and delegate to Application Layer
+    const resolutionSteps = ignitionEffect.createResolutionSteps(stateAfterActivation, cardInstanceId);
+    if (resolutionSteps.length > 0) {
+      effectResolutionStore.startResolution(resolutionSteps);
+    }
+
+    return {
+      success: true,
+      message: "Ignition effect activated",
+    };
   }
 
   /**
