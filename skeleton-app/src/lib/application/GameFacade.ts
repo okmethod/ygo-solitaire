@@ -16,7 +16,7 @@ import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand"
 import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
-import { EffectResolutionServiceImpl } from "$lib/application/services/EffectResolutionServiceImpl";
+import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 
 /**
  * GameFacade class
@@ -36,8 +36,6 @@ import { EffectResolutionServiceImpl } from "$lib/application/services/EffectRes
  * ```
  */
 export class GameFacade {
-  private readonly effectResolutionService = new EffectResolutionServiceImpl();
-
   /**
    * Initialize a new game with given deck
    *
@@ -140,12 +138,17 @@ export class GameFacade {
    */
   activateSpell(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
     const currentState = getCurrentState();
-    const command = new ActivateSpellCommand(cardInstanceId, this.effectResolutionService);
+    const command = new ActivateSpellCommand(cardInstanceId);
 
     const result = command.execute(currentState);
 
     if (result.success) {
       gameStateStore.set(result.newState);
+
+      // If effectSteps are returned, delegate to Application Layer
+      if (result.effectSteps && result.effectSteps.length > 0) {
+        effectResolutionStore.startResolution(result.effectSteps);
+      }
     }
 
     return {

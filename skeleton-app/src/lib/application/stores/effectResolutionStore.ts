@@ -88,9 +88,9 @@ function createEffectResolutionStore() {
             state.cardSelectionHandler!({
               ...state.currentStep!.cardSelectionConfig!,
               availableCards: currentGameState.zones.hand,
-              onConfirm: async (selectedInstanceIds: string[]) => {
-                // ユーザーがカードを選択したら、actionを実行
-                const result = await state.currentStep!.action(currentGameState, selectedInstanceIds);
+              onConfirm: (selectedInstanceIds: string[]) => {
+                // ユーザーがカードを選択したら、actionを実行（同期化）
+                const result = state.currentStep!.action(currentGameState, selectedInstanceIds);
 
                 // actionの結果を反映
                 if (result.success) {
@@ -132,8 +132,8 @@ function createEffectResolutionStore() {
             });
           });
         } else {
-          // カード選択不要な場合（従来の動作）
-          const result = await state.currentStep.action(currentGameState);
+          // カード選択不要な場合（従来の動作、同期化）
+          const result = state.currentStep.action(currentGameState);
 
           // actionの結果を反映
           if (result.success) {

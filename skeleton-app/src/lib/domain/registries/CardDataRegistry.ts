@@ -31,6 +31,7 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   // Spell cards
   55144522: { id: 55144522, type: "spell", frameType: "spell", spellType: "normal" }, // Pot of Greed
   79571449: { id: 79571449, type: "spell", frameType: "spell", spellType: "normal" }, // Graceful Charity
+  67616300: { id: 67616300, type: "spell", frameType: "spell", spellType: "field" }, // Chicken Game
 
   // Trap cards
   83968380: { id: 83968380, type: "trap", frameType: "trap", trapType: "normal" }, // Jar of Greed

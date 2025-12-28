@@ -19,8 +19,7 @@ import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
-import { CardEffectRegistry } from "$lib/domain/effects";
-import type { IEffectResolutionService } from "$lib/domain/services/IEffectResolutionService";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 
 /**
  * Command to activate a spell card
@@ -32,12 +31,8 @@ export class ActivateSpellCommand implements GameCommand {
    * Create a new ActivateSpellCommand
    *
    * @param cardInstanceId - Card instance ID to activate
-   * @param effectResolutionService - Effect resolution service (injected)
    */
-  constructor(
-    private readonly cardInstanceId: string,
-    private readonly effectResolutionService: IEffectResolutionService,
-  ) {
+  constructor(private readonly cardInstanceId: string) {
     this.description = `Activate spell card ${cardInstanceId}`;
   }
 
@@ -63,9 +58,9 @@ export class ActivateSpellCommand implements GameCommand {
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (cardInstance) {
       const cardId = cardInstance.id; // CardInstance extends CardData
-      const effect = CardEffectRegistry.get(cardId);
+      const chainableAction = ChainableActionRegistry.get(cardId);
 
-      if (effect && !effect.canActivate(state)) {
+      if (chainableAction && !chainableAction.canActivate(state)) {
         return false;
       }
     }
@@ -79,7 +74,7 @@ export class ActivateSpellCommand implements GameCommand {
    * Flow: hand → field → [effect execution] → graveyard
    *
    * @param state - Current game state
-   * @returns Command result with new state
+   * @returns Command result with new state (effectSteps included if effect exists)
    */
   execute(state: GameState): CommandResult {
     // Validate activation
@@ -103,18 +98,32 @@ export class ActivateSpellCommand implements GameCommand {
       zones: zonesAfterActivation,
     };
 
-    // Check if card has registered effect
     const cardId = cardInstance.id; // CardInstance extends CardData
-    const effect = CardEffectRegistry.get(cardId);
 
-    if (effect && effect.canActivate(stateAfterActivation)) {
-      // Card has effect - trigger effect resolution
-      // Pass cardInstanceId to effect for graveyard-sending step
-      const steps = effect.createSteps(stateAfterActivation, this.cardInstanceId);
-      this.effectResolutionService.startResolution(steps);
+    // Check ChainableActionRegistry for card effect
+    const chainableAction = ChainableActionRegistry.get(cardId);
+    if (chainableAction && chainableAction.canActivate(stateAfterActivation)) {
+      // Execute activation steps immediately (synchronous)
+      const activationSteps = chainableAction.createActivationSteps(stateAfterActivation);
+      let currentState = stateAfterActivation;
+      for (const step of activationSteps) {
+        const result = step.action(currentState);
+        if (!result.success) {
+          return result; // Early return on failure
+        }
+        currentState = result.newState;
+      }
 
-      // Early return - effect resolution will handle graveyard-sending
-      return createSuccessResult(stateAfterActivation, `Spell card activated: ${this.cardInstanceId}`);
+      // Create resolution steps to be executed by Application Layer
+      const resolutionSteps = chainableAction.createResolutionSteps(currentState, this.cardInstanceId);
+
+      // Return result with effectSteps (delegate to Application Layer)
+      return {
+        success: true,
+        newState: currentState,
+        message: `Spell card activated: ${this.cardInstanceId}`,
+        effectSteps: resolutionSteps,
+      };
     }
 
     // No effect registered - send directly to graveyard

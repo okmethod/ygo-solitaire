@@ -44,17 +44,17 @@ description: "Task list for Effect Model Implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T001 [P] [US1] ChainableActionインターフェースを定義 in skeleton-app/src/lib/domain/models/ChainableAction.ts
-- [ ] T002 [P] [US1] ChainableActionRegistryクラスを実装 in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T003 [P] [US1] GameStateUpdateResultにeffectStepsフィールドを追加 in skeleton-app/src/lib/domain/models/GameStateUpdateResult.ts
-- [ ] T004 [P] [US1] EffectResolutionStep.actionシグネチャを同期関数に統一 in skeleton-app/src/lib/domain/effects/EffectResolutionStep.ts
-- [ ] T005 [P] [US1] PotOfGreedActionをChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
-- [ ] T006 [P] [US1] GracefulCharityActionをChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
-- [ ] T007 [P] [US1] ChainableActionRegistry単体テストを作成 in skeleton-app/tests/unit/domain/registries/ChainableActionRegistry.test.ts
-- [ ] T008 [P] [US1] PotOfGreedAction単体テストを作成 in skeleton-app/tests/unit/domain/effects/chainable/PotOfGreedAction.test.ts
-- [ ] T009 [P] [US1] GracefulCharityAction単体テストを作成 in skeleton-app/tests/unit/domain/effects/chainable/GracefulCharityAction.test.ts
-- [ ] T010 [US1] PotOfGreedActionとGracefulCharityActionをChainableActionRegistryに登録 in skeleton-app/src/lib/domain/effects/index.ts
-- [ ] T011 [US1] 既存のeffectResolutionStore.confirmCurrentStepからawaitキーワードを削除（同期化対応） in skeleton-app/src/lib/application/stores/effectResolutionStore.svelte.ts
+- [x] T001 [P] [US1] ChainableActionインターフェースを定義 in skeleton-app/src/lib/domain/models/ChainableAction.ts
+- [x] T002 [P] [US1] ChainableActionRegistryクラスを実装 in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T003 [P] [US1] GameStateUpdateResultにeffectStepsフィールドを追加 in skeleton-app/src/lib/domain/models/GameStateUpdateResult.ts
+- [x] T004 [P] [US1] EffectResolutionStep.actionシグネチャを同期関数に統一 in skeleton-app/src/lib/domain/effects/EffectResolutionStep.ts
+- [x] T005 [P] [US1] PotOfGreedActionをChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
+- [x] T006 [P] [US1] GracefulCharityActionをChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
+- [x] T007 [P] [US1] ChainableActionRegistry単体テストを作成 in skeleton-app/tests/unit/domain/registries/ChainableActionRegistry.test.ts
+- [x] T008 [P] [US1] PotOfGreedAction単体テストを作成 in skeleton-app/tests/unit/domain/effects/chainable/PotOfGreedAction.test.ts
+- [x] T009 [P] [US1] GracefulCharityAction単体テストを作成 in skeleton-app/tests/unit/domain/effects/chainable/GracefulCharityAction.test.ts
+- [x] T010 [US1] PotOfGreedActionとGracefulCharityActionをChainableActionRegistryに登録 in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T011 [US1] 既存のeffectResolutionStore.confirmCurrentStepからawaitキーワードを削除（同期化対応） in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
 
 **Checkpoint**: ChainableActionインターフェースと2つの具象実装が完成し、Registryで管理可能。単体テストがすべてパス。
 
@@ -68,13 +68,13 @@ description: "Task list for Effect Model Implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T012 [P] [US2] AdditionalRuleインターフェースとRuleCategoryを定義 in skeleton-app/src/lib/domain/models/AdditionalRule.ts
-- [ ] T013 [P] [US2] RuleContextインターフェースを定義 in skeleton-app/src/lib/domain/models/RuleContext.ts
-- [ ] T014 [P] [US2] AdditionalRuleRegistryクラスを実装 in skeleton-app/src/lib/domain/registries/AdditionalRuleRegistry.ts
-- [ ] T015 [P] [US2] ChickenGameContinuousRuleをAdditionalRuleとして実装 in skeleton-app/src/lib/domain/effects/additional/ChickenGameContinuousRule.ts
-- [ ] T016 [P] [US2] AdditionalRuleRegistry単体テストを作成 in skeleton-app/tests/unit/domain/registries/AdditionalRuleRegistry.test.ts
-- [ ] T017 [P] [US2] ChickenGameContinuousRule単体テストを作成 in skeleton-app/tests/unit/domain/effects/additional/ChickenGameContinuousRule.test.ts
-- [ ] T018 [US2] ChickenGameContinuousRuleをAdditionalRuleRegistryに登録 in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T012 [P] [US2] AdditionalRuleインターフェースとRuleCategoryを定義 in skeleton-app/src/lib/domain/models/AdditionalRule.ts
+- [x] T013 [P] [US2] RuleContextインターフェースを定義 in skeleton-app/src/lib/domain/models/RuleContext.ts
+- [x] T014 [P] [US2] AdditionalRuleRegistryクラスを実装 in skeleton-app/src/lib/domain/registries/AdditionalRuleRegistry.ts
+- [x] T015 [P] [US2] ChickenGameContinuousRuleをAdditionalRuleとして実装 in skeleton-app/src/lib/domain/effects/additional/ChickenGameContinuousRule.ts
+- [x] T016 [P] [US2] AdditionalRuleRegistry単体テストを作成 in skeleton-app/tests/unit/domain/registries/AdditionalRuleRegistry.test.ts
+- [x] T017 [P] [US2] ChickenGameContinuousRule単体テストを作成 in skeleton-app/tests/unit/domain/effects/additional/ChickenGameContinuousRule.test.ts
+- [x] T018 [US2] ChickenGameContinuousRuleをAdditionalRuleRegistryに登録 in skeleton-app/src/lib/domain/effects/index.ts
 
 **Checkpoint**: AdditionalRuleインターフェースとチキンレース永続効果実装が完成し、Registryで管理可能。単体テストがすべてパス。
 
@@ -88,13 +88,13 @@ description: "Task list for Effect Model Implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] ActivateSpellCommandのコンストラクタからIEffectResolutionServiceパラメータを削除 in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
-- [ ] T020 [US3] ActivateSpellCommand.execute()でChainableActionRegistryを優先チェックし、effectStepsを返す実装に変更 in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
-- [ ] T021 [US3] GameFacade.activateSpell()でeffectStepsを受け取り、effectResolutionStore.startResolution()を呼ぶ実装に変更 in skeleton-app/src/lib/application/GameFacade.ts
-- [ ] T022 [US3] ActivateSpellCommand単体テストを修正（DI削除、effectSteps検証追加） in skeleton-app/tests/unit/domain/commands/ActivateSpellCommand.test.ts
-- [ ] T023 [US3] NormalSpells統合テストを修正（新旧システム両方を検証） in skeleton-app/tests/integration/card-effects/NormalSpells.test.ts
-- [ ] T024 [US3] IEffectResolutionService.tsを削除 in skeleton-app/src/lib/domain/services/IEffectResolutionService.ts
-- [ ] T025 [US3] EffectResolutionServiceImpl.tsを削除 in skeleton-app/src/lib/application/services/EffectResolutionServiceImpl.ts
+- [x] T019 [US3] ActivateSpellCommandのコンストラクタからIEffectResolutionServiceパラメータを削除 in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
+- [x] T020 [US3] ActivateSpellCommand.execute()でChainableActionRegistryを優先チェックし、effectStepsを返す実装に変更 in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
+- [x] T021 [US3] GameFacade.activateSpell()でeffectStepsを受け取り、effectResolutionStore.startResolution()を呼ぶ実装に変更 in skeleton-app/src/lib/application/GameFacade.ts
+- [x] T022 [US3] ActivateSpellCommand単体テストを修正（DI削除、effectSteps検証追加） in skeleton-app/tests/unit/domain/commands/ActivateSpellCommand.test.ts
+- [x] T023 [US3] NormalSpells統合テストを修正（新旧システム両方を検証） in skeleton-app/tests/integration/card-effects/NormalSpells.test.ts
+- [x] T024 [US3] IEffectResolutionService.tsを削除 in skeleton-app/src/lib/domain/services/IEffectResolutionService.ts
+- [x] T025 [US3] EffectResolutionServiceImpl.tsを削除 in skeleton-app/src/lib/application/services/EffectResolutionServiceImpl.ts
 
 **Checkpoint**: ActivateSpellCommandがeffectStepsを返す設計に変更され、Domain LayerのApplication Layer依存が解消。すべてのテストがパス。
 
@@ -108,19 +108,19 @@ description: "Task list for Effect Model Implementation"
 
 ### Prerequisites
 
-- [ ] T026 [US4] GameStateにactivatedIgnitionEffectsThisTurnフィールドを追加 in skeleton-app/src/lib/domain/models/GameState.ts
-- [ ] T027 [US4] createInitialGameState()でactivatedIgnitionEffectsThisTurnを初期化 in skeleton-app/src/lib/domain/models/GameState.ts
+- [x] T026 [US4] GameStateにactivatedIgnitionEffectsThisTurnフィールドを追加 in skeleton-app/src/lib/domain/models/GameState.ts
+- [x] T027 [US4] createInitialGameState()でactivatedIgnitionEffectsThisTurnを初期化 in skeleton-app/src/lib/domain/models/GameState.ts
 
 ### Implementation for User Story 4
 
-- [ ] T028 [P] [US4] Chicken Gameカードデータを定義してCardDataRegistryに登録 in skeleton-app/src/lib/domain/registries/CardDataRegistry.ts
-- [ ] T029 [P] [US4] ChickenGameActivation（カード発動）をChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/ChickenGameActivation.ts
-- [ ] T030 [P] [US4] ChickenGameIgnitionEffect（起動効果）をChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/ChickenGameIgnitionEffect.ts
-- [ ] T031 [P] [US4] ChickenGameActivation単体テストを作成 in skeleton-app/tests/unit/domain/effects/chainable/ChickenGameActivation.test.ts
-- [ ] T032 [P] [US4] ChickenGameIgnitionEffect単体テストを作成（1ターンに1度制限を含む） in skeleton-app/tests/unit/domain/effects/chainable/ChickenGameIgnitionEffect.test.ts
-- [ ] T033 [US4] ChickenGameActivationとChickenGameIgnitionEffectをChainableActionRegistryに登録 in skeleton-app/src/lib/domain/effects/index.ts
-- [ ] T034 [US4] ChickenGame統合テストを作成（発動、起動効果、永続効果の全体フロー） in skeleton-app/tests/integration/card-effects/ChickenGame.test.ts
-- [ ] T035 [US4] AdvancePhaseCommandでactivatedIgnitionEffectsThisTurnをクリアする処理を追加 in skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts
+- [x] T028 [P] [US4] Chicken Gameカードデータを定義してCardDataRegistryに登録 in skeleton-app/src/lib/domain/registries/CardDataRegistry.ts
+- [x] T029 [P] [US4] ChickenGameActivation（カード発動）をChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/ChickenGameActivation.ts
+- [x] T030 [P] [US4] ChickenGameIgnitionEffect（起動効果）をChainableActionとして実装 in skeleton-app/src/lib/domain/effects/chainable/ChickenGameIgnitionEffect.ts
+- [x] T031 [P] [US4] ChickenGameActivation単体テストを作成 in skeleton-app/tests/unit/domain/effects/chainable/ChickenGameActivation.test.ts
+- [x] T032 [P] [US4] ChickenGameIgnitionEffect単体テストを作成（1ターンに1度制限を含む） in skeleton-app/tests/unit/domain/effects/chainable/ChickenGameIgnitionEffect.test.ts
+- [x] T033 [US4] ChickenGameActivationとChickenGameIgnitionEffectをChainableActionRegistryに登録 in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T034 [US4] ChickenGame統合テストを作成（発動、起動効果、永続効果の全体フロー） in skeleton-app/tests/integration/card-effects/ChickenGame.test.ts
+- [x] T035 [US4] AdvancePhaseCommandでactivatedIgnitionEffectsThisTurnをクリアする処理を追加 in skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts
 
 **Checkpoint**: チキンレースのすべての効果（発動、起動効果、永続効果）が正しく動作し、E2Eテストでカバー。1ターンに1度制限も機能。
 
@@ -134,13 +134,13 @@ description: "Task list for Effect Model Implementation"
 
 ### Implementation for User Story 5
 
-- [ ] T036 [US5] ActivateSpellCommandからCardEffectRegistryへのフォールバック処理を削除 in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
-- [ ] T037 [US5] CardEffectRegistry.tsを削除 in skeleton-app/src/lib/domain/effects/CardEffectRegistry.ts
-- [ ] T038 [P] [US5] 旧CardEffect.tsを削除またはChainableActionへのエイリアス化 in skeleton-app/src/lib/domain/effects/CardEffect.ts
-- [ ] T039 [P] [US5] SpellEffect.ts、NormalSpellEffect.tsを削除（bases/ディレクトリ） in skeleton-app/src/lib/domain/effects/bases/
-- [ ] T040 [P] [US5] PotOfGreedEffect.ts、GracefulCharityEffect.tsを削除（cards/ディレクトリ） in skeleton-app/src/lib/domain/effects/cards/
-- [ ] T041 [US5] プロジェクト全体でCardEffectRegistryへの参照がゼロであることをgrepで確認
-- [ ] T042 [US5] すべての既存テストが引き続きパスすることを確認（npm run test:run）
+- [x] T036 [US5] ActivateSpellCommandからCardEffectRegistryへのフォールバック処理を削除 in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
+- [x] T037 [US5] CardEffectRegistry.tsを削除 in skeleton-app/src/lib/domain/effects/CardEffectRegistry.ts
+- [x] T038 [P] [US5] 旧CardEffect.tsを削除またはChainableActionへのエイリアス化 in skeleton-app/src/lib/domain/effects/CardEffect.ts
+- [x] T039 [P] [US5] SpellEffect.ts、NormalSpellEffect.tsを削除（bases/ディレクトリ） in skeleton-app/src/lib/domain/effects/bases/
+- [x] T040 [P] [US5] PotOfGreedEffect.ts、GracefulCharityEffect.tsを削除（cards/ディレクトリ） in skeleton-app/src/lib/domain/effects/cards/
+- [x] T041 [US5] プロジェクト全体でCardEffectRegistryへの参照がゼロであることをgrepで確認
+- [x] T042 [US5] すべての既存テストが引き続きパスすることを確認（npm run test:run）
 
 **Checkpoint**: CardEffectRegistry完全削除完了。コードベースが新システム（ChainableActionRegistry）に統一され、すべてのテストがパス。
 
@@ -150,14 +150,14 @@ description: "Task list for Effect Model Implementation"
 
 **Purpose**: ドキュメント更新、コード整理、品質チェック
 
-- [ ] T043 [P] docs/domain/effect-model.mdを更新（実装内容を反映） in docs/domain/effect-model.md
-- [ ] T044 [P] ADR-0008を更新（実装完了マーク） in docs/adr/0008-effect-model-and-clean-architecture.md
-- [ ] T045 [P] CLAUDE.mdを更新（Active Technologies, Recent Changes） in CLAUDE.md
-- [ ] T046 Lint実行（npm run lint）
-- [ ] T047 Format実行（npm run format）
-- [ ] T048 全テスト実行（npm run test:run）でカバレッジ90%以上を確認
-- [ ] T049 quickstart.md実装例の動作確認 in specs/008-effect-model/quickstart.md
-- [ ] T050 tasks.mdのすべてのタスクが完了していることを確認 in specs/008-effect-model/tasks.md
+- [x] T043 [P] docs/domain/effect-model.mdを更新（実装内容を反映） in docs/domain/effect-model.md
+- [x] T044 [P] ADR-0008を更新（実装完了マーク） in docs/adr/0008-effect-model-and-clean-architecture.md
+- [x] T045 [P] CLAUDE.mdを更新（Active Technologies, Recent Changes） in CLAUDE.md
+- [x] T046 Lint実行（npm run lint）
+- [x] T047 Format実行（npm run format）
+- [x] T048 全テスト実行（npm run test:run）でカバレッジ90%以上を確認
+- [x] T049 quickstart.md実装例の動作確認 in specs/008-effect-model/quickstart.md
+- [x] T050 tasks.mdのすべてのタスクが完了していることを確認 in specs/008-effect-model/tasks.md
 
 ---
 

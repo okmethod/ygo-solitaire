@@ -49,6 +49,11 @@ export interface GameState {
   readonly turn: number;
   readonly chainStack: readonly ChainBlock[];
   readonly result: GameResult;
+  /**
+   * 今ターン発動済みの起動効果（1ターンに1度制限用）
+   * Format: `${cardInstanceId}:${effectId}`
+   */
+  readonly activatedIgnitionEffectsThisTurn: ReadonlySet<string>;
 }
 
 /**
@@ -83,6 +88,7 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
     result: {
       isGameOver: false,
     },
+    activatedIgnitionEffectsThisTurn: new Set<string>(),
   };
 }
 

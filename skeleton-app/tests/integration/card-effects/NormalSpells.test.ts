@@ -26,20 +26,12 @@
  * @module tests/integration/card-effects/NormalSpells
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
-import { EffectResolutionServiceImpl } from "$lib/application/services/EffectResolutionServiceImpl";
+import "$lib/domain/effects"; // Initialize ChainableActionRegistry
 
 describe("Normal Spell Card Effects", () => {
-  const effectResolutionService = new EffectResolutionServiceImpl();
-
-  beforeEach(() => {
-    // Reset effectResolutionStore before each test
-    effectResolutionStore.reset();
-  });
-
   describe("Pot of Greed (55144522) - Scenario Tests", () => {
     const potOfGreedCardId = "55144522";
 
@@ -56,32 +48,26 @@ describe("Normal Spell Card Effects", () => {
         },
       });
 
-      // Spy on effectResolutionStore.startResolution
-      const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
+      // Act: Activate Pot of Greed (new system - returns effectSteps)
+      const command = new ActivateSpellCommand("pot-0"); // createCardInstances uses 0-based index
+      const result = command.execute(state);
 
-      // Act: Activate Pot of Greed
-      const command = new ActivateSpellCommand("pot-0", effectResolutionService); // createCardInstances uses 0-based index
-      command.execute(state);
-
-      // Assert: Effect resolution started
-      expect(startResolutionSpy).toHaveBeenCalledOnce();
-      const [[steps]] = startResolutionSpy.mock.calls;
+      // Assert: effectSteps are returned in the result
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(2);
 
       // Verify steps: [draw step, graveyard step]
-      expect(steps).toHaveLength(2);
-      expect(steps[0]).toMatchObject({
+      expect(result.effectSteps![0]).toMatchObject({
         id: "pot-of-greed-draw",
         title: "カードをドローします",
         message: "デッキから2枚ドローします",
       });
-      expect(steps[1]).toMatchObject({
-        id: "PotOfGreedEffect-to-graveyard",
-        title: "墓地に送ります",
-        message: "効果解決後、カードを墓地に送ります",
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "pot-of-greed-graveyard",
+        title: "カードを墓地に送ります",
+        message: "強欲な壺を墓地に送ります",
       });
-
-      // Restore spy
-      startResolutionSpy.mockRestore();
     });
 
     it("Scenario: Cannot activate when deck has only 1 card", () => {
@@ -98,7 +84,7 @@ describe("Normal Spell Card Effects", () => {
       });
 
       // Act
-      const command = new ActivateSpellCommand("pot-0", effectResolutionService);
+      const command = new ActivateSpellCommand("pot-0");
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
@@ -122,37 +108,31 @@ describe("Normal Spell Card Effects", () => {
         },
       });
 
-      // Spy on effectResolutionStore.startResolution
-      const startResolutionSpy = vi.spyOn(effectResolutionStore, "startResolution");
+      // Act: Activate Graceful Charity (new system - returns effectSteps)
+      const command = new ActivateSpellCommand("charity-0");
+      const result = command.execute(state);
 
-      // Act: Activate Graceful Charity
-      const command = new ActivateSpellCommand("charity-0", effectResolutionService);
-      command.execute(state);
-
-      // Assert: Effect resolution started
-      expect(startResolutionSpy).toHaveBeenCalledOnce();
-      const [[steps]] = startResolutionSpy.mock.calls;
+      // Assert: effectSteps are returned in the result
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(3);
 
       // Verify steps: [draw step, discard step, graveyard step]
-      expect(steps).toHaveLength(3);
-      expect(steps[0]).toMatchObject({
+      expect(result.effectSteps![0]).toMatchObject({
         id: "graceful-charity-draw",
         title: "カードをドローします",
         message: "デッキから3枚ドローします",
       });
-      expect(steps[1]).toMatchObject({
+      expect(result.effectSteps![1]).toMatchObject({
         id: "graceful-charity-discard",
         title: "カードを破棄します",
         message: "手札から2枚選んで破棄してください",
       });
-      expect(steps[2]).toMatchObject({
-        id: "GracefulCharityEffect-to-graveyard",
-        title: "墓地に送ります",
-        message: "効果解決後、カードを墓地に送ります",
+      expect(result.effectSteps![2]).toMatchObject({
+        id: "graceful-charity-graveyard",
+        title: "カードを墓地に送ります",
+        message: "天使の施しを墓地に送ります",
       });
-
-      // Restore spy
-      startResolutionSpy.mockRestore();
     });
 
     it("Scenario: Cannot activate when deck has only 2 cards", () => {
@@ -169,7 +149,7 @@ describe("Normal Spell Card Effects", () => {
       });
 
       // Act
-      const command = new ActivateSpellCommand("charity-0", effectResolutionService);
+      const command = new ActivateSpellCommand("charity-0");
       const result = command.canExecute(state);
 
       // Assert: Cannot activate

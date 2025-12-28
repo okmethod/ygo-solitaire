@@ -6,14 +6,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { IEffectResolutionService } from "$lib/domain/services/IEffectResolutionService";
-
-// Mock effect resolution service for testing
-const mockEffectResolutionService: IEffectResolutionService = {
-  startResolution: () => {
-    // No-op in tests
-  },
-};
+import "$lib/domain/effects"; // Initialize ChainableActionRegistry
 
 describe("ActivateSpellCommand", () => {
   let initialState: GameState;
@@ -65,13 +58,13 @@ describe("ActivateSpellCommand", () => {
 
   describe("canExecute", () => {
     it("should return true when spell can be activated (Main1 phase, card in hand)", () => {
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.canExecute(initialState)).toBe(true);
     });
 
     it("should return false when card is not in hand", () => {
-      const command = new ActivateSpellCommand("non-existent-card", mockEffectResolutionService);
+      const command = new ActivateSpellCommand("non-existent-card");
 
       expect(command.canExecute(initialState)).toBe(false);
     });
@@ -96,7 +89,7 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.canExecute(drawPhaseState)).toBe(false);
     });
@@ -127,15 +120,15 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.canExecute(gameOverState)).toBe(false);
     });
   });
 
   describe("execute", () => {
-    it("should successfully activate spell card (hand → field → graveyard)", () => {
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+    it("should successfully activate spell card and return effectSteps", () => {
+      const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(initialState);
 
@@ -146,14 +139,19 @@ describe("ActivateSpellCommand", () => {
       expect(result.newState.zones.hand.length).toBe(1);
       expect(result.newState.zones.hand.some((c) => c.instanceId === spellCardId)).toBe(false);
 
-      // Pot of Greed has registered effect, so it stays on field (effect will send to graveyard later)
+      // Pot of Greed has registered effect in ChainableActionRegistry (new system)
+      // Card stays on field (effect will send to graveyard later)
       expect(result.newState.zones.field.length).toBe(1);
       expect(result.newState.zones.field.some((c) => c.instanceId === spellCardId)).toBe(true);
       expect(result.newState.zones.graveyard.length).toBe(0);
+
+      // NEW: Verify effectSteps are returned
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBeGreaterThan(0);
     });
 
     it("should fail when card is not in hand", () => {
-      const command = new ActivateSpellCommand("non-existent-card", mockEffectResolutionService);
+      const command = new ActivateSpellCommand("non-existent-card");
 
       const result = command.execute(initialState);
 
@@ -184,7 +182,7 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(drawPhaseState);
 
@@ -196,7 +194,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should preserve other zones during activation", () => {
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(initialState);
 
@@ -268,7 +266,7 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(exodiaState);
 
@@ -280,7 +278,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should maintain immutability (original state unchanged)", () => {
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       const originalHandLength = initialState.zones.hand.length;
       const originalGraveyardLength = initialState.zones.graveyard.length;
@@ -295,7 +293,7 @@ describe("ActivateSpellCommand", () => {
 
   describe("getCardInstanceId", () => {
     it("should return the card instance ID being activated", () => {
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.getCardInstanceId()).toBe(spellCardId);
     });
@@ -303,7 +301,7 @@ describe("ActivateSpellCommand", () => {
 
   describe("description", () => {
     it("should have descriptive command description", () => {
-      const command = new ActivateSpellCommand(spellCardId, mockEffectResolutionService);
+      const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.description).toContain("Activate spell card");
       expect(command.description).toContain(spellCardId);

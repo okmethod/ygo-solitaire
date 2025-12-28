@@ -2,7 +2,7 @@
 
 ## Status
 
-🔄 Proposed (2025-01-XX)
+✅ Accepted (2025-01-28)
 
 ## Context
 
@@ -382,6 +382,20 @@ createSteps(state: GameState): EffectResolutionStep[];
 
 ## Validation
 
+**Implementation Date**: 2025-01-28
+
+**Test Results**:
+- Total Tests: 442 passed
+- Coverage: 90%+ (all new models, registries, and effects)
+- Integration Tests: All passing (ChickenGame, NormalSpells)
+
+**Implementation Validation**:
+- ✅ ChainableAction基盤実装完了 (T001-T011)
+- ✅ AdditionalRule基盤実装完了 (T012-T018)
+- ✅ ActivateSpellCommandリファクタリング完了 (T019-T025)
+- ✅ Chicken Game実装完了 (T026-T035)
+- ✅ Legacy cleanup完了 (T036-T042)
+
 ### テストケース
 
 各フェーズごとに以下を確認：
@@ -471,6 +485,41 @@ describe("AdditionalRuleRegistry", () => {
 - Strategy Pattern (Gang of Four)
 - Registry Pattern (Martin Fowler, Patterns of Enterprise Application Architecture)
 
+## Post-Implementation Notes
+
+### 達成された成果
+
+**Clean Architecture の完全実現**:
+- Domain Layer が Application Layer に依存しない設計を達成
+- `IEffectResolutionService` の削除により、DI が不要に
+- `effectSteps` を返す設計により、責務が明確化
+
+**効果の体系化**:
+- ChainableAction と AdditionalRule による効果の体系的管理
+- 公式ルール (CONDITIONS/ACTIVATION/RESOLUTION) に準拠
+- Registry Pattern による O(1) 高速ルックアップ
+
+**実装されたカード効果**:
+- Pot of Greed (強欲な壺)
+- Graceful Charity (天使の施し)
+- Chicken Game (チキンレース) - カード発動、起動効果、永続効果
+
+**テストカバレッジ**:
+- 442 テスト全パス
+- カバレッジ 90%+ 維持
+- 単体テスト、統合テスト、E2Eテストの完備
+
+### 学んだ教訓
+
+**成功したアプローチ**:
+- User Story ベースのタスク分割により、独立したテストと段階的な実装が可能に
+- Registry Pattern の統一により、コードベースが整理された
+- 公式ルールとの対応を明確にすることで、ドキュメントとコードの一貫性が向上
+
+**改善の余地**:
+- `effectSteps` の型安全性 (現在は同期関数に統一済み)
+- AdditionalRule の `apply`/`checkPermission`/`replace` の使い分けの文書化
+
 ## Future Work
 
 ### チェーンシステムの実装
@@ -491,9 +540,5 @@ AdditionalRule を活用した高度な効果：
 
 ### EffectResolutionStep の型安全性向上
 
-```typescript
-// 型安全な action シグネチャ
-action: (state: GameState, selectedInstanceIds?: string[]) => GameStateUpdateResult;
-```
-
-現在は `Promise<GameStateUpdateResult> | GameStateUpdateResult` を許容していますが、非同期処理の必要性を再検討し、型を統一する可能性があります。
+現在は同期関数 `(state: GameState) => GameStateUpdateResult` に統一済み。
+将来的には、ユーザー選択を伴う効果の場合に `selectedInstanceIds` を受け取る拡張を検討。

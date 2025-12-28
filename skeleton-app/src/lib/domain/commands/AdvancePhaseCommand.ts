@@ -69,6 +69,10 @@ export class AdvancePhaseCommand implements GameCommand {
     const newState: GameState = {
       ...state,
       phase: nextPhase,
+      // Clear activatedIgnitionEffectsThisTurn when advancing to End phase
+      // (Reset at end of turn for "once per turn" effects)
+      activatedIgnitionEffectsThisTurn:
+        nextPhase === "End" ? new Set<string>() : state.activatedIgnitionEffectsThisTurn,
       // If advancing to End phase and it's end of turn, increment turn counter
       // (In MVP, End phase loops to itself, so turn doesn't increment automatically)
       // This will be expanded in future when turn cycling is implemented
