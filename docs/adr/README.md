@@ -114,6 +114,45 @@
 
 詳細: [0006-four-layer-clean-architecture.md](./0006-four-layer-clean-architecture.md)
 
+### 0007: Domain Layer Refactoring（型命名統一・Immer 削除・Commands 移管）
+
+**Status**: ✅ Accepted (2024-12-27)
+
+**決定内容**: 型命名の統一（DomainCardData → CardData）、Immer.js 削除、Commands の Domain 層移管
+
+**理由**:
+
+- ドキュメントとコードの一貫性向上
+- 外部依存の削減（Immer.js 削除）
+- Clean Architecture 準拠（Commands を Domain 層に配置）
+
+**影響**: spread 構文への統一、約 30 ファイルの import 更新、Commands の git mv
+
+**Post-Implementation Issue**: ActivateSpellCommand の Application 層依存（形式的に DI で解消、根本解決は次の Spec で対応）
+
+詳細: [0007-domain-layer-refactoring.md](./0007-domain-layer-refactoring.md)
+
+### 0008: 効果モデルの導入と Clean Architecture の完全実現
+
+**Status**: 🔄 Proposed (2025-01-XX)
+
+**決定内容**: ChainableAction と AdditionalRule の効果モデル導入、effectSteps を返す設計への移行
+
+**理由**:
+
+- 遊戯王OCG公式ルールに準拠した効果の体系化
+- ADR-0007 の Post-Implementation Issue を根本解決
+- Domain Layer が Application Layer に依存しない Clean Architecture の完全実現
+- CONDITIONS/ACTIVATION/RESOLUTION の3ステップ構成
+
+**影響**:
+- ChainableActionRegistry / AdditionalRuleRegistry の追加
+- GameStateUpdateResult に effectSteps フィールド追加
+- IEffectResolutionService の削除
+- 既存 CardEffect の ChainableAction への移行
+
+詳細: [0008-effect-model-and-clean-architecture.md](./0008-effect-model-and-clean-architecture.md)
+
 ---
 
 ## ADR の書き方

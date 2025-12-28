@@ -1,6 +1,6 @@
 # 効果モデル
 
-**実装箇所**: `domain/models/ChainableActions.ts`, `domain/models/AdditionalRules.ts`
+**実装箇所**: `domain/models/ChainableAction.ts`, `domain/models/AdditionalRule.ts`
 **参考資料**: [Conditions, Activations, and Effects](https://www.yugioh-card.com/eu/play/understanding-card-text/part-3-conditions-activations-and-effects/)
 
 ---

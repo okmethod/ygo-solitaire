@@ -37,7 +37,7 @@
 
 詳細は [効果モデル](./effect-models.md) を参照。
 
-**実装箇所**: `domain/models/ChainableActions.ts`（⏳ 未実装）, `domain/models/AdditionalRules.ts`（⏳ 未実装）
+**実装箇所**: `domain/models/ChainableAction.ts`（⏳ 未実装）, `domain/models/AdditionalRule.ts`（⏳ 未実装）
 
 ---
 
