@@ -17,6 +17,7 @@ import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
 
 /**
  * GameFacade class
