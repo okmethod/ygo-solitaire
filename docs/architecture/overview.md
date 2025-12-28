@@ -50,11 +50,12 @@ skeleton-app/src/lib/
 
 ```
 skeleton-app/src/lib/domain/
-├── models/    # データモデル（GameState, CardData, Zone等）
-├── rules/     # ゲームルール定義（VictoryRule, PhaseRule等）
-├── effects/   # カード効果（Strategy Pattern実装）+ CardEffectRegistry
-├── commands/  # Command Pattern実装（DrawCard, ActivateSpell等）
-└── data/      # ゲームルールに不可欠なカードデータ
+├── models/      # データモデル
+├── registries/  # 各種レジストリ（Registry Pattern）
+├── effects/     # 効果処理
+│   ├── chainable/   # チェーンブロックを作る処理の具象実装
+│   └── additional/  # 追加ルールの具象実装
+└── commands/    # ゲーム操作の具象実装（Command Pattern）
 ```
 
 **重要**:
@@ -65,25 +66,35 @@ skeleton-app/src/lib/domain/
 
 **主要コンポーネント**:
 
-- **GameState**: 不変なゲーム状態
+- **GameState**: イミュータブルなゲーム状態モデル
 
   - すべてのゾーン（デッキ、手札、フィールド、墓地）を保持
   - ターン数、現在のフェーズ、ゲーム結果を管理
   - `readonly` 修飾子で不変性を保証
   - オブジェクトの一部を書き換えるのではなく、変更があった部分をコピーして新しいオブジェクトを作る
 
-- **Rules**: ゲームルールの判定
+- **CardDataRegistry**: カードデータのレジストリ（Registry Pattern）
 
-  - VictoryRule: 勝利条件の判定（エクゾディア、ライフポイント等）
-  - PhaseRule: フェーズ遷移の可否判定と次フェーズの決定
-  - SpellActivationRule: 魔法・罠カードの発動可否判定
+  - カードの静的データ（type, frameType 等）を管理
+  - Card ID → CardData のマッピング
+  - 関数ベースの実装（getCardData, hasCardData 等）
+  - O(1) 高速ルックアップ
 
-- **CardEffect**: カード効果の基底クラス（Strategy Pattern）
+- **ChainableActionRegistry**: チェーンブロックを作る処理のレジストリ（Registry Pattern + Strategy Pattern）
 
-  - 統一された`canActivate()` / `createSteps()`インターフェース
-  - カード種別ごとの階層構造（CardEffect → SpellEffect → NormalSpellEffect → PotOfGreedEffect）
-  - カードごとに異なる効果処理を交換可能に
-  - CardEffectRegistry: カード ID→CardEffect インスタンスのマッピング管理（Registry Pattern）
+  - 「カードの発動」と「効果の発動」の処理を管理
+  - Card ID → ChainableAction のマッピング
+  - クラスベースの実装（register, get, clear 等）
+  - 各カード固有の効果処理を交換可能に（Strategy Pattern）
+  - CONDITIONS（発動条件）、ACTIVATION（発動時の処理）、RESOLUTION（効果の解決）の 3 ステップ構成
+
+- **AdditionalRuleRegistry**: 追加ルールのレジストリ（Registry Pattern）
+
+  - 永続効果、ルール効果、効果外テキストを管理
+  - Card ID → AdditionalRule[] のマッピング（1 枚のカードに複数のルールが存在可能）
+  - カテゴリ別フィルタ機能（getByCategory）
+  - フィールド全体から適用可能なルールを収集（collectActiveRules）
+  - データ書き換え（apply）、判定追加（checkPermission）、処理置換（replace）の 3 つの介入方式
 
 - **GameCommand**: ゲーム操作の具象実装（Command Pattern）
 
@@ -91,6 +102,8 @@ skeleton-app/src/lib/domain/
   - 具象実装: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand 等
   - spread 構文によるゲーム状態の不変更新を保証
   - 行動履歴の追跡とテストが容易
+  - `GameStateUpdateResult`を返却（newState + オプショナルな effectSteps）
+  - 効果解決ステップは Application Layer に委譲（Clean Architecture 準拠）
 
 ### Application Layer
 
