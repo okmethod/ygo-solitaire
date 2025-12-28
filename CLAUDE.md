@@ -114,8 +114,8 @@ npm run deploy        # GitHub Pages
 
 ## Active Technologies
 
-- TypeScript (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, TailwindCSS, Skeleton UI (007-domain-refactor)
-- なし（フロントエンドのみ、状態はメモリ内） (007-domain-refactor)
+- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2 + Vitest (testing), Immer.js (immutability), TailwindCSS (styling), Skeleton UI (008-effect-model)
+- N/A (フロントエンドのみ、状態はメモリ内) (008-effect-model)
 
 ## Recent Changes
 
