@@ -31,6 +31,16 @@
 
 ---
 
+## Effect: 効果
+
+モンスター・魔法・罠が持つ、ゲームに影響を与える処理の総称。
+
+詳細は [効果モデル](./effect-models.md) を参照。
+
+**実装箇所**: `domain/models/ChainableActions.ts`（⏳ 未実装）, `domain/models/AdditionalRules.ts`（⏳ 未実装）
+
+---
+
 ## Game State: ゲーム状態
 
 1 回のゲーム（公式ルールでいう「1 回のデュエル」） は以下の要素で構成される状態を持つ。  
@@ -137,7 +147,7 @@ TODO: 召喚権など、1 ターン中に回数制限があるものも管理す
 
 複数のカードの効果をスムーズに解決するシステム。
 
-詳細は [効果システム](./effect-system.md) および [チェーンシステム](./chain-system.md) を参照。
+詳細は [チェーンシステム](./chain-system.md) を参照。
 
 **実装箇所**: `domain/effects/`, `application/effects/CardEffectRegistry.ts`
 
