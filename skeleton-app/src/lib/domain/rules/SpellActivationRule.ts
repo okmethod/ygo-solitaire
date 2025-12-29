@@ -11,7 +11,7 @@
  */
 
 import type { GameState } from "../models/GameState";
-import type { GamePhase } from "../models/constants";
+import type { GamePhase } from "../models/Phase";
 
 /**
  * Result of spell activation validation

@@ -11,9 +11,9 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import { INITIAL_LP } from "$lib/domain/models/GameState";
 import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
-import type { GamePhase } from "$lib/domain/models/constants";
-import { INITIAL_LP } from "$lib/domain/models/constants";
+import type { GamePhase } from "$lib/domain/models/Phase";
 import { ExodiaVictoryRule } from "$lib/domain/effects/additional/ExodiaVictoryRule";
 
 /**

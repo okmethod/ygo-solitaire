@@ -8,8 +8,13 @@
  */
 
 import type { Zones } from "./Zone";
-import type { GamePhase } from "./constants";
+import type { GamePhase } from "./Phase";
 import { getCardData } from "../registries/CardDataRegistry";
+
+/**
+ * Initial life points for both players
+ */
+export const INITIAL_LP = 8000 as const;
 
 /**
  * Life Points for both players
@@ -79,8 +84,8 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
       banished: [],
     },
     lp: {
-      player: 8000,
-      opponent: 8000,
+      player: INITIAL_LP,
+      opponent: INITIAL_LP,
     },
     phase: "Draw",
     turn: 1,

@@ -8,7 +8,7 @@
  */
 
 import type { GameState } from "./GameState";
-import type { GamePhase } from "./constants";
+import type { GamePhase } from "./Phase";
 
 /**
  * Validation result type

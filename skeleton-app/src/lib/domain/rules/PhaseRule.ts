@@ -9,7 +9,6 @@
 
 import type { GamePhase } from "../models/Phase";
 import { getNextPhase, GAME_PHASES } from "../models/Phase";
-import { shouldAutoDrawInPhase } from "../models/constants";
 
 /**
  * Validate if phase transition is allowed
@@ -40,7 +39,7 @@ export function getNextValidPhase(currentPhase: GamePhase): GamePhase {
  * @returns True if Draw phase (auto-draw required)
  */
 export function requiresAutoDraw(phase: GamePhase): boolean {
-  return shouldAutoDrawInPhase(phase);
+  return phase === "Draw";
 }
 
 /**
