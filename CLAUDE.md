@@ -113,6 +113,7 @@ npm run deploy        # GitHub Pages
 - [specs/006-ux-automation/](specs/006-ux-automation/) - UX 改善（自動フェーズ進行・デッキシャッフル・自動勝利判定）✅ 完了
 
 ## Active Technologies
+- TypeScript 5.0 (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability) (009-victory-rule-refactor)
 
 - TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2 + Vitest (testing), Immer.js (immutability), TailwindCSS (styling), Skeleton UI
 - Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
