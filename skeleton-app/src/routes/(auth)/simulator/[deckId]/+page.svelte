@@ -169,6 +169,16 @@
       hasAutoAdvanced = true;
     }
   });
+
+  // ゲーム終了モーダルの開閉状態
+  let isGameResultModalOpen = $state(false);
+
+  $effect(() => {
+    // ゲームオーバーになったらモーダルを開く
+    if ($isGameOver) {
+      isGameResultModalOpen = true;
+    }
+  });
 </script>
 
 <div class="container mx-auto p-4">
@@ -259,11 +269,12 @@
 
 <!-- ゲーム終了モーダル -->
 <GameResultModal
-  isOpen={$isGameOver}
+  isOpen={isGameResultModalOpen}
   winner={$gameResult.winner}
   reason={$gameResult.reason}
   message={$gameResult.message}
   onClose={() => {
     console.log("[Simulator] Game result modal closed");
+    isGameResultModalOpen = false;
   }}
 />
