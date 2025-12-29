@@ -108,6 +108,19 @@
     return phaseMap[phase] || phase;
   }
 
+  // 手札枚数に応じたグリッドカラム数を計算
+  function getHandGridColumns(handCount: number): string {
+    if (handCount === 0) return "grid-cols-1";
+    if (handCount === 1) return "grid-cols-1";
+    if (handCount === 2) return "grid-cols-2";
+    if (handCount === 3) return "grid-cols-3";
+    if (handCount === 4) return "grid-cols-4";
+    if (handCount <= 6) return "grid-cols-5";
+    if (handCount <= 8) return "grid-cols-6";
+    if (handCount <= 10) return "grid-cols-7";
+    return "grid-cols-8";
+  }
+
   // 効果解決ストアの状態を購読
   const effectResolutionState = effectResolutionStore;
 
@@ -223,7 +236,7 @@
     <div class="card px-4 space-y-4">
       <h2 class="text-xl font-bold">Hand ({$handCardCount} cards)</h2>
 
-      <div class="grid grid-cols-5 gap-2">
+      <div class="grid {getHandGridColumns($handCardCount)} gap-2">
         {#each handCardsWithInstanceId as { card, instanceId } (instanceId)}
           {#if card}
             <Card
@@ -238,7 +251,7 @@
             <Card placeholder={true} placeholderText="..." size="medium" />
           {/if}
         {:else}
-          <div class="col-span-5 text-center text-sm opacity-50">No cards in hand</div>
+          <div class="text-center text-sm opacity-50">No cards in hand</div>
         {/each}
       </div>
     </div>
