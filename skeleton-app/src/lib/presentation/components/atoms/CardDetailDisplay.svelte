@@ -35,7 +35,7 @@
 {#if isVisible && $selectedCardForDisplay}
   <div
     class="
-      fixed top-4 right-4 z-50 p-4 w-80
+      fixed top-10 left-4 z-50 p-4 w-80
       {backgroundClass()}
       rounded-lg shadow-lg
       border border-4 border-gray-400 dark:border-gray-700
