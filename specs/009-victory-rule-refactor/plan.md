@@ -16,10 +16,10 @@
 **Target Platform**: Web (SPA)  
 **Project Type**: Single (skeleton-app/)  
 **Performance Goals**: checkVictoryConditions()の実行時間が、リファクタリング前と比較して10%以内の変動に収まる  
-**Constraints**: 
+**Constraints**:
 - Domain LayerはSvelteに依存しない
 - すべての状態更新はImmer.jsのproduce()を使用
-- 後方互換性の維持（既存のヘルパー関数を保持）
+- レガシーコードの削除（hasExodiaVictory等のヘルパー関数を削除）
 
 **Scale/Scope**: 
 - 新規実装: 1クラス (ExodiaVictoryRule)
@@ -39,7 +39,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ✅ **II. 段階的な理解の深化**
 - P1: ExodiaVictoryRuleをAdditionalRuleとして実装（独立してテスト可能）
-- P2: VictoryRule.tsをリファクタリングしてAdditionalRuleRegistryと統合（後方互換性を維持）
+- P2: VictoryRule.tsをリファクタリングしてExodiaVictoryRuleを直接使用（レガシーヘルパー関数を削除）
 - P2: 基本勝利条件（LP0、デッキアウト）のハードコード維持を確認（パフォーマンスと可読性）
 
 ### Architecture Principles
@@ -55,13 +55,13 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - AdditionalRuleRegistryへの登録は`domain/effects/index.ts`で自動実行
 
 ✅ **V. 変更に対応できる設計**
-- 新しい特殊勝利条件（最終列車、エクゾード・ネクロス等）の追加は、AdditionalRuleRegistryへの登録だけで済む
-- 既存のヘルパー関数（hasExodiaVictory, getMissingExodiaPieces等）は後方互換性のために維持
+- 新しい特殊勝利条件（最終列車、エクゾード・ネクロス等）の追加は、新しいAdditionalRuleクラスを実装するだけで済む
+- レガシーヘルパー関数を削除し、ExodiaVictoryRuleに責務を集約
 
 ### Coding Principles
 
 ✅ **VI. 理解しやすさ最優先**
-- ExodiaVictoryRule.canApply()はhasExodiaInHand()ヘルパーを再利用
+- ExodiaVictoryRule.canApply()内でエクゾディア判定ロジックを実装（hasExodiaInHand()は削除）
 - checkVictoryConditions()は「特殊勝利条件→基本勝利条件」の順序で明確にチェック
 
 ✅ **VII. シンプルに問題を解決する**
@@ -70,7 +70,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ✅ **VIII. テスト可能性を意識する**
 - ExodiaVictoryRuleは純粋関数（canApply, checkPermission）
-- VictoryRule.tsの既存テストスイートを活用して後方互換性を検証
+- VictoryRule.tsの既存テストスイートを更新してリファクタリング後の動作を検証
 
 ### Project-Specific Principles
 

@@ -35,7 +35,7 @@ VictoryRule.tsをリファクタリングし、特殊勝利条件をAdditionalRu
 
 1. **Given** checkVictoryConditions()がAdditionalRuleRegistryを使用している, **When** 特殊勝利条件が満たされる, **Then** 正しいGameResultが返される
 2. **Given** AdditionalRuleRegistryに複数の特殊勝利条件が登録されている, **When** checkVictoryConditions()を呼ぶ, **Then** すべての条件が順次チェックされる
-3. **Given** VictoryRule.tsがリファクタリングされている, **When** 既存のテストスイートを実行する, **Then** すべてのテストがパスする（後方互換性）
+3. **Given** VictoryRule.tsがリファクタリングされている, **When** 既存のテストスイートを実行する, **Then** すべてのテストがパスする
 
 ---
 
@@ -70,10 +70,9 @@ VictoryRule.tsをリファクタリングし、特殊勝利条件をAdditionalRu
 - **FR-003**: ExodiaVictoryRuleのcategoryは"VictoryCondition"でなければならない
 - **FR-004**: ExodiaVictoryRuleのcanApply()は、手札にエクゾディア5パーツが揃っている場合にtrueを返さなければならない
 - **FR-005**: ExodiaVictoryRuleのcheckPermission()は、canApply()がtrueの場合に勝利を示すtrueを返さなければならない
-- **FR-006**: checkVictoryConditions()は、AdditionalRuleRegistryからVictoryConditionカテゴリのルールを取得しなければならない
+- **FR-006**: checkVictoryConditions()は、ExodiaVictoryRuleを直接インスタンス化してチェックしなければならない
 - **FR-007**: checkVictoryConditions()は、特殊勝利条件を確認した後、基本勝利条件（LP0、デッキアウト）を確認しなければならない
-- **FR-008**: 既存のVictoryRule.tsのヘルパー関数（hasExodiaVictory, getMissingExodiaPieces等）は、後方互換性のために維持されなければならない
-- **FR-009**: AdditionalRuleRegistryへのExodiaVictoryRule登録は、effects/index.tsの初期化時に自動実行されなければならない
+- **FR-008**: VictoryRule.tsのレガシーヘルパー関数（hasExodiaVictory, getMissingExodiaPieces, countExodiaPiecesInHand等）は削除しなければならない
 
 ### Key Entities
 
