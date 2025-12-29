@@ -158,30 +158,13 @@
     return zone;
   });
 
-  // ゲーム開始時に一度だけデッキをシャッフル
-  let hasShuffled = $state(false);
-
-  $effect(() => {
-    // ゲーム初期化完了後（ターン1、Drawフェーズ）に一度だけシャッフル
-    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasShuffled) {
-      const result = gameFacade.shuffleDeck();
-      if (result.success) {
-        console.log("[Simulator] Deck shuffled:", result.message);
-      }
-      hasShuffled = true;
-    }
-  });
-
   // ゲーム開始時に自動的にMain Phaseまでフェーズ進行
   let hasAutoAdvanced = $state(false);
 
   $effect(() => {
     // ゲーム初期化完了後（ターン1、Drawフェーズ）かつゲームオーバーでない場合に一度だけ自動進行
     if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$isGameOver) {
-      // シャッフル後に実行するため、少し待機
-      setTimeout(() => {
-        autoAdvanceToMainPhase();
-      }, 100);
+      autoAdvanceToMainPhase();
       hasAutoAdvanced = true;
     }
   });
