@@ -8,6 +8,7 @@
  */
 
 import type { GameState } from "./GameState";
+import type { EffectResolutionStep } from "../effects/EffectResolutionStep";
 
 /**
  * Result of GameState update operations
@@ -22,6 +23,19 @@ export interface GameStateUpdateResult {
   readonly newState: GameState;
   readonly message?: string;
   readonly error?: string;
+
+  /**
+   * 効果解決ステップ（オプショナル）
+   *
+   * Domain層がApplication層に効果解決を委譲する際に使用。
+   * - ActivateSpellCommand.execute() が effectSteps を返す
+   * - GameFacade.activateSpell() が effectResolutionStore.startResolution() を呼ぶ
+   *
+   * これにより、Domain層がApplication層の制御フローに依存しない設計を実現。
+   *
+   * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+   */
+  readonly effectSteps?: EffectResolutionStep[];
 }
 
 /**

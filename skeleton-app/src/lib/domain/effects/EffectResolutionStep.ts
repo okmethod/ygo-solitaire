@@ -110,13 +110,15 @@ export interface EffectResolutionStep {
    * Callback Pattern + Dependency Injection:
    * - GameState is injected by Application Layer at execution time
    * - Returns GameStateUpdateResult with new state
-   * - Can be async (Promise<GameStateUpdateResult>) or sync (GameStateUpdateResult)
+   * - Synchronous function only (non-async) for type safety
    *
    * If cardSelectionConfig is provided:
    * - selectedInstanceIds parameter will contain user-selected card instance IDs
    * - Otherwise, selectedInstanceIds will be undefined
+   *
+   * @see research.md#2-effectSteps-の型安全性と非同期処理
    */
-  action: (state: GameState, selectedInstanceIds?: string[]) => Promise<GameStateUpdateResult> | GameStateUpdateResult;
+  action: (state: GameState, selectedInstanceIds?: string[]) => GameStateUpdateResult;
 
   /** Whether to show cancel button (optional) */
   showCancel?: boolean;

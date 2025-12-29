@@ -114,9 +114,11 @@ npm run deploy        # GitHub Pages
 
 ## Active Technologies
 
-- TypeScript (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, TailwindCSS, Skeleton UI (007-domain-refactor)
-- なし（フロントエンドのみ、状態はメモリ内） (007-domain-refactor)
+- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2 + Vitest (testing), Immer.js (immutability), TailwindCSS (styling), Skeleton UI
+- Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
+- N/A (フロントエンドのみ、状態はメモリ内)
 
 ## Recent Changes
 
+- 008-effect-model: Added ChainableAction and AdditionalRule models with Chicken Game implementation (2025-01-28)
 - 007-domain-refactor: Added TypeScript (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, TailwindCSS, Skeleton UI

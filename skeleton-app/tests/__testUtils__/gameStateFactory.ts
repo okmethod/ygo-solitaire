@@ -40,6 +40,7 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
     result: {
       isGameOver: false,
     },
+    activatedIgnitionEffectsThisTurn: new Set<string>(),
   };
 
   return {
