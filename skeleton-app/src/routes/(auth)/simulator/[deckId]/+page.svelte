@@ -9,7 +9,6 @@
     opponentLP,
     handCardCount,
     deckCardCount,
-    graveyardCardCount,
     isGameOver,
     gameResult,
     canActivateSpells,
@@ -25,31 +24,7 @@
 
   const { data } = $props<{ data: PageData }>();
 
-  // Button handlers
-  function handleDrawCard() {
-    const result = gameFacade.drawCard(1);
-    if (result.success) {
-      showSuccessToast(result.message || "カードをドローしました");
-    } else {
-      showErrorToast(result.error || "ドローに失敗しました");
-    }
-  }
-
-  function handleAdvancePhase() {
-    const result = gameFacade.advancePhase();
-    if (result.success) {
-      showSuccessToast(result.message || "フェイズを進めました");
-    } else {
-      showErrorToast(result.error || "フェイズ移行に失敗しました");
-    }
-  }
-
-  function handleCheckVictory() {
-    const result = gameFacade.checkVictory();
-    console.log("[Simulator-V2] Victory check:", result);
-  }
-
-  // US1: 自動フェーズ進行 - Draw → Standby → Main1 まで自動進行
+  // 自動フェーズ進行 - Draw → Standby → Main1 まで自動進行
   async function autoAdvanceToMainPhase() {
     // Draw → Standby → Main1 まで2回のフェーズ進行
     for (let i = 0; i < 2; i++) {
@@ -58,7 +33,7 @@
 
       const result = gameFacade.advancePhase();
       if (result.success) {
-        console.log(`[Simulator-V2] Phase advanced: ${result.message}`);
+        console.log(`[Simulator] Phase advanced: ${result.message}`);
         if (result.message) {
           showSuccessToast(result.message);
         }
@@ -69,8 +44,8 @@
     }
   }
 
-  // User Story 2: カードクリックで効果発動（手札のカード）
-  function handleCardClick(card: CardDisplayData, instanceId: string) {
+  // 手札のカードクリックで効果発動
+  function handleHandCardClick(card: CardDisplayData, instanceId: string) {
     // フェーズチェック（Main1フェーズのみ発動可能）
     if ($currentPhase !== "Main1") {
       showErrorToast("Can only activate cards during Main Phase 1");
@@ -135,7 +110,7 @@
   // 効果解決ストアの状態を購読
   const effectResolutionState = effectResolutionStore;
 
-  // US3: 効果解決完了時に自動勝利判定
+  // 効果解決完了時に自動勝利判定
   $effect(() => {
     // 効果解決が完了した時に勝利条件をチェック
     if (!$effectResolutionState.isResolving && $effectResolutionState.pendingActions.length === 0) {
@@ -183,7 +158,7 @@
     return zone;
   });
 
-  // US2: ゲーム開始時に一度だけデッキをシャッフル
+  // ゲーム開始時に一度だけデッキをシャッフル
   let hasShuffled = $state(false);
 
   $effect(() => {
@@ -191,13 +166,13 @@
     if ($currentTurn === 1 && $currentPhase === "Draw" && !hasShuffled) {
       const result = gameFacade.shuffleDeck();
       if (result.success) {
-        console.log("[Simulator-V2] Deck shuffled:", result.message);
+        console.log("[Simulator] Deck shuffled:", result.message);
       }
       hasShuffled = true;
     }
   });
 
-  // US1: ゲーム開始時に自動的にMain Phaseまでフェーズ進行
+  // ゲーム開始時に自動的にMain Phaseまでフェーズ進行
   let hasAutoAdvanced = $state(false);
 
   $effect(() => {
@@ -215,24 +190,16 @@
 <div class="container mx-auto p-4">
   <main class="max-w-4xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="card p-4">
-      <h1 class="text-2xl font-bold mb-2">New Architecture Simulator (V2)</h1>
-      <p class="text-sm opacity-75">Deck: {data.deckName}</p>
-    </div>
-
-    <!-- Game Info -->
     <div class="grid grid-cols-2 gap-4">
-      <!-- Left Column: Game Status -->
+      <!-- Left Column: Deck Title -->
+      <div class="card p-4">
+        <h1 class="text-2xl font-bold">Deck: {data.deckName}</h1>
+      </div>
+
+      <!-- Right Column: Game Info -->
       <div class="card p-4 space-y-4">
-        <h2 class="text-xl font-bold">Game Status</h2>
-
         <div class="space-y-2">
-          <div class="flex justify-between">
-            <span>Turn:</span>
-            <span class="font-bold">{$currentTurn}</span>
-          </div>
-
-          <div class="flex justify-between">
+          <div class="flex justify-start space-x-4">
             <span>Phase:</span>
             <span class="font-bold" data-testid="current-phase">{getPhaseDisplay($currentPhase)}</span>
           </div>
@@ -240,33 +207,8 @@
           <div class="flex justify-between">
             <span>Player LP:</span>
             <span class="font-bold text-success-500">{$playerLP.toLocaleString()}</span>
-          </div>
-
-          <div class="flex justify-between">
             <span>Opponent LP:</span>
             <span class="font-bold text-error-500">{$opponentLP.toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Zone Info -->
-      <div class="card p-4 space-y-4">
-        <h2 class="text-xl font-bold">Zone Info</h2>
-
-        <div class="space-y-2">
-          <div class="flex justify-between">
-            <span>Deck:</span>
-            <span class="font-bold">{$deckCardCount} cards</span>
-          </div>
-
-          <div class="flex justify-between">
-            <span>Hand:</span>
-            <span class="font-bold">{$handCardCount} cards</span>
-          </div>
-
-          <div class="flex justify-between">
-            <span>Graveyard:</span>
-            <span class="font-bold">{$graveyardCardCount} cards</span>
           </div>
         </div>
       </div>
@@ -294,7 +236,7 @@
               {card}
               size="medium"
               clickable={$currentPhase === "Main1" && $canActivateSpells && !$isGameOver}
-              onClick={(clickedCard) => handleCardClick(clickedCard, instanceId)}
+              onClick={(clickedCard) => handleHandCardClick(clickedCard, instanceId)}
               showDetailOnClick={true}
             />
           {:else}
@@ -328,16 +270,6 @@
       <summary class="cursor-pointer font-bold">Debug Info</summary>
 
       <div class="mt-4 space-y-4">
-        <div class="grid grid-cols-3 gap-4">
-          <button class="btn variant-filled-primary btn-sm" on:click={handleDrawCard} disabled={$isGameOver}>
-            Draw Card
-          </button>
-          <button class="btn variant-filled-secondary btn-sm" on:click={handleAdvancePhase} disabled={$isGameOver}>
-            Advance Phase
-          </button>
-          <button class="btn variant-filled-tertiary btn-sm" on:click={handleCheckVictory}> Check Victory </button>
-        </div>
-
         <pre class="text-xs overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>
       </div>
     </details>

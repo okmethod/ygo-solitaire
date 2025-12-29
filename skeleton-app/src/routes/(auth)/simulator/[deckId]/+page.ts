@@ -35,7 +35,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
     }
   });
 
-  console.log(`[PageLoad-V2] Initializing game with ${deckCardIds.length} cards`);
+  console.log(`[PageLoad] Initializing game with ${deckCardIds.length} cards`);
 
   // Initialize game with GameFacade
   gameFacade.initializeGame(deckCardIds);
@@ -43,16 +43,16 @@ export const load: PageLoad = async ({ params, fetch }) => {
   // Shuffle deck before drawing initial hand
   const shuffleResult = gameFacade.shuffleDeck();
   if (!shuffleResult.success) {
-    console.error("[PageLoad-V2] Failed to shuffle deck:", shuffleResult.error);
+    console.error("[PageLoad] Failed to shuffle deck:", shuffleResult.error);
   }
 
   // Draw initial hand (5 cards)
   const drawResult = gameFacade.drawCard(5);
   if (!drawResult.success) {
-    console.error("[PageLoad-V2] Failed to draw initial hand:", drawResult.error);
+    console.error("[PageLoad] Failed to draw initial hand:", drawResult.error);
   }
 
-  console.log("[PageLoad-V2] Initial state:", gameFacade.getGameState());
+  console.log("[PageLoad] Initial state:", gameFacade.getGameState());
 
   return {
     deckId,
