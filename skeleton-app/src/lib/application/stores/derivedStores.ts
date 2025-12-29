@@ -9,7 +9,6 @@
 
 import { derived } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
-import { countExodiaPiecesInHand } from "$lib/domain/rules/VictoryRule";
 import { hasActivatableSpells } from "$lib/domain/rules/SpellActivationRule";
 
 /**
@@ -63,7 +62,18 @@ export const fieldCardCount = derived(gameStateStore, ($state) => $state.zones.f
 /**
  * Number of Exodia pieces in hand (0-5) (read-only)
  */
-export const exodiaPieceCount = derived(gameStateStore, ($state) => countExodiaPiecesInHand($state));
+export const exodiaPieceCount = derived(gameStateStore, ($state) => {
+  const exodiaPieceNumericIds = [
+    33396948, // Exodia the Forbidden One (head)
+    7902349, // Right Arm of the Forbidden One
+    70903634, // Left Arm of the Forbidden One
+    8124921, // Right Leg of the Forbidden One
+    44519536, // Left Leg of the Forbidden One
+  ];
+
+  const handCardNumericIds = $state.zones.hand.map((card) => card.id);
+  return exodiaPieceNumericIds.filter((pieceId) => handCardNumericIds.includes(pieceId)).length;
+});
 
 /**
  * Whether game is over (read-only)
