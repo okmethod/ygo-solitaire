@@ -13,18 +13,6 @@ import type { GamePhase } from "./Phase";
 export type { GamePhase };
 
 /**
- * Exodia piece card IDs
- * All 5 pieces must be in hand simultaneously to win
- */
-export const EXODIA_PIECE_IDS = [
-  "33396948", // Exodia the Forbidden One (head)
-  "07902349", // Right Arm of the Forbidden One
-  "70903634", // Left Arm of the Forbidden One
-  "08124921", // Right Leg of the Forbidden One
-  "44519536", // Left Leg of the Forbidden One
-] as const;
-
-/**
  * Initial life points for both players
  */
 export const INITIAL_LP = 8000 as const;
@@ -93,11 +81,4 @@ export function canActivateSpellInPhase(phase: GamePhase): boolean {
  */
 export function shouldAutoDrawInPhase(phase: GamePhase): boolean {
   return AUTO_DRAW_PHASES.includes(phase);
-}
-
-/**
- * Helper to check if card ID is an Exodia piece
- */
-export function isExodiaPieceId(cardId: string): boolean {
-  return EXODIA_PIECE_IDS.includes(cardId as (typeof EXODIA_PIECE_IDS)[number]);
 }

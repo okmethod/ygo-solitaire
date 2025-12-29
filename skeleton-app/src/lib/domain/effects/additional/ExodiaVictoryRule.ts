@@ -13,12 +13,12 @@
 import type { AdditionalRule, RuleCategory } from "../../models/AdditionalRule";
 import type { RuleContext } from "../../models/RuleContext";
 import type { GameState } from "../../models/GameState";
-import { hasExodiaInHand } from "../../models/GameState";
 
 /**
  * ExodiaVictoryRule - エクゾディアの特殊勝利条件
  *
  * AdditionalRuleインターフェースを実装し、エクゾディアの勝利条件を表現する。
+ * エクゾディア5パーツのIDと判定ロジックをカプセル化する。
  *
  * @example
  * ```typescript
@@ -29,6 +29,19 @@ import { hasExodiaInHand } from "../../models/GameState";
  * ```
  */
 export class ExodiaVictoryRule implements AdditionalRule {
+  /**
+   * エクゾディア5パーツのカードID（数値形式）
+   * All 5 pieces must be in hand simultaneously to win
+   * @private
+   */
+  private static readonly EXODIA_PIECE_IDS = [
+    33396948, // Exodia the Forbidden One (head)
+    7902349, // Right Arm of the Forbidden One
+    70903634, // Left Arm of the Forbidden One
+    8124921, // Right Leg of the Forbidden One
+    44519536, // Left Leg of the Forbidden One
+  ] as const;
+
   /**
    * 効果外テキストである（無効化されない）
    *
@@ -52,7 +65,8 @@ export class ExodiaVictoryRule implements AdditionalRule {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canApply(state: GameState, _context: RuleContext): boolean {
-    return hasExodiaInHand(state);
+    const handCardIds = state.zones.hand.map((card) => card.id);
+    return ExodiaVictoryRule.EXODIA_PIECE_IDS.every((pieceId) => handCardIds.includes(pieceId));
   }
 
   /**
@@ -68,5 +82,14 @@ export class ExodiaVictoryRule implements AdditionalRule {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   checkPermission(_state: GameState, _context: RuleContext): boolean {
     return true;
+  }
+
+  /**
+   * エクゾディアパーツのIDを取得（テスト・外部利用用）
+   *
+   * @returns エクゾディア5パーツのID配列（読み取り専用）
+   */
+  static getExodiaPieceIds(): readonly number[] {
+    return ExodiaVictoryRule.EXODIA_PIECE_IDS;
   }
 }
