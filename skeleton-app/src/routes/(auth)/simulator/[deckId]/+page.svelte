@@ -111,14 +111,8 @@
   // 手札枚数に応じたグリッドカラム数を計算
   function getHandGridColumns(handCount: number): string {
     if (handCount === 0) return "grid-cols-1";
-    if (handCount === 1) return "grid-cols-1";
-    if (handCount === 2) return "grid-cols-2";
-    if (handCount === 3) return "grid-cols-3";
-    if (handCount === 4) return "grid-cols-4";
-    if (handCount <= 6) return "grid-cols-5";
-    if (handCount <= 8) return "grid-cols-6";
-    if (handCount <= 10) return "grid-cols-7";
-    return "grid-cols-8";
+    if (handCount <= 10) return `grid-cols-${handCount}`;
+    return "grid-cols-10";
   }
 
   // 効果解決ストアの状態を購読
