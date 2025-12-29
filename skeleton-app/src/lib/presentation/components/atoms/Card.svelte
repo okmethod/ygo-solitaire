@@ -39,7 +39,18 @@
   }: CardComponentProps = $props();
 
   let isHovered = $state(false);
-  let selectedState = $state(isSelected); // ローカルstate
+  // selectableモード: 内部でトグル管理、外部制御時: isSelected propを使用
+  let internalSelectedState = $state(false);
+
+  // 選択状態を決定（selectable時は内部状態、それ以外は外部のisSelected）
+  let selectedState = $derived(selectable ? internalSelectedState : isSelected);
+
+  // isSelected propの変更を内部状態に同期（selectableでない場合）
+  $effect(() => {
+    if (!selectable) {
+      internalSelectedState = isSelected;
+    }
+  });
 
   // カードクリック処理
   function handleClick() {
@@ -50,7 +61,7 @@
       onClick(card);
     }
     if (selectable) {
-      selectedState = !selectedState; // ローカルstateを更新
+      internalSelectedState = !internalSelectedState; // 内部stateをトグル
     }
     if (showDetailOnClick && card) {
       // Card型はCardDisplayDataのエイリアス
