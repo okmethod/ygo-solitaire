@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Modal } from "@skeletonlabs/skeleton-svelte";
 
-  interface GameResultModalProps {
+  interface GameOverModalProps {
     isOpen: boolean;
     winner?: "player" | "opponent" | "draw";
     reason?: string;
@@ -9,7 +9,7 @@
     onClose: () => void;
   }
 
-  let { isOpen, winner, reason, message, onClose }: GameResultModalProps = $props();
+  let { isOpen, winner, reason, message, onClose }: GameOverModalProps = $props();
 
   function handleClose() {
     onClose();

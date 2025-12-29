@@ -20,7 +20,7 @@
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
   import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
   import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
-  import GameResultModal from "$lib/presentation/components/modals/GameResultModal.svelte";
+  import GameOverModal from "$lib/presentation/components/modals/GameOverModal.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   const { data } = $props<{ data: PageData }>();
@@ -171,12 +171,12 @@
   });
 
   // ゲーム終了モーダルの開閉状態
-  let isGameResultModalOpen = $state(false);
+  let isGameOverModalOpen = $state(false);
 
   $effect(() => {
     // ゲームオーバーになったらモーダルを開く
     if ($isGameOver) {
-      isGameResultModalOpen = true;
+      isGameOverModalOpen = true;
     }
   });
 </script>
@@ -268,13 +268,13 @@
 <CardSelectionModal />
 
 <!-- ゲーム終了モーダル -->
-<GameResultModal
-  isOpen={isGameResultModalOpen}
+<GameOverModal
+  isOpen={isGameOverModalOpen}
   winner={$gameResult.winner}
   reason={$gameResult.reason}
   message={$gameResult.message}
   onClose={() => {
-    console.log("[Simulator] Game result modal closed");
-    isGameResultModalOpen = false;
+    console.log("[Simulator] Game over modal closed");
+    isGameOverModalOpen = false;
   }}
 />
