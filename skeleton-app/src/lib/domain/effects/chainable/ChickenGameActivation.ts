@@ -20,7 +20,7 @@
 
 import type { ChainableAction } from "../../models/ChainableAction";
 import type { GameState } from "../../models/GameState";
-import type { EffectResolutionStep } from "../EffectResolutionStep";
+import type { EffectResolutionStep } from "../../models/EffectResolutionStep";
 
 /**
  * ChickenGameActivation - Chicken Game カード発動

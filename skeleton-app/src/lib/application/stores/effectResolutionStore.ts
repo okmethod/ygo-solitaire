@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
+import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 
 /**
