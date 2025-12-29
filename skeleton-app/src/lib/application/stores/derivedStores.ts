@@ -10,7 +10,6 @@
 import { derived } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import { hasActivatableSpells } from "$lib/domain/rules/SpellActivationRule";
-import { countExodiaPiecesInHand } from "$lib/domain/models/GameState";
 
 /**
  * Current game phase (read-only)
@@ -59,11 +58,6 @@ export const graveyardCardCount = derived(gameStateStore, ($state) => $state.zon
  * Field card count (read-only)
  */
 export const fieldCardCount = derived(gameStateStore, ($state) => $state.zones.field.length);
-
-/**
- * Number of Exodia pieces in hand (0-5) (read-only)
- */
-export const exodiaPieceCount = derived(gameStateStore, ($state) => countExodiaPiecesInHand($state));
 
 /**
  * Whether game is over (read-only)

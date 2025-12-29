@@ -115,28 +115,6 @@ export function hasExodiaInHand(state: GameState): boolean {
 }
 
 /**
- * Count Exodia pieces in hand (for UI display)
- *
- * エクゾディアの5パーツのうち、手札に何枚あるかをカウントする。
- * UI表示用（例: "3 / 5"）として使用される。
- *
- * @param state - Current game state
- * @returns Number of Exodia pieces in hand (0-5)
- */
-export function countExodiaPiecesInHand(state: GameState): number {
-  const exodiaPieceNumericIds = [
-    33396948, // Exodia the Forbidden One (head)
-    7902349, // Right Arm of the Forbidden One
-    70903634, // Left Arm of the Forbidden One
-    8124921, // Right Leg of the Forbidden One
-    44519536, // Left Leg of the Forbidden One
-  ];
-
-  const handCardNumericIds = state.zones.hand.map((card) => card.id);
-  return exodiaPieceNumericIds.filter((pieceId) => handCardNumericIds.includes(pieceId)).length;
-}
-
-/**
  * Helper to get card instance by ID
  *
  * @param state - Current game state
