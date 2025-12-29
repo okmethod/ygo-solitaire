@@ -47,19 +47,7 @@
 
   // 手札のカードクリックで効果発動
   function handleHandCardClick(card: CardDisplayData, instanceId: string) {
-    // フェーズチェック（Main1フェーズのみ発動可能）
-    if ($currentPhase !== "Main1") {
-      showErrorToast("Can only activate cards during Main Phase 1");
-      return;
-    }
-
-    // 魔法発動可否チェック
-    if (!$canActivateSpells) {
-      showErrorToast("Cannot activate cards at this time");
-      return;
-    }
-
-    // GameFacade.activateSpell呼び出し（罠カード判定はDomain Layerで実施）
+    // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
 
     // トーストメッセージ表示
@@ -72,12 +60,6 @@
 
   // フィールドカードクリックで起動効果発動
   function handleFieldCardClick(card: CardDisplayData) {
-    // フェーズチェック（Main1フェーズのみ発動可能）
-    if ($currentPhase !== "Main1") {
-      showErrorToast("Can only activate effects during Main Phase 1");
-      return;
-    }
-
     // Find the card instance ID from field cards
     const currentState = gameFacade.getGameState();
     const fieldCard = currentState.zones.field.find((c) => c.id === card.id);
@@ -86,7 +68,7 @@
       return;
     }
 
-    // Activate ignition effect
+    // Domain Layerで全ての判定を実施（フェーズチェック、LP、1ターンに1度制限など）
     const result = gameFacade.activateIgnitionEffect(fieldCard.instanceId);
 
     // トーストメッセージ表示
