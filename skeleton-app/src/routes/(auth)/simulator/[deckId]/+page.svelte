@@ -20,6 +20,7 @@
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
   import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
   import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
+  import GameResultModal from "$lib/presentation/components/modals/GameResultModal.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   const { data } = $props<{ data: PageData }>();
@@ -171,7 +172,7 @@
 </script>
 
 <div class="container mx-auto p-4">
-  <main class="max-w-4xl mx-auto space-y-6">
+  <main class="max-w-4xl mx-auto space-y-2">
     <!-- Header -->
     <div class="grid grid-cols-2 gap-4">
       <!-- Left Column: Deck Title -->
@@ -209,7 +210,7 @@
     />
 
     <!-- Hand Zone -->
-    <div class="card p-4 space-y-4">
+    <div class="card px-4 space-y-4">
       <h2 class="text-xl font-bold">Hand ({$handCardCount} cards)</h2>
 
       <div class="grid grid-cols-5 gap-2">
@@ -231,22 +232,6 @@
         {/each}
       </div>
     </div>
-
-    <!-- Game Result -->
-    {#if $isGameOver}
-      <div class="card p-4 bg-success-500/10">
-        <h2 class="text-xl font-bold mb-2">Game Over!</h2>
-        <p class="text-lg">
-          Winner: <span class="font-bold">{$gameResult.winner === "player" ? "You" : "Opponent"}</span>
-        </p>
-        {#if $gameResult.reason}
-          <p class="text-sm opacity-75">Reason: {$gameResult.reason}</p>
-        {/if}
-        {#if $gameResult.message}
-          <p class="text-sm mt-2">{$gameResult.message}</p>
-        {/if}
-      </div>
-    {/if}
 
     <!-- Debug Info -->
     <details class="card p-4">
@@ -271,3 +256,14 @@
 
 <!-- カード選択モーダル -->
 <CardSelectionModal />
+
+<!-- ゲーム終了モーダル -->
+<GameResultModal
+  isOpen={$isGameOver}
+  winner={$gameResult.winner}
+  reason={$gameResult.reason}
+  message={$gameResult.message}
+  onClose={() => {
+    console.log("[Simulator] Game result modal closed");
+  }}
+/>
