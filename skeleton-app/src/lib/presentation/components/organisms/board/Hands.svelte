@@ -1,5 +1,6 @@
 <script lang="ts">
   import Card from "$lib/presentation/components/atoms/Card.svelte";
+  import ActivatableCard from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   interface HandZoneProps {
@@ -23,22 +24,20 @@
     return "grid-cols-10";
   }
 
-  // カードクリック時：選択状態にする
-  function handleCardClick(card: CardDisplayData, instanceId: string) {
-    selectedInstanceId = instanceId;
+  // カードクリック時：選択状態をトグル
+  function handleSelect(card: CardDisplayData, instanceId: string) {
+    // 同じカードをクリックしたら選択解除、違うカードなら選択
+    selectedInstanceId = selectedInstanceId === instanceId ? null : instanceId;
   }
 
   // 発動ボタンクリック時：親コンポーネントのonCardClickを呼び出して選択解除
-  function activateSelectedCard() {
-    const selectedCard = cards.find((c) => c.instanceId === selectedInstanceId);
-    if (selectedCard && selectedCard.card) {
-      onCardClick(selectedCard.card, selectedCard.instanceId);
-      selectedInstanceId = null;
-    }
+  function handleActivate(card: CardDisplayData, instanceId: string) {
+    onCardClick(card, instanceId);
+    selectedInstanceId = null;
   }
 
   // キャンセルボタンクリック時：選択解除
-  function cancelSelection() {
+  function handleCancel() {
     selectedInstanceId = null;
   }
 </script>
@@ -46,16 +45,19 @@
 <div class="card px-4 space-y-4">
   <h2 class="text-xl font-bold">Hand ({handCardCount} cards)</h2>
 
-  <div class="grid {getHandGridColumns(handCardCount)} gap-2">
+  <div class="grid {getHandGridColumns(handCardCount)} gap-2 mb-16">
     {#each cards as { card, instanceId } (instanceId)}
       {#if card}
-        <Card
+        <ActivatableCard
           {card}
-          size="medium"
-          selectable={currentPhase === "Main1" && canActivateSpells && !isGameOver}
+          {instanceId}
           isSelected={selectedInstanceId === instanceId}
-          onClick={(clickedCard) => handleCardClick(clickedCard, instanceId)}
-          showDetailOnClick={true}
+          isActivatable={currentPhase === "Main1" && canActivateSpells && !isGameOver}
+          onSelect={handleSelect}
+          onActivate={handleActivate}
+          onCancel={handleCancel}
+          actionLabel="発動"
+          size="medium"
         />
       {:else}
         <!-- ローディング中のplaceholder -->
@@ -65,12 +67,4 @@
       <div class="text-center text-sm opacity-50">No cards in hand</div>
     {/each}
   </div>
-
-  <!-- 発動ボタン（カードが選択されている時のみ表示） -->
-  {#if selectedInstanceId}
-    <div class="flex justify-center gap-2 pt-4">
-      <button class="btn variant-filled-primary" onclick={activateSelectedCard}> 発動 </button>
-      <button class="btn variant-ghost" onclick={cancelSelection}> キャンセル </button>
-    </div>
-  {/if}
 </div>
