@@ -10,7 +10,7 @@ import {
   createMockGameState,
   createCardInstances,
 } from "../../../__testUtils__/gameStateFactory";
-import { EXODIA_PIECE_IDS } from "$lib/domain/models/constants";
+import { ExodiaVictoryRule } from "$lib/domain/effects/additional/ExodiaVictoryRule";
 
 describe("DrawCardCommand", () => {
   describe("canExecute", () => {
@@ -108,10 +108,11 @@ describe("DrawCardCommand", () => {
 
     it("should detect Exodia victory after drawing all pieces", () => {
       // Create state with 4 Exodia pieces in hand and 1 in deck
+      const exodiaNumericIds = ExodiaVictoryRule.getExodiaPieceIds();
       const state = createMockGameState({
         zones: {
-          deck: createCardInstances([EXODIA_PIECE_IDS[4]], "deck"), // Last piece on top
-          hand: createCardInstances([...EXODIA_PIECE_IDS.slice(0, 4)], "hand"), // First 4 pieces
+          deck: createCardInstances([exodiaNumericIds[4]], "deck"), // Last piece on top
+          hand: createCardInstances([...exodiaNumericIds.slice(0, 4)], "hand"), // First 4 pieces
           field: [],
           graveyard: [],
           banished: [],

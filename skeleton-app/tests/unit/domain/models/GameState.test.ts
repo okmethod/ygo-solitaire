@@ -9,9 +9,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { createInitialGameState, findCardInstance, hasExodiaInHand } from "$lib/domain/models/GameState";
+import { createInitialGameState, findCardInstance } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
-import { EXODIA_PIECE_IDS } from "$lib/domain/models/constants";
 
 describe("GameState", () => {
   describe("createInitialGameState", () => {
@@ -247,75 +246,6 @@ describe("GameState", () => {
         expect(findCardInstance(state, "deck-0")).toBeDefined();
         expect(findCardInstance(state, "deck-1")).toBeDefined();
         expect(findCardInstance(state, "deck-2")).toBeDefined();
-      });
-    });
-
-    describe("hasExodiaInHand", () => {
-      it("should return true when all 5 Exodia pieces are in hand", () => {
-        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
-        const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
-        const initialState = createInitialGameState(exodiaNumericIds);
-        const state: GameState = {
-          ...initialState,
-          zones: {
-            ...initialState.zones,
-            hand: initialState.zones.deck.map((card) => ({
-              ...card,
-              location: "hand" as const,
-            })),
-            deck: [],
-          },
-        };
-
-        expect(hasExodiaInHand(state)).toBe(true);
-      });
-
-      it("should return false when only 4 Exodia pieces are in hand", () => {
-        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
-        const exodiaNumericIds = EXODIA_PIECE_IDS.slice(0, 4).map((id) => parseInt(id, 10));
-        const initialState = createInitialGameState(exodiaNumericIds);
-        const state: GameState = {
-          ...initialState,
-          zones: {
-            ...initialState.zones,
-            hand: initialState.zones.deck.map((card) => ({
-              ...card,
-              location: "hand" as const,
-            })),
-            deck: [],
-          },
-        };
-
-        expect(hasExodiaInHand(state)).toBe(false);
-      });
-
-      it("should return false when no cards are in hand", () => {
-        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
-        const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
-        const state = createInitialGameState(exodiaNumericIds);
-
-        expect(hasExodiaInHand(state)).toBe(false);
-      });
-
-      it("should return false when Exodia pieces are in different zones", () => {
-        // Convert EXODIA_PIECE_IDS (string[]) to number[] for migration (T023)
-        const exodiaNumericIds = [...EXODIA_PIECE_IDS].map((id) => parseInt(id, 10));
-        const initialState = createInitialGameState(exodiaNumericIds);
-        // Move only 3 pieces to hand, rest stay in deck
-        const movedCards = initialState.zones.deck.slice(0, 3).map((card) => ({
-          ...card,
-          location: "hand" as const,
-        }));
-        const state: GameState = {
-          ...initialState,
-          zones: {
-            ...initialState.zones,
-            deck: initialState.zones.deck.slice(3),
-            hand: movedCards,
-          },
-        };
-
-        expect(hasExodiaInHand(state)).toBe(false);
       });
     });
   });

@@ -93,28 +93,6 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
 }
 
 /**
- * Helper to check if the player has won via Exodia
- *
- * 数値ID比較に更新（先頭ゼロの問題を回避）
- *
- * @param state - Current game state
- * @returns True if player has all 5 Exodia pieces in hand
- */
-export function hasExodiaInHand(state: GameState): boolean {
-  const exodiaPieceNumericIds = [
-    33396948, // Exodia the Forbidden One (head)
-    7902349, // Right Arm of the Forbidden One
-    70903634, // Left Arm of the Forbidden One
-    8124921, // Right Leg of the Forbidden One
-    44519536, // Left Leg of the Forbidden One
-  ];
-
-  // CardInstance extends CardData なので、card.id (number) を直接使用
-  const handCardNumericIds = state.zones.hand.map((card) => card.id);
-  return exodiaPieceNumericIds.every((pieceId) => handCardNumericIds.includes(pieceId));
-}
-
-/**
  * Helper to get card instance by ID
  *
  * @param state - Current game state

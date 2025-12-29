@@ -76,10 +76,12 @@ docker compose up
 
 ```bash
 cd skeleton-app
-npm run test:run      # Unit tests
-npm run test:e2e      # E2E tests
+npm run test:run      # Unit tests（実行後に自動クリーンアップ）
+npm run test:e2e      # E2E tests（実行後に自動クリーンアップ）
 npm run lint          # Linter check
 ```
+
+**注**: テスト実行後、残存するプロセスは自動的にクリーンアップされます（posttestスクリプト）
 
 ---
 

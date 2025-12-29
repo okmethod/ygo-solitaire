@@ -10,7 +10,6 @@
     handCardCount,
     deckCardCount,
     graveyardCardCount,
-    exodiaPieceCount,
     isGameOver,
     gameResult,
     canActivateSpells,
@@ -268,11 +267,6 @@
           <div class="flex justify-between">
             <span>Graveyard:</span>
             <span class="font-bold">{$graveyardCardCount} cards</span>
-          </div>
-
-          <div class="flex justify-between">
-            <span>Exodia Pieces:</span>
-            <span class="font-bold text-warning-500">{$exodiaPieceCount} / 5</span>
           </div>
         </div>
       </div>

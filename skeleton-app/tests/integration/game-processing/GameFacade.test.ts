@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { get } from "svelte/store";
-import { EXODIA_PIECE_IDS } from "$lib/domain/models/constants";
+import { ExodiaVictoryRule } from "$lib/domain/effects/additional/ExodiaVictoryRule";
 
 describe("GameFacade", () => {
   let facade: GameFacade;
@@ -87,12 +87,12 @@ describe("GameFacade", () => {
     it("should detect Exodia victory after drawing", () => {
       // Initialize with 4 Exodia pieces in deck (will be drawn)
       // and 1 Exodia piece already in hand
-      const exodiaNumericIds = EXODIA_PIECE_IDS.map((id) => parseInt(id, 10));
-      facade.initializeGame(exodiaNumericIds.slice(0, 4)); // 数値ID (T025)
+      const exodiaNumericIds = ExodiaVictoryRule.getExodiaPieceIds();
+      facade.initializeGame([...exodiaNumericIds.slice(0, 4)]); // 数値ID (T025)
 
       // Manually set 5th piece in hand (simulating previous draw)
       const state = get(gameStateStore);
-      const fifthPieceId = parseInt(EXODIA_PIECE_IDS[4], 10);
+      const fifthPieceId = exodiaNumericIds[4];
       gameStateStore.set({
         ...state,
         zones: {
@@ -283,8 +283,8 @@ describe("GameFacade", () => {
     });
 
     it("should detect Exodia victory", () => {
-      const exodiaNumericIds = EXODIA_PIECE_IDS.map((id) => parseInt(id, 10));
-      facade.initializeGame(exodiaNumericIds); // 数値ID (T025)
+      const exodiaNumericIds = ExodiaVictoryRule.getExodiaPieceIds();
+      facade.initializeGame([...exodiaNumericIds]); // 数値ID (T025)
       facade.drawCard(5); // Draw all Exodia pieces
 
       const result = facade.checkVictory();

@@ -56,10 +56,12 @@
 
 ### コミット前チェックリスト
 
-1. **テスト実行**: `npm run test:run`
+1. **テスト実行**: `npm run test:run`（残存プロセスは自動クリーンアップ）
 2. **Lint/Format**: `npm run lint && npm run format`
 3. **tasks.md 更新**: 完了タスクを`[x]`にマーク（重要！）
 4. コミット・push・PR 作成
+
+**注**: テスト実行後、vitestやplaywrightの残存プロセスは`posttest`スクリプトで自動的にクリーンアップされます。手動クリーンアップは不要です。
 
 ### よく使うコマンド（skeleton-app/内）
 
@@ -69,10 +71,10 @@ npm run dev           # 開発サーバー起動
 npm run build         # ビルド
 
 # テスト・品質チェック
-npm run test:run      # テスト実行
+npm run test:run      # テスト実行（実行後に自動クリーンアップ）
+npm run test:e2e      # E2Eテスト（実行後に自動クリーンアップ）
 npm run lint          # ESLint + Prettier
 npm run format        # Prettier format
-npx playwright test   # E2Eテスト
 
 # デプロイ
 npm run deploy        # GitHub Pages
@@ -113,6 +115,7 @@ npm run deploy        # GitHub Pages
 - [specs/006-ux-automation/](specs/006-ux-automation/) - UX 改善（自動フェーズ進行・デッキシャッフル・自動勝利判定）✅ 完了
 
 ## Active Technologies
+- TypeScript 5.0 (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability) (009-victory-rule-refactor)
 
 - TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2 + Vitest (testing), Immer.js (immutability), TailwindCSS (styling), Skeleton UI
 - Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
