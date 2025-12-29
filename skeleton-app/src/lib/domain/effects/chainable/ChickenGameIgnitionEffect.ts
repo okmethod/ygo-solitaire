@@ -23,7 +23,7 @@
 
 import type { ChainableAction } from "../../models/ChainableAction";
 import type { GameState } from "../../models/GameState";
-import type { EffectResolutionStep } from "../EffectResolutionStep";
+import type { EffectResolutionStep } from "../../models/EffectResolutionStep";
 import { drawCards } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
 

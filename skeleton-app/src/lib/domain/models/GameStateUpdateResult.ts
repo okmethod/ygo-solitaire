@@ -8,7 +8,7 @@
  */
 
 import type { GameState } from "./GameState";
-import type { EffectResolutionStep } from "../effects/EffectResolutionStep";
+import type { EffectResolutionStep } from "./EffectResolutionStep";
 
 /**
  * Result of GameState update operations
