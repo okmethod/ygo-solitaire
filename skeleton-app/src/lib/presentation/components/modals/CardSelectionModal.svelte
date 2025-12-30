@@ -22,7 +22,11 @@
 
   // カード選択ハンドリング
   function handleCardClick(instanceId: string) {
-    if (cardSelectionStore.canToggleCard(instanceId)) {
+    // Check if this card can be toggled (selection limit not reached or already selected)
+    const canToggle = cardSelectionStore.canToggleCard(instanceId);
+    const isSelected = cardSelectionStore.isSelected(instanceId);
+
+    if (canToggle || isSelected) {
       cardSelectionStore.toggleCard(instanceId);
     }
   }
@@ -85,14 +89,6 @@
         <span class="text-sm font-semibold">
           選択中: {selectedCount} / {config.maxCards}枚
         </span>
-        <div class="flex gap-2">
-          {#each cardSelectionStore.selectedInstanceIds as instanceId (instanceId)}
-            {@const cardDisplay = getCardDisplay(instanceId)}
-            {#if cardDisplay}
-              <div class="badge badge-primary text-xs">{cardDisplay.name}</div>
-            {/if}
-          {/each}
-        </div>
       </div>
 
       <!-- カード選択エリア -->
@@ -103,26 +99,17 @@
             {@const canToggle = cardSelectionStore.canToggleCard(cardInstance.instanceId)}
             {@const cardDisplay = getCardDisplay(cardInstance.instanceId)}
             {#if cardDisplay}
-              <button
-                class="transition-all duration-200 transform hover:scale-105 relative"
-                class:ring-2={isSelected}
-                class:ring-primary-500={isSelected}
-                class:opacity-50={!canToggle && !isSelected}
-                onclick={() => handleCardClick(cardInstance.instanceId)}
-                disabled={!canToggle && !isSelected}
-              >
-                <!-- 選択インジケーター -->
-                {#if isSelected}
-                  {@const selectedIndex = cardSelectionStore.selectedInstanceIds.indexOf(cardInstance.instanceId)}
-                  <div
-                    class="absolute -top-2 -right-2 w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xs font-bold z-10"
-                  >
-                    {selectedIndex + 1}
-                  </div>
-                {/if}
-
-                <CardComponent card={cardDisplay} size="small" clickable={false} selectable={false} animate={true} />
-              </button>
+              <div class:opacity-50={!canToggle && !isSelected}>
+                <CardComponent
+                  card={cardDisplay}
+                  size="small"
+                  clickable={true}
+                  selectable={false}
+                  {isSelected}
+                  animate={true}
+                  onClick={() => handleCardClick(cardInstance.instanceId)}
+                />
+              </div>
             {/if}
           {/each}
         </div>
@@ -133,9 +120,7 @@
         {#if cancelable}
           <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
         {/if}
-        <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection}>
-          確定 ({selectedCount}/{config.maxCards})
-        </button>
+        <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection}> 確定 </button>
       </div>
     {/if}
   {/snippet}

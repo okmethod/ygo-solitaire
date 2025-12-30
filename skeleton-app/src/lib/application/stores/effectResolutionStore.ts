@@ -14,6 +14,7 @@ export interface CardSelectionHandler {
     maxCards: number;
     summary: string;
     description: string;
+    cancelable?: boolean;
     onConfirm: (selectedInstanceIds: string[]) => void;
     onCancel?: () => void;
   }): void;
