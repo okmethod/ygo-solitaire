@@ -21,22 +21,32 @@ import type { CardData, CardType } from "../models/Card";
  * Only includes cards used in the game (not a complete database).
  */
 const CARD_DATA_REGISTRY: Record<number, CardData> = {
-  // Exodia pieces (monster)
-  33396948: { id: 33396948, type: "monster", frameType: "effect" }, // Exodia the Forbidden One
-  7902349: { id: 7902349, type: "monster", frameType: "normal" }, // Right Arm of the Forbidden One
-  70903634: { id: 70903634, type: "monster", frameType: "normal" }, // Left Arm of the Forbidden One
-  44519536: { id: 44519536, type: "monster", frameType: "normal" }, // Left Leg of the Forbidden One
-  8124921: { id: 8124921, type: "monster", frameType: "normal" }, // Right Leg of the Forbidden One
+  // モンスター
+  33396948: { id: 33396948, type: "monster", frameType: "effect" }, // 封印されしエクゾディア
+  7902349: { id: 7902349, type: "monster", frameType: "normal" }, // 封印されし者の右腕
+  70903634: { id: 70903634, type: "monster", frameType: "normal" }, // 封印されし者の左腕
+  44519536: { id: 44519536, type: "monster", frameType: "normal" }, // 封印されし者の左足
+  8124921: { id: 8124921, type: "monster", frameType: "normal" }, // 封印されし者の右足
 
-  // Spell cards
-  55144522: { id: 55144522, type: "spell", frameType: "spell", spellType: "normal" }, // Pot of Greed
-  79571449: { id: 79571449, type: "spell", frameType: "spell", spellType: "normal" }, // Graceful Charity
-  67616300: { id: 67616300, type: "spell", frameType: "spell", spellType: "field" }, // Chicken Game
+  // 通常魔法
+  55144522: { id: 55144522, type: "spell", frameType: "spell", spellType: "normal" }, // 強欲な壺
+  79571449: { id: 79571449, type: "spell", frameType: "spell", spellType: "normal" }, // 天使の施し
+  70368879: { id: 70368879, type: "spell", frameType: "spell", spellType: "normal" }, // 成金ゴブリン
+  33782437: { id: 33782437, type: "spell", frameType: "spell", spellType: "normal" }, // 一時休戦
+  85852291: { id: 85852291, type: "spell", frameType: "spell", spellType: "normal" }, // 打ち出の小槌
+  90928333: { id: 90928333, type: "spell", frameType: "spell", spellType: "normal" }, // 闇の量産工場
+  73628505: { id: 73628505, type: "spell", frameType: "spell", spellType: "normal" }, // テラフォーミング
 
-  // Trap cards
-  83968380: { id: 83968380, type: "trap", frameType: "trap", trapType: "normal" }, // Jar of Greed
+  // 速攻魔法
+  74519184: { id: 74519184, type: "spell", frameType: "spell", spellType: "quick-play" }, // 手札断札
 
-  // Test card IDs (for unit tests)
+  // フィールド魔法
+  67616300: { id: 67616300, type: "spell", frameType: "spell", spellType: "field" }, // チキンレース
+
+  // トラップカード
+  83968380: { id: 83968380, type: "trap", frameType: "trap", trapType: "normal" }, // 強欲な瓶（未実装）
+
+  // テスト用
   1001: { id: 1001, type: "spell", frameType: "spell", spellType: "normal" },
   1002: { id: 1002, type: "spell", frameType: "spell", spellType: "normal" },
   1003: { id: 1003, type: "spell", frameType: "spell", spellType: "normal" },
