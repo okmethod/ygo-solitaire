@@ -4,11 +4,14 @@
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
 
   /**
-   * カードアクション定義
+   * カードアクションボタン定義
    */
-  export interface CardAction {
+  type ButtonStyle = "filled" | "outlined";
+  type ButtonColor = "primary" | "secondary" | "tertiary" | "success" | "warning" | "error" | "surface";
+  export interface CardActionButton {
     label: string; // ボタンラベル（例: "発動", "セット", "召喚"）
-    variant?: "filled-primary" | "filled-secondary" | "filled" | "ghost" | "soft"; // ボタンスタイル
+    style?: ButtonStyle; // ボタンスタイル（デフォルト: "filled"）
+    color?: ButtonColor; // ボタンカラー（デフォルト: "primary"）
     onClick: (card: CardDisplayData, instanceId: string) => void; // アクション実行時のコールバック
   }
 
@@ -18,7 +21,7 @@
     isSelected: boolean;
     isActivatable: boolean; // 発動可能条件（フェーズ、ゲーム状態など）
     onSelect: (card: CardDisplayData, instanceId: string) => void;
-    actions: CardAction[]; // アクション定義の配列
+    actions: CardActionButton[]; // アクション定義の配列
     onCancel: () => void;
     size?: ComponentSize;
     showDetailOnClick?: boolean;
@@ -44,8 +47,10 @@
     action.onClick(card, instanceId);
   }
 
-  function getButtonVariant(variant?: string): string {
-    return variant ? `variant-${variant}` : "variant-filled-primary";
+  function getButtonClass(style?: ButtonStyle, color?: ButtonColor): string {
+    const buttonStyle = style || "filled";
+    const buttonColor = color || "primary";
+    return `preset-${buttonStyle}-${buttonColor}-500`;
   }
 </script>
 
@@ -57,11 +62,11 @@
     <!-- アクションボタン -->
     <div class="absolute -bottom-14 left-0 right-0 flex justify-center gap-2 z-10">
       {#each actions as action (action.label)}
-        <button class="btn btn-sm {getButtonVariant(action.variant)}" onclick={() => handleAction(action)}>
+        <button class="btn btn-sm {getButtonClass(action.style, action.color)}" onclick={() => handleAction(action)}>
           {action.label}
         </button>
       {/each}
-      <button class="btn btn-sm variant-ghost" onclick={onCancel}> キャンセル </button>
+      <button class="btn btn-sm preset-filled-warning-500" onclick={onCancel}> キャンセル </button>
     </div>
   {/if}
 </div>

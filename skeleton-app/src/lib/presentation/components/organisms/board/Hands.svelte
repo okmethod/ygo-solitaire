@@ -1,6 +1,8 @@
 <script lang="ts">
   import Card from "$lib/presentation/components/atoms/Card.svelte";
-  import ActivatableCard, { type CardAction } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
+  import ActivatableCard, {
+    type CardActionButton,
+  } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   interface HandZoneProps {
@@ -42,10 +44,11 @@
   }
 
   // 手札カード用のアクション定義
-  const handCardActions: CardAction[] = [
+  const handCardActions: CardActionButton[] = [
     {
       label: "発動",
-      variant: "filled-primary",
+      style: "filled",
+      color: "primary",
       onClick: handleActivate,
     },
   ];
