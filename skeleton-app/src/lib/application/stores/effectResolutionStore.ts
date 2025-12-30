@@ -159,20 +159,21 @@ function createEffectResolutionStore() {
 
         // Handle "info" level: Show toast notification, auto-advance
         if (notificationLevel === "info") {
-          // Show toast notification if handler is registered
-          if (state.notificationHandler) {
-            state.notificationHandler.showInfo(state.currentStep.summary, state.currentStep.description);
-          }
-
-          // Wait 300ms for toast visibility before executing action
-          await new Promise((resolve) => setTimeout(resolve, 300));
-
+          // Execute action first
           const result = state.currentStep.action(currentGameState);
 
           // Apply action result
           if (result.success) {
             gameStateStore.set(result.newState);
           }
+
+          // Show toast notification after action execution
+          if (state.notificationHandler) {
+            state.notificationHandler.showInfo(state.currentStep.summary, state.currentStep.description);
+          }
+
+          // Wait 300ms for toast visibility before moving to next step
+          await new Promise((resolve) => setTimeout(resolve, 300));
 
           // Move to next step
           const nextIndex = state.currentIndex + 1;
