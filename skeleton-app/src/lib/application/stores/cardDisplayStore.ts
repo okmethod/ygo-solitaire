@@ -73,15 +73,27 @@ export const fieldCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch field cards:", err);
-        set([]);
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch field cards:", err);
+          set([]);
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[],
 );

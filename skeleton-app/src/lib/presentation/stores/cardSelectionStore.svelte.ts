@@ -16,7 +16,9 @@
 import type { CardInstance } from "$lib/domain/models/Card";
 
 /**
- * Card selection configuration
+ * Card selection configuration (Presentation Layer)
+ *
+ * Extends Domain Layer's CardSelectionConfig with presentation-specific callbacks.
  */
 export interface CardSelectionConfig {
   /** Available cards to choose from */
@@ -25,10 +27,12 @@ export interface CardSelectionConfig {
   minCards: number;
   /** Maximum number of cards that can be selected */
   maxCards: number;
-  /** Title shown in selection UI */
-  title: string;
-  /** Message/instructions shown in selection UI */
-  message: string;
+  /** Summary shown in selection UI */
+  summary: string;
+  /** Description/instructions shown in selection UI */
+  description: string;
+  /** Whether user can cancel the selection (default: true) */
+  cancelable?: boolean;
   /** Callback executed when selection is confirmed */
   onConfirm: (selectedInstanceIds: string[]) => void;
   /** Optional callback executed when selection is cancelled */

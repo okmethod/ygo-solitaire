@@ -81,15 +81,29 @@ export class GracefulCharityAction implements ChainableAction {
   /**
    * ACTIVATION: 発動時の処理
    *
-   * 通常魔法はコストなし、対象なしのため、空配列を返す。
+   * 通常魔法はコストなし、対象なしのため、発動通知のみ。
    *
    * @param state - 現在のゲーム状態
-   * @returns 空配列（発動時の処理なし）
+   * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(state: GameState): EffectResolutionStep[] {
-    // Normal Spell has no activation steps (no cost, no targeting)
-    return [];
+    return [
+      {
+        id: "graceful-charity-activation",
+        summary: "カード発動",
+        description: "天使の施しを発動します",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // No state change, just notification
+          return {
+            success: true,
+            newState: currentState,
+            message: "Graceful Charity activated",
+          };
+        },
+      },
+    ];
   }
 
   /**
@@ -108,8 +122,9 @@ export class GracefulCharityAction implements ChainableAction {
       // Step 1: Draw 3 cards
       {
         id: "graceful-charity-draw",
-        title: "カードをドローします",
-        message: "デッキから3枚ドローします",
+        summary: "カードをドロー",
+        description: "デッキから3枚ドローします",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
           if (currentState.zones.deck.length < 3) {
@@ -149,16 +164,18 @@ export class GracefulCharityAction implements ChainableAction {
       // Step 2: Discard 2 cards (player selection required)
       {
         id: "graceful-charity-discard",
-        title: "カードを破棄します",
-        message: "手札から2枚選んで破棄してください",
+        summary: "手札を捨てる",
+        description: "手札から2枚選んで捨ててください",
+        notificationLevel: "interactive",
         // Card selection configuration (Domain Layer)
         // Application Layer will open CardSelectionModal with this config
         cardSelectionConfig: {
           availableCards: state.zones.hand,
           minCards: 2,
           maxCards: 2,
-          title: "カードを破棄",
-          message: "手札から2枚選んで破棄してください",
+          summary: "手札を捨てる",
+          description: "手札から2枚選んで捨ててください",
+          cancelable: false, // Cannot cancel during effect resolution
         },
         // Action receives selected card instance IDs from user selection
         action: (currentState: GameState, selectedInstanceIds?: string[]) => {
@@ -180,8 +197,9 @@ export class GracefulCharityAction implements ChainableAction {
       // Step 3: Send spell card to graveyard
       {
         id: "graceful-charity-graveyard",
-        title: "カードを墓地に送ります",
-        message: "天使の施しを墓地に送ります",
+        summary: "墓地へ送る",
+        description: "天使の施しを墓地に送ります",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
           const newZones = sendToGraveyard(currentState.zones, activatedCardInstanceId);

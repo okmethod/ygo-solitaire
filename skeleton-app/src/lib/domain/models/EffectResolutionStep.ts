@@ -12,6 +12,16 @@ import type { GameStateUpdateResult } from "../models/GameStateUpdateResult";
 import type { CardInstance } from "../models/Card";
 
 /**
+ * NotificationLevel - 効果解決ステップの通知レベル
+ *
+ * Domain層で定義され、Presentation層が表示方法を決定する。
+ * - silent: 通知なし（内部状態変更のみ、即座に実行）
+ * - info: 情報通知（トースト、非ブロッキング、自動進行）
+ * - interactive: ユーザー入力要求（モーダル、ブロッキング）
+ */
+export type NotificationLevel = "silent" | "info" | "interactive";
+
+/**
  * Card Selection Configuration (Domain Layer)
  *
  * Configuration for requesting user to select cards.
@@ -23,8 +33,9 @@ import type { CardInstance } from "../models/Card";
  *   availableCards: state.zones.hand,
  *   minCards: 2,
  *   maxCards: 2,
- *   title: "カードを破棄",
- *   message: "手札から2枚選んで破棄してください",
+ *   summary: "手札を捨てる",
+ *   description: "手札から2枚選んで捨ててください",
+ *   cancelable: false, // Cannot cancel during effect resolution
  * };
  * ```
  */
@@ -35,10 +46,12 @@ export interface CardSelectionConfig {
   minCards: number;
   /** Maximum number of cards that can be selected */
   maxCards: number;
-  /** Title shown in selection UI */
-  title: string;
-  /** Message/instructions shown in selection UI */
-  message: string;
+  /** Summary shown in selection UI */
+  summary: string;
+  /** Description/instructions shown in selection UI */
+  description: string;
+  /** Whether user can cancel the selection (default: true) */
+  cancelable?: boolean;
 }
 
 /**
@@ -61,8 +74,8 @@ export interface CardSelectionConfig {
  * // Simple step (no user input required)
  * const step: EffectResolutionStep = {
  *   id: "pot-of-greed-draw",
- *   title: "カードをドローします",
- *   message: "デッキから2枚ドローします",
+ *   summary: "カードをドロー",
+ *   description: "デッキから2枚ドローします",
  *   action: (state: GameState) => {
  *     return new DrawCardCommand(2).execute(state);
  *   }
@@ -71,14 +84,14 @@ export interface CardSelectionConfig {
  * // Step with card selection (user input required)
  * const step: EffectResolutionStep = {
  *   id: "graceful-charity-discard",
- *   title: "カードを破棄します",
- *   message: "手札から2枚選んで破棄してください",
+ *   summary: "手札を捨てる",
+ *   description: "手札から2枚選んで捨ててください",
  *   cardSelectionConfig: {
  *     availableCards: state.zones.hand,
  *     minCards: 2,
  *     maxCards: 2,
- *     title: "カードを破棄",
- *     message: "手札から2枚選んで破棄してください",
+ *     summary: "手札を捨てる",
+ *     description: "手札から2枚選んで捨ててください",
  *   },
  *   action: (state: GameState, selectedInstanceIds?: string[]) => {
  *     return new DiscardCardsCommand(selectedInstanceIds!).execute(state);
@@ -90,11 +103,23 @@ export interface EffectResolutionStep {
   /** Unique identifier for this step */
   id: string;
 
-  /** Title displayed to user */
-  title: string;
+  /** Summary displayed to user */
+  summary: string;
 
-  /** Detailed message displayed to user */
-  message: string;
+  /** Detailed description displayed to user */
+  description: string;
+
+  /**
+   * Notification level (optional)
+   *
+   * Controls how this step is presented to the user:
+   * - "silent": No notification, executes immediately (internal state changes)
+   * - "info": Toast notification, non-blocking, auto-advance (informational)
+   * - "interactive": Modal dialog, blocking, waits for user input (requires interaction)
+   *
+   * Default: "info" (for backward compatibility)
+   */
+  notificationLevel?: NotificationLevel;
 
   /**
    * Card selection configuration (optional)

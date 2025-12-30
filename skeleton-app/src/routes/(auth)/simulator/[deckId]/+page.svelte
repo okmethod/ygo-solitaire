@@ -81,13 +81,7 @@
   function handleHandCardClick(card: CardDisplayData, instanceId: string) {
     // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
-
-    // トーストメッセージ表示
-    if (result.success) {
-      showSuccessToast(`${card.name} を発動しました`);
-    } else {
-      showErrorToast(result.error || "発動に失敗しました");
-    }
+    if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }
 
   // フィールドカードクリックで起動効果発動
@@ -211,11 +205,15 @@
   </main>
 </div>
 
-<!-- 効果解決モーダル -->
+<!-- 効果解決モーダル (interactive level without card selection only) -->
+<!-- Note: Only show modal for interactive level steps that don't have cardSelectionConfig -->
+<!-- info/silent levels are handled by effectResolutionStore (toast/no-ui) -->
 <EffectResolutionModal
-  isOpen={$effectResolutionState.isActive}
-  title={$effectResolutionState.currentStep?.title || ""}
-  message={$effectResolutionState.currentStep?.message || ""}
+  isOpen={$effectResolutionState.isActive &&
+    $effectResolutionState.currentStep?.notificationLevel === "interactive" &&
+    !$effectResolutionState.currentStep?.cardSelectionConfig}
+  summary={$effectResolutionState.currentStep?.summary || ""}
+  description={$effectResolutionState.currentStep?.description || ""}
   onConfirm={effectResolutionStore.confirmCurrentStep}
   onCancel={$effectResolutionState.currentStep?.showCancel ? effectResolutionStore.cancelResolution : undefined}
   showCancel={$effectResolutionState.currentStep?.showCancel || false}

@@ -80,15 +80,29 @@ export class PotOfGreedAction implements ChainableAction {
   /**
    * ACTIVATION: 発動時の処理
    *
-   * 通常魔法はコストなし、対象なしのため、空配列を返す。
+   * 通常魔法はコストなし、対象なしのため、発動通知のみ。
    *
    * @param state - 現在のゲーム状態
-   * @returns 空配列（発動時の処理なし）
+   * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(state: GameState): EffectResolutionStep[] {
-    // Normal Spell has no activation steps (no cost, no targeting)
-    return [];
+    return [
+      {
+        id: "pot-of-greed-activation",
+        summary: "カード発動",
+        description: "強欲な壺を発動します",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // No state change, just notification
+          return {
+            success: true,
+            newState: currentState,
+            message: "Pot of Greed activated",
+          };
+        },
+      },
+    ];
   }
 
   /**
@@ -106,8 +120,9 @@ export class PotOfGreedAction implements ChainableAction {
       // Step 1: Draw 2 cards
       {
         id: "pot-of-greed-draw",
-        title: "カードをドローします",
-        message: "デッキから2枚ドローします",
+        summary: "カードをドロー",
+        description: "デッキから2枚ドローします",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
           if (currentState.zones.deck.length < 2) {
@@ -147,8 +162,9 @@ export class PotOfGreedAction implements ChainableAction {
       // Step 2: Send spell card to graveyard
       {
         id: "pot-of-greed-graveyard",
-        title: "カードを墓地に送ります",
-        message: "強欲な壺を墓地に送ります",
+        summary: "墓地へ送る",
+        description: "強欲な壺を墓地に送ります",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
           const newZones = sendToGraveyard(currentState.zones, activatedCardInstanceId);

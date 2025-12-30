@@ -7,7 +7,7 @@
   import AudioToggle from "$lib/presentation/components/buttons/AudioToggle.svelte";
   import CardDetailDisplay from "$lib/presentation/components/atoms/CardDetailDisplay.svelte";
   import { applyTheme } from "$lib/presentation/stores/theme";
-  import { toaster } from "$lib/presentation/utils/toaster";
+  import { toaster, showSuccessToast } from "$lib/presentation/utils/toaster";
   import { base } from "$app/paths";
   import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
@@ -19,6 +19,18 @@
     // Store間の依存関係をDIで解決（Presentation層の責務）
     effectResolutionStore.registerCardSelectionHandler((config) => {
       cardSelectionStore.startSelection(config);
+    });
+
+    // NotificationHandlerを登録（Dependency Injection）
+    effectResolutionStore.registerNotificationHandler({
+      showInfo: (_summary, description) => {
+        // Display description only to reduce toast text length
+        showSuccessToast(description);
+      },
+      showInteractive: () => {
+        // Interactive level uses existing modal logic (handled by cardSelectionConfig)
+        // This is a placeholder for future enhancement if needed
+      },
     });
 
     function wait(ms: number) {

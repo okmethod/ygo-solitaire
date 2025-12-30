@@ -119,7 +119,7 @@ describe("PotOfGreedAction", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return empty array (no activation steps for normal spell)", () => {
+    it("should return activation notification step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002, 1003]);
 
@@ -127,8 +127,11 @@ describe("PotOfGreedAction", () => {
       const steps = action.createActivationSteps(state);
 
       // Assert
-      expect(steps).toEqual([]);
-      expect(steps).toHaveLength(0);
+      expect(steps).toHaveLength(1);
+      expect(steps[0].id).toBe("pot-of-greed-activation");
+      expect(steps[0].summary).toBe("カード発動");
+      expect(steps[0].description).toBe("強欲な壺を発動します");
+      expect(steps[0].notificationLevel).toBe("info");
     });
   });
 
@@ -155,8 +158,8 @@ describe("PotOfGreedAction", () => {
 
       // Assert
       expect(steps[0].id).toBe("pot-of-greed-draw");
-      expect(steps[0].title).toBe("カードをドローします");
-      expect(steps[0].message).toBe("デッキから2枚ドローします");
+      expect(steps[0].summary).toBe("カードをドロー");
+      expect(steps[0].description).toBe("デッキから2枚ドローします");
     });
 
     it("should have Graveyard step as second step", () => {
@@ -169,8 +172,8 @@ describe("PotOfGreedAction", () => {
 
       // Assert
       expect(steps[1].id).toBe("pot-of-greed-graveyard");
-      expect(steps[1].title).toBe("カードを墓地に送ります");
-      expect(steps[1].message).toBe("強欲な壺を墓地に送ります");
+      expect(steps[1].summary).toBe("墓地へ送る");
+      expect(steps[1].description).toBe("強欲な壺を墓地に送ります");
     });
 
     describe("Draw step action", () => {

@@ -2,6 +2,8 @@ import { createToaster } from "@skeletonlabs/skeleton-svelte";
 
 export const toaster = createToaster({
   placement: "top-end",
+  duration: 5000,
+  max: 10,
 });
 
 export function showSuccessToast(title: string) {

@@ -125,8 +125,8 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
       // Step 1: Pay 1000 LP cost
       {
         id: "chicken-game-pay-lp",
-        title: "コストを支払います",
-        message: "1000LPを支払います",
+        summary: "コスト支払い",
+        description: "1000LPを支払います",
         action: (currentState: GameState) => {
           // Validate LP is still sufficient
           if (currentState.lp.player < 1000) {
@@ -157,8 +157,8 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
       // Step 2: Record activation (1ターンに1度制限)
       {
         id: "chicken-game-record-activation",
-        title: "効果発動を記録します",
-        message: "1ターンに1度の制限を記録します",
+        summary: "効果発動を記録",
+        description: "1ターンに1度の制限を記録します",
         action: (currentState: GameState) => {
           // Add to activated effects set
           const newActivatedEffects = new Set(currentState.activatedIgnitionEffectsThisTurn);
@@ -195,8 +195,8 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
       // Option 1: Draw 1 card (簡略化のためこの選択肢のみ実装)
       {
         id: "chicken-game-draw",
-        title: "カードをドローします",
-        message: "デッキから1枚ドローします",
+        summary: "カードをドロー",
+        description: "デッキから1枚ドローします",
         action: (currentState: GameState) => {
           // Validate deck has at least 1 card
           if (currentState.zones.deck.length < 1) {
