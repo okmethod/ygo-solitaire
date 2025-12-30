@@ -56,13 +56,20 @@
 
 <div class="relative">
   <!-- Card コンポーネントをラップ（選択状態も Card で管理） -->
-  <Card {card} {size} clickable={isActivatable} {isSelected} onClick={handleSelect} {showDetailOnClick} />
+  <!-- カードは常にクリック可能にして、ユーザーが選択できるようにする -->
+  <Card {card} {size} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} />
 
   {#if isSelected}
     <!-- アクションボタン -->
     <div class="absolute -bottom-14 left-0 right-0 flex justify-center gap-2 z-10">
       {#each actions as action (action.label)}
-        <button class="btn btn-sm {getButtonClass(action.style, action.color)}" onclick={() => handleAction(action)}>
+        <!-- disabledではなくopacity+cursor-not-allowedで視覚的に無効化し、クリックは可能にする -->
+        <button
+          class="btn btn-sm {getButtonClass(action.style, action.color)} {!isActivatable
+            ? 'opacity-50 cursor-not-allowed'
+            : ''}"
+          onclick={() => handleAction(action)}
+        >
           {action.label}
         </button>
       {/each}

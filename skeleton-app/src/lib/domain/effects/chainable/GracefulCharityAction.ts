@@ -83,11 +83,11 @@ export class GracefulCharityAction implements ChainableAction {
    *
    * 通常魔法はコストなし、対象なしのため、発動通知のみ。
    *
-   * @param state - 現在のゲーム状態
+   * @param _state - 現在のゲーム状態（未使用）
    * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): EffectResolutionStep[] {
+  createActivationSteps(_state: GameState): EffectResolutionStep[] {
     return [
       {
         id: "graceful-charity-activation",
@@ -113,11 +113,11 @@ export class GracefulCharityAction implements ChainableAction {
    * 2. 手札から2枚選んで破棄
    * 3. このカードを墓地に送る
    *
-   * @param state - 現在のゲーム状態
+   * @param _state - 現在のゲーム状態（未使用、availableCardsは実行時に決定）
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決ステップ配列
    */
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
       // Step 1: Draw 3 cards
       {
@@ -170,7 +170,8 @@ export class GracefulCharityAction implements ChainableAction {
         // Card selection configuration (Domain Layer)
         // Application Layer will open CardSelectionModal with this config
         cardSelectionConfig: {
-          availableCards: state.zones.hand,
+          // Empty array means "use current hand" (allows selecting newly drawn cards)
+          availableCards: [],
           minCards: 2,
           maxCards: 2,
           summary: "手札を捨てる",
