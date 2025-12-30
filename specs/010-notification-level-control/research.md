@@ -410,19 +410,24 @@ effectResolutionStore.registerNotificationHandler({
 3. **依存の方向**: ChainableAction → EffectResolutionStep（適切な依存方向）
 4. **拡張性**: 新しいカード効果を追加する際、ChainableActionを実装するだけで既存のeffectResolutionStoreが使える
 
-**既存のトレードオフ（許容される設計判断）**:
+**What vs How の明確な分離（Clean Architecture準拠）**:
 
-EffectResolutionStepが `title`, `message`, `notificationLevel` というUI関連情報を持つことは、既存アーキテクチャでの**意図的なトレードオフ**です：
+EffectResolutionStepが `title`, `message`, `notificationLevel` を持つことは、**UI実装の詳細への依存ではなく、ドメイン知識の表現**です：
 
-- **利点**:
-  - シンプルな実装
-  - 各ステップに必要な情報が一箇所にまとまる
-  - Domain層でステップ生成時に通知レベルを決定できる
-- **欠点**:
-  - Domain層のモデルがUI情報を持つ（Clean Architectureの厳密な解釈では避けるべき）
-- **判断**:
-  - このプロジェクトでは、実用性とシンプルさを優先してこの設計を採用
-  - Domain層は「通知レベル」のみを決定し、「表示方法」はPresentation層が決定（依存性逆転原則を守る）
+- **What（ドメイン層の責務）**:
+  - `title`, `message`: 「何が起きたか」を伝える情報（ドメイン知識）
+  - `notificationLevel`: 「どの程度重要か」（ドメインロジック）
+  - 例: "カードをドロー", "2枚のカードをドローします", "info"
+
+- **How（Presentation層の責務）**:
+  - 「どう表示するか」（toast vs modal）
+  - 「どこに表示するか」（top-right, center）
+  - 「どんなスタイルか」（色、アニメーション、サイズ）
+
+- **Clean Architecture準拠**:
+  - Domain層は「何を通知すべきか」と「重要度」を決定
+  - Presentation層は「どう表示するか」を決定
+  - 依存性逆転原則（DIP）を守る: NotificationHandlerをDIで注入
 
 **Alternatives Considered**:
 - ❌ **ChainableActionに統合**: 責務が混在し、単一責任原則違反
