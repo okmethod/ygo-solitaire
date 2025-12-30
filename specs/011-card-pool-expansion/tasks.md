@@ -24,9 +24,9 @@
 
 **Purpose**: GameState extension and Zone helper functions
 
-- [ ] T001 Add `damageNegation: boolean` field to GameState interface in skeleton-app/src/lib/domain/models/GameState.ts
-- [ ] T002 Update `createInitialGameState()` to initialize `damageNegation: false` in skeleton-app/src/lib/domain/models/GameState.ts
-- [ ] T003 [P] Create `shuffleDeck()` helper function in skeleton-app/src/lib/domain/models/Zone.ts
+- [x] T001 Add `damageNegation: boolean` field to GameState interface in skeleton-app/src/lib/domain/models/GameState.ts
+- [x] T002 Update `createInitialGameState()` to initialize `damageNegation: false` in skeleton-app/src/lib/domain/models/GameState.ts
+- [x] T003 [P] Create `shuffleDeck()` helper function in skeleton-app/src/lib/domain/models/Zone.ts
 
 ---
 
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Verify ChainableActionRegistry registration pattern in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T005 Verify CardSelectionModal supports graveyard/deck selection in skeleton-app/src/lib/presentation/components/modals/CardSelectionModal.svelte
-- [ ] T006 Verify NotificationLevel system (silent/info/interactive) is functional in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T004 Verify ChainableActionRegistry registration pattern in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T005 Verify CardSelectionModal supports graveyard/deck selection in skeleton-app/src/lib/presentation/components/modals/CardSelectionModal.svelte
+- [x] T006 Verify NotificationLevel system (silent/info/interactive) is functional in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,15 +52,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Create UpstartGoblinAction class in skeleton-app/src/lib/domain/effects/chainable/UpstartGoblinAction.ts
-- [ ] T008 [P] [US1] Create CeasefireVariantAction class in skeleton-app/src/lib/domain/effects/chainable/CeasefireVariantAction.ts
-- [ ] T009 [US1] Register Upstart Goblin (ID=70368879) in ChainableActionRegistry in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T010 [US1] Register Ceasefire Variant (ID=33782437) in ChainableActionRegistry in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T007 [P] [US1] Create UpstartGoblinAction class in skeleton-app/src/lib/domain/effects/chainable/UpstartGoblinAction.ts
+- [x] T008 [P] [US1] Create CeasefireVariantAction class in skeleton-app/src/lib/domain/effects/chainable/CeasefireVariantAction.ts
+- [x] T009 [US1] Register Upstart Goblin (ID=70368879) in ChainableActionRegistry in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T010 [US1] Register Ceasefire Variant (ID=33782437) in ChainableActionRegistry in skeleton-app/src/lib/domain/effects/index.ts
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Unit test for UpstartGoblinAction (canActivate, resolution steps, LP gain) in skeleton-app/tests/unit/domain/effects/chainable/UpstartGoblinAction.test.ts
-- [ ] T012 [P] [US1] Unit test for CeasefireVariantAction (canActivate, resolution steps, damageNegation) in skeleton-app/tests/unit/domain/effects/chainable/CeasefireVariantAction.test.ts
+- [x] T011 [P] [US1] Unit test for UpstartGoblinAction (canActivate, resolution steps, LP gain) in skeleton-app/tests/unit/domain/effects/chainable/UpstartGoblinAction.test.ts
+- [x] T012 [P] [US1] Unit test for CeasefireVariantAction (canActivate, resolution steps, damageNegation) in skeleton-app/tests/unit/domain/effects/chainable/CeasefireVariantAction.test.ts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - 2 cards work independently
 
@@ -74,15 +74,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Create ReloadAction class with CardSelectionModal (minCards=0, maxCards=hand.length) in skeleton-app/src/lib/domain/effects/chainable/ReloadAction.ts
-- [ ] T014 [P] [US2] Create CardDestructionAction class with spellSpeed=2 and CardSelectionModal (minCards=2, maxCards=2, cancelable=false) in skeleton-app/src/lib/domain/effects/chainable/CardDestructionAction.ts
-- [ ] T015 [US2] Register Reload (ID=85852291) in ChainableActionRegistry in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T016 [US2] Register Card Destruction (ID=74519184) in ChainableActionRegistry in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T013 [P] [US2] Create ReloadAction class with CardSelectionModal (minCards=0, maxCards=hand.length) in skeleton-app/src/lib/domain/effects/chainable/ReloadAction.ts
+- [x] T014 [P] [US2] Create CardDestructionAction class with spellSpeed=2 and CardSelectionModal (minCards=2, maxCards=2, cancelable=false) in skeleton-app/src/lib/domain/effects/chainable/CardDestructionAction.ts
+- [x] T015 [US2] Register Reload (ID=85852291) in ChainableActionRegistry in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T016 [US2] Register Card Destruction (ID=74519184) in ChainableActionRegistry in skeleton-app/src/lib/domain/effects/index.ts
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit test for ReloadAction (canActivate, 0 cards edge case, all cards edge case, shuffle) in skeleton-app/tests/unit/domain/effects/chainable/ReloadAction.test.ts
-- [ ] T018 [P] [US2] Unit test for CardDestructionAction (canActivate with hand.length >= 3, spellSpeed=2, discard + draw) in skeleton-app/tests/unit/domain/effects/chainable/CardDestructionAction.test.ts
+- [x] T017 [P] [US2] Unit test for ReloadAction (canActivate, 0 cards edge case, all cards edge case, shuffle) in skeleton-app/tests/unit/domain/effects/chainable/ReloadAction.test.ts
+- [x] T018 [P] [US2] Unit test for CardDestructionAction (canActivate with hand.length >= 3, spellSpeed=2, discard + draw) in skeleton-app/tests/unit/domain/effects/chainable/CardDestructionAction.test.ts
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - 4 cards total
 
