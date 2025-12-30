@@ -175,6 +175,7 @@ export class GracefulCharityAction implements ChainableAction {
           maxCards: 2,
           summary: "手札を捨てる",
           description: "手札から2枚選んで捨ててください",
+          cancelable: false, // Cannot cancel during effect resolution
         },
         // Action receives selected card instance IDs from user selection
         action: (currentState: GameState, selectedInstanceIds?: string[]) => {

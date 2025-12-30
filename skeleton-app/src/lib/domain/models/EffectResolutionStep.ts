@@ -35,6 +35,7 @@ export type NotificationLevel = "silent" | "info" | "interactive";
  *   maxCards: 2,
  *   summary: "手札を捨てる",
  *   description: "手札から2枚選んで捨ててください",
+ *   cancelable: false, // Cannot cancel during effect resolution
  * };
  * ```
  */
@@ -49,6 +50,8 @@ export interface CardSelectionConfig {
   summary: string;
   /** Description/instructions shown in selection UI */
   description: string;
+  /** Whether user can cancel the selection (default: true) */
+  cancelable?: boolean;
 }
 
 /**

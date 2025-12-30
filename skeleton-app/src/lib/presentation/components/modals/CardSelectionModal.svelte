@@ -10,10 +10,12 @@
   const config = $derived(cardSelectionStore.config);
   const selectedCount = $derived(cardSelectionStore.selectedCount);
   const isValidSelection = $derived(cardSelectionStore.isValidSelection);
+  const cancelable = $derived(config?.cancelable ?? true); // Default: true (backward compatible)
 
   // Modal の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
-    if (!event.open && isActive) {
+    // Only allow closing if cancelable is true
+    if (!event.open && isActive && cancelable) {
       cardSelectionStore.cancelSelection();
     }
   }
@@ -60,7 +62,7 @@
   backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}
-  closeOnEscape={true}
+  closeOnEscape={cancelable}
   preventScroll={true}
 >
   {#snippet content()}
@@ -68,7 +70,9 @@
       <!-- ヘッダー -->
       <div class="flex justify-between items-center mb-4">
         <h3 class="font-bold text-lg">{config.summary}</h3>
-        <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
+        {#if cancelable}
+          <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
+        {/if}
       </div>
 
       <!-- 説明文 -->
@@ -126,7 +130,9 @@
 
       <!-- ボタンエリア -->
       <div class="flex justify-end gap-3 mt-6">
-        <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
+        {#if cancelable}
+          <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
+        {/if}
         <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection}>
           確定 ({selectedCount}/{config.maxCards})
         </button>
