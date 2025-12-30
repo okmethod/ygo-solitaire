@@ -1,6 +1,6 @@
 <script lang="ts">
   import Card from "$lib/presentation/components/atoms/Card.svelte";
-  import ActivatableCard from "$lib/presentation/components/molecules/ActivatableCard.svelte";
+  import ActivatableCard, { type CardAction } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   interface HandZoneProps {
@@ -40,6 +40,15 @@
   function handleCancel() {
     selectedInstanceId = null;
   }
+
+  // 手札カード用のアクション定義
+  const handCardActions: CardAction[] = [
+    {
+      label: "発動",
+      variant: "filled-primary",
+      onClick: handleActivate,
+    },
+  ];
 </script>
 
 <div class="card px-4 space-y-4">
@@ -54,9 +63,8 @@
           isSelected={selectedInstanceId === instanceId}
           isActivatable={currentPhase === "Main1" && canActivateSpells && !isGameOver}
           onSelect={handleSelect}
-          onActivate={handleActivate}
+          actions={handCardActions}
           onCancel={handleCancel}
-          actionLabel="発動"
           size="medium"
         />
       {:else}
