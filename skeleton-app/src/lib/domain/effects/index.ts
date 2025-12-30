@@ -40,6 +40,8 @@ import { UpstartGoblinAction } from "$lib/domain/effects/chainable/UpstartGoblin
 import { CeasefireVariantAction } from "$lib/domain/effects/chainable/CeasefireVariantAction";
 import { ReloadAction } from "$lib/domain/effects/chainable/ReloadAction";
 import { CardDestructionAction } from "$lib/domain/effects/chainable/CardDestructionAction";
+import { DarkFactoryAction } from "$lib/domain/effects/chainable/DarkFactoryAction";
+import { TerraformingAction } from "$lib/domain/effects/chainable/TerraformingAction";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
@@ -60,6 +62,8 @@ export { UpstartGoblinAction } from "$lib/domain/effects/chainable/UpstartGoblin
 export { CeasefireVariantAction } from "$lib/domain/effects/chainable/CeasefireVariantAction";
 export { ReloadAction } from "$lib/domain/effects/chainable/ReloadAction";
 export { CardDestructionAction } from "$lib/domain/effects/chainable/CardDestructionAction";
+export { DarkFactoryAction } from "$lib/domain/effects/chainable/DarkFactoryAction";
+export { TerraformingAction } from "$lib/domain/effects/chainable/TerraformingAction";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
@@ -85,6 +89,8 @@ export { ChickenGameContinuousRule } from "$lib/domain/effects/additional/Chicke
  * - 33782437: Ceasefire Variant (一時休戦)
  * - 85852291: Reload (打ち出の小槌)
  * - 74519184: Card Destruction (手札断札) - Quick-Play
+ * - 90928333: Dark Factory (闇の量産工場)
+ * - 73628505: Terraforming (テラフォーミング)
  *
  * Future Expansion:
  * When adding new cards, import the action class above and register it here:
@@ -115,6 +121,12 @@ function initializeChainableActionRegistry(): void {
 
   // Card ID 74519184: Card Destruction (手札断札)
   ChainableActionRegistry.register(74519184, new CardDestructionAction());
+
+  // Card ID 90928333: Dark Factory (闇の量産工場)
+  ChainableActionRegistry.register(90928333, new DarkFactoryAction());
+
+  // Card ID 73628505: Terraforming (テラフォーミング)
+  ChainableActionRegistry.register(73628505, new TerraformingAction());
 
   // Note: ChickenGameIgnitionEffect is not registered here because it requires
   // a cardInstanceId parameter. It will be instantiated dynamically when needed.
