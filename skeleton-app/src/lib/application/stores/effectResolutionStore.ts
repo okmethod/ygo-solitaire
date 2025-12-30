@@ -207,11 +207,9 @@ function createEffectResolutionStore() {
 
           // CardSelectionModalを開いてユーザー入力を待つ
           return new Promise<void>((resolve) => {
-            // IMPORTANT: Use currentGameState.zones.hand instead of original config's availableCards
-            // This ensures we're selecting from the CURRENT hand after any previous effects (e.g., drawing cards)
+            // Use availableCards from config directly (supports hand, deck, graveyard selections)
             state.cardSelectionHandler!({
               ...state.currentStep!.cardSelectionConfig!,
-              availableCards: currentGameState.zones.hand,
               onConfirm: (selectedInstanceIds: string[]) => {
                 // ユーザーがカードを選択したら、actionを実行（同期化）
                 const result = state.currentStep!.action(currentGameState, selectedInstanceIds);

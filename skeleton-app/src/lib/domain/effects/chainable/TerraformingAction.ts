@@ -1,9 +1,9 @@
 /**
- * TerraformingAction - Terraforming (テラフォーミング) ChainableAction implementation
+ * TerraformingAction - Terraforming (テラ・フォーミング) ChainableAction implementation
  *
  * Card Information:
  * - Card ID: 73628505
- * - Card Name: Terraforming (テラフォーミング)
+ * - Card Name: Terraforming (テラ・フォーミング)
  * - Card Type: Normal Spell
  * - Effect: Add 1 Field Spell from your deck to your hand.
  *
@@ -20,6 +20,7 @@ import type { ChainableAction } from "../../models/ChainableAction";
 import type { GameState } from "../../models/GameState";
 import type { EffectResolutionStep } from "../../models/EffectResolutionStep";
 import { moveCard, sendToGraveyard } from "../../models/Zone";
+import { getCardNameWithBrackets } from "../../registries/CardDataRegistry";
 
 /**
  * TerraformingAction - Terraforming ChainableAction
@@ -91,7 +92,7 @@ export class TerraformingAction implements ChainableAction {
       {
         id: "terraforming-activation",
         summary: "カード発動",
-        description: "テラフォーミングを発動します",
+        description: `${getCardNameWithBrackets(73628505)}を発動します`,
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // No state change, just notification
@@ -119,6 +120,16 @@ export class TerraformingAction implements ChainableAction {
   createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     // Filter deck for Field Spells only
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
+
+    // NOTE: Dynamic card name in notification
+    // Step 2's description uses a generic message "選択したフィールド魔法を手札に加えます"
+    // instead of the specific card name like "《チキンレース》を手札に加えます"
+    // because descriptions are evaluated at step creation time (when createResolutionSteps is called),
+    // not at step execution time (when the action runs).
+    // To display the specific card name, we would need to either:
+    // 1. Change EffectResolutionStep.description to support functions: `description: string | (() => string)`
+    // 2. Dynamically update Step 2's description from within Step 1's action
+    // 3. Accept the generic message for better maintainability (current approach)
 
     return [
       // Step 1: Select 1 Field Spell from deck
@@ -162,11 +173,27 @@ export class TerraformingAction implements ChainableAction {
         },
       },
 
-      // Step 2: Send spell card to graveyard
+      // Step 2: Notification for adding to hand
+      {
+        id: "terraforming-add-to-hand",
+        summary: "手札に加える",
+        description: "選択したフィールド魔法を手札に加えます",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // No state change, just notification
+          return {
+            success: true,
+            newState: currentState,
+            message: "Added Field Spell to hand",
+          };
+        },
+      },
+
+      // Step 3: Send spell card to graveyard
       {
         id: "terraforming-graveyard",
         summary: "墓地へ送る",
-        description: "テラフォーミングを墓地に送ります",
+        description: `${getCardNameWithBrackets(73628505)}を墓地に送ります`,
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard

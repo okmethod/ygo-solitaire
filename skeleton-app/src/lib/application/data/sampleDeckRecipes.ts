@@ -16,12 +16,18 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       { id: 8124921, quantity: 1 }, // 封印されし者の右足
 
       // 魔法カード
-      { id: 55144522, quantity: 20 }, // 強欲な壺
-      { id: 79571449, quantity: 6 }, // 天使の施し
-      { id: 67616300, quantity: 6 }, // チキンレース
+      { id: 55144522, quantity: 10 }, // 強欲な壺
+      { id: 79571449, quantity: 3 }, // 天使の施し
+      { id: 70368879, quantity: 3 }, // 成金ゴブリン
+      { id: 33782437, quantity: 3 }, // 一時休戦
+      { id: 85852291, quantity: 3 }, // 打ち出の小槌
+      { id: 74519184, quantity: 3 }, // 手札断札
+      { id: 90928333, quantity: 3 }, // 闇の量産工場
+      { id: 73628505, quantity: 3 }, // テラ・フォーミング
+      { id: 67616300, quantity: 3 }, // チキンレース
 
       // 罠カード
-      { id: 83968380, quantity: 3 }, // 強欲な瓶（未実装）
+      { id: 83968380, quantity: 1 }, // 強欲な瓶（未実装）
     ],
     extraDeck: [],
   },

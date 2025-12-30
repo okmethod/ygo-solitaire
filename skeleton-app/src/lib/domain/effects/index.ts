@@ -90,7 +90,7 @@ export { ChickenGameContinuousRule } from "$lib/domain/effects/additional/Chicke
  * - 85852291: Reload (打ち出の小槌)
  * - 74519184: Card Destruction (手札断札) - Quick-Play
  * - 90928333: Dark Factory (闇の量産工場)
- * - 73628505: Terraforming (テラフォーミング)
+ * - 73628505: Terraforming (テラ・フォーミング)
  *
  * Future Expansion:
  * When adding new cards, import the action class above and register it here:
@@ -125,7 +125,7 @@ function initializeChainableActionRegistry(): void {
   // Card ID 90928333: Dark Factory (闇の量産工場)
   ChainableActionRegistry.register(90928333, new DarkFactoryAction());
 
-  // Card ID 73628505: Terraforming (テラフォーミング)
+  // Card ID 73628505: Terraforming (テラ・フォーミング)
   ChainableActionRegistry.register(73628505, new TerraformingAction());
 
   // Note: ChickenGameIgnitionEffect is not registered here because it requires

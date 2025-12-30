@@ -49,8 +49,16 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Card",
             },
-            { id: 1001, instanceId: "deck-1", type: "monster", frameType: "normal", location: "deck" },
+            {
+              id: 1001,
+              instanceId: "deck-1",
+              type: "monster",
+              frameType: "normal",
+              location: "deck",
+              jaName: "Test Card",
+            },
           ],
         },
       };
@@ -75,6 +83,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Card",
             },
           ],
         },
@@ -104,6 +113,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Card",
             },
           ],
         },
@@ -122,7 +132,14 @@ describe("TerraformingAction", () => {
         zones: {
           ...state.zones,
           deck: [
-            { id: 1001, instanceId: "deck-0", type: "monster", frameType: "normal", location: "deck" },
+            {
+              id: 1001,
+              instanceId: "deck-0",
+              type: "monster",
+              frameType: "normal",
+              location: "deck",
+              jaName: "Test Card",
+            },
             {
               id: 2001,
               instanceId: "deck-1",
@@ -130,6 +147,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "normal",
               location: "deck",
+              jaName: "Test Card",
             },
           ],
         },
@@ -155,6 +173,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "normal",
               location: "deck",
+              jaName: "Test Card",
             },
             {
               id: 2002,
@@ -163,6 +182,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "quick-play",
               location: "deck",
+              jaName: "Test Card",
             },
           ],
         },
@@ -188,6 +208,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Card",
             },
           ],
         },
@@ -213,6 +234,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Card",
             },
             {
               id: 2002,
@@ -221,8 +243,16 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "normal",
               location: "deck",
+              jaName: "Test Card",
             },
-            { id: 1001, instanceId: "deck-2", type: "monster", frameType: "normal", location: "deck" },
+            {
+              id: 1001,
+              instanceId: "deck-2",
+              type: "monster",
+              frameType: "normal",
+              location: "deck",
+              jaName: "Test Card",
+            },
           ],
         },
       };
@@ -244,13 +274,13 @@ describe("TerraformingAction", () => {
       expect(steps).toHaveLength(1);
       expect(steps[0].id).toBe("terraforming-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("テラフォーミングを発動します");
+      expect(steps[0].description).toBe("《テラ・フォーミング》を発動します");
       expect(steps[0].notificationLevel).toBe("info");
     });
   });
 
   describe("createResolutionSteps()", () => {
-    it("should return 2 resolution steps", () => {
+    it("should return 3 resolution steps", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
       const stateWithDeck: GameState = {
@@ -265,6 +295,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Field Spell",
             },
           ],
         },
@@ -275,7 +306,7 @@ describe("TerraformingAction", () => {
       const steps = action.createResolutionSteps(stateWithDeck, activatedCardInstanceId);
 
       // Assert
-      expect(steps).toHaveLength(2);
+      expect(steps).toHaveLength(3); // Select + Notification + Graveyard
     });
 
     it("should have Field Spell selection step as first step", () => {
@@ -288,6 +319,7 @@ describe("TerraformingAction", () => {
         frameType: "spell",
         spellType: "field",
         location: "deck",
+        jaName: "Test Card",
       };
       const stateWithDeck: GameState = {
         ...state,
@@ -323,6 +355,7 @@ describe("TerraformingAction", () => {
         frameType: "spell",
         spellType: "field",
         location: "deck",
+        jaName: "Test Card",
       };
       const normalSpell: CardInstance = {
         id: 2002,
@@ -331,6 +364,7 @@ describe("TerraformingAction", () => {
         frameType: "spell",
         spellType: "normal",
         location: "deck",
+        jaName: "Test Card",
       };
       const quickPlaySpell: CardInstance = {
         id: 2003,
@@ -339,6 +373,7 @@ describe("TerraformingAction", () => {
         frameType: "spell",
         spellType: "quick-play",
         location: "deck",
+        jaName: "Test Card",
       };
       const stateWithDeck: GameState = {
         ...state,
@@ -359,7 +394,7 @@ describe("TerraformingAction", () => {
       expect(steps[0].cardSelectionConfig?.availableCards).not.toContainEqual(quickPlaySpell);
     });
 
-    it("should have graveyard step as second step", () => {
+    it("should have notification step as second step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
       const stateWithDeck: GameState = {
@@ -374,6 +409,7 @@ describe("TerraformingAction", () => {
               frameType: "spell",
               spellType: "field",
               location: "deck",
+              jaName: "Test Field Spell",
             },
           ],
         },
@@ -384,9 +420,40 @@ describe("TerraformingAction", () => {
       const steps = action.createResolutionSteps(stateWithDeck, activatedCardInstanceId);
 
       // Assert
-      expect(steps[1].id).toBe("terraforming-graveyard");
-      expect(steps[1].summary).toBe("墓地へ送る");
-      expect(steps[1].description).toBe("テラフォーミングを墓地に送ります");
+      expect(steps[1].id).toBe("terraforming-add-to-hand");
+      expect(steps[1].summary).toBe("手札に加える");
+      expect(steps[1].notificationLevel).toBe("info");
+    });
+
+    it("should have graveyard step as third step", () => {
+      // Arrange
+      const state = createInitialGameState([1001, 1002]);
+      const stateWithDeck: GameState = {
+        ...state,
+        zones: {
+          ...state.zones,
+          deck: [
+            {
+              id: 2001,
+              instanceId: "deck-0",
+              type: "spell",
+              frameType: "spell",
+              spellType: "field",
+              location: "deck",
+              jaName: "Test Field Spell",
+            },
+          ],
+        },
+      };
+      const activatedCardInstanceId = "terraforming-instance-1";
+
+      // Act
+      const steps = action.createResolutionSteps(stateWithDeck, activatedCardInstanceId);
+
+      // Assert
+      expect(steps[2].id).toBe("terraforming-graveyard");
+      expect(steps[2].summary).toBe("墓地へ送る");
+      expect(steps[2].description).toBe("《テラ・フォーミング》を墓地に送ります");
     });
 
     describe("Field Spell selection step action", () => {
@@ -405,6 +472,7 @@ describe("TerraformingAction", () => {
                 frameType: "spell",
                 spellType: "field",
                 location: "deck",
+                jaName: "Test Card",
               },
               {
                 id: 2002,
@@ -413,6 +481,7 @@ describe("TerraformingAction", () => {
                 frameType: "spell",
                 spellType: "field",
                 location: "deck",
+                jaName: "Test Card",
               },
             ],
           },
@@ -445,6 +514,7 @@ describe("TerraformingAction", () => {
                 frameType: "spell",
                 spellType: "field",
                 location: "deck",
+                jaName: "Test Card",
               },
             ],
           },
@@ -478,6 +548,7 @@ describe("TerraformingAction", () => {
                 type: "spell",
                 frameType: "spell",
                 location: "hand",
+                jaName: "テラ・フォーミング",
               },
             ],
             deck: [
@@ -488,6 +559,7 @@ describe("TerraformingAction", () => {
                 frameType: "spell",
                 spellType: "field",
                 location: "deck",
+                jaName: "Test Field Spell",
               },
             ],
           },
@@ -495,8 +567,8 @@ describe("TerraformingAction", () => {
 
         const steps = action.createResolutionSteps(stateWithSpellInHand, activatedCardInstanceId);
 
-        // Act
-        const result = steps[1].action(stateWithSpellInHand);
+        // Act - Step 2 is now the graveyard step (index 2, not 1)
+        const result = steps[2].action(stateWithSpellInHand);
 
         // Assert
         expect(result.success).toBe(true);
