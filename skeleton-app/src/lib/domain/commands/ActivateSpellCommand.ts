@@ -83,14 +83,22 @@ export class ActivateSpellCommand implements GameCommand {
       return createFailureResult(state, validation.reason || "Cannot activate spell card");
     }
 
-    // Step 1: Move card from hand to field (activation)
-    const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", "field", "faceUp");
-
     // Step 2: Effect execution based on card ID
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
     }
+
+    const cardId = cardInstance.id; // CardInstance extends CardData
+
+    // Check card-specific activation conditions (before moving to field)
+    const chainableAction = ChainableActionRegistry.get(cardId);
+    if (chainableAction && !chainableAction.canActivate(state)) {
+      return createFailureResult(state, "発動条件を満たしていません");
+    }
+
+    // Step 1: Move card from hand to field (activation)
+    const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", "field", "faceUp");
 
     // Create intermediate state for effect resolution using spread syntax
     const stateAfterActivation: GameState = {
@@ -98,10 +106,7 @@ export class ActivateSpellCommand implements GameCommand {
       zones: zonesAfterActivation,
     };
 
-    const cardId = cardInstance.id; // CardInstance extends CardData
-
     // Check ChainableActionRegistry for card effect
-    const chainableAction = ChainableActionRegistry.get(cardId);
     if (chainableAction && chainableAction.canActivate(stateAfterActivation)) {
       // Get activation and resolution steps
       const activationSteps = chainableAction.createActivationSteps(stateAfterActivation);

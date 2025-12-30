@@ -1,18 +1,20 @@
 /**
- * GracefulCharityAction - Graceful Charity (天使の施し) ChainableAction implementation
+ * OneDayOfPeaceAction - One Day of Peace (一時休戦) ChainableAction implementation
  *
  * Card Information:
- * - Card ID: 79571449
- * - Card Name: Graceful Charity (天使の施し)
+ * - Card ID: 33782437
+ * - Card Name: One Day of Peace (一時休戦)
  * - Card Type: Normal Spell
- * - Effect: Draw 3 cards from deck, then discard 2 cards from hand
+ * - Effect: Both players draw 1 card. All battle and effect damage becomes 0 for the rest of this turn.
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Main Phase, Deck >= 3 cards
+ * - CONDITIONS: Game not over, Main Phase, Deck >= 1 card
  * - ACTIVATION: No activation steps (normal spell has no activation cost)
- * - RESOLUTION: Draw 3 cards + Discard 2 cards + Send spell card to graveyard
+ * - RESOLUTION: Player draws 1 + Opponent draws 1 (internal) + Set damageNegation flag + Send spell to graveyard
  *
- * @module domain/effects/chainable/GracefulCharityAction
+ * Note: Opponent's draw is internal state only (no UI update, as opponent's hand is not displayed)
+ *
+ * @module domain/effects/chainable/OneDayOfPeaceAction
  * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
@@ -21,17 +23,16 @@ import type { GameState } from "../../models/GameState";
 import type { EffectResolutionStep } from "../../models/EffectResolutionStep";
 import { drawCards, sendToGraveyard } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
-import { DiscardCardsCommand } from "../../commands/DiscardCardsCommand";
 
 /**
- * GracefulCharityAction - Graceful Charity ChainableAction
+ * OneDayOfPeaceAction - One Day of Peace ChainableAction
  *
- * Implements ChainableAction interface for Graceful Charity card.
+ * Implements ChainableAction interface for One Day of Peace card.
  *
  * @example
  * ```typescript
  * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(79571449, new GracefulCharityAction());
+ * ChainableActionRegistry.register(33782437, new OneDayOfPeaceAction());
  *
  * // Usage in ActivateSpellCommand
  * const action = ChainableActionRegistry.get(cardId);
@@ -42,7 +43,7 @@ import { DiscardCardsCommand } from "../../commands/DiscardCardsCommand";
  * }
  * ```
  */
-export class GracefulCharityAction implements ChainableAction {
+export class OneDayOfPeaceAction implements ChainableAction {
   /** カードの発動（手札→フィールド） */
   readonly isCardActivation = true;
 
@@ -54,7 +55,7 @@ export class GracefulCharityAction implements ChainableAction {
    *
    * - Game is not over
    * - Current phase is Main Phase 1
-   * - Deck has at least 3 cards
+   * - Deck has at least 1 card (for player to draw)
    *
    * @param state - 現在のゲーム状態
    * @returns 発動可能ならtrue
@@ -70,8 +71,8 @@ export class GracefulCharityAction implements ChainableAction {
       return false;
     }
 
-    // Deck must have at least 3 cards
-    if (state.zones.deck.length < 3) {
+    // Deck must have at least 1 card for player to draw
+    if (state.zones.deck.length < 1) {
       return false;
     }
 
@@ -83,23 +84,23 @@ export class GracefulCharityAction implements ChainableAction {
    *
    * 通常魔法はコストなし、対象なしのため、発動通知のみ。
    *
-   * @param _state - 現在のゲーム状態（未使用）
+   * @param state - 現在のゲーム状態
    * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(_state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): EffectResolutionStep[] {
     return [
       {
-        id: "graceful-charity-activation",
+        id: "one-day-of-peace-activation",
         summary: "カード発動",
-        description: "天使の施しを発動します",
+        description: "一時休戦を発動します",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // No state change, just notification
           return {
             success: true,
             newState: currentState,
-            message: "Graceful Charity activated",
+            message: "One Day of Peace activated",
           };
         },
       },
@@ -109,36 +110,37 @@ export class GracefulCharityAction implements ChainableAction {
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * 1. デッキから3枚ドロー
-   * 2. 手札から2枚選んで破棄
-   * 3. このカードを墓地に送る
+   * 1. プレイヤーがデッキから1枚ドロー
+   * 2. 相手がデッキから1枚ドロー（内部状態のみ、UI非表示）
+   * 3. damageNegationフラグをtrueに設定
+   * 4. このカードを墓地に送る
    *
-   * @param _state - 現在のゲーム状態（未使用、availableCardsは実行時に決定）
+   * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決ステップ配列
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
-      // Step 1: Draw 3 cards
+      // Step 1: Player draws 1 card
       {
-        id: "graceful-charity-draw",
+        id: "one-day-of-peace-draw-player",
         summary: "カードをドロー",
-        description: "デッキから3枚ドローします",
+        description: "デッキから1枚ドローします",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
-          if (currentState.zones.deck.length < 3) {
+          if (currentState.zones.deck.length < 1) {
             return {
               success: false,
               newState: currentState,
-              error: "Cannot draw 3 cards. Not enough cards in deck.",
+              error: "Cannot draw 1 card. Not enough cards in deck.",
             };
           }
 
-          // Draw 3 cards (returns new immutable zones object)
-          const newZones = drawCards(currentState.zones, 3);
+          // Draw 1 card (returns new immutable zones object)
+          const newZones = drawCards(currentState.zones, 1);
 
-          // Create new state with drawn cards
+          // Create new state with drawn card
           const newState: GameState = {
             ...currentState,
             zones: newZones,
@@ -156,50 +158,55 @@ export class GracefulCharityAction implements ChainableAction {
           return {
             success: true,
             newState: finalState,
-            message: "Drew 3 cards",
+            message: "Drew 1 card",
           };
         },
       },
 
-      // Step 2: Discard 2 cards (player selection required)
+      // Step 2: Opponent draws 1 card (internal state only, no UI update)
       {
-        id: "graceful-charity-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
-        notificationLevel: "interactive",
-        // Card selection configuration (Domain Layer)
-        // Application Layer will open CardSelectionModal with this config
-        cardSelectionConfig: {
-          // Empty array means "use current hand" (allows selecting newly drawn cards)
-          availableCards: [],
-          minCards: 2,
-          maxCards: 2,
-          summary: "手札を捨てる",
-          description: "手札から2枚選んで捨ててください",
-          cancelable: false, // Cannot cancel during effect resolution
-        },
-        // Action receives selected card instance IDs from user selection
-        action: (currentState: GameState, selectedInstanceIds?: string[]) => {
-          // Validate selectedInstanceIds is provided
-          if (!selectedInstanceIds || selectedInstanceIds.length !== 2) {
-            return {
-              success: false,
-              newState: currentState,
-              error: "Must select exactly 2 cards to discard",
-            };
-          }
+        id: "one-day-of-peace-draw-opponent",
+        summary: "相手がドロー",
+        description: "相手がデッキから1枚ドローします（内部状態のみ）",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // In 1-turn kill solitaire, opponent's hand is not tracked in UI
+          // This step is for completeness and future compatibility
+          // No actual state change needed for opponent's hand
 
-          // Execute discard command
-          const command = new DiscardCardsCommand(selectedInstanceIds);
-          return command.execute(currentState);
+          return {
+            success: true,
+            newState: currentState,
+            message: "Opponent drew 1 card (internal)",
+          };
         },
       },
 
-      // Step 3: Send spell card to graveyard
+      // Step 3: Set damageNegation flag to true
       {
-        id: "graceful-charity-graveyard",
+        id: "one-day-of-peace-damage-negation",
+        summary: "ダメージ無効化",
+        description: "このターン、全てのダメージは0になります",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          const newState: GameState = {
+            ...currentState,
+            damageNegation: true,
+          };
+
+          return {
+            success: true,
+            newState,
+            message: "Damage negation activated for this turn",
+          };
+        },
+      },
+
+      // Step 4: Send spell card to graveyard
+      {
+        id: "one-day-of-peace-graveyard",
         summary: "墓地へ送る",
-        description: "天使の施しを墓地に送ります",
+        description: "一時休戦を墓地に送ります",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
@@ -213,7 +220,7 @@ export class GracefulCharityAction implements ChainableAction {
           return {
             success: true,
             newState,
-            message: "Sent Graceful Charity to graveyard",
+            message: "Sent One Day of Peace to graveyard",
           };
         },
       },

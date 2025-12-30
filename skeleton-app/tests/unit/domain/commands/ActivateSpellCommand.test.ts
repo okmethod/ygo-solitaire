@@ -211,15 +211,19 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should check victory conditions after activation", () => {
-      // Create state with 4 Exodia pieces in hand + 1 on field (about to be sent to graveyard)
+      // Use an unregistered test spell card (no ChainableAction, will go straight to graveyard)
+      const testSpellId = "test-spell-for-victory";
+
+      // Create state with Exodia pieces in hand + 1 test spell card (no effect)
       const exodiaState = createMockGameState({
         phase: "Main1",
         zones: {
           deck: [],
           hand: [
             {
-              instanceId: spellCardId,
-              id: 55144522,
+              instanceId: testSpellId,
+              id: 1001, // Test spell with no ChainableAction
+              jaName: "Test Spell",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
@@ -227,6 +231,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "exodia-head",
               id: 33396948,
+              jaName: "封印されしエクゾディア",
               type: "monster" as const,
               frameType: "effect" as const,
               location: "hand" as const,
@@ -234,6 +239,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "exodia-right-arm",
               id: 7902349,
+              jaName: "封印されし者の右腕",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
@@ -241,6 +247,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "exodia-left-arm",
               id: 70903634,
+              jaName: "封印されし者の左腕",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
@@ -248,6 +255,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "exodia-right-leg",
               id: 8124921,
+              jaName: "封印されし者の右足",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
@@ -255,6 +263,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "exodia-left-leg",
               id: 44519536,
+              jaName: "封印されし者の左足",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
@@ -266,7 +275,7 @@ describe("ActivateSpellCommand", () => {
         },
       });
 
-      const command = new ActivateSpellCommand(spellCardId);
+      const command = new ActivateSpellCommand(testSpellId);
 
       const result = command.execute(exodiaState);
 

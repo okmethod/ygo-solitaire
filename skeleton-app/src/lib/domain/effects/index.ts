@@ -36,6 +36,12 @@ import { ChickenGameActivation } from "$lib/domain/effects/chainable/ChickenGame
 // ChickenGameIgnitionEffect is not imported here because it requires dynamic instantiation
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
+import { UpstartGoblinAction } from "$lib/domain/effects/chainable/UpstartGoblinAction";
+import { OneDayOfPeaceAction } from "$lib/domain/effects/chainable/OneDayOfPeaceAction";
+import { MagicalMalletAction } from "$lib/domain/effects/chainable/MagicalMalletAction";
+import { CardDestructionAction } from "$lib/domain/effects/chainable/CardDestructionAction";
+import { DarkFactoryAction } from "$lib/domain/effects/chainable/DarkFactoryAction";
+import { TerraformingAction } from "$lib/domain/effects/chainable/TerraformingAction";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
@@ -52,6 +58,12 @@ export { PotOfGreedAction } from "$lib/domain/effects/chainable/PotOfGreedAction
 export { GracefulCharityAction } from "$lib/domain/effects/chainable/GracefulCharityAction";
 export { ChickenGameActivation } from "$lib/domain/effects/chainable/ChickenGameActivation";
 export { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
+export { UpstartGoblinAction } from "$lib/domain/effects/chainable/UpstartGoblinAction";
+export { OneDayOfPeaceAction } from "$lib/domain/effects/chainable/OneDayOfPeaceAction";
+export { MagicalMalletAction } from "$lib/domain/effects/chainable/MagicalMalletAction";
+export { CardDestructionAction } from "$lib/domain/effects/chainable/CardDestructionAction";
+export { DarkFactoryAction } from "$lib/domain/effects/chainable/DarkFactoryAction";
+export { TerraformingAction } from "$lib/domain/effects/chainable/TerraformingAction";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
@@ -73,6 +85,12 @@ export { ChickenGameContinuousRule } from "$lib/domain/effects/additional/Chicke
  * - 55144522: Pot of Greed (強欲な壺)
  * - 79571449: Graceful Charity (天使の施し)
  * - 67616300: Chicken Game (チキンレース) - Card Activation
+ * - 70368879: Upstart Goblin (成金ゴブリン)
+ * - 33782437: One Day of Peace (一時休戦)
+ * - 85852291: Magical Mallet (打ち出の小槌)
+ * - 74519184: Card Destruction (手札断札) - Quick-Play
+ * - 90928333: Dark Factory (闇の量産工場)
+ * - 73628505: Terraforming (テラ・フォーミング)
  *
  * Future Expansion:
  * When adding new cards, import the action class above and register it here:
@@ -91,6 +109,24 @@ function initializeChainableActionRegistry(): void {
 
   // Card ID 67616300: Chicken Game (チキンレース) - Card Activation
   ChainableActionRegistry.register(67616300, new ChickenGameActivation());
+
+  // Card ID 70368879: Upstart Goblin (成金ゴブリン)
+  ChainableActionRegistry.register(70368879, new UpstartGoblinAction());
+
+  // Card ID 33782437: One Day of Peace (一時休戦)
+  ChainableActionRegistry.register(33782437, new OneDayOfPeaceAction());
+
+  // Card ID 85852291: Magical Mallet (打ち出の小槌)
+  ChainableActionRegistry.register(85852291, new MagicalMalletAction());
+
+  // Card ID 74519184: Card Destruction (手札断札)
+  ChainableActionRegistry.register(74519184, new CardDestructionAction());
+
+  // Card ID 90928333: Dark Factory (闇の量産工場)
+  ChainableActionRegistry.register(90928333, new DarkFactoryAction());
+
+  // Card ID 73628505: Terraforming (テラ・フォーミング)
+  ChainableActionRegistry.register(73628505, new TerraformingAction());
 
   // Note: ChickenGameIgnitionEffect is not registered here because it requires
   // a cardInstanceId parameter. It will be instantiated dynamically when needed.

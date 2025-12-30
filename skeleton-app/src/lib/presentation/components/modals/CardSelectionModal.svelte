@@ -2,8 +2,11 @@
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
-  import { handCards } from "$lib/application/stores/cardDisplayStore";
   import type { CardDisplayData } from "$lib/presentation/types/card";
+  import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+
+  // Card repository for fetching card display data
+  const cardRepository = new YGOProDeckCardRepository();
 
   // cardSelectionStoreの状態を購読
   const isActive = $derived(cardSelectionStore.isActive);
@@ -11,6 +14,26 @@
   const selectedCount = $derived(cardSelectionStore.selectedCount);
   const isValidSelection = $derived(cardSelectionStore.isValidSelection);
   const cancelable = $derived(config?.cancelable ?? true); // Default: true (backward compatible)
+
+  // availableCardsのCardDisplayDataをフェッチ
+  let availableCardDisplays = $state<CardDisplayData[]>([]);
+
+  $effect(() => {
+    if (config?.availableCards && config.availableCards.length > 0) {
+      const cardIds = config.availableCards.map((c) => c.id);
+      cardRepository
+        .getCardsByIds(cardIds)
+        .then((cards) => {
+          availableCardDisplays = cards;
+        })
+        .catch((err) => {
+          console.error("[CardSelectionModal] Failed to fetch card display data:", err);
+          availableCardDisplays = [];
+        });
+    } else {
+      availableCardDisplays = [];
+    }
+  });
 
   // Modal の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
@@ -50,12 +73,12 @@
 
   // instanceIdからCardDisplayDataを取得
   function getCardDisplay(instanceId: string): CardDisplayData | undefined {
-    return $handCards.find((card: CardDisplayData) => {
-      // handCardsはCardDisplayData[]なので、instanceIdと照合するため
-      // config.availableCardsからinstanceIdに対応するcard.idを取得
-      const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);
-      return cardInstance && card.id === cardInstance.id; // CardInstance extends CardData
-    });
+    // availableCardsからinstanceIdに対応するCardInstanceを取得
+    const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);
+    if (!cardInstance) return undefined;
+
+    // availableCardDisplaysから対応するCardDisplayDataを取得
+    return availableCardDisplays.find((card) => card.id === cardInstance.id);
   }
 </script>
 

@@ -21,32 +21,42 @@ import type { CardData, CardType } from "../models/Card";
  * Only includes cards used in the game (not a complete database).
  */
 const CARD_DATA_REGISTRY: Record<number, CardData> = {
-  // Exodia pieces (monster)
-  33396948: { id: 33396948, type: "monster", frameType: "effect" }, // Exodia the Forbidden One
-  7902349: { id: 7902349, type: "monster", frameType: "normal" }, // Right Arm of the Forbidden One
-  70903634: { id: 70903634, type: "monster", frameType: "normal" }, // Left Arm of the Forbidden One
-  44519536: { id: 44519536, type: "monster", frameType: "normal" }, // Left Leg of the Forbidden One
-  8124921: { id: 8124921, type: "monster", frameType: "normal" }, // Right Leg of the Forbidden One
+  // モンスター
+  33396948: { id: 33396948, jaName: "封印されしエクゾディア", type: "monster", frameType: "effect" },
+  7902349: { id: 7902349, jaName: "封印されし者の右腕", type: "monster", frameType: "normal" },
+  70903634: { id: 70903634, jaName: "封印されし者の左腕", type: "monster", frameType: "normal" },
+  44519536: { id: 44519536, jaName: "封印されし者の左足", type: "monster", frameType: "normal" },
+  8124921: { id: 8124921, jaName: "封印されし者の右足", type: "monster", frameType: "normal" },
 
-  // Spell cards
-  55144522: { id: 55144522, type: "spell", frameType: "spell", spellType: "normal" }, // Pot of Greed
-  79571449: { id: 79571449, type: "spell", frameType: "spell", spellType: "normal" }, // Graceful Charity
-  67616300: { id: 67616300, type: "spell", frameType: "spell", spellType: "field" }, // Chicken Game
+  // 通常魔法
+  55144522: { id: 55144522, jaName: "強欲な壺", type: "spell", frameType: "spell", spellType: "normal" },
+  79571449: { id: 79571449, jaName: "天使の施し", type: "spell", frameType: "spell", spellType: "normal" },
+  70368879: { id: 70368879, jaName: "成金ゴブリン", type: "spell", frameType: "spell", spellType: "normal" },
+  33782437: { id: 33782437, jaName: "一時休戦", type: "spell", frameType: "spell", spellType: "normal" },
+  85852291: { id: 85852291, jaName: "打ち出の小槌", type: "spell", frameType: "spell", spellType: "normal" },
+  90928333: { id: 90928333, jaName: "闇の量産工場", type: "spell", frameType: "spell", spellType: "normal" },
+  73628505: { id: 73628505, jaName: "テラ・フォーミング", type: "spell", frameType: "spell", spellType: "normal" },
 
-  // Trap cards
-  83968380: { id: 83968380, type: "trap", frameType: "trap", trapType: "normal" }, // Jar of Greed
+  // 速攻魔法
+  74519184: { id: 74519184, jaName: "手札断札", type: "spell", frameType: "spell", spellType: "quick-play" },
 
-  // Test card IDs (for unit tests)
-  1001: { id: 1001, type: "spell", frameType: "spell", spellType: "normal" },
-  1002: { id: 1002, type: "spell", frameType: "spell", spellType: "normal" },
-  1003: { id: 1003, type: "spell", frameType: "spell", spellType: "normal" },
-  1004: { id: 1004, type: "spell", frameType: "spell", spellType: "normal" },
-  1005: { id: 1005, type: "spell", frameType: "spell", spellType: "normal" },
-  11111111: { id: 11111111, type: "monster", frameType: "normal" },
-  12345678: { id: 12345678, type: "monster", frameType: "normal" },
-  22222222: { id: 22222222, type: "monster", frameType: "normal" },
-  33333333: { id: 33333333, type: "monster", frameType: "normal" },
-  87654321: { id: 87654321, type: "monster", frameType: "normal" },
+  // フィールド魔法
+  67616300: { id: 67616300, jaName: "チキンレース", type: "spell", frameType: "spell", spellType: "field" },
+
+  // トラップカード
+  83968380: { id: 83968380, jaName: "強欲な瓶", type: "trap", frameType: "trap", trapType: "normal" },
+
+  // テスト用
+  1001: { id: 1001, jaName: "Test Spell 1", type: "spell", frameType: "spell", spellType: "normal" },
+  1002: { id: 1002, jaName: "Test Spell 2", type: "spell", frameType: "spell", spellType: "normal" },
+  1003: { id: 1003, jaName: "Test Spell 3", type: "spell", frameType: "spell", spellType: "normal" },
+  1004: { id: 1004, jaName: "Test Spell 4", type: "spell", frameType: "spell", spellType: "normal" },
+  1005: { id: 1005, jaName: "Test Spell 5", type: "spell", frameType: "spell", spellType: "normal" },
+  11111111: { id: 11111111, jaName: "Test Monster 1", type: "monster", frameType: "normal" },
+  12345678: { id: 12345678, jaName: "Test Monster 2", type: "monster", frameType: "normal" },
+  22222222: { id: 22222222, jaName: "Test Monster 3", type: "monster", frameType: "normal" },
+  33333333: { id: 33333333, jaName: "Test Monster 4", type: "monster", frameType: "normal" },
+  87654321: { id: 87654321, jaName: "Test Monster 5", type: "monster", frameType: "normal" },
 };
 
 /**
@@ -85,4 +95,19 @@ export function getCardType(cardId: number): CardType {
  */
 export function hasCardData(cardId: number): boolean {
   return CARD_DATA_REGISTRY[cardId] !== undefined;
+}
+
+/**
+ * Get card name with Yu-Gi-Oh brackets
+ *
+ * @param cardId - Card ID
+ * @returns Card name in format: 《カード名》
+ * @throws Error if card not found in registry
+ *
+ * @example
+ * getCardNameWithBrackets(67616300) // "《チキンレース》"
+ */
+export function getCardNameWithBrackets(cardId: number): string {
+  const card = getCardData(cardId);
+  return `《${card.jaName}》`;
 }

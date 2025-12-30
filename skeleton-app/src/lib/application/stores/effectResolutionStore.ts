@@ -1,7 +1,8 @@
-import { writable } from "svelte/store";
+import { writable, get as getStoreValue } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
 import type { CardInstance } from "$lib/domain/models/Card";
+import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 /**
  * Card selection handler callback type
@@ -142,7 +143,13 @@ function createEffectResolutionStore() {
             // Auto-execute next step regardless of level (all levels are handled by confirmCurrentStep)
             effectResolutionStore.confirmCurrentStep();
           } else {
-            // All steps completed
+            // All steps completed - check victory conditions
+            const finalState = getStoreValue(gameStateStore);
+            const victoryResult = checkVictoryConditions(finalState);
+            if (victoryResult.isGameOver) {
+              gameStateStore.set({ ...finalState, result: victoryResult });
+            }
+
             update((s) => ({
               ...s,
               isActive: false,
@@ -183,7 +190,13 @@ function createEffectResolutionStore() {
             // Auto-execute next step regardless of level (all levels are handled by confirmCurrentStep)
             effectResolutionStore.confirmCurrentStep();
           } else {
-            // All steps completed
+            // All steps completed - check victory conditions
+            const finalState = getStoreValue(gameStateStore);
+            const victoryResult = checkVictoryConditions(finalState);
+            if (victoryResult.isGameOver) {
+              gameStateStore.set({ ...finalState, result: victoryResult });
+            }
+
             update((s) => ({
               ...s,
               isActive: false,
@@ -207,11 +220,15 @@ function createEffectResolutionStore() {
 
           // CardSelectionModalを開いてユーザー入力を待つ
           return new Promise<void>((resolve) => {
-            // IMPORTANT: Use currentGameState.zones.hand instead of original config's availableCards
-            // This ensures we're selecting from the CURRENT hand after any previous effects (e.g., drawing cards)
+            // Use availableCards from config, but if empty, use current hand
+            // This allows effects to select from newly drawn cards (e.g., Graceful Charity)
+            const config = state.currentStep!.cardSelectionConfig!;
+            const availableCards =
+              config.availableCards.length > 0 ? config.availableCards : currentGameState.zones.hand;
+
             state.cardSelectionHandler!({
-              ...state.currentStep!.cardSelectionConfig!,
-              availableCards: currentGameState.zones.hand,
+              ...config,
+              availableCards,
               onConfirm: (selectedInstanceIds: string[]) => {
                 // ユーザーがカードを選択したら、actionを実行（同期化）
                 const result = state.currentStep!.action(currentGameState, selectedInstanceIds);

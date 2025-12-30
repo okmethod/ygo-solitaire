@@ -1,18 +1,18 @@
 /**
- * GracefulCharityAction - Graceful Charity (天使の施し) ChainableAction implementation
+ * UpstartGoblinAction - Upstart Goblin (成金ゴブリン) ChainableAction implementation
  *
  * Card Information:
- * - Card ID: 79571449
- * - Card Name: Graceful Charity (天使の施し)
+ * - Card ID: 70368879
+ * - Card Name: Upstart Goblin (成金ゴブリン)
  * - Card Type: Normal Spell
- * - Effect: Draw 3 cards from deck, then discard 2 cards from hand
+ * - Effect: Draw 1 card from your deck. Your opponent gains 1000 LP.
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Main Phase, Deck >= 3 cards
+ * - CONDITIONS: Game not over, Main Phase, Deck >= 1 card
  * - ACTIVATION: No activation steps (normal spell has no activation cost)
- * - RESOLUTION: Draw 3 cards + Discard 2 cards + Send spell card to graveyard
+ * - RESOLUTION: Draw 1 card + Opponent gains 1000 LP + Send spell card to graveyard
  *
- * @module domain/effects/chainable/GracefulCharityAction
+ * @module domain/effects/chainable/UpstartGoblinAction
  * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
@@ -21,17 +21,16 @@ import type { GameState } from "../../models/GameState";
 import type { EffectResolutionStep } from "../../models/EffectResolutionStep";
 import { drawCards, sendToGraveyard } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
-import { DiscardCardsCommand } from "../../commands/DiscardCardsCommand";
 
 /**
- * GracefulCharityAction - Graceful Charity ChainableAction
+ * UpstartGoblinAction - Upstart Goblin ChainableAction
  *
- * Implements ChainableAction interface for Graceful Charity card.
+ * Implements ChainableAction interface for Upstart Goblin card.
  *
  * @example
  * ```typescript
  * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(79571449, new GracefulCharityAction());
+ * ChainableActionRegistry.register(70368879, new UpstartGoblinAction());
  *
  * // Usage in ActivateSpellCommand
  * const action = ChainableActionRegistry.get(cardId);
@@ -42,7 +41,7 @@ import { DiscardCardsCommand } from "../../commands/DiscardCardsCommand";
  * }
  * ```
  */
-export class GracefulCharityAction implements ChainableAction {
+export class UpstartGoblinAction implements ChainableAction {
   /** カードの発動（手札→フィールド） */
   readonly isCardActivation = true;
 
@@ -54,7 +53,7 @@ export class GracefulCharityAction implements ChainableAction {
    *
    * - Game is not over
    * - Current phase is Main Phase 1
-   * - Deck has at least 3 cards
+   * - Deck has at least 1 card
    *
    * @param state - 現在のゲーム状態
    * @returns 発動可能ならtrue
@@ -70,8 +69,8 @@ export class GracefulCharityAction implements ChainableAction {
       return false;
     }
 
-    // Deck must have at least 3 cards
-    if (state.zones.deck.length < 3) {
+    // Deck must have at least 1 card
+    if (state.zones.deck.length < 1) {
       return false;
     }
 
@@ -83,23 +82,23 @@ export class GracefulCharityAction implements ChainableAction {
    *
    * 通常魔法はコストなし、対象なしのため、発動通知のみ。
    *
-   * @param _state - 現在のゲーム状態（未使用）
+   * @param state - 現在のゲーム状態
    * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(_state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): EffectResolutionStep[] {
     return [
       {
-        id: "graceful-charity-activation",
+        id: "upstart-goblin-activation",
         summary: "カード発動",
-        description: "天使の施しを発動します",
+        description: "成金ゴブリンを発動します",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // No state change, just notification
           return {
             success: true,
             newState: currentState,
-            message: "Graceful Charity activated",
+            message: "Upstart Goblin activated",
           };
         },
       },
@@ -109,36 +108,36 @@ export class GracefulCharityAction implements ChainableAction {
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * 1. デッキから3枚ドロー
-   * 2. 手札から2枚選んで破棄
+   * 1. デッキから1枚ドロー
+   * 2. 相手のLPを1000増加
    * 3. このカードを墓地に送る
    *
-   * @param _state - 現在のゲーム状態（未使用、availableCardsは実行時に決定）
+   * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決ステップ配列
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
-      // Step 1: Draw 3 cards
+      // Step 1: Draw 1 card
       {
-        id: "graceful-charity-draw",
+        id: "upstart-goblin-draw",
         summary: "カードをドロー",
-        description: "デッキから3枚ドローします",
+        description: "デッキから1枚ドローします",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
-          if (currentState.zones.deck.length < 3) {
+          if (currentState.zones.deck.length < 1) {
             return {
               success: false,
               newState: currentState,
-              error: "Cannot draw 3 cards. Not enough cards in deck.",
+              error: "Cannot draw 1 card. Not enough cards in deck.",
             };
           }
 
-          // Draw 3 cards (returns new immutable zones object)
-          const newZones = drawCards(currentState.zones, 3);
+          // Draw 1 card (returns new immutable zones object)
+          const newZones = drawCards(currentState.zones, 1);
 
-          // Create new state with drawn cards
+          // Create new state with drawn card
           const newState: GameState = {
             ...currentState,
             zones: newZones,
@@ -156,50 +155,39 @@ export class GracefulCharityAction implements ChainableAction {
           return {
             success: true,
             newState: finalState,
-            message: "Drew 3 cards",
+            message: "Drew 1 card",
           };
         },
       },
 
-      // Step 2: Discard 2 cards (player selection required)
+      // Step 2: Opponent gains 1000 LP
       {
-        id: "graceful-charity-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
-        notificationLevel: "interactive",
-        // Card selection configuration (Domain Layer)
-        // Application Layer will open CardSelectionModal with this config
-        cardSelectionConfig: {
-          // Empty array means "use current hand" (allows selecting newly drawn cards)
-          availableCards: [],
-          minCards: 2,
-          maxCards: 2,
-          summary: "手札を捨てる",
-          description: "手札から2枚選んで捨ててください",
-          cancelable: false, // Cannot cancel during effect resolution
-        },
-        // Action receives selected card instance IDs from user selection
-        action: (currentState: GameState, selectedInstanceIds?: string[]) => {
-          // Validate selectedInstanceIds is provided
-          if (!selectedInstanceIds || selectedInstanceIds.length !== 2) {
-            return {
-              success: false,
-              newState: currentState,
-              error: "Must select exactly 2 cards to discard",
-            };
-          }
+        id: "upstart-goblin-lp-gain",
+        summary: "相手のLPを増加",
+        description: "相手のLPが1000増加します",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          const newState: GameState = {
+            ...currentState,
+            lp: {
+              ...currentState.lp,
+              opponent: currentState.lp.opponent + 1000,
+            },
+          };
 
-          // Execute discard command
-          const command = new DiscardCardsCommand(selectedInstanceIds);
-          return command.execute(currentState);
+          return {
+            success: true,
+            newState,
+            message: "Opponent gained 1000 LP",
+          };
         },
       },
 
       // Step 3: Send spell card to graveyard
       {
-        id: "graceful-charity-graveyard",
+        id: "upstart-goblin-graveyard",
         summary: "墓地へ送る",
-        description: "天使の施しを墓地に送ります",
+        description: "成金ゴブリンを墓地に送ります",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
@@ -213,7 +201,7 @@ export class GracefulCharityAction implements ChainableAction {
           return {
             success: true,
             newState,
-            message: "Sent Graceful Charity to graveyard",
+            message: "Sent Upstart Goblin to graveyard",
           };
         },
       },

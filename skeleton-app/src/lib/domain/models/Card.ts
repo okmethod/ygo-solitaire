@@ -26,13 +26,15 @@ export type TrapSubType = "normal" | "continuous" | "counter";
  * Domain Layer用の最小限カードデータ
  *
  * ゲームロジック実装に必要な最小限のプロパティのみを保持。
- * 表示用データ（name, description, imagesなど）は含まない。
+ * カード名は通知メッセージ用に保持（例: 「《チキンレース》を手札に加えます」）。
+ * その他の表示用データ（description, imagesなど）は含まない。
  *
  * 用途: GameState, Rule実装などのDomain Layer内部処理
  * 利点: YGOPRODeck APIに依存せず、ユニットテストがネットワーク不要
  */
 export interface CardData {
   readonly id: number; // カードを一意に識別するID（YGOPRODeck API ID）
+  readonly jaName: string; // カード名（日本語、通知用）※YGOProDeck APIの name とは異なる
   readonly type: CardType; // カードタイプ
   readonly frameType: FrameSubType; // カードフレームタイプ
   readonly spellType?: SpellSubType; // 魔法カード種別（spellの場合のみ）

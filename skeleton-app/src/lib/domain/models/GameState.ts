@@ -59,6 +59,11 @@ export interface GameState {
    * Format: `${cardInstanceId}:${effectId}`
    */
   readonly activatedIgnitionEffectsThisTurn: ReadonlySet<string>;
+  /**
+   * ダメージ無効化フラグ（一時休戦の効果用）
+   * trueの場合、このターンのダメージは全て無効化される
+   */
+  readonly damageNegation: boolean;
 }
 
 /**
@@ -94,6 +99,7 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
       isGameOver: false,
     },
     activatedIgnitionEffectsThisTurn: new Set<string>(),
+    damageNegation: false,
   };
 }
 

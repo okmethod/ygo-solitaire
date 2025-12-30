@@ -8,6 +8,7 @@
  */
 
 import type { CardInstance } from "./Card";
+import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
 /**
  * Collection of all game zones
@@ -165,4 +166,20 @@ export function isDeckEmpty(zones: Zones): boolean {
  */
 export function isHandFull(zones: Zones, maxHandSize: number = 6): boolean {
   return zones.hand.length >= maxHandSize;
+}
+
+/**
+ * Helper to shuffle the deck
+ *
+ * @param zones - Current zones state
+ * @returns Updated zones object with shuffled deck
+ *
+ * @example
+ * const newZones = shuffleDeck(zones);
+ */
+export function shuffleDeck(zones: Zones): Zones {
+  return {
+    ...zones,
+    deck: shuffleArray(zones.deck),
+  };
 }

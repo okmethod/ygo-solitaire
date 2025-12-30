@@ -4,6 +4,8 @@
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
+  import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+  import { gameStateStore } from "$lib/application/stores/gameStateStore";
 
   interface HandZoneProps {
     cards: Array<{ card: CardDisplayData | null; instanceId: string }>;
@@ -15,6 +17,17 @@
   }
 
   let { cards, handCardCount, currentPhase, canActivateSpells, isGameOver, onCardClick }: HandZoneProps = $props();
+
+  // カードごとの発動可能性をチェック
+  function isCardActivatable(instanceId: string): boolean {
+    if (isGameOver) return false;
+    if (currentPhase !== "Main1") return false;
+    if (!canActivateSpells) return false;
+
+    // ActivateSpellCommand.canExecute()でカード固有の発動条件をチェック
+    const command = new ActivateSpellCommand(instanceId);
+    return command.canExecute($gameStateStore);
+  }
 
   // 選択中のカードのinstanceId
   let selectedInstanceId = $state<string | null>(null);
@@ -61,7 +74,7 @@
         {card}
         {instanceId}
         isSelected={selectedInstanceId === instanceId}
-        isActivatable={currentPhase === "Main1" && canActivateSpells && !isGameOver}
+        isActivatable={isCardActivatable(instanceId)}
         onSelect={handleSelect}
         actions={handCardActions}
         onCancel={handleCancel}
