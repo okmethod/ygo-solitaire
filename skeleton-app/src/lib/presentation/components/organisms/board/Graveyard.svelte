@@ -73,6 +73,9 @@
       style="filter: grayscale(0.8) brightness(0.7) contrast(1.2);"
     >
       <img src={cardBackImage} alt="墓地" class="w-full h-full object-cover opacity-30 rounded-sm" />
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="text-xs text-surface-600-300-token text-center select-none drop-shadow-lg"> 墓地 </span>
+      </div>
     </div>
     <CountBadge count={cards.length} />
   {/if}

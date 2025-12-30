@@ -54,28 +54,24 @@
   ];
 </script>
 
-<div class="card px-4 space-y-4">
-  <h2 class="text-xl font-bold">Hand ({handCardCount} cards)</h2>
-
-  <div class="grid {getHandGridColumns(handCardCount)} gap-2 mb-16">
-    {#each cards as { card, instanceId } (instanceId)}
-      {#if card}
-        <ActivatableCard
-          {card}
-          {instanceId}
-          isSelected={selectedInstanceId === instanceId}
-          isActivatable={currentPhase === "Main1" && canActivateSpells && !isGameOver}
-          onSelect={handleSelect}
-          actions={handCardActions}
-          onCancel={handleCancel}
-          size="medium"
-        />
-      {:else}
-        <!-- ローディング中のplaceholder -->
-        <Card placeholder={true} placeholderText="..." size="medium" />
-      {/if}
+<div class="grid {getHandGridColumns(handCardCount)} gap-2 mb-16">
+  {#each cards as { card, instanceId } (instanceId)}
+    {#if card}
+      <ActivatableCard
+        {card}
+        {instanceId}
+        isSelected={selectedInstanceId === instanceId}
+        isActivatable={currentPhase === "Main1" && canActivateSpells && !isGameOver}
+        onSelect={handleSelect}
+        actions={handCardActions}
+        onCancel={handleCancel}
+        size="medium"
+      />
     {:else}
-      <div class="text-center text-sm opacity-50">No cards in hand</div>
-    {/each}
-  </div>
+      <!-- ローディング中のplaceholder -->
+      <Card placeholder={true} placeholderText="..." size="medium" />
+    {/if}
+  {:else}
+    <div class="text-center text-sm opacity-50">No cards in hand</div>
+  {/each}
 </div>

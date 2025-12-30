@@ -30,7 +30,7 @@ export function checkVictoryConditions(state: GameState): GameResult {
       isGameOver: true,
       winner: "player",
       reason: "exodia",
-      message: `エクゾディア揃った！5つのパーツが手札に揃いました。勝利です！`,
+      message: `5つのエクゾディアパーツが手札に揃いました。勝利です！`,
     };
   }
 

@@ -25,16 +25,16 @@
 
   const { data } = $props<{ data: PageData }>();
 
-  // 自動フェーズ進行 - Draw → Standby → Main1 まで自動進行
+  // 自動フェイズ進行 - Draw → Standby → Main1 まで自動進行
   async function autoAdvanceToMainPhase() {
-    // Draw → Standby → Main1 まで2回のフェーズ進行
+    // フェイズ進行（2回）
     for (let i = 0; i < 2; i++) {
       // 300ms待機
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       const result = gameFacade.advancePhase();
       if (result.success) {
-        console.log(`[Simulator] Phase advanced: ${result.message}`);
+        console.log(`[Simulator] ${result.message}`);
         if (result.message) {
           showSuccessToast(result.message);
         }
@@ -45,6 +45,38 @@
     }
   }
 
+  // ゲーム開始時、Main1 まで自動進行
+  let hasAutoAdvanced = $state(false);
+  $effect(() => {
+    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$isGameOver) {
+      autoAdvanceToMainPhase();
+      hasAutoAdvanced = true;
+    }
+  });
+
+  // ゲーム終了したらモーダルを開く
+  let isGameOverModalOpen = $state(false);
+  $effect(() => {
+    if ($isGameOver) isGameOverModalOpen = true;
+  });
+
+  // 現在のステータス表示文字列を取得
+  function getNowStatusString(): string {
+    if ($isGameOver) return "ゲーム終了";
+
+    function _getPhaseDisplay(phase: string): string {
+      const phaseMap: Record<string, string> = {
+        Draw: "ドローフェイズ",
+        Standby: "スタンバイフェイズ",
+        Main1: "メインフェイズ1",
+        End: "エンドフェイズ",
+      };
+      return phaseMap[phase] || phase;
+    }
+
+    return _getPhaseDisplay($currentPhase);
+  }
+
   // 手札のカードクリックで効果発動
   function handleHandCardClick(card: CardDisplayData, instanceId: string) {
     // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
@@ -52,7 +84,7 @@
 
     // トーストメッセージ表示
     if (result.success) {
-      showSuccessToast(result.message || `${card.name}を発動しました`);
+      showSuccessToast(`${card.name} を発動しました`);
     } else {
       showErrorToast(result.error || "発動に失敗しました");
     }
@@ -77,17 +109,6 @@
     } else {
       showErrorToast(result.error || "効果発動に失敗しました");
     }
-  }
-
-  // Map phase to English display (avoid Japanese encoding issues)
-  function getPhaseDisplay(phase: string): string {
-    const phaseMap: Record<string, string> = {
-      Draw: "Draw Phase",
-      Standby: "Standby Phase",
-      Main1: "Main Phase 1",
-      End: "End Phase",
-    };
-    return phaseMap[phase] || phase;
   }
 
   // 効果解決ストアの状態を購読
@@ -126,27 +147,6 @@
     });
     return zone;
   });
-
-  // ゲーム開始時に自動的にMain Phaseまでフェーズ進行
-  let hasAutoAdvanced = $state(false);
-
-  $effect(() => {
-    // ゲーム初期化完了後（ターン1、Drawフェーズ）かつゲームオーバーでない場合に一度だけ自動進行
-    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$isGameOver) {
-      autoAdvanceToMainPhase();
-      hasAutoAdvanced = true;
-    }
-  });
-
-  // ゲーム終了モーダルの開閉状態
-  let isGameOverModalOpen = $state(false);
-
-  $effect(() => {
-    // ゲームオーバーになったらモーダルを開く
-    if ($isGameOver) {
-      isGameOverModalOpen = true;
-    }
-  });
 </script>
 
 <div class="container mx-auto p-4">
@@ -162,14 +162,14 @@
       <div class="card p-4 space-y-4">
         <div class="space-y-2">
           <div class="flex justify-start space-x-4">
-            <span>Phase:</span>
-            <span class="font-bold" data-testid="current-phase">{getPhaseDisplay($currentPhase)}</span>
+            <span>Now:</span>
+            <span class="font-bold" data-testid="current-phase">{getNowStatusString()}</span>
           </div>
 
           <div class="flex justify-between">
-            <span>Player LP:</span>
+            <span>自分 LP:</span>
             <span class="font-bold text-success-500">{$playerLP.toLocaleString()}</span>
-            <span>Opponent LP:</span>
+            <span>相手 LP:</span>
             <span class="font-bold text-error-500">{$opponentLP.toLocaleString()}</span>
           </div>
         </div>
@@ -188,14 +188,17 @@
     />
 
     <!-- Hand Zone -->
-    <Hands
-      cards={handCardsWithInstanceId}
-      handCardCount={$handCardCount}
-      currentPhase={$currentPhase}
-      canActivateSpells={$canActivateSpells}
-      isGameOver={$isGameOver}
-      onCardClick={handleHandCardClick}
-    />
+    <div class="card px-4 space-y-4">
+      <h2 class="text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
+      <Hands
+        cards={handCardsWithInstanceId}
+        handCardCount={$handCardCount}
+        currentPhase={$currentPhase}
+        canActivateSpells={$canActivateSpells}
+        isGameOver={$isGameOver}
+        onCardClick={handleHandCardClick}
+      />
+    </div>
 
     <!-- Debug Info -->
     <details class="card p-4">
