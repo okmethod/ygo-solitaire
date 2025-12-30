@@ -37,8 +37,8 @@ import { ChickenGameActivation } from "$lib/domain/effects/chainable/ChickenGame
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
 import { UpstartGoblinAction } from "$lib/domain/effects/chainable/UpstartGoblinAction";
-import { CeasefireVariantAction } from "$lib/domain/effects/chainable/CeasefireVariantAction";
-import { ReloadAction } from "$lib/domain/effects/chainable/ReloadAction";
+import { OneDayOfPeaceAction } from "$lib/domain/effects/chainable/OneDayOfPeaceAction";
+import { MagicalMalletAction } from "$lib/domain/effects/chainable/MagicalMalletAction";
 import { CardDestructionAction } from "$lib/domain/effects/chainable/CardDestructionAction";
 import { DarkFactoryAction } from "$lib/domain/effects/chainable/DarkFactoryAction";
 import { TerraformingAction } from "$lib/domain/effects/chainable/TerraformingAction";
@@ -59,8 +59,8 @@ export { GracefulCharityAction } from "$lib/domain/effects/chainable/GracefulCha
 export { ChickenGameActivation } from "$lib/domain/effects/chainable/ChickenGameActivation";
 export { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
 export { UpstartGoblinAction } from "$lib/domain/effects/chainable/UpstartGoblinAction";
-export { CeasefireVariantAction } from "$lib/domain/effects/chainable/CeasefireVariantAction";
-export { ReloadAction } from "$lib/domain/effects/chainable/ReloadAction";
+export { OneDayOfPeaceAction } from "$lib/domain/effects/chainable/OneDayOfPeaceAction";
+export { MagicalMalletAction } from "$lib/domain/effects/chainable/MagicalMalletAction";
 export { CardDestructionAction } from "$lib/domain/effects/chainable/CardDestructionAction";
 export { DarkFactoryAction } from "$lib/domain/effects/chainable/DarkFactoryAction";
 export { TerraformingAction } from "$lib/domain/effects/chainable/TerraformingAction";
@@ -86,8 +86,8 @@ export { ChickenGameContinuousRule } from "$lib/domain/effects/additional/Chicke
  * - 79571449: Graceful Charity (天使の施し)
  * - 67616300: Chicken Game (チキンレース) - Card Activation
  * - 70368879: Upstart Goblin (成金ゴブリン)
- * - 33782437: Ceasefire Variant (一時休戦)
- * - 85852291: Reload (打ち出の小槌)
+ * - 33782437: One Day of Peace (一時休戦)
+ * - 85852291: Magical Mallet (打ち出の小槌)
  * - 74519184: Card Destruction (手札断札) - Quick-Play
  * - 90928333: Dark Factory (闇の量産工場)
  * - 73628505: Terraforming (テラ・フォーミング)
@@ -113,11 +113,11 @@ function initializeChainableActionRegistry(): void {
   // Card ID 70368879: Upstart Goblin (成金ゴブリン)
   ChainableActionRegistry.register(70368879, new UpstartGoblinAction());
 
-  // Card ID 33782437: Ceasefire Variant (一時休戦)
-  ChainableActionRegistry.register(33782437, new CeasefireVariantAction());
+  // Card ID 33782437: One Day of Peace (一時休戦)
+  ChainableActionRegistry.register(33782437, new OneDayOfPeaceAction());
 
-  // Card ID 85852291: Reload (打ち出の小槌)
-  ChainableActionRegistry.register(85852291, new ReloadAction());
+  // Card ID 85852291: Magical Mallet (打ち出の小槌)
+  ChainableActionRegistry.register(85852291, new MagicalMalletAction());
 
   // Card ID 74519184: Card Destruction (手札断札)
   ChainableActionRegistry.register(74519184, new CardDestructionAction());

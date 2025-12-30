@@ -1,36 +1,38 @@
 /**
- * ReloadAction - Reload (打ち出の小槌) ChainableAction implementation
+ * OneDayOfPeaceAction - One Day of Peace (一時休戦) ChainableAction implementation
  *
  * Card Information:
- * - Card ID: 85852291
- * - Card Name: Reload (打ち出の小槌)
+ * - Card ID: 33782437
+ * - Card Name: One Day of Peace (一時休戦)
  * - Card Type: Normal Spell
- * - Effect: Return any number of cards from your hand to the deck, shuffle the deck, then draw the same number of cards.
+ * - Effect: Both players draw 1 card. All battle and effect damage becomes 0 for the rest of this turn.
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Main Phase
+ * - CONDITIONS: Game not over, Main Phase, Deck >= 1 card
  * - ACTIVATION: No activation steps (normal spell has no activation cost)
- * - RESOLUTION: Select cards to return (0 to hand.length) + Return to deck + Shuffle + Draw same number + Send spell to graveyard
+ * - RESOLUTION: Player draws 1 + Opponent draws 1 (internal) + Set damageNegation flag + Send spell to graveyard
  *
- * @module domain/effects/chainable/ReloadAction
+ * Note: Opponent's draw is internal state only (no UI update, as opponent's hand is not displayed)
+ *
+ * @module domain/effects/chainable/OneDayOfPeaceAction
  * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { ChainableAction } from "../../models/ChainableAction";
 import type { GameState } from "../../models/GameState";
 import type { EffectResolutionStep } from "../../models/EffectResolutionStep";
-import { drawCards, sendToGraveyard, moveCard, shuffleDeck } from "../../models/Zone";
+import { drawCards, sendToGraveyard } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
 
 /**
- * ReloadAction - Reload ChainableAction
+ * OneDayOfPeaceAction - One Day of Peace ChainableAction
  *
- * Implements ChainableAction interface for Reload card.
+ * Implements ChainableAction interface for One Day of Peace card.
  *
  * @example
  * ```typescript
  * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(85852291, new ReloadAction());
+ * ChainableActionRegistry.register(33782437, new OneDayOfPeaceAction());
  *
  * // Usage in ActivateSpellCommand
  * const action = ChainableActionRegistry.get(cardId);
@@ -41,7 +43,7 @@ import { checkVictoryConditions } from "../../rules/VictoryRule";
  * }
  * ```
  */
-export class ReloadAction implements ChainableAction {
+export class OneDayOfPeaceAction implements ChainableAction {
   /** カードの発動（手札→フィールド） */
   readonly isCardActivation = true;
 
@@ -53,6 +55,7 @@ export class ReloadAction implements ChainableAction {
    *
    * - Game is not over
    * - Current phase is Main Phase 1
+   * - Deck has at least 1 card (for player to draw)
    *
    * @param state - 現在のゲーム状態
    * @returns 発動可能ならtrue
@@ -68,7 +71,11 @@ export class ReloadAction implements ChainableAction {
       return false;
     }
 
-    // Reload can be activated even with empty hand (returns 0 cards)
+    // Deck must have at least 1 card for player to draw
+    if (state.zones.deck.length < 1) {
+      return false;
+    }
+
     return true;
   }
 
@@ -84,16 +91,16 @@ export class ReloadAction implements ChainableAction {
   createActivationSteps(state: GameState): EffectResolutionStep[] {
     return [
       {
-        id: "reload-activation",
+        id: "one-day-of-peace-activation",
         summary: "カード発動",
-        description: "打ち出の小槌を発動します",
+        description: "一時休戦を発動します",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // No state change, just notification
           return {
             success: true,
             newState: currentState,
-            message: "Reload activated",
+            message: "One Day of Peace activated",
           };
         },
       },
@@ -103,9 +110,10 @@ export class ReloadAction implements ChainableAction {
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * 1. 手札から任意枚数のカードを選択
-   * 2. 選択したカードをデッキに戻す + デッキシャッフル + 同じ枚数ドロー
-   * 3. このカードを墓地に送る
+   * 1. プレイヤーがデッキから1枚ドロー
+   * 2. 相手がデッキから1枚ドロー（内部状態のみ、UI非表示）
+   * 3. damageNegationフラグをtrueに設定
+   * 4. このカードを墓地に送る
    *
    * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
@@ -113,56 +121,29 @@ export class ReloadAction implements ChainableAction {
    */
   createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
-      // Step 1: Select cards to return (0 to hand.length)
+      // Step 1: Player draws 1 card
       {
-        id: "reload-select",
-        summary: "手札を選択",
-        description: "デッキに戻すカードを選択してください（0枚から全てまで選択可能）",
-        notificationLevel: "interactive",
-        // Card selection configuration (Domain Layer)
-        cardSelectionConfig: {
-          availableCards: state.zones.hand,
-          minCards: 0,
-          maxCards: state.zones.hand.length,
-          summary: "手札を選択",
-          description: "デッキに戻すカードを選択してください",
-          cancelable: false, // Cannot cancel during effect resolution
-        },
-        action: (currentState: GameState, selectedInstanceIds?: string[]) => {
-          // If no cards selected, no action needed
-          if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-            return {
-              success: true,
-              newState: currentState,
-              message: "No cards selected to return",
-            };
-          }
-
-          // Return selected cards to deck
-          let updatedZones = currentState.zones;
-          for (const instanceId of selectedInstanceIds) {
-            updatedZones = moveCard(updatedZones, instanceId, "hand", "deck");
-          }
-
-          // Shuffle deck
-          updatedZones = shuffleDeck(updatedZones);
-
-          // Draw same number of cards
-          const drawCount = selectedInstanceIds.length;
-          if (updatedZones.deck.length < drawCount) {
+        id: "one-day-of-peace-draw-player",
+        summary: "カードをドロー",
+        description: "デッキから1枚ドローします",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // Validate deck has enough cards
+          if (currentState.zones.deck.length < 1) {
             return {
               success: false,
               newState: currentState,
-              error: `Cannot draw ${drawCount} cards. Only ${updatedZones.deck.length} cards remaining in deck.`,
+              error: "Cannot draw 1 card. Not enough cards in deck.",
             };
           }
 
-          updatedZones = drawCards(updatedZones, drawCount);
+          // Draw 1 card (returns new immutable zones object)
+          const newZones = drawCards(currentState.zones, 1);
 
-          // Create new state
+          // Create new state with drawn card
           const newState: GameState = {
             ...currentState,
-            zones: updatedZones,
+            zones: newZones,
           };
 
           // Check victory conditions after drawing
@@ -177,16 +158,55 @@ export class ReloadAction implements ChainableAction {
           return {
             success: true,
             newState: finalState,
-            message: `Returned ${selectedInstanceIds.length} cards to deck, shuffled, and drew ${drawCount} cards`,
+            message: "Drew 1 card",
           };
         },
       },
 
-      // Step 2: Send spell card to graveyard
+      // Step 2: Opponent draws 1 card (internal state only, no UI update)
       {
-        id: "reload-graveyard",
+        id: "one-day-of-peace-draw-opponent",
+        summary: "相手がドロー",
+        description: "相手がデッキから1枚ドローします（内部状態のみ）",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // In 1-turn kill solitaire, opponent's hand is not tracked in UI
+          // This step is for completeness and future compatibility
+          // No actual state change needed for opponent's hand
+
+          return {
+            success: true,
+            newState: currentState,
+            message: "Opponent drew 1 card (internal)",
+          };
+        },
+      },
+
+      // Step 3: Set damageNegation flag to true
+      {
+        id: "one-day-of-peace-damage-negation",
+        summary: "ダメージ無効化",
+        description: "このターン、全てのダメージは0になります",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          const newState: GameState = {
+            ...currentState,
+            damageNegation: true,
+          };
+
+          return {
+            success: true,
+            newState,
+            message: "Damage negation activated for this turn",
+          };
+        },
+      },
+
+      // Step 4: Send spell card to graveyard
+      {
+        id: "one-day-of-peace-graveyard",
         summary: "墓地へ送る",
-        description: "打ち出の小槌を墓地に送ります",
+        description: "一時休戦を墓地に送ります",
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
@@ -200,7 +220,7 @@ export class ReloadAction implements ChainableAction {
           return {
             success: true,
             newState,
-            message: "Sent Reload to graveyard",
+            message: "Sent One Day of Peace to graveyard",
           };
         },
       },

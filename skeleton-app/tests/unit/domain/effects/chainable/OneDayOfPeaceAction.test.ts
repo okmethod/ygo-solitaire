@@ -1,7 +1,7 @@
 /**
- * CeasefireVariantAction Tests
+ * OneDayOfPeaceAction Tests
  *
- * Tests for CeasefireVariantAction ChainableAction implementation.
+ * Tests for OneDayOfPeaceAction ChainableAction implementation.
  *
  * Test Coverage:
  * - canActivate() conditions (Game over, Phase, Deck size)
@@ -10,16 +10,16 @@
  * - Each step's action correctly updates GameState
  * - damageNegation flag validation
  *
- * @module tests/unit/domain/effects/chainable/CeasefireVariantAction
+ * @module tests/unit/domain/effects/chainable/OneDayOfPeaceAction
  */
 
 import { describe, it, expect } from "vitest";
-import { CeasefireVariantAction } from "$lib/domain/effects/chainable/CeasefireVariantAction";
+import { OneDayOfPeaceAction } from "$lib/domain/effects/chainable/OneDayOfPeaceAction";
 import { createInitialGameState } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 
-describe("CeasefireVariantAction", () => {
-  const action = new CeasefireVariantAction();
+describe("OneDayOfPeaceAction", () => {
+  const action = new OneDayOfPeaceAction();
 
   describe("ChainableAction interface properties", () => {
     it("should be a card activation", () => {
@@ -117,7 +117,7 @@ describe("CeasefireVariantAction", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("ceasefire-activation");
+      expect(steps[0].id).toBe("one-day-of-peace-activation");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("一時休戦を発動します");
       expect(steps[0].notificationLevel).toBe("info");
@@ -128,7 +128,7 @@ describe("CeasefireVariantAction", () => {
     it("should return 4 resolution steps", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
-      const activatedCardInstanceId = "ceasefire-instance-1";
+      const activatedCardInstanceId = "one-day-of-peace-instance-1";
 
       // Act
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
@@ -140,13 +140,13 @@ describe("CeasefireVariantAction", () => {
     it("should have player draw step as first step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
-      const activatedCardInstanceId = "ceasefire-instance-1";
+      const activatedCardInstanceId = "one-day-of-peace-instance-1";
 
       // Act
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[0].id).toBe("ceasefire-draw-player");
+      expect(steps[0].id).toBe("one-day-of-peace-draw-player");
       expect(steps[0].summary).toBe("カードをドロー");
       expect(steps[0].description).toBe("デッキから1枚ドローします");
     });
@@ -154,13 +154,13 @@ describe("CeasefireVariantAction", () => {
     it("should have opponent draw step as second step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
-      const activatedCardInstanceId = "ceasefire-instance-1";
+      const activatedCardInstanceId = "one-day-of-peace-instance-1";
 
       // Act
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[1].id).toBe("ceasefire-draw-opponent");
+      expect(steps[1].id).toBe("one-day-of-peace-draw-opponent");
       expect(steps[1].summary).toBe("相手がドロー");
       expect(steps[1].description).toBe("相手がデッキから1枚ドローします（内部状態のみ）");
     });
@@ -168,13 +168,13 @@ describe("CeasefireVariantAction", () => {
     it("should have damage negation step as third step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
-      const activatedCardInstanceId = "ceasefire-instance-1";
+      const activatedCardInstanceId = "one-day-of-peace-instance-1";
 
       // Act
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[2].id).toBe("ceasefire-damage-negation");
+      expect(steps[2].id).toBe("one-day-of-peace-damage-negation");
       expect(steps[2].summary).toBe("ダメージ無効化");
       expect(steps[2].description).toBe("このターン、全てのダメージは0になります");
     });
@@ -182,13 +182,13 @@ describe("CeasefireVariantAction", () => {
     it("should have Graveyard step as fourth step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002]);
-      const activatedCardInstanceId = "ceasefire-instance-1";
+      const activatedCardInstanceId = "one-day-of-peace-instance-1";
 
       // Act
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[3].id).toBe("ceasefire-graveyard");
+      expect(steps[3].id).toBe("one-day-of-peace-graveyard");
       expect(steps[3].summary).toBe("墓地へ送る");
       expect(steps[3].description).toBe("一時休戦を墓地に送ります");
     });
@@ -197,7 +197,7 @@ describe("CeasefireVariantAction", () => {
       it("should draw 1 card from deck to hand", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002, 1003]);
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
         // Act
@@ -213,7 +213,7 @@ describe("CeasefireVariantAction", () => {
       it("should return failure when deck is empty", () => {
         // Arrange
         const state = createInitialGameState([]);
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
         // Act
@@ -230,7 +230,7 @@ describe("CeasefireVariantAction", () => {
         const state = createInitialGameState([1001, 1002]);
         const originalDeckLength = state.zones.deck.length;
         const originalHandLength = state.zones.hand.length;
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
         // Act
@@ -247,7 +247,7 @@ describe("CeasefireVariantAction", () => {
       it("should succeed without state change (internal only)", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002]);
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
         // Act
@@ -264,7 +264,7 @@ describe("CeasefireVariantAction", () => {
       it("should set damageNegation flag to true", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002]);
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
         // Act
@@ -283,7 +283,7 @@ describe("CeasefireVariantAction", () => {
           ...state,
           damageNegation: true,
         };
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(stateWithDamageNegation, activatedCardInstanceId);
 
         // Act
@@ -298,7 +298,7 @@ describe("CeasefireVariantAction", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002]);
         const originalDamageNegation = state.damageNegation;
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
         // Act
@@ -314,7 +314,7 @@ describe("CeasefireVariantAction", () => {
       it("should send activated card to graveyard", () => {
         // Arrange: Create state with activated card in hand
         const state = createInitialGameState([1001, 1002]);
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const stateWithSpellInHand: GameState = {
           ...state,
           zones: {
@@ -342,13 +342,13 @@ describe("CeasefireVariantAction", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent Ceasefire Variant to graveyard");
+        expect(result.message).toBe("Sent One Day of Peace to graveyard");
       });
 
       it("should not mutate original state", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002]);
-        const activatedCardInstanceId = "ceasefire-instance-1";
+        const activatedCardInstanceId = "one-day-of-peace-instance-1";
         const stateWithSpellInHand: GameState = {
           ...state,
           zones: {
