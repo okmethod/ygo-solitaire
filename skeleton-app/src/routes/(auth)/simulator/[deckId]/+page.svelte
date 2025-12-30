@@ -93,20 +93,6 @@
   // 効果解決ストアの状態を購読
   const effectResolutionState = effectResolutionStore;
 
-  // 効果解決完了時に自動勝利判定
-  $effect(() => {
-    // 効果解決が完了した時に勝利条件をチェック
-    if (!$effectResolutionState.isResolving && $effectResolutionState.pendingActions.length === 0) {
-      const victoryResult = gameFacade.checkVictory();
-
-      if (victoryResult.isGameOver && victoryResult.winner) {
-        // 勝利モーダル表示（次のフェーズで実装）
-        console.log("[Victory Check] Game Over:", victoryResult);
-        showSuccessToast(victoryResult.message || "Victory!");
-      }
-    }
-  });
-
   // 手札カードとinstanceIdのマッピング
   const handCardsWithInstanceId = $derived(
     $gameStateStore.zones.hand.map((instance, index) => ({
