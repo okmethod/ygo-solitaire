@@ -110,6 +110,7 @@ export class GracefulCharityAction implements ChainableAction {
         id: "graceful-charity-draw",
         summary: "カードをドロー",
         description: "デッキから3枚ドローします",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
           if (currentState.zones.deck.length < 3) {
@@ -151,6 +152,7 @@ export class GracefulCharityAction implements ChainableAction {
         id: "graceful-charity-discard",
         summary: "手札を捨てる",
         description: "手札から2枚選んで捨ててください",
+        notificationLevel: "interactive",
         // Card selection configuration (Domain Layer)
         // Application Layer will open CardSelectionModal with this config
         cardSelectionConfig: {
@@ -182,6 +184,7 @@ export class GracefulCharityAction implements ChainableAction {
         id: "graceful-charity-graveyard",
         summary: "墓地へ送る",
         description: "天使の施しを墓地に送ります",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
           const newZones = sendToGraveyard(currentState.zones, activatedCardInstanceId);

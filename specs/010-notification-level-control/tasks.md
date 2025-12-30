@@ -90,14 +90,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Modify confirmCurrentStep to handle "interactive" notification level (call notificationHandler.showInteractive) in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T028 [US2] Integrate existing cardSelectionConfig flow into "interactive" level handling in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T029 [US2] Implement showInteractive in NotificationHandler (reuse existing EffectResolutionModal logic) in skeleton-app/src/routes/+page.svelte
-- [ ] T030 [US2] Add notificationLevel: "info" to GracefulCharityAction draw step in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
-- [ ] T031 [US2] Add notificationLevel: "interactive" to GracefulCharityAction discard step in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
-- [ ] T032 [US2] Add notificationLevel: "info" to GracefulCharityAction graveyard step in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
-- [ ] T033 [US2] Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T034 [US2] Manual test: Activate Graceful Charity and verify 1 modal (card selection), 2 toasts (draw, graveyard)
+- [x] T027 [US2] Modify confirmCurrentStep to handle "interactive" notification level (call notificationHandler.showInteractive) in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T028 [US2] Integrate existing cardSelectionConfig flow into "interactive" level handling in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T029 [US2] Implement showInteractive in NotificationHandler (reuse existing EffectResolutionModal logic) in skeleton-app/src/routes/+page.svelte
+- [x] T030 [US2] Add notificationLevel: "info" to GracefulCharityAction draw step in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
+- [x] T031 [US2] Add notificationLevel: "interactive" to GracefulCharityAction discard step in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
+- [x] T032 [US2] Add notificationLevel: "info" to GracefulCharityAction graveyard step in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
+- [x] T033 [US2] Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T034 [US2] Manual test: Activate Graceful Charity and verify 1 modal (card selection), 2 toasts (draw, graveyard)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - Graceful Charity shows mixed toast/modal notifications
 
@@ -111,11 +111,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Modify confirmCurrentStep to handle "silent" notification level (no handler call, immediate execution) in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T036 [US3] Ensure silent steps execute immediately without delay in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T037 [US3] Add example: Create ChickenGameAdditionalRule with silent notification level for permanent effect application in skeleton-app/src/lib/domain/effects/additional/ChickenGameAdditionalRule.ts (if exists, otherwise skip)
-- [ ] T038 [US3] Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T039 [US3] Manual test: If ChickenGame exists, activate and verify no notification appears for permanent effect application
+- [x] T035 [US3] Modify confirmCurrentStep to handle "silent" notification level (no handler call, immediate execution) in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T036 [US3] Ensure silent steps execute immediately without delay in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T037 [US3] Add example: Create ChickenGameAdditionalRule with silent notification level for permanent effect application in skeleton-app/src/lib/domain/effects/additional/ChickenGameAdditionalRule.ts (if exists, otherwise skip)
+- [x] T038 [US3] Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T039 [US3] Manual test: If ChickenGame exists, activate and verify no notification appears for permanent effect application
 
 **Checkpoint**: All user stories should now be independently functional - silent/info/interactive all work as designed
 
@@ -125,11 +125,11 @@
 
 **Purpose**: Migrate remaining card effects and ensure backward compatibility
 
-- [ ] T040 [P] Add notificationLevel: "info" to all CardDestructionAction steps in skeleton-app/src/lib/domain/effects/chainable/CardDestructionAction.ts
-- [ ] T041 [P] Add notificationLevel: "info" to all UpstartGoblinAction steps in skeleton-app/src/lib/domain/effects/chainable/UpstartGoblinAction.ts
-- [ ] T042 Verify backward compatibility: Create test step without notificationLevel and verify it defaults to "info" in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
-- [ ] T043 Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T044 Run all tests: npm run test:run in skeleton-app/
+- [x] T040 [P] Add notificationLevel: "info" to all CardDestructionAction steps in skeleton-app/src/lib/domain/effects/chainable/CardDestructionAction.ts
+- [x] T041 [P] Add notificationLevel: "info" to all UpstartGoblinAction steps in skeleton-app/src/lib/domain/effects/chainable/UpstartGoblinAction.ts
+- [x] T042 Verify backward compatibility: Create test step without notificationLevel and verify it defaults to "info" in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
+- [x] T043 Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T044 Run all tests: npm run test:run in skeleton-app/
 
 **Checkpoint**: All card effects migrated to notification level system, backward compatibility verified
 
