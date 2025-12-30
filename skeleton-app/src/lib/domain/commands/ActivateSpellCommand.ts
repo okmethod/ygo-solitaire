@@ -103,26 +103,20 @@ export class ActivateSpellCommand implements GameCommand {
     // Check ChainableActionRegistry for card effect
     const chainableAction = ChainableActionRegistry.get(cardId);
     if (chainableAction && chainableAction.canActivate(stateAfterActivation)) {
-      // Execute activation steps immediately (synchronous)
+      // Get activation and resolution steps
       const activationSteps = chainableAction.createActivationSteps(stateAfterActivation);
-      let currentState = stateAfterActivation;
-      for (const step of activationSteps) {
-        const result = step.action(currentState);
-        if (!result.success) {
-          return result; // Early return on failure
-        }
-        currentState = result.newState;
-      }
+      const resolutionSteps = chainableAction.createResolutionSteps(stateAfterActivation, this.cardInstanceId);
 
-      // Create resolution steps to be executed by Application Layer
-      const resolutionSteps = chainableAction.createResolutionSteps(currentState, this.cardInstanceId);
+      // Combine activation and resolution steps into a single sequence
+      const allEffectSteps = [...activationSteps, ...resolutionSteps];
 
-      // Return result with effectSteps (delegate to Application Layer)
+      // Return result with all effect steps (delegate to Application Layer)
+      // Application Layer will execute all steps sequentially with proper notifications
       return {
         success: true,
-        newState: currentState,
+        newState: stateAfterActivation,
         message: `Spell card activated: ${this.cardInstanceId}`,
-        effectSteps: resolutionSteps,
+        effectSteps: allEffectSteps,
       };
     }
 

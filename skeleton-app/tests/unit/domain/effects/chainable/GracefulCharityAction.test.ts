@@ -131,7 +131,7 @@ describe("GracefulCharityAction", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return empty array (no activation steps for normal spell)", () => {
+    it("should return activation notification step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002, 1003, 1004]);
 
@@ -139,8 +139,11 @@ describe("GracefulCharityAction", () => {
       const steps = action.createActivationSteps(state);
 
       // Assert
-      expect(steps).toEqual([]);
-      expect(steps).toHaveLength(0);
+      expect(steps).toHaveLength(1);
+      expect(steps[0].id).toBe("graceful-charity-activation");
+      expect(steps[0].summary).toBe("カード発動");
+      expect(steps[0].description).toBe("天使の施しを発動します");
+      expect(steps[0].notificationLevel).toBe("info");
     });
   });
 

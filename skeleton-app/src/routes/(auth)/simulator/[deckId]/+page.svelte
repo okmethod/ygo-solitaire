@@ -81,13 +81,7 @@
   function handleHandCardClick(card: CardDisplayData, instanceId: string) {
     // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
-
-    // トーストメッセージ表示
-    if (result.success) {
-      showSuccessToast(`${card.name} を発動しました`);
-    } else {
-      showErrorToast(result.error || "発動に失敗しました");
-    }
+    if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }
 
   // フィールドカードクリックで起動効果発動

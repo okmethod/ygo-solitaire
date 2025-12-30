@@ -119,7 +119,7 @@ describe("PotOfGreedAction", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return empty array (no activation steps for normal spell)", () => {
+    it("should return activation notification step", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002, 1003]);
 
@@ -127,8 +127,11 @@ describe("PotOfGreedAction", () => {
       const steps = action.createActivationSteps(state);
 
       // Assert
-      expect(steps).toEqual([]);
-      expect(steps).toHaveLength(0);
+      expect(steps).toHaveLength(1);
+      expect(steps[0].id).toBe("pot-of-greed-activation");
+      expect(steps[0].summary).toBe("カード発動");
+      expect(steps[0].description).toBe("強欲な壺を発動します");
+      expect(steps[0].notificationLevel).toBe("info");
     });
   });
 

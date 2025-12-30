@@ -81,15 +81,29 @@ export class GracefulCharityAction implements ChainableAction {
   /**
    * ACTIVATION: 発動時の処理
    *
-   * 通常魔法はコストなし、対象なしのため、空配列を返す。
+   * 通常魔法はコストなし、対象なしのため、発動通知のみ。
    *
    * @param state - 現在のゲーム状態
-   * @returns 空配列（発動時の処理なし）
+   * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(state: GameState): EffectResolutionStep[] {
-    // Normal Spell has no activation steps (no cost, no targeting)
-    return [];
+    return [
+      {
+        id: "graceful-charity-activation",
+        summary: "カード発動",
+        description: "天使の施しを発動します",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // No state change, just notification
+          return {
+            success: true,
+            newState: currentState,
+            message: "Graceful Charity activated",
+          };
+        },
+      },
+    ];
   }
 
   /**
