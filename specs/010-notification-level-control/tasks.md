@@ -140,16 +140,16 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T045 [P] Update effectResolutionStore unit tests to verify NotificationHandler DI in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
-- [ ] T046 [P] Add unit test: silent level executes without calling handler in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
-- [ ] T047 [P] Add unit test: info level calls showInfo with correct params in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
-- [ ] T048 [P] Add unit test: interactive level calls showInteractive with correct params in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
-- [ ] T049 [P] Add unit test: default to "info" when notificationLevel is undefined in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
-- [ ] T050 [P] Create integration test file for notification level control in skeleton-app/tests/integration/notification-level-control.test.ts
-- [ ] T051 [P] Add integration test: Pot of Greed shows 2 toasts, 0 modals in skeleton-app/tests/integration/notification-level-control.test.ts
-- [ ] T052 [P] Add integration test: Graceful Charity shows 2 toasts, 1 modal in skeleton-app/tests/integration/notification-level-control.test.ts
-- [ ] T053 Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T054 Run all tests: npm run test:run in skeleton-app/
-- [ ] T055 Run quickstart.md validation: Follow manual testing checklist in specs/010-notification-level-control/quickstart.md
+- [x] T046 [P] Add unit test: silent level executes without calling handler in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
+- [x] T047 [P] Add unit test: info level calls showInfo with correct params in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
+- [x] T048 [P] Add unit test: interactive level calls showInteractive with correct params in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
+- [x] T049 [P] Add unit test: default to "info" when notificationLevel is undefined in skeleton-app/tests/unit/application/stores/effectResolutionStore.test.ts
+- [x] T050 [P] Create integration test file for notification level control in skeleton-app/tests/integration/notification-level-control.test.ts
+- [x] T051 [P] Add integration test: Pot of Greed shows 2 toasts, 0 modals in skeleton-app/tests/integration/notification-level-control.test.ts
+- [x] T052 [P] Add integration test: Graceful Charity shows 2 toasts, 1 modal in skeleton-app/tests/integration/notification-level-control.test.ts
+- [x] T053 Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T054 Run all tests: npm run test:run in skeleton-app/
+- [x] T055 Run quickstart.md validation: Follow manual testing checklist in specs/010-notification-level-control/quickstart.md
 
 **Checkpoint**: All tests passing, quickstart validation complete, ready for PR
 
