@@ -116,6 +116,8 @@ npm run deploy        # GitHub Pages
 
 ## Active Technologies
 - TypeScript 5.0 (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability) (009-victory-rule-refactor)
+- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode) + SvelteKit 2.16, Immer.js (immutability), TailwindCSS 4.0, Skeleton UI 3.1 (011-card-pool-expansion)
+- N/A (client-side only, state in memory) (011-card-pool-expansion)
 
 - TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2 + Vitest (testing), Immer.js (immutability), TailwindCSS (styling), Skeleton UI
 - Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
