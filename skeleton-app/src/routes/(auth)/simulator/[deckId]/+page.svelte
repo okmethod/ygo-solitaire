@@ -211,11 +211,15 @@
   </main>
 </div>
 
-<!-- 効果解決モーダル -->
+<!-- 効果解決モーダル (interactive level without card selection only) -->
+<!-- Note: Only show modal for interactive level steps that don't have cardSelectionConfig -->
+<!-- info/silent levels are handled by effectResolutionStore (toast/no-ui) -->
 <EffectResolutionModal
-  isOpen={$effectResolutionState.isActive}
-  title={$effectResolutionState.currentStep?.title || ""}
-  message={$effectResolutionState.currentStep?.message || ""}
+  isOpen={$effectResolutionState.isActive &&
+    $effectResolutionState.currentStep?.notificationLevel === "interactive" &&
+    !$effectResolutionState.currentStep?.cardSelectionConfig}
+  summary={$effectResolutionState.currentStep?.summary || ""}
+  description={$effectResolutionState.currentStep?.description || ""}
   onConfirm={effectResolutionStore.confirmCurrentStep}
   onCancel={$effectResolutionState.currentStep?.showCancel ? effectResolutionStore.cancelResolution : undefined}
   showCancel={$effectResolutionState.currentStep?.showCancel || false}
