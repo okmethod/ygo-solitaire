@@ -95,6 +95,17 @@ function createEffectResolutionStore() {
         currentIndex: 0,
         currentStep: steps[0] || null,
       }));
+
+      // Auto-start for "info" and "silent" levels
+      // "interactive" level will wait for user action (modal)
+      const firstStep = steps[0];
+      if (firstStep) {
+        const notificationLevel = firstStep.notificationLevel || "info";
+        if (notificationLevel === "info" || notificationLevel === "silent") {
+          // Auto-execute first step
+          effectResolutionStore.confirmCurrentStep();
+        }
+      }
     },
 
     /**
