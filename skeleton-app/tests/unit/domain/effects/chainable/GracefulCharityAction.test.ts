@@ -167,8 +167,8 @@ describe("GracefulCharityAction", () => {
 
       // Assert
       expect(steps[0].id).toBe("graceful-charity-draw");
-      expect(steps[0].title).toBe("カードをドローします");
-      expect(steps[0].message).toBe("デッキから3枚ドローします");
+      expect(steps[0].summary).toBe("カードをドロー");
+      expect(steps[0].description).toBe("デッキから3枚ドローします");
     });
 
     it("should have Discard step as second step", () => {
@@ -181,8 +181,8 @@ describe("GracefulCharityAction", () => {
 
       // Assert
       expect(steps[1].id).toBe("graceful-charity-discard");
-      expect(steps[1].title).toBe("カードを破棄します");
-      expect(steps[1].message).toBe("手札から2枚選んで破棄してください");
+      expect(steps[1].summary).toBe("手札を捨てる");
+      expect(steps[1].description).toBe("手札から2枚選んで捨ててください");
     });
 
     it("should have Graveyard step as third step", () => {
@@ -195,8 +195,8 @@ describe("GracefulCharityAction", () => {
 
       // Assert
       expect(steps[2].id).toBe("graceful-charity-graveyard");
-      expect(steps[2].title).toBe("カードを墓地に送ります");
-      expect(steps[2].message).toBe("天使の施しを墓地に送ります");
+      expect(steps[2].summary).toBe("墓地へ送る");
+      expect(steps[2].description).toBe("天使の施しを墓地に送ります");
     });
 
     describe("Draw step action", () => {
@@ -278,8 +278,8 @@ describe("GracefulCharityAction", () => {
         expect(discardStep.cardSelectionConfig).toBeDefined();
         expect(discardStep.cardSelectionConfig?.minCards).toBe(2);
         expect(discardStep.cardSelectionConfig?.maxCards).toBe(2);
-        expect(discardStep.cardSelectionConfig?.title).toBe("カードを破棄");
-        expect(discardStep.cardSelectionConfig?.message).toBe("手札から2枚選んで破棄してください");
+        expect(discardStep.cardSelectionConfig?.summary).toBe("手札を捨てる");
+        expect(discardStep.cardSelectionConfig?.description).toBe("手札から2枚選んで捨ててください");
       });
 
       it("should discard 2 selected cards from hand to graveyard", () => {

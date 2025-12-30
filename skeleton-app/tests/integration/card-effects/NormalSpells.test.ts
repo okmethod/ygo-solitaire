@@ -60,13 +60,13 @@ describe("Normal Spell Card Effects", () => {
       // Verify steps: [draw step, graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
         id: "pot-of-greed-draw",
-        title: "カードをドローします",
-        message: "デッキから2枚ドローします",
+        summary: "カードをドロー",
+        description: "デッキから2枚ドローします",
       });
       expect(result.effectSteps![1]).toMatchObject({
         id: "pot-of-greed-graveyard",
-        title: "カードを墓地に送ります",
-        message: "強欲な壺を墓地に送ります",
+        summary: "墓地へ送る",
+        description: "強欲な壺を墓地に送ります",
       });
     });
 
@@ -120,18 +120,18 @@ describe("Normal Spell Card Effects", () => {
       // Verify steps: [draw step, discard step, graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
         id: "graceful-charity-draw",
-        title: "カードをドローします",
-        message: "デッキから3枚ドローします",
+        summary: "カードをドロー",
+        description: "デッキから3枚ドローします",
       });
       expect(result.effectSteps![1]).toMatchObject({
         id: "graceful-charity-discard",
-        title: "カードを破棄します",
-        message: "手札から2枚選んで破棄してください",
+        summary: "手札を捨てる",
+        description: "手札から2枚選んで捨ててください",
       });
       expect(result.effectSteps![2]).toMatchObject({
         id: "graceful-charity-graveyard",
-        title: "カードを墓地に送ります",
-        message: "天使の施しを墓地に送ります",
+        summary: "墓地へ送る",
+        description: "天使の施しを墓地に送ります",
       });
     });
 

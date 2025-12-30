@@ -67,12 +67,12 @@
     {#if config}
       <!-- ヘッダー -->
       <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg">{config.title}</h3>
+        <h3 class="font-bold text-lg">{config.summary}</h3>
         <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
       </div>
 
       <!-- 説明文 -->
-      <p class="text-sm text-surface-600-300-token mb-4">{config.message}</p>
+      <p class="text-sm text-surface-600-300-token mb-4">{config.description}</p>
 
       <!-- 選択状況 -->
       <div

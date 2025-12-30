@@ -23,8 +23,8 @@ import type { CardInstance } from "../models/Card";
  *   availableCards: state.zones.hand,
  *   minCards: 2,
  *   maxCards: 2,
- *   title: "カードを破棄",
- *   message: "手札から2枚選んで破棄してください",
+ *   summary: "手札を捨てる",
+ *   description: "手札から2枚選んで捨ててください",
  * };
  * ```
  */
@@ -35,10 +35,10 @@ export interface CardSelectionConfig {
   minCards: number;
   /** Maximum number of cards that can be selected */
   maxCards: number;
-  /** Title shown in selection UI */
-  title: string;
-  /** Message/instructions shown in selection UI */
-  message: string;
+  /** Summary shown in selection UI */
+  summary: string;
+  /** Description/instructions shown in selection UI */
+  description: string;
 }
 
 /**
@@ -61,8 +61,8 @@ export interface CardSelectionConfig {
  * // Simple step (no user input required)
  * const step: EffectResolutionStep = {
  *   id: "pot-of-greed-draw",
- *   title: "カードをドローします",
- *   message: "デッキから2枚ドローします",
+ *   summary: "カードをドロー",
+ *   description: "デッキから2枚ドローします",
  *   action: (state: GameState) => {
  *     return new DrawCardCommand(2).execute(state);
  *   }
@@ -71,14 +71,14 @@ export interface CardSelectionConfig {
  * // Step with card selection (user input required)
  * const step: EffectResolutionStep = {
  *   id: "graceful-charity-discard",
- *   title: "カードを破棄します",
- *   message: "手札から2枚選んで破棄してください",
+ *   summary: "手札を捨てる",
+ *   description: "手札から2枚選んで捨ててください",
  *   cardSelectionConfig: {
  *     availableCards: state.zones.hand,
  *     minCards: 2,
  *     maxCards: 2,
- *     title: "カードを破棄",
- *     message: "手札から2枚選んで破棄してください",
+ *     summary: "手札を捨てる",
+ *     description: "手札から2枚選んで捨ててください",
  *   },
  *   action: (state: GameState, selectedInstanceIds?: string[]) => {
  *     return new DiscardCardsCommand(selectedInstanceIds!).execute(state);
@@ -90,11 +90,11 @@ export interface EffectResolutionStep {
   /** Unique identifier for this step */
   id: string;
 
-  /** Title displayed to user */
-  title: string;
+  /** Summary displayed to user */
+  summary: string;
 
-  /** Detailed message displayed to user */
-  message: string;
+  /** Detailed description displayed to user */
+  description: string;
 
   /**
    * Card selection configuration (optional)

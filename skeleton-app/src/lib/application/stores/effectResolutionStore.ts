@@ -12,8 +12,8 @@ export interface CardSelectionHandler {
     availableCards: readonly CardInstance[];
     minCards: number;
     maxCards: number;
-    title: string;
-    message: string;
+    summary: string;
+    description: string;
     onConfirm: (selectedInstanceIds: string[]) => void;
     onCancel?: () => void;
   }): void;

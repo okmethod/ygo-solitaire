@@ -3,14 +3,14 @@
 
   interface EffectResolutionModalProps {
     isOpen: boolean;
-    title: string;
-    message: string;
+    summary: string;
+    description: string;
     onConfirm: () => void;
     onCancel?: () => void;
     showCancel?: boolean;
   }
 
-  let { isOpen, title, message, onConfirm, onCancel, showCancel = false }: EffectResolutionModalProps = $props();
+  let { isOpen, summary, description, onConfirm, onCancel, showCancel = false }: EffectResolutionModalProps = $props();
 
   function handleConfirm() {
     onConfirm();
@@ -41,11 +41,11 @@
 >
   {#snippet content()}
     <header class="text-center">
-      <h2 class="h3 font-bold text-primary-600-300-token">{title}</h2>
+      <h2 class="h3 font-bold text-primary-600-300-token">{summary}</h2>
     </header>
 
     <article class="text-center">
-      <p class="text-lg">{message}</p>
+      <p class="text-lg">{description}</p>
     </article>
 
     <footer class="flex justify-end gap-2">

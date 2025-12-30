@@ -155,8 +155,8 @@ describe("PotOfGreedAction", () => {
 
       // Assert
       expect(steps[0].id).toBe("pot-of-greed-draw");
-      expect(steps[0].title).toBe("カードをドローします");
-      expect(steps[0].message).toBe("デッキから2枚ドローします");
+      expect(steps[0].summary).toBe("カードをドロー");
+      expect(steps[0].description).toBe("デッキから2枚ドローします");
     });
 
     it("should have Graveyard step as second step", () => {
@@ -169,8 +169,8 @@ describe("PotOfGreedAction", () => {
 
       // Assert
       expect(steps[1].id).toBe("pot-of-greed-graveyard");
-      expect(steps[1].title).toBe("カードを墓地に送ります");
-      expect(steps[1].message).toBe("強欲な壺を墓地に送ります");
+      expect(steps[1].summary).toBe("墓地へ送る");
+      expect(steps[1].description).toBe("強欲な壺を墓地に送ります");
     });
 
     describe("Draw step action", () => {

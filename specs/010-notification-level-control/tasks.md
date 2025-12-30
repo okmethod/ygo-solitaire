@@ -27,16 +27,16 @@
 
 **Note**: Based on research.md Q7, we rename `title`/`message` to `summary`/`description` to better reflect domain knowledge rather than UI implementation details.
 
-- [ ] T001 Rename EffectResolutionStep properties: title → summary, message → description in skeleton-app/src/lib/domain/models/EffectResolutionStep.ts
-- [ ] T002 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
-- [ ] T003 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
-- [ ] T004 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/CardDestructionAction.ts
-- [ ] T005 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/UpstartGoblinAction.ts
-- [ ] T006 Update effectResolutionStore to use summary/description in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T007 Update EffectResolutionModal component to use summary/description props in skeleton-app/src/lib/presentation/components/game/EffectResolutionModal.svelte
-- [ ] T008 Update CardSelectionModal component if needed in skeleton-app/src/lib/presentation/components/game/CardSelectionModal.svelte
-- [ ] T009 Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T010 Verify existing tests pass with renamed properties: npm run test:run in skeleton-app/
+- [x] T001 Rename EffectResolutionStep properties: title → summary, message → description in skeleton-app/src/lib/domain/models/EffectResolutionStep.ts
+- [x] T002 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
+- [x] T003 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/GracefulCharityAction.ts
+- [x] T004 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/CardDestructionAction.ts (N/A - file does not exist, updated ChickenGameIgnitionEffect instead)
+- [x] T005 [P] Update all ChainableAction implementations to use summary/description in skeleton-app/src/lib/domain/effects/chainable/UpstartGoblinAction.ts (N/A - file does not exist)
+- [x] T006 Update effectResolutionStore to use summary/description in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T007 Update EffectResolutionModal component to use summary/description props in skeleton-app/src/lib/presentation/components/modals/EffectResolutionModal.svelte
+- [x] T008 Update CardSelectionModal component if needed in skeleton-app/src/lib/presentation/components/modals/CardSelectionModal.svelte
+- [x] T009 Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T010 Verify existing tests pass with renamed properties: npm run test:run in skeleton-app/
 
 **Checkpoint**: title/message renamed to summary/description - all existing code updated and tests passing
 

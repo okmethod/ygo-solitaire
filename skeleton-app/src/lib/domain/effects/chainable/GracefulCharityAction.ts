@@ -108,8 +108,8 @@ export class GracefulCharityAction implements ChainableAction {
       // Step 1: Draw 3 cards
       {
         id: "graceful-charity-draw",
-        title: "カードをドローします",
-        message: "デッキから3枚ドローします",
+        summary: "カードをドロー",
+        description: "デッキから3枚ドローします",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
           if (currentState.zones.deck.length < 3) {
@@ -149,16 +149,16 @@ export class GracefulCharityAction implements ChainableAction {
       // Step 2: Discard 2 cards (player selection required)
       {
         id: "graceful-charity-discard",
-        title: "カードを破棄します",
-        message: "手札から2枚選んで破棄してください",
+        summary: "手札を捨てる",
+        description: "手札から2枚選んで捨ててください",
         // Card selection configuration (Domain Layer)
         // Application Layer will open CardSelectionModal with this config
         cardSelectionConfig: {
           availableCards: state.zones.hand,
           minCards: 2,
           maxCards: 2,
-          title: "カードを破棄",
-          message: "手札から2枚選んで破棄してください",
+          summary: "手札を捨てる",
+          description: "手札から2枚選んで捨ててください",
         },
         // Action receives selected card instance IDs from user selection
         action: (currentState: GameState, selectedInstanceIds?: string[]) => {
@@ -180,8 +180,8 @@ export class GracefulCharityAction implements ChainableAction {
       // Step 3: Send spell card to graveyard
       {
         id: "graceful-charity-graveyard",
-        title: "カードを墓地に送ります",
-        message: "天使の施しを墓地に送ります",
+        summary: "墓地へ送る",
+        description: "天使の施しを墓地に送ります",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
           const newZones = sendToGraveyard(currentState.zones, activatedCardInstanceId);
