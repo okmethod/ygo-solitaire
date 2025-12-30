@@ -412,10 +412,10 @@ effectResolutionStore.registerNotificationHandler({
 
 **What vs How の明確な分離（Clean Architecture準拠）**:
 
-EffectResolutionStepが `title`, `message`, `notificationLevel` を持つことは、**UI実装の詳細への依存ではなく、ドメイン知識の表現**です：
+EffectResolutionStepが `summary`, `description`, `notificationLevel` を持つことは、**UI実装の詳細への依存ではなく、ドメイン知識の表現**です：
 
 - **What（ドメイン層の責務）**:
-  - `title`, `message`: 「何が起きたか」を伝える情報（ドメイン知識）
+  - `summary`, `description`: 「何が起きたか」を伝える情報（ドメイン知識）
   - `notificationLevel`: 「どの程度重要か」（ドメインロジック）
   - 例: "カードをドロー", "2枚のカードをドローします", "info"
 
@@ -428,6 +428,7 @@ EffectResolutionStepが `title`, `message`, `notificationLevel` を持つこと�
   - Domain層は「何を通知すべきか」と「重要度」を決定
   - Presentation層は「どう表示するか」を決定
   - 依存性逆転原則（DIP）を守る: NotificationHandlerをDIで注入
+  - プロパティ名もドメイン指向（title/message → summary/description、Q7参照）
 
 **Alternatives Considered**:
 - ❌ **ChainableActionに統合**: 責務が混在し、単一責任原則違反
@@ -436,6 +437,7 @@ EffectResolutionStepが `title`, `message`, `notificationLevel` を持つこと�
 
 **Implementation Notes**:
 - `notificationLevel`プロパティはEffectResolutionStepに追加
+- `title`/`message`を`summary`/`description`にリネーム（Q7参照）
 - ChainableActionの`createResolutionSteps()`内で各ステップに`notificationLevel`を指定
 - 例:
   ```typescript
@@ -443,15 +445,68 @@ EffectResolutionStepが `title`, `message`, `notificationLevel` を持つこと�
     return [
       {
         id: "pot-of-greed-draw",
-        title: "カードをドロー",
-        message: "2枚のカードをドローします",
-        notificationLevel: "info", // ← ここで指定
+        summary: "カードをドロー",              // リネーム: title → summary
+        description: "2枚のカードをドローします",  // リネーム: message → description
+        notificationLevel: "info",
         action: (state) => { ... }
       },
       // ...
     ];
   }
   ```
+
+---
+
+### Q7: title/messageプロパティのリネーム
+
+**Question**: `title`と`message`という命名は適切か？よりドメイン指向の命名（`summary`/`description`）にすべきか？
+
+**Research Method**: プロパティの本質的な役割の分析、What vs Howの観点での評価
+
+**Findings**:
+
+**現在の命名**:
+```typescript
+readonly title: string;    // "カードをドロー"
+readonly message: string;  // "2枚のカードをドローします"
+```
+
+**問題点**:
+- `title`と`message`は**UI用語**に見える（実際はドメイン知識だが）
+- ドメインモデルとしての意図が不明確
+- "What happened"（何が起きたか）という本質が伝わりにくい
+
+**Decision**: **`summary`と`description`にリネーム**
+
+**Rationale**:
+1. **ドメイン知識であることが明確**:
+   - `summary`: 短い要約（何が起きたか）
+   - `description`: 詳細説明（何が起きたか、詳しく）
+2. **UI実装への依存が薄い**:
+   - title/messageはUI用語（モーダルタイトル、トースト本文）
+   - summary/descriptionは情報の性質を表す
+3. **2つが必要な理由**:
+   - Presentation層がドメイン情報を変換する必要がない
+   - Domain層が「短い要約」と「詳細」の両方を決定
+   - Toast/Modalで両方使う（title=summary, message=description）
+
+**新しい命名**:
+```typescript
+readonly summary: string;      // "カードをドロー"（短い要約）
+readonly description: string;  // "2枚のカードをドローします"（詳細）
+```
+
+**Alternatives Considered**:
+- ❌ **現状維持（title/message）**: UI用語に見える、ドメイン知識の意図が不明確
+- ❌ **1つに統合（descriptionのみ）**: Presentation層が日本語文法を理解して抽出する必要がある（不適切）
+- ❌ **label/detail**: labelもやや UI寄り、descriptionの方が「説明」という意図が明確
+
+**Implementation Notes**:
+- EffectResolutionStep.ts: `title` → `summary`, `message` → `description`
+- すべてのカード効果実装: プロパティ名変更
+- effectResolutionStore.ts: NotificationHandler呼び出しでプロパティ名変更
+- EffectResolutionModal.svelte: props名変更
+- NotificationHandler.showInfo(): パラメータ名は`title`, `message`のまま（Presentation層の都合）
 
 ---
 
@@ -467,6 +522,7 @@ EffectResolutionStepが `title`, `message`, `notificationLevel` を持つこと�
 | Toast表示 | toaster.success()直接使用 | 既存実装活用、非ブロッキング |
 | 既存ステップ移行 | cardSelectionConfig有 = interactive、他 = info | ユーザー入力の有無で分類 |
 | ChainableAction vs EffectResolutionStep | 統合しない（Factory Patternを維持） | 単一責任原則、責務の明確な分離 |
+| title/messageプロパティ | summary/descriptionにリネーム | ドメイン知識であることを明確化、UI用語への依存を排除 |
 
 ### Key Takeaways
 
