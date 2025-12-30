@@ -12,6 +12,16 @@ import type { GameStateUpdateResult } from "../models/GameStateUpdateResult";
 import type { CardInstance } from "../models/Card";
 
 /**
+ * NotificationLevel - 効果解決ステップの通知レベル
+ *
+ * Domain層で定義され、Presentation層が表示方法を決定する。
+ * - silent: 通知なし（内部状態変更のみ、即座に実行）
+ * - info: 情報通知（トースト、非ブロッキング、自動進行）
+ * - interactive: ユーザー入力要求（モーダル、ブロッキング）
+ */
+export type NotificationLevel = "silent" | "info" | "interactive";
+
+/**
  * Card Selection Configuration (Domain Layer)
  *
  * Configuration for requesting user to select cards.
@@ -95,6 +105,18 @@ export interface EffectResolutionStep {
 
   /** Detailed description displayed to user */
   description: string;
+
+  /**
+   * Notification level (optional)
+   *
+   * Controls how this step is presented to the user:
+   * - "silent": No notification, executes immediately (internal state changes)
+   * - "info": Toast notification, non-blocking, auto-advance (informational)
+   * - "interactive": Modal dialog, blocking, waits for user input (requires interaction)
+   *
+   * Default: "info" (for backward compatibility)
+   */
+  notificationLevel?: NotificationLevel;
 
   /**
    * Card selection configuration (optional)

@@ -108,6 +108,7 @@ export class PotOfGreedAction implements ChainableAction {
         id: "pot-of-greed-draw",
         summary: "カードをドロー",
         description: "デッキから2枚ドローします",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Validate deck has enough cards
           if (currentState.zones.deck.length < 2) {
@@ -149,6 +150,7 @@ export class PotOfGreedAction implements ChainableAction {
         id: "pot-of-greed-graveyard",
         summary: "墓地へ送る",
         description: "強欲な壺を墓地に送ります",
+        notificationLevel: "info",
         action: (currentState: GameState) => {
           // Send activated spell card to graveyard
           const newZones = sendToGraveyard(currentState.zones, activatedCardInstanceId);

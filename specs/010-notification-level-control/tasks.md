@@ -48,13 +48,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Add NotificationLevel type definition in skeleton-app/src/lib/domain/models/EffectResolutionStep.ts (type NotificationLevel = "silent" | "info" | "interactive")
-- [ ] T012 Add notificationLevel optional property to EffectResolutionStep interface in skeleton-app/src/lib/domain/models/EffectResolutionStep.ts
-- [ ] T013 Add NotificationHandler interface in skeleton-app/src/lib/application/stores/effectResolutionStore.ts (showInfo and showInteractive methods)
-- [ ] T014 Add notificationHandler field to EffectResolutionState in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T015 Implement registerNotificationHandler method in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T016 Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T017 Verify types compile without errors: npm run build in skeleton-app/
+- [x] T011 Add NotificationLevel type definition in skeleton-app/src/lib/domain/models/EffectResolutionStep.ts (type NotificationLevel = "silent" | "info" | "interactive")
+- [x] T012 Add notificationLevel optional property to EffectResolutionStep interface in skeleton-app/src/lib/domain/models/EffectResolutionStep.ts
+- [x] T013 Add NotificationHandler interface in skeleton-app/src/lib/application/stores/effectResolutionStore.ts (showInfo and showInteractive methods)
+- [x] T014 Add notificationHandler field to EffectResolutionState in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T015 Implement registerNotificationHandler method in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T016 Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T017 Verify types compile without errors: npm run build in skeleton-app/
 
 **Checkpoint**: Foundation ready - NotificationLevel type and NotificationHandler interface defined
 
@@ -68,15 +68,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Modify confirmCurrentStep to handle "info" notification level (call notificationHandler.showInfo) in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T019 [US1] Add 300ms delay after showInfo call for toast visibility in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
-- [ ] T020 [US1] Extend toaster.ts with showInfoToast function (accepts title and message) in skeleton-app/src/lib/presentation/utils/toaster.ts
-- [ ] T021 [US1] Implement NotificationHandler in +page.svelte (showInfo uses toaster.success) in skeleton-app/src/routes/+page.svelte
-- [ ] T022 [US1] Register NotificationHandler in onMount of +page.svelte in skeleton-app/src/routes/+page.svelte
-- [ ] T023 [US1] Add notificationLevel: "info" to PotOfGreedAction draw step in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
-- [ ] T024 [US1] Add notificationLevel: "info" to PotOfGreedAction graveyard step in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
-- [ ] T025 [US1] Run lint and format: npm run lint && npm run format in skeleton-app/
-- [ ] T026 [US1] Manual test: Activate Pot of Greed and verify 0 modals, 2 toasts appear
+- [x] T018 [US1] Modify confirmCurrentStep to handle "info" notification level (call notificationHandler.showInfo) in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T019 [US1] Add 300ms delay after showInfo call for toast visibility in skeleton-app/src/lib/application/stores/effectResolutionStore.ts
+- [x] T020 [US1] Extend toaster.ts with showInfoToast function (accepts title and message) in skeleton-app/src/lib/presentation/utils/toaster.ts
+- [x] T021 [US1] Implement NotificationHandler in +page.svelte (showInfo uses toaster.success) in skeleton-app/src/routes/+page.svelte
+- [x] T022 [US1] Register NotificationHandler in onMount of +page.svelte in skeleton-app/src/routes/+page.svelte
+- [x] T023 [US1] Add notificationLevel: "info" to PotOfGreedAction draw step in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
+- [x] T024 [US1] Add notificationLevel: "info" to PotOfGreedAction graveyard step in skeleton-app/src/lib/domain/effects/chainable/PotOfGreedAction.ts
+- [x] T025 [US1] Run lint and format: npm run lint && npm run format in skeleton-app/
+- [x] T026 [US1] Manual test: Activate Pot of Greed and verify 0 modals, 2 toasts appear
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - Pot of Greed shows toast notifications instead of modals
 

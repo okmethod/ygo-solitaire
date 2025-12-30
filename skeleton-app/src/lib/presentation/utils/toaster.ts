@@ -15,3 +15,14 @@ export function showErrorToast(title: string) {
     title: title,
   });
 }
+
+/**
+ * Show info toast notification
+ * @param summary - Toast summary (title)
+ * @param description - Toast description (message)
+ */
+export function showInfoToast(summary: string, description: string) {
+  toaster.success({
+    title: `${summary}: ${description}`,
+  });
+}
