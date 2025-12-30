@@ -228,6 +228,8 @@ function createEffectResolutionStore() {
                     currentIndex: nextIndex,
                     currentStep: s.steps[nextIndex],
                   }));
+                  // Auto-execute next step (all levels are handled by confirmCurrentStep)
+                  effectResolutionStore.confirmCurrentStep();
                 } else {
                   // 全ステップ完了
                   update((s) => ({
@@ -271,6 +273,8 @@ function createEffectResolutionStore() {
               currentIndex: nextIndex,
               currentStep: s.steps[nextIndex],
             }));
+            // Auto-execute next step (all levels are handled by confirmCurrentStep)
+            effectResolutionStore.confirmCurrentStep();
           } else {
             // 全ステップ完了
             update((s) => ({
