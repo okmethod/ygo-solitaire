@@ -138,6 +138,12 @@ function createEffectResolutionStore() {
               currentIndex: nextIndex,
               currentStep: s.steps[nextIndex],
             }));
+            // Auto-execute next step if it's also silent or info
+            const nextStep = state.steps[nextIndex];
+            const nextNotificationLevel = nextStep.notificationLevel || "info";
+            if (nextNotificationLevel === "silent" || nextNotificationLevel === "info") {
+              effectResolutionStore.confirmCurrentStep();
+            }
           } else {
             // All steps completed
             update((s) => ({
@@ -176,6 +182,12 @@ function createEffectResolutionStore() {
               currentIndex: nextIndex,
               currentStep: s.steps[nextIndex],
             }));
+            // Auto-execute next step if it's also silent or info
+            const nextStep = state.steps[nextIndex];
+            const nextNotificationLevel = nextStep.notificationLevel || "info";
+            if (nextNotificationLevel === "silent" || nextNotificationLevel === "info") {
+              effectResolutionStore.confirmCurrentStep();
+            }
           } else {
             // All steps completed
             update((s) => ({
