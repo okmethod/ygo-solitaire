@@ -59,17 +59,17 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify steps: [activation step, draw step, graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "pot-of-greed-activation",
+        id: "55144522-activation", // ID now uses card ID
         summary: "カード発動",
         description: "強欲な壺を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "pot-of-greed-draw",
+        id: "draw-2", // ID now uses step builder format
         summary: "カードをドロー",
         description: "デッキから2枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "pot-of-greed-graveyard",
+        id: "pot-0-graveyard", // ID now includes instance ID
         summary: "墓地へ送る",
         description: "強欲な壺を墓地に送ります",
       });

@@ -163,10 +163,10 @@
 
 ### Pilot Refactoring (Validate approach)
 
-- [ ] T076 [US1] Refactor `PotOfGreedActivation.ts` to extend NormalSpellAction and use step builders in `skeleton-app/src/lib/domain/effects/actions/spell/PotOfGreedActivation.ts`
-- [ ] T077 [US1] Run Pot of Greed unit tests - must pass 100%
-- [ ] T078 [US1] Run all 545 tests - must pass 100%
-- [ ] T079 [US1] Measure LOC reduction for Pot of Greed (target: 186 LOC → ~20 LOC)
+- [x] T076 [US1] Refactor `PotOfGreedActivation.ts` to extend NormalSpellAction and use step builders in `skeleton-app/src/lib/domain/effects/actions/spell/PotOfGreedActivation.ts`
+- [x] T077 [US1] Run Pot of Greed unit tests - must pass 100%
+- [x] T078 [US1] Run all 545 tests - must pass 100%
+- [x] T079 [US1] Measure LOC reduction for Pot of Greed (target: 186 LOC → ~20 LOC)
 
 ### Normal Spell Refactoring (Remaining 6 cards)
 

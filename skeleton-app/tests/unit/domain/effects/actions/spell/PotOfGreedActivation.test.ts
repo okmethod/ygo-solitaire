@@ -128,7 +128,7 @@ describe("PotOfGreedActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("pot-of-greed-activation");
+      expect(steps[0].id).toBe("55144522-activation"); // ID now uses card ID
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("強欲な壺を発動します");
       expect(steps[0].notificationLevel).toBe("info");
@@ -157,7 +157,7 @@ describe("PotOfGreedActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[0].id).toBe("pot-of-greed-draw");
+      expect(steps[0].id).toBe("draw-2"); // ID now uses step builder format
       expect(steps[0].summary).toBe("カードをドロー");
       expect(steps[0].description).toBe("デッキから2枚ドローします");
     });
@@ -171,7 +171,7 @@ describe("PotOfGreedActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[1].id).toBe("pot-of-greed-graveyard");
+      expect(steps[1].id).toBe("pot-of-greed-instance-1-graveyard"); // ID now includes instance ID
       expect(steps[1].summary).toBe("墓地へ送る");
       expect(steps[1].description).toBe("強欲な壺を墓地に送ります");
     });
