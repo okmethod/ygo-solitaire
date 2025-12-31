@@ -263,7 +263,7 @@ skeleton-app/src/lib/presentation/
 
 ## 関連ドキュメント
 
-- [遊戯王ルール](../domain/yugioh-rules.md) - ドメイン知識
-- [データモデル設計](./data-model-design.md) - ドメイン内の静的データモデルと外部 API 由来のデータ統合
+- [ドメイン知識](../domain/overview.md) - 遊戯王ルール
+- [Card モデル設計](./card-model-design.md) - ドメイン内の静的データモデルと外部 API 由来のデータ統合
 - [テスト戦略](./testing-strategy.md) - テストの方針と実装方法
 - [設計判断記録](../adr/) - アーキテクチャ上の重要な決定を記録

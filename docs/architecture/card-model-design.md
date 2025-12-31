@@ -1,28 +1,29 @@
-# データモデル設計
+# Card モデル設計
 
 ## 概要
 
-YGO Solitaire のデータモデルは、Clean Architecture の 3 層構造で設計されています:
+YGO Solitaire の Card モデルは、Clean Architecture の 3 層構造で設計されている:
 
-- **Domain Layer**: ゲームロジック用の最小限のカードデータ
-- **Application Layer**: データ変換と API 統合
+- **Domain Layer**: ゲームロジックに必要な定義をハードコード
+  - **CardData**: ゲームロジック用カードデータのモデル化と具体実装とレジストリ
+- **Application Layer**: データ変換と 外部 API 統合
+  - **convertToCardDisplayData**: YGOPRODeck API で取得した情報を統合
 - **Presentation Layer**: UI 表示用の完全なカードデータ
+  - **CardDisplayData**: 画像等を結合したカードデータのモデル
 
-この 3 層構造により、以下を実現しています:
+この 3 層構造により、以下を実現している:
 
 1. **明確な責務分離**: Domain/Application/Presentation の各層が独立
-2. **型安全性**: TypeScript による厳密な型チェック
-3. **API 互換性**: YGOPRODeck API とのシームレスな統合
-4. **段階的移行**: 既存コードへの影響を最小化
-5. **パフォーマンス**: バッチリクエストとキャッシング戦略
+2. **API 互換性**: YGOPRODeck API とのシームレスな統合
+3. **パフォーマンス**: バッチリクエストとキャッシング戦略
 
-この設計により、保守性・拡張性・テスタビリティの高いコードベースを実現しています。
+この設計により、保守性・拡張性・テスタビリティの高いコードベースを実現している。
 
 ---
 
 ## Domain Layer
 
-### `DomainCardData`
+### `CardData`
 
 ゲーム状態管理に必要な最小限のカード情報のみを保持。
 
@@ -94,14 +95,14 @@ YGOPRODeck API レスポンス → `CardDisplayData` への変換。
 
 **`loadDeckData()`**
 
-デッキレシピからカードデータを読み込み、DomainCardData と CardDisplayData を生成。
+デッキレシピからカードデータを読み込み、CardData と CardDisplayData を生成。
 
 **処理フロー**:
 
 1. デッキレシピ取得
 2. カード ID 一覧抽出
 3. API 経由でカードデータ取得（バッチ+キャッシュ）
-4. DomainCardData 配列生成
+4. CardData 配列生成
 5. CardDisplayData 配列生成
 
 **実装**: `src/lib/application/utils/deckLoader.ts`

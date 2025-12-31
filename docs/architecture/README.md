@@ -20,9 +20,9 @@ Clean Architecture の概要と設計原則
 
 ---
 
-### [data-model-design.md](./data-model-design.md)
+### [card-model-design.md](./card-model-design.md)
 
-データモデル設計と API 統合
+Card モデル設計と API 統合
 
 **内容**:
 
