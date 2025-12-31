@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { get } from "svelte/store";
-import { ExodiaVictoryRule } from "$lib/domain/effects/additional/ExodiaVictoryRule";
+import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
 
 describe("GameFacade", () => {
   let facade: GameFacade;
@@ -87,7 +87,7 @@ describe("GameFacade", () => {
     it("should detect Exodia victory after drawing", () => {
       // Initialize with 4 Exodia pieces in deck (will be drawn)
       // and 1 Exodia piece already in hand
-      const exodiaNumericIds = ExodiaVictoryRule.getExodiaPieceIds();
+      const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
       facade.initializeGame([...exodiaNumericIds.slice(0, 4)]); // 数値ID (T025)
 
       // Manually set 5th piece in hand (simulating previous draw)
@@ -283,7 +283,7 @@ describe("GameFacade", () => {
     });
 
     it("should detect Exodia victory", () => {
-      const exodiaNumericIds = ExodiaVictoryRule.getExodiaPieceIds();
+      const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
       facade.initializeGame([...exodiaNumericIds]); // 数値ID (T025)
       facade.drawCard(5); // Draw all Exodia pieces
 

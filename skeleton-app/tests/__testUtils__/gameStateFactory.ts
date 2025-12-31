@@ -14,7 +14,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState";
 import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
 import type { GamePhase } from "$lib/domain/models/Phase";
-import { ExodiaVictoryRule } from "$lib/domain/effects/additional/ExodiaVictoryRule";
+import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
 
 /**
  * Create a minimal game state for testing
@@ -98,7 +98,7 @@ export function createCardInstances(
  */
 export function createExodiaDeckState(): GameState {
   const exodiaDeck = [
-    ...ExodiaVictoryRule.getExodiaPieceIds(), // 5 Exodia pieces
+    ...ExodiaNonEffect.getExodiaPieceIds(), // 5 Exodia pieces
     "19613556", // Pot of Greed (x3)
     "19613556",
     "19613556",
@@ -160,7 +160,7 @@ export function createExodiaVictoryState(): GameState {
   return createMockGameState({
     zones: {
       deck: createCardInstances(Array(35).fill("12345678"), "deck"),
-      hand: createCardInstances([...ExodiaVictoryRule.getExodiaPieceIds()], "hand"),
+      hand: createCardInstances([...ExodiaNonEffect.getExodiaPieceIds()], "hand"),
       field: [],
       graveyard: [],
       banished: [],

@@ -117,10 +117,10 @@
 ```typescript
 // domain/registries/ChainableActionRegistry.ts
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { PotOfGreedAction } from "$lib/domain/effects/chainable/PotOfGreedAction";
+import { PotOfGreedActivation } from "$lib/domain/effects/actions/spell/PotOfGreedActivation";
 
 // カード効果の登録
-ChainableActionRegistry.register(55144522, new PotOfGreedAction());
+ChainableActionRegistry.register(55144522, new PotOfGreedActivation());
 
 // カード効果の取得
 const action = ChainableActionRegistry.get(55144522);
@@ -135,10 +135,10 @@ if (action && action.canActivate(state)) {
 ```typescript
 // domain/registries/AdditionalRuleRegistry.ts
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
-import { ChickenGameContinuousRule } from "$lib/domain/effects/additional/ChickenGameContinuousRule";
+import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spell/ChickenGameContinuousEffect";
 
 // 永続効果の登録
-AdditionalRuleRegistry.register(67616300, new ChickenGameContinuousRule());
+AdditionalRuleRegistry.register(67616300, new ChickenGameContinuousEffect());
 
 // カテゴリ別フィルタ
 const actionPermissions = AdditionalRuleRegistry.getByCategory(67616300, "ActionPermission");
@@ -225,8 +225,8 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
   }
 }
 
-// ChickenGameContinuousRule.ts - 永続効果
-export class ChickenGameContinuousRule implements AdditionalRule {
+// ChickenGameContinuousEffect.ts - 永続効果
+export class ChickenGameContinuousEffect implements AdditionalRule {
   readonly isEffect = true;
   readonly category: RuleCategory = "ActionPermission";
 

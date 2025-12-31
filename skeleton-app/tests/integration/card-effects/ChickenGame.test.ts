@@ -9,7 +9,7 @@
  * Test Coverage:
  * - Card activation flow (hand → field, field spell zone check)
  * - Ignition effect activation flow (LP payment, draw, once per turn restriction)
- * - Continuous effect (ChickenGameContinuousRule integration)
+ * - Continuous effect (ChickenGameContinuousEffect integration)
  * - Phase transitions clear once per turn tracking
  *
  * @module tests/integration/card-effects/ChickenGame
@@ -19,7 +19,7 @@ import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameState } from "$lib/domain/models/GameState";
 
@@ -259,9 +259,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
   });
 
   describe("Continuous Effect (Damage Prevention)", () => {
-    it("Note: Continuous effect tested in ChickenGameContinuousRule.test.ts", () => {
+    it("Note: Continuous effect tested in ChickenGameContinuousEffect.test.ts", () => {
       // The continuous effect (damage prevention when LP is lower) is tested
-      // in unit tests for ChickenGameContinuousRule (AdditionalRule).
+      // in unit tests for ChickenGameContinuousEffect (AdditionalRule).
       // Integration with actual damage commands will be tested when
       // damage mechanics are fully implemented.
       expect(true).toBe(true);

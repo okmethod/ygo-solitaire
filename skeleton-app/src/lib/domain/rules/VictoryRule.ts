@@ -10,7 +10,7 @@
  */
 
 import type { GameState, GameResult } from "../models/GameState";
-import { ExodiaVictoryRule } from "../effects/additional/ExodiaVictoryRule";
+import { ExodiaNonEffect } from "../effects/rules/monster/ExodiaNonEffect";
 
 /**
  * Check victory conditions and return game result
@@ -24,7 +24,7 @@ import { ExodiaVictoryRule } from "../effects/additional/ExodiaVictoryRule";
  */
 export function checkVictoryConditions(state: GameState): GameResult {
   // 1. Special victory conditions (AdditionalRule pattern)
-  const exodiaRule = new ExodiaVictoryRule();
+  const exodiaRule = new ExodiaNonEffect();
   if (exodiaRule.canApply(state, {}) && exodiaRule.checkPermission(state, {})) {
     return {
       isGameOver: true,

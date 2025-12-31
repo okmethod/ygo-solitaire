@@ -17,7 +17,7 @@ import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/chainable/ChickenGameIgnitionEffect";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
 
