@@ -61,7 +61,7 @@
 3. **tasks.md 更新**: 完了タスクを`[x]`にマーク（重要！）
 4. コミット・push・PR 作成
 
-**注**: テスト実行後、vitestやplaywrightの残存プロセスは`posttest`スクリプトで自動的にクリーンアップされます。手動クリーンアップは不要です。
+**注**: テスト実行後、vitest や playwright の残存プロセスは`posttest`スクリプトで自動的にクリーンアップされます。手動クリーンアップは不要です。
 
 ### よく使うコマンド（skeleton-app/内）
 
@@ -115,11 +115,8 @@ npm run deploy        # GitHub Pages
 - [specs/006-ux-automation/](specs/006-ux-automation/) - UX 改善（自動フェーズ進行・デッキシャッフル・自動勝利判定）✅ 完了
 
 ## Active Technologies
-- TypeScript 5.0 (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability) (009-victory-rule-refactor)
-- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode) + SvelteKit 2.16, Immer.js (immutability), TailwindCSS 4.0, Skeleton UI 3.1 (011-card-pool-expansion)
-- N/A (client-side only, state in memory) (011-card-pool-expansion)
 
-- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2 + Vitest (testing), Immer.js (immutability), TailwindCSS (styling), Skeleton UI
+- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability), Vitest (unit testing), Playwright (E2E testing), TailwindCSS (styling), Skeleton UI
 - Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
 - N/A (フロントエンドのみ、状態はメモリ内)
 
