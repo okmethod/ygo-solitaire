@@ -1,8 +1,7 @@
 # 効果モデル
 
-**実装状況**: ✅ 実装済み (2025-01-28)
 **実装箇所**: `domain/models/ChainableAction.ts`, `domain/models/AdditionalRule.ts`
-**参考資料**: [Conditions, Activations, and Effects](https://www.yugioh-card.com/eu/play/understanding-card-text/part-3-conditions-activations-and-effects/)
+**参考資料**: [Problem-Solving Card Text, Part 3: Conditions, Activations, and Effects](https://www.yugioh-card.com/en/play/psct/psct-3/)
 
 ---
 
@@ -145,11 +144,7 @@ AdditionalRuleRegistry.register(67616300, new ChickenGameContinuousRule());
 const actionPermissions = AdditionalRuleRegistry.getByCategory(67616300, "ActionPermission");
 
 // フィールド全体から適用可能なルールを収集
-const activeRules = AdditionalRuleRegistry.collectActiveRules(
-  state,
-  "ActionPermission",
-  { damageTarget: "player" }
-);
+const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission", { damageTarget: "player" });
 ```
 
 ### Chicken Game (チキンレース) の実装例
@@ -201,10 +196,7 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
         action: (state) => {
           const newLp = { ...state.lp, player: state.lp.player - 1000 };
           const effectKey = `${this.cardInstanceId}:chicken-game-ignition`;
-          const newActivatedEffects = new Set([
-            ...state.activatedIgnitionEffectsThisTurn,
-            effectKey,
-          ]);
+          const newActivatedEffects = new Set([...state.activatedIgnitionEffectsThisTurn, effectKey]);
           return {
             success: true,
             newState: {
@@ -239,9 +231,7 @@ export class ChickenGameContinuousRule implements AdditionalRule {
   readonly category: RuleCategory = "ActionPermission";
 
   canApply(state: GameState, context: RuleContext): boolean {
-    const chickenGameOnField = state.zones.field.some(
-      card => card.id === 67616300 && card.position === "faceUp"
-    );
+    const chickenGameOnField = state.zones.field.some((card) => card.id === 67616300 && card.position === "faceUp");
     if (!chickenGameOnField) return false;
 
     const damageTarget = context.damageTarget || "player";

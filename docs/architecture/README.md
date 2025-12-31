@@ -26,7 +26,7 @@ Card モデル設計と API 統合
 
 **内容**:
 
-- 3 層データモデル（DomainCardData/CardDisplayData）
+- 3 層データモデル（CardData/CardDisplayData）
 - レイヤー別のデータ構造と責務
 - YGOPRODeck API 統合とキャッシング戦略
 - データ変換フロー

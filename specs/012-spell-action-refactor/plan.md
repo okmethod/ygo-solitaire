@@ -135,8 +135,8 @@ skeleton-app/src/lib/domain/effects/
 │
 ├── rules/                         # Continuous rule effects (renamed from additional/)
 │   └── spell/                     # Spell card continuous effects
-│       ├── ChickenGameContinuousRule.ts
-│       └── ExodiaVictoryRule.ts
+│       ├── ChickenGameContinuousEffect.ts
+│       └── ExodiaNonEffect.ts
 │
 ├── models/                        # Domain models (unchanged)
 │   ├── ChainableAction.ts
@@ -170,8 +170,8 @@ skeleton-app/tests/unit/domain/effects/
 │
 ├── rules/                         # Rule tests (renamed from additional/)
 │   └── spell/                     # Spell rule tests
-│       ├── ChickenGameContinuousRule.test.ts
-│       └── ExodiaVictoryRule.test.ts
+│       ├── ChickenGameContinuousEffect.test.ts
+│       └── ExodiaNonEffect.test.ts
 │
 └── helpers/                       # NEW (P3): Common test helpers
     └── spellActionTestHelpers.ts  # Shared test utilities
@@ -229,7 +229,7 @@ All existing spell card files will be moved from `chainable/` to `actions/spell/
 | Card Activation | `Activation` | `PotOfGreedActivation.ts` | Normal/Quick-Play spell activation (activation = effect resolution) |
 | Ignition Effect | `IgnitionEffect` | `ChickenGameIgnitionEffect.ts` | Activated effect from field (e.g., Field Spell ignition effect) |
 | Continuous Effect | `ContinuousEffect` | `ChickenGameContinuousEffect.ts` | Passive continuous rule effect (AdditionalRule) |
-| Victory Condition | `VictoryCondition` | `ExodiaVictoryCondition.ts` | Special win condition (AdditionalRule) |
+| Non-Effect | `NonEffect` | `ExodiaNonEffect.ts` | Effect-external text (cannot be negated) - e.g., special win conditions |
 
 **Rationale**:
 - **Domain alignment**: Matches Yu-Gi-Oh! terminology (Activation, Ignition Effect, Continuous Effect)
@@ -252,7 +252,7 @@ All existing spell card files will be moved from `chainable/` to `actions/spell/
 | `ChickenGameActivation.ts` | `ChickenGameActivation.ts` | Field Spell activation (unchanged) |
 | `ChickenGameIgnitionEffect.ts` | `ChickenGameIgnitionEffect.ts` | Field Spell ignition effect (unchanged) |
 | `ChickenGameContinuousRule.ts` | `ChickenGameContinuousEffect.ts` | Field Spell continuous effect |
-| `ExodiaVictoryRule.ts` | `ExodiaVictoryCondition.ts` | Victory condition |
+| `ExodiaVictoryRule.ts` | `ExodiaNonEffect.ts` | Non-effect (special win condition) |
 
 ### 2. Abstract Class Hierarchy Design
 
@@ -587,7 +587,7 @@ _Actions (8 files to rename):_
 
 _Rules (2 files to rename):_
 13. Rename `rules/ChickenGameContinuousRule.ts` → `ChickenGameContinuousEffect.ts`
-14. Rename `rules/ExodiaVictoryRule.ts` → `ExodiaVictoryCondition.ts`
+14. Rename `rules/ExodiaVictoryRule.ts` → `ExodiaNonEffect.ts`
 
 _Tests (10 files to rename):_
 15. Rename all corresponding test files (8 Action tests + 2 Rule tests) with new suffixes
@@ -600,7 +600,7 @@ _Tests (10 files to rename):_
 18. Create `skeleton-app/src/lib/domain/effects/actions/spell/` directory
 19. Move all 10 spell card Activation files to `actions/spell/`
 20. Create `skeleton-app/src/lib/domain/effects/rules/spell/` directory
-21. Move `ChickenGameContinuousEffect.ts` and `ExodiaVictoryCondition.ts` to `rules/spell/`
+21. Move `ChickenGameContinuousEffect.ts` and `ExodiaNonEffect.ts` to `rules/spell/`
 22. Create `skeleton-app/tests/unit/domain/effects/actions/spell/` directory
 23. Move all 10 spell card test files to `tests/.../actions/spell/`
 24. Create `skeleton-app/tests/unit/domain/effects/rules/spell/` directory
@@ -613,9 +613,9 @@ _Tests (10 files to rename):_
    - `additional/` → `rules/spell/`
    - `xxxAction` → `xxxActivation` (8 files)
    - `ChickenGameContinuousRule` → `ChickenGameContinuousEffect`
-   - `ExodiaVictoryRule` → `ExodiaVictoryCondition`
+   - `ExodiaVictoryRule` → `ExodiaNonEffect`
 28. Update `skeleton-app/src/lib/domain/rules/VictoryRule.ts`:
-   - `../effects/additional/ExodiaVictoryRule` → `../effects/rules/spell/ExodiaVictoryCondition`
+   - `../effects/additional/ExodiaVictoryRule` → `../effects/rules/spell/ExodiaNonEffect`
 29. Update `skeleton-app/src/lib/application/GameFacade.ts` - update import paths and class names
 30. Update all test files that import from effects (26+ files total)
 31. Update JSDoc `@module` comments in all moved files (12 files)

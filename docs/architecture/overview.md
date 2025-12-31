@@ -51,10 +51,11 @@ skeleton-app/src/lib/
 ```
 skeleton-app/src/lib/domain/
 ├── models/      # データモデル
+├── rules/       # 基本ルール
 ├── registries/  # 各種レジストリ（Registry Pattern）
 ├── effects/     # 効果処理
-│   ├── chainable/   # チェーンブロックを作る処理の具象実装
-│   └── additional/  # 追加ルールの具象実装
+│   ├── actions/ # チェーンブロックを作る処理の具象実装
+│   └── rules/   # 追加ルールの具象実装
 └── commands/    # ゲーム操作の具象実装（Command Pattern）
 ```
 
@@ -265,5 +266,6 @@ skeleton-app/src/lib/presentation/
 
 - [ドメイン知識](../domain/overview.md) - 遊戯王ルール
 - [Card モデル設計](./card-model-design.md) - ドメイン内の静的データモデルと外部 API 由来のデータ統合
+- [Effect モデル設計](./effect-model-design.md) - 効果処理の配置設計
 - [テスト戦略](./testing-strategy.md) - テストの方針と実装方法
 - [設計判断記録](../adr/) - アーキテクチャ上の重要な決定を記録
