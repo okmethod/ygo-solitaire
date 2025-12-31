@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization - no changes needed (existing TypeScript/Svelte project)
 
-- [ ] T001 Verify all existing 545 tests pass as baseline (`npm run test:run` in `skeleton-app/`)
+- [x] T001 Verify all existing 545 tests pass as baseline (`npm run test:run` in `skeleton-app/`)
 
 ---
 
@@ -42,25 +42,25 @@
 
 ### Implementation for US2
 
-- [ ] T002 [P] [US2] Create BaseSpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/BaseSpellAction.ts`
-- [ ] T003 [P] [US2] Create NormalSpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/NormalSpellAction.ts`
-- [ ] T004 [P] [US2] Create QuickPlaySpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/QuickPlaySpellAction.ts`
-- [ ] T005 [P] [US2] Create FieldSpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/FieldSpellAction.ts`
-- [ ] T006 [P] [US2] Create createDrawStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T007 [P] [US2] Create createSendToGraveyardStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T008 [P] [US2] Create createCardSelectionStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T009 [P] [US2] Create createGainLifeStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T010 [P] [US2] Create createDamageStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T011 [P] [US2] Create createShuffleStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T012 [P] [US2] Create createReturnToDeckStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
-- [ ] T013 [US2] Create builders index file in `skeleton-app/src/lib/domain/effects/builders/index.ts` (exports all step builders)
-- [ ] T014 [P] [US2] Create unit tests for BaseSpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/BaseSpellAction.test.ts`
-- [ ] T015 [P] [US2] Create unit tests for NormalSpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/NormalSpellAction.test.ts`
-- [ ] T016 [P] [US2] Create unit tests for QuickPlaySpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/QuickPlaySpellAction.test.ts`
-- [ ] T017 [P] [US2] Create unit tests for FieldSpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/FieldSpellAction.test.ts`
-- [ ] T018 [P] [US2] Create unit tests for stepBuilders in `skeleton-app/tests/unit/domain/effects/builders/stepBuilders.test.ts`
-- [ ] T019 [US2] Update effects index to export new base classes and builders in `skeleton-app/src/lib/domain/effects/index.ts`
-- [ ] T020 [US2] Run all 545 tests - must pass 100%
+- [x] T002 [P] [US2] Create BaseSpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/BaseSpellAction.ts`
+- [x] T003 [P] [US2] Create NormalSpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/NormalSpellAction.ts`
+- [x] T004 [P] [US2] Create QuickPlaySpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/QuickPlaySpellAction.ts`
+- [x] T005 [P] [US2] Create FieldSpellAction abstract class in `skeleton-app/src/lib/domain/effects/base/spell/FieldSpellAction.ts`
+- [x] T006 [P] [US2] Create createDrawStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T007 [P] [US2] Create createSendToGraveyardStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T008 [P] [US2] Create createCardSelectionStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T009 [P] [US2] Create createGainLifeStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T010 [P] [US2] Create createDamageStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T011 [P] [US2] Create createShuffleStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T012 [P] [US2] Create createReturnToDeckStep helper function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts`
+- [x] T013 [US2] Create builders index file in `skeleton-app/src/lib/domain/effects/builders/index.ts` (exports all step builders)
+- [x] T014 [P] [US2] Create unit tests for BaseSpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/BaseSpellAction.test.ts`
+- [x] T015 [P] [US2] Create unit tests for NormalSpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/NormalSpellAction.test.ts`
+- [x] T016 [P] [US2] Create unit tests for QuickPlaySpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/QuickPlaySpellAction.test.ts`
+- [x] T017 [P] [US2] Create unit tests for FieldSpellAction in `skeleton-app/tests/unit/domain/effects/base/spell/FieldSpellAction.test.ts`
+- [x] T018 [P] [US2] Create unit tests for stepBuilders in `skeleton-app/tests/unit/domain/effects/builders/stepBuilders.test.ts`
+- [x] T019 [US2] Update effects index to export new base classes and builders in `skeleton-app/src/lib/domain/effects/index.ts`
+- [x] T020 [US2] Run all 545 tests - must pass 100%
 
 **Checkpoint**: Foundation ready - abstract classes and builders validated, card refactoring can now begin
 
@@ -74,82 +74,82 @@
 
 ### Step 1: Rename top-level directories
 
-- [ ] T021 Rename `skeleton-app/src/lib/domain/effects/chainable/` → `actions/`
-- [ ] T022 Rename `skeleton-app/src/lib/domain/effects/additional/` → `rules/`
-- [ ] T023 Rename `skeleton-app/tests/unit/domain/effects/chainable/` → `actions/`
-- [ ] T024 Rename `skeleton-app/tests/unit/domain/effects/additional/` → `rules/`
+- [x] T021 Rename `skeleton-app/src/lib/domain/effects/chainable/` → `actions/`
+- [x] T022 Rename `skeleton-app/src/lib/domain/effects/additional/` → `rules/`
+- [x] T023 Rename `skeleton-app/tests/unit/domain/effects/chainable/` → `actions/`
+- [x] T024 Rename `skeleton-app/tests/unit/domain/effects/additional/` → `rules/`
 
 ### Step 2: Rename effect implementation files (8 Action + 2 Rule files)
 
-- [ ] T025 [P] Rename `actions/PotOfGreedAction.ts` → `PotOfGreedActivation.ts`
-- [ ] T026 [P] Rename `actions/GracefulCharityAction.ts` → `GracefulCharityActivation.ts`
-- [ ] T027 [P] Rename `actions/OneDayOfPeaceAction.ts` → `OneDayOfPeaceActivation.ts`
-- [ ] T028 [P] Rename `actions/MagicalMalletAction.ts` → `MagicalMalletActivation.ts`
-- [ ] T029 [P] Rename `actions/UpstartGoblinAction.ts` → `UpstartGoblinActivation.ts`
-- [ ] T030 [P] Rename `actions/DarkFactoryAction.ts` → `DarkFactoryActivation.ts`
-- [ ] T031 [P] Rename `actions/TerraformingAction.ts` → `TerraformingActivation.ts`
-- [ ] T032 [P] Rename `actions/CardDestructionAction.ts` → `CardDestructionActivation.ts`
-- [ ] T033 [P] Rename `rules/ChickenGameContinuousRule.ts` → `ChickenGameContinuousEffect.ts`
-- [ ] T034 [P] Rename `rules/ExodiaVictoryRule.ts` → `ExodiaNonEffect.ts`
+- [x] T025 [P] Rename `actions/PotOfGreedAction.ts` → `PotOfGreedActivation.ts`
+- [x] T026 [P] Rename `actions/GracefulCharityAction.ts` → `GracefulCharityActivation.ts`
+- [x] T027 [P] Rename `actions/OneDayOfPeaceAction.ts` → `OneDayOfPeaceActivation.ts`
+- [x] T028 [P] Rename `actions/MagicalMalletAction.ts` → `MagicalMalletActivation.ts`
+- [x] T029 [P] Rename `actions/UpstartGoblinAction.ts` → `UpstartGoblinActivation.ts`
+- [x] T030 [P] Rename `actions/DarkFactoryAction.ts` → `DarkFactoryActivation.ts`
+- [x] T031 [P] Rename `actions/TerraformingAction.ts` → `TerraformingActivation.ts`
+- [x] T032 [P] Rename `actions/CardDestructionAction.ts` → `CardDestructionActivation.ts`
+- [x] T033 [P] Rename `rules/ChickenGameContinuousRule.ts` → `ChickenGameContinuousEffect.ts`
+- [x] T034 [P] Rename `rules/ExodiaVictoryRule.ts` → `ExodiaNonEffect.ts`
 
 ### Step 3: Rename corresponding test files (8 Action tests + 2 Rule tests)
 
-- [ ] T035 [P] Rename `actions/PotOfGreedAction.test.ts` → `PotOfGreedActivation.test.ts`
-- [ ] T036 [P] Rename `actions/GracefulCharityAction.test.ts` → `GracefulCharityActivation.test.ts`
-- [ ] T037 [P] Rename `actions/OneDayOfPeaceAction.test.ts` → `OneDayOfPeaceActivation.test.ts`
-- [ ] T038 [P] Rename `actions/MagicalMalletAction.test.ts` → `MagicalMalletActivation.test.ts`
-- [ ] T039 [P] Rename `actions/UpstartGoblinAction.test.ts` → `UpstartGoblinActivation.test.ts`
-- [ ] T040 [P] Rename `actions/DarkFactoryAction.test.ts` → `DarkFactoryActivation.test.ts`
-- [ ] T041 [P] Rename `actions/TerraformingAction.test.ts` → `TerraformingActivation.test.ts`
-- [ ] T042 [P] Rename `actions/CardDestructionAction.test.ts` → `CardDestructionActivation.test.ts`
-- [ ] T043 [P] Rename `rules/ChickenGameContinuousRule.test.ts` → `ChickenGameContinuousEffect.test.ts`
-- [ ] T044 [P] Rename `rules/ExodiaVictoryRule.test.ts` → `ExodiaNonEffect.test.ts`
+- [x] T035 [P] Rename `actions/PotOfGreedAction.test.ts` → `PotOfGreedActivation.test.ts`
+- [x] T036 [P] Rename `actions/GracefulCharityAction.test.ts` → `GracefulCharityActivation.test.ts`
+- [x] T037 [P] Rename `actions/OneDayOfPeaceAction.test.ts` → `OneDayOfPeaceActivation.test.ts`
+- [x] T038 [P] Rename `actions/MagicalMalletAction.test.ts` → `MagicalMalletActivation.test.ts`
+- [x] T039 [P] Rename `actions/UpstartGoblinAction.test.ts` → `UpstartGoblinActivation.test.ts`
+- [x] T040 [P] Rename `actions/DarkFactoryAction.test.ts` → `DarkFactoryActivation.test.ts`
+- [x] T041 [P] Rename `actions/TerraformingAction.test.ts` → `TerraformingActivation.test.ts`
+- [x] T042 [P] Rename `actions/CardDestructionAction.test.ts` → `CardDestructionActivation.test.ts`
+- [x] T043 [P] Rename `rules/ChickenGameContinuousRule.test.ts` → `ChickenGameContinuousEffect.test.ts`
+- [x] T044 [P] Rename `rules/ExodiaVictoryRule.test.ts` → `ExodiaNonEffect.test.ts`
 
 ### Step 4: Update class names inside renamed files
 
-- [ ] T045 [P] Update class name PotOfGreedAction → PotOfGreedActivation in `actions/PotOfGreedActivation.ts`
-- [ ] T046 [P] Update class name GracefulCharityAction → GracefulCharityActivation in `actions/GracefulCharityActivation.ts`
-- [ ] T047 [P] Update class name OneDayOfPeaceAction → OneDayOfPeaceActivation in `actions/OneDayOfPeaceActivation.ts`
-- [ ] T048 [P] Update class name MagicalMalletAction → MagicalMalletActivation in `actions/MagicalMalletActivation.ts`
-- [ ] T049 [P] Update class name UpstartGoblinAction → UpstartGoblinActivation in `actions/UpstartGoblinActivation.ts`
-- [ ] T050 [P] Update class name DarkFactoryAction → DarkFactoryActivation in `actions/DarkFactoryActivation.ts`
-- [ ] T051 [P] Update class name TerraformingAction → TerraformingActivation in `actions/TerraformingActivation.ts`
-- [ ] T052 [P] Update class name CardDestructionAction → CardDestructionActivation in `actions/CardDestructionActivation.ts`
-- [ ] T053 [P] Update class name ChickenGameContinuousRule → ChickenGameContinuousEffect in `rules/ChickenGameContinuousEffect.ts`
-- [ ] T054 [P] Update class name ExodiaVictoryRule → ExodiaNonEffect in `rules/ExodiaNonEffect.ts`
+- [x] T045 [P] Update class name PotOfGreedAction → PotOfGreedActivation in `actions/PotOfGreedActivation.ts`
+- [x] T046 [P] Update class name GracefulCharityAction → GracefulCharityActivation in `actions/GracefulCharityActivation.ts`
+- [x] T047 [P] Update class name OneDayOfPeaceAction → OneDayOfPeaceActivation in `actions/OneDayOfPeaceActivation.ts`
+- [x] T048 [P] Update class name MagicalMalletAction → MagicalMalletActivation in `actions/MagicalMalletActivation.ts`
+- [x] T049 [P] Update class name UpstartGoblinAction → UpstartGoblinActivation in `actions/UpstartGoblinActivation.ts`
+- [x] T050 [P] Update class name DarkFactoryAction → DarkFactoryActivation in `actions/DarkFactoryActivation.ts`
+- [x] T051 [P] Update class name TerraformingAction → TerraformingActivation in `actions/TerraformingActivation.ts`
+- [x] T052 [P] Update class name CardDestructionAction → CardDestructionActivation in `actions/CardDestructionActivation.ts`
+- [x] T053 [P] Update class name ChickenGameContinuousRule → ChickenGameContinuousEffect in `rules/ChickenGameContinuousEffect.ts`
+- [x] T054 [P] Update class name ExodiaVictoryRule → ExodiaNonEffect in `rules/ExodiaNonEffect.ts`
 
 ### Step 5: Create spell/ subdirectories and move files
 
-- [ ] T055 Create `skeleton-app/src/lib/domain/effects/actions/spell/` directory
-- [ ] T056 Move all 10 spell card Activation files to `actions/spell/` (PotOfGreed, GracefulCharity, OneDayOfPeace, MagicalMallet, UpstartGoblin, DarkFactory, Terraforming, CardDestruction, ChickenGameActivation, ChickenGameIgnitionEffect)
-- [ ] T057 Create `skeleton-app/src/lib/domain/effects/rules/spell/` directory
-- [ ] T058 Move ChickenGameContinuousEffect.ts and ExodiaNonEffect.ts to `rules/spell/`
-- [ ] T059 Create `skeleton-app/tests/unit/domain/effects/actions/spell/` directory
-- [ ] T060 Move all 10 spell card test files to `tests/.../actions/spell/`
-- [ ] T061 Create `skeleton-app/tests/unit/domain/effects/rules/spell/` directory
-- [ ] T062 Move 2 rule test files (ChickenGameContinuousEffect.test.ts, ExodiaNonEffect.test.ts) to `tests/.../rules/spell/`
+- [x] T055 Create `skeleton-app/src/lib/domain/effects/actions/spell/` directory
+- [x] T056 Move all 10 spell card Activation files to `actions/spell/` (PotOfGreed, GracefulCharity, OneDayOfPeace, MagicalMallet, UpstartGoblin, DarkFactory, Terraforming, CardDestruction, ChickenGameActivation, ChickenGameIgnitionEffect)
+- [x] T057 Create `skeleton-app/src/lib/domain/effects/rules/spell/` directory
+- [x] T058 Move ChickenGameContinuousEffect.ts and ExodiaNonEffect.ts to `rules/spell/`
+- [x] T059 Create `skeleton-app/tests/unit/domain/effects/actions/spell/` directory
+- [x] T060 Move all 10 spell card test files to `tests/.../actions/spell/`
+- [x] T061 Create `skeleton-app/tests/unit/domain/effects/rules/spell/` directory
+- [x] T062 Move 2 rule test files (ChickenGameContinuousEffect.test.ts, ExodiaNonEffect.test.ts) to `tests/.../rules/spell/`
 
 ### Step 6: Update all import paths and references
 
-- [ ] T063 Update relative import paths in all moved card files (12 files: adjust `../../` depth)
-- [ ] T064 Update `skeleton-app/src/lib/domain/effects/index.ts` - change `chainable/` → `actions/spell/`, `additional/` → `rules/spell/`, update all class names
-- [ ] T065 Update `skeleton-app/src/lib/domain/rules/VictoryRule.ts` - change `../effects/additional/ExodiaVictoryRule` → `../effects/rules/spell/ExodiaNonEffect`
-- [ ] T066 Update `skeleton-app/src/lib/application/GameFacade.ts` - update import paths and class names
-- [ ] T067 Update registry files (`ChainableActionRegistry.ts`, `AdditionalRuleRegistry.ts`) - update import paths and class names
-- [ ] T068 Update all test files that import from effects (26+ files total)
-- [ ] T069 Update JSDoc `@module` comments in all moved files (12 files)
+- [x] T063 Update relative import paths in all moved card files (12 files: adjust `../../` depth)
+- [x] T064 Update `skeleton-app/src/lib/domain/effects/index.ts` - change `chainable/` → `actions/spell/`, `additional/` → `rules/spell/`, update all class names
+- [x] T065 Update `skeleton-app/src/lib/domain/rules/VictoryRule.ts` - change `../effects/additional/ExodiaVictoryRule` → `../effects/rules/spell/ExodiaNonEffect`
+- [x] T066 Update `skeleton-app/src/lib/application/GameFacade.ts` - update import paths and class names
+- [x] T067 Update registry files (`ChainableActionRegistry.ts`, `AdditionalRuleRegistry.ts`) - update import paths and class names
+- [x] T068 Update all test files that import from effects (26+ files total)
+- [x] T069 Update JSDoc `@module` comments in all moved files (12 files)
 
 ### Step 7: Update documentation
 
-- [ ] T070 [P] Update `docs/architecture/overview.md` - change directory references and class names
-- [ ] T071 [P] Update `docs/adr/0008-effect-model-and-clean-architecture.md` - change directory references and class names
-- [ ] T072 [P] Update `docs/architecture/effect-model-design.md` - change directory references (already updated in previous session)
+- [x] T070 [P] Update `docs/architecture/overview.md` - change directory references and class names
+- [x] T071 [P] Update `docs/adr/0008-effect-model-and-clean-architecture.md` - change directory references and class names
+- [x] T072 [P] Update `docs/architecture/effect-model-design.md` - change directory references (already updated in previous session)
 
 ### Step 8: Validate restructuring
 
-- [ ] T073 Run all 545 tests - must pass 100%
-- [ ] T074 Run lint/format checks (`npm run lint && npm run format` in `skeleton-app/`)
-- [ ] T075 Verify no broken imports remain (TypeScript compiler check)
+- [x] T073 Run all 545 tests - must pass 100%
+- [x] T074 Run lint/format checks (`npm run lint && npm run format` in `skeleton-app/`)
+- [x] T075 Verify no broken imports remain (TypeScript compiler check)
 
 **Checkpoint**: Directory structure updated, all tests passing, ready for card refactoring
 
