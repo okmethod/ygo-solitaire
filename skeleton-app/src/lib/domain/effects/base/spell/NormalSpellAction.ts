@@ -47,7 +47,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * CONDITIONS: 発動条件チェック
    *
    * Normal Spell specific conditions:
-   * - Game must not be over (BaseSpellAction check)
+   * - Game must not be over (checked by BaseSpellAction)
    * - Current phase must be Main1
    * - Card-specific conditions (via additionalActivationConditions)
    *
@@ -55,8 +55,8 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @returns 発動可能ならtrue
    */
   canActivate(state: GameState): boolean {
-    // Game must not be over
-    if (state.result.isGameOver) {
+    // Check base conditions (game over)
+    if (!super.canActivate(state)) {
       return false;
     }
 

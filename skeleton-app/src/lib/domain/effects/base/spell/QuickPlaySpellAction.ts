@@ -3,9 +3,10 @@
  *
  * Extends BaseSpellAction with Quick-Play Spell specific properties:
  * - spellSpeed = 2
- * - Main Phase only activation (for current scope - no opponent turn activation yet)
+ * - Can be activated in any phase (no phase restrictions)
  *
- * Future extension: Remove Main Phase check when opponent turn activation is implemented.
+ * Note: Current game scope only includes player's Main1 phase, but the abstraction
+ * correctly allows activation in any phase to maintain proper semantics.
  *
  * @module domain/effects/base/spell/QuickPlaySpellAction
  * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
@@ -44,28 +45,19 @@ export abstract class QuickPlaySpellAction extends BaseSpellAction {
    * CONDITIONS: 発動条件チェック
    *
    * Quick-Play Spell specific conditions:
-   * - Game must not be over (BaseSpellAction check)
-   * - Current phase must be Main1 (same as Normal Spell for current scope)
+   * - Game must not be over (checked by BaseSpellAction)
    * - Card-specific conditions (via additionalActivationConditions)
    *
-   * Future extension: Remove Main Phase check when opponent turn activation is implemented.
+   * Note: Quick-Play Spells can be activated in any phase.
+   * For current scope (player's turn only), this is Main1, but the abstraction
+   * doesn't enforce phase restrictions to maintain correct semantics.
    *
    * @param state - 現在のゲーム状態
    * @returns 発動可能ならtrue
    */
   canActivate(state: GameState): boolean {
-    // Game must not be over
-    if (state.result.isGameOver) {
-      return false;
-    }
-
-    // Must be Main Phase 1 (for current scope - no opponent turn activation yet)
-    if (state.phase !== "Main1") {
-      return false;
-    }
-
-    // Subclass-specific conditions
-    return this.additionalActivationConditions(state);
+    // Check base conditions (game over) and card-specific conditions
+    return super.canActivate(state);
   }
 
   /**
