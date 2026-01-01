@@ -81,6 +81,21 @@ export abstract class FieldSpellAction extends BaseSpellAction {
   protected abstract additionalActivationConditions(state: GameState): boolean;
 
   /**
+   * ACTIVATION: 発動時の処理
+   *
+   * Field Spells have no activation steps (placement handled by ActivateSpellCommand).
+   * Override base class to return empty array.
+   *
+   * @param state - 現在のゲーム状態
+   * @returns 空配列（発動時の処理なし）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createActivationSteps(state: GameState): EffectResolutionStep[] {
+    // Field Spell has no activation steps (placement handled by ActivateSpellCommand)
+    return [];
+  }
+
+  /**
    * RESOLUTION: 効果解決時の処理
    *
    * Subclasses must implement this to define card-specific resolution steps.

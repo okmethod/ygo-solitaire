@@ -116,18 +116,15 @@ describe("FieldSpellAction", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return default activation step", () => {
+    it("should return empty array (field spells have no activation steps)", () => {
       // Arrange
       const state = createInitialGameState([1001, 1002, 1003]);
 
       // Act
       const steps = action.createActivationSteps(state);
 
-      // Assert
-      expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("12345678-activation");
-      expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("《Test Monster 2》を発動します");
+      // Assert: Field Spells have no activation steps (placement handled by ActivateSpellCommand)
+      expect(steps).toHaveLength(0);
     });
   });
 

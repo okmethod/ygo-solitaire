@@ -77,24 +77,8 @@ describe("CardDestructionActivation", () => {
       expect(action.canActivate(gameOverState)).toBe(false);
     });
 
-    it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw
-      const state = createInitialGameState([1001, 1002]);
-      const stateWithCards: GameState = {
-        ...state,
-        zones: {
-          ...state.zones,
-          hand: [
-            { id: 2001, instanceId: "hand-0", name: "Card 1", type: "Monster", location: "hand" },
-            { id: 2002, instanceId: "hand-1", name: "Card 2", type: "Monster", location: "hand" },
-            { id: 2003, instanceId: "hand-2", name: "Card 3", type: "Monster", location: "hand" },
-          ],
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(stateWithCards)).toBe(false);
-    });
+    // Note: Quick-Play Spell can be activated in any phase (spell speed 2)
+    // This test is removed because QuickPlaySpellAction doesn't enforce phase restrictions
 
     it("should return false when hand has only 2 cards", () => {
       // Arrange: Hand has 2 cards (not enough)
@@ -146,9 +130,9 @@ describe("CardDestructionActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("card-destruction-activation");
+      expect(steps[0].id).toBe("74519184-activation"); // cardId-activation format
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("手札断札を発動します");
+      expect(steps[0].description).toBe("《手札断札》を発動します"); // 《カード名》format
       expect(steps[0].notificationLevel).toBe("info");
     });
   });
@@ -220,9 +204,9 @@ describe("CardDestructionActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[3].id).toBe("card-destruction-graveyard");
+      expect(steps[3].id).toBe("card-destruction-instance-1-graveyard"); // instanceId-graveyard format
       expect(steps[3].summary).toBe("墓地へ送る");
-      expect(steps[3].description).toBe("手札断札を墓地に送ります");
+      expect(steps[3].description).toBe("手札断札を墓地に送ります"); // jaName format
     });
 
     describe("Player discard step action", () => {
@@ -310,7 +294,7 @@ describe("CardDestructionActivation", () => {
         expect(result.success).toBe(true);
         expect(result.newState.zones.deck).toHaveLength(2); // 4 - 2 = 2
         expect(result.newState.zones.hand).toHaveLength(2); // 0 + 2 = 2
-        expect(result.message).toBe("Both players drew 2 cards");
+        expect(result.message).toBe("Drew 2 cards"); // Updated message from createDrawStep
       });
 
       it("should return failure when deck has only 1 card", () => {
@@ -360,7 +344,7 @@ describe("CardDestructionActivation", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent Card Destruction to graveyard");
+        expect(result.message).toBe("Sent 手札断札 to graveyard"); // Updated message with jaName
       });
     });
   });

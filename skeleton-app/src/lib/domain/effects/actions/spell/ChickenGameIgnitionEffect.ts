@@ -24,8 +24,7 @@
 import type { ChainableAction } from "../../../models/ChainableAction";
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
-import { drawCards } from "../../../models/Zone";
-import { checkVictoryConditions } from "../../../rules/VictoryRule";
+import { createDrawStep } from "../../builders/stepBuilders";
 
 /**
  * ChickenGameIgnitionEffect - Chicken Game 起動効果
@@ -193,43 +192,10 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
   createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
       // Option 1: Draw 1 card (簡略化のためこの選択肢のみ実装)
-      {
+      createDrawStep(1, {
         id: "chicken-game-draw",
-        summary: "カードをドロー",
         description: "デッキから1枚ドローします",
-        action: (currentState: GameState) => {
-          // Validate deck has at least 1 card
-          if (currentState.zones.deck.length < 1) {
-            return {
-              success: false,
-              newState: currentState,
-              error: "Cannot draw 1 card. Not enough cards in deck.",
-            };
-          }
-
-          // Draw 1 card
-          const newZones = drawCards(currentState.zones, 1);
-
-          const newState: GameState = {
-            ...currentState,
-            zones: newZones,
-          };
-
-          // Check victory conditions after drawing
-          const victoryResult = checkVictoryConditions(newState);
-
-          const finalState: GameState = {
-            ...newState,
-            result: victoryResult,
-          };
-
-          return {
-            success: true,
-            newState: finalState,
-            message: "Drew 1 card",
-          };
-        },
-      },
+      }),
     ];
   }
 }
