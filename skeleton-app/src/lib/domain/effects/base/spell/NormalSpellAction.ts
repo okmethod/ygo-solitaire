@@ -22,9 +22,9 @@ import { BaseSpellAction } from "./BaseSpellAction";
  * @example
  * ```typescript
  * export class PotOfGreedActivation extends NormalSpellAction {
- *   protected getCardId() { return "55144522"; }
- *   protected getCardName() { return "Pot of Greed"; }
- *   protected getActivationDescription() { return "強欲な壺を発動します"; }
+ *   constructor() {
+ *     super(55144522, "Pot of Greed");
+ *   }
  *
  *   protected additionalActivationConditions(state: GameState): boolean {
  *     return state.zones.deck.length >= 2;
@@ -95,25 +95,4 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @abstract
    */
   abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
-
-  /**
-   * Get card ID (used for step IDs)
-   * @protected
-   * @abstract
-   */
-  protected abstract getCardId(): string;
-
-  /**
-   * Get card name (used for messages)
-   * @protected
-   * @abstract
-   */
-  protected abstract getCardName(): string;
-
-  /**
-   * Get activation description (used for activation step)
-   * @protected
-   * @abstract
-   */
-  protected abstract getActivationDescription(): string;
 }

@@ -97,7 +97,7 @@ describe("MagicalMalletActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("magical-mallet-activation");
+      expect(steps[0].id).toBe("85852291-activation");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《打ち出の小槌》を発動します");
       expect(steps[0].notificationLevel).toBe("info");
@@ -118,7 +118,7 @@ describe("MagicalMalletActivation", () => {
       expect(steps[0].id).toBe("magical-mallet-select");
       expect(steps[1].id).toBe("magical-mallet-return-shuffle");
       expect(steps[2].id).toBe("magical-mallet-draw");
-      expect(steps[3].id).toBe("magical-mallet-graveyard");
+      expect(steps[3].id).toBe("magical-mallet-instance-1-graveyard");
     });
 
     it("should have card selection step as first step", () => {
@@ -176,13 +176,13 @@ describe("MagicalMalletActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[3].id).toBe("magical-mallet-graveyard");
+      expect(steps[3].id).toBe("magical-mallet-instance-1-graveyard");
       expect(steps[3].summary).toBe("墓地へ送る");
-      expect(steps[3].description).toBe("《打ち出の小槌》を墓地に送ります");
+      expect(steps[3].description).toBe("打ち出の小槌を墓地に送ります");
     });
 
     describe("Step 1: Card selection step action", () => {
-      it("should store selected cards in metadata when cards are selected", () => {
+      it("should accept selected cards when cards are selected", () => {
         // Arrange: Hand has 3 cards, select 2
         const state = createInitialGameState([1001, 1002, 1003, 1004]);
         const stateWithCardsInHand: GameState = {
@@ -225,12 +225,7 @@ describe("MagicalMalletActivation", () => {
 
         // Assert
         expect(result.success).toBe(true);
-        const metadata = (result.newState as GameState & { metadata?: Record<string, unknown> }).metadata as Record<
-          string,
-          unknown
-        >;
-        expect(metadata.magicalMalletReturnCount).toBe(2);
-        expect(metadata.magicalMalletInstanceIds).toEqual(["hand-0", "hand-1"]);
+        expect(result.message).toBe("Selected 2 cards to return");
       });
 
       it("should handle 0 cards selected (edge case)", () => {
@@ -276,12 +271,7 @@ describe("MagicalMalletActivation", () => {
 
         // Assert
         expect(result.success).toBe(true);
-        const metadata = (result.newState as GameState & { metadata?: Record<string, unknown> }).metadata as Record<
-          string,
-          unknown
-        >;
-        expect(metadata.magicalMalletReturnCount).toBe(0);
-        expect(metadata.magicalMalletInstanceIds).toEqual([]);
+        expect(result.message).toBe("Selected 0 cards to return");
       });
 
       it("should not mutate original state", () => {
@@ -318,17 +308,17 @@ describe("MagicalMalletActivation", () => {
         // Act
         const result = steps[0].action(stateWithCardsInHand, ["hand-0"]);
 
-        // Assert
+        // Assert: Selection step doesn't modify state, just returns it
         expect(stateWithCardsInHand.zones.hand).toHaveLength(originalHandLength);
-        expect(result.newState).not.toBe(stateWithCardsInHand);
+        expect(result.newState).toBe(stateWithCardsInHand);
       });
     });
 
     describe("Step 2: Return and shuffle step action", () => {
       it("should return cards to deck and shuffle when cards were selected", () => {
-        // Arrange: Create state with metadata from selection step
+        // Arrange: Create state with cards in hand, execute selection step first
         const state = createInitialGameState([1001, 1002]);
-        const stateWithMetadata: GameState = {
+        const stateWithCards: GameState = {
           ...state,
           zones: {
             ...state.zones,
@@ -352,31 +342,30 @@ describe("MagicalMalletActivation", () => {
             ],
             deck: state.zones.deck,
           },
-          metadata: {
-            magicalMalletReturnCount: 2,
-            magicalMalletInstanceIds: ["hand-0", "hand-1"],
-          },
-        } as GameState;
+        };
 
         const activatedCardInstanceId = "magical-mallet-instance-1";
-        const steps = action.createResolutionSteps(stateWithMetadata, activatedCardInstanceId);
+        const steps = action.createResolutionSteps(stateWithCards, activatedCardInstanceId);
 
-        const originalDeckLength = stateWithMetadata.zones.deck.length;
+        const originalDeckLength = stateWithCards.zones.deck.length;
 
-        // Act
-        const result = steps[1].action(stateWithMetadata);
+        // Execute selection step first to set up closure variables
+        steps[0].action(stateWithCards, ["hand-0", "hand-1"]);
+
+        // Act: Execute return and shuffle step
+        const result = steps[1].action(stateWithCards);
 
         // Assert
         expect(result.success).toBe(true);
         expect(result.newState.zones.hand).toHaveLength(0); // 2 cards returned
         expect(result.newState.zones.deck).toHaveLength(originalDeckLength + 2); // 2 cards added
-        expect(result.message).toContain("Returned 2 cards to deck and shuffled");
+        expect(result.message).toBe("Deck shuffled");
       });
 
       it("should handle 0 cards case (no return, no shuffle)", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002]);
-        const stateWithMetadata: GameState = {
+        const stateWithCards: GameState = {
           ...state,
           zones: {
             ...state.zones,
@@ -391,17 +380,16 @@ describe("MagicalMalletActivation", () => {
               },
             ],
           },
-          metadata: {
-            magicalMalletReturnCount: 0,
-            magicalMalletInstanceIds: [],
-          },
-        } as GameState;
+        };
 
         const activatedCardInstanceId = "magical-mallet-instance-1";
-        const steps = action.createResolutionSteps(stateWithMetadata, activatedCardInstanceId);
+        const steps = action.createResolutionSteps(stateWithCards, activatedCardInstanceId);
 
-        // Act
-        const result = steps[1].action(stateWithMetadata);
+        // Execute selection step with 0 cards
+        steps[0].action(stateWithCards, []);
+
+        // Act: Execute return and shuffle step
+        const result = steps[1].action(stateWithCards);
 
         // Assert
         expect(result.success).toBe(true);
@@ -412,9 +400,9 @@ describe("MagicalMalletActivation", () => {
 
     describe("Step 3: Draw step action", () => {
       it("should draw same number of cards as were returned", () => {
-        // Arrange: Create state after return step
+        // Arrange: Create state with enough cards in deck
         const state = createInitialGameState([1001, 1002, 1003, 1004]);
-        const stateAfterReturn: GameState = {
+        const stateWithCards: GameState = {
           ...state,
           zones: {
             ...state.zones,
@@ -448,19 +436,18 @@ describe("MagicalMalletActivation", () => {
               },
             ],
           },
-          metadata: {
-            magicalMalletReturnCount: 2,
-            magicalMalletInstanceIds: ["hand-0", "hand-1"],
-          },
-        } as GameState;
+        };
 
         const activatedCardInstanceId = "magical-mallet-instance-1";
-        const steps = action.createResolutionSteps(stateAfterReturn, activatedCardInstanceId);
+        const steps = action.createResolutionSteps(stateWithCards, activatedCardInstanceId);
 
-        const originalDeckLength = stateAfterReturn.zones.deck.length;
+        const originalDeckLength = stateWithCards.zones.deck.length;
 
-        // Act
-        const result = steps[2].action(stateAfterReturn);
+        // Execute selection step to set closure variable
+        steps[0].action(stateWithCards, ["hand-0", "hand-1"]);
+
+        // Act: Execute draw step
+        const result = steps[2].action(stateWithCards);
 
         // Assert
         expect(result.success).toBe(true);
@@ -472,19 +459,15 @@ describe("MagicalMalletActivation", () => {
       it("should handle 0 cards case (no draw)", () => {
         // Arrange
         const state = createInitialGameState([1001, 1002]);
-        const stateWithMetadata: GameState = {
-          ...state,
-          metadata: {
-            magicalMalletReturnCount: 0,
-            magicalMalletInstanceIds: [],
-          },
-        } as GameState;
 
         const activatedCardInstanceId = "magical-mallet-instance-1";
-        const steps = action.createResolutionSteps(stateWithMetadata, activatedCardInstanceId);
+        const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
-        // Act
-        const result = steps[2].action(stateWithMetadata);
+        // Execute selection step with 0 cards
+        steps[0].action(state, []);
+
+        // Act: Execute draw step
+        const result = steps[2].action(state);
 
         // Assert
         expect(result.success).toBe(true);
@@ -494,19 +477,15 @@ describe("MagicalMalletActivation", () => {
       it("should fail when deck has insufficient cards", () => {
         // Arrange: Deck has only 1 card, but need to draw 2
         const state = createInitialGameState([1001]);
-        const stateWithMetadata: GameState = {
-          ...state,
-          metadata: {
-            magicalMalletReturnCount: 2,
-            magicalMalletInstanceIds: ["hand-0", "hand-1"],
-          },
-        } as GameState;
 
         const activatedCardInstanceId = "magical-mallet-instance-1";
-        const steps = action.createResolutionSteps(stateWithMetadata, activatedCardInstanceId);
+        const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
-        // Act
-        const result = steps[2].action(stateWithMetadata);
+        // Execute selection step to request 2 cards
+        steps[0].action(state, ["hand-0", "hand-1"]);
+
+        // Act: Execute draw step with insufficient deck
+        const result = steps[2].action(state);
 
         // Assert
         expect(result.success).toBe(false);
@@ -547,7 +526,7 @@ describe("MagicalMalletActivation", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent Magical Mallet to graveyard");
+        expect(result.message).toBe("Sent 打ち出の小槌 to graveyard");
       });
 
       it("should not mutate original state", () => {
@@ -573,14 +552,18 @@ describe("MagicalMalletActivation", () => {
         };
 
         const originalGraveyardLength = stateWithSpellInHand.zones.graveyard.length;
+        const originalHandLength = stateWithSpellInHand.zones.hand.length;
         const steps = action.createResolutionSteps(stateWithSpellInHand, activatedCardInstanceId);
 
         // Act
         const result = steps[3].action(stateWithSpellInHand);
 
-        // Assert
+        // Assert: Original state should not be mutated
         expect(stateWithSpellInHand.zones.graveyard).toHaveLength(originalGraveyardLength);
+        expect(stateWithSpellInHand.zones.hand).toHaveLength(originalHandLength);
         expect(result.newState).not.toBe(stateWithSpellInHand);
+        expect(result.newState.zones).not.toBe(stateWithSpellInHand.zones);
+        expect(result.newState.zones.graveyard).not.toBe(stateWithSpellInHand.zones.graveyard);
       });
     });
   });

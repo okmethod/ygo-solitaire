@@ -24,6 +24,10 @@ import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionSt
 class TestSpellAction extends BaseSpellAction {
   readonly spellSpeed = 1 as const;
 
+  constructor() {
+    super(12345678); // Test card ID from registry
+  }
+
   protected additionalActivationConditions(state: GameState): boolean {
     // Test implementation: always true
     return state.zones.deck.length > 0;
@@ -32,18 +36,6 @@ class TestSpellAction extends BaseSpellAction {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
     return [];
-  }
-
-  protected getCardId(): string {
-    return "12345678";
-  }
-
-  protected getCardName(): string {
-    return "Test Spell";
-  }
-
-  protected getActivationDescription(): string {
-    return "テストスペルを発動します";
   }
 }
 
@@ -115,7 +107,7 @@ describe("BaseSpellAction", () => {
       expect(steps).toHaveLength(1);
       expect(steps[0].id).toBe("12345678-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("テストスペルを発動します");
+      expect(steps[0].description).toBe("《Test Monster 2》を発動します"); // Uses getCardNameWithBrackets from registry
       expect(steps[0].notificationLevel).toBe("info");
     });
 
@@ -130,7 +122,7 @@ describe("BaseSpellAction", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.newState).toBe(state);
-      expect(result.message).toBe("Test Spell activated");
+      expect(result.message).toBe("Test Monster 2 activated"); // Uses jaName from registry
     });
   });
 
@@ -145,21 +137,6 @@ describe("BaseSpellAction", () => {
       // Assert
       expect(steps).toBeDefined();
       expect(Array.isArray(steps)).toBe(true);
-    });
-
-    it("should implement getCardId()", () => {
-      // Act & Assert
-      expect(action["getCardId"]()).toBe("12345678");
-    });
-
-    it("should implement getCardName()", () => {
-      // Act & Assert
-      expect(action["getCardName"]()).toBe("Test Spell");
-    });
-
-    it("should implement getActivationDescription()", () => {
-      // Act & Assert
-      expect(action["getActivationDescription"]()).toBe("テストスペルを発動します");
     });
   });
 });

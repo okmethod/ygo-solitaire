@@ -99,18 +99,18 @@ describe("stepBuilders", () => {
   describe("createSendToGraveyardStep()", () => {
     it("should create a graveyard step with default values", () => {
       // Arrange & Act
-      const step = createSendToGraveyardStep("test-id", "Test Card", "テストカード");
+      const step = createSendToGraveyardStep("pot-of-greed-1", 55144522); // Pot of Greed
 
       // Assert
-      expect(step.id).toBe("test-id-graveyard");
+      expect(step.id).toBe("pot-of-greed-1-graveyard");
       expect(step.summary).toBe("墓地へ送る");
-      expect(step.description).toBe("テストカードを墓地に送ります");
+      expect(step.description).toBe("強欲な壺を墓地に送ります"); // Uses card data from registry
       expect(step.notificationLevel).toBe("info");
     });
 
     it("should create a graveyard step with custom id", () => {
       // Arrange & Act
-      const step = createSendToGraveyardStep("test-id", "Test Card", "テストカード", {
+      const step = createSendToGraveyardStep("pot-of-greed-1", 55144522, {
         id: "custom-graveyard",
       });
 
@@ -136,7 +136,7 @@ describe("stepBuilders", () => {
         },
       };
       const cardOnField = state.zones.field[0];
-      const step = createSendToGraveyardStep(cardOnField.instanceId, "Test", "テスト");
+      const step = createSendToGraveyardStep(cardOnField.instanceId, 1001); // Test card ID from registry
 
       // Act
       const result = step.action(state);
@@ -144,7 +144,7 @@ describe("stepBuilders", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.newState.zones.graveyard.length).toBe(state.zones.graveyard.length + 1);
-      expect(result.message).toContain("Sent Test to graveyard");
+      expect(result.message).toContain("Test Spell 1 to graveyard"); // Uses jaName from registry
     });
   });
 

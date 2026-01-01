@@ -21,6 +21,10 @@ import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionSt
  * Concrete implementation of QuickPlaySpellAction for testing
  */
 class TestQuickPlaySpell extends QuickPlaySpellAction {
+  constructor() {
+    super(12345678); // Test Monster 2 from CardDataRegistry
+  }
+
   protected additionalActivationConditions(state: GameState): boolean {
     // Test implementation: check hand size
     return state.zones.hand.length > 0;
@@ -29,18 +33,6 @@ class TestQuickPlaySpell extends QuickPlaySpellAction {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
     return [];
-  }
-
-  protected getCardId(): string {
-    return "72892473";
-  }
-
-  protected getCardName(): string {
-    return "Test Quick-Play Spell";
-  }
-
-  protected getActivationDescription(): string {
-    return "テスト速攻魔法を発動します";
   }
 }
 
@@ -145,9 +137,9 @@ describe("QuickPlaySpellAction", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("72892473-activation");
+      expect(steps[0].id).toBe("12345678-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("テスト速攻魔法を発動します");
+      expect(steps[0].description).toBe("《Test Monster 2》を発動します");
     });
   });
 });

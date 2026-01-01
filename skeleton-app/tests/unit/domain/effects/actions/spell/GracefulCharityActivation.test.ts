@@ -140,9 +140,9 @@ describe("GracefulCharityActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("graceful-charity-activation");
+      expect(steps[0].id).toBe("79571449-activation"); // ID now uses card ID
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("天使の施しを発動します");
+      expect(steps[0].description).toBe("《天使の施し》を発動します"); // Uses getCardNameWithBrackets
       expect(steps[0].notificationLevel).toBe("info");
     });
   });
@@ -169,7 +169,7 @@ describe("GracefulCharityActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[0].id).toBe("graceful-charity-draw");
+      expect(steps[0].id).toBe("draw-3"); // ID from createDrawStep
       expect(steps[0].summary).toBe("カードをドロー");
       expect(steps[0].description).toBe("デッキから3枚ドローします");
     });
@@ -197,7 +197,7 @@ describe("GracefulCharityActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[2].id).toBe("graceful-charity-graveyard");
+      expect(steps[2].id).toBe("graceful-charity-instance-1-graveyard"); // ID from createSendToGraveyardStep (uses instance ID)
       expect(steps[2].summary).toBe("墓地へ送る");
       expect(steps[2].description).toBe("天使の施しを墓地に送ります");
     });
@@ -471,7 +471,7 @@ describe("GracefulCharityActivation", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent Graceful Charity to graveyard");
+        expect(result.message).toBe("Sent 天使の施し to graveyard");
       });
 
       it("should not mutate original state", () => {

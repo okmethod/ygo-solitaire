@@ -19,6 +19,7 @@
 import type { ChainableAction } from "../../../models/ChainableAction";
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import { getCardData, getCardNameWithBrackets } from "../../../registries/CardDataRegistry";
 
 /**
  * BaseSpellAction - Abstract base class for spell card actions
@@ -29,26 +30,37 @@ import type { EffectResolutionStep } from "../../../models/EffectResolutionStep"
  * @example
  * ```typescript
  * export class PotOfGreedActivation extends NormalSpellAction {
- *   protected getCardId() { return "55144522"; }
- *   protected getCardName() { return "Pot of Greed"; }
- *   protected getActivationDescription() { return "強欲な壺を発動します"; }
+ *   constructor() {
+ *     super(55144522);
+ *   }
  *
  *   protected additionalActivationConditions(state: GameState): boolean {
  *     return state.zones.deck.length >= 2;
  *   }
  *
  *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
- *     return [createDrawStep(2), createSendToGraveyardStep(instanceId, "Pot of Greed", "強欲な壺")];
+ *     return [createDrawStep(2), createSendToGraveyardStep(instanceId, this.cardId)];
  *   }
  * }
  * ```
  */
 export abstract class BaseSpellAction implements ChainableAction {
+  /** カードID（数値） */
+  protected readonly cardId: number;
+
   /** カードの発動（手札→フィールド） */
   readonly isCardActivation = true;
 
   /** スペルスピード（サブクラスで定義） */
   abstract readonly spellSpeed: 1 | 2;
+
+  /**
+   * Constructor
+   * @param cardId - Card ID (number)
+   */
+  constructor(cardId: number) {
+    this.cardId = cardId;
+  }
 
   /**
    * CONDITIONS: 発動条件チェック
@@ -93,18 +105,19 @@ export abstract class BaseSpellAction implements ChainableAction {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(state: GameState): EffectResolutionStep[] {
+    const cardData = getCardData(this.cardId);
     return [
       {
-        id: `${this.getCardId()}-activation`,
+        id: `${this.cardId}-activation`,
         summary: "カード発動",
-        description: this.getActivationDescription(),
+        description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
         notificationLevel: "info",
         action: (currentState: GameState) => {
           // No state change, just notification
           return {
             success: true,
             newState: currentState,
-            message: `${this.getCardName()} activated`,
+            message: `${cardData.jaName} activated`,
           };
         },
       },
@@ -122,22 +135,4 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @abstract
    */
   abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
-
-  /**
-   * Get card ID (used for step IDs)
-   * @protected
-   */
-  protected abstract getCardId(): string;
-
-  /**
-   * Get card name (used for messages)
-   * @protected
-   */
-  protected abstract getCardName(): string;
-
-  /**
-   * Get activation description (used for activation step)
-   * @protected
-   */
-  protected abstract getActivationDescription(): string;
 }

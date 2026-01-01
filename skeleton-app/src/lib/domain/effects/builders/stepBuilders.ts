@@ -23,6 +23,7 @@ import type { GameStateUpdateResult } from "../../models/GameStateUpdateResult";
 import type { CardInstance } from "../../models/Card";
 import { drawCards, sendToGraveyard, moveCard, shuffleDeck } from "../../models/Zone";
 import { checkVictoryConditions } from "../../rules/VictoryRule";
+import { getCardData } from "../../registries/CardDataRegistry";
 
 /**
  * Creates an EffectResolutionStep for drawing cards from the deck
@@ -103,27 +104,26 @@ export function createDrawStep(
  * - Discarding cards from hand
  *
  * @param instanceId - Card instance ID to send to graveyard
- * @param cardName - English card name (for messages)
- * @param jaName - Japanese card name (for descriptions)
+ * @param cardId - Card ID (number) for looking up card data
  * @param options - Optional customization for id
  * @returns EffectResolutionStep for sending card to graveyard
  *
  * @example
  * ```typescript
  * // Send Pot of Greed to graveyard
- * createSendToGraveyardStep(instanceId, "Pot of Greed", "強欲な壺")
+ * createSendToGraveyardStep(instanceId, 55144522)
  * ```
  */
 export function createSendToGraveyardStep(
   instanceId: string,
-  cardName: string,
-  jaName: string,
+  cardId: number,
   options?: { id?: string },
 ): EffectResolutionStep {
+  const cardData = getCardData(cardId);
   return {
     id: options?.id ?? `${instanceId}-graveyard`,
     summary: "墓地へ送る",
-    description: `${jaName}を墓地に送ります`,
+    description: `${cardData.jaName}を墓地に送ります`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
       // Send card to graveyard
@@ -137,7 +137,7 @@ export function createSendToGraveyardStep(
       return {
         success: true,
         newState,
-        message: `Sent ${cardName} to graveyard`,
+        message: `Sent ${cardData.jaName} to graveyard`,
       };
     },
   };

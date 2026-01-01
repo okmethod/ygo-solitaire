@@ -61,7 +61,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![0]).toMatchObject({
         id: "55144522-activation", // ID now uses card ID
         summary: "カード発動",
-        description: "強欲な壺を発動します",
+        description: "《強欲な壺》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
         id: "draw-2", // ID now uses step builder format
@@ -124,12 +124,12 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify steps: [activation step, draw step, discard step, graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "graceful-charity-activation",
+        id: "79571449-activation",
         summary: "カード発動",
-        description: "天使の施しを発動します",
+        description: "《天使の施し》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "graceful-charity-draw",
+        id: "draw-3",
         summary: "カードをドロー",
         description: "デッキから3枚ドローします",
       });
@@ -139,7 +139,7 @@ describe("Normal Spell Card Effects", () => {
         description: "手札から2枚選んで捨ててください",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "graceful-charity-graveyard",
+        id: "charity-0-graveyard",
         summary: "墓地へ送る",
         description: "天使の施しを墓地に送ります",
       });

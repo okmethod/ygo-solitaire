@@ -21,6 +21,10 @@ import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionSt
  * Concrete implementation of FieldSpellAction for testing
  */
 class TestFieldSpell extends FieldSpellAction {
+  constructor() {
+    super(12345678); // Test Monster 2 from CardDataRegistry
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected additionalActivationConditions(_state: GameState): boolean {
     // Test implementation: always true (no additional conditions)
@@ -31,18 +35,6 @@ class TestFieldSpell extends FieldSpellAction {
   createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
     // Field Spells typically have no resolution steps (only continuous effects)
     return [];
-  }
-
-  protected getCardId(): string {
-    return "67616300";
-  }
-
-  protected getCardName(): string {
-    return "Test Field Spell";
-  }
-
-  protected getActivationDescription(): string {
-    return "テストフィールド魔法を発動します";
   }
 }
 
@@ -133,9 +125,9 @@ describe("FieldSpellAction", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("67616300-activation");
+      expect(steps[0].id).toBe("12345678-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("テストフィールド魔法を発動します");
+      expect(steps[0].description).toBe("《Test Monster 2》を発動します");
     });
   });
 

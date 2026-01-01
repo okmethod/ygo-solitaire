@@ -40,16 +40,8 @@ import { createDrawStep, createSendToGraveyardStep } from "../../builders/stepBu
  * ```
  */
 export class PotOfGreedActivation extends NormalSpellAction {
-  protected getCardId(): string {
-    return "55144522";
-  }
-
-  protected getCardName(): string {
-    return "Pot of Greed";
-  }
-
-  protected getActivationDescription(): string {
-    return "強欲な壺を発動します";
+  constructor() {
+    super(55144522);
   }
 
   /**
@@ -62,10 +54,7 @@ export class PotOfGreedActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 2 cards, then send this card to graveyard
    */
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
-    return [
-      createDrawStep(2),
-      createSendToGraveyardStep(activatedCardInstanceId, "Pot of Greed", "強欲な壺"),
-    ];
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+    return [createDrawStep(2), createSendToGraveyardStep(activatedCardInstanceId, this.cardId)];
   }
 }

@@ -130,7 +130,7 @@ describe("PotOfGreedActivation", () => {
       expect(steps).toHaveLength(1);
       expect(steps[0].id).toBe("55144522-activation"); // ID now uses card ID
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("強欲な壺を発動します");
+      expect(steps[0].description).toBe("《強欲な壺》を発動します"); // Uses getCardNameWithBrackets
       expect(steps[0].notificationLevel).toBe("info");
     });
   });
@@ -273,7 +273,7 @@ describe("PotOfGreedActivation", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent Pot of Greed to graveyard");
+        expect(result.message).toBe("Sent 強欲な壺 to graveyard");
       });
 
       it("should not mutate original state", () => {

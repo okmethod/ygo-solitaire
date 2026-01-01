@@ -24,9 +24,9 @@ import { BaseSpellAction } from "./BaseSpellAction";
  * @example
  * ```typescript
  * export class ChickenGameActivation extends FieldSpellAction {
- *   protected getCardId() { return "67616300"; }
- *   protected getCardName() { return "Chicken Game"; }
- *   protected getActivationDescription() { return "チキンレースを発動します"; }
+ *   constructor() {
+ *     super(67616300, "Chicken Game");
+ *   }
  *
  *   protected additionalActivationConditions(state: GameState): boolean {
  *     return true; // No additional conditions
@@ -93,25 +93,4 @@ export abstract class FieldSpellAction extends BaseSpellAction {
    * @abstract
    */
   abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
-
-  /**
-   * Get card ID (used for step IDs)
-   * @protected
-   * @abstract
-   */
-  protected abstract getCardId(): string;
-
-  /**
-   * Get card name (used for messages)
-   * @protected
-   * @abstract
-   */
-  protected abstract getCardName(): string;
-
-  /**
-   * Get activation description (used for activation step)
-   * @protected
-   * @abstract
-   */
-  protected abstract getActivationDescription(): string;
 }

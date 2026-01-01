@@ -21,6 +21,10 @@ import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionSt
  * Concrete implementation of NormalSpellAction for testing
  */
 class TestNormalSpell extends NormalSpellAction {
+  constructor() {
+    super(12345678); // Test Monster 2 from CardDataRegistry
+  }
+
   protected additionalActivationConditions(state: GameState): boolean {
     // Test implementation: check deck size
     return state.zones.deck.length >= 2;
@@ -29,18 +33,6 @@ class TestNormalSpell extends NormalSpellAction {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
     return [];
-  }
-
-  protected getCardId(): string {
-    return "55144522";
-  }
-
-  protected getCardName(): string {
-    return "Test Normal Spell";
-  }
-
-  protected getActivationDescription(): string {
-    return "テスト通常魔法を発動します";
   }
 }
 
@@ -131,9 +123,9 @@ describe("NormalSpellAction", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("55144522-activation");
+      expect(steps[0].id).toBe("12345678-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("テスト通常魔法を発動します");
+      expect(steps[0].description).toBe("《Test Monster 2》を発動します");
     });
   });
 });

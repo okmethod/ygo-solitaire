@@ -117,9 +117,9 @@ describe("UpstartGoblinActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("upstart-goblin-activation");
+      expect(steps[0].id).toBe("70368879-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("成金ゴブリンを発動します");
+      expect(steps[0].description).toBe("《成金ゴブリン》を発動します");
       expect(steps[0].notificationLevel).toBe("info");
     });
   });
@@ -146,7 +146,7 @@ describe("UpstartGoblinActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[0].id).toBe("upstart-goblin-draw");
+      expect(steps[0].id).toBe("draw-1");
       expect(steps[0].summary).toBe("カードをドロー");
       expect(steps[0].description).toBe("デッキから1枚ドローします");
     });
@@ -160,7 +160,7 @@ describe("UpstartGoblinActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[1].id).toBe("upstart-goblin-lp-gain");
+      expect(steps[1].id).toBe("gain-lp-opponent-1000");
       expect(steps[1].summary).toBe("相手のLPを増加");
       expect(steps[1].description).toBe("相手のLPが1000増加します");
     });
@@ -174,7 +174,7 @@ describe("UpstartGoblinActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[2].id).toBe("upstart-goblin-graveyard");
+      expect(steps[2].id).toBe("upstart-goblin-instance-1-graveyard");
       expect(steps[2].summary).toBe("墓地へ送る");
       expect(steps[2].description).toBe("成金ゴブリンを墓地に送ります");
     });
@@ -208,7 +208,7 @@ describe("UpstartGoblinActivation", () => {
         // Assert
         expect(result.success).toBe(false);
         expect(result.newState).toBe(state); // State unchanged
-        expect(result.error).toBe("Cannot draw 1 card. Not enough cards in deck.");
+        expect(result.error).toBe("Cannot draw 1 cards. Not enough cards in deck.");
       });
 
       it("should not mutate original state", () => {
@@ -294,7 +294,7 @@ describe("UpstartGoblinActivation", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent Upstart Goblin to graveyard");
+        expect(result.message).toBe("Sent 成金ゴブリン to graveyard");
       });
 
       it("should not mutate original state", () => {

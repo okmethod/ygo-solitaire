@@ -23,9 +23,9 @@ import { BaseSpellAction } from "./BaseSpellAction";
  * @example
  * ```typescript
  * export class CardDestructionActivation extends QuickPlaySpellAction {
- *   protected getCardId() { return "72892473"; }
- *   protected getCardName() { return "Card Destruction"; }
- *   protected getActivationDescription() { return "手札抹殺を発動します"; }
+ *   constructor() {
+ *     super(72892473, "Card Destruction");
+ *   }
  *
  *   protected additionalActivationConditions(state: GameState): boolean {
  *     return state.zones.hand.length > 0;
@@ -83,25 +83,4 @@ export abstract class QuickPlaySpellAction extends BaseSpellAction {
    * @abstract
    */
   abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
-
-  /**
-   * Get card ID (used for step IDs)
-   * @protected
-   * @abstract
-   */
-  protected abstract getCardId(): string;
-
-  /**
-   * Get card name (used for messages)
-   * @protected
-   * @abstract
-   */
-  protected abstract getCardName(): string;
-
-  /**
-   * Get activation description (used for activation step)
-   * @protected
-   * @abstract
-   */
-  protected abstract getActivationDescription(): string;
 }

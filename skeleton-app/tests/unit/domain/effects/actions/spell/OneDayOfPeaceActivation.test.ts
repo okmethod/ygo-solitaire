@@ -117,9 +117,9 @@ describe("OneDayOfPeaceActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("one-day-of-peace-activation");
+      expect(steps[0].id).toBe("33782437-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("一時休戦を発動します");
+      expect(steps[0].description).toBe("《一時休戦》を発動します");
       expect(steps[0].notificationLevel).toBe("info");
     });
   });
@@ -146,7 +146,7 @@ describe("OneDayOfPeaceActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[0].id).toBe("one-day-of-peace-draw-player");
+      expect(steps[0].id).toBe("draw-1");
       expect(steps[0].summary).toBe("カードをドロー");
       expect(steps[0].description).toBe("デッキから1枚ドローします");
     });
@@ -188,7 +188,7 @@ describe("OneDayOfPeaceActivation", () => {
       const steps = action.createResolutionSteps(state, activatedCardInstanceId);
 
       // Assert
-      expect(steps[3].id).toBe("one-day-of-peace-graveyard");
+      expect(steps[3].id).toBe("one-day-of-peace-instance-1-graveyard");
       expect(steps[3].summary).toBe("墓地へ送る");
       expect(steps[3].description).toBe("一時休戦を墓地に送ります");
     });
@@ -222,7 +222,7 @@ describe("OneDayOfPeaceActivation", () => {
         // Assert
         expect(result.success).toBe(false);
         expect(result.newState).toBe(state); // State unchanged
-        expect(result.error).toBe("Cannot draw 1 card. Not enough cards in deck.");
+        expect(result.error).toBe("Cannot draw 1 cards. Not enough cards in deck.");
       });
 
       it("should not mutate original state", () => {
@@ -342,7 +342,7 @@ describe("OneDayOfPeaceActivation", () => {
         expect(result.newState.zones.graveyard).toHaveLength(1);
         expect(result.newState.zones.graveyard[0].instanceId).toBe(activatedCardInstanceId);
         expect(result.newState.zones.graveyard[0].location).toBe("graveyard");
-        expect(result.message).toBe("Sent One Day of Peace to graveyard");
+        expect(result.message).toBe("Sent 一時休戦 to graveyard");
       });
 
       it("should not mutate original state", () => {
