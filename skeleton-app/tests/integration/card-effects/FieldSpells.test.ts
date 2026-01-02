@@ -1,18 +1,28 @@
 /**
- * Chicken Game Integration Tests
+ * Field Spell Card Effects Tests (Integration Layer)
  *
- * Tests Chicken Game (チキンレース) card in full gameplay scenarios:
- * - Card activation (Field Spell placement)
- * - Ignition effect (Pay 1000 LP, draw 1 card, once per turn)
- * - Continuous effect (Damage prevention when LP is lower)
+ * Tests Field Spell card-specific scenarios integrated with the full application layer.
+ * Focuses on actual gameplay scenarios rather than implementation details.
  *
- * Test Coverage:
- * - Card activation flow (hand → field, field spell zone check)
- * - Ignition effect activation flow (LP payment, draw, once per turn restriction)
- * - Continuous effect (ChickenGameContinuousEffect integration)
- * - Phase transitions clear once per turn tracking
+ * Test Responsibility:
+ * - Field Spell card activation scenarios (end-to-end gameplay flow)
+ * - Registry integration (cardId → Effect retrieval → Effect execution)
+ * - Field spell placement mechanics (stays on field, no graveyard step)
+ * - Actual game state changes (hand → field, continuous effects)
  *
- * @module tests/integration/card-effects/ChickenGame
+ * Test Strategy (from docs/architecture/testing-strategy.md):
+ * - **Base class validation**: Tested in tests/unit/domain/effects/base/spell/
+ *   - BaseSpellAction.test.ts: Game-over check
+ *   - FieldSpellAction.test.ts: spellSpeed=1, Main1 phase check, empty activation steps
+ * - **Card scenarios**: Tested here
+ *   - Chicken Game: Field placement → Ignition effect (pay LP, draw) → Continuous effect
+ *
+ * Rationale:
+ * - Card-specific canActivate() conditions tested in base class
+ * - Scenario-based tests detect real bugs more effectively
+ * - Easy to add new cards without duplicating base class tests
+ *
+ * @module tests/integration/card-effects/FieldSpells
  */
 
 import { describe, it, expect } from "vitest";
