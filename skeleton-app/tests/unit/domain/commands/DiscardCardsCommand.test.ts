@@ -13,7 +13,7 @@ import {
 describe("DiscardCardsCommand", () => {
   describe("canExecute", () => {
     it("should return true when all cards are in hand", () => {
-      const cards = createCardInstances(["12345678", "87654321", "11111111"], "hand");
+      const cards = createCardInstances(["12345678", "87654321", "12345678"], "hand");
       const state = createMockGameState({
         zones: {
           deck: [],
@@ -109,7 +109,7 @@ describe("DiscardCardsCommand", () => {
 
   describe("execute", () => {
     it("should discard 2 cards from hand to graveyard", () => {
-      const cards = createCardInstances(["12345678", "87654321", "11111111"], "hand");
+      const cards = createCardInstances(["12345678", "87654321", "12345678"], "hand");
       const state = createMockGameState({
         zones: {
           deck: [],

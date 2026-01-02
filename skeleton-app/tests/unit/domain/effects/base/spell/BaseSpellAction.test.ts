@@ -107,7 +107,7 @@ describe("BaseSpellAction", () => {
       expect(steps).toHaveLength(1);
       expect(steps[0].id).toBe("12345678-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("《Test Monster 2》を発動します"); // Uses getCardNameWithBrackets from registry
+      expect(steps[0].description).toBe("《Test Monster A》を発動します"); // Uses getCardNameWithBrackets from registry
       expect(steps[0].notificationLevel).toBe("info");
     });
 
@@ -122,7 +122,7 @@ describe("BaseSpellAction", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.newState).toBe(state);
-      expect(result.message).toBe("Test Monster 2 activated"); // Uses jaName from registry
+      expect(result.message).toBe("Test Monster A activated"); // Uses jaName from registry
     });
   });
 

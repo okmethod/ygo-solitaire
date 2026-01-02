@@ -57,7 +57,7 @@ describe("stepBuilders", () => {
 
     it("should successfully draw cards when deck has enough cards", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003, 1004]);
+      const state = createInitialGameState([1001, 1002, 1003, 1001]);
       const step = createDrawStep(2);
 
       // Act
@@ -361,7 +361,7 @@ describe("stepBuilders", () => {
 
     it("should successfully shuffle deck", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003, 1004, 1005]);
+      const state = createInitialGameState([1001, 1002, 1003, 1001, 1002]);
       const originalDeckSize = state.zones.deck.length;
       const step = createShuffleStep();
 

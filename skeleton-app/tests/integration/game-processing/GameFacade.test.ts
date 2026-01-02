@@ -17,7 +17,7 @@ describe("GameFacade", () => {
 
   describe("initializeGame", () => {
     it("should initialize game with given deck", () => {
-      const deckCardIds = [12345678, 87654321, 11111111]; // 数値ID (T025)
+      const deckCardIds = [12345678, 87654321, 12345678]; // 数値ID
 
       facade.initializeGame(deckCardIds);
 
@@ -29,17 +29,17 @@ describe("GameFacade", () => {
     });
 
     it("should reset state when called multiple times", () => {
-      facade.initializeGame([11111111]); // 数値ID (T025)
+      facade.initializeGame([12345678]); // 数値ID
       expect(get(gameStateStore).zones.deck.length).toBe(1);
 
-      facade.initializeGame([22222222, 33333333]); // 数値ID (T025)
+      facade.initializeGame([12345678, 87654321]); // 数値ID
       expect(get(gameStateStore).zones.deck.length).toBe(2);
     });
   });
 
   describe("drawCard", () => {
     beforeEach(() => {
-      facade.initializeGame([1001, 1002, 1003, 1004, 1005]); // 数値ID (T025)
+      facade.initializeGame([1001, 1002, 1003, 1001, 1002]); // 数値ID
     });
 
     it("should draw 1 card by default", () => {
@@ -88,7 +88,7 @@ describe("GameFacade", () => {
       // Initialize with 4 Exodia pieces in deck (will be drawn)
       // and 1 Exodia piece already in hand
       const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([...exodiaNumericIds.slice(0, 4)]); // 数値ID (T025)
+      facade.initializeGame([...exodiaNumericIds.slice(0, 4)]); // 数値ID
 
       // Manually set 5th piece in hand (simulating previous draw)
       const state = get(gameStateStore);
@@ -183,7 +183,7 @@ describe("GameFacade", () => {
 
   describe("activateSpell", () => {
     it("should successfully activate spell card from hand", () => {
-      facade.initializeGame([1001, 1002, 1003, 1004]);
+      facade.initializeGame([1001, 1002, 1003, 1001]);
       facade.drawCard(1);
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
@@ -284,7 +284,7 @@ describe("GameFacade", () => {
 
     it("should detect Exodia victory", () => {
       const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([...exodiaNumericIds]); // 数値ID (T025)
+      facade.initializeGame([...exodiaNumericIds]); // 数値ID
       facade.drawCard(5); // Draw all Exodia pieces
 
       const result = facade.checkVictory();
@@ -314,7 +314,7 @@ describe("GameFacade", () => {
 
   describe("shuffleDeck", () => {
     beforeEach(() => {
-      facade.initializeGame([1001, 1002, 1003, 1004, 1005]);
+      facade.initializeGame([1001, 1002, 1003, 1001, 1002]);
     });
 
     it("should shuffle the deck successfully", () => {

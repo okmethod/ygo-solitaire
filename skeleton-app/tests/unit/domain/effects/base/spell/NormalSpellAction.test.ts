@@ -125,7 +125,7 @@ describe("NormalSpellAction", () => {
       expect(steps).toHaveLength(1);
       expect(steps[0].id).toBe("12345678-activation");
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("《Test Monster 2》を発動します");
+      expect(steps[0].description).toBe("《Test Monster A》を発動します");
     });
   });
 });

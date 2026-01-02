@@ -40,11 +40,7 @@ describe("Quick-Play Spell Card Effects", () => {
         phase: "Main1",
         zones: {
           deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
-          hand: createCardInstances(
-            [cardDestructionCardId, "hand1", "hand2", "hand3"],
-            "hand",
-            "destruction",
-          ),
+          hand: createCardInstances([cardDestructionCardId, "hand1", "hand2", "hand3"], "hand", "destruction"),
           field: [],
           graveyard: [],
           banished: [],
@@ -112,11 +108,7 @@ describe("Quick-Play Spell Card Effects", () => {
         phase: "Main1",
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
-          hand: createCardInstances(
-            [cardDestructionCardId, "hand1", "hand2"],
-            "hand",
-            "destruction",
-          ),
+          hand: createCardInstances([cardDestructionCardId, "hand1", "hand2"], "hand", "destruction"),
           field: [],
           graveyard: [],
           banished: [],
