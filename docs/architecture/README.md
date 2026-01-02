@@ -20,13 +20,13 @@ Clean Architecture の概要と設計原則
 
 ---
 
-### [data-model-design.md](./data-model-design.md)
+### [card-model-design.md](./card-model-design.md)
 
-データモデル設計と API 統合
+Card モデル設計と API 統合
 
 **内容**:
 
-- 3 層データモデル（DomainCardData/CardDisplayData）
+- 3 層データモデル（CardData/CardDisplayData）
 - レイヤー別のデータ構造と責務
 - YGOPRODeck API 統合とキャッシング戦略
 - データ変換フロー

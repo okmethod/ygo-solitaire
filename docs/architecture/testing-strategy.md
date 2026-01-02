@@ -100,25 +100,29 @@ tests/
 
 **Unit Tests**: 共通基底クラスを中心に検証
 
-配置: `tests/unit/domain/effects/bases/`
+配置: `tests/unit/domain/effects/`
 
-- **SpellEffect.test.ts**: ゲーム終了時の発動不可チェック
-- **NormalSpellEffect.test.ts**: Main1 フェーズチェック、墓地送りステップ生成
+- **BaseSpellAction.test.ts**: ゲーム終了時の発動不可チェック、デフォルトの発動ステップ
+- **NormalSpellAction.test.ts**: Main1 フェーズチェック (spellSpeed=1)
+- **QuickPlaySpellAction.test.ts**: spellSpeed=2、Main1 フェーズチェック
+- **FieldSpellAction.test.ts**: spellSpeed=1、Main1 フェーズチェック、空の発動ステップ
+- **stepBuilders.test.ts**: プリミティブ処理のヘルパー関数（ドロー、墓地送り等）
 
 **Integration Tests**: カード固有シナリオを検証
 
 配置: `tests/integration/card-effects/`
 
-- **NormalSpells.test.ts**: 通常魔法カードのシナリオテスト
-  - Registry 統合: カード ID → Effect 取得 → startResolution 呼び出し
-  - 強欲な壺: デッキ 2 枚ドロー → 手札増加
-  - 天使の施し: 3 枚ドロー → 2 枚捨て → 手札 1 枚増加
+- **NormalSpells.test.ts**: 各種通常魔法カードのシナリオテスト
+- **QuickPlaySpells.test.ts**: 各種速攻魔法カードのシナリオテスト
+- **FieldSpells.test.ts**: 各種フィールド魔法カードのシナリオテスト
 
 **理由**:
 
 - カード固有の`canActivate()`（例: `deck.length >= 2`）は実装の裏返しで価値が薄い
+- 共通ルール（フェーズ制約、ゲームオーバーチェック）は抽象クラスのテストで保証
 - シナリオベースのテストの方が実際のバグを検出しやすい
 - カードタイプごとにファイル分割することで、1 ファイルあたりのテスト数を適切に保つ
+- 新規カード追加時は統合テストにシナリオを追加するだけで完結
 
 ### モック戦略
 

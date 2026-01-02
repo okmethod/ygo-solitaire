@@ -93,7 +93,7 @@ describe("cardSelectionStore", () => {
     });
 
     it("should not select more than maxCards", () => {
-      const cards = createCardInstances(["12345678", "87654321", "11111111"], "hand");
+      const cards = createCardInstances(["12345678", "87654321", "12345678"], "hand");
       const config: CardSelectionConfig = {
         availableCards: cards,
         minCards: 1,
@@ -213,7 +213,7 @@ describe("cardSelectionStore", () => {
     });
 
     it("should not allow selecting when at max", () => {
-      const cards = createCardInstances(["12345678", "87654321", "11111111"], "hand");
+      const cards = createCardInstances(["12345678", "87654321", "12345678"], "hand");
       const config: CardSelectionConfig = {
         availableCards: cards,
         minCards: 1,

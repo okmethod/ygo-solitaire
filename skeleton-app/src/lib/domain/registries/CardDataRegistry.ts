@@ -50,13 +50,8 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   1001: { id: 1001, jaName: "Test Spell 1", type: "spell", frameType: "spell", spellType: "normal" },
   1002: { id: 1002, jaName: "Test Spell 2", type: "spell", frameType: "spell", spellType: "normal" },
   1003: { id: 1003, jaName: "Test Spell 3", type: "spell", frameType: "spell", spellType: "normal" },
-  1004: { id: 1004, jaName: "Test Spell 4", type: "spell", frameType: "spell", spellType: "normal" },
-  1005: { id: 1005, jaName: "Test Spell 5", type: "spell", frameType: "spell", spellType: "normal" },
-  11111111: { id: 11111111, jaName: "Test Monster 1", type: "monster", frameType: "normal" },
-  12345678: { id: 12345678, jaName: "Test Monster 2", type: "monster", frameType: "normal" },
-  22222222: { id: 22222222, jaName: "Test Monster 3", type: "monster", frameType: "normal" },
-  33333333: { id: 33333333, jaName: "Test Monster 4", type: "monster", frameType: "normal" },
-  87654321: { id: 87654321, jaName: "Test Monster 5", type: "monster", frameType: "normal" },
+  12345678: { id: 12345678, jaName: "Test Monster A", type: "monster", frameType: "normal" },
+  87654321: { id: 87654321, jaName: "Test Monster B", type: "monster", frameType: "normal" },
 };
 
 /**

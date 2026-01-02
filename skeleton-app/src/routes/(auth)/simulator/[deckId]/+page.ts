@@ -11,7 +11,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
   // Load deck data from API
   const deckData = await loadDeckData(deckId, fetch);
 
-  // Extract card IDs from deck (数値ID対応)（T025）
+  // Extract card IDs from deck (数値ID対応)
   const deckCardIds: number[] = [];
 
   // Main deck monsters

@@ -59,17 +59,17 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify steps: [activation step, draw step, graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "pot-of-greed-activation",
+        id: "55144522-activation", // ID now uses card ID
         summary: "カード発動",
-        description: "強欲な壺を発動します",
+        description: "《強欲な壺》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "pot-of-greed-draw",
+        id: "draw-2", // ID now uses step builder format
         summary: "カードをドロー",
         description: "デッキから2枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "pot-of-greed-graveyard",
+        id: "pot-0-graveyard", // ID now includes instance ID
         summary: "墓地へ送る",
         description: "強欲な壺を墓地に送ります",
       });
@@ -124,12 +124,12 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify steps: [activation step, draw step, discard step, graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "graceful-charity-activation",
+        id: "79571449-activation",
         summary: "カード発動",
-        description: "天使の施しを発動します",
+        description: "《天使の施し》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "graceful-charity-draw",
+        id: "draw-3",
         summary: "カードをドロー",
         description: "デッキから3枚ドローします",
       });
@@ -139,7 +139,7 @@ describe("Normal Spell Card Effects", () => {
         description: "手札から2枚選んで捨ててください",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "graceful-charity-graveyard",
+        id: "charity-0-graveyard",
         summary: "墓地へ送る",
         description: "天使の施しを墓地に送ります",
       });
@@ -163,6 +163,360 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Magical Mallet (85852291) - Scenario Tests", () => {
+    const magicalMalletCardId = "85852291";
+
+    it("Scenario: Activate Magical Mallet → Return 2 cards to deck → Shuffle → Draw 2", () => {
+      // Arrange: 5 cards in deck, 3 cards in hand (Magical Mallet + 2 others)
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["deck1", "deck2", "deck3", "deck4", "deck5"], "deck"),
+          hand: createCardInstances([magicalMalletCardId, "hand1", "hand2"], "hand", "mallet"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act: Activate Magical Mallet
+      const command = new ActivateSpellCommand("mallet-0");
+      const result = command.execute(state);
+
+      // Assert: effectSteps include selection, return+shuffle, draw, graveyard
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(5); // activation + selection + return-shuffle + draw + graveyard
+
+      expect(result.effectSteps![0]).toMatchObject({
+        id: "85852291-activation",
+        summary: "カード発動",
+      });
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "magical-mallet-select",
+        summary: "手札を選択",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        id: "magical-mallet-return-shuffle",
+        summary: "デッキに戻してシャッフル",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        id: "magical-mallet-draw",
+        summary: "カードをドロー",
+      });
+      expect(result.effectSteps![4]).toMatchObject({
+        id: "mallet-0-graveyard",
+        summary: "墓地へ送る",
+      });
+    });
+
+    it("Scenario: Can activate with empty hand (no cards to return)", () => {
+      // Arrange: Only Magical Mallet in hand
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["deck1", "deck2"], "deck"),
+          hand: createCardInstances([magicalMalletCardId], "hand", "mallet"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("mallet-0");
+      const result = command.canExecute(state);
+
+      // Assert: Can activate (no additional conditions)
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("One Day of Peace (33782437) - Scenario Tests", () => {
+    const oneDayOfPeaceCardId = "33782437";
+
+    it("Scenario: Activate One Day of Peace → Draw 1 card → Damage negation activated", () => {
+      // Arrange: 3 cards in deck, 1 in hand
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+          hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+        damageNegation: false,
+      });
+
+      // Act: Activate One Day of Peace
+      const command = new ActivateSpellCommand("peace-0");
+      const result = command.execute(state);
+
+      // Assert: 4 steps (activation + draw + opponent draw + damage negation + graveyard)
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(5);
+
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "draw-1",
+        summary: "カードをドロー",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        id: "one-day-of-peace-draw-opponent",
+        summary: "相手がドロー",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        id: "one-day-of-peace-damage-negation",
+        summary: "ダメージ無効化",
+      });
+    });
+
+    it("Scenario: Cannot activate when deck is empty", () => {
+      // Arrange: Empty deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("peace-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 1 card in deck)
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Upstart Goblin (70368879) - Scenario Tests", () => {
+    const upstartGoblinCardId = "70368879";
+
+    it("Scenario: Activate Upstart Goblin → Draw 1 card → Opponent gains 1000 LP", () => {
+      // Arrange: 3 cards in deck, 1 in hand
+      const state = createMockGameState({
+        phase: "Main1",
+        lp: { player: 8000, opponent: 8000 },
+        zones: {
+          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+          hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act: Activate Upstart Goblin
+      const command = new ActivateSpellCommand("goblin-0");
+      const result = command.execute(state);
+
+      // Assert: 3 steps (activation + draw + gain life + graveyard)
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "draw-1",
+        summary: "カードをドロー",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        id: "gain-lp-opponent-1000",
+      });
+    });
+
+    it("Scenario: Cannot activate when deck is empty", () => {
+      // Arrange: Empty deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("goblin-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Dark Factory of Mass Production (90928333) - Scenario Tests", () => {
+    const darkFactoryCardId = "90928333";
+
+    it("Scenario: Activate Dark Factory → Select 2 monsters from graveyard → Add to hand", () => {
+      // Arrange: 2+ monsters in graveyard
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["deck1"], "deck"),
+          hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
+          field: [],
+          graveyard: [
+            {
+              id: 12345678,
+              instanceId: "grave-0",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster A",
+              location: "graveyard",
+            },
+            {
+              id: 87654321,
+              instanceId: "grave-1",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster B",
+              location: "graveyard",
+            },
+            {
+              id: 12345678,
+              instanceId: "grave-2",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster A",
+              location: "graveyard",
+            },
+          ],
+          banished: [],
+        },
+      });
+
+      // Act: Activate Dark Factory
+      const command = new ActivateSpellCommand("factory-0");
+      const result = command.execute(state);
+
+      // Assert: 3 steps (activation + selection + graveyard)
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(3);
+
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "dark-factory-select",
+        summary: "モンスターを選択",
+      });
+    });
+
+    it("Scenario: Cannot activate when graveyard has only 1 monster", () => {
+      // Arrange: Only 1 monster in graveyard
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["deck1"], "deck"),
+          hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
+          field: [],
+          graveyard: [
+            {
+              id: 12345678,
+              instanceId: "grave-0",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster A",
+              location: "graveyard",
+            },
+          ],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("factory-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 2 monsters)
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Terraforming (73628505) - Scenario Tests", () => {
+    const terraformingCardId = "73628505";
+
+    it("Scenario: Activate Terraforming → Select Field Spell from deck → Add to hand", () => {
+      // Arrange: Field Spell in deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [
+            {
+              id: 1001,
+              instanceId: "deck-0",
+              type: "monster",
+              frameType: "normal",
+              jaName: "モンスター1",
+              location: "deck",
+            },
+            {
+              id: 67616300,
+              instanceId: "deck-1",
+              type: "spell",
+              frameType: "spell",
+              jaName: "チキンレース",
+              spellType: "field",
+              location: "deck",
+            },
+            {
+              id: 1002,
+              instanceId: "deck-2",
+              type: "monster",
+              frameType: "normal",
+              jaName: "モンスター2",
+              location: "deck",
+            },
+          ],
+          hand: createCardInstances([terraformingCardId], "hand", "terra"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act: Activate Terraforming
+      const command = new ActivateSpellCommand("terra-0");
+      const result = command.execute(state);
+
+      // Assert: 4 steps (activation + selection + shuffle + graveyard)
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "terraforming-select",
+        summary: "フィールド魔法を選択",
+      });
+    });
+
+    it("Scenario: Cannot activate when no Field Spell in deck", () => {
+      // Arrange: No Field Spell in deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["monster1", "monster2"], "deck"),
+          hand: createCardInstances([terraformingCardId], "hand", "terra"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("terra-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 1 Field Spell in deck)
       expect(result).toBe(false);
     });
   });
