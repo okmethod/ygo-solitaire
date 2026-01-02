@@ -100,7 +100,7 @@ tests/
 
 **Unit Tests**: 共通基底クラスを中心に検証
 
-配置: `tests/unit/domain/effects/base/spell/`
+配置: `tests/unit/domain/effects/`
 
 - **BaseSpellAction.test.ts**: ゲーム終了時の発動不可チェック、デフォルトの発動ステップ
 - **NormalSpellAction.test.ts**: Main1 フェーズチェック (spellSpeed=1)
@@ -112,21 +112,9 @@ tests/
 
 配置: `tests/integration/card-effects/`
 
-- **NormalSpells.test.ts**: 通常魔法カード（7枚）のシナリオテスト
-  - Registry 統合: カード ID → Effect 取得 → startResolution 呼び出し
-  - 強欲な壺: デッキ 2 枚ドロー → 手札増加
-  - 天使の施し: 3 枚ドロー → 2 枚捨て → 手札 1 枚増加
-  - 打ち出の小槌: 手札をデッキに戻してシャッフル → ドロー
-  - 一時休戦: ドロー → ダメージ無効化
-  - 成金ゴブリン: ドロー → 相手1000LP回復
-  - 闇の量産工場: 墓地からモンスター2体を手札へ
-  - テラ・フォーミング: デッキからフィールド魔法をサーチ
-
-- **QuickPlaySpells.test.ts**: 速攻魔法カード（1枚）のシナリオテスト
-  - 手札断札: 手札全て捨て → 同じ枚数ドロー
-
-- **FieldSpells.test.ts**: フィールド魔法カード（2枚）のシナリオテスト
-  - チキンレース: フィールド配置 → 起動効果（LP払ってドロー）
+- **NormalSpells.test.ts**: 各種通常魔法カードのシナリオテスト
+- **QuickPlaySpells.test.ts**: 各種速攻魔法カードのシナリオテスト
+- **FieldSpells.test.ts**: 各種フィールド魔法カードのシナリオテスト
 
 **理由**:
 
