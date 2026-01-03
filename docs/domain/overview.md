@@ -25,7 +25,7 @@
 
 モンスターカード、魔法カード、罠カードの総称。
 
-詳細は [カードモデル](./card-models.md) を参照。
+詳細は [カードモデル](./card-model.md) を参照。
 
 **実装箇所**: `domain/models/Card.ts`
 
@@ -35,7 +35,7 @@
 
 モンスター・魔法・罠が持つ、ゲームに影響を与える処理の総称。
 
-詳細は [効果モデル](./effect-models.md) を参照。
+詳細は [効果モデル](./effect-model.md) を参照。
 
 **実装箇所**: `domain/models/ChainableAction.ts`（⏳ 未実装）, `domain/models/AdditionalRule.ts`（⏳ 未実装）
 

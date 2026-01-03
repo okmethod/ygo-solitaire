@@ -16,7 +16,7 @@
 
 **読むべき人**: 全員（最初に読むドキュメント）
 
-### カードモデル: [card-models.md](./card-models.md)
+### カードモデル: [card-model.md](./card-model.md)
 
 **内容**: カードのデータ構造とモデル定義
 
@@ -27,6 +27,16 @@
 
 **読むべき人**: カード実装に関わる開発者
 
+### 効果モデル: [effect-model.md](./effect-model.md)
+
+**内容**: カード効果の処理システム
+
+- CardEffect Interface
+- CardEffectRegistry（Strategy Pattern）
+- 実装済みカード効果一覧
+
+**読むべき人**: カード効果実装に関わる開発者
+
 ### ゲーム操作モデル: [game-operations.md](./game-operations.md)
 
 **内容**: ゲームの状態を変化させる手続きの定義
@@ -36,16 +46,6 @@
 - 各操作の実装状況
 
 **読むべき人**: ゲームロジック実装に関わる開発者
-
-### 効果システム: [effect-system.md](./effect-system.md)
-
-**内容**: カード効果の処理システム
-
-- CardEffect Interface
-- CardEffectRegistry（Strategy Pattern）
-- 実装済みカード効果一覧
-
-**読むべき人**: カード効果実装に関わる開発者
 
 ### チェーンシステム: [chain-system.md](./chain-system.md)
 
