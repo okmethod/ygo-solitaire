@@ -8,22 +8,20 @@
  * - ACTIVATION: 発動通知
  * - RESOLUTION: 1000LP支払い、フィールドに残る
  *
- * 永続魔法だがフィールド魔法のように振る舞うためFieldSpellActionを継承
- *
  * @module domain/effects/actions/spell/ToonWorldActivation
  */
 
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
-import { FieldSpellAction } from "../../base/spell/FieldSpellAction";
+import { ContinuousSpellAction } from "../../base/spell/ContinuousSpellAction";
 import { createLPPaymentStep } from "../../builders/stepBuilders";
 
 /**
  * ToonWorldActivation
  *
- * Extends FieldSpellAction for Toon World implementation.
+ * Extends ContinuousSpellAction for Toon World implementation.
  */
-export class ToonWorldActivation extends FieldSpellAction {
+export class ToonWorldActivation extends ContinuousSpellAction {
   constructor() {
     super(15259703);
   }
@@ -48,7 +46,7 @@ export class ToonWorldActivation extends FieldSpellAction {
         description: "1000LPを払ってトゥーン・ワールドを発動します",
       }),
 
-      // Note: No graveyard step - Field Spells stay on field after activation
+      // Note: No graveyard step - Continuous Spells stay on field after activation
     ];
   }
 }

@@ -88,6 +88,7 @@ export { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction"
 export { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 export { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
 export { FieldSpellAction } from "$lib/domain/effects/base/spell/FieldSpellAction";
+export { ContinuousSpellAction } from "$lib/domain/effects/base/spell/ContinuousSpellAction";
 
 // Step Builders exports (Helper functions for creating EffectResolutionSteps)
 export {
