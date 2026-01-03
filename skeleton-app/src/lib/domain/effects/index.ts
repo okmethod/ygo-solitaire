@@ -42,6 +42,12 @@ import { MagicalMalletActivation } from "$lib/domain/effects/actions/spell/Magic
 import { CardDestructionActivation } from "$lib/domain/effects/actions/spell/CardDestructionActivation";
 import { DarkFactoryActivation } from "$lib/domain/effects/actions/spell/DarkFactoryActivation";
 import { TerraformingActivation } from "$lib/domain/effects/actions/spell/TerraformingActivation";
+import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spell/MagicalStoneExcavationActivation";
+import { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
+import { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
+import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
+import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spell/ToonTableOfContentsActivation";
+import { ToonWorldActivation } from "$lib/domain/effects/actions/spell/ToonWorldActivation";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
@@ -64,6 +70,12 @@ export { MagicalMalletActivation } from "$lib/domain/effects/actions/spell/Magic
 export { CardDestructionActivation } from "$lib/domain/effects/actions/spell/CardDestructionActivation";
 export { DarkFactoryActivation } from "$lib/domain/effects/actions/spell/DarkFactoryActivation";
 export { TerraformingActivation } from "$lib/domain/effects/actions/spell/TerraformingActivation";
+export { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spell/MagicalStoneExcavationActivation";
+export { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
+export { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
+export { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
+export { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spell/ToonTableOfContentsActivation";
+export { ToonWorldActivation } from "$lib/domain/effects/actions/spell/ToonWorldActivation";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
@@ -76,6 +88,7 @@ export { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction"
 export { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 export { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
 export { FieldSpellAction } from "$lib/domain/effects/base/spell/FieldSpellAction";
+export { ContinuousSpellAction } from "$lib/domain/effects/base/spell/ContinuousSpellAction";
 
 // Step Builders exports (Helper functions for creating EffectResolutionSteps)
 export {
@@ -108,6 +121,12 @@ export {
  * - 74519184: Card Destruction (手札断札) - Quick-Play
  * - 90928333: Dark Factory (闇の量産工場)
  * - 73628505: Terraforming (テラ・フォーミング)
+ * - 98494543: Magical Stone Excavation (魔法石の採掘)
+ * - 93946239: Into the Void (無の煉獄)
+ * - 98645731: Pot of Duality (強欲で謙虚な壺)
+ * - 59750328: Card of Demise (命削りの宝札)
+ * - 89997728: Toon Table of Contents (トゥーンのもくじ)
+ * - 15259703: Toon World (トゥーン・ワールド)
  *
  * Future Expansion:
  * When adding new cards, import the action class above and register it here:
@@ -117,35 +136,23 @@ export {
  * ```
  */
 function initializeChainableActionRegistry(): void {
-  // Register all chainable actions
-  // Card ID 55144522: Pot of Greed (強欲な壺)
   ChainableActionRegistry.register(55144522, new PotOfGreedActivation());
-
-  // Card ID 79571449: Graceful Charity (天使の施し)
   ChainableActionRegistry.register(79571449, new GracefulCharityActivation());
-
-  // Card ID 67616300: Chicken Game (チキンレース) - Card Activation
   ChainableActionRegistry.register(67616300, new ChickenGameActivation());
-
-  // Card ID 70368879: Upstart Goblin (成金ゴブリン)
   ChainableActionRegistry.register(70368879, new UpstartGoblinActivation());
-
-  // Card ID 33782437: One Day of Peace (一時休戦)
   ChainableActionRegistry.register(33782437, new OneDayOfPeaceActivation());
-
-  // Card ID 85852291: Magical Mallet (打ち出の小槌)
   ChainableActionRegistry.register(85852291, new MagicalMalletActivation());
-
-  // Card ID 74519184: Card Destruction (手札断札)
   ChainableActionRegistry.register(74519184, new CardDestructionActivation());
-
-  // Card ID 90928333: Dark Factory (闇の量産工場)
   ChainableActionRegistry.register(90928333, new DarkFactoryActivation());
-
-  // Card ID 73628505: Terraforming (テラ・フォーミング)
   ChainableActionRegistry.register(73628505, new TerraformingActivation());
+  ChainableActionRegistry.register(98494543, new MagicalStoneExcavationActivation());
+  ChainableActionRegistry.register(93946239, new IntoTheVoidActivation());
+  ChainableActionRegistry.register(98645731, new PotOfDualityActivation());
+  ChainableActionRegistry.register(59750328, new CardOfDemiseActivation());
+  ChainableActionRegistry.register(89997728, new ToonTableOfContentsActivation());
+  ChainableActionRegistry.register(15259703, new ToonWorldActivation());
 
-  // Note: ChickenGameIgnitionEffect is not registered here because it requires
+  // Note: IgnitionEffect is not registered here because it requires
   // a cardInstanceId parameter. It will be instantiated dynamically when needed.
 
   // Future cards:
@@ -169,8 +176,6 @@ function initializeChainableActionRegistry(): void {
  * ```
  */
 function initializeAdditionalRuleRegistry(): void {
-  // Register all additional rules
-  // Card ID 67616300: Chicken Game (チキンレース) - Continuous Effect
   AdditionalRuleRegistry.register(67616300, new ChickenGameContinuousEffect());
 
   // Future cards:

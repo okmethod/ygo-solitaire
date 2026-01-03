@@ -1,19 +1,14 @@
 /**
- * TerraformingAction - Terraforming (テラ・フォーミング) ChainableAction implementation
+ * TerraformingActivation - 《テラ・フォーミング》(Terraforming)
  *
- * Card Information:
- * - Card ID: 73628505
- * - Card Name: Terraforming (テラ・フォーミング)
- * - Card Type: Normal Spell
- * - Effect: Add 1 Field Spell from your deck to your hand.
+ * Card ID: 73628505 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Main Phase, Deck has >= 1 Field Spell
- * - ACTIVATION: No activation steps (normal spell has no activation cost)
- * - RESOLUTION: Select 1 Field Spell from deck + Add to hand + Send spell to graveyard
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキにフィールド魔法が1枚以上
+ * - ACTIVATION: 発動通知のみ
+ * - RESOLUTION: デッキからフィールド魔法1枚を選択、手札に加える、墓地へ送る
  *
- * @module domain/effects/chainable/TerraformingAction
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * @module domain/effects/actions/spell/TerraformingActivation
  */
 
 import type { ChainableAction } from "../../../models/ChainableAction";
@@ -23,23 +18,9 @@ import { moveCard, sendToGraveyard } from "../../../models/Zone";
 import { getCardNameWithBrackets } from "../../../registries/CardDataRegistry";
 
 /**
- * TerraformingAction - Terraforming ChainableAction
+ * TerraformingActivation
  *
- * Implements ChainableAction interface for Terraforming card.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(73628505, new TerraformingAction());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Implements ChainableAction for Terraforming implementation.
  */
 export class TerraformingActivation implements ChainableAction {
   /** カードの発動（手札→フィールド） */

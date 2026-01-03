@@ -1,0 +1,168 @@
+# Feature Specification: Additional Spell Cards Implementation
+
+**Feature Branch**: `013-card-pool-expansion`
+**Created**: 2026-01-02
+**Status**: ✅ **Implemented** (2026-01-03)
+**Input**: User description: "6枚の魔法カード（通常魔法5枚、永続魔法1枚）をカードプールに追加実装"
+
+**Implementation Summary**:
+- All 6 spell cards implemented and tested (439 tests passing)
+- GameState extended with pendingEndPhaseEffects and activatedOncePerTurnCards
+- 6 new step builders added: graveyard search, deck top search, end phase effect, draw until count, name filter, LP payment
+- Integration tests added: 18 new test scenarios across all 6 cards
+- All acceptance scenarios from spec validated through tests
+
+## User Scenarios & Testing
+
+### User Story 1 - Spell Card Recovery (Priority: P1)
+
+プレイヤーが、墓地から魔法カードを回収する「魔法石の採掘（Magical Stone Excavation）」を使用できる。手札を2枚コストとして捨て、墓地の魔法カード1枚を選択して手札に加える。
+
+**Why this priority**: P1である理由は、墓地からのカード回収は1ターンキルコンボにおいて重要な戦術要素であり、他のドローソースと組み合わせることで戦略の幅が広がるため。また、カード選択UIの実装が他のカードにも再利用できる基盤となる。
+
+**Independent Test**: 墓地に魔法カードが存在し、手札が3枚以上ある状態で魔法石の採掘を発動し、墓地の魔法カード1枚を手札に加えることができることを確認する。手札が2枚以下、または墓地に魔法カードがない場合は発動できないことも検証する。
+
+**Acceptance Scenarios**:
+
+1. **Given** 手札3枚（魔法石の採掘を含む）、墓地に魔法カード2枚、**When** 魔法石の採掘を発動して墓地の魔法カード1枚を選択する、**Then** 手札2枚がコストとして墓地に送られ、選択した魔法カードが手札に加わり、魔法石の採掘も墓地に送られる（最終手札枚数=1枚）
+2. **Given** 手札2枚（魔法石の採掘を含む）、墓地に魔法カード1枚、**When** 魔法石の採掘を発動しようとする、**Then** 手札が2枚に満たないため発動できない
+3. **Given** 手札3枚、墓地にモンスターカードのみ、**When** 魔法石の採掘を発動しようとする、**Then** 墓地に魔法カードがないため発動できない
+
+---
+
+### User Story 2 - Risky Draw Mechanics (Priority: P1)
+
+プレイヤーが、手札を全て捨てるリスクと引き換えにドローできる「無の煉獄（Into the Void）」を使用できる。手札が3枚以上の場合に発動でき、1枚ドローするが、ターン終了時に手札を全て捨てる。
+
+**Why this priority**: P1である理由は、1ターンキルコンボでは全ての手札をそのターン中に使い切ることが前提であり、エンドフェイズのペナルティは実質的に無視できるため、強力なドローソースとして機能する。また、エンドフェイズ処理の実装は将来の他のカード実装にも応用できる。
+
+**Independent Test**: 手札3枚以上の状態で無の煉獄を発動し、1枚ドローできることを確認する。エンドフェイズに手札が全て墓地に送られることを確認する。手札2枚以下では発動できないことも検証する。
+
+**Acceptance Scenarios**:
+
+1. **Given** 手札4枚（無の煉獄を含む）、デッキ5枚、Main1フェーズ、**When** 無の煉獄を発動する、**Then** 1枚ドローされ手札が4枚になる（無の煉獄は墓地へ）、エンドフェイズに残りの手札全て（4枚）が墓地に送られる
+2. **Given** 手札2枚（無の煉獄を含む）、**When** 無の煉獄を発動しようとする、**Then** 手札が3枚に満たないため発動できない
+3. **Given** 手札3枚、デッキ0枚、**When** 無の煉獄を発動しようとする、**Then** ドローできないため発動できない
+
+---
+
+### User Story 3 - Deck Excavation and Selection (Priority: P2)
+
+プレイヤーが、デッキの上から3枚を確認して1枚を選択できる「強欲で謙虚な壺（Pot of Duality）」と「命削りの宝札（Card of Demise）」を使用できる。これらのカードは1ターンに1枚しか発動できず、特殊召喚ができなくなる制約がある。
+
+**Why this priority**: P2である理由は、これらのカードは強力なドローソースだが、「1ターンに1枚のみ」という発動制約や特殊召喚制約の実装が必要であり、実装の複雑度が高い。先行1ターンキルでは特殊召喚を使用しないため、制約は実質的に影響しない。
+
+**Independent Test**: 強欲で謙虚な壺を発動し、デッキの上から3枚を確認して1枚を手札に加え、残り2枚をデッキに戻すことができることを確認する。同じターンに2枚目を発動できないことを検証する。
+
+**Acceptance Scenarios**:
+
+1. **Given** 手札1枚（強欲で謙虚な壺）、デッキ10枚、**When** 強欲で謙虚な壺を発動してデッキの上から3枚のうち1枚を選択する、**Then** 選択したカードが手札に加わり、残り2枚がデッキに戻る（デッキは9枚になる）
+2. **Given** 強欲で謙虚な壺を1回発動済み、手札にもう1枚の強欲で謙虚な壺、**When** 2枚目を発動しようとする、**Then** 同じターンに発動済みのため発動できない
+3. **Given** 手札1枚（命削りの宝札）、デッキ10枚、現在の手札0枚、**When** 命削りの宝札を発動する、**Then** 手札が3枚になるまでドローする（3枚ドロー）、エンドフェイズに手札を全て墓地に送る、相手のダメージが0になる
+
+---
+
+### User Story 4 - Toon Card Support (Priority: P3)
+
+プレイヤーが、トゥーンカードをサーチできる「トゥーンのもくじ（Toon Table of Contents）」と、トゥーンカードの前提となる「トゥーンワールド（Toon World）」を使用できる。
+
+**Why this priority**: P3である理由は、トゥーンカードは現時点ではカードプールに存在せず、このカード単体では効果が発揮できない。将来的にトゥーンデッキを実装する際の基盤として用意する。
+
+**Independent Test**: トゥーンのもくじを発動し、デッキからトゥーンカードを手札に加えることができることを確認する。デッキにトゥーンカードがない場合は発動できないことを検証する。トゥーンワールドを発動し、1000LPを払ってフィールドに配置されることを確認する。
+
+**Acceptance Scenarios**:
+
+1. **Given** 手札1枚（トゥーンのもくじ）、デッキにトゥーンカード1枚、**When** トゥーンのもくじを発動する、**Then** デッキからトゥーンカードを手札に加え、トゥーンのもくじは墓地に送られる
+2. **Given** 手札1枚（トゥーンのもくじ）、デッキにトゥーンカードなし、**When** トゥーンのもくじを発動しようとする、**Then** サーチ対象がないため発動できない
+3. **Given** 手札1枚（トゥーンワールド）、LP8000、**When** トゥーンワールドを発動する、**Then** 1000LPを支払い、トゥーンワールドがフィールドに配置される（LP7000になる）
+
+---
+
+### Edge Cases
+
+- 魔法石の採掘で墓地の魔法カードを選択する際、カード選択UIが正しく機能すること（特に、魔法カードのみがフィルタされること）
+- 無の煉獄のエンドフェイズ処理が、他のエンドフェイズ処理（命削りの宝札等）と競合しないこと
+- 強欲で謙虚な壺/命削りの宝札の「1ターンに1枚のみ」制約が、同名カード間でのみ機能すること（異なるカード名には影響しない）
+- トゥーンのもくじで「トゥーン」カードをサーチする際、カード名に「トゥーン」が含まれるカードを正しく判定すること
+- トゥーンワールドのLP支払いが、LPが1000未満の場合に発動できないこと
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: システムは、魔法石の採掘（ID: 98494543）を実装しなければならない。手札2枚をコストとして捨て、墓地の魔法カード1枚を手札に加える効果を持つ
+- **FR-002**: 魔法石の採掘の発動条件は、手札が3枚以上（カード本体+コスト2枚）かつ墓地に魔法カードが1枚以上存在すること
+- **FR-003**: システムは、無の煉獄（ID: 93946239）を実装しなければならない。手札が3枚以上の場合に1枚ドローし、エンドフェイズに手札を全て捨てる効果を持つ
+- **FR-004**: システムは、強欲で謙虚な壺（ID: 98645731）を実装しなければならない。デッキの上から3枚を確認して1枚を手札に加え、残り2枚をデッキに戻す効果を持つ
+- **FR-005**: 強欲で謙虚な壺は、1ターンに1枚しか発動できず、発動ターンは特殊召喚できない制約を持つ
+- **FR-006**: システムは、命削りの宝札（ID: 59750328）を実装しなければならない。手札が3枚になるまでドローし、エンドフェイズに手札を全て捨てる効果と、ターン終了まで相手のダメージを0にする効果を持つ
+- **FR-007**: 命削りの宝札は、1ターンに1枚しか発動できず、発動ターンは特殊召喚できない制約を持つ
+- **FR-008**: システムは、トゥーンのもくじ（ID: 89997728）を実装しなければならない。デッキから「トゥーン」カード1枚を手札に加える効果を持つ
+- **FR-009**: システムは、トゥーンワールド（ID: 15259703）を実装しなければならない。1000LPを支払ってフィールドに配置される永続魔法カードである
+- **FR-010**: すべての新規カードは、CardDataRegistryに登録されなければならない
+- **FR-011**: すべての新規カードは、ChainableActionRegistryに登録されなければならない
+- **FR-012**: すべての新規カードは、既存の抽象クラス（NormalSpellAction, ContinuousSpellAction等）を使用して実装されなければならない
+- **FR-013**: 新規実装により、既存のテストがすべてパスすること（リグレッションなし）
+- **FR-014**: 各カードの実装には、統合テストが含まれなければならない
+
+### Key Entities
+
+- **MagicalStoneExcavationActivation**: 魔法石の採掘のChainableAction実装。NormalSpellActionを継承し、墓地の魔法カード選択と手札へ加える処理を実装する
+- **IntoTheVoidActivation**: 無の煉獄のChainableAction実装。NormalSpellActionを継承し、エンドフェイズでの手札破棄処理を実装する
+- **PotOfDualityActivation**: 強欲で謙虚な壺のChainableAction実装。NormalSpellActionを継承し、デッキの上から3枚の確認と選択処理、1ターンに1枚制約を実装する
+- **CardOfDemiseActivation**: 命削りの宝札のChainableAction実装。NormalSpellActionを継承し、手札が3枚になるまでのドロー、エンドフェイズ処理、ダメージ無効化処理を実装する
+- **ToonTableOfContentsActivation**: トゥーンのもくじのChainableAction実装。NormalSpellActionを継承し、「トゥーン」カードのサーチ処理を実装する
+- **ToonWorldActivation**: トゥーンワールドのChainableAction実装。ContinuousSpellActionを継承し、LP支払い処理とフィールド配置処理を実装する
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: 6枚の新規魔法カードがすべて実装され、CardDataRegistryとChainableActionRegistryに登録されている
+- **SC-002**: 各カードの発動条件と効果が、公式ルール通りに動作することを、統合テストで検証できる
+- **SC-003**: 魔法石の採掘で墓地の魔法カードを選択できることを、カード選択UIを通じて確認できる
+- **SC-004**: 無の煉獄と命削りの宝札のエンドフェイズ処理が正しく動作することを、フェーズ進行テストで確認できる
+- **SC-005**: 強欲で謙虚な壺と命削りの宝札の「1ターンに1枚のみ」制約が正しく機能することを検証できる
+- **SC-006**: すべての新規カード実装により、既存のテストがすべてパスする（リグレッションなし）
+- **SC-007**: 各カードのテストカバレッジが80%以上を達成する
+- **SC-008**: 実装完了後、lint/formatチェックがすべてパスする
+
+## Scope
+
+### In Scope
+
+- 6枚の魔法カードの実装（MagicalStoneExcavation, IntoTheVoid, PotOfDuality, CardOfDemise, ToonTableOfContents, ToonWorld）
+- CardDataRegistryへの登録
+- ChainableActionRegistryへの登録
+- 各カードの統合テスト作成
+- エンドフェイズ処理の実装（無の煉獄、命削りの宝札用）
+- 1ターンに1枚のみの発動制約の実装（強欲で謙虚な壺、命削りの宝札用）
+- カード選択UIの拡張（墓地の魔法カード選択、デッキの上3枚選択）
+
+### Out of Scope
+
+- トゥーンモンスターカードの実装（トゥーンのもくじ、トゥーンワールドの効果を完全に活用するには必要だが、別のfeatureで実装）
+- 特殊召喚制約の実装（先行1ターンキルでは特殊召喚を使用しないため、実質的に不要）
+- 相手のダメージを0にする処理の完全実装（先行1ターンキルでは相手にダメージを与えないため、実質的に不要。ただし、将来の拡張のために状態フラグとして実装する可能性あり）
+- UIコンポーネントの大幅な変更（既存のカード選択UIを拡張する範囲のみ）
+
+## Assumptions
+
+- 既存の抽象クラス（NormalSpellAction, ContinuousSpellAction）とstep builders（createDrawStep, createSendToGraveyardStep等）が正しく動作している
+- エンドフェイズ処理は、GameStateに`pendingEndPhaseEffects`のような形で遅延実行処理を保持する仕組みが必要（新規実装の可能性あり）
+- 1ターンに1枚のみの発動制約は、GameStateに`activatedOncePerTurnCards: Set<number>`のような形でカードIDを記録する仕組みが必要（新規実装の可能性あり）
+- カード選択UIは、既存のcreateCardSelectionStep()を拡張して、墓地やデッキの上3枚を選択できるようにする
+- 「トゥーン」カードの判定は、CardDataRegistryのカード名（jaNameまたはname）に「トゥーン」が含まれるかで判定する
+- トゥーンワールドのLP支払いは、LPが1000以上ある場合のみ発動可能とする
+- トゥーンワールドは永続魔法として、ContinuousSpellActionまたはFieldSpellActionを使用して実装する（カード効果からはFieldSpellに近いが、正式なカードタイプは永続魔法）
+
+## Dependencies
+
+- 既存のNormalSpellAction抽象クラス（spec 012で実装済み）
+- 既存のContinuousSpellActionまたはFieldSpellAction抽象クラス（spec 012で実装済み）
+- 既存のstep builders（createDrawStep, createSendToGraveyardStep等）（spec 012で実装済み）
+- 既存のCardDataRegistry（カードデータの登録先）
+- 既存のChainableActionRegistry（カード効果の登録先）
+- 既存のカード選択UI（createCardSelectionStep）
+- GameStateモデルへの拡張可能性（pendingEndPhaseEffects, activatedOncePerTurnCards）
+- エンドフェイズコマンドの実装または拡張可能性（AdvancePhaseCommand等）

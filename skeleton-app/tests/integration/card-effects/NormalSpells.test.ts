@@ -520,4 +520,421 @@ describe("Normal Spell Card Effects", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("Magical Stone Excavation (98494543) - Scenario Tests", () => {
+    const magicalStoneExcavationCardId = "98494543";
+
+    it("Scenario: Activate Magical Stone Excavation → Discard 2 → Select spell from graveyard → Add to hand", () => {
+      // Arrange: 3 cards in hand (this card + 2 others), 2 spells in graveyard
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"),
+          hand: createCardInstances(
+            [magicalStoneExcavationCardId, "33782437", "70368879"], // This card + One Day of Peace + Upstart Goblin
+            "hand",
+            "excavation",
+          ),
+          field: [],
+          graveyard: createCardInstances(["55144522", "79571449"], "graveyard"), // Pot of Greed + Graceful Charity
+          banished: [],
+        },
+      });
+
+      // Act: Activate Magical Stone Excavation
+      const command = new ActivateSpellCommand("excavation-0");
+      const result = command.execute(state);
+
+      // Assert: effectSteps include activation, discard, search, graveyard
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      expect(result.effectSteps![0]).toMatchObject({
+        id: "98494543-activation",
+        summary: "カード発動",
+        description: "《魔法石の採掘》を発動します",
+      });
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "magical-stone-excavation-discard",
+        summary: "手札を捨てる",
+        description: "手札から2枚選んで捨ててください",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        id: "magical-stone-excavation-search-excavation-0",
+        summary: "墓地から魔法カードを回収",
+        description: "墓地から魔法カードを1枚選んで手札に加えてください",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        id: "excavation-0-graveyard",
+        summary: "墓地へ送る",
+        description: "魔法石の採掘を墓地に送ります",
+      });
+    });
+
+    it("Scenario: Cannot activate when no spell cards in graveyard", () => {
+      // Arrange: 3 cards in hand but no spell cards in graveyard
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678"], "deck"),
+          hand: createCardInstances([magicalStoneExcavationCardId, "33782437", "70368879"], "hand", "excavation"),
+          field: [],
+          graveyard: [
+            // Only monsters in graveyard
+            {
+              id: 12345678,
+              instanceId: "grave-0",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster A",
+              location: "graveyard",
+            },
+            {
+              id: 87654321,
+              instanceId: "grave-1",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster B",
+              location: "graveyard",
+            },
+          ],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("excavation-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 1 spell in graveyard)
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Into the Void (93946239) - Scenario Tests", () => {
+    const intoTheVoidCardId = "93946239";
+
+    it("Scenario: Activate Into the Void → Draw 1 → Register end phase effect", () => {
+      // Arrange: 3 cards in hand (this card + 2 others), 2 cards in deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"),
+          hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act: Activate Into the Void
+      const command = new ActivateSpellCommand("void-0");
+      const result = command.execute(state);
+
+      // Assert: effectSteps include activation, draw, end phase registration, graveyard
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      expect(result.effectSteps![0]).toMatchObject({
+        id: "93946239-activation",
+        summary: "カード発動",
+        description: "《無の煉獄》を発動します",
+      });
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "draw-1",
+        summary: "カードをドロー",
+        description: "デッキから1枚ドローします",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        summary: "エンドフェイズ効果を登録",
+        description: "エンドフェイズに手札を全て捨てる効果を登録します",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        id: "void-0-graveyard",
+        summary: "墓地へ送る",
+        description: "無の煉獄を墓地に送ります",
+      });
+    });
+
+    it("Scenario: Cannot activate when deck is empty", () => {
+      // Arrange: 3 cards in hand but empty deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [], // Empty deck
+          hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("void-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 1 card in deck to draw)
+      expect(result).toBe(false);
+    });
+  });
+
+  // ===========================
+  // Pot of Duality (98645731) - P2 Card
+  // ===========================
+  describe("Pot of Duality (98645731) - Scenario Tests", () => {
+    const potOfDualityCardId = "98645731";
+
+    it("Scenario: Activate with deck = 10 → select 1 from top 3 → deck = 9, hand = 1", () => {
+      // Arrange: Card in hand, deck with 10 cards
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(
+            [
+              "12345678",
+              "87654321",
+              "11112222",
+              "33334444",
+              "55556666",
+              "77778888",
+              "99990000",
+              "11223344",
+              "55667788",
+              "99001122",
+            ],
+            "deck",
+          ),
+          hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("duality-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+
+      // Verify activation step added card to activatedOncePerTurnCards
+      expect(result.effectSteps![0].id).toBe("98645731-activation");
+
+      // Verify search step
+      expect(result.effectSteps![1].id).toContain("pot-of-duality-search");
+      expect(result.effectSteps![1].cardSelectionConfig).toBeDefined();
+      expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
+      expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
+
+      // Verify graveyard step
+      expect(result.effectSteps![2].id).toContain("graveyard");
+    });
+
+    it("Scenario: Activate 1st card → success, activate 2nd card same turn → fail (once-per-turn constraint)", () => {
+      // Arrange: Already activated once (card ID in activatedOncePerTurnCards)
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+        activatedOncePerTurnCards: new Set([98645731]), // Already activated
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("duality-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (once-per-turn constraint)
+      expect(result).toBe(false);
+    });
+
+    it("Scenario: Cannot activate when deck has less than 3 cards", () => {
+      // Arrange: Only 2 cards in deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"), // Only 2 cards
+          hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("duality-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 3 cards in deck)
+      expect(result).toBe(false);
+    });
+  });
+
+  // ===========================
+  // Card of Demise (59750328) - P2 Card
+  // ===========================
+  describe("Card of Demise (59750328) - Scenario Tests", () => {
+    const cardOfDemiseCardId = "59750328";
+
+    it("Scenario: Activate with hand = 0 → draw 3 cards → end phase → hand = 0 (all discarded)", () => {
+      // Arrange: No other cards in hand, sufficient deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("demise-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4); // activation + draw + add end phase effect + graveyard
+
+      // Verify activation step added card to activatedOncePerTurnCards
+      expect(result.effectSteps![0].id).toBe("59750328-activation");
+
+      // Verify draw step
+      expect(result.effectSteps![1].id).toContain("draw-until-3");
+
+      // Verify end phase effect registration
+      expect(result.effectSteps![2].id).toContain("add-end-phase-effect");
+
+      // Verify graveyard step
+      expect(result.effectSteps![3].id).toContain("graveyard");
+    });
+
+    it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {
+      // Arrange: 1 other card in hand
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"),
+          hand: createCardInstances([cardOfDemiseCardId, "33782437"], "hand", "demise"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("demise-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      // Verify draw step (should draw 2 cards to reach total 3)
+      expect(result.effectSteps![1].id).toContain("draw-until-3");
+    });
+
+    it("Scenario: Once-per-turn constraint test", () => {
+      // Arrange: Already activated once (card ID in activatedOncePerTurnCards)
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+        activatedOncePerTurnCards: new Set([59750328]), // Already activated
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("demise-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (once-per-turn constraint)
+      expect(result).toBe(false);
+    });
+  });
+
+  // ===========================
+  // Toon Table of Contents (89997728) - P3 Card
+  // ===========================
+  describe("Toon Table of Contents (89997728) - Scenario Tests", () => {
+    const toonTableCardId = "89997728";
+
+    it("Scenario: Activate with 1 Toon card in deck → add to hand → deck size decreases", () => {
+      // Arrange: Deck with Toon World card (manually create with proper jaName)
+      const toonWorldCard = {
+        id: 15259703,
+        instanceId: "deck-0",
+        type: "spell" as const,
+        frameType: "spell" as const,
+        jaName: "トゥーン・ワールド",
+        location: "deck" as const,
+      };
+
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [toonWorldCard, ...createCardInstances(["12345678", "87654321"], "deck")],
+          hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("toon-table-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+
+      // Verify search step
+      expect(result.effectSteps![1].id).toContain("toon-table-search");
+      expect(result.effectSteps![1].cardSelectionConfig).toBeDefined();
+      expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
+      expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
+
+      // Verify graveyard step
+      expect(result.effectSteps![2].id).toContain("graveyard");
+    });
+
+    it("Scenario: Cannot activate when deck has no Toon cards", () => {
+      // Arrange: Deck with no Toon cards
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("toon-table-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (no Toon cards in deck)
+      expect(result).toBe(false);
+    });
+  });
 });

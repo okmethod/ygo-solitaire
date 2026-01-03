@@ -1,19 +1,14 @@
 /**
- * CardDestructionActivation - Card Destruction (手札断札) Quick-Play Spell activation
+ * CardDestructionActivation - 《手札断札》(Card Destruction)
  *
- * Card Information:
- * - Card ID: 74519184
- * - Card Name: Card Destruction (手札断札)
- * - Card Type: Quick-Play Spell
- * - Effect: Both players discard 2 cards from their hand, then both players draw 2 cards.
+ * Card ID: 74519184 | Type: Spell | Subtype: Quick-Play
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Hand >= 3 cards (spell + 2 to discard)
- * - ACTIVATION: Default activation step (provided by base class)
- * - RESOLUTION: Player discards 2 + Opponent discards 2 (internal) + Both draw 2 + Send spell to graveyard
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、手札が3枚以上（発動カード含む+捨てる2枚）
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: プレイヤーが2枚破棄、相手が2枚破棄（内部処理）、両者が2枚ドロー、墓地へ送る
  *
  * @module domain/effects/actions/spell/CardDestructionActivation
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { GameState } from "../../../models/GameState";
@@ -23,23 +18,9 @@ import { createDrawStep, createSendToGraveyardStep, createCardSelectionStep } fr
 import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
 
 /**
- * CardDestructionActivation - Card Destruction ChainableAction
+ * CardDestructionActivation
  *
- * Extends QuickPlaySpellAction with Card Destruction specific logic.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(74519184, new CardDestructionActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(74519184);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends QuickPlaySpellAction for Card Destruction implementation.
  */
 export class CardDestructionActivation extends QuickPlaySpellAction {
   constructor() {

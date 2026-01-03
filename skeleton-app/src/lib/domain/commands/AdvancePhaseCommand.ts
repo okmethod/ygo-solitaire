@@ -73,12 +73,32 @@ export class AdvancePhaseCommand implements GameCommand {
       // (Reset at end of turn for "once per turn" effects)
       activatedIgnitionEffectsThisTurn:
         nextPhase === "End" ? new Set<string>() : state.activatedIgnitionEffectsThisTurn,
+      // Clear activatedOncePerTurnCards when advancing to End phase
+      // (Reset at end of turn for "once per turn" card activation limit)
+      activatedOncePerTurnCards: nextPhase === "End" ? new Set<number>() : state.activatedOncePerTurnCards,
       // If advancing to End phase and it's end of turn, increment turn counter
       // (In MVP, End phase loops to itself, so turn doesn't increment automatically)
       // This will be expanded in future when turn cycling is implemented
     };
 
     const phaseDisplayName = getPhaseDisplayName(nextPhase);
+
+    // If advancing to End phase and there are pending end phase effects, return them for execution
+    if (nextPhase === "End" && state.pendingEndPhaseEffects.length > 0) {
+      // Return success with effect steps to be executed by Application Layer
+      // After effects are executed, the state will be updated to clear pendingEndPhaseEffects
+      return {
+        success: true,
+        newState: {
+          ...newState,
+          // Clear pending effects after returning them for execution
+          pendingEndPhaseEffects: [],
+        },
+        message: `Advanced to ${phaseDisplayName}. Executing ${state.pendingEndPhaseEffects.length} end phase effect(s).`,
+        effectSteps: [...state.pendingEndPhaseEffects],
+      };
+    }
+
     return createSuccessResult(newState, `Advanced to ${phaseDisplayName}`);
   }
 

@@ -1,18 +1,14 @@
 /**
- * GracefulCharityActivation - Graceful Charity (天使の施し) ChainableAction implementation
+ * GracefulCharityActivation - 《天使の施し》(Graceful Charity)
  *
- * Card Information:
- * - Card ID: 79571449
- * - Card Name: Graceful Charity (天使の施し)
- * - Card Type: Normal Spell
- * - Effect: Draw 3 cards from deck, then discard 2 cards from hand
+ * Card ID: 79571449 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for draw, card selection, and graveyard operations
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに3枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 3枚ドロー、手札から2枚選んで破棄、墓地へ送る
  *
  * @module domain/effects/actions/spell/GracefulCharityActivation
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { GameState } from "../../../models/GameState";
@@ -22,23 +18,9 @@ import { createDrawStep, createSendToGraveyardStep, createCardSelectionStep } fr
 import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
 
 /**
- * GracefulCharityActivation - Graceful Charity ChainableAction
+ * GracefulCharityActivation
  *
- * Extends NormalSpellAction for Graceful Charity card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(79571449, new GracefulCharityActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Graceful Charity implementation.
  */
 export class GracefulCharityActivation extends NormalSpellAction {
   constructor() {

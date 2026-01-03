@@ -348,3 +348,62 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     });
   });
 });
+
+// ===========================
+// Toon World (15259703) - P3 Card
+// ===========================
+describe("Field Spell Card Effects > Toon World (15259703)", () => {
+  const toonWorldCardId = "15259703";
+
+  it("Scenario: Activate with LP = 8000 → pay 1000 LP → LP = 7000, field = 1 (Toon World)", () => {
+    // Arrange
+    const state = createMockGameState({
+      phase: "Main1",
+      lp: { player: 8000, opponent: 8000 },
+      zones: {
+        deck: createCardInstances(["12345678"], "deck"),
+        hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
+        field: [],
+        graveyard: [],
+        banished: [],
+      },
+    });
+
+    // Act
+    const command = new ActivateSpellCommand("toon-world-0");
+    const result = command.execute(state);
+
+    // Assert: Activation successful
+    expect(result.success).toBe(true);
+    expect(result.effectSteps).toBeDefined();
+    expect(result.effectSteps!.length).toBe(1); // LP payment only (no activation step for Field Spells)
+
+    // Verify LP payment step
+    expect(result.effectSteps![0].id).toContain("toon-world-lp-payment");
+
+    // Note: Card stays on field (not sent to graveyard)
+    // Field spell placement is handled by ActivateSpellCommand
+  });
+
+  it("Scenario: Cannot activate when LP < 1000", () => {
+    // Arrange: Player LP too low
+    const state = createMockGameState({
+      phase: "Main1",
+      lp: { player: 500, opponent: 8000 },
+      zones: {
+        deck: createCardInstances(["12345678"], "deck"),
+        hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
+        field: [],
+        graveyard: [],
+        banished: [],
+      },
+    });
+
+    // Act
+    const command = new ActivateSpellCommand("toon-world-0");
+    const result = command.canExecute(state);
+
+    // Assert: Cannot activate (insufficient LP)
+    expect(result).toBe(false);
+  });
+});

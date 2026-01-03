@@ -52,6 +52,10 @@ export interface CardSelectionConfig {
   description: string;
   /** Whether user can cancel the selection (default: true) */
   cancelable?: boolean;
+  /** Internal: Source zone for dynamic card population (e.g., "graveyard", "deck") */
+  _sourceZone?: "hand" | "graveyard" | "deck" | "field" | "banished";
+  /** Internal: Filter function for dynamic card population (supports index for deck top selection) */
+  _filter?: (card: CardInstance, index?: number) => boolean;
 }
 
 /**

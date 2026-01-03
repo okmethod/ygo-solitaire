@@ -1,24 +1,16 @@
 /**
- * ChickenGameIgnitionEffect - Chicken Game (チキンレース) 起動効果
+ * ChickenGameIgnitionEffect - 《チキンレース》(Chicken Game) 起動効果
  *
- * Card Information:
- * - Card ID: 67616300
- * - Card Name: Chicken Game (チキンレース)
- * - Card Type: Field Spell
- * - 起動効果: 1ターンに1度、1000LP払って発動できる。以下の効果から1つを選択して適用する。
- *   1. デッキから1枚ドローする
- *   2. このカードを破壊する
- *   3. 相手は1000LP回復する
- *
- * 注意: 「この効果の発動に対して、お互いは魔法・罠・モンスターの効果を発動できない」はチェーンシステムのためスコープ外
+ * Card ID: 67616300 | Type: Spell | Subtype: Field
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Main Phase, LP >= 1000, 1ターンに1度制限
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、LP>=1000、1ターンに1度制限、フィールド上に存在
  * - ACTIVATION: 1000LP支払い、発動記録
- * - RESOLUTION: デッキから1枚ドロー（簡略化のため選択肢1のみ実装）
+ * - RESOLUTION: デッキから1枚ドロー
  *
- * @module domain/effects/chainable/ChickenGameIgnitionEffect
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * 実装簡略化のため選択肢1（ドロー）のみ実装。本来は3つの選択肢がある
+ *
+ * @module domain/effects/actions/spell/ChickenGameIgnitionEffect
  */
 
 import type { ChainableAction } from "../../../models/ChainableAction";
@@ -27,20 +19,9 @@ import type { EffectResolutionStep } from "../../../models/EffectResolutionStep"
 import { createDrawStep } from "../../builders/stepBuilders";
 
 /**
- * ChickenGameIgnitionEffect - Chicken Game 起動効果
+ * ChickenGameIgnitionEffect
  *
- * Implements ChainableAction interface for Chicken Game ignition effect.
- *
- * @example
- * ```typescript
- * // 起動効果の発動（フィールドのChicken Gameから）
- * const chickenGame = state.zones.field.find(card => card.id === 67616300);
- * const ignitionEffect = new ChickenGameIgnitionEffect(chickenGame.instanceId);
- * if (ignitionEffect.canActivate(state)) {
- *   const activationSteps = ignitionEffect.createActivationSteps(state);
- *   const resolutionSteps = ignitionEffect.createResolutionSteps(state, chickenGame.instanceId);
- * }
- * ```
+ * Implements ChainableAction for Chicken Game ignition effect.
  */
 export class ChickenGameIgnitionEffect implements ChainableAction {
   /** 効果の発動（カードの発動ではない） */

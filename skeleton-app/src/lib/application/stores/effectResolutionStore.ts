@@ -220,11 +220,22 @@ function createEffectResolutionStore() {
 
           // CardSelectionModalを開いてユーザー入力を待つ
           return new Promise<void>((resolve) => {
-            // Use availableCards from config, but if empty, use current hand
+            // Use availableCards from config, but if empty, populate dynamically based on _sourceZone
             // This allows effects to select from newly drawn cards (e.g., Graceful Charity)
             const config = state.currentStep!.cardSelectionConfig!;
-            const availableCards =
-              config.availableCards.length > 0 ? config.availableCards : currentGameState.zones.hand;
+            let availableCards = config.availableCards;
+
+            // If availableCards is empty, populate dynamically from _sourceZone
+            if (availableCards.length === 0 && config._sourceZone) {
+              const sourceZone = currentGameState.zones[config._sourceZone];
+              availableCards = config._filter
+                ? sourceZone.filter((card, index) => config._filter!(card, index))
+                : sourceZone;
+            } else if (availableCards.length === 0) {
+              // If still empty and no _sourceZone, use hand as fallback
+              // This is for effects that select from newly drawn cards (e.g., Graceful Charity)
+              availableCards = currentGameState.zones.hand;
+            }
 
             state.cardSelectionHandler!({
               ...config,
