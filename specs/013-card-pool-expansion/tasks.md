@@ -117,16 +117,16 @@
 
 ### Card Data Registration
 
-- [ ] T026 [P] [P2] Add Pot of Duality (ID: 98645731) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
-- [ ] T027 [P] [P2] Add Card of Demise (ID: 59750328) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
+- [x] T026 [P] [P2] Add Pot of Duality (ID: 98645731) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
+- [x] T027 [P] [P2] Add Card of Demise (ID: 59750328) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
 
 ### Card Action Implementations
 
-- [ ] T028 [P2] Create `PotOfDualityActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/PotOfDualityActivation.ts`
+- [x] T028 [P2] Create `PotOfDualityActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/PotOfDualityActivation.ts`
   - Implement `additionalActivationConditions()`: deck >= 3, card not in activatedOncePerTurnCards
   - Implement `createResolutionSteps()`: search from deck top 3 → select 1 → return 2 to deck → send self to graveyard
   - Add card ID to activatedOncePerTurnCards in activation step
-- [ ] T029 [P2] Create `CardOfDemiseActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/CardOfDemiseActivation.ts`
+- [x] T029 [P2] Create `CardOfDemiseActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/CardOfDemiseActivation.ts`
   - Implement `additionalActivationConditions()`: card not in activatedOncePerTurnCards
   - Implement `createResolutionSteps()`: draw until hand = 3 → add end phase effect (discard all) → send self to graveyard
   - Add card ID to activatedOncePerTurnCards in activation step
@@ -134,28 +134,28 @@
 
 ### Registry Registration
 
-- [ ] T030 [P] [P2] Register PotOfDualityActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
-- [ ] T031 [P] [P2] Register CardOfDemiseActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
+- [x] T030 [P] [P2] Register PotOfDualityActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
+- [x] T031 [P] [P2] Register CardOfDemiseActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
 
 ### Export from effects/index.ts
 
-- [ ] T032 [P2] Export PotOfDualityActivation and CardOfDemiseActivation from `skeleton-app/src/lib/domain/effects/index.ts`
+- [x] T032 [P2] Export PotOfDualityActivation and CardOfDemiseActivation from `skeleton-app/src/lib/domain/effects/index.ts`
 
 ### Integration Tests
 
-- [ ] T033 [P] [P2] Add Pot of Duality test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
+- [x] T033 [P] [P2] Add Pot of Duality test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
   - Scenario 1: Activate with deck = 10 → select 1 from top 3 → deck = 9, hand = 1
   - Scenario 2: Activate 1st card → success, activate 2nd card same turn → fail (once-per-turn constraint)
   - Scenario 3: End phase → activatedOncePerTurnCards cleared → can activate next turn
-- [ ] T034 [P] [P2] Add Card of Demise test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
+- [x] T034 [P] [P2] Add Card of Demise test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
   - Scenario 1: Activate with hand = 0 → draw 3 cards → end phase → hand = 0 (all discarded)
   - Scenario 2: Activate with hand = 1 → draw 2 cards → end phase → hand = 0
   - Scenario 3: Once-per-turn constraint test (same as Pot of Duality)
 
 ### Validation
 
-- [ ] T035 [P2] Run all tests including new integration tests - must pass 100%
-- [ ] T036 [P2] Run lint/format checks - all must pass
+- [x] T035 [P2] Run all tests including new integration tests - must pass 100%
+- [x] T036 [P2] Run lint/format checks - all must pass
 
 **Checkpoint**: P2 cards implemented (Pot of Duality, Card of Demise), deck excavation and once-per-turn constraint working
 

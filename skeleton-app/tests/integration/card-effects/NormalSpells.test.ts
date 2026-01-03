@@ -679,4 +679,193 @@ describe("Normal Spell Card Effects", () => {
       expect(result).toBe(false);
     });
   });
+
+  // ===========================
+  // Pot of Duality (98645731) - P2 Card
+  // ===========================
+  describe("Pot of Duality (98645731) - Scenario Tests", () => {
+    const potOfDualityCardId = "98645731";
+
+    it("Scenario: Activate with deck = 10 → select 1 from top 3 → deck = 9, hand = 1", () => {
+      // Arrange: Card in hand, deck with 10 cards
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(
+            [
+              "12345678",
+              "87654321",
+              "11112222",
+              "33334444",
+              "55556666",
+              "77778888",
+              "99990000",
+              "11223344",
+              "55667788",
+              "99001122",
+            ],
+            "deck",
+          ),
+          hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("duality-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+
+      // Verify activation step added card to activatedOncePerTurnCards
+      expect(result.effectSteps![0].id).toBe("98645731-activation");
+
+      // Verify search step
+      expect(result.effectSteps![1].id).toContain("pot-of-duality-search");
+      expect(result.effectSteps![1].cardSelectionConfig).toBeDefined();
+      expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
+      expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
+
+      // Verify graveyard step
+      expect(result.effectSteps![2].id).toContain("graveyard");
+    });
+
+    it("Scenario: Activate 1st card → success, activate 2nd card same turn → fail (once-per-turn constraint)", () => {
+      // Arrange: Already activated once (card ID in activatedOncePerTurnCards)
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+        activatedOncePerTurnCards: new Set([98645731]), // Already activated
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("duality-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (once-per-turn constraint)
+      expect(result).toBe(false);
+    });
+
+    it("Scenario: Cannot activate when deck has less than 3 cards", () => {
+      // Arrange: Only 2 cards in deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"), // Only 2 cards
+          hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("duality-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 3 cards in deck)
+      expect(result).toBe(false);
+    });
+  });
+
+  // ===========================
+  // Card of Demise (59750328) - P2 Card
+  // ===========================
+  describe("Card of Demise (59750328) - Scenario Tests", () => {
+    const cardOfDemiseCardId = "59750328";
+
+    it("Scenario: Activate with hand = 0 → draw 3 cards → end phase → hand = 0 (all discarded)", () => {
+      // Arrange: No other cards in hand, sufficient deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("demise-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4); // activation + draw + add end phase effect + graveyard
+
+      // Verify activation step added card to activatedOncePerTurnCards
+      expect(result.effectSteps![0].id).toBe("59750328-activation");
+
+      // Verify draw step
+      expect(result.effectSteps![1].id).toContain("draw-until-3");
+
+      // Verify end phase effect registration
+      expect(result.effectSteps![2].id).toContain("add-end-phase-effect");
+
+      // Verify graveyard step
+      expect(result.effectSteps![3].id).toContain("graveyard");
+    });
+
+    it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {
+      // Arrange: 1 other card in hand
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"),
+          hand: createCardInstances([cardOfDemiseCardId, "33782437"], "hand", "demise"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("demise-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      // Verify draw step (should draw 2 cards to reach total 3)
+      expect(result.effectSteps![1].id).toContain("draw-until-3");
+    });
+
+    it("Scenario: Once-per-turn constraint test", () => {
+      // Arrange: Already activated once (card ID in activatedOncePerTurnCards)
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+        activatedOncePerTurnCards: new Set([59750328]), // Already activated
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("demise-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (once-per-turn constraint)
+      expect(result).toBe(false);
+    });
+  });
 });

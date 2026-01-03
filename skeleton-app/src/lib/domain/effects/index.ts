@@ -44,6 +44,8 @@ import { DarkFactoryActivation } from "$lib/domain/effects/actions/spell/DarkFac
 import { TerraformingActivation } from "$lib/domain/effects/actions/spell/TerraformingActivation";
 import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spell/MagicalStoneExcavationActivation";
 import { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
+import { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
+import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
@@ -68,6 +70,8 @@ export { DarkFactoryActivation } from "$lib/domain/effects/actions/spell/DarkFac
 export { TerraformingActivation } from "$lib/domain/effects/actions/spell/TerraformingActivation";
 export { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spell/MagicalStoneExcavationActivation";
 export { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
+export { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
+export { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
@@ -114,6 +118,8 @@ export {
  * - 73628505: Terraforming (テラ・フォーミング)
  * - 98494543: Magical Stone Excavation (魔法石の採掘)
  * - 93946239: Into the Void (無の煉獄)
+ * - 98645731: Pot of Duality (貪欲で謙虚な壺)
+ * - 59750328: Card of Demise (命削りの宝札)
  *
  * Future Expansion:
  * When adding new cards, import the action class above and register it here:
@@ -134,6 +140,8 @@ function initializeChainableActionRegistry(): void {
   ChainableActionRegistry.register(73628505, new TerraformingActivation());
   ChainableActionRegistry.register(98494543, new MagicalStoneExcavationActivation());
   ChainableActionRegistry.register(93946239, new IntoTheVoidActivation());
+  ChainableActionRegistry.register(98645731, new PotOfDualityActivation());
+  ChainableActionRegistry.register(59750328, new CardOfDemiseActivation());
 
   // Note: IgnitionEffect is not registered here because it requires
   // a cardInstanceId parameter. It will be instantiated dynamically when needed.
