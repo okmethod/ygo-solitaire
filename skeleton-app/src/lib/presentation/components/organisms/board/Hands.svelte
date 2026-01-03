@@ -34,9 +34,23 @@
 
   // 手札枚数に応じたグリッドカラム数を計算
   function getHandGridColumns(handCount: number): string {
-    if (handCount === 0) return "grid-cols-1";
-    if (handCount <= 10) return `grid-cols-${handCount}`;
-    return "grid-cols-10";
+    // 1〜10枚までのクラス名を明示的に定義（Tailwindのスキャナーに教えるため）
+    const gridMap: Record<number, string> = {
+      1: "grid-cols-1",
+      2: "grid-cols-2",
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-6",
+      7: "grid-cols-7",
+      8: "grid-cols-8",
+      9: "grid-cols-9",
+      10: "grid-cols-10",
+    };
+
+    if (handCount <= 0) return "grid-cols-1";
+    if (handCount >= 10) return "grid-cols-10";
+    return gridMap[handCount];
   }
 
   // カードクリック時：選択状態をトグル
