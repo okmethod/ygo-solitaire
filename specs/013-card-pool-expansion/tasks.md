@@ -28,29 +28,29 @@
 
 ### GameState Model Extensions
 
-- [ ] T001 [P] [Infrastructure] Add `pendingEndPhaseEffects: readonly EffectResolutionStep[]` field to GameState interface in `skeleton-app/src/lib/domain/models/GameState.ts`
-- [ ] T002 [P] [Infrastructure] Add `activatedOncePerTurnCards: ReadonlySet<number>` field to GameState interface in `skeleton-app/src/lib/domain/models/GameState.ts`
-- [ ] T003 [Infrastructure] Update `createInitialGameState()` to initialize new fields (`pendingEndPhaseEffects: []`, `activatedOncePerTurnCards: new Set<number>()`) in `skeleton-app/src/lib/domain/models/GameState.ts`
+- [x] T001 [P] [Infrastructure] Add `pendingEndPhaseEffects: readonly EffectResolutionStep[]` field to GameState interface in `skeleton-app/src/lib/domain/models/GameState.ts`
+- [x] T002 [P] [Infrastructure] Add `activatedOncePerTurnCards: ReadonlySet<number>` field to GameState interface in `skeleton-app/src/lib/domain/models/GameState.ts`
+- [x] T003 [Infrastructure] Update `createInitialGameState()` to initialize new fields (`pendingEndPhaseEffects: []`, `activatedOncePerTurnCards: new Set<number>()`) in `skeleton-app/src/lib/domain/models/GameState.ts`
 
 ### Step Builder Functions
 
-- [ ] T004 [P] [Infrastructure] Create `createSearchFromGraveyardStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Magical Stone Excavation)
-- [ ] T005 [P] [Infrastructure] Create `createSearchFromDeckTopStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Pot of Duality)
-- [ ] T006 [P] [Infrastructure] Create `createAddEndPhaseEffectStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Into the Void, Card of Demise)
-- [ ] T007 [P] [Infrastructure] Create `createDrawUntilCountStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Card of Demise - draw until hand = 3)
-- [ ] T008 [P] [Infrastructure] Create `createSearchFromDeckByNameStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Toon Table of Contents - search by name filter)
-- [ ] T009 [P] [Infrastructure] Create `createLPPaymentStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Toon World - pay 1000 LP)
+- [x] T004 [P] [Infrastructure] Create `createSearchFromGraveyardStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Magical Stone Excavation)
+- [x] T005 [P] [Infrastructure] Create `createSearchFromDeckTopStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Pot of Duality)
+- [x] T006 [P] [Infrastructure] Create `createAddEndPhaseEffectStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Into the Void, Card of Demise)
+- [x] T007 [P] [Infrastructure] Create `createDrawUntilCountStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Card of Demise - draw until hand = 3)
+- [x] T008 [P] [Infrastructure] Create `createSearchFromDeckByNameStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Toon Table of Contents - search by name filter)
+- [x] T009 [P] [Infrastructure] Create `createLPPaymentStep()` function in `skeleton-app/src/lib/domain/effects/builders/stepBuilders.ts` (for Toon World - pay 1000 LP)
 
 ### AdvancePhaseCommand Updates
 
-- [ ] T010 [Infrastructure] Update `AdvancePhaseCommand.execute()` to execute `pendingEndPhaseEffects` when entering End phase in `skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts`
-- [ ] T011 [Infrastructure] Update `AdvancePhaseCommand.execute()` to clear `activatedOncePerTurnCards` Set when entering End phase in `skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts`
-- [ ] T012 [Infrastructure] Update `AdvancePhaseCommand.execute()` to clear `pendingEndPhaseEffects` array after execution in `skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts`
+- [x] T010 [Infrastructure] Update `AdvancePhaseCommand.execute()` to execute `pendingEndPhaseEffects` when entering End phase in `skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts`
+- [x] T011 [Infrastructure] Update `AdvancePhaseCommand.execute()` to clear `activatedOncePerTurnCards` Set when entering End phase in `skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts`
+- [x] T012 [Infrastructure] Update `AdvancePhaseCommand.execute()` to clear `pendingEndPhaseEffects` array after execution in `skeleton-app/src/lib/domain/commands/AdvancePhaseCommand.ts`
 
 ### Validation
 
-- [ ] T013 [Infrastructure] Run all existing tests to verify no regressions (`npm run test:run` in `skeleton-app/`)
-- [ ] T014 [Infrastructure] Run lint/format checks (`npm run lint && npm run format` in `skeleton-app/`)
+- [x] T013 [Infrastructure] Run all existing tests to verify no regressions (`npm run test:run` in `skeleton-app/`)
+- [x] T014 [Infrastructure] Run lint/format checks (`npm run lint && npm run format` in `skeleton-app/`)
 
 **Checkpoint**: Infrastructure ready - GameState extended, step builders created, phase command updated
 
@@ -66,42 +66,42 @@
 
 ### Card Data Registration
 
-- [ ] T015 [P] [P1] Add Magical Stone Excavation (ID: 98494543) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
-- [ ] T016 [P] [P1] Add Into the Void (ID: 93946239) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
+- [x] T015 [P] [P1] Add Magical Stone Excavation (ID: 98494543) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
+- [x] T016 [P] [P1] Add Into the Void (ID: 93946239) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
 
 ### Card Action Implementations
 
-- [ ] T017 [P1] Create `MagicalStoneExcavationActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/MagicalStoneExcavationActivation.ts`
+- [x] T017 [P1] Create `MagicalStoneExcavationActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/MagicalStoneExcavationActivation.ts`
   - Implement `additionalActivationConditions()`: hand >= 3 (self + cost 2), graveyard has spell cards
   - Implement `createResolutionSteps()`: discard 2 cards → search from graveyard → add to hand → send self to graveyard
-- [ ] T018 [P1] Create `IntoTheVoidActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/IntoTheVoidActivation.ts`
+- [x] T018 [P1] Create `IntoTheVoidActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/IntoTheVoidActivation.ts`
   - Implement `additionalActivationConditions()`: hand >= 3, deck >= 1
   - Implement `createResolutionSteps()`: draw 1 card → add end phase effect (discard all hand) → send self to graveyard
 
 ### Registry Registration
 
-- [ ] T019 [P] [P1] Register MagicalStoneExcavationActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
-- [ ] T020 [P] [P1] Register IntoTheVoidActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
+- [x] T019 [P] [P1] Register MagicalStoneExcavationActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
+- [x] T020 [P] [P1] Register IntoTheVoidActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
 
 ### Export from effects/index.ts
 
-- [ ] T021 [P1] Export MagicalStoneExcavationActivation and IntoTheVoidActivation from `skeleton-app/src/lib/domain/effects/index.ts`
+- [x] T021 [P1] Export MagicalStoneExcavationActivation and IntoTheVoidActivation from `skeleton-app/src/lib/domain/effects/index.ts`
 
 ### Integration Tests
 
-- [ ] T022 [P] [P1] Add Magical Stone Excavation test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
+- [x] T022 [P] [P1] Add Magical Stone Excavation test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
   - Scenario 1: Activate with 3 cards in hand, 2 spell cards in graveyard → select 1 spell → hand = 1
   - Scenario 2: Cannot activate with hand = 2 (insufficient cost)
   - Scenario 3: Cannot activate when graveyard has no spell cards
-- [ ] T023 [P] [P1] Add Into the Void test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
+- [x] T023 [P] [P1] Add Into the Void test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
   - Scenario 1: Activate with 4 cards in hand → draw 1 → end phase → hand = 0 (all discarded)
   - Scenario 2: Cannot activate with hand = 2 (insufficient condition)
   - Scenario 3: Cannot activate when deck = 0 (cannot draw)
 
 ### Validation
 
-- [ ] T024 [P1] Run all tests including new integration tests - must pass 100%
-- [ ] T025 [P1] Run lint/format checks - all must pass
+- [x] T024 [P1] Run all tests including new integration tests - must pass 100%
+- [x] T025 [P1] Run lint/format checks - all must pass
 
 **Checkpoint**: P1 cards implemented (Magical Stone Excavation, Into the Void), graveyard recovery and end phase effects working
 

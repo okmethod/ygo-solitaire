@@ -42,6 +42,9 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
       isGameOver: false,
     },
     activatedIgnitionEffectsThisTurn: new Set<string>(),
+    damageNegation: false,
+    pendingEndPhaseEffects: [],
+    activatedOncePerTurnCards: new Set<number>(),
   };
 
   return {
@@ -86,6 +89,7 @@ export function createCardInstances(
       id: numericId, // CardInstance extends CardData
       type,
       frameType,
+      jaName: `Test Card ${numericId}`, // Default test name
       location,
     };
   });

@@ -454,3 +454,497 @@ export function createReturnToDeckStep(
     },
   };
 }
+
+/**
+ * Creates an EffectResolutionStep for searching and selecting cards from graveyard
+ *
+ * Opens a card selection modal showing only graveyard cards that match the filter.
+ * Selected card(s) are added to hand.
+ *
+ * Used for:
+ * - Magical Stone Excavation (select 1 spell card from graveyard)
+ * - Dark Factory (select 2 normal monsters from graveyard)
+ *
+ * @param config - Selection configuration
+ * @param config.id - Unique step ID
+ * @param config.summary - Summary shown in selection UI
+ * @param config.description - Detailed description/instructions
+ * @param config.filter - Filter function to determine which graveyard cards are available
+ * @param config.minCards - Minimum number of cards that must be selected
+ * @param config.maxCards - Maximum number of cards that can be selected
+ * @param config.cancelable - Whether user can cancel selection (default: false)
+ * @returns EffectResolutionStep for graveyard search and selection
+ *
+ * @example
+ * ```typescript
+ * // Magical Stone Excavation: Select 1 spell card from graveyard
+ * createSearchFromGraveyardStep({
+ *   id: "magical-stone-excavation-search",
+ *   summary: "墓地から魔法カードを選択",
+ *   description: "墓地の魔法カード1枚を選んで手札に加えてください",
+ *   filter: (card) => card.type === "spell",
+ *   minCards: 1,
+ *   maxCards: 1,
+ * })
+ * ```
+ */
+export function createSearchFromGraveyardStep(config: {
+  id: string;
+  summary: string;
+  description: string;
+  filter: (card: CardInstance) => boolean;
+  minCards: number;
+  maxCards: number;
+  cancelable?: boolean;
+}): EffectResolutionStep {
+  return {
+    id: config.id,
+    summary: config.summary,
+    description: config.description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: [], // Populated dynamically from graveyard in action
+      minCards: config.minCards,
+      maxCards: config.maxCards,
+      summary: config.summary,
+      description: config.description,
+      cancelable: config.cancelable ?? false,
+    } satisfies CardSelectionConfig,
+    action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      // Filter graveyard cards
+      const availableCards = currentState.zones.graveyard.filter(config.filter);
+
+      // If no cards available, return error
+      if (availableCards.length === 0) {
+        return {
+          success: false,
+          newState: currentState,
+          error: "No cards available in graveyard matching the criteria",
+        };
+      }
+
+      // If no selection made yet, return current state (UI will show selection modal)
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return {
+          success: false,
+          newState: currentState,
+          error: "No cards selected",
+        };
+      }
+
+      // Move selected cards from graveyard to hand
+      let updatedZones = currentState.zones;
+      for (const instanceId of selectedInstanceIds) {
+        updatedZones = moveCard(updatedZones, instanceId, "graveyard", "hand");
+      }
+
+      const newState: GameState = {
+        ...currentState,
+        zones: updatedZones,
+      };
+
+      return {
+        success: true,
+        newState,
+        message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from graveyard to hand`,
+      };
+    },
+  };
+}
+
+/**
+ * Creates an EffectResolutionStep for searching cards from the top N cards of the deck
+ *
+ * Opens a card selection modal showing the top N cards of the deck.
+ * Selected card is added to hand, remaining cards are returned to deck.
+ *
+ * Used for:
+ * - Pot of Duality (excavate top 3 cards, select 1, return 2 to deck)
+ *
+ * @param config - Selection configuration
+ * @param config.id - Unique step ID
+ * @param config.summary - Summary shown in selection UI
+ * @param config.description - Detailed description/instructions
+ * @param config.count - Number of cards to excavate from deck top
+ * @param config.minCards - Minimum number of cards that must be selected (usually 1)
+ * @param config.maxCards - Maximum number of cards that can be selected (usually 1)
+ * @param config.cancelable - Whether user can cancel selection (default: false)
+ * @returns EffectResolutionStep for deck top search and selection
+ *
+ * @example
+ * ```typescript
+ * // Pot of Duality: Excavate top 3 cards, select 1
+ * createSearchFromDeckTopStep({
+ *   id: "pot-of-duality-search",
+ *   summary: "デッキの上から3枚を確認",
+ *   description: "デッキの上から3枚を確認し、1枚を選んで手札に加えてください",
+ *   count: 3,
+ *   minCards: 1,
+ *   maxCards: 1,
+ * })
+ * ```
+ */
+export function createSearchFromDeckTopStep(config: {
+  id: string;
+  summary: string;
+  description: string;
+  count: number;
+  minCards: number;
+  maxCards: number;
+  cancelable?: boolean;
+}): EffectResolutionStep {
+  return {
+    id: config.id,
+    summary: config.summary,
+    description: config.description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: [], // Populated dynamically from deck top in action
+      minCards: config.minCards,
+      maxCards: config.maxCards,
+      summary: config.summary,
+      description: config.description,
+      cancelable: config.cancelable ?? false,
+    } satisfies CardSelectionConfig,
+    action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      // Get top N cards from deck
+      const topCards = currentState.zones.deck.slice(0, config.count);
+
+      // If not enough cards in deck, return error
+      if (topCards.length < config.count) {
+        return {
+          success: false,
+          newState: currentState,
+          error: `Cannot excavate ${config.count} cards. Deck has only ${topCards.length} cards.`,
+        };
+      }
+
+      // If no selection made yet, return current state (UI will show selection modal)
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return {
+          success: false,
+          newState: currentState,
+          error: "No cards selected",
+        };
+      }
+
+      // Move selected card(s) to hand
+      let updatedZones = currentState.zones;
+      for (const instanceId of selectedInstanceIds) {
+        updatedZones = moveCard(updatedZones, instanceId, "deck", "hand");
+      }
+
+      // Remaining cards stay in deck (no shuffling - they return to their positions)
+      const newState: GameState = {
+        ...currentState,
+        zones: updatedZones,
+      };
+
+      return {
+        success: true,
+        newState,
+        message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from deck to hand`,
+      };
+    },
+  };
+}
+
+/**
+ * Creates an EffectResolutionStep for adding an effect to be executed at end phase
+ *
+ * Adds an EffectResolutionStep to pendingEndPhaseEffects array.
+ * The effect will be executed when the game phase advances to End phase.
+ *
+ * Used for:
+ * - Into the Void (discard all hand at end phase)
+ * - Card of Demise (discard all hand at end phase)
+ *
+ * @param effectStep - The EffectResolutionStep to execute at end phase
+ * @param options - Optional customization for id, summary, description
+ * @returns EffectResolutionStep for adding end phase effect
+ *
+ * @example
+ * ```typescript
+ * // Into the Void: Add end phase discard effect
+ * createAddEndPhaseEffectStep(
+ *   {
+ *     id: "into-the-void-end-phase-discard",
+ *     summary: "手札を全て捨てる",
+ *     description: "エンドフェイズに手札を全て捨てます",
+ *     notificationLevel: "info",
+ *     action: (state) => {
+ *       // Discard all hand logic...
+ *     }
+ *   },
+ *   { summary: "エンドフェイズ効果を登録" }
+ * )
+ * ```
+ */
+export function createAddEndPhaseEffectStep(
+  effectStep: EffectResolutionStep,
+  options?: {
+    id?: string;
+    summary?: string;
+    description?: string;
+  },
+): EffectResolutionStep {
+  return {
+    id: options?.id ?? `add-end-phase-effect-${effectStep.id}`,
+    summary: options?.summary ?? "エンドフェイズ効果を登録",
+    description: options?.description ?? "エンドフェイズに実行される効果を登録します",
+    notificationLevel: "silent",
+    action: (currentState: GameState): GameStateUpdateResult => {
+      const newState: GameState = {
+        ...currentState,
+        pendingEndPhaseEffects: [...currentState.pendingEndPhaseEffects, effectStep],
+      };
+
+      return {
+        success: true,
+        newState,
+        message: `Added end phase effect: ${effectStep.summary}`,
+      };
+    },
+  };
+}
+
+/**
+ * Creates an EffectResolutionStep for drawing cards until hand reaches a target count
+ *
+ * Draws cards from deck until hand size reaches the specified count.
+ * If hand already has >= target count, no cards are drawn.
+ *
+ * Used for:
+ * - Card of Demise (draw until hand = 3)
+ *
+ * @param targetCount - Target hand size (e.g., 3)
+ * @param options - Optional customization
+ * @param options.id - Custom step ID
+ * @param options.summary - Custom summary
+ * @param options.description - Custom description
+ * @returns EffectResolutionStep for drawing until target count
+ *
+ * @example
+ * ```typescript
+ * // Card of Demise: Draw until hand = 3
+ * createDrawUntilCountStep(3, {
+ *   description: "手札が3枚になるようにデッキからドローします"
+ * })
+ * ```
+ */
+export function createDrawUntilCountStep(
+  targetCount: number,
+  options?: {
+    id?: string;
+    summary?: string;
+    description?: string;
+  },
+): EffectResolutionStep {
+  return {
+    id: options?.id ?? `draw-until-${targetCount}`,
+    summary: options?.summary ?? `手札が${targetCount}枚になるようにドロー`,
+    description: options?.description ?? `手札が${targetCount}枚になるようにデッキからドローします`,
+    notificationLevel: "info",
+    action: (currentState: GameState): GameStateUpdateResult => {
+      const currentHandCount = currentState.zones.hand.length;
+      const drawCount = Math.max(0, targetCount - currentHandCount);
+
+      // If already at or above target, no draw needed
+      if (drawCount === 0) {
+        return {
+          success: true,
+          newState: currentState,
+          message: `Hand already has ${currentHandCount} cards (target: ${targetCount})`,
+        };
+      }
+
+      // Validate deck has enough cards
+      if (currentState.zones.deck.length < drawCount) {
+        return {
+          success: false,
+          newState: currentState,
+          error: `Cannot draw ${drawCount} cards to reach target. Deck has only ${currentState.zones.deck.length} cards.`,
+        };
+      }
+
+      // Draw cards
+      const newZones = drawCards(currentState.zones, drawCount);
+
+      const newState: GameState = {
+        ...currentState,
+        zones: newZones,
+      };
+
+      // Check victory conditions after drawing
+      const victoryResult = checkVictoryConditions(newState);
+
+      const finalState: GameState = {
+        ...newState,
+        result: victoryResult,
+      };
+
+      return {
+        success: true,
+        newState: finalState,
+        message: `Drew ${drawCount} card${drawCount > 1 ? "s" : ""} (hand now: ${targetCount})`,
+      };
+    },
+  };
+}
+
+/**
+ * Creates an EffectResolutionStep for searching deck by card name filter
+ *
+ * Opens a card selection modal showing deck cards that match the name filter.
+ * Selected card is added to hand, deck is shuffled.
+ *
+ * Used for:
+ * - Toon Table of Contents (search for cards with "トゥーン" in name)
+ * - Terraforming (search for field spells - frameType check)
+ *
+ * @param config - Selection configuration
+ * @param config.id - Unique step ID
+ * @param config.summary - Summary shown in selection UI
+ * @param config.description - Detailed description/instructions
+ * @param config.filter - Filter function to determine which deck cards are available
+ * @param config.minCards - Minimum number of cards that must be selected
+ * @param config.maxCards - Maximum number of cards that can be selected
+ * @param config.cancelable - Whether user can cancel selection (default: false)
+ * @returns EffectResolutionStep for deck search by name
+ *
+ * @example
+ * ```typescript
+ * // Toon Table of Contents: Search for "トゥーン" cards
+ * createSearchFromDeckByNameStep({
+ *   id: "toon-table-search",
+ *   summary: "デッキからトゥーンカードを検索",
+ *   description: "デッキから「トゥーン」カード1枚を選んで手札に加えてください",
+ *   filter: (card) => card.jaName.includes("トゥーン") || card.name.includes("Toon"),
+ *   minCards: 1,
+ *   maxCards: 1,
+ * })
+ * ```
+ */
+export function createSearchFromDeckByNameStep(config: {
+  id: string;
+  summary: string;
+  description: string;
+  filter: (card: CardInstance) => boolean;
+  minCards: number;
+  maxCards: number;
+  cancelable?: boolean;
+}): EffectResolutionStep {
+  return {
+    id: config.id,
+    summary: config.summary,
+    description: config.description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: [], // Populated dynamically from deck in action
+      minCards: config.minCards,
+      maxCards: config.maxCards,
+      summary: config.summary,
+      description: config.description,
+      cancelable: config.cancelable ?? false,
+    } satisfies CardSelectionConfig,
+    action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      // Filter deck cards
+      const availableCards = currentState.zones.deck.filter(config.filter);
+
+      // If no cards available, return error
+      if (availableCards.length === 0) {
+        return {
+          success: false,
+          newState: currentState,
+          error: "No cards available in deck matching the criteria",
+        };
+      }
+
+      // If no selection made yet, return current state (UI will show selection modal)
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return {
+          success: false,
+          newState: currentState,
+          error: "No cards selected",
+        };
+      }
+
+      // Move selected card(s) from deck to hand
+      let updatedZones = currentState.zones;
+      for (const instanceId of selectedInstanceIds) {
+        updatedZones = moveCard(updatedZones, instanceId, "deck", "hand");
+      }
+
+      // Shuffle deck after search
+      updatedZones = shuffleDeck(updatedZones);
+
+      const newState: GameState = {
+        ...currentState,
+        zones: updatedZones,
+      };
+
+      return {
+        success: true,
+        newState,
+        message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from deck to hand and shuffled`,
+      };
+    },
+  };
+}
+
+/**
+ * Creates an EffectResolutionStep for paying life points
+ *
+ * Reduces player's LP by the specified amount.
+ * Used for card activation costs (Toon World - pay 1000 LP).
+ *
+ * @param amount - Amount of LP to pay
+ * @param options - Optional customization
+ * @param options.id - Custom step ID
+ * @param options.target - Who pays LP: "player" or "opponent" (default: "player")
+ * @param options.summary - Custom summary
+ * @param options.description - Custom description
+ * @returns EffectResolutionStep for LP payment
+ *
+ * @example
+ * ```typescript
+ * // Toon World: Pay 1000 LP
+ * createLPPaymentStep(1000, {
+ *   description: "1000LPを払って発動します"
+ * })
+ * ```
+ */
+export function createLPPaymentStep(
+  amount: number,
+  options?: {
+    id?: string;
+    target?: "player" | "opponent";
+    summary?: string;
+    description?: string;
+  },
+): EffectResolutionStep {
+  const target = options?.target ?? "player";
+  const targetJa = target === "player" ? "プレイヤー" : "相手";
+
+  return {
+    id: options?.id ?? `pay-lp-${target}-${amount}`,
+    summary: options?.summary ?? `${targetJa}がLPを支払う`,
+    description: options?.description ?? `${targetJa}が${amount}LPを支払います`,
+    notificationLevel: "info",
+    action: (currentState: GameState): GameStateUpdateResult => {
+      const newState: GameState = {
+        ...currentState,
+        lp: {
+          ...currentState.lp,
+          [target]: currentState.lp[target] - amount,
+        },
+      };
+
+      return {
+        success: true,
+        newState,
+        message: `${target === "player" ? "Player" : "Opponent"} paid ${amount} LP`,
+      };
+    },
+  };
+}

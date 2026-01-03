@@ -520,4 +520,163 @@ describe("Normal Spell Card Effects", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("Magical Stone Excavation (98494543) - Scenario Tests", () => {
+    const magicalStoneExcavationCardId = "98494543";
+
+    it("Scenario: Activate Magical Stone Excavation → Discard 2 → Select spell from graveyard → Add to hand", () => {
+      // Arrange: 3 cards in hand (this card + 2 others), 2 spells in graveyard
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"),
+          hand: createCardInstances(
+            [magicalStoneExcavationCardId, "33782437", "70368879"], // This card + One Day of Peace + Upstart Goblin
+            "hand",
+            "excavation",
+          ),
+          field: [],
+          graveyard: createCardInstances(["55144522", "79571449"], "graveyard"), // Pot of Greed + Graceful Charity
+          banished: [],
+        },
+      });
+
+      // Act: Activate Magical Stone Excavation
+      const command = new ActivateSpellCommand("excavation-0");
+      const result = command.execute(state);
+
+      // Assert: effectSteps include activation, discard, search, graveyard
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      expect(result.effectSteps![0]).toMatchObject({
+        id: "98494543-activation",
+        summary: "カード発動",
+        description: "《魔法石の採掘》を発動します",
+      });
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "magical-stone-excavation-discard",
+        summary: "手札を捨てる",
+        description: "手札から2枚選んで捨ててください",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        id: "magical-stone-excavation-search-excavation-0",
+        summary: "墓地から魔法カードを回収",
+        description: "墓地から魔法カードを1枚選んで手札に加えてください",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        id: "excavation-0-graveyard",
+        summary: "墓地へ送る",
+        description: "魔法石の採掘を墓地に送ります",
+      });
+    });
+
+    it("Scenario: Cannot activate when no spell cards in graveyard", () => {
+      // Arrange: 3 cards in hand but no spell cards in graveyard
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678"], "deck"),
+          hand: createCardInstances([magicalStoneExcavationCardId, "33782437", "70368879"], "hand", "excavation"),
+          field: [],
+          graveyard: [
+            // Only monsters in graveyard
+            {
+              id: 12345678,
+              instanceId: "grave-0",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster A",
+              location: "graveyard",
+            },
+            {
+              id: 87654321,
+              instanceId: "grave-1",
+              type: "monster",
+              frameType: "normal",
+              jaName: "Test Monster B",
+              location: "graveyard",
+            },
+          ],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("excavation-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 1 spell in graveyard)
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("Into the Void (93946239) - Scenario Tests", () => {
+    const intoTheVoidCardId = "93946239";
+
+    it("Scenario: Activate Into the Void → Draw 1 → Register end phase effect", () => {
+      // Arrange: 3 cards in hand (this card + 2 others), 2 cards in deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321"], "deck"),
+          hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act: Activate Into the Void
+      const command = new ActivateSpellCommand("void-0");
+      const result = command.execute(state);
+
+      // Assert: effectSteps include activation, draw, end phase registration, graveyard
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(4);
+
+      expect(result.effectSteps![0]).toMatchObject({
+        id: "93946239-activation",
+        summary: "カード発動",
+        description: "《無の煉獄》を発動します",
+      });
+      expect(result.effectSteps![1]).toMatchObject({
+        id: "draw-1",
+        summary: "カードをドロー",
+        description: "デッキから1枚ドローします",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        summary: "エンドフェイズ効果を登録",
+        description: "エンドフェイズに手札を全て捨てる効果を登録します",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        id: "void-0-graveyard",
+        summary: "墓地へ送る",
+        description: "無の煉獄を墓地に送ります",
+      });
+    });
+
+    it("Scenario: Cannot activate when deck is empty", () => {
+      // Arrange: 3 cards in hand but empty deck
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [], // Empty deck
+          hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("void-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (need at least 1 card in deck to draw)
+      expect(result).toBe(false);
+    });
+  });
 });

@@ -9,6 +9,7 @@
 
 import type { Zones } from "./Zone";
 import type { GamePhase } from "./Phase";
+import type { EffectResolutionStep } from "./EffectResolutionStep";
 import { getCardData } from "../registries/CardDataRegistry";
 
 /**
@@ -64,6 +65,17 @@ export interface GameState {
    * trueの場合、このターンのダメージは全て無効化される
    */
   readonly damageNegation: boolean;
+  /**
+   * エンドフェイズに実行される遅延効果
+   * 無の煉獄、命削りの宝札などのカード効果で使用される
+   */
+  readonly pendingEndPhaseEffects: readonly EffectResolutionStep[];
+  /**
+   * 1ターンに1枚のみ発動可能なカードの発動済み管理
+   * 強欲で謙虚な壺、命削りの宝札などで使用される
+   * カードID（数値）をキーとして管理
+   */
+  readonly activatedOncePerTurnCards: ReadonlySet<number>;
 }
 
 /**
@@ -100,6 +112,8 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
     },
     activatedIgnitionEffectsThisTurn: new Set<string>(),
     damageNegation: false,
+    pendingEndPhaseEffects: [],
+    activatedOncePerTurnCards: new Set<number>(),
   };
 }
 

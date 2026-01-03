@@ -36,6 +36,8 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   85852291: { id: 85852291, jaName: "打ち出の小槌", type: "spell", frameType: "spell", spellType: "normal" },
   90928333: { id: 90928333, jaName: "闇の量産工場", type: "spell", frameType: "spell", spellType: "normal" },
   73628505: { id: 73628505, jaName: "テラ・フォーミング", type: "spell", frameType: "spell", spellType: "normal" },
+  98494543: { id: 98494543, jaName: "魔法石の採掘", type: "spell", frameType: "spell", spellType: "normal" },
+  93946239: { id: 93946239, jaName: "無の煉獄", type: "spell", frameType: "spell", spellType: "normal" },
 
   // 速攻魔法
   74519184: { id: 74519184, jaName: "手札断札", type: "spell", frameType: "spell", spellType: "quick-play" },
