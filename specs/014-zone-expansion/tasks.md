@@ -75,15 +75,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T017 [P] [US2] Unit test for SummonRule in skeleton-app/tests/unit/domain/rules/SummonRule.test.ts (召喚権チェック全条件網羅)
-- [ ] T018 [P] [US2] Unit test for SummonMonsterCommand in skeleton-app/tests/unit/domain/commands/SummonMonsterCommand.test.ts (召喚コマンドの全条件)
+- [x] T017 [P] [US2] Unit test for SummonRule in skeleton-app/tests/unit/domain/rules/SummonRule.test.ts (召喚権チェック全条件網羅)
+- [x] T018 [P] [US2] Unit test for SummonMonsterCommand in skeleton-app/tests/unit/domain/commands/SummonMonsterCommand.test.ts (召喚コマンドの全条件)
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Create SummonRule in skeleton-app/src/lib/domain/rules/SummonRule.ts (canNormalSummon関数実装)
-- [ ] T020 [US2] Create SummonMonsterCommand in skeleton-app/src/lib/domain/commands/SummonMonsterCommand.ts (召喚コマンド実装、normalSummonUsed+1)
-- [ ] T021 [US2] Add summonMonster method to GameFacade in skeleton-app/src/lib/application/GameFacade.ts
-- [ ] T022 [US2] Update GameFacade tests in skeleton-app/tests/unit/application/GameFacade.test.ts (summonMonster method)
+- [x] T019 [P] [US2] Create SummonRule in skeleton-app/src/lib/domain/rules/SummonRule.ts (canNormalSummon関数実装)
+- [x] T020 [US2] Create SummonMonsterCommand in skeleton-app/src/lib/domain/commands/SummonMonsterCommand.ts (召喚コマンド実装、normalSummonUsed+1)
+- [x] T021 [US2] Add summonMonster method to GameFacade in skeleton-app/src/lib/application/GameFacade.ts
+- [x] T022 [US2] Update GameFacade tests in skeleton-app/tests/unit/application/GameFacade.test.ts (summonMonster method)
 
 **Checkpoint**: At this point, User Story 2 should be fully functional - モンスター召喚が動作し、召喚権が正しく管理される
 

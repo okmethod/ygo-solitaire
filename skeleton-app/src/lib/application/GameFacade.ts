@@ -14,6 +14,7 @@ import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
+import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
@@ -275,6 +276,29 @@ export class GameFacade {
    */
   getOpponentLP(): number {
     return getCurrentState().lp.opponent;
+  }
+
+  /**
+   * Summon a monster card from hand to mainMonsterZone in face-up attack position
+   *
+   * @param cardInstanceId - Card instance ID to summon
+   * @returns Success/failure result
+   */
+  summonMonster(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+    const currentState = getCurrentState();
+    const command = new SummonMonsterCommand(cardInstanceId);
+
+    const result = command.execute(currentState);
+
+    if (result.success) {
+      gameStateStore.set(result.newState);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      error: result.error,
+    };
   }
 }
 

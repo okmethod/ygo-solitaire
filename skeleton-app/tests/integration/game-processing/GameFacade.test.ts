@@ -362,4 +362,106 @@ describe("GameFacade", () => {
       expect(state.zones.deck).toEqual([]);
     });
   });
+
+  describe("summonMonster", () => {
+    it("should successfully summon monster from hand", () => {
+      // Use Exodia pieces (monster cards)
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]); // Need extra cards in deck to avoid deck-out
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const result = facade.summonMonster(monsterInstanceId);
+
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("Monster summoned");
+
+      const newState = get(gameStateStore);
+      expect(newState.zones.hand.length).toBe(0);
+      expect(newState.zones.mainMonsterZone.length).toBe(1);
+
+      const summonedCard = newState.zones.mainMonsterZone[0];
+      expect(summonedCard.instanceId).toBe(monsterInstanceId);
+      expect(summonedCard.position).toBe("faceUp");
+      expect(summonedCard.battlePosition).toBe("attack");
+      expect(summonedCard.placedThisTurn).toBe(true);
+    });
+
+    it("should increment normalSummonUsed", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      expect(state.normalSummonUsed).toBe(0);
+
+      facade.summonMonster(monsterInstanceId);
+
+      const newState = get(gameStateStore);
+      expect(newState.normalSummonUsed).toBe(1);
+    });
+
+    it("should fail if summon limit reached", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]); // Need extra cards
+      facade.drawCard(2);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
+      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+
+      // First summon
+      facade.summonMonster(firstMonsterInstanceId);
+
+      // Second summon should fail (no summon rights left)
+      const result = facade.summonMonster(secondMonsterInstanceId);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("召喚権がありません");
+    });
+
+    it("should fail if not in Main1 phase", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.drawCard(1);
+      // Don't advance phase - stay in Draw phase
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const result = facade.summonMonster(monsterInstanceId);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Main1フェーズではありません");
+    });
+
+    it("should not update store on failure", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const initialHandSize = state.zones.hand.length;
+      const initialMonsterZoneSize = state.zones.mainMonsterZone.length;
+
+      // Try to summon non-existent card
+      facade.summonMonster("non-existent-id");
+
+      const newState = get(gameStateStore);
+      expect(newState.zones.hand.length).toBe(initialHandSize);
+      expect(newState.zones.mainMonsterZone.length).toBe(initialMonsterZoneSize);
+    });
+  });
 });
