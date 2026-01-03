@@ -46,6 +46,8 @@ import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/sp
 import { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
 import { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
 import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
+import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spell/ToonTableOfContentsActivation";
+import { ToonWorldActivation } from "$lib/domain/effects/actions/spell/ToonWorldActivation";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
@@ -72,6 +74,8 @@ export { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/sp
 export { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
 export { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
 export { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
+export { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spell/ToonTableOfContentsActivation";
+export { ToonWorldActivation } from "$lib/domain/effects/actions/spell/ToonWorldActivation";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
@@ -120,6 +124,8 @@ export {
  * - 93946239: Into the Void (無の煉獄)
  * - 98645731: Pot of Duality (貪欲で謙虚な壺)
  * - 59750328: Card of Demise (命削りの宝札)
+ * - 89997728: Toon Table of Contents (トゥーンのもくじ)
+ * - 15259703: Toon World (トゥーン・ワールド)
  *
  * Future Expansion:
  * When adding new cards, import the action class above and register it here:
@@ -142,6 +148,8 @@ function initializeChainableActionRegistry(): void {
   ChainableActionRegistry.register(93946239, new IntoTheVoidActivation());
   ChainableActionRegistry.register(98645731, new PotOfDualityActivation());
   ChainableActionRegistry.register(59750328, new CardOfDemiseActivation());
+  ChainableActionRegistry.register(89997728, new ToonTableOfContentsActivation());
+  ChainableActionRegistry.register(15259703, new ToonWorldActivation());
 
   // Note: IgnitionEffect is not registered here because it requires
   // a cardInstanceId parameter. It will be instantiated dynamically when needed.

@@ -171,41 +171,41 @@
 
 ### Card Data Registration
 
-- [ ] T037 [P] [P3] Add Toon Table of Contents (ID: 89997728) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
-- [ ] T038 [P] [P3] Add Toon World (ID: 15259703, type: "continuous") card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
+- [x] T037 [P] [P3] Add Toon Table of Contents (ID: 89997728) card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
+- [x] T038 [P] [P3] Add Toon World (ID: 15259703, type: "continuous") card data to `skeleton-app/src/lib/domain/registries/CardDataRegistry.ts`
 
 ### Card Action Implementations
 
-- [ ] T039 [P3] Create `ToonTableOfContentsActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/ToonTableOfContentsActivation.ts`
+- [x] T039 [P3] Create `ToonTableOfContentsActivation` class extending NormalSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/ToonTableOfContentsActivation.ts`
   - Implement `additionalActivationConditions()`: deck has at least 1 card with "トゥーン" in name (jaName or name)
   - Implement `createResolutionSteps()`: search from deck (filter by "トゥーン") → add to hand → send self to graveyard
-- [ ] T040 [P3] Create `ToonWorldActivation` class extending FieldSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/ToonWorldActivation.ts`
+- [x] T040 [P3] Create `ToonWorldActivation` class extending FieldSpellAction in `skeleton-app/src/lib/domain/effects/actions/spell/ToonWorldActivation.ts`
   - Note: Card type is "continuous" but use FieldSpellAction for implementation (effect behaves like field spell)
   - Implement `additionalActivationConditions()`: player LP >= 1000
   - Implement `createResolutionSteps()`: pay 1000 LP → place on field
 
 ### Registry Registration
 
-- [ ] T041 [P] [P3] Register ToonTableOfContentsActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
-- [ ] T042 [P] [P3] Register ToonWorldActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
+- [x] T041 [P] [P3] Register ToonTableOfContentsActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
+- [x] T042 [P] [P3] Register ToonWorldActivation in `skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts`
 
 ### Export from effects/index.ts
 
-- [ ] T043 [P3] Export ToonTableOfContentsActivation and ToonWorldActivation from `skeleton-app/src/lib/domain/effects/index.ts`
+- [x] T043 [P3] Export ToonTableOfContentsActivation and ToonWorldActivation from `skeleton-app/src/lib/domain/effects/index.ts`
 
 ### Integration Tests
 
-- [ ] T044 [P] [P3] Add Toon Table of Contents test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
+- [x] T044 [P] [P3] Add Toon Table of Contents test scenarios to `skeleton-app/tests/integration/card-effects/NormalSpells.test.ts`
   - Scenario 1: Activate with 1 Toon card in deck → add to hand → deck size decreases
   - Scenario 2: Cannot activate when deck has no Toon cards (name filter test)
-- [ ] T045 [P] [P3] Add Toon World test scenarios to `skeleton-app/tests/integration/card-effects/FieldSpells.test.ts`
+- [x] T045 [P] [P3] Add Toon World test scenarios to `skeleton-app/tests/integration/card-effects/FieldSpells.test.ts`
   - Scenario 1: Activate with LP = 8000 → pay 1000 LP → LP = 7000, field = 1 (Toon World)
   - Scenario 2: Cannot activate when LP < 1000
 
 ### Validation
 
-- [ ] T046 [P3] Run all tests including new integration tests - must pass 100%
-- [ ] T047 [P3] Run lint/format checks - all must pass
+- [x] T046 [P3] Run all tests including new integration tests - must pass 100%
+- [x] T047 [P3] Run lint/format checks - all must pass
 
 **Checkpoint**: P3 cards implemented (Toon Table of Contents, Toon World), Toon support foundation ready
 
@@ -217,22 +217,22 @@
 
 ### Final Validation
 
-- [ ] T048 Run all tests (existing + new integration tests) - must pass 100% (`npm run test:run` in `skeleton-app/`)
-- [ ] T049 Run E2E tests if applicable (`npm run test:e2e` in `skeleton-app/`)
-- [ ] T050 Run lint/format checks - all must pass (`npm run lint && npm run format` in `skeleton-app/`)
-- [ ] T051 Verify test coverage for new cards (target: 80%+ for each card)
+- [x] T048 Run all tests (existing + new integration tests) - must pass 100% (`npm run test:run` in `skeleton-app/`)
+- [x] T049 Run E2E tests if applicable (`npm run test:e2e` in `skeleton-app/`)
+- [x] T050 Run lint/format checks - all must pass (`npm run lint && npm run format` in `skeleton-app/`)
+- [x] T051 Verify test coverage for new cards (target: 80%+ for each card)
 
 ### Documentation Updates
 
-- [ ] T052 [P] Update CLAUDE.md with recent changes section (6 new spell cards added)
-- [ ] T053 [P] Update docs/domain/card-models.md if new card patterns are introduced
-- [ ] T054 [P] Add notes to specs/013-card-pool-expansion/spec.md about implementation completion
+- [x] T052 [P] Update CLAUDE.md with recent changes section (6 new spell cards added)
+- [x] T053 [P] Update docs/domain/card-models.md if new card patterns are introduced
+- [x] T054 [P] Add notes to specs/013-card-pool-expansion/spec.md about implementation completion
 
 ### Cleanup
 
-- [ ] T055 Remove any temporary test code or debug logs
-- [ ] T056 Verify all imports are correctly organized (no unused imports)
-- [ ] T057 Review all new code for consistent naming and formatting
+- [x] T055 Remove any temporary test code or debug logs
+- [x] T056 Verify all imports are correctly organized (no unused imports)
+- [x] T057 Review all new code for consistent naming and formatting
 
 ---
 

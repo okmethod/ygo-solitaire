@@ -112,11 +112,15 @@ npm run deploy        # GitHub Pages
 
 現在進行中または最近完了した仕様:
 
+- [specs/013-card-pool-expansion/](specs/013-card-pool-expansion/) - カードプール拡張（魔法カード6枚追加）✅ 完了
+  - 新規魔法カード6枚追加: Magical Stone Excavation, Into the Void, Pot of Duality, Card of Demise, Toon Table of Contents, Toon World
+  - GameState拡張: pendingEndPhaseEffects, activatedOncePerTurnCards
+  - 6つの新step builder: 墓地サーチ、デッキトップサーチ、エンドフェーズ効果、ドロー上限、名前フィルタ、LP支払い
+  - 全439テスト合格、18シナリオ追加
 - [specs/012-spell-action-refactor/](specs/012-spell-action-refactor/) - 魔法カード効果の抽象化リファクタリング ✅ 完了
   - 10枚の魔法カードを抽象クラス（BaseSpellAction/NormalSpellAction/QuickPlaySpellAction/FieldSpellAction）で統一
   - 7つのstep builder関数で重複コード削減
   - LOC削減: 2123→1290行（39%削減）、全604テストパス
-- [specs/006-ux-automation/](specs/006-ux-automation/) - UX 改善（自動フェーズ進行・デッキシャッフル・自動勝利判定）✅ 完了
 
 ## Active Technologies
 

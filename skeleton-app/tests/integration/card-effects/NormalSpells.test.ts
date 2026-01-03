@@ -868,4 +868,73 @@ describe("Normal Spell Card Effects", () => {
       expect(result).toBe(false);
     });
   });
+
+  // ===========================
+  // Toon Table of Contents (89997728) - P3 Card
+  // ===========================
+  describe("Toon Table of Contents (89997728) - Scenario Tests", () => {
+    const toonTableCardId = "89997728";
+
+    it("Scenario: Activate with 1 Toon card in deck → add to hand → deck size decreases", () => {
+      // Arrange: Deck with Toon World card (manually create with proper jaName)
+      const toonWorldCard = {
+        id: 15259703,
+        instanceId: "deck-0",
+        type: "spell" as const,
+        frameType: "spell" as const,
+        jaName: "トゥーン・ワールド",
+        location: "deck" as const,
+      };
+
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [toonWorldCard, ...createCardInstances(["12345678", "87654321"], "deck")],
+          hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("toon-table-0");
+      const result = command.execute(state);
+
+      // Assert: Activation successful
+      expect(result.success).toBe(true);
+      expect(result.effectSteps).toBeDefined();
+      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+
+      // Verify search step
+      expect(result.effectSteps![1].id).toContain("toon-table-search");
+      expect(result.effectSteps![1].cardSelectionConfig).toBeDefined();
+      expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
+      expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
+
+      // Verify graveyard step
+      expect(result.effectSteps![2].id).toContain("graveyard");
+    });
+
+    it("Scenario: Cannot activate when deck has no Toon cards", () => {
+      // Arrange: Deck with no Toon cards
+      const state = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+          hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
+          field: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("toon-table-0");
+      const result = command.canExecute(state);
+
+      // Assert: Cannot activate (no Toon cards in deck)
+      expect(result).toBe(false);
+    });
+  });
 });

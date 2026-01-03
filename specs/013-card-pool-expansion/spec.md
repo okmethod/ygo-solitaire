@@ -2,8 +2,15 @@
 
 **Feature Branch**: `013-card-pool-expansion`
 **Created**: 2026-01-02
-**Status**: Draft
+**Status**: ✅ **Implemented** (2026-01-03)
 **Input**: User description: "6枚の魔法カード（通常魔法5枚、永続魔法1枚）をカードプールに追加実装"
+
+**Implementation Summary**:
+- All 6 spell cards implemented and tested (439 tests passing)
+- GameState extended with pendingEndPhaseEffects and activatedOncePerTurnCards
+- 6 new step builders added: graveyard search, deck top search, end phase effect, draw until count, name filter, LP payment
+- Integration tests added: 18 new test scenarios across all 6 cards
+- All acceptance scenarios from spec validated through tests
 
 ## User Scenarios & Testing
 
