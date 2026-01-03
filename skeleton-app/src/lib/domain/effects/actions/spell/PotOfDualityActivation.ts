@@ -1,17 +1,12 @@
 /**
- * PotOfDualityActivation - Pot of Duality (強欲で謙虚な壺) ChainableAction implementation
+ * PotOfDualityActivation - 《強欲で謙虚な壺》(Pot of Duality)
  *
- * Card Information:
- * - Card ID: 98645731
- * - Card Name: Pot of Duality (強欲で謙虚な壺)
- * - Card Type: Normal Spell
- * - Effect: Excavate the top 3 cards of your Deck, add 1 of them to your hand, then shuffle the rest back into the Deck.
- *   You can only activate 1 "Pot of Duality" per turn. You cannot Special Summon during the turn you activate this card.
+ * Card ID: 98645731 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses createSearchFromDeckTopStep for deck excavation
- * - Implements once-per-turn constraint via activatedOncePerTurnCards
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに3枚以上、1ターンに1度制限
+ * - ACTIVATION: 発動通知、1ターンに1度制限の記録
+ * - RESOLUTION: デッキトップ3枚確認、1枚選んで手札に加える、残りをデッキに戻す、墓地へ送る
  *
  * @module domain/effects/actions/spell/PotOfDualityActivation
  */
@@ -23,23 +18,9 @@ import { createSearchFromDeckTopStep, createSendToGraveyardStep } from "../../bu
 import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
 
 /**
- * PotOfDualityActivation - Pot of Duality ChainableAction
+ * PotOfDualityActivation
  *
- * Extends NormalSpellAction for Pot of Duality card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(98645731, new PotOfDualityActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Pot of Duality implementation.
  */
 export class PotOfDualityActivation extends NormalSpellAction {
   constructor() {

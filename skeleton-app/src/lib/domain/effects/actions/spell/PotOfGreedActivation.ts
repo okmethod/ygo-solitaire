@@ -1,18 +1,14 @@
 /**
- * PotOfGreedActivation - Pot of Greed (強欲な壺) ChainableAction implementation
+ * PotOfGreedActivation - 《強欲な壺》(Pot of Greed)
  *
- * Card Information:
- * - Card ID: 55144522
- * - Card Name: Pot of Greed (強欲な壺)
- * - Card Type: Normal Spell
- * - Effect: Draw 2 cards from your deck
+ * Card ID: 55144522 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for draw and graveyard operations
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに2枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 2枚ドロー、墓地へ送る
  *
  * @module domain/effects/actions/spell/PotOfGreedActivation
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { GameState } from "../../../models/GameState";
@@ -21,23 +17,9 @@ import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
 
 /**
- * PotOfGreedActivation - Pot of Greed ChainableAction
+ * PotOfGreedActivation
  *
- * Extends NormalSpellAction for Pot of Greed card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(55144522, new PotOfGreedActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Pot of Greed implementation.
  */
 export class PotOfGreedActivation extends NormalSpellAction {
   constructor() {

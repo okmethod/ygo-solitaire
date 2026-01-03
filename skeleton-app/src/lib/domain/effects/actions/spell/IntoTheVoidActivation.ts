@@ -1,15 +1,12 @@
 /**
- * IntoTheVoidActivation - Into the Void (無の煉獄) ChainableAction implementation
+ * IntoTheVoidActivation - 《無の煉獄》(Into the Void)
  *
- * Card Information:
- * - Card ID: 93946239
- * - Card Name: Into the Void (無の煉獄)
- * - Card Type: Normal Spell
- * - Effect: Draw 1 card. During the End Phase of this turn, discard your entire hand
+ * Card ID: 93946239 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for draw and end phase effect registration
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、手札が3枚以上（発動前）、デッキに1枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 1枚ドロー、エンドフェーズ効果登録（手札全破棄）、墓地へ送る
  *
  * @module domain/effects/actions/spell/IntoTheVoidActivation
  */
@@ -21,23 +18,9 @@ import { createDrawStep, createAddEndPhaseEffectStep, createSendToGraveyardStep 
 import { sendToGraveyard } from "../../../models/Zone";
 
 /**
- * IntoTheVoidActivation - Into the Void ChainableAction
+ * IntoTheVoidActivation
  *
- * Extends NormalSpellAction for Into the Void card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(93946239, new IntoTheVoidActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Into the Void implementation.
  */
 export class IntoTheVoidActivation extends NormalSpellAction {
   constructor() {

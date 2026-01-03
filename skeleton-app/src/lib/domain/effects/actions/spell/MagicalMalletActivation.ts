@@ -1,18 +1,14 @@
 /**
- * MagicalMalletActivation - Magical Mallet (打ち出の小槌) ChainableAction implementation
+ * MagicalMalletActivation - 《打ち出の小槌》(Magical Mallet)
  *
- * Card Information:
- * - Card ID: 85852291
- * - Card Name: Magical Mallet (打ち出の小槌)
- * - Card Type: Normal Spell
- * - Effect: Return any number of cards from your hand to the deck, shuffle the deck, then draw the same number of cards.
+ * Card ID: 85852291 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for card selection, return to deck, shuffle, draw, and graveyard operations
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 手札から任意枚数選択、デッキに戻してシャッフル、同じ枚数ドロー、墓地へ送る
  *
  * @module domain/effects/actions/spell/MagicalMalletActivation
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { GameState } from "../../../models/GameState";
@@ -27,23 +23,9 @@ import {
 } from "../../builders/stepBuilders";
 
 /**
- * MagicalMalletActivation - Magical Mallet ChainableAction
+ * MagicalMalletActivation
  *
- * Extends NormalSpellAction for Magical Mallet card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(85852291, new MagicalMalletActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Magical Mallet implementation.
  */
 export class MagicalMalletActivation extends NormalSpellAction {
   constructor() {

@@ -1,19 +1,14 @@
 /**
- * DarkFactoryAction - Dark Factory of Mass Production (闇の量産工場) ChainableAction implementation
+ * DarkFactoryActivation - 《闇の量産工場》(Dark Factory of Mass Production)
  *
- * Card Information:
- * - Card ID: 90928333
- * - Card Name: Dark Factory of Mass Production (闇の量産工場)
- * - Card Type: Normal Spell
- * - Effect: Select 2 Normal Monsters from your graveyard and add them to your hand.
+ * Card ID: 90928333 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: Game not over, Main Phase, Graveyard has >= 2 Normal Monsters
- * - ACTIVATION: No activation steps (normal spell has no activation cost)
- * - RESOLUTION: Select 2 Normal Monsters from graveyard + Add to hand + Send spell to graveyard
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、墓地に通常モンスターが2体以上
+ * - ACTIVATION: 発動通知のみ
+ * - RESOLUTION: 墓地から通常モンスター2体を選択、手札に加える、墓地へ送る
  *
- * @module domain/effects/chainable/DarkFactoryAction
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * @module domain/effects/actions/spell/DarkFactoryActivation
  */
 
 import type { ChainableAction } from "../../../models/ChainableAction";
@@ -22,23 +17,9 @@ import type { EffectResolutionStep } from "../../../models/EffectResolutionStep"
 import { moveCard, sendToGraveyard } from "../../../models/Zone";
 
 /**
- * DarkFactoryAction - Dark Factory ChainableAction
+ * DarkFactoryActivation
  *
- * Implements ChainableAction interface for Dark Factory card.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(90928333, new DarkFactoryAction());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Implements ChainableAction for Dark Factory of Mass Production implementation.
  */
 export class DarkFactoryActivation implements ChainableAction {
   /** カードの発動（手札→フィールド） */

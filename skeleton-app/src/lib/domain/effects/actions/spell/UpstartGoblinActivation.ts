@@ -1,18 +1,14 @@
 /**
- * UpstartGoblinActivation - Upstart Goblin (成金ゴブリン) ChainableAction implementation
+ * UpstartGoblinActivation - 《成金ゴブリン》(Upstart Goblin)
  *
- * Card Information:
- * - Card ID: 70368879
- * - Card Name: Upstart Goblin (成金ゴブリン)
- * - Card Type: Normal Spell
- * - Effect: Draw 1 card from your deck. Your opponent gains 1000 LP.
+ * Card ID: 70368879 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for draw, life gain, and graveyard operations
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに1枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 1枚ドロー、相手が1000LP回復、墓地へ送る
  *
  * @module domain/effects/actions/spell/UpstartGoblinActivation
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { GameState } from "../../../models/GameState";
@@ -21,23 +17,9 @@ import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createGainLifeStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
 
 /**
- * UpstartGoblinActivation - Upstart Goblin ChainableAction
+ * UpstartGoblinActivation
  *
- * Extends NormalSpellAction for Upstart Goblin card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(70368879, new UpstartGoblinActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Upstart Goblin implementation.
  */
 export class UpstartGoblinActivation extends NormalSpellAction {
   constructor() {

@@ -1,15 +1,12 @@
 /**
- * MagicalStoneExcavationActivation - Magical Stone Excavation (魔法石の採掘) ChainableAction implementation
+ * MagicalStoneExcavationActivation - 《魔法石の採掘》(Magical Stone Excavation)
  *
- * Card Information:
- * - Card ID: 98494543
- * - Card Name: Magical Stone Excavation (魔法石の採掘)
- * - Card Type: Normal Spell
- * - Effect: Discard 2 cards; add 1 Spell Card from your Graveyard to your hand
+ * Card ID: 98494543 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for discard, graveyard search, and graveyard operations
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、墓地に魔法カードが1枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 手札から2枚破棄、墓地から魔法カード1枚選んで手札に加える、墓地へ送る
  *
  * @module domain/effects/actions/spell/MagicalStoneExcavationActivation
  */
@@ -25,23 +22,9 @@ import {
 import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
 
 /**
- * MagicalStoneExcavationActivation - Magical Stone Excavation ChainableAction
+ * MagicalStoneExcavationActivation
  *
- * Extends NormalSpellAction for Magical Stone Excavation card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(98494543, new MagicalStoneExcavationActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Magical Stone Excavation implementation.
  */
 export class MagicalStoneExcavationActivation extends NormalSpellAction {
   constructor() {

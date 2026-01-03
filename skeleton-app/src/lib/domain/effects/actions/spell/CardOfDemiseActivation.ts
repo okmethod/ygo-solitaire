@@ -1,20 +1,12 @@
 /**
- * CardOfDemiseActivation - Card of Demise (命削りの宝札) ChainableAction implementation
+ * CardOfDemiseActivation - 《命削りの宝札》(Card of Demise)
  *
- * Card Information:
- * - Card ID: 59750328
- * - Card Name: Card of Demise (命削りの宝札)
- * - Card Type: Normal Spell
- * - Effect: Draw cards until you have 3 cards in your hand, then during the End Phase, send your entire hand to the Graveyard.
- *   You can only activate 1 "Card of Demise" per turn. You cannot Special Summon during the turn you activate this card.
+ * Card ID: 59750328 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses createDrawUntilCountStep for drawing until hand = 3
- * - Uses createAddEndPhaseEffectStep for delayed discard effect
- * - Implements once-per-turn constraint via activatedOncePerTurnCards
- *
- * Note: Damage negation effect is out of scope (先行1ターンキルでは不要)
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、1ターンに1度制限
+ * - ACTIVATION: 発動通知、1ターンに1度制限の記録
+ * - RESOLUTION: 手札が3枚になるようにドロー、エンドフェーズ効果登録（手札全破棄）、墓地へ送る
  *
  * @module domain/effects/actions/spell/CardOfDemiseActivation
  */
@@ -31,23 +23,9 @@ import { sendToGraveyard } from "../../../models/Zone";
 import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
 
 /**
- * CardOfDemiseActivation - Card of Demise ChainableAction
+ * CardOfDemiseActivation
  *
- * Extends NormalSpellAction for Card of Demise card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(59750328, new CardOfDemiseActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Card of Demise implementation.
  */
 export class CardOfDemiseActivation extends NormalSpellAction {
   constructor() {

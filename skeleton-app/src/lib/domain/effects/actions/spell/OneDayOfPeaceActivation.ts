@@ -1,19 +1,14 @@
 /**
- * OneDayOfPeaceActivation - One Day of Peace (一時休戦) ChainableAction implementation
+ * OneDayOfPeaceActivation - 《一時休戦》(One Day of Peace)
  *
- * Card Information:
- * - Card ID: 33782437
- * - Card Name: One Day of Peace (一時休戦)
- * - Card Type: Normal Spell
- * - Effect: Both players draw 1 card. All battle and effect damage becomes 0 for the rest of this turn.
+ * Card ID: 33782437 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses step builders for draw and graveyard operations
- * - Custom steps for opponent draw and damage negation
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに1枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: プレイヤーが1枚ドロー、相手が1枚ドロー（内部処理）、ダメージ無効化フラグ設定、墓地へ送る
  *
  * @module domain/effects/actions/spell/OneDayOfPeaceActivation
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
 import type { GameState } from "../../../models/GameState";
@@ -22,23 +17,9 @@ import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
 
 /**
- * OneDayOfPeaceActivation - One Day of Peace ChainableAction
+ * OneDayOfPeaceActivation
  *
- * Extends NormalSpellAction for One Day of Peace card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(33782437, new OneDayOfPeaceActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for One Day of Peace implementation.
  */
 export class OneDayOfPeaceActivation extends NormalSpellAction {
   constructor() {

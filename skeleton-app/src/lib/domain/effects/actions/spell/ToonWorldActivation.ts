@@ -1,19 +1,14 @@
 /**
- * ToonWorldActivation - Toon World (トゥーン・ワールド) ChainableAction implementation
+ * ToonWorldActivation - 《トゥーン・ワールド》(Toon World)
  *
- * Card Information:
- * - Card ID: 15259703
- * - Card Name: Toon World (トゥーン・ワールド)
- * - Card Type: Continuous Spell (implemented as Field Spell behavior)
- * - Effect: Pay 1000 LP to activate this card.
+ * Card ID: 15259703 | Type: Spell | Subtype: Continuous
  *
- * Implementation using FieldSpellAction abstraction:
- * - Extends FieldSpellAction for field spell behavior
- * - Uses createLPPaymentStep for LP cost payment
- * - Card stays on field after activation (no graveyard step)
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、LP>=1000
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 1000LP支払い、フィールドに残る
  *
- * Note: Although the actual card type is "continuous", it behaves like a field spell
- * (stays on field, provides passive effects). We use FieldSpellAction for implementation.
+ * 永続魔法だがフィールド魔法のように振る舞うためFieldSpellActionを継承
  *
  * @module domain/effects/actions/spell/ToonWorldActivation
  */
@@ -24,23 +19,9 @@ import { FieldSpellAction } from "../../base/spell/FieldSpellAction";
 import { createLPPaymentStep } from "../../builders/stepBuilders";
 
 /**
- * ToonWorldActivation - Toon World ChainableAction
+ * ToonWorldActivation
  *
- * Extends FieldSpellAction for Toon World card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(15259703, new ToonWorldActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends FieldSpellAction for Toon World implementation.
  */
 export class ToonWorldActivation extends FieldSpellAction {
   constructor() {

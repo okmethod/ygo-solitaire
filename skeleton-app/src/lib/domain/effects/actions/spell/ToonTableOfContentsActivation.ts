@@ -1,15 +1,12 @@
 /**
- * ToonTableOfContentsActivation - Toon Table of Contents (トゥーンのもくじ) ChainableAction implementation
+ * ToonTableOfContentsActivation - 《トゥーンのもくじ》(Toon Table of Contents)
  *
- * Card Information:
- * - Card ID: 89997728
- * - Card Name: Toon Table of Contents (トゥーンのもくじ)
- * - Card Type: Normal Spell
- * - Effect: Add 1 "Toon" card from your Deck to your hand.
+ * Card ID: 89997728 | Type: Spell | Subtype: Normal
  *
- * Implementation using NormalSpellAction abstraction:
- * - Extends NormalSpellAction for common spell card logic
- * - Uses createSearchFromDeckByNameStep for Toon card search
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに「トゥーン」カードが1枚以上
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: デッキから「トゥーン」カード1枚を検索して手札に加える、墓地へ送る
  *
  * @module domain/effects/actions/spell/ToonTableOfContentsActivation
  */
@@ -20,23 +17,9 @@ import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createSearchFromDeckByNameStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
 
 /**
- * ToonTableOfContentsActivation - Toon Table of Contents ChainableAction
+ * ToonTableOfContentsActivation
  *
- * Extends NormalSpellAction for Toon Table of Contents card implementation.
- *
- * @example
- * ```typescript
- * // Register in ChainableActionRegistry
- * ChainableActionRegistry.register(89997728, new ToonTableOfContentsActivation());
- *
- * // Usage in ActivateSpellCommand
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
- *   // Application Layer handles execution
- * }
- * ```
+ * Extends NormalSpellAction for Toon Table of Contents implementation.
  */
 export class ToonTableOfContentsActivation extends NormalSpellAction {
   constructor() {
