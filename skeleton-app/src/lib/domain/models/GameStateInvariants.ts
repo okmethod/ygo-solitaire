@@ -83,16 +83,24 @@ export function validateZones(state: GameState): ValidationResult {
     errors.push(`Hand has too many cards: ${state.zones.hand.length} (max: 10)`);
   }
 
-  // Check field size (max 5 cards)
-  if (state.zones.field.length > 5) {
-    errors.push(`Field has too many cards: ${state.zones.field.length} (max: 5)`);
+  // Check zone sizes
+  if (state.zones.mainMonsterZone.length > 5) {
+    errors.push(`Main Monster Zone has too many cards: ${state.zones.mainMonsterZone.length} (max: 5)`);
+  }
+  if (state.zones.spellTrapZone.length > 5) {
+    errors.push(`Spell/Trap Zone has too many cards: ${state.zones.spellTrapZone.length} (max: 5)`);
+  }
+  if (state.zones.fieldZone.length > 1) {
+    errors.push(`Field Zone has too many cards: ${state.zones.fieldZone.length} (max: 1)`);
   }
 
   // Check for duplicate instance IDs across all zones
   const allInstances = [
     ...state.zones.deck,
     ...state.zones.hand,
-    ...state.zones.field,
+    ...state.zones.mainMonsterZone,
+    ...state.zones.spellTrapZone,
+    ...state.zones.fieldZone,
     ...state.zones.graveyard,
     ...state.zones.banished,
   ];
@@ -113,7 +121,9 @@ export function validateZones(state: GameState): ValidationResult {
   // Check location matches actual zone
   const deckInvalid = state.zones.deck.filter((card) => card.location !== "deck");
   const handInvalid = state.zones.hand.filter((card) => card.location !== "hand");
-  const fieldInvalid = state.zones.field.filter((card) => card.location !== "field");
+  const mainMonsterZoneInvalid = state.zones.mainMonsterZone.filter((card) => card.location !== "mainMonsterZone");
+  const spellTrapZoneInvalid = state.zones.spellTrapZone.filter((card) => card.location !== "spellTrapZone");
+  const fieldZoneInvalid = state.zones.fieldZone.filter((card) => card.location !== "fieldZone");
   const graveyardInvalid = state.zones.graveyard.filter((card) => card.location !== "graveyard");
   const banishedInvalid = state.zones.banished.filter((card) => card.location !== "banished");
 
@@ -123,8 +133,14 @@ export function validateZones(state: GameState): ValidationResult {
   if (handInvalid.length > 0) {
     errors.push(`${handInvalid.length} cards in hand have incorrect location property`);
   }
-  if (fieldInvalid.length > 0) {
-    errors.push(`${fieldInvalid.length} cards in field have incorrect location property`);
+  if (mainMonsterZoneInvalid.length > 0) {
+    errors.push(`${mainMonsterZoneInvalid.length} cards in mainMonsterZone have incorrect location property`);
+  }
+  if (spellTrapZoneInvalid.length > 0) {
+    errors.push(`${spellTrapZoneInvalid.length} cards in spellTrapZone have incorrect location property`);
+  }
+  if (fieldZoneInvalid.length > 0) {
+    errors.push(`${fieldZoneInvalid.length} cards in fieldZone have incorrect location property`);
   }
   if (graveyardInvalid.length > 0) {
     errors.push(`${graveyardInvalid.length} cards in graveyard have incorrect location property`);

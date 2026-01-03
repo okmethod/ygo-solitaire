@@ -45,7 +45,7 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
    */
   canApply(state: GameState, context: RuleContext): boolean {
     // 1. チキンレースがフィールドに存在するか
-    const chickenGameOnField = state.zones.field.some((card) => card.id === 67616300 && card.position === "faceUp");
+    const chickenGameOnField = state.zones.fieldZone.some((card) => card.id === 67616300 && card.position === "faceUp");
 
     if (!chickenGameOnField) {
       return false;

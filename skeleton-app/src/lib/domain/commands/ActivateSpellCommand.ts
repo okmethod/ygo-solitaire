@@ -97,8 +97,10 @@ export class ActivateSpellCommand implements GameCommand {
       return createFailureResult(state, "発動条件を満たしていません");
     }
 
-    // Step 1: Move card from hand to field (activation)
-    const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", "field", "faceUp");
+    // Step 1: Move card from hand to appropriate zone (activation)
+    // Field spells go to fieldZone, others go to spellTrapZone
+    const targetZone = cardInstance.spellType === "field" ? "fieldZone" : "spellTrapZone";
+    const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", targetZone, "faceUp");
 
     // Create intermediate state for effect resolution using spread syntax
     const stateAfterActivation: GameState = {

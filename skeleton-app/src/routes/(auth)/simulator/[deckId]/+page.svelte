@@ -86,9 +86,10 @@
 
   // フィールドカードクリックで起動効果発動
   function handleFieldCardClick(card: CardDisplayData) {
-    // Find the card instance ID from field cards
+    // Find the card instance ID from field cards (spellTrapZone + fieldZone)
     const currentState = gameFacade.getGameState();
-    const fieldCard = currentState.zones.field.find((c) => c.id === card.id);
+    const allFieldCards = [...currentState.zones.spellTrapZone, ...currentState.zones.fieldZone];
+    const fieldCard = allFieldCards.find((c) => c.id === card.id);
     if (!fieldCard) {
       showErrorToast("Card not found on field");
       return;

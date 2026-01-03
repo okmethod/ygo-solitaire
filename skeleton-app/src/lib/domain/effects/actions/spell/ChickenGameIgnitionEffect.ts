@@ -77,7 +77,7 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
     }
 
     // Chicken GameがフィールドにfaceUpで存在するか
-    const chickenGameOnField = state.zones.field.some(
+    const chickenGameOnField = state.zones.fieldZone.some(
       (card) => card.instanceId === this.cardInstanceId && card.id === 67616300 && card.position === "faceUp",
     );
 

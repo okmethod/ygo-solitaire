@@ -49,7 +49,9 @@ describe("ActivateSpellCommand", () => {
             location: "hand" as const,
           },
         ],
-        field: [],
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
         graveyard: [],
         banished: [],
       },
@@ -83,7 +85,9 @@ describe("ActivateSpellCommand", () => {
               location: "hand" as const,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -108,7 +112,9 @@ describe("ActivateSpellCommand", () => {
               location: "hand" as const,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -140,9 +146,9 @@ describe("ActivateSpellCommand", () => {
       expect(result.newState.zones.hand.some((c) => c.instanceId === spellCardId)).toBe(false);
 
       // Pot of Greed has registered effect in ChainableActionRegistry (new system)
-      // Card stays on field (effect will send to graveyard later)
-      expect(result.newState.zones.field.length).toBe(1);
-      expect(result.newState.zones.field.some((c) => c.instanceId === spellCardId)).toBe(true);
+      // Card stays on spellTrapZone (effect will send to graveyard later)
+      expect(result.newState.zones.spellTrapZone.length).toBe(1);
+      expect(result.newState.zones.spellTrapZone.some((c) => c.instanceId === spellCardId)).toBe(true);
       expect(result.newState.zones.graveyard.length).toBe(0);
 
       // NEW: Verify effectSteps are returned
@@ -176,7 +182,9 @@ describe("ActivateSpellCommand", () => {
               location: "hand" as const,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -204,9 +212,9 @@ describe("ActivateSpellCommand", () => {
       expect(result.newState.zones.deck).toEqual(initialState.zones.deck);
       expect(result.newState.zones.banished).toEqual(initialState.zones.banished);
 
-      // Only hand and field should change (Pot of Greed has effect, so stays on field)
+      // Only hand and spellTrapZone should change (Pot of Greed has effect, so stays on spellTrapZone)
       expect(result.newState.zones.hand.length).toBe(initialState.zones.hand.length - 1);
-      expect(result.newState.zones.field.length).toBe(initialState.zones.field.length + 1);
+      expect(result.newState.zones.spellTrapZone.length).toBe(initialState.zones.spellTrapZone.length + 1);
       expect(result.newState.zones.graveyard.length).toBe(initialState.zones.graveyard.length);
     });
 
@@ -269,7 +277,9 @@ describe("ActivateSpellCommand", () => {
               location: "hand" as const,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -314,6 +324,134 @@ describe("ActivateSpellCommand", () => {
 
       expect(command.description).toContain("Activate spell card");
       expect(command.description).toContain(spellCardId);
+    });
+  });
+
+  describe("Zone separation (US1)", () => {
+    it("should place field spell in fieldZone", () => {
+      // Arrange: Field spell in hand (Chicken Game)
+      const fieldSpellState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: [
+            {
+              instanceId: "field-spell-1",
+              id: 67616300, // Chicken Game
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "field" as const,
+              location: "hand" as const,
+              placedThisTurn: false,
+            },
+          ],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("field-spell-1");
+      const result = command.execute(fieldSpellState);
+
+      // Assert: Field spell should be in fieldZone, not spellTrapZone
+      expect(result.success).toBe(true);
+      expect(result.newState.zones.fieldZone.length).toBe(1);
+      expect(result.newState.zones.spellTrapZone.length).toBe(0);
+      expect(result.newState.zones.fieldZone[0].id).toBe(67616300);
+    });
+
+    it("should place normal spell in spellTrapZone", () => {
+      // Arrange: Normal spell in hand (Pot of Greed)
+      const normalSpellState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [
+            {
+              instanceId: "deck-0",
+              id: 1001,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+            {
+              instanceId: "deck-1",
+              id: 1002,
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+          ],
+          hand: [
+            {
+              instanceId: "normal-spell-1",
+              id: 55144522, // Pot of Greed
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "normal" as const,
+              location: "hand" as const,
+              placedThisTurn: false,
+            },
+          ],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("normal-spell-1");
+      const result = command.execute(normalSpellState);
+
+      // Assert: Normal spell should be placed in spellTrapZone (not fieldZone)
+      // The spell will remain in spellTrapZone until effect resolution in Application Layer
+      expect(result.success).toBe(true);
+      expect(result.newState.zones.spellTrapZone.length).toBe(1);
+      expect(result.newState.zones.fieldZone.length).toBe(0);
+      expect(result.newState.zones.spellTrapZone[0].id).toBe(55144522);
+    });
+
+    it("should place continuous spell in spellTrapZone", () => {
+      // Arrange: Continuous spell in hand (no effect registered, for testing zone placement)
+      const continuousSpellState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: [
+            {
+              instanceId: "continuous-spell-1",
+              id: 99999998, // Unregistered continuous spell
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "continuous" as const,
+              location: "hand" as const,
+              placedThisTurn: false,
+            },
+          ],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("continuous-spell-1");
+      const result = command.execute(continuousSpellState);
+
+      // Assert: Continuous spell should be in graveyard (no effect registered)
+      // But it was placed in spellTrapZone before being sent to graveyard
+      expect(result.success).toBe(true);
+      expect(result.newState.zones.graveyard.length).toBe(1);
+      expect(result.newState.zones.fieldZone.length).toBe(0);
     });
   });
 });

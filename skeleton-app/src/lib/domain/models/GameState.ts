@@ -57,6 +57,18 @@ export interface GameState {
   readonly result: GameResult;
 
   /**
+   * 通常召喚可能回数（デフォルト1、カード効果で増減可）
+   * 例: Double Summon発動時は2になる
+   */
+  readonly normalSummonLimit: number;
+
+  /**
+   * 通常召喚使用回数（初期値0、召喚・セット毎に+1）
+   * 召喚権の残り確認: normalSummonUsed < normalSummonLimit
+   */
+  readonly normalSummonUsed: number;
+
+  /**
    * カード名を指定した「1 ターンに 1 度」制限の発動管理
    * - カードID（数値）をキーとして管理
    * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
@@ -110,7 +122,9 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
         };
       }),
       hand: [],
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: [],
       banished: [],
     },
@@ -124,6 +138,8 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
     result: {
       isGameOver: false,
     },
+    normalSummonLimit: 1,
+    normalSummonUsed: 0,
     activatedIgnitionEffectsThisTurn: new Set<string>(),
     activatedOncePerTurnCards: new Set<number>(),
     pendingEndPhaseEffects: [],
@@ -142,7 +158,9 @@ export function findCardInstance(state: GameState, instanceId: string) {
   const allZones = [
     ...state.zones.deck,
     ...state.zones.hand,
-    ...state.zones.field,
+    ...state.zones.mainMonsterZone,
+    ...state.zones.spellTrapZone,
+    ...state.zones.fieldZone,
     ...state.zones.graveyard,
     ...state.zones.banished,
   ];

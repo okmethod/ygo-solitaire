@@ -82,9 +82,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
       // Verify card moved to field
       expect(result.newState.zones.hand.length).toBe(0);
-      expect(result.newState.zones.field.length).toBe(1);
-      expect(result.newState.zones.field[0].id).toBe(chickenGameCardId);
-      expect(result.newState.zones.field[0].position).toBe("faceUp");
+      expect(result.newState.zones.fieldZone.length).toBe(1);
+      expect(result.newState.zones.fieldZone[0].id).toBe(chickenGameCardId);
+      expect(result.newState.zones.fieldZone[0].position).toBe("faceUp");
     });
 
     it("Scenario: Cannot activate when another field spell is already on field", () => {
@@ -95,7 +95,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         type: "spell",
         frameType: "spell",
         spellType: "field",
-        location: "field",
+        location: "fieldZone",
         position: "faceUp",
       };
 
@@ -111,9 +111,12 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
               frameType: "spell",
               spellType: "field",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [anotherFieldSpell],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [anotherFieldSpell],
           graveyard: [],
           banished: [],
         },
@@ -140,7 +143,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       type: "spell",
       frameType: "spell",
       spellType: "field",
-      location: "field",
+      location: "fieldZone",
       position: "faceUp",
     };
 
@@ -308,11 +311,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(activateResult.success).toBe(true);
 
       const stateAfterActivation = activateResult.newState;
-      expect(stateAfterActivation.zones.field.length).toBe(1);
-      expect(stateAfterActivation.zones.field[0].id).toBe(chickenGameCardId);
+      expect(stateAfterActivation.zones.fieldZone.length).toBe(1);
+      expect(stateAfterActivation.zones.fieldZone[0].id).toBe(chickenGameCardId);
 
       // Step 2: Use ignition effect
-      const fieldCardInstanceId = stateAfterActivation.zones.field[0].instanceId;
+      const fieldCardInstanceId = stateAfterActivation.zones.fieldZone[0].instanceId;
       const ignitionEffect = new ChickenGameIgnitionEffect(fieldCardInstanceId);
 
       expect(ignitionEffect.canActivate(stateAfterActivation)).toBe(true);
@@ -337,7 +340,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
       // Assert final state
       expect(finalState.lp.player).toBe(7000); // 8000 - 1000
-      expect(finalState.zones.field.length).toBe(1); // Chicken Game still on field
+      expect(finalState.zones.fieldZone.length).toBe(1); // Chicken Game still on field
       expect(finalState.zones.hand.length).toBe(1); // Drew 1 card
       expect(finalState.zones.deck.length).toBe(2); // 3 - 1 = 2
       expect(finalState.activatedIgnitionEffectsThisTurn.size).toBe(1);

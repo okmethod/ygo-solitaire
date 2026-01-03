@@ -17,9 +17,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 既存の439テストがすべてパスすることを確認（リグレッションベースライン）
-- [ ] T002 [P] TypeScriptコンパイルエラーがないことを確認
-- [ ] T003 [P] Lint/Formatエラーがないことを確認（npm run lint, npm run format）
+- [x] T001 既存の439テストがすべてパスすることを確認（リグレッションベースライン）
+- [x] T002 [P] TypeScriptコンパイルエラーがないことを確認
+- [x] T003 [P] Lint/Formatエラーがないことを確認（npm run lint, npm run format）
 
 ---
 
@@ -29,13 +29,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Update Zones interface in skeleton-app/src/lib/domain/models/Zone.ts (add mainMonsterZone, spellTrapZone, fieldZone, remove field reference)
-- [ ] T005 Update sendToGraveyard helper in skeleton-app/src/lib/domain/models/Zone.ts (search mainMonsterZone, spellTrapZone, fieldZone)
-- [ ] T006 Update GameState interface in skeleton-app/src/lib/domain/models/GameState.ts (add normalSummonLimit, normalSummonUsed)
-- [ ] T007 Update createInitialGameState in skeleton-app/src/lib/domain/models/GameState.ts (initialize new zones and summon fields)
-- [ ] T008 Update CardInstance interface in skeleton-app/src/lib/domain/models/Card.ts (add battlePosition, placedThisTurn)
-- [ ] T009 既存テストを修正して新Zonesインターフェースに対応（zones.field → zones.spellTrapZone）
-- [ ] T010 Phase 2完了確認: すべての既存テストがパスすることを確認
+- [x] T004 Update Zones interface in skeleton-app/src/lib/domain/models/Zone.ts (add mainMonsterZone, spellTrapZone, fieldZone, remove field reference)
+- [x] T005 Update sendToGraveyard helper in skeleton-app/src/lib/domain/models/Zone.ts (search mainMonsterZone, spellTrapZone, fieldZone)
+- [x] T006 Update GameState interface in skeleton-app/src/lib/domain/models/GameState.ts (add normalSummonLimit, normalSummonUsed)
+- [x] T007 Update createInitialGameState in skeleton-app/src/lib/domain/models/GameState.ts (initialize new zones and summon fields)
+- [x] T008 Update CardInstance interface in skeleton-app/src/lib/domain/models/Card.ts (add battlePosition, placedThisTurn)
+- [x] T009 既存テストを修正して新Zonesインターフェースに対応（zones.field → zones.spellTrapZone）
+- [x] T010 Phase 2完了確認: すべての既存テストがパスすることを確認
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -51,15 +51,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for Zones interface in skeleton-app/tests/unit/domain/models/Zone.test.ts (3つの新ゾーンの存在確認)
-- [ ] T012 [P] [US1] Unit test for GameState initialization in skeleton-app/tests/unit/domain/models/GameState.test.ts (召喚権初期値確認)
-- [ ] T013 [P] [US1] Unit test for sendToGraveyard in skeleton-app/tests/unit/domain/models/Zone.test.ts (新ゾーンからの墓地送り)
+- [x] T011 [P] [US1] Unit test for Zones interface in skeleton-app/tests/unit/domain/models/Zone.test.ts (3つの新ゾーンの存在確認)
+- [x] T012 [P] [US1] Unit test for GameState initialization in skeleton-app/tests/unit/domain/models/GameState.test.ts (召喚権初期値確認)
+- [x] T013 [P] [US1] Unit test for sendToGraveyard in skeleton-app/tests/unit/domain/models/Zone.test.ts (新ゾーンからの墓地送り)
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Update ActivateSpellCommand in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts (フィールド魔法をfieldZoneに配置、placedThisTurn制限チェック追加)
-- [ ] T015 [US1] Update ActivateSpellCommand tests in skeleton-app/tests/unit/domain/commands/ActivateSpellCommand.test.ts (フィールド魔法とspellTrapZone分離を確認)
-- [ ] T016 [US1] Verify all existing spell cards (Chicken Game, Upstart Goblin, Toon World) work with new zones
+- [x] T014 [US1] Update ActivateSpellCommand in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts (フィールド魔法をfieldZoneに配置、placedThisTurn制限チェック追加)
+- [x] T015 [US1] Update ActivateSpellCommand tests in skeleton-app/tests/unit/domain/commands/ActivateSpellCommand.test.ts (フィールド魔法とspellTrapZone分離を確認)
+- [x] T016 [US1] Verify all existing spell cards (Chicken Game, Upstart Goblin, Toon World) work with new zones
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - フィールド魔法がfieldZoneに、その他の魔法がspellTrapZoneに正しく配置される
 

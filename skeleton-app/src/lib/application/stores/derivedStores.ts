@@ -55,9 +55,12 @@ export const deckCardCount = derived(gameStateStore, ($state) => $state.zones.de
 export const graveyardCardCount = derived(gameStateStore, ($state) => $state.zones.graveyard.length);
 
 /**
- * Field card count (read-only)
+ * Field card count (read-only) - spellTrapZone + fieldZone
  */
-export const fieldCardCount = derived(gameStateStore, ($state) => $state.zones.field.length);
+export const fieldCardCount = derived(
+  gameStateStore,
+  ($state) => $state.zones.spellTrapZone.length + $state.zones.fieldZone.length,
+);
 
 /**
  * Whether game is over (read-only)

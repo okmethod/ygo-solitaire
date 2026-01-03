@@ -74,8 +74,9 @@ export class AdditionalRuleRegistry {
   static collectActiveRules(state: GameState, category: RuleCategory, context: RuleContext = {}): AdditionalRule[] {
     const activeRules: AdditionalRule[] = [];
 
-    // フィールド上のすべてのカードをチェック
-    for (const card of state.zones.field) {
+    // フィールド上のすべてのカードをチェック（魔法・罠ゾーンとフィールド魔法ゾーン）
+    const fieldCards = [...state.zones.spellTrapZone, ...state.zones.fieldZone];
+    for (const card of fieldCards) {
       // 表側表示のカードのみチェック
       if (card.position !== "faceUp") continue;
 

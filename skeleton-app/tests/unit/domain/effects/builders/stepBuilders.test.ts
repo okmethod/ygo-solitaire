@@ -118,24 +118,25 @@ describe("stepBuilders", () => {
       expect(step.id).toBe("custom-graveyard");
     });
 
-    it("should successfully send card to graveyard from field", () => {
+    it("should successfully send card to graveyard from spellTrapZone", () => {
       // Arrange
       const baseState = createInitialGameState([1001, 1002]);
-      // Add a card to field manually
+      // Add a card to spellTrapZone manually
       const state: GameState = {
         ...baseState,
         zones: {
           ...baseState.zones,
-          field: [
+          spellTrapZone: [
             {
               ...baseState.zones.deck[0],
-              instanceId: "field-0",
-              location: "field",
+              instanceId: "spellTrap-0",
+              location: "spellTrapZone",
+              placedThisTurn: false,
             },
           ],
         },
       };
-      const cardOnField = state.zones.field[0];
+      const cardOnField = state.zones.spellTrapZone[0];
       const step = createSendToGraveyardStep(cardOnField.instanceId, 1001); // Test card ID from registry
 
       // Act

@@ -17,7 +17,9 @@ import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 export interface Zones {
   readonly deck: readonly CardInstance[];
   readonly hand: readonly CardInstance[];
-  readonly field: readonly CardInstance[];
+  readonly mainMonsterZone: readonly CardInstance[];
+  readonly spellTrapZone: readonly CardInstance[];
+  readonly fieldZone: readonly CardInstance[];
   readonly graveyard: readonly CardInstance[];
   readonly banished: readonly CardInstance[];
 }
@@ -87,17 +89,21 @@ export function drawCards(zones: Zones, count: number = 1): Zones {
 }
 
 /**
- * Helper to send a card from field to graveyard
+ * Helper to send a card to graveyard
  *
  * @param zones - Current zones state
  * @param instanceId - Card instance ID to send to graveyard
  * @returns Updated zones object
  */
 export function sendToGraveyard(zones: Zones, instanceId: string): Zones {
-  const card = [...zones.field, ...zones.hand].find((c) => c.instanceId === instanceId);
+  const card = [...zones.mainMonsterZone, ...zones.spellTrapZone, ...zones.fieldZone, ...zones.hand].find(
+    (c) => c.instanceId === instanceId,
+  );
 
   if (!card) {
-    throw new Error(`Card with instanceId ${instanceId} not found in field or hand`);
+    throw new Error(
+      `Card with instanceId ${instanceId} not found in mainMonsterZone, spellTrapZone, fieldZone, or hand`,
+    );
   }
 
   const sourceZone = card.location as keyof Zones;

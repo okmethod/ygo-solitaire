@@ -27,7 +27,9 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
     zones: {
       deck: [],
       hand: [],
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: [],
       banished: [],
     },
@@ -41,6 +43,8 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
     result: {
       isGameOver: false,
     },
+    normalSummonLimit: 1,
+    normalSummonUsed: 0,
     activatedIgnitionEffectsThisTurn: new Set<string>(),
     damageNegation: false,
     pendingEndPhaseEffects: [],
@@ -76,7 +80,7 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
  */
 export function createCardInstances(
   cardIds: (string | number)[], // テストケースの可読性のため、テストのみ string も許容
-  location: "deck" | "hand" | "field" | "graveyard" | "banished",
+  location: "deck" | "hand" | "mainMonsterZone" | "spellTrapZone" | "fieldZone" | "graveyard" | "banished",
   prefix?: string,
   type: "monster" | "spell" | "trap" = "spell",
 ): CardInstance[] {
@@ -91,6 +95,7 @@ export function createCardInstances(
       frameType,
       jaName: `Test Card ${numericId}`, // Default test name
       location,
+      placedThisTurn: false, // デフォルト値
     };
   });
 }
@@ -126,7 +131,9 @@ export function createExodiaDeckState(): GameState {
     zones: {
       deck: createCardInstances(exodiaDeck, "deck"),
       hand: [],
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: [],
       banished: [],
     },
@@ -147,7 +154,9 @@ export function createStateWithHand(cardIds: string[], phase: GamePhase = "Main1
     zones: {
       deck: createCardInstances(Array(30).fill("12345678"), "deck"),
       hand: createCardInstances(cardIds, "hand"),
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: [],
       banished: [],
     },
@@ -165,7 +174,9 @@ export function createExodiaVictoryState(): GameState {
     zones: {
       deck: createCardInstances(Array(35).fill("12345678"), "deck"),
       hand: createCardInstances([...ExodiaNonEffect.getExodiaPieceIds()], "hand"),
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: [],
       banished: [],
     },
@@ -189,7 +200,9 @@ export function createDeckOutState(): GameState {
     zones: {
       deck: [],
       hand: createCardInstances(["12345678"], "hand"),
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: createCardInstances(Array(39).fill("12345678"), "graveyard"),
       banished: [],
     },
@@ -225,7 +238,7 @@ export function createLPZeroState(): GameState {
 }
 
 /**
- * Create a game state with a spell card on field
+ * Create a game state with a spell card on field (spellTrapZone)
  *
  * @param spellCardId - Card ID of the spell to place
  * @returns GameState
@@ -235,7 +248,9 @@ export function createStateWithSpellOnField(spellCardId: string): GameState {
     zones: {
       deck: createCardInstances(Array(35).fill("12345678"), "deck"),
       hand: [],
-      field: createCardInstances([spellCardId], "field"),
+      mainMonsterZone: [],
+      spellTrapZone: createCardInstances([spellCardId], "spellTrapZone"),
+      fieldZone: [],
       graveyard: [],
       banished: [],
     },
@@ -254,7 +269,9 @@ export function createStateWithGraveyard(cardIds: string[]): GameState {
     zones: {
       deck: createCardInstances(Array(30).fill("12345678"), "deck"),
       hand: [],
-      field: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
       graveyard: createCardInstances(cardIds, "graveyard"),
       banished: [],
     },
