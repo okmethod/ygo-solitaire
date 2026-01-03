@@ -1,9 +1,9 @@
 /**
- * PotOfDualityActivation - Pot of Duality (貪欲で謙虚な壺) ChainableAction implementation
+ * PotOfDualityActivation - Pot of Duality (強欲で謙虚な壺) ChainableAction implementation
  *
  * Card Information:
  * - Card ID: 98645731
- * - Card Name: Pot of Duality (貪欲で謙虚な壺)
+ * - Card Name: Pot of Duality (強欲で謙虚な壺)
  * - Card Type: Normal Spell
  * - Effect: Excavate the top 3 cards of your Deck, add 1 of them to your hand, then shuffle the rest back into the Deck.
  *   You can only activate 1 "Pot of Duality" per turn. You cannot Special Summon during the turn you activate this card.

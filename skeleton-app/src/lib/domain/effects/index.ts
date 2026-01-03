@@ -122,7 +122,7 @@ export {
  * - 73628505: Terraforming (テラ・フォーミング)
  * - 98494543: Magical Stone Excavation (魔法石の採掘)
  * - 93946239: Into the Void (無の煉獄)
- * - 98645731: Pot of Duality (貪欲で謙虚な壺)
+ * - 98645731: Pot of Duality (強欲で謙虚な壺)
  * - 59750328: Card of Demise (命削りの宝札)
  * - 89997728: Toon Table of Contents (トゥーンのもくじ)
  * - 15259703: Toon World (トゥーン・ワールド)

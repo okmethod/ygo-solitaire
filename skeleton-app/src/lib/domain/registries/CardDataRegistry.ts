@@ -38,7 +38,7 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   73628505: { id: 73628505, jaName: "テラ・フォーミング", type: "spell", frameType: "spell", spellType: "normal" },
   98494543: { id: 98494543, jaName: "魔法石の採掘", type: "spell", frameType: "spell", spellType: "normal" },
   93946239: { id: 93946239, jaName: "無の煉獄", type: "spell", frameType: "spell", spellType: "normal" },
-  98645731: { id: 98645731, jaName: "貪欲で謙虚な壺", type: "spell", frameType: "spell", spellType: "normal" },
+  98645731: { id: 98645731, jaName: "強欲で謙虚な壺", type: "spell", frameType: "spell", spellType: "normal" },
   59750328: { id: 59750328, jaName: "命削りの宝札", type: "spell", frameType: "spell", spellType: "normal" },
   89997728: { id: 89997728, jaName: "トゥーンのもくじ", type: "spell", frameType: "spell", spellType: "normal" },
 

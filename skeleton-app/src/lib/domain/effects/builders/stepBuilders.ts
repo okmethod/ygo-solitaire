@@ -497,19 +497,25 @@ export function createSearchFromGraveyardStep(config: {
   maxCards: number;
   cancelable?: boolean;
 }): EffectResolutionStep {
+  // NOTE: availableCards must be populated dynamically at execution time
+  // We use a special marker to indicate this step needs graveyard cards
+  // The effectResolutionStore will populate availableCards from graveyard
   return {
     id: config.id,
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
     cardSelectionConfig: {
-      availableCards: [], // Populated dynamically from graveyard in action
+      availableCards: [], // Will be populated dynamically from graveyard
       minCards: config.minCards,
       maxCards: config.maxCards,
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
-    } satisfies CardSelectionConfig,
+      // Add metadata to indicate source zone
+      _sourceZone: "graveyard",
+      _filter: config.filter,
+    },
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // Filter graveyard cards
       const availableCards = currentState.zones.graveyard.filter(config.filter);
@@ -599,13 +605,15 @@ export function createSearchFromDeckTopStep(config: {
     description: config.description,
     notificationLevel: "interactive",
     cardSelectionConfig: {
-      availableCards: [], // Populated dynamically from deck top in action
+      availableCards: [], // Will be populated dynamically from deck top
       minCards: config.minCards,
       maxCards: config.maxCards,
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
-    } satisfies CardSelectionConfig,
+      _sourceZone: "deck",
+      _filter: (_card, index) => index !== undefined && index < config.count,
+    },
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // Get top N cards from deck
       const topCards = currentState.zones.deck.slice(0, config.count);
@@ -840,13 +848,15 @@ export function createSearchFromDeckByNameStep(config: {
     description: config.description,
     notificationLevel: "interactive",
     cardSelectionConfig: {
-      availableCards: [], // Populated dynamically from deck in action
+      availableCards: [], // Will be populated dynamically from deck
       minCards: config.minCards,
       maxCards: config.maxCards,
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
-    } satisfies CardSelectionConfig,
+      _sourceZone: "deck",
+      _filter: config.filter,
+    },
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // Filter deck cards
       const availableCards = currentState.zones.deck.filter(config.filter);
