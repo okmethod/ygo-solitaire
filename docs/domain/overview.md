@@ -37,7 +37,7 @@
 
 詳細は [効果モデル](./effect-model.md) を参照。
 
-**実装箇所**: `domain/models/ChainableAction.ts`（⏳ 未実装）, `domain/models/AdditionalRule.ts`（⏳ 未実装）
+**実装箇所**: `domain/models/ChainableAction.ts`, `domain/models/AdditionalRule.ts`
 
 ---
 
@@ -49,11 +49,13 @@
 - **Zones** : 領域
 - **Turn** : ターン
 - **Phase** : フェイズ
+- **Nomal Summon Limit / Used** : 通常召喚権
 - **Chain** : チェーン
 - **Life Points** : ライフポイント
-- **Victory Decision** : 勝利判定
+- **Game Rusult / Victory Decision** : 勝敗判定
 
-TODO: 召喚権など、1 ターン中に回数制限があるものも管理する必要がある
+- **Used Only Once Per Turn Effects** : カード名を指定した「1 ターンに 1 度」制限
+- **Used Once Per Turn Effects** : カード名指定のない「1 ターンに 1 度」制限
 
 **実装箇所**: `domain/models/GameState.ts`
 
@@ -143,7 +145,7 @@ TODO: 召喚権など、1 ターン中に回数制限があるものも管理す
 
 ---
 
-## Chain: チェーン
+## Chain: チェーン（⏳ 未実装）
 
 複数のカードの効果をスムーズに解決するシステム。
 
@@ -159,13 +161,18 @@ TODO: 召喚権など、1 ターン中に回数制限があるものも管理す
 
 ---
 
-## Victory Decision: 勝利判定
+## Victory Decision: 勝敗判定
 
-プレイヤーが勝利条件を満たしているかどうかの判定結果。以下の 3 つに大別される。
+自分が勝利条件または敗北条件を満たしているかどうかの判定結果。
 
-- 相手プレイヤーのライフポイントを 0 にする
-- 相手のデッキが 0 枚の状態で、相手がカードをドローする（デッキ切れ）
-- 各種カードの効果による勝利（特殊勝利）
+- **勝利条件**
+  - 相手のライフポイントが 0 になる
+  - 相手のデッキが 0 枚の状態で、相手がカードをドローする（⏳ 未実装）
+  - 各種カードの効果による勝利（特殊勝利）
+- **敗北条件**
+  - 自分のライフポイントが 0 になる
+  - 自分のデッキが 0 枚の状態で、自分がカードをドローする（デッキ切れ）
+  - サレンダー（降参）する（⏳ 未実装）
 
 特殊勝利のバリエーションに関する詳細は [特殊勝利条件](./victory-conditions.md) を参照。
 

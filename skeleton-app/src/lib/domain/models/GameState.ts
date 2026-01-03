@@ -55,27 +55,41 @@ export interface GameState {
   readonly turn: number;
   readonly chainStack: readonly ChainBlock[];
   readonly result: GameResult;
+
   /**
-   * 今ターン発動済みの起動効果（1ターンに1度制限用）
-   * Format: `${cardInstanceId}:${effectId}`
-   */
-  readonly activatedIgnitionEffectsThisTurn: ReadonlySet<string>;
-  /**
-   * ダメージ無効化フラグ（一時休戦の効果用）
-   * trueの場合、このターンのダメージは全て無効化される
-   */
-  readonly damageNegation: boolean;
-  /**
-   * エンドフェイズに実行される遅延効果
-   * 無の煉獄、命削りの宝札などのカード効果で使用される
-   */
-  readonly pendingEndPhaseEffects: readonly EffectResolutionStep[];
-  /**
-   * 1ターンに1枚のみ発動可能なカードの発動済み管理
-   * 強欲で謙虚な壺、命削りの宝札などで使用される
-   * カードID（数値）をキーとして管理
+   * カード名を指定した「1 ターンに 1 度」制限の発動管理
+   * - カードID（数値）をキーとして管理
+   * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
+   * - 先行1ターン目のみのため、「1 デュエルに 1度」制限も兼ねる
+   * - 例: 強欲で謙虚な壺、命削りの宝札、等
+   * TODO: フラグ名変更検討（usedOnlyOncePerTurnEffects）
+   * 参考: https://yugioh.fandom.com/wiki/Once_per_turn
    */
   readonly activatedOncePerTurnCards: ReadonlySet<number>;
+
+  /**
+   * カード名指定のない「1 ターンに 1 度」制限の発動管理
+   * - `${cardInstanceId}:${effectId}` をキーとして管理
+   * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
+   * - 例: チキンレースの起動効果、等
+   * TODO: フラグ名変更検討（usedOncePerTurnEffects など）
+   * 参考: https://yugioh.fandom.com/wiki/Once_per_turn#Only_once_per_turn
+   */
+  readonly activatedIgnitionEffectsThisTurn: ReadonlySet<string>;
+
+  /**
+   * エンドフェイズに実行される遅延効果
+   * 例: 無の煉獄、命削りの宝札、等
+   */
+  readonly pendingEndPhaseEffects: readonly EffectResolutionStep[];
+
+  /**
+   * ダメージ無効化フラグ
+   * 例: 一時休戦、等
+   * trueの場合、このターンのダメージは全て無効化される
+   * TODO: チキンレース等のどちらか片方のみ無効化用の拡張検討
+   */
+  readonly damageNegation: boolean;
 }
 
 /**
@@ -111,9 +125,9 @@ export function createInitialGameState(deckCardIds: number[]): GameState {
       isGameOver: false,
     },
     activatedIgnitionEffectsThisTurn: new Set<string>(),
-    damageNegation: false,
-    pendingEndPhaseEffects: [],
     activatedOncePerTurnCards: new Set<number>(),
+    pendingEndPhaseEffects: [],
+    damageNegation: false,
   };
 }
 
