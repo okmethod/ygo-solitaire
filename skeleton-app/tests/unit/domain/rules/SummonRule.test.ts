@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
-import type { GameState } from "$lib/domain/models/GameState";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 
 describe("SummonRule", () => {

@@ -1,13 +1,17 @@
 /**
- * ActivateSpellCommand - Activate a spell card from hand
+ * ActivateSpellCommand - Activate a spell card
  *
  * Implements the Command pattern for spell card activation.
- * Moves card: hand → field → effect execution → graveyard
+ * Supports activation from:
+ * - Hand (all spell types)
+ * - spellTrapZone (set spells, with quick-play set-turn restriction)
+ * - fieldZone (set field spells)
+ *
+ * Flow: source zone → field → effect execution → graveyard
  *
  * MVP Scope:
- * - Normal spell cards only
  * - Main1 phase only
- * - No effect execution (placeholder for now)
+ * - Quick-play spells cannot be activated the turn they're set
  *
  * @module application/commands/ActivateSpellCommand
  */
@@ -97,10 +101,28 @@ export class ActivateSpellCommand implements GameCommand {
       return createFailureResult(state, "発動条件を満たしていません");
     }
 
-    // Step 1: Move card from hand to appropriate zone (activation)
-    // Field spells go to fieldZone, others go to spellTrapZone
-    const targetZone = cardInstance.spellType === "field" ? "fieldZone" : "spellTrapZone";
-    const zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", targetZone, "faceUp");
+    // Step 1: Determine source and target zones (T030-3)
+    const sourceZone = cardInstance.location; // hand, spellTrapZone, or fieldZone
+
+    // If card is already in a field zone (spellTrapZone/fieldZone), it's being activated from set position
+    // Otherwise, it's being activated from hand
+    let zonesAfterActivation = state.zones;
+
+    if (sourceZone === "hand") {
+      // Activating from hand: move to appropriate zone face-up
+      const targetZone = cardInstance.spellType === "field" ? "fieldZone" : "spellTrapZone";
+      zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", targetZone, "faceUp");
+    } else if (sourceZone === "spellTrapZone" || sourceZone === "fieldZone") {
+      // Activating from set position: just flip to face-up (stay in same zone)
+      zonesAfterActivation = {
+        ...state.zones,
+        [sourceZone]: state.zones[sourceZone].map((card) =>
+          card.instanceId === this.cardInstanceId ? { ...card, position: "faceUp" as const } : card,
+        ),
+      };
+    } else {
+      return createFailureResult(state, `Cannot activate spell from ${sourceZone}`);
+    }
 
     // Create intermediate state for effect resolution using spread syntax
     const stateAfterActivation: GameState = {

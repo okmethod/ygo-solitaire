@@ -454,4 +454,177 @@ describe("ActivateSpellCommand", () => {
       expect(result.newState.zones.fieldZone.length).toBe(0);
     });
   });
+
+  describe("Set Card Activation (T030-4)", () => {
+    it("should allow activating normal spell from spellTrapZone", () => {
+      // Arrange: Normal spell set in spellTrapZone
+      const setSpellState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [
+            // Pot of Greed needs at least 2 cards in deck
+            {
+              instanceId: "deck-0",
+              id: 1001,
+              jaName: "Test Card 1",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+            {
+              instanceId: "deck-1",
+              id: 1002,
+              jaName: "Test Card 2",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+          ],
+          hand: [],
+          mainMonsterZone: [],
+          spellTrapZone: [
+            {
+              instanceId: "set-spell-1",
+              id: 55144522, // 強欲な壺 (normal spell)
+              jaName: "強欲な壺",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "normal" as const,
+              location: "spellTrapZone" as const,
+              position: "faceDown" as const,
+              placedThisTurn: false,
+            },
+          ],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("set-spell-1");
+      const result = command.execute(setSpellState);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.newState.zones.spellTrapZone.length).toBe(1);
+      expect(result.newState.zones.spellTrapZone[0].position).toBe("faceUp");
+    });
+
+    it("should allow activating field spell from fieldZone", () => {
+      // Arrange: Field spell set in fieldZone
+      const setFieldSpellState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [
+            {
+              instanceId: "set-field-spell-1",
+              id: 67616300, // Chicken Game (field spell)
+              jaName: "チキンレース",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "field" as const,
+              location: "fieldZone" as const,
+              position: "faceDown" as const,
+              placedThisTurn: false,
+            },
+          ],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("set-field-spell-1");
+      const result = command.execute(setFieldSpellState);
+
+      // Assert: Field spell should be flipped face-up and stay in fieldZone
+      expect(result.success).toBe(true);
+      expect(result.newState.zones.fieldZone.length).toBe(1);
+      expect(result.newState.zones.fieldZone[0].position).toBe("faceUp");
+      expect(result.newState.zones.fieldZone[0].instanceId).toBe("set-field-spell-1");
+      // Chicken Game has ignition effect, so effectSteps may be empty if no choice is made
+      expect(result.effectSteps).toBeDefined();
+    });
+
+    it("should reject activating quick-play spell set this turn", () => {
+      // Arrange: Quick-play spell set this turn
+      const setQuickPlayState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: [],
+          mainMonsterZone: [],
+          spellTrapZone: [
+            {
+              instanceId: "set-quick-play-1",
+              id: 74519184, // 手札断札 (quick-play)
+              jaName: "手札断札",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "quick-play" as const,
+              location: "spellTrapZone" as const,
+              position: "faceDown" as const,
+              placedThisTurn: true, // Set this turn - should be blocked
+            },
+          ],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("set-quick-play-1");
+      const result = command.execute(setQuickPlayState);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("速攻魔法");
+      expect(result.error).toContain("セットしたターン");
+    });
+
+    it("should allow activating quick-play spell NOT set this turn", () => {
+      // Arrange: Quick-play spell set previous turn (use unregistered ID to avoid activation conditions)
+      const setQuickPlayState = createMockGameState({
+        phase: "Main1",
+        zones: {
+          deck: [],
+          hand: [],
+          mainMonsterZone: [],
+          spellTrapZone: [
+            {
+              instanceId: "set-quick-play-2",
+              id: 99999997, // Unregistered quick-play spell
+              jaName: "Test Quick-Play",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "quick-play" as const,
+              location: "spellTrapZone" as const,
+              position: "faceDown" as const,
+              placedThisTurn: false, // NOT set this turn - should be allowed
+            },
+          ],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const command = new ActivateSpellCommand("set-quick-play-2");
+      const result = command.execute(setQuickPlayState);
+
+      // Assert: Quick-play spell has no effect registered, so goes to graveyard
+      expect(result.success).toBe(true);
+      expect(result.newState.zones.graveyard.length).toBe(1);
+      expect(result.newState.zones.spellTrapZone.length).toBe(0);
+    });
+  });
 });

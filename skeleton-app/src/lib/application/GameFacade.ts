@@ -15,6 +15,8 @@ import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
+import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
+import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
@@ -287,6 +289,52 @@ export class GameFacade {
   summonMonster(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
     const currentState = getCurrentState();
     const command = new SummonMonsterCommand(cardInstanceId);
+
+    const result = command.execute(currentState);
+
+    if (result.success) {
+      gameStateStore.set(result.newState);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      error: result.error,
+    };
+  }
+
+  /**
+   * Set a monster card from hand to mainMonsterZone in face-down defense position
+   *
+   * @param cardInstanceId - Card instance ID to set
+   * @returns Success/failure result
+   */
+  setMonster(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+    const currentState = getCurrentState();
+    const command = new SetMonsterCommand(cardInstanceId);
+
+    const result = command.execute(currentState);
+
+    if (result.success) {
+      gameStateStore.set(result.newState);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      error: result.error,
+    };
+  }
+
+  /**
+   * Set a spell or trap card from hand to spellTrapZone or fieldZone (for field spells) face-down
+   *
+   * @param cardInstanceId - Card instance ID to set
+   * @returns Success/failure result
+   */
+  setSpellTrap(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+    const currentState = getCurrentState();
+    const command = new SetSpellTrapCommand(cardInstanceId);
 
     const result = command.execute(currentState);
 
