@@ -7,6 +7,9 @@
   import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
   import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
   import type { Card } from "$lib/presentation/types/card";
+  import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+  import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
+  import { gameStateStore } from "$lib/application/stores/gameStateStore";
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;
@@ -55,8 +58,24 @@
     }
   }
 
-  // セット魔法カード用のアクション定義 (T033-T034)
-  function getSetSpellActions(): CardActionButton[] {
+  // セット魔法・罠の発動可能性をチェック (T038)
+  function canActivateSetSpell(instanceId: string): boolean {
+    const command = new ActivateSpellCommand(instanceId);
+    return command.canExecute($gameStateStore);
+  }
+
+  // 起動効果の発動可能性をチェック (T038)
+  function canActivateIgnitionEffect(instanceId: string): boolean {
+    const command = new ActivateIgnitionEffectCommand(instanceId);
+    return command.canExecute($gameStateStore);
+  }
+
+  // セット魔法カード用のアクション定義 (T033-T034, T038)
+  function getSetSpellActions(instanceId: string): CardActionButton[] {
+    // 発動条件を満たしていない場合は空配列を返す（ボタンを表示しない）
+    if (!canActivateSetSpell(instanceId)) {
+      return [];
+    }
     return [
       {
         label: "発動",
@@ -68,9 +87,12 @@
   }
 
   // フィールド魔法カード用のアクション定義 (T038)
-  function getFieldSpellActions(faceDown: boolean): CardActionButton[] {
+  function getFieldSpellActions(instanceId: string, faceDown: boolean): CardActionButton[] {
     if (faceDown) {
       // 裏側表示: カードの発動
+      if (!canActivateSetSpell(instanceId)) {
+        return [];
+      }
       return [
         {
           label: "発動",
@@ -81,6 +103,9 @@
       ];
     } else {
       // 表側表示: 起動効果の発動
+      if (!canActivateIgnitionEffect(instanceId)) {
+        return [];
+      }
       return [
         {
           label: "効果発動",
@@ -110,9 +135,9 @@
             instanceId={fieldCards[0].instanceId}
             faceDown={fieldCards[0].faceDown}
             isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
-            isActivatable={true}
+            isActivatable={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown).length > 0}
             onSelect={handleCardClick}
-            actionButtons={getFieldSpellActions(fieldCards[0].faceDown)}
+            actionButtons={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown)}
             onCancel={onCancelFieldCardSelection || (() => {})}
             size="medium"
             showDetailOnClick={true}
@@ -178,9 +203,9 @@
                 instanceId={spellTrapCards[i].instanceId}
                 faceDown={true}
                 isSelected={selectedFieldCardInstanceId === spellTrapCards[i].instanceId}
-                isActivatable={true}
+                isActivatable={getSetSpellActions(spellTrapCards[i].instanceId).length > 0}
                 onSelect={handleCardClick}
-                actionButtons={getSetSpellActions()}
+                actionButtons={getSetSpellActions(spellTrapCards[i].instanceId)}
                 onCancel={onCancelFieldCardSelection || (() => {})}
                 size="medium"
                 showDetailOnClick={true}
