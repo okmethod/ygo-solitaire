@@ -145,11 +145,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] すべての単体テストを実行して全パスを確認（npm run test:run）
-- [ ] T036 [P] Lint/Format チェックを実行（npm run lint && npm run format）
-- [ ] T037 既存 439 テスト + 新規テストがすべてパスすることを最終確認
+- [x] T035 [P] すべての単体テストを実行して全パスを確認（npm run test:run）
+- [x] T036 [P] Lint/Format チェックを実行（npm run lint && npm run format）
+- [x] T037 既存 439 テスト + 新規テストがすべてパスすることを最終確認
 - [ ] T038 Edge case の手動検証（満杯ゾーンへの配置、フィールド魔法自動置換、速攻魔法セットターン発動制限）
-- [ ] T039 [P] quickstart.md checklist 完了確認
+- [x] T039 [P] quickstart.md checklist 完了確認
 - [ ] T040 Code cleanup and refactoring（不要なコメント削除、命名の統一）
 
 ---

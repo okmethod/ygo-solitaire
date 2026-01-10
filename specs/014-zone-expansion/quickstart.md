@@ -511,20 +511,20 @@ export class GameFacade {
 
 ## Checklist
 
-- [ ] Zone.ts: Zonesインターフェース拡張
-- [ ] Zone.ts: sendToGraveyard()更新
-- [ ] GameState.ts: normalSummonLimit/Used追加
-- [ ] Card.ts: battlePosition/placedThisTurn追加
-- [ ] SummonRule.ts: 新規作成
-- [ ] SummonMonsterCommand.ts: 新規作成
-- [ ] SetMonsterCommand.ts: 新規作成
-- [ ] SetSpellTrapCommand.ts: 新規作成
-- [ ] ActivateSpellCommand.ts: フィールド魔法対応
-- [ ] GameFacade.ts: 新規メソッド3個追加
-- [ ] DuelField.svelte: 3ゾーン表示
-- [ ] Hands.svelte: 召喚・セットボタン
-- [ ] 全Unit Tests作成
-- [ ] Integration Tests作成
-- [ ] E2E Tests作成
-- [ ] 既存439テストがすべてパス
-- [ ] Lint/Formatエラーゼロ
+- [x] Zone.ts: Zonesインターフェース拡張
+- [x] Zone.ts: sendToGraveyard()更新
+- [x] GameState.ts: normalSummonLimit/Used追加
+- [x] Card.ts: battlePosition/placedThisTurn追加
+- [x] SummonRule.ts: 新規作成
+- [x] SummonMonsterCommand.ts: 新規作成
+- [x] SetMonsterCommand.ts: 新規作成
+- [x] SetSpellTrapCommand.ts: 新規作成
+- [x] ActivateSpellCommand.ts: フィールド魔法対応
+- [x] GameFacade.ts: 新規メソッド3個追加
+- [x] DuelField.svelte: 3ゾーン表示
+- [x] Hands.svelte: 召喚・セットボタン
+- [x] 全Unit Tests作成
+- [x] Integration Tests作成
+- [ ] E2E Tests作成 (Manual testing required)
+- [x] 既存439テストがすべてパス (556 tests pass)
+- [x] Lint/Formatエラーゼロ
