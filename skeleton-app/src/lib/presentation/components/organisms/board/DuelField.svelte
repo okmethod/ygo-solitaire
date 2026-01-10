@@ -9,13 +9,19 @@
   const ZONE_COUNT = 5;
   const zones = [...Array(ZONE_COUNT).keys()];
 
+  // カードとposition情報を含む型 (T033-T034)
+  interface CardWithPosition {
+    card: Card;
+    faceDown: boolean;
+  }
+
   interface DuelFieldProps {
     deckCards: number;
     extraDeckCards: Card[];
     graveyardCards: Card[];
-    fieldCards: Card[];
-    monsterCards: (Card | null)[];
-    spellTrapCards: (Card | null)[];
+    fieldCards: CardWithPosition[];
+    monsterCards: (CardWithPosition | null)[];
+    spellTrapCards: (CardWithPosition | null)[];
     onFieldCardClick?: (card: Card) => void;
   }
 
@@ -43,7 +49,13 @@
       <!-- フィールド魔法ゾーン -->
       <div class="flex justify-center">
         {#if fieldCards.length > 0}
-          <CardComponent card={fieldCards[0]} size="medium" clickable={true} onClick={handleCardClick} />
+          <CardComponent
+            card={fieldCards[0].card}
+            faceDown={fieldCards[0].faceDown}
+            size="medium"
+            clickable={true}
+            onClick={() => handleCardClick(fieldCards[0].card)}
+          />
         {:else}
           <div class="relative">
             <!-- プレースホルダー色調：緑 -->
@@ -59,11 +71,12 @@
         <div class="flex justify-center">
           {#if monsterCards[i]}
             <CardComponent
-              card={monsterCards[i]}
+              card={monsterCards[i].card}
+              faceDown={monsterCards[i].faceDown}
               size="medium"
               clickable={true}
               selectable={true}
-              onClick={handleCardClick}
+              onClick={() => handleCardClick(monsterCards[i].card)}
             />
           {:else}
             <div class="relative">
@@ -92,7 +105,13 @@
       {#each zones as i (i)}
         <div class="flex justify-center">
           {#if spellTrapCards[i]}
-            <CardComponent card={spellTrapCards[i]} size="medium" clickable={true} onClick={handleCardClick} />
+            <CardComponent
+              card={spellTrapCards[i].card}
+              faceDown={spellTrapCards[i].faceDown}
+              size="medium"
+              clickable={true}
+              onClick={() => handleCardClick(spellTrapCards[i].card)}
+            />
           {:else}
             <div class="relative">
               <!-- プレースホルダー色調：青 -->

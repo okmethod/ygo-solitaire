@@ -19,6 +19,7 @@
     rotation?: number;
     animate?: boolean;
     showDetailOnClick?: boolean;
+    faceDown?: boolean; // 裏側表示フラグ (T033-T034)
     onClick?: (card: Card) => void;
     onHover?: (card: Card | null) => void;
   }
@@ -34,6 +35,7 @@
     rotation = 0,
     animate = true,
     showDetailOnClick = false,
+    faceDown = false, // デフォルトは表側
     onClick,
     onHover,
   }: CardComponentProps = $props();
@@ -133,37 +135,44 @@
 
 <!-- 共通コンテンツテンプレート -->
 {#snippet cardContent()}
-  <!-- カード画像エリア -->
-  <div class="flex-1 flex items-center justify-center p-1">
-    {#if card?.images?.imageCropped}
-      <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
-    {:else if isPlaceholder}
-      <div
-        class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
-      >
-        <img src={placeholderImageUrl} alt={placeholderText} class="w-full h-full object-cover opacity-30" />
-        <div class="absolute inset-0 flex flex-col items-center justify-center">
-          <span class="text-xs select-none text-surface-600-300-token font-medium">{placeholderText}</span>
-          {#if card?.type}
-            <span class="text-xs opacity-75 select-none mt-1">{card.type}</span>
-          {/if}
+  <!-- 裏側表示の場合はカード裏面のみ表示 (T033-T034) -->
+  {#if faceDown}
+    <div class="w-full h-full flex items-center justify-center p-1">
+      <img src={placeholderImageUrl} alt="裏向きカード" class="w-full h-full object-cover rounded-sm" />
+    </div>
+  {:else}
+    <!-- カード画像エリア -->
+    <div class="flex-1 flex items-center justify-center p-1">
+      {#if card?.images?.imageCropped}
+        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+      {:else if isPlaceholder}
+        <div
+          class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
+        >
+          <img src={placeholderImageUrl} alt={placeholderText} class="w-full h-full object-cover opacity-30" />
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-xs select-none text-surface-600-300-token font-medium">{placeholderText}</span>
+            {#if card?.type}
+              <span class="text-xs opacity-75 select-none mt-1">{card.type}</span>
+            {/if}
+          </div>
         </div>
-      </div>
-    {:else}
-      <div class="w-full h-full bg-surface-200-700-token rounded-sm flex items-center justify-center">
-        <img src={placeholderImageUrl} alt="" class="w-full h-full object-cover opacity-20" />
-        <div class="absolute inset-0 flex items-center justify-center">
-          <span class="text-xs opacity-50 select-none">No Image</span>
+      {:else}
+        <div class="w-full h-full bg-surface-200-700-token rounded-sm flex items-center justify-center">
+          <img src={placeholderImageUrl} alt="" class="w-full h-full object-cover opacity-20" />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-xs opacity-50 select-none">No Image</span>
+          </div>
         </div>
+      {/if}
+    </div>
+
+    <!-- カード情報エリア -->
+    {#if card && !isPlaceholder}
+      <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
+        <div class="text-xs font-medium truncate">{card.name}</div>
       </div>
     {/if}
-  </div>
-
-  <!-- カード情報エリア -->
-  {#if card && !isPlaceholder}
-    <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
-      <div class="text-xs font-medium truncate">{card.name}</div>
-    </div>
   {/if}
 
   <!-- 選択状態インジケーター -->

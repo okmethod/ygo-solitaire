@@ -94,29 +94,31 @@
     }
   }
 
-  // モンスターセットハンドラー (T032)
+  // モンスターセットハンドラー (T032, T033-T034)
   function handleSetMonster(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.setMonster(instanceId);
     if (result.success) {
-      showSuccessToast(result.message || `${card.name}をセットしました`);
+      // カード名を使った明示的なメッセージを優先
+      showSuccessToast(`${card.name}をセットしました`);
     } else {
       showErrorToast(result.error || "セットに失敗しました");
     }
   }
 
-  // 魔法・罠セットハンドラー (T032)
+  // 魔法・罠セットハンドラー (T032, T033-T034)
   function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.setSpellTrap(instanceId);
     if (result.success) {
-      showSuccessToast(result.message || `${card.name}をセットしました`);
+      // カード名を使った明示的なメッセージを優先
+      showSuccessToast(`${card.name}をセットしました`);
     } else {
       showErrorToast(result.error || "セットに失敗しました");
     }
   }
 
-  // フィールドカードクリックで起動効果発動
+  // フィールドカードクリックで効果発動 (T033-T034)
   function handleFieldCardClick(card: CardDisplayData) {
-    // Find the card instance ID from field cards (mainMonsterZone + spellTrapZone + fieldZone) (T031)
+    // Find the card instance ID from field cards (mainMonsterZone + spellTrapZone + fieldZone)
     const currentState = gameFacade.getGameState();
     const allFieldCards = [
       ...currentState.zones.mainMonsterZone,
@@ -129,7 +131,18 @@
       return;
     }
 
-    // Domain Layerで全ての判定を実施（フェーズチェック、LP、1ターンに1度制限など）
+    // セットされた魔法カードの場合は発動処理
+    if (fieldCard.type === "spell" && fieldCard.position === "faceDown") {
+      const result = gameFacade.activateSpell(fieldCard.instanceId);
+      if (result.success) {
+        showSuccessToast(result.message || `${card.name}を発動しました`);
+      } else {
+        showErrorToast(result.error || "発動に失敗しました");
+      }
+      return;
+    }
+
+    // その他のカードは起動効果発動
     const result = gameFacade.activateIgnitionEffect(fieldCard.instanceId);
 
     // トーストメッセージ表示
@@ -151,28 +164,54 @@
     })),
   );
 
-  // DuelField用のゾーンデータ抽出
+  // DuelField用のゾーンデータ抽出（CardInstanceとCardDisplayDataをマージ） (T033-T034)
   // フィールド魔法ゾーン用カード（frameType === "field"）
-  const fieldMagicCards = $derived($fieldCards.filter((card) => card.frameType === "field"));
+  const fieldMagicCards = $derived.by(() => {
+    const fieldInstances = $gameStateStore.zones.fieldZone;
+    return fieldInstances
+      .map((instance) => {
+        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        if (!displayData) return null;
+        return {
+          card: displayData,
+          faceDown: instance.position === "faceDown",
+        };
+      })
+      .filter((item) => item !== null);
+  });
 
   // モンスターゾーン用カード配列（5枚固定、null埋め）
   const monsterZoneCards = $derived.by(() => {
-    const monsters = $fieldCards.filter((card) => card.type === "monster");
-    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
-    monsters.forEach((card, i) => {
-      if (i < 5) zone[i] = card;
+    const monsterInstances = $gameStateStore.zones.mainMonsterZone;
+    const zone: ({ card: CardDisplayData; faceDown: boolean } | null)[] = Array(5).fill(null);
+    monsterInstances.forEach((instance, i) => {
+      if (i < 5) {
+        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        if (displayData) {
+          zone[i] = {
+            card: displayData,
+            faceDown: instance.position === "faceDown",
+          };
+        }
+      }
     });
     return zone;
   });
 
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   const spellTrapZoneCards = $derived.by(() => {
-    const spellsTraps = $fieldCards.filter(
-      (card) => (card.type === "spell" || card.type === "trap") && card.frameType !== "field",
-    );
-    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
-    spellsTraps.forEach((card, i) => {
-      if (i < 5) zone[i] = card;
+    const spellTrapInstances = $gameStateStore.zones.spellTrapZone;
+    const zone: ({ card: CardDisplayData; faceDown: boolean } | null)[] = Array(5).fill(null);
+    spellTrapInstances.forEach((instance, i) => {
+      if (i < 5) {
+        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        if (displayData) {
+          zone[i] = {
+            card: displayData,
+            faceDown: instance.position === "faceDown",
+          };
+        }
+      }
     });
     return zone;
   });
