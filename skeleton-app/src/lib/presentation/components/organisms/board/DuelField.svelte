@@ -1,5 +1,8 @@
 <script lang="ts">
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import ActivatableCard, {
+    type CardActionButton,
+  } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import Graveyard from "$lib/presentation/components/organisms/board/Graveyard.svelte";
   import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
   import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
@@ -12,7 +15,9 @@
   // カードとposition情報を含む型 (T033-T034)
   interface CardWithPosition {
     card: Card;
+    instanceId: string; // カードインスタンスID
     faceDown: boolean;
+    rotation?: number; // 守備表示時の回転角度
   }
 
   interface DuelFieldProps {
@@ -22,7 +27,10 @@
     fieldCards: CardWithPosition[];
     monsterCards: (CardWithPosition | null)[];
     spellTrapCards: (CardWithPosition | null)[];
-    onFieldCardClick?: (card: Card) => void;
+    selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId (T033-T034)
+    onFieldCardClick?: (card: Card, instanceId: string) => void;
+    onActivateSetSpell?: (card: Card, instanceId: string) => void; // セット魔法カード発動 (T033-T034)
+    onCancelFieldCardSelection?: () => void; // 選択キャンセル (T033-T034)
   }
 
   let {
@@ -32,14 +40,29 @@
     fieldCards,
     monsterCards,
     spellTrapCards,
+    selectedFieldCardInstanceId,
     onFieldCardClick,
+    onActivateSetSpell,
+    onCancelFieldCardSelection,
   }: DuelFieldProps = $props();
 
   // カードクリック処理
-  function handleCardClick(card: Card) {
+  function handleCardClick(card: Card, instanceId: string) {
     if (onFieldCardClick) {
-      onFieldCardClick(card);
+      onFieldCardClick(card, instanceId);
     }
+  }
+
+  // セット魔法カード用のアクション定義 (T033-T034)
+  function getSetSpellActions(): CardActionButton[] {
+    return [
+      {
+        label: "発動",
+        style: "filled",
+        color: "primary",
+        onClick: onActivateSetSpell || (() => {}),
+      },
+    ];
   }
 </script>
 
@@ -54,7 +77,7 @@
             faceDown={fieldCards[0].faceDown}
             size="medium"
             clickable={true}
-            onClick={() => handleCardClick(fieldCards[0].card)}
+            onClick={() => handleCardClick(fieldCards[0].card, fieldCards[0].instanceId)}
           />
         {:else}
           <div class="relative">
@@ -73,10 +96,11 @@
             <CardComponent
               card={monsterCards[i].card}
               faceDown={monsterCards[i].faceDown}
+              rotation={monsterCards[i].rotation || 0}
               size="medium"
               clickable={true}
               selectable={true}
-              onClick={() => handleCardClick(monsterCards[i].card)}
+              onClick={() => monsterCards[i] && handleCardClick(monsterCards[i].card, monsterCards[i].instanceId)}
             />
           {:else}
             <div class="relative">
@@ -105,13 +129,31 @@
       {#each zones as i (i)}
         <div class="flex justify-center">
           {#if spellTrapCards[i]}
-            <CardComponent
-              card={spellTrapCards[i].card}
-              faceDown={spellTrapCards[i].faceDown}
-              size="medium"
-              clickable={true}
-              onClick={() => handleCardClick(spellTrapCards[i].card)}
-            />
+            {#if spellTrapCards[i].faceDown}
+              <!-- セットされた魔法・罠はActivatableCardで選択可能に (T033-T034) -->
+              <ActivatableCard
+                card={spellTrapCards[i].card}
+                instanceId={spellTrapCards[i].instanceId}
+                faceDown={true}
+                isSelected={selectedFieldCardInstanceId === spellTrapCards[i].instanceId}
+                isActivatable={true}
+                onSelect={handleCardClick}
+                actions={getSetSpellActions()}
+                onCancel={onCancelFieldCardSelection || (() => {})}
+                size="medium"
+                showDetailOnClick={false}
+              />
+            {:else}
+              <!-- 表側表示の魔法・罠は通常のCardComponent -->
+              <CardComponent
+                card={spellTrapCards[i].card}
+                faceDown={false}
+                size="medium"
+                clickable={true}
+                onClick={() =>
+                  spellTrapCards[i] && handleCardClick(spellTrapCards[i].card, spellTrapCards[i].instanceId)}
+              />
+            {/if}
           {:else}
             <div class="relative">
               <!-- プレースホルダー色調：青 -->

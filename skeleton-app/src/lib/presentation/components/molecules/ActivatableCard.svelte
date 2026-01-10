@@ -25,6 +25,7 @@
     onCancel: () => void;
     size?: ComponentSize;
     showDetailOnClick?: boolean;
+    faceDown?: boolean; // 裏側表示フラグ (T033-T034)
   }
 
   let {
@@ -37,6 +38,7 @@
     onCancel,
     size = "medium",
     showDetailOnClick = true,
+    faceDown = false,
   }: ActivatableCardProps = $props();
 
   function handleSelect() {
@@ -57,7 +59,7 @@
 <div class="relative">
   <!-- Card コンポーネントをラップ（選択状態も Card で管理） -->
   <!-- カードは常にクリック可能にして、ユーザーが選択できるようにする -->
-  <Card {card} {size} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} />
+  <Card {card} {size} {faceDown} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} />
 
   {#if isSelected}
     <!-- アクションボタン -->

@@ -116,29 +116,27 @@
     }
   }
 
+  // フィールドカード選択状態管理 (T033-T034)
+  let selectedFieldCardInstanceId = $state<string | null>(null);
+
   // フィールドカードクリックで効果発動 (T033-T034)
-  function handleFieldCardClick(card: CardDisplayData) {
-    // Find the card instance ID from field cards (mainMonsterZone + spellTrapZone + fieldZone)
+  function handleFieldCardClick(card: CardDisplayData, instanceId: string) {
+    // Find the card instance from field cards
     const currentState = gameFacade.getGameState();
     const allFieldCards = [
       ...currentState.zones.mainMonsterZone,
       ...currentState.zones.spellTrapZone,
       ...currentState.zones.fieldZone,
     ];
-    const fieldCard = allFieldCards.find((c) => c.id === card.id);
+    const fieldCard = allFieldCards.find((c) => c.instanceId === instanceId);
     if (!fieldCard) {
       showErrorToast("Card not found on field");
       return;
     }
 
-    // セットされた魔法カードの場合は発動処理
+    // セットされた魔法カードの場合は選択状態をトグル（発動メニュー表示用）
     if (fieldCard.type === "spell" && fieldCard.position === "faceDown") {
-      const result = gameFacade.activateSpell(fieldCard.instanceId);
-      if (result.success) {
-        showSuccessToast(result.message || `${card.name}を発動しました`);
-      } else {
-        showErrorToast(result.error || "発動に失敗しました");
-      }
+      selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
       return;
     }
 
@@ -151,6 +149,22 @@
     } else {
       showErrorToast(result.error || "効果発動に失敗しました");
     }
+  }
+
+  // セット魔法カードの発動ハンドラー (T033-T034)
+  function handleActivateSetSpell(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.activateSpell(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}を発動しました`);
+    } else {
+      showErrorToast(result.error || "発動に失敗しました");
+    }
+    selectedFieldCardInstanceId = null; // 選択解除
+  }
+
+  // フィールドカード選択キャンセル (T033-T034)
+  function handleCancelFieldCardSelection() {
+    selectedFieldCardInstanceId = null;
   }
 
   // 効果解決ストアの状態を購読
@@ -174,6 +188,7 @@
         if (!displayData) return null;
         return {
           card: displayData,
+          instanceId: instance.instanceId,
           faceDown: instance.position === "faceDown",
         };
       })
@@ -183,14 +198,17 @@
   // モンスターゾーン用カード配列（5枚固定、null埋め）
   const monsterZoneCards = $derived.by(() => {
     const monsterInstances = $gameStateStore.zones.mainMonsterZone;
-    const zone: ({ card: CardDisplayData; faceDown: boolean } | null)[] = Array(5).fill(null);
+    const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean; rotation?: number } | null)[] =
+      Array(5).fill(null);
     monsterInstances.forEach((instance, i) => {
       if (i < 5) {
         const displayData = $fieldCards.find((card) => card.id === instance.id);
         if (displayData) {
           zone[i] = {
             card: displayData,
+            instanceId: instance.instanceId,
             faceDown: instance.position === "faceDown",
+            rotation: instance.battlePosition === "defense" ? 90 : 0, // 守備表示は90度回転 (T033-T034)
           };
         }
       }
@@ -201,13 +219,14 @@
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   const spellTrapZoneCards = $derived.by(() => {
     const spellTrapInstances = $gameStateStore.zones.spellTrapZone;
-    const zone: ({ card: CardDisplayData; faceDown: boolean } | null)[] = Array(5).fill(null);
+    const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
     spellTrapInstances.forEach((instance, i) => {
       if (i < 5) {
         const displayData = $fieldCards.find((card) => card.id === instance.id);
         if (displayData) {
           zone[i] = {
             card: displayData,
+            instanceId: instance.instanceId,
             faceDown: instance.position === "faceDown",
           };
         }
@@ -252,7 +271,10 @@
       fieldCards={fieldMagicCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
+      {selectedFieldCardInstanceId}
       onFieldCardClick={handleFieldCardClick}
+      onActivateSetSpell={handleActivateSetSpell}
+      onCancelFieldCardSelection={handleCancelFieldCardSelection}
     />
 
     <!-- Hand Zone -->
