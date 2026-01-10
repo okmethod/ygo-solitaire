@@ -4,6 +4,11 @@
  * Svelte writable store for GameState.
  * This is the single source of truth for game state in the UI.
  *
+ * ARCH: Application Layer - レイヤー依存ルール
+ * - Application Layer は Domain Layer に依存できる
+ * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
+ * - Presentation Layer は Domain Layer に直接依存してはいけない
+ *
  * @module application/stores/gameStateStore
  */
 

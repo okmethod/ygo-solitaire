@@ -3,10 +3,7 @@
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
   import type { CardDisplayData } from "$lib/presentation/types/card";
-  import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
-
-  // Card repository for fetching card display data
-  const cardRepository = new YGOProDeckCardRepository();
+  import { cardRepository } from "$lib/application/stores/cardDisplayStore";
 
   // cardSelectionStoreの状態を購読
   const isActive = $derived(cardSelectionStore.isActive);

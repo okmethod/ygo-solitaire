@@ -13,8 +13,9 @@ import { getCardsByIds as apiGetCardsByIds, getCardById as apiGetCardById } from
  * - セッション単位のメモリキャッシュを実装（内部API関数が管理）
  * - 既存の `src/lib/infrastructure/api/ygoprodeck.ts` を内部的に利用
  * - YGOProDeckCard → CardDisplayData への変換をprivateメソッドで実施
+ * - Singletonパターンで単一インスタンスを共有（getCardRepository経由で取得）
  */
-export class YGOProDeckCardRepository implements ICardDataRepository {
+class YGOProDeckCardRepository implements ICardDataRepository {
   /**
    * カードIDリストから複数のカードデータを取得
    *
@@ -110,4 +111,25 @@ export class YGOProDeckCardRepository implements ICardDataRepository {
       images,
     };
   }
+}
+
+/**
+ * Singleton instance
+ */
+let cardRepositoryInstance: ICardDataRepository | null = null;
+
+/**
+ * CardRepository Singleton getter
+ *
+ * Application Layerから利用する統一アクセスポイント。
+ * 単一のYGOProDeckCardRepositoryインスタンスを共有し、効率的なキャッシュ管理を実現。
+ *
+ * @returns ICardDataRepository - Singletonインスタンス
+ * ```
+ */
+export function getCardRepository(): ICardDataRepository {
+  if (!cardRepositoryInstance) {
+    cardRepositoryInstance = new YGOProDeckCardRepository();
+  }
+  return cardRepositoryInstance;
 }

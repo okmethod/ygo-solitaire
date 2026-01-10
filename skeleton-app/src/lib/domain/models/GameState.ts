@@ -74,7 +74,7 @@ export interface GameState {
    * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
    * - 先行1ターン目のみのため、「1 デュエルに 1度」制限も兼ねる
    * - 例: 強欲で謙虚な壺、命削りの宝札、等
-   * TODO: フラグ名変更検討（usedOnlyOncePerTurnEffects）
+   * NOTE: フラグ名変更は将来検討（現状は互換性優先で維持）
    * 参考: https://yugioh.fandom.com/wiki/Once_per_turn
    */
   readonly activatedOncePerTurnCards: ReadonlySet<number>;
@@ -84,7 +84,7 @@ export interface GameState {
    * - `${cardInstanceId}:${effectId}` をキーとして管理
    * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
    * - 例: チキンレースの起動効果、等
-   * TODO: フラグ名変更検討（usedOncePerTurnEffects など）
+   * NOTE: フラグ名変更は将来検討（現状は互換性優先で維持）
    * 参考: https://yugioh.fandom.com/wiki/Once_per_turn#Only_once_per_turn
    */
   readonly activatedIgnitionEffectsThisTurn: ReadonlySet<string>;
@@ -99,7 +99,7 @@ export interface GameState {
    * ダメージ無効化フラグ
    * 例: 一時休戦、等
    * trueの場合、このターンのダメージは全て無効化される
-   * TODO: チキンレース等のどちらか片方のみ無効化用の拡張検討
+   * NOTE: 片方のみ無効化（チキンレース等）の実装は将来的に必要になった時点で検討
    */
   readonly damageNegation: boolean;
 }

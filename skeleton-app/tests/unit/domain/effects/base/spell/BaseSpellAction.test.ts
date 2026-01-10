@@ -9,6 +9,10 @@
  * - createActivationSteps() default implementation
  * - Abstract methods must be implemented by subclasses
  *
+ * TEST STRATEGY: Base Class テストでは全サブクラス共通のルール（ゲームオーバーチェック等）をテスト。
+ * Subclass テストでは、各サブクラス固有の条件（フェーズ制約、追加発動条件）のみをテストする。
+ * これにより、重複を避け、テストの保守性を向上させる。
+ *
  * @module tests/unit/domain/effects/base/spell/BaseSpellAction
  */
 

@@ -52,8 +52,8 @@ describe("FieldSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met", () => {
-      // Arrange: Game not over, Main Phase 1
+    it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
+      // Arrange: Main Phase 1
       const state = createInitialGameState([1001, 1002, 1003]);
       const stateInMain1: GameState = {
         ...state,
@@ -64,25 +64,8 @@ describe("FieldSpellAction", () => {
       expect(action.canActivate(stateInMain1)).toBe(true);
     });
 
-    it("should return false when game is over", () => {
-      // Arrange: Game is over
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const gameOverState: GameState = {
-        ...state,
-        phase: "Main1",
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(gameOverState)).toBe(false);
-    });
-
     it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw
+      // Arrange: Phase is Draw (FieldSpellAction固有のフェーズ制約テスト)
       const state = createInitialGameState([1001, 1002, 1003]);
       // Default phase is "Draw"
 
@@ -90,27 +73,15 @@ describe("FieldSpellAction", () => {
       expect(action.canActivate(state)).toBe(false);
     });
 
-    it("should return false when phase is Standby", () => {
-      // Arrange: Phase is Standby
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const standbyState: GameState = {
-        ...state,
-        phase: "Standby",
-      };
-
-      // Act & Assert
-      expect(action.canActivate(standbyState)).toBe(false);
-    });
-
-    it("should return true even without additional conditions", () => {
-      // Arrange: Main Phase 1, no additional conditions
+    it("should return true even with empty deck (no additional conditions)", () => {
+      // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
       const state = createInitialGameState([]);
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
-      // Act & Assert (Field Spells can be activated without additional conditions)
+      // Act & Assert
       expect(action.canActivate(stateInMain1)).toBe(true);
     });
   });

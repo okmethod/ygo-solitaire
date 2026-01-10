@@ -50,8 +50,8 @@ describe("NormalSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met", () => {
-      // Arrange: Game not over, Main Phase 1, Deck >= 2
+    it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
+      // Arrange: Main Phase 1, Deck >= 2
       const state = createInitialGameState([1001, 1002, 1003]);
       const stateInMain1: GameState = {
         ...state,
@@ -62,42 +62,13 @@ describe("NormalSpellAction", () => {
       expect(action.canActivate(stateInMain1)).toBe(true);
     });
 
-    it("should return false when game is over", () => {
-      // Arrange: Game is over
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const gameOverState: GameState = {
-        ...state,
-        phase: "Main1",
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(gameOverState)).toBe(false);
-    });
-
     it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw
+      // Arrange: Phase is Draw (NormalSpellAction固有のフェーズ制約テスト)
       const state = createInitialGameState([1001, 1002, 1003]);
       // Default phase is "Draw"
 
       // Act & Assert
       expect(action.canActivate(state)).toBe(false);
-    });
-
-    it("should return false when phase is Standby", () => {
-      // Arrange: Phase is Standby
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const standbyState: GameState = {
-        ...state,
-        phase: "Standby",
-      };
-
-      // Act & Assert
-      expect(action.canActivate(standbyState)).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {

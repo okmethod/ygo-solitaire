@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * DuelField Component - Presentation Layer
+   *
+   * ARCH: Presentation Layer - レイヤー依存ルール
+   * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
+   * - Domain Layer（Command、Rule等）を直接 import してはいけない
+   * - 全てのゲームロジック呼び出しは GameFacade 経由で行う
+   */
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
@@ -7,9 +15,7 @@
   import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
   import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
   import type { Card } from "$lib/presentation/types/card";
-  import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-  import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-  import { gameStateStore } from "$lib/application/stores/gameStateStore";
+  import { gameFacade } from "$lib/application/GameFacade";
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;
@@ -60,14 +66,12 @@
 
   // セット魔法・罠の発動可能性をチェック (T038)
   function canActivateSetSpell(instanceId: string): boolean {
-    const command = new ActivateSpellCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canActivateSetSpell(instanceId);
   }
 
   // 起動効果の発動可能性をチェック (T038)
   function canActivateIgnitionEffect(instanceId: string): boolean {
-    const command = new ActivateIgnitionEffectCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canActivateIgnitionEffect(instanceId);
   }
 
   // セット魔法カード用のアクション定義 (T033-T034, T038)

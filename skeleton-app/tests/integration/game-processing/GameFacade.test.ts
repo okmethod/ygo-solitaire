@@ -651,4 +651,226 @@ describe("GameFacade", () => {
       expect(result.error).toBe("Main1フェーズではありません");
     });
   });
+
+  describe("canActivateSetSpell", () => {
+    it("should return true when set spell can be activated", () => {
+      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const spellInstanceId = state.zones.hand[0].instanceId;
+
+      // Set the spell face-down
+      facade.setSpellTrap(spellInstanceId);
+
+      const newState = get(gameStateStore);
+      const setSpellId = newState.zones.spellTrapZone[0].instanceId;
+
+      // Check if it can be activated
+      const canActivate = facade.canActivateSetSpell(setSpellId);
+      expect(canActivate).toBe(true);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      facade.initializeGame([70368879, 70368879, 70368879]);
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const spellInstanceId = state.zones.hand[0].instanceId;
+
+      facade.setSpellTrap(spellInstanceId);
+
+      const newState = get(gameStateStore);
+      const setSpellId = newState.zones.spellTrapZone[0].instanceId;
+
+      // Advance to Battle phase
+      facade.advancePhase();
+
+      const canActivate = facade.canActivateSetSpell(setSpellId);
+      expect(canActivate).toBe(false);
+    });
+  });
+
+  describe("canActivateIgnitionEffect", () => {
+    it("should return true when ignition effect can be activated", () => {
+      facade.initializeGame([67616300, 67616300, 67616300]); // Chicken Game
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const chickenGameId = state.zones.hand[0].instanceId;
+
+      // Activate Chicken Game (field spell)
+      facade.activateSpell(chickenGameId);
+
+      const newState = get(gameStateStore);
+      const activatedChickenGameId = newState.zones.fieldZone[0].instanceId;
+
+      // Check if ignition effect can be activated
+      const canActivate = facade.canActivateIgnitionEffect(activatedChickenGameId);
+      expect(canActivate).toBe(true);
+    });
+
+    it("should return false when card has no ignition effect", () => {
+      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin (no ignition effect)
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const upstartId = state.zones.hand[0].instanceId;
+
+      const canActivate = facade.canActivateIgnitionEffect(upstartId);
+      expect(canActivate).toBe(false);
+    });
+  });
+
+  describe("canSummonMonster", () => {
+    it("should return true when monster can be summoned", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSummon = facade.canSummonMonster(monsterInstanceId);
+      expect(canSummon).toBe(true);
+    });
+
+    it("should return false when summon limit reached", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.drawCard(2);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
+      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+
+      // First summon
+      facade.summonMonster(firstMonsterInstanceId);
+
+      // Check second summon (should be false - no summon rights left)
+      const canSummon = facade.canSummonMonster(secondMonsterInstanceId);
+      expect(canSummon).toBe(false);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.drawCard(1);
+      // Don't advance phase - stay in Draw phase
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSummon = facade.canSummonMonster(monsterInstanceId);
+      expect(canSummon).toBe(false);
+    });
+  });
+
+  describe("canSetMonster", () => {
+    it("should return true when monster can be set", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSet = facade.canSetMonster(monsterInstanceId);
+      expect(canSet).toBe(true);
+    });
+
+    it("should return false when summon limit reached", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.drawCard(2);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
+      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+
+      // First set
+      facade.setMonster(firstMonsterInstanceId);
+
+      // Check second set (should be false - no summon rights left)
+      const canSet = facade.canSetMonster(secondMonsterInstanceId);
+      expect(canSet).toBe(false);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
+      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.drawCard(1);
+      // Don't advance phase - stay in Draw phase
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSet = facade.canSetMonster(monsterInstanceId);
+      expect(canSet).toBe(false);
+    });
+  });
+
+  describe("canSetSpellTrap", () => {
+    it("should return true when spell/trap can be set", () => {
+      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin
+      facade.drawCard(1);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+      const spellInstanceId = state.zones.hand[0].instanceId;
+
+      const canSet = facade.canSetSpellTrap(spellInstanceId);
+      expect(canSet).toBe(true);
+    });
+
+    it("should return false when spellTrapZone is full", () => {
+      facade.initializeGame([70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879]); // Upstart Goblin x7
+      facade.drawCard(6);
+      facade.advancePhase(); // Draw -> Standby
+      facade.advancePhase(); // Standby -> Main1
+
+      const state = get(gameStateStore);
+
+      // Set 5 spells (fill the zone)
+      for (let i = 0; i < 5; i++) {
+        facade.setSpellTrap(state.zones.hand[i].instanceId);
+      }
+
+      const newState = get(gameStateStore);
+      const sixthSpellId = newState.zones.hand[0].instanceId;
+
+      // Check if 6th spell can be set (should be false - zone is full)
+      const canSet = facade.canSetSpellTrap(sixthSpellId);
+      expect(canSet).toBe(false);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      facade.initializeGame([70368879, 70368879, 70368879]);
+      facade.drawCard(1);
+      // Don't advance phase - stay in Draw phase
+
+      const state = get(gameStateStore);
+      const spellInstanceId = state.zones.hand[0].instanceId;
+
+      const canSet = facade.canSetSpellTrap(spellInstanceId);
+      expect(canSet).toBe(false);
+    });
+  });
 });

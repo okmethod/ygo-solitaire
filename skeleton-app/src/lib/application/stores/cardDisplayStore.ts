@@ -10,11 +10,12 @@
 import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
-import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import type { CardDisplayData } from "$lib/application/types/card";
 
-// Dependency Injection: Production実装を注入
-const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
+// Dependency Injection: Singleton Repository インスタンスを取得
+// Export for use in other Application Layer components (e.g., CardSelectionModal)
+export const cardRepository: ICardDataRepository = getCardRepository();
 
 /**
  * 手札のCardDisplayData配列を提供
@@ -44,15 +45,27 @@ export const handCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
-        set([]); // エラー時は空配列（placeholder表示）
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
+          set([]); // エラー時は空配列（placeholder表示）
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[], // 初期値
 );
@@ -118,15 +131,27 @@ export const graveyardCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
-        set([]);
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
+          set([]);
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[],
 );
@@ -146,15 +171,27 @@ export const banishedCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
-        set([]);
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
+          set([]);
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[],
 );
