@@ -30,6 +30,7 @@
     selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId (T033-T034)
     onFieldCardClick?: (card: Card, instanceId: string) => void;
     onActivateSetSpell?: (card: Card, instanceId: string) => void; // セット魔法カード発動 (T033-T034)
+    onActivateIgnitionEffect?: (card: Card, instanceId: string) => void; // 起動効果発動 (T038)
     onCancelFieldCardSelection?: () => void; // 選択キャンセル (T033-T034)
   }
 
@@ -43,6 +44,7 @@
     selectedFieldCardInstanceId,
     onFieldCardClick,
     onActivateSetSpell,
+    onActivateIgnitionEffect,
     onCancelFieldCardSelection,
   }: DuelFieldProps = $props();
 
@@ -64,6 +66,37 @@
       },
     ];
   }
+
+  // フィールド魔法カード用のアクション定義 (T038)
+  function getFieldSpellActions(faceDown: boolean): CardActionButton[] {
+    if (faceDown) {
+      // 裏側表示: カードの発動
+      return [
+        {
+          label: "発動",
+          style: "filled",
+          color: "primary",
+          onClick: onActivateSetSpell || (() => {}),
+        },
+      ];
+    } else {
+      // 表側表示: 起動効果の発動
+      return [
+        {
+          label: "効果発動",
+          style: "filled",
+          color: "primary",
+          onClick: onActivateIgnitionEffect || (() => {}),
+        },
+      ];
+    }
+  }
+
+  // モンスターカード用のアクション定義 (T038)
+  function getMonsterActions(): CardActionButton[] {
+    // モンスターには起動効果がないため、キャンセルのみ
+    return [];
+  }
 </script>
 
 <div class="card p-2 max-w-6xl mx-auto">
@@ -72,14 +105,17 @@
       <!-- フィールド魔法ゾーン -->
       <div class="flex justify-center">
         {#if fieldCards.length > 0}
-          <CardComponent
+          <ActivatableCard
             card={fieldCards[0].card}
+            instanceId={fieldCards[0].instanceId}
             faceDown={fieldCards[0].faceDown}
-            size="medium"
-            clickable={true}
             isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
+            isActivatable={true}
+            onSelect={handleCardClick}
+            actions={getFieldSpellActions(fieldCards[0].faceDown)}
+            onCancel={onCancelFieldCardSelection || (() => {})}
+            size="medium"
             showDetailOnClick={true}
-            onClick={() => handleCardClick(fieldCards[0].card, fieldCards[0].instanceId)}
           />
         {:else}
           <div class="relative">
@@ -95,15 +131,18 @@
       {#each zones as i (i)}
         <div class="flex justify-center">
           {#if monsterCards[i]}
-            <CardComponent
+            <ActivatableCard
               card={monsterCards[i].card}
+              instanceId={monsterCards[i].instanceId}
               faceDown={monsterCards[i].faceDown}
               rotation={monsterCards[i].rotation || 0}
-              size="medium"
-              clickable={true}
               isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
+              isActivatable={true}
+              onSelect={handleCardClick}
+              actions={getMonsterActions()}
+              onCancel={onCancelFieldCardSelection || (() => {})}
+              size="medium"
               showDetailOnClick={true}
-              onClick={() => monsterCards[i] && handleCardClick(monsterCards[i].card, monsterCards[i].instanceId)}
             />
           {:else}
             <div class="relative">

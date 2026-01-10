@@ -162,6 +162,17 @@
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
+  // 起動効果発動ハンドラー (T038)
+  function handleActivateIgnitionEffect(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.activateIgnitionEffect(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}の効果を発動しました`);
+    } else {
+      showErrorToast(result.error || "効果発動に失敗しました");
+    }
+    selectedFieldCardInstanceId = null; // 選択解除
+  }
+
   // フィールドカード選択キャンセル (T033-T034)
   function handleCancelFieldCardSelection() {
     selectedFieldCardInstanceId = null;
@@ -208,7 +219,7 @@
             card: displayData,
             instanceId: instance.instanceId,
             faceDown: instance.position === "faceDown",
-            rotation: instance.battlePosition === "defense" ? 90 : 0, // 守備表示は90度回転 (T033-T034)
+            rotation: instance.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
           };
         }
       }
@@ -274,6 +285,7 @@
       {selectedFieldCardInstanceId}
       onFieldCardClick={handleFieldCardClick}
       onActivateSetSpell={handleActivateSetSpell}
+      onActivateIgnitionEffect={handleActivateIgnitionEffect}
       onCancelFieldCardSelection={handleCancelFieldCardSelection}
     />
 
