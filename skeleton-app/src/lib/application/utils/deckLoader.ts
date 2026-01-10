@@ -7,7 +7,7 @@ import type {
   ExtraDeckData,
 } from "$lib/application/types/deck";
 import type { CardDisplayData } from "$lib/application/types/card";
-import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
 
 // デッキエントリーからカードタイプ別に分類したMainDeckDataを作成する内部関数
@@ -150,8 +150,8 @@ export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch)
 
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
-  // Repository経由でカード情報を取得（変換済みのCardDisplayData）
-  const repository = new YGOProDeckCardRepository();
+  // Singleton Repository経由でカード情報を取得（変換済みのCardDisplayData）
+  const repository = getCardRepository();
   let cardDataList: CardDisplayData[];
   try {
     cardDataList = await repository.getCardsByIds(uniqueCardIds);

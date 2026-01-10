@@ -10,12 +10,12 @@
 import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
-import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import type { CardDisplayData } from "$lib/application/types/card";
 
-// Dependency Injection: Production実装を注入
+// Dependency Injection: Singleton Repository インスタンスを取得
 // Export for use in other Application Layer components (e.g., CardSelectionModal)
-export const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
+export const cardRepository: ICardDataRepository = getCardRepository();
 
 /**
  * 手札のCardDisplayData配列を提供
