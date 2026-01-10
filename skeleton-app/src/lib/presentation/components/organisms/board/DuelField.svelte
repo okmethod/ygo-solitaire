@@ -112,7 +112,7 @@
             isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
             isActivatable={true}
             onSelect={handleCardClick}
-            actions={getFieldSpellActions(fieldCards[0].faceDown)}
+            actionButtons={getFieldSpellActions(fieldCards[0].faceDown)}
             onCancel={onCancelFieldCardSelection || (() => {})}
             size="medium"
             showDetailOnClick={true}
@@ -139,7 +139,7 @@
               isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
               isActivatable={true}
               onSelect={handleCardClick}
-              actions={getMonsterActions()}
+              actionButtons={getMonsterActions()}
               onCancel={onCancelFieldCardSelection || (() => {})}
               size="medium"
               showDetailOnClick={true}
@@ -180,7 +180,7 @@
                 isSelected={selectedFieldCardInstanceId === spellTrapCards[i].instanceId}
                 isActivatable={true}
                 onSelect={handleCardClick}
-                actions={getSetSpellActions()}
+                actionButtons={getSetSpellActions()}
                 onCancel={onCancelFieldCardSelection || (() => {})}
                 size="medium"
                 showDetailOnClick={true}
