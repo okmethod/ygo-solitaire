@@ -219,7 +219,7 @@
 - [x] T062 手動動作確認：ブラウザで全機能が正常に動作することを最終確認（US1,US2,US3で実施済み）
 - [x] T063 specs/015-code-quality-improvement/spec.md の Success Criteria（SC-001〜SC-009）を全て満たしているか確認（全SC達成確認済み）
 - [x] T064 tasks.md を更新（全タスクを [x] にマーク）（本タスク完了時に更新）
-- [ ] T065 コミット・push（feat: US4-US6とPolish Phase完了 (T034-T065) - テスト最適化、コメント改善、Application Layer改善）
+- [x] T065 コミット・push（feat: US4-US6とPolish Phase完了 (T034-T065) - テスト最適化、コメント改善、Application Layer改善）（コミットハッシュ: 616c6d8）
 
 **Checkpoint**: 全ての品質改善が完了し、全テストがパス。Success Criteria を全て満たし、リグレッションゼロ。
 
