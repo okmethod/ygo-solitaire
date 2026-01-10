@@ -16,11 +16,12 @@
     currentPhase: string;
     canActivateSpells: boolean;
     isGameOver: boolean;
+    selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId (T038)
     onCardClick: (card: CardDisplayData, instanceId: string) => void;
     onSummonMonster: (card: CardDisplayData, instanceId: string) => void;
     onSetMonster: (card: CardDisplayData, instanceId: string) => void;
     onSetSpellTrap: (card: CardDisplayData, instanceId: string) => void;
-    onHandCardSelected?: () => void; // 手札カード選択時の通知 (T036)
+    onHandCardSelect: (instanceId: string | null) => void; // 手札カード選択変更の通知 (T038)
   }
 
   let {
@@ -29,11 +30,12 @@
     currentPhase,
     canActivateSpells,
     isGameOver,
+    selectedHandCardInstanceId,
     onCardClick,
     onSummonMonster,
     onSetMonster,
     onSetSpellTrap,
-    onHandCardSelected,
+    onHandCardSelect,
   }: HandZoneProps = $props();
 
   // カードごとの発動可能性をチェック (T032)
@@ -74,9 +76,6 @@
     return command.canExecute($gameStateStore);
   }
 
-  // 選択中のカードのinstanceId
-  let selectedInstanceId = $state<string | null>(null);
-
   // 手札枚数に応じたグリッドカラム数を計算
   function getHandGridColumns(handCount: number): string {
     // 明示的にクラス名を定義してTailwindのスキャナーに伝える
@@ -98,43 +97,40 @@
     return gridClassMap[handCount];
   }
 
-  // カードクリック時：選択状態をトグル
+  // カードクリック時：選択状態をトグルして親に通知 (T038)
   function handleSelect(card: CardDisplayData, instanceId: string) {
     // 同じカードをクリックしたら選択解除、違うカードなら選択
-    selectedInstanceId = selectedInstanceId === instanceId ? null : instanceId;
-    // 手札カード選択を親に通知 (T036)
-    if (onHandCardSelected) {
-      onHandCardSelected();
-    }
+    const newSelection = selectedHandCardInstanceId === instanceId ? null : instanceId;
+    onHandCardSelect(newSelection);
   }
 
   // 発動ボタンクリック時：親コンポーネントのonCardClickを呼び出して選択解除
   function handleActivate(card: CardDisplayData, instanceId: string) {
     onCardClick(card, instanceId);
-    selectedInstanceId = null;
+    onHandCardSelect(null);
   }
 
   // 召喚ボタンクリック時 (T032)
   function handleSummon(card: CardDisplayData, instanceId: string) {
     onSummonMonster(card, instanceId);
-    selectedInstanceId = null;
+    onHandCardSelect(null);
   }
 
   // モンスターセットボタンクリック時 (T032)
   function handleSetMonster(card: CardDisplayData, instanceId: string) {
     onSetMonster(card, instanceId);
-    selectedInstanceId = null;
+    onHandCardSelect(null);
   }
 
   // 魔法・罠セットボタンクリック時 (T032)
   function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
     onSetSpellTrap(card, instanceId);
-    selectedInstanceId = null;
+    onHandCardSelect(null);
   }
 
   // キャンセルボタンクリック時：選択解除
   function handleCancel() {
-    selectedInstanceId = null;
+    onHandCardSelect(null);
   }
 
   // カードタイプに応じたアクション定義 (T032)
@@ -194,7 +190,7 @@
       <ActivatableCard
         {card}
         {instanceId}
-        isSelected={selectedInstanceId === instanceId}
+        isSelected={selectedHandCardInstanceId === instanceId}
         isActivatable={getActionsForCard(card, instanceId).length > 0}
         onSelect={handleSelect}
         actionButtons={getActionsForCard(card, instanceId)}

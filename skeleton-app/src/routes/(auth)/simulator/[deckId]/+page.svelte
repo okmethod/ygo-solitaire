@@ -116,15 +116,17 @@
     }
   }
 
-  // フィールドカード選択状態管理 (T033-T034)
-  let selectedFieldCardInstanceId = $state<string | null>(null);
+  // カード選択状態管理 - 一元管理 (T038)
+  let selectedHandCardInstanceId = $state<string | null>(null); // 手札カード選択
+  let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択
 
-  // 手札カード選択時にフィールドカード選択をクリア (T036)
-  function handleHandCardSelected() {
-    selectedFieldCardInstanceId = null;
+  // 手札カード選択変更ハンドラー - フィールドカード選択をクリア (T038)
+  function handleHandCardSelect(instanceId: string | null) {
+    selectedHandCardInstanceId = instanceId;
+    selectedFieldCardInstanceId = null; // フィールドカード選択をクリア
   }
 
-  // フィールドカードクリックで効果発動 (T033-T034, T036)
+  // フィールドカードクリックで効果発動 - 手札選択をクリア (T038)
   function handleFieldCardClick(card: CardDisplayData, instanceId: string) {
     // Find the card instance from field cards
     const currentState = gameFacade.getGameState();
@@ -139,6 +141,9 @@
       return;
     }
 
+    // 手札選択をクリア (T038)
+    selectedHandCardInstanceId = null;
+
     // セットされた魔法カードの場合は選択状態をトグル（発動メニュー表示用）
     if (fieldCard.type === "spell" && fieldCard.position === "faceDown") {
       selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
@@ -146,7 +151,7 @@
     }
 
     // その他のカード（モンスター、フィールド魔法など）をクリックした場合、
-    // セット魔法カードの選択状態をクリア (T036)
+    // セット魔法カードの選択状態をクリア (T038)
     selectedFieldCardInstanceId = null;
 
     // その他のカードは起動効果発動
@@ -295,11 +300,12 @@
         currentPhase={$currentPhase}
         canActivateSpells={$canActivateSpells}
         isGameOver={$isGameOver}
+        {selectedHandCardInstanceId}
         onCardClick={handleHandCardClick}
         onSummonMonster={handleSummonMonster}
         onSetMonster={handleSetMonster}
         onSetSpellTrap={handleSetSpellTrap}
-        onHandCardSelected={handleHandCardSelected}
+        onHandCardSelect={handleHandCardSelect}
       />
     </div>
 
