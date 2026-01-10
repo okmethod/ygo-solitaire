@@ -144,28 +144,11 @@
     // 手札選択をクリア (T038)
     selectedHandCardInstanceId = null;
 
-    // セットされた魔法・罠カード、またはモンスターカードの場合は選択状態をトグル (T038)
-    if (
-      (fieldCard.type === "spell" && fieldCard.position === "faceDown") ||
-      (fieldCard.type === "trap" && fieldCard.position === "faceDown") ||
-      fieldCard.type === "monster"
-    ) {
-      selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
-      return;
-    }
-
-    // その他のカード（フィールド魔法など）をクリックした場合、選択状態をクリア (T038)
-    selectedFieldCardInstanceId = null;
-
-    // その他のカードは起動効果発動
-    const result = gameFacade.activateIgnitionEffect(fieldCard.instanceId);
-
-    // トーストメッセージ表示
-    if (result.success) {
-      showSuccessToast(result.message || `${card.name}の効果を発動しました`);
-    } else {
-      showErrorToast(result.error || "効果発動に失敗しました");
-    }
+    // フィールドカードは選択状態をトグル (T038)
+    // - セット魔法・罠: 発動メニュー表示用
+    // - モンスター: 選択表示用
+    // - フィールド魔法: 選択表示用（起動効果がある場合も同様）
+    selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
   }
 
   // セット魔法カードの発動ハンドラー (T033-T034)

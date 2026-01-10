@@ -77,6 +77,7 @@
             faceDown={fieldCards[0].faceDown}
             size="medium"
             clickable={true}
+            isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
             showDetailOnClick={true}
             onClick={() => handleCardClick(fieldCards[0].card, fieldCards[0].instanceId)}
           />
