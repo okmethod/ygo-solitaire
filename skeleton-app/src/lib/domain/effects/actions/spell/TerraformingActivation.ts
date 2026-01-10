@@ -14,11 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import {
-	createCardSelectionStep,
-	createSendToGraveyardStep,
-	createShuffleStep,
-} from "../../builders/stepBuilders";
+import { createCardSelectionStep, createSendToGraveyardStep, createShuffleStep } from "../../builders/stepBuilders";
 import { moveCard } from "../../../models/Zone";
 
 /**

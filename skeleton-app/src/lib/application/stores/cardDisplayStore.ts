@@ -45,15 +45,27 @@ export const handCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
-        set([]); // エラー時は空配列（placeholder表示）
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
+          set([]); // エラー時は空配列（placeholder表示）
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[], // 初期値
 );
@@ -119,15 +131,27 @@ export const graveyardCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
-        set([]);
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
+          set([]);
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[],
 );
@@ -147,15 +171,27 @@ export const banishedCards: Readable<CardDisplayData[]> = derived(
       return;
     }
 
+    // Flag to prevent stale data from being set (Race Condition対策)
+    let isCancelled = false;
+
     cardRepository
       .getCardsByIds(cardIds)
       .then((cards) => {
-        set(cards);
+        if (!isCancelled) {
+          set(cards);
+        }
       })
       .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
-        set([]);
+        if (!isCancelled) {
+          console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
+          set([]);
+        }
       });
+
+    // Cleanup function: called when derived re-evaluates or unsubscribes
+    return () => {
+      isCancelled = true;
+    };
   },
   [] as CardDisplayData[],
 );

@@ -114,11 +114,11 @@ function createEffectResolutionStore() {
      * 現在のステップを確定して次に進む
      */
     confirmCurrentStep: async () => {
-      const state = get(effectResolutionStore);
+      const state = getStoreValue(effectResolutionStore);
 
       if (state.currentStep) {
         // 現在のGameStateを取得してactionに注入（Dependency Injection）
-        const currentGameState = get(gameStateStore);
+        const currentGameState = getStoreValue(gameStateStore);
 
         // Determine notification level (default: "info")
         const notificationLevel = state.currentStep.notificationLevel || "info";
@@ -344,14 +344,6 @@ function createEffectResolutionStore() {
       }));
     },
   };
-}
-
-// Svelteストアの重複を避けるためのヘルパー
-function get<T>(store: { subscribe: (fn: (value: T) => void) => () => void }): T {
-  let value: T;
-  const unsubscribe = store.subscribe((v) => (value = v));
-  unsubscribe();
-  return value!;
 }
 
 export const effectResolutionStore = createEffectResolutionStore();

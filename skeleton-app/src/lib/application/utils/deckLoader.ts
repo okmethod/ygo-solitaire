@@ -16,6 +16,7 @@ function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: R
   const spells: LoadedCardEntry[] = [];
   const traps: LoadedCardEntry[] = [];
 
+  // 各エントリーをカードデータと紐付けて分類
   for (const entry of entries) {
     const cardData = cardDataMap.get(entry.id);
     if (cardData) {
@@ -24,7 +25,7 @@ function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: R
         quantity: entry.quantity,
       };
 
-      // カードタイプ別に分類
+      // カードタイプ（monster/spell/trap）に応じて配列に振り分け
       switch (cardData.type) {
         case "monster":
           monsters.push(loadedEntry);
@@ -48,6 +49,7 @@ function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: 
   const synchro: LoadedCardEntry[] = [];
   const xyz: LoadedCardEntry[] = [];
 
+  // 各エントリーをカードデータと紐付けて分類
   for (const entry of entries) {
     const cardData = cardDataMap.get(entry.id);
     if (cardData) {
@@ -56,7 +58,7 @@ function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: 
         quantity: entry.quantity,
       };
 
-      // frameTypeでエクストラデッキモンスターを分類
+      // frameTypeの文字列を小文字化して部分一致判定（例: "fusion" → 融合モンスター）
       const frameType = cardData.frameType?.toLowerCase() || "";
       if (frameType.includes("fusion")) {
         fusion.push(loadedEntry);
@@ -74,18 +76,21 @@ function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: 
 
 // デッキ統計情報を計算する内部関数（新しい構造対応）
 function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): DeckStats {
-  // 各カードタイプの枚数を直接計算（フィルタリング不要）
+  // メインデッキ各タイプの総枚数を算出（quantityの合計）
   const monsterCount = mainDeck.monsters.reduce((sum, entry) => sum + entry.quantity, 0);
   const spellCount = mainDeck.spells.reduce((sum, entry) => sum + entry.quantity, 0);
   const trapCount = mainDeck.traps.reduce((sum, entry) => sum + entry.quantity, 0);
 
+  // エクストラデッキの総枚数を算出（全タイプの合計）
   const extraCount =
     extraDeck.fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
     extraDeck.synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
     extraDeck.xyz.reduce((sum, entry) => sum + entry.quantity, 0);
 
+  // デッキ全体の総枚数
   const totalCards = monsterCount + spellCount + trapCount + extraCount;
 
+  // ユニークカード種類数（配列の長さ = 異なるカードの種類数）
   const uniqueCards =
     mainDeck.monsters.length +
     mainDeck.spells.length +
@@ -140,14 +145,15 @@ export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch)
     throw new Error(`Deck not found: ${deckId}`);
   }
 
-  // メインデッキとエクストラデッキの全カード ID を取得
+  // メインデッキとエクストラデッキの全カードIDを取得
   const allCardEntries = [...recipe.mainDeck, ...recipe.extraDeck];
 
-  // RecipeCardEntry のバリデーション
+  // RecipeCardEntryのバリデーション（IDと枚数の妥当性チェック）
   for (const entry of allCardEntries) {
     validateRecipeCardEntry(entry);
   }
 
+  // 重複を除いたユニークなカードIDリストを作成
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
   // Singleton Repository経由でカード情報を取得（変換済みのCardDisplayData）
@@ -160,7 +166,7 @@ export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch)
     throw new Error(`Failed to fetch card data: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // カード情報をマップに変換
+  // カード情報をID→CardDisplayDataのマップに変換（高速検索用）
   const cardDataMap = new Map(cardDataList.map((card) => [card.id, card]));
 
   // メインデッキをカードタイプ別に分類

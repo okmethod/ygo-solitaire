@@ -60,7 +60,7 @@ export function createDrawStep(
     description: options?.description ?? `デッキから${count}枚ドローします`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
-      // Validate deck has enough cards
+      // デッキに十分なカード枚数があるかバリデーション
       if (currentState.zones.deck.length < count) {
         return {
           success: false,
@@ -69,19 +69,19 @@ export function createDrawStep(
         };
       }
 
-      // Draw cards (returns new immutable zones object)
+      // カードをドロー（不変性を保った新しいゾーンオブジェクトを返す）
       const newZones = drawCards(currentState.zones, count);
 
-      // Create new state with drawn cards
+      // ドロー後の新しいゲーム状態を作成
       const newState: GameState = {
         ...currentState,
         zones: newZones,
       };
 
-      // Check victory conditions after drawing
+      // ドロー後の勝利条件チェック（デッキ切れ等）
       const victoryResult = checkVictoryConditions(newState);
 
-      // Update game result if victory/defeat occurred
+      // 勝敗判定結果を反映した最終状態を作成
       const finalState: GameState = {
         ...newState,
         result: victoryResult,
@@ -126,7 +126,7 @@ export function createSendToGraveyardStep(
     description: `${cardData.jaName}を墓地に送ります`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
-      // Send card to graveyard
+      // カードを墓地へ送る
       const newZones = sendToGraveyard(currentState.zones, instanceId);
 
       const newState: GameState = {
@@ -206,10 +206,11 @@ export function createCardSelectionStep(config: {
       cancelable: config.cancelable ?? false,
     } satisfies CardSelectionConfig,
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      // カードが選択されていない場合（minCards = 0の場合に発生しうる）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-        // No cards selected (possible if minCards = 0)
         return config.onSelect(currentState, []);
       }
+      // 選択されたカードIDを使ってonSelectコールバックを実行
       return config.onSelect(currentState, selectedInstanceIds);
     },
   };
@@ -366,7 +367,7 @@ export function createShuffleStep(options?: {
     description: options?.description ?? "デッキをシャッフルします",
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
-      // Shuffle deck
+      // デッキをシャッフル
       const newZones = shuffleDeck(currentState.zones);
 
       const newState: GameState = {
@@ -435,7 +436,7 @@ export function createReturnToDeckStep(
         };
       }
 
-      // Return cards to deck
+      // 指定されたカードを手札からデッキに戻す（各カードごとに不変性を保ちながら処理）
       let updatedZones = currentState.zones;
       for (const instanceId of instanceIds) {
         updatedZones = moveCard(updatedZones, instanceId, "hand", "deck");
@@ -497,30 +498,29 @@ export function createSearchFromGraveyardStep(config: {
   maxCards: number;
   cancelable?: boolean;
 }): EffectResolutionStep {
-  // NOTE: availableCards must be populated dynamically at execution time
-  // We use a special marker to indicate this step needs graveyard cards
-  // The effectResolutionStore will populate availableCards from graveyard
+  // 注: availableCardsは実行時に動的に設定される
+  // _sourceZone: "graveyard" マーカーにより、effectResolutionStoreが墓地から候補カードを設定する
   return {
     id: config.id,
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
     cardSelectionConfig: {
-      availableCards: [], // Will be populated dynamically from graveyard
+      availableCards: [], // 実行時に墓地から動的に設定される
       minCards: config.minCards,
       maxCards: config.maxCards,
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
-      // Add metadata to indicate source zone
+      // 参照元ゾーンを示すメタデータ
       _sourceZone: "graveyard",
       _filter: config.filter,
     },
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
-      // Filter graveyard cards
+      // 墓地のカードをフィルタリング
       const availableCards = currentState.zones.graveyard.filter(config.filter);
 
-      // If no cards available, return error
+      // 条件に合うカードが墓地に存在しない場合はエラー
       if (availableCards.length === 0) {
         return {
           success: false,
@@ -529,7 +529,7 @@ export function createSearchFromGraveyardStep(config: {
         };
       }
 
-      // If no selection made yet, return current state (UI will show selection modal)
+      // まだ選択が行われていない場合（UIが選択モーダルを表示する）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return {
           success: false,
@@ -538,7 +538,7 @@ export function createSearchFromGraveyardStep(config: {
         };
       }
 
-      // Move selected cards from graveyard to hand
+      // 選択されたカードを墓地から手札に移動
       let updatedZones = currentState.zones;
       for (const instanceId of selectedInstanceIds) {
         updatedZones = moveCard(updatedZones, instanceId, "graveyard", "hand");
@@ -615,10 +615,10 @@ export function createSearchFromDeckTopStep(config: {
       _filter: (_card, index) => index !== undefined && index < config.count,
     },
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
-      // Get top N cards from deck
+      // デッキの上からN枚を取得
       const topCards = currentState.zones.deck.slice(0, config.count);
 
-      // If not enough cards in deck, return error
+      // デッキに十分なカード枚数がない場合はエラー
       if (topCards.length < config.count) {
         return {
           success: false,
@@ -627,7 +627,7 @@ export function createSearchFromDeckTopStep(config: {
         };
       }
 
-      // If no selection made yet, return current state (UI will show selection modal)
+      // まだ選択が行われていない場合（UIが選択モーダルを表示する）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return {
           success: false,
@@ -636,13 +636,13 @@ export function createSearchFromDeckTopStep(config: {
         };
       }
 
-      // Move selected card(s) to hand
+      // 選択されたカードを手札に移動
       let updatedZones = currentState.zones;
       for (const instanceId of selectedInstanceIds) {
         updatedZones = moveCard(updatedZones, instanceId, "deck", "hand");
       }
 
-      // Remaining cards stay in deck (no shuffling - they return to their positions)
+      // 残りのカードはデッキに残る（シャッフルなし - 元の位置に戻る）
       const newState: GameState = {
         ...currentState,
         zones: updatedZones,
@@ -757,7 +757,7 @@ export function createDrawUntilCountStep(
       const currentHandCount = currentState.zones.hand.length;
       const drawCount = Math.max(0, targetCount - currentHandCount);
 
-      // If already at or above target, no draw needed
+      // すでに目標枚数以上の手札がある場合はドロー不要
       if (drawCount === 0) {
         return {
           success: true,
@@ -766,7 +766,7 @@ export function createDrawUntilCountStep(
         };
       }
 
-      // Validate deck has enough cards
+      // デッキに十分なカード枚数があるかバリデーション
       if (currentState.zones.deck.length < drawCount) {
         return {
           success: false,
@@ -775,7 +775,7 @@ export function createDrawUntilCountStep(
         };
       }
 
-      // Draw cards
+      // 目標枚数に達するまでカードをドロー
       const newZones = drawCards(currentState.zones, drawCount);
 
       const newState: GameState = {
@@ -783,7 +783,7 @@ export function createDrawUntilCountStep(
         zones: newZones,
       };
 
-      // Check victory conditions after drawing
+      // ドロー後の勝利条件チェック
       const victoryResult = checkVictoryConditions(newState);
 
       const finalState: GameState = {
@@ -858,10 +858,10 @@ export function createSearchFromDeckByNameStep(config: {
       _filter: config.filter,
     },
     action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
-      // Filter deck cards
+      // デッキのカードをフィルタリング
       const availableCards = currentState.zones.deck.filter(config.filter);
 
-      // If no cards available, return error
+      // 条件に合うカードがデッキに存在しない場合はエラー
       if (availableCards.length === 0) {
         return {
           success: false,
@@ -870,7 +870,7 @@ export function createSearchFromDeckByNameStep(config: {
         };
       }
 
-      // If no selection made yet, return current state (UI will show selection modal)
+      // まだ選択が行われていない場合（UIが選択モーダルを表示する）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return {
           success: false,
@@ -879,13 +879,13 @@ export function createSearchFromDeckByNameStep(config: {
         };
       }
 
-      // Move selected card(s) from deck to hand
+      // 選択されたカードをデッキから手札に移動
       let updatedZones = currentState.zones;
       for (const instanceId of selectedInstanceIds) {
         updatedZones = moveCard(updatedZones, instanceId, "deck", "hand");
       }
 
-      // Shuffle deck after search
+      // デッキサーチ後はデッキをシャッフル
       updatedZones = shuffleDeck(updatedZones);
 
       const newState: GameState = {
