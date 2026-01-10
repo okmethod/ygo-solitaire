@@ -118,7 +118,7 @@
 
   // カード選択状態管理 - 一元管理 (T038)
   let selectedHandCardInstanceId = $state<string | null>(null); // 手札カード選択
-  let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択
+  let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択（セット魔法・罠・モンスター）
 
   // 手札カード選択変更ハンドラー - フィールドカード選択をクリア (T038)
   function handleHandCardSelect(instanceId: string | null) {
@@ -144,14 +144,17 @@
     // 手札選択をクリア (T038)
     selectedHandCardInstanceId = null;
 
-    // セットされた魔法カードの場合は選択状態をトグル（発動メニュー表示用）
-    if (fieldCard.type === "spell" && fieldCard.position === "faceDown") {
+    // セットされた魔法・罠カード、またはモンスターカードの場合は選択状態をトグル (T038)
+    if (
+      (fieldCard.type === "spell" && fieldCard.position === "faceDown") ||
+      (fieldCard.type === "trap" && fieldCard.position === "faceDown") ||
+      fieldCard.type === "monster"
+    ) {
       selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
       return;
     }
 
-    // その他のカード（モンスター、フィールド魔法など）をクリックした場合、
-    // セット魔法カードの選択状態をクリア (T038)
+    // その他のカード（フィールド魔法など）をクリックした場合、選択状態をクリア (T038)
     selectedFieldCardInstanceId = null;
 
     // その他のカードは起動効果発動

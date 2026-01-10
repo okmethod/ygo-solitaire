@@ -100,7 +100,7 @@
               rotation={monsterCards[i].rotation || 0}
               size="medium"
               clickable={true}
-              selectable={true}
+              isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
               showDetailOnClick={true}
               onClick={() => monsterCards[i] && handleCardClick(monsterCards[i].card, monsterCards[i].instanceId)}
             />
