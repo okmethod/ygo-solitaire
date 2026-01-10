@@ -132,8 +132,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T031 [P] [US4] Update DuelField.svelte in skeleton-app/src/lib/presentation/components/DuelField.svelte (3 ゾーン表示、視覚的区別)
-- [ ] T032 [P] [US4] Update Hands.svelte in skeleton-app/src/lib/presentation/components/Hands.svelte (召喚・セットボタン追加)
+- [x] T031 [P] [US4] Update DuelField.svelte in skeleton-app/src/lib/presentation/components/DuelField.svelte (3 ゾーン表示、視覚的区別)
+- [x] T032 [P] [US4] Update Hands.svelte in skeleton-app/src/lib/presentation/components/Hands.svelte (召喚・セットボタン追加)
 - [ ] T033 [US4] Manual E2E test: ゲーム起動して DuelField で 3 ゾーンが表示されることを確認
 - [ ] T034 [US4] Manual E2E test: モンスター召喚・セット、魔法・罠セットが UI で正しく反映されることを確認
 

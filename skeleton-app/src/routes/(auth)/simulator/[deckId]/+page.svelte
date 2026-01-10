@@ -84,11 +84,45 @@
     if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }
 
+  // モンスター召喚ハンドラー (T032)
+  function handleSummonMonster(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.summonMonster(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}を召喚しました`);
+    } else {
+      showErrorToast(result.error || "召喚に失敗しました");
+    }
+  }
+
+  // モンスターセットハンドラー (T032)
+  function handleSetMonster(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.setMonster(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}をセットしました`);
+    } else {
+      showErrorToast(result.error || "セットに失敗しました");
+    }
+  }
+
+  // 魔法・罠セットハンドラー (T032)
+  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.setSpellTrap(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}をセットしました`);
+    } else {
+      showErrorToast(result.error || "セットに失敗しました");
+    }
+  }
+
   // フィールドカードクリックで起動効果発動
   function handleFieldCardClick(card: CardDisplayData) {
-    // Find the card instance ID from field cards (spellTrapZone + fieldZone)
+    // Find the card instance ID from field cards (mainMonsterZone + spellTrapZone + fieldZone) (T031)
     const currentState = gameFacade.getGameState();
-    const allFieldCards = [...currentState.zones.spellTrapZone, ...currentState.zones.fieldZone];
+    const allFieldCards = [
+      ...currentState.zones.mainMonsterZone,
+      ...currentState.zones.spellTrapZone,
+      ...currentState.zones.fieldZone,
+    ];
     const fieldCard = allFieldCards.find((c) => c.id === card.id);
     if (!fieldCard) {
       showErrorToast("Card not found on field");
@@ -192,6 +226,9 @@
         canActivateSpells={$canActivateSpells}
         isGameOver={$isGameOver}
         onCardClick={handleHandCardClick}
+        onSummonMonster={handleSummonMonster}
+        onSetMonster={handleSetMonster}
+        onSetSpellTrap={handleSetSpellTrap}
       />
     </div>
 

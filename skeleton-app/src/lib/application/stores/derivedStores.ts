@@ -55,11 +55,11 @@ export const deckCardCount = derived(gameStateStore, ($state) => $state.zones.de
 export const graveyardCardCount = derived(gameStateStore, ($state) => $state.zones.graveyard.length);
 
 /**
- * Field card count (read-only) - spellTrapZone + fieldZone
+ * Field card count (read-only) - mainMonsterZone + spellTrapZone + fieldZone (T031)
  */
 export const fieldCardCount = derived(
   gameStateStore,
-  ($state) => $state.zones.spellTrapZone.length + $state.zones.fieldZone.length,
+  ($state) => $state.zones.mainMonsterZone.length + $state.zones.spellTrapZone.length + $state.zones.fieldZone.length,
 );
 
 /**

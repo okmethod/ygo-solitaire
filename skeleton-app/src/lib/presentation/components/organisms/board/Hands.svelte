@@ -5,6 +5,9 @@
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
   import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+  import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
+  import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
+  import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
   import { gameStateStore } from "$lib/application/stores/gameStateStore";
 
   interface HandZoneProps {
@@ -14,11 +17,24 @@
     canActivateSpells: boolean;
     isGameOver: boolean;
     onCardClick: (card: CardDisplayData, instanceId: string) => void;
+    onSummonMonster: (card: CardDisplayData, instanceId: string) => void;
+    onSetMonster: (card: CardDisplayData, instanceId: string) => void;
+    onSetSpellTrap: (card: CardDisplayData, instanceId: string) => void;
   }
 
-  let { cards, handCardCount, currentPhase, canActivateSpells, isGameOver, onCardClick }: HandZoneProps = $props();
+  let {
+    cards,
+    handCardCount,
+    currentPhase,
+    canActivateSpells,
+    isGameOver,
+    onCardClick,
+    onSummonMonster,
+    onSetMonster,
+    onSetSpellTrap,
+  }: HandZoneProps = $props();
 
-  // カードごとの発動可能性をチェック
+  // カードごとの発動可能性をチェック (T032)
   function isCardActivatable(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
@@ -26,6 +42,33 @@
 
     // ActivateSpellCommand.canExecute()でカード固有の発動条件をチェック
     const command = new ActivateSpellCommand(instanceId);
+    return command.canExecute($gameStateStore);
+  }
+
+  // モンスター召喚可能性をチェック (T032)
+  function canSummonMonster(instanceId: string): boolean {
+    if (isGameOver) return false;
+    if (currentPhase !== "Main1") return false;
+
+    const command = new SummonMonsterCommand(instanceId);
+    return command.canExecute($gameStateStore);
+  }
+
+  // モンスターセット可能性をチェック (T032)
+  function canSetMonster(instanceId: string): boolean {
+    if (isGameOver) return false;
+    if (currentPhase !== "Main1") return false;
+
+    const command = new SetMonsterCommand(instanceId);
+    return command.canExecute($gameStateStore);
+  }
+
+  // 魔法・罠セット可能性をチェック (T032)
+  function canSetSpellTrap(instanceId: string): boolean {
+    if (isGameOver) return false;
+    if (currentPhase !== "Main1") return false;
+
+    const command = new SetSpellTrapCommand(instanceId);
     return command.canExecute($gameStateStore);
   }
 
@@ -65,20 +108,78 @@
     selectedInstanceId = null;
   }
 
+  // 召喚ボタンクリック時 (T032)
+  function handleSummon(card: CardDisplayData, instanceId: string) {
+    onSummonMonster(card, instanceId);
+    selectedInstanceId = null;
+  }
+
+  // モンスターセットボタンクリック時 (T032)
+  function handleSetMonster(card: CardDisplayData, instanceId: string) {
+    onSetMonster(card, instanceId);
+    selectedInstanceId = null;
+  }
+
+  // 魔法・罠セットボタンクリック時 (T032)
+  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
+    onSetSpellTrap(card, instanceId);
+    selectedInstanceId = null;
+  }
+
   // キャンセルボタンクリック時：選択解除
   function handleCancel() {
     selectedInstanceId = null;
   }
 
-  // 手札カード用のアクション定義
-  const handCardActions: CardActionButton[] = [
-    {
-      label: "発動",
-      style: "filled",
-      color: "primary",
-      onClick: handleActivate,
-    },
-  ];
+  // カードタイプに応じたアクション定義 (T032)
+  function getActionsForCard(card: CardDisplayData, instanceId: string): CardActionButton[] {
+    const actions: CardActionButton[] = [];
+
+    // モンスターカードの場合
+    if (card.type === "monster") {
+      // 召喚ボタン
+      if (canSummonMonster(instanceId)) {
+        actions.push({
+          label: "召喚",
+          style: "filled",
+          color: "primary",
+          onClick: handleSummon,
+        });
+      }
+      // セットボタン
+      if (canSetMonster(instanceId)) {
+        actions.push({
+          label: "セット",
+          style: "outline",
+          color: "secondary",
+          onClick: handleSetMonster,
+        });
+      }
+    }
+    // 魔法・罠カードの場合
+    else if (card.type === "spell" || card.type === "trap") {
+      // 発動ボタン
+      if (isCardActivatable(instanceId)) {
+        actions.push({
+          label: "発動",
+          style: "filled",
+          color: "primary",
+          onClick: handleActivate,
+        });
+      }
+      // セットボタン
+      if (canSetSpellTrap(instanceId)) {
+        actions.push({
+          label: "セット",
+          style: "outline",
+          color: "secondary",
+          onClick: handleSetSpellTrap,
+        });
+      }
+    }
+
+    return actions;
+  }
 </script>
 
 <div class="grid {getHandGridColumns(handCardCount)} gap-2 mb-16">
@@ -88,9 +189,9 @@
         {card}
         {instanceId}
         isSelected={selectedInstanceId === instanceId}
-        isActivatable={isCardActivatable(instanceId)}
+        isActivatable={getActionsForCard(card, instanceId).length > 0}
         onSelect={handleSelect}
-        actions={handCardActions}
+        actions={getActionsForCard(card, instanceId)}
         onCancel={handleCancel}
         size="medium"
       />
