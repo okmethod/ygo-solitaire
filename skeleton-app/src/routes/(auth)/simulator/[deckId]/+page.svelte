@@ -119,7 +119,12 @@
   // フィールドカード選択状態管理 (T033-T034)
   let selectedFieldCardInstanceId = $state<string | null>(null);
 
-  // フィールドカードクリックで効果発動 (T033-T034)
+  // 手札カード選択時にフィールドカード選択をクリア (T036)
+  function handleHandCardSelected() {
+    selectedFieldCardInstanceId = null;
+  }
+
+  // フィールドカードクリックで効果発動 (T033-T034, T036)
   function handleFieldCardClick(card: CardDisplayData, instanceId: string) {
     // Find the card instance from field cards
     const currentState = gameFacade.getGameState();
@@ -139,6 +144,10 @@
       selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
       return;
     }
+
+    // その他のカード（モンスター、フィールド魔法など）をクリックした場合、
+    // セット魔法カードの選択状態をクリア (T036)
+    selectedFieldCardInstanceId = null;
 
     // その他のカードは起動効果発動
     const result = gameFacade.activateIgnitionEffect(fieldCard.instanceId);
@@ -290,6 +299,7 @@
         onSummonMonster={handleSummonMonster}
         onSetMonster={handleSetMonster}
         onSetSpellTrap={handleSetSpellTrap}
+        onHandCardSelected={handleHandCardSelected}
       />
     </div>
 

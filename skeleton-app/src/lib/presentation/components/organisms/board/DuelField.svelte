@@ -77,6 +77,7 @@
             faceDown={fieldCards[0].faceDown}
             size="medium"
             clickable={true}
+            showDetailOnClick={true}
             onClick={() => handleCardClick(fieldCards[0].card, fieldCards[0].instanceId)}
           />
         {:else}
@@ -100,6 +101,7 @@
               size="medium"
               clickable={true}
               selectable={true}
+              showDetailOnClick={true}
               onClick={() => monsterCards[i] && handleCardClick(monsterCards[i].card, monsterCards[i].instanceId)}
             />
           {:else}
@@ -141,7 +143,7 @@
                 actions={getSetSpellActions()}
                 onCancel={onCancelFieldCardSelection || (() => {})}
                 size="medium"
-                showDetailOnClick={false}
+                showDetailOnClick={true}
               />
             {:else}
               <!-- 表側表示の魔法・罠は通常のCardComponent -->
@@ -150,6 +152,7 @@
                 faceDown={false}
                 size="medium"
                 clickable={true}
+                showDetailOnClick={true}
                 onClick={() =>
                   spellTrapCards[i] && handleCardClick(spellTrapCards[i].card, spellTrapCards[i].instanceId)}
               />
