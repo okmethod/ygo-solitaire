@@ -129,8 +129,7 @@ skeleton-app/
 │   │   │   └── rules/
 │   │   │
 │   │   ├── application/                 # Application Layer
-│   │   │   ├── facade/
-│   │   │   │   └── GameFacade.ts        # US1: 新メソッド追加、FR-004 コメント追加
+│   │   │   ├── GameFacade.ts            # US1: 新メソッド追加、FR-004 コメント追加
 │   │   │   ├── stores/
 │   │   │   │   ├── cardDisplayStore.ts  # US3: Repository 統一、US6: Race Condition
 │   │   │   │   └── effectResolutionStore.ts  # US6: get() → getStoreValue
@@ -167,8 +166,8 @@ skeleton-app/
     │   │       └── Card.test.ts         # US4: 25→8-10 ケースに削減
     │   │
     │   └── application/
-    │       └── facade/
-    │           └── GameFacade.test.ts   # US1: 新メソッドのテスト追加
+    │       └── game-processing/
+    │           └── GameFacade.test.ts   # US1: 新メソッドのテスト追加（既存）
     │
     ├── integration/
     │   └── card-effects/
@@ -197,11 +196,11 @@ skeleton-app/
 #### **User Story 1 - アーキテクチャ境界の修正と再発防止策（P1）**
 
 **影響ファイル**:
-- `skeleton-app/src/lib/application/facade/GameFacade.ts`（新メソッド追加）
+- `skeleton-app/src/lib/application/GameFacade.ts`（新メソッド追加）
 - `skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte`（Domain import 削除）
 - `skeleton-app/src/lib/presentation/components/organisms/board/Hands.svelte`（Domain import 削除）
 - `skeleton-app/src/lib/presentation/components/modals/CardSelectionModal.svelte`（Infrastructure import 削除）
-- `skeleton-app/tests/unit/application/facade/GameFacade.test.ts`（新メソッドのテスト追加）
+- `skeleton-app/tests/integration/game-processing/GameFacade.test.ts`（新メソッドのテスト追加）
 
 **主要タスク**:
 1. GameFacade に以下のメソッドを追加（FR-001）
