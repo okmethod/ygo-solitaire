@@ -1,16 +1,28 @@
 {
   "folders": [
     {
+      "name": "root",
       "path": "."
     },
     {
+      "name": "design-docs",
       "path": "docs"
     },
     {
+      "name": "speckit-specs",
       "path": "specs"
     },
     {
+      "name": "skeleton-app-settings",
       "path": "skeleton-app"
+    },
+    {
+      "name": "skeleton-app-src",
+      "path": "skeleton-app/src"
+    },
+    {
+      "name": "skeleton-app-tests",
+      "path": "skeleton-app/tests"
     }
   ],
   "settings": {
