@@ -39,7 +39,9 @@ describe("ChickenGameContinuousEffect", () => {
         zones: {
           deck: [],
           hand: [],
-          field: [], // No cards on field
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [], // No cards on field
           graveyard: [],
           banished: [],
         },
@@ -48,6 +50,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "player",
@@ -71,15 +79,18 @@ describe("ChickenGameContinuousEffect", () => {
         desc: "Mock card",
         race: "Field",
         instanceId: "field-0",
-        location: "field",
+        location: "fieldZone",
         position: "faceDown",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [faceDownCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [faceDownCard],
           graveyard: [],
           banished: [],
         },
@@ -88,6 +99,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "player",
@@ -111,15 +128,18 @@ describe("ChickenGameContinuousEffect", () => {
         desc: "Mock card",
         race: "Field",
         instanceId: "field-0",
-        location: "field",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [chickenGameCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameCard],
           graveyard: [],
           banished: [],
         },
@@ -131,6 +151,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "player",
@@ -154,15 +180,18 @@ describe("ChickenGameContinuousEffect", () => {
         desc: "Mock card",
         race: "Field",
         instanceId: "field-0",
-        location: "field",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [chickenGameCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameCard],
           graveyard: [],
           banished: [],
         },
@@ -174,6 +203,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "player",
@@ -197,15 +232,18 @@ describe("ChickenGameContinuousEffect", () => {
         desc: "Mock card",
         race: "Field",
         instanceId: "field-0",
-        location: "field",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [chickenGameCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameCard],
           graveyard: [],
           banished: [],
         },
@@ -217,6 +255,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "opponent",
@@ -240,15 +284,18 @@ describe("ChickenGameContinuousEffect", () => {
         desc: "Mock card",
         race: "Field",
         instanceId: "field-0",
-        location: "field",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [chickenGameCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameCard],
           graveyard: [],
           banished: [],
         },
@@ -260,6 +307,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "opponent",
@@ -283,15 +336,18 @@ describe("ChickenGameContinuousEffect", () => {
         desc: "Mock card",
         race: "Field",
         instanceId: "field-0",
-        location: "field",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [chickenGameCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameCard],
           graveyard: [],
           banished: [],
         },
@@ -303,6 +359,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageAmount: 1000,
@@ -324,7 +386,9 @@ describe("ChickenGameContinuousEffect", () => {
         zones: {
           deck: [],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -333,6 +397,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const context: RuleContext = {
         damageTarget: "player",
@@ -352,7 +422,9 @@ describe("ChickenGameContinuousEffect", () => {
         zones: {
           deck: [],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -361,6 +433,12 @@ describe("ChickenGameContinuousEffect", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
       const contexts: RuleContext[] = [
         { damageTarget: "player", damageAmount: 1000 },

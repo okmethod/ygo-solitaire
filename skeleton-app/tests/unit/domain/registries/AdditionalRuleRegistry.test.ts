@@ -227,16 +227,19 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         desc: "Mock card",
         race: "Field",
-        instanceId: "field-0",
-        location: "field",
+        instanceId: "fieldZone-0",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [chickenGameCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameCard],
           graveyard: [],
           banished: [],
         },
@@ -245,6 +248,12 @@ describe("AdditionalRuleRegistry", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
 
       // Act
@@ -270,16 +279,19 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         desc: "Mock card",
         race: "Field",
-        instanceId: "field-0",
-        location: "field",
+        instanceId: "fieldZone-0",
+        location: "fieldZone",
         position: "faceDown",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [faceDownCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [faceDownCard],
           graveyard: [],
           banished: [],
         },
@@ -288,6 +300,12 @@ describe("AdditionalRuleRegistry", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
 
       // Act
@@ -317,16 +335,19 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         desc: "Mock card",
         race: "Field",
-        instanceId: "field-0",
-        location: "field",
+        instanceId: "fieldZone-0",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [faceUpCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [faceUpCard],
           graveyard: [],
           banished: [],
         },
@@ -335,6 +356,12 @@ describe("AdditionalRuleRegistry", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
 
       // Act
@@ -361,16 +388,19 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         desc: "Mock card",
         race: "Field",
-        instanceId: "field-0",
-        location: "field",
+        instanceId: "fieldZone-0",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [faceUpCard],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [faceUpCard],
           graveyard: [],
           banished: [],
         },
@@ -379,6 +409,12 @@ describe("AdditionalRuleRegistry", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
 
       // Act
@@ -410,9 +446,10 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         desc: "Mock card 1",
         race: "Field",
-        instanceId: "field-0",
-        location: "field",
+        instanceId: "fieldZone-0",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const card2: CardInstance = {
@@ -422,16 +459,19 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         desc: "Mock card 2",
         race: "Field",
-        instanceId: "field-1",
-        location: "field",
+        instanceId: "fieldZone-1",
+        location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state: GameState = {
         zones: {
           deck: [],
           hand: [],
-          field: [card1, card2],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [card1, card2],
           graveyard: [],
           banished: [],
         },
@@ -440,6 +480,12 @@ describe("AdditionalRuleRegistry", () => {
         turn: 1,
         chainStack: [],
         result: { isGameOver: false },
+        normalSummonLimit: 1,
+        normalSummonUsed: 0,
+        activatedIgnitionEffectsThisTurn: new Set(),
+        activatedOncePerTurnCards: new Set(),
+        pendingEndPhaseEffects: [],
+        damageNegation: false,
       };
 
       // Act

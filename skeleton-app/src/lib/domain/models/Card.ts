@@ -60,12 +60,21 @@ export interface CardInstance extends CardData {
   readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
   readonly location: ZoneLocation; // Current location
   readonly position?: "faceUp" | "faceDown"; // For field cards
+  readonly battlePosition?: "attack" | "defense"; // For monster cards (召喚時attack、セット時defense)
+  readonly placedThisTurn: boolean; // このターンに配置されたか（初期値false）
 }
 
 /**
  * Zone location type
  */
-export type ZoneLocation = "deck" | "hand" | "field" | "graveyard" | "banished";
+export type ZoneLocation =
+  | "deck"
+  | "hand"
+  | "mainMonsterZone"
+  | "spellTrapZone"
+  | "fieldZone"
+  | "graveyard"
+  | "banished";
 
 /**
  * CardData型ガード: monster type

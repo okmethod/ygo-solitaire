@@ -60,13 +60,18 @@ export const handCards: Readable<CardDisplayData[]> = derived(
 /**
  * フィールドのCardDisplayData配列を提供
  *
- * gameStateStoreのzones.fieldを監視。
- * モンスター・魔法・罠すべてを含む。
+ * gameStateStoreのzones.mainMonsterZone + zones.spellTrapZone + zones.fieldZoneを監視。
+ * すべてのフィールド上のカードを含む（T031）。
  */
 export const fieldCards: Readable<CardDisplayData[]> = derived(
   gameStateStore,
   ($gameState, set) => {
-    const cardIds = $gameState.zones.field.map((c) => c.id); // CardInstance extends CardData
+    const fieldCardsAll = [
+      ...$gameState.zones.mainMonsterZone,
+      ...$gameState.zones.spellTrapZone,
+      ...$gameState.zones.fieldZone,
+    ];
+    const cardIds = fieldCardsAll.map((c) => c.id); // CardInstance extends CardData
 
     if (cardIds.length === 0) {
       set([]);

@@ -33,9 +33,6 @@ import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionR
 import { PotOfGreedActivation } from "$lib/domain/effects/actions/spell/PotOfGreedActivation";
 import { GracefulCharityActivation } from "$lib/domain/effects/actions/spell/GracefulCharityActivation";
 import { ChickenGameActivation } from "$lib/domain/effects/actions/spell/ChickenGameActivation";
-// ChickenGameIgnitionEffect is not imported here because it requires dynamic instantiation
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 import { UpstartGoblinActivation } from "$lib/domain/effects/actions/spell/UpstartGoblinActivation";
 import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spell/OneDayOfPeaceActivation";
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/spell/MagicalMalletActivation";

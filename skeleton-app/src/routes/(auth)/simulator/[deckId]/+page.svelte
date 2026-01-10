@@ -84,25 +84,98 @@
     if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }
 
-  // フィールドカードクリックで起動効果発動
-  function handleFieldCardClick(card: CardDisplayData) {
-    // Find the card instance ID from field cards
+  // モンスター召喚ハンドラー (T032)
+  function handleSummonMonster(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.summonMonster(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}を召喚しました`);
+    } else {
+      showErrorToast(result.error || "召喚に失敗しました");
+    }
+  }
+
+  // モンスターセットハンドラー (T032, T033-T034)
+  function handleSetMonster(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.setMonster(instanceId);
+    if (result.success) {
+      // カード名を使った明示的なメッセージを優先
+      showSuccessToast(`${card.name}をセットしました`);
+    } else {
+      showErrorToast(result.error || "セットに失敗しました");
+    }
+  }
+
+  // 魔法・罠セットハンドラー (T032, T033-T034)
+  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.setSpellTrap(instanceId);
+    if (result.success) {
+      // カード名を使った明示的なメッセージを優先
+      showSuccessToast(`${card.name}をセットしました`);
+    } else {
+      showErrorToast(result.error || "セットに失敗しました");
+    }
+  }
+
+  // カード選択状態管理 - 一元管理 (T038)
+  let selectedHandCardInstanceId = $state<string | null>(null); // 手札カード選択
+  let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択（セット魔法・罠・モンスター）
+
+  // 手札カード選択変更ハンドラー - フィールドカード選択をクリア (T038)
+  function handleHandCardSelect(instanceId: string | null) {
+    selectedHandCardInstanceId = instanceId;
+    selectedFieldCardInstanceId = null; // フィールドカード選択をクリア
+  }
+
+  // フィールドカードクリックで効果発動 - 手札選択をクリア (T038)
+  function handleFieldCardClick(card: CardDisplayData, instanceId: string) {
+    // Find the card instance from field cards
     const currentState = gameFacade.getGameState();
-    const fieldCard = currentState.zones.field.find((c) => c.id === card.id);
+    const allFieldCards = [
+      ...currentState.zones.mainMonsterZone,
+      ...currentState.zones.spellTrapZone,
+      ...currentState.zones.fieldZone,
+    ];
+    const fieldCard = allFieldCards.find((c) => c.instanceId === instanceId);
     if (!fieldCard) {
       showErrorToast("Card not found on field");
       return;
     }
 
-    // Domain Layerで全ての判定を実施（フェーズチェック、LP、1ターンに1度制限など）
-    const result = gameFacade.activateIgnitionEffect(fieldCard.instanceId);
+    // 手札選択をクリア (T038)
+    selectedHandCardInstanceId = null;
 
-    // トーストメッセージ表示
+    // フィールドカードは選択状態をトグル (T038)
+    // - セット魔法・罠: 発動メニュー表示用
+    // - モンスター: 選択表示用
+    // - フィールド魔法: 選択表示用（起動効果がある場合も同様）
+    selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
+  }
+
+  // セット魔法カードの発動ハンドラー (T033-T034)
+  function handleActivateSetSpell(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.activateSpell(instanceId);
+    if (result.success) {
+      showSuccessToast(result.message || `${card.name}を発動しました`);
+    } else {
+      showErrorToast(result.error || "発動に失敗しました");
+    }
+    selectedFieldCardInstanceId = null; // 選択解除
+  }
+
+  // 起動効果発動ハンドラー (T038)
+  function handleActivateIgnitionEffect(card: CardDisplayData, instanceId: string) {
+    const result = gameFacade.activateIgnitionEffect(instanceId);
     if (result.success) {
       showSuccessToast(result.message || `${card.name}の効果を発動しました`);
     } else {
       showErrorToast(result.error || "効果発動に失敗しました");
     }
+    selectedFieldCardInstanceId = null; // 選択解除
+  }
+
+  // フィールドカード選択キャンセル (T033-T034)
+  function handleCancelFieldCardSelection() {
+    selectedFieldCardInstanceId = null;
   }
 
   // 効果解決ストアの状態を購読
@@ -116,28 +189,59 @@
     })),
   );
 
-  // DuelField用のゾーンデータ抽出
+  // DuelField用のゾーンデータ抽出（CardInstanceとCardDisplayDataをマージ） (T033-T034)
   // フィールド魔法ゾーン用カード（frameType === "field"）
-  const fieldMagicCards = $derived($fieldCards.filter((card) => card.frameType === "field"));
+  const fieldMagicCards = $derived.by(() => {
+    const fieldInstances = $gameStateStore.zones.fieldZone;
+    return fieldInstances
+      .map((instance) => {
+        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        if (!displayData) return null;
+        return {
+          card: displayData,
+          instanceId: instance.instanceId,
+          faceDown: instance.position === "faceDown",
+        };
+      })
+      .filter((item) => item !== null);
+  });
 
   // モンスターゾーン用カード配列（5枚固定、null埋め）
   const monsterZoneCards = $derived.by(() => {
-    const monsters = $fieldCards.filter((card) => card.type === "monster");
-    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
-    monsters.forEach((card, i) => {
-      if (i < 5) zone[i] = card;
+    const monsterInstances = $gameStateStore.zones.mainMonsterZone;
+    const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean; rotation?: number } | null)[] =
+      Array(5).fill(null);
+    monsterInstances.forEach((instance, i) => {
+      if (i < 5) {
+        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        if (displayData) {
+          zone[i] = {
+            card: displayData,
+            instanceId: instance.instanceId,
+            faceDown: instance.position === "faceDown",
+            rotation: instance.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
+          };
+        }
+      }
     });
     return zone;
   });
 
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   const spellTrapZoneCards = $derived.by(() => {
-    const spellsTraps = $fieldCards.filter(
-      (card) => (card.type === "spell" || card.type === "trap") && card.frameType !== "field",
-    );
-    const zone: (CardDisplayData | null)[] = Array(5).fill(null);
-    spellsTraps.forEach((card, i) => {
-      if (i < 5) zone[i] = card;
+    const spellTrapInstances = $gameStateStore.zones.spellTrapZone;
+    const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
+    spellTrapInstances.forEach((instance, i) => {
+      if (i < 5) {
+        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        if (displayData) {
+          zone[i] = {
+            card: displayData,
+            instanceId: instance.instanceId,
+            faceDown: instance.position === "faceDown",
+          };
+        }
+      }
     });
     return zone;
   });
@@ -178,7 +282,11 @@
       fieldCards={fieldMagicCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
+      {selectedFieldCardInstanceId}
       onFieldCardClick={handleFieldCardClick}
+      onActivateSetSpell={handleActivateSetSpell}
+      onActivateIgnitionEffect={handleActivateIgnitionEffect}
+      onCancelFieldCardSelection={handleCancelFieldCardSelection}
     />
 
     <!-- Hand Zone -->
@@ -190,7 +298,12 @@
         currentPhase={$currentPhase}
         canActivateSpells={$canActivateSpells}
         isGameOver={$isGameOver}
+        {selectedHandCardInstanceId}
         onCardClick={handleHandCardClick}
+        onSummonMonster={handleSummonMonster}
+        onSetMonster={handleSetMonster}
+        onSetSpellTrap={handleSetSpellTrap}
+        onHandCardSelect={handleHandCardSelect}
       />
     </div>
 

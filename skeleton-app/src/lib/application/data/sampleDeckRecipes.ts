@@ -29,6 +29,9 @@ export const sampleDeckRecipes: Record<string, DeckRecipe> = {
       { id: 98494543, quantity: 3 }, // 魔法石の採掘
       { id: 98645731, quantity: 1 }, // 強欲で謙虚な壺
       { id: 59750328, quantity: 1 }, // 命削りの宝札
+
+      // 罠dカード
+      // { id: 83968380, quantity: 20 }, // 強欲な瓶
     ],
     extraDeck: [],
   },

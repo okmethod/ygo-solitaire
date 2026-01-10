@@ -20,7 +20,9 @@ describe("GameState", () => {
 
       expect(state.zones.deck.length).toBe(3);
       expect(state.zones.hand.length).toBe(0);
-      expect(state.zones.field.length).toBe(0);
+      expect(state.zones.mainMonsterZone.length).toBe(0);
+      expect(state.zones.spellTrapZone.length).toBe(0);
+      expect(state.zones.fieldZone.length).toBe(0);
       expect(state.zones.graveyard.length).toBe(0);
       expect(state.zones.banished.length).toBe(0);
     });
@@ -34,6 +36,8 @@ describe("GameState", () => {
       expect(state.turn).toBe(1);
       expect(state.chainStack.length).toBe(0);
       expect(state.result.isGameOver).toBe(false);
+      expect(state.normalSummonLimit).toBe(1);
+      expect(state.normalSummonUsed).toBe(0);
     });
 
     it("should create unique instance IDs for deck cards", () => {

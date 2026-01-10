@@ -24,6 +24,11 @@ export interface SpellActivationValidation {
 /**
  * Check if a spell card can be activated
  *
+ * Supports activation from:
+ * - Hand (all spell types)
+ * - spellTrapZone (face-down spells, with quick-play set-turn restriction)
+ * - fieldZone (face-down field spells)
+ *
  * @param state - Current game state
  * @param cardInstanceId - Card instance ID to activate
  * @returns Validation result with reason if cannot activate
@@ -37,21 +42,45 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
     };
   }
 
-  // Check if card is in hand
+  // Find card in hand, spellTrapZone, or fieldZone (T030-2)
   const cardInHand = state.zones.hand.find((card) => card.instanceId === cardInstanceId);
-  if (!cardInHand) {
+  const cardInSpellTrapZone = state.zones.spellTrapZone.find((card) => card.instanceId === cardInstanceId);
+  const cardInFieldZone = state.zones.fieldZone.find((card) => card.instanceId === cardInstanceId);
+
+  const card = cardInHand || cardInSpellTrapZone || cardInFieldZone;
+
+  if (!card) {
     return {
       canActivate: false,
-      reason: `指定されたカードが手札に見つかりません`,
+      reason: `指定されたカードが発動可能な位置（手札、魔法・罠ゾーン、フィールドゾーン）に見つかりません`,
     };
   }
 
-  // Check card type: trap cards cannot be activated from hand (must be set first)
-  if (cardInHand.type === "trap") {
+  // Check card type: must be a spell card (SpellActivationRule is for spells only)
+  if (card.type !== "spell") {
     return {
       canActivate: false,
-      reason: `罠カードは手札から直接発動できません（セットが必要です）`,
+      reason: `魔法カード以外は発動できません`,
     };
+  }
+
+  // If activating from field zones, additional checks apply
+  if (cardInSpellTrapZone || cardInFieldZone) {
+    // Field spells (continuous spells) can only be activated from fieldZone
+    if (card.spellType === "field" && cardInSpellTrapZone) {
+      return {
+        canActivate: false,
+        reason: `フィールド魔法は魔法・罠ゾーンから発動できません`,
+      };
+    }
+
+    // Quick-play spells cannot be activated the turn they were set (FR-012-2)
+    if (card.spellType === "quick-play" && card.placedThisTurn) {
+      return {
+        canActivate: false,
+        reason: `速攻魔法はセットしたターンに発動できません`,
+      };
+    }
   }
 
   // All checks passed

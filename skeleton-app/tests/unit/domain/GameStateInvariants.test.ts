@@ -62,7 +62,9 @@ describe("GameStateInvariants", () => {
         zones: {
           deck: largeDeck,
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -87,7 +89,9 @@ describe("GameStateInvariants", () => {
         zones: {
           deck: [],
           hand: largeHand,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -99,20 +103,23 @@ describe("GameStateInvariants", () => {
       expect(result.errors.some((err) => err.includes("Hand has too many"))).toBe(true);
     });
 
-    it("should fail if field exceeds 5 cards", () => {
-      const largeField = Array.from({ length: 6 }, (_, i) => ({
-        instanceId: `field-${i}`,
+    it("should fail if spellTrapZone exceeds 5 cards", () => {
+      const largeSpellTrapZone = Array.from({ length: 6 }, (_, i) => ({
+        instanceId: `spellTrap-${i}`,
         id: 1000 + i,
         type: "spell" as const,
         frameType: "spell" as const,
-        location: "field" as const,
+        location: "spellTrapZone" as const,
+        placedThisTurn: false,
       }));
 
       const state = createMockGameState({
         zones: {
           deck: [],
           hand: [],
-          field: largeField,
+          mainMonsterZone: [],
+          spellTrapZone: largeSpellTrapZone,
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -121,7 +128,35 @@ describe("GameStateInvariants", () => {
       const result = validateZones(state);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors.some((err) => err.includes("Field has too many"))).toBe(true);
+      expect(result.errors.some((err) => err.includes("Spell/Trap Zone has too many"))).toBe(true);
+    });
+
+    it("should fail if mainMonsterZone exceeds 5 cards", () => {
+      const largeMonsterZone = Array.from({ length: 6 }, (_, i) => ({
+        instanceId: `monster-${i}`,
+        id: 1000 + i,
+        type: "monster" as const,
+        frameType: "normal" as const,
+        location: "mainMonsterZone" as const,
+        placedThisTurn: false,
+      }));
+
+      const state = createMockGameState({
+        zones: {
+          deck: [],
+          hand: [],
+          mainMonsterZone: largeMonsterZone,
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      const result = validateZones(state);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors.some((err) => err.includes("Main Monster Zone has too many"))).toBe(true);
     });
 
     it("should fail if duplicate instance IDs exist", () => {
@@ -134,6 +169,7 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
+              placedThisTurn: false,
             },
             {
               instanceId: "duplicate",
@@ -141,10 +177,13 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
+              placedThisTurn: false,
             },
           ],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -166,10 +205,13 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
+              placedThisTurn: false,
             }, // Missing instanceId
           ],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -191,10 +233,13 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             }, // Wrong location
           ],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
