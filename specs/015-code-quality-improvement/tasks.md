@@ -27,8 +27,8 @@
 
 **⚠️ 重要**: この spec は品質改善のため、プロジェクト初期化は不要。既存コードベースの修正のみ。
 
-- [ ] T001 現在のブランチが 015-code-quality-improvement であることを確認
-- [ ] T002 全テスト実行で現在の状態を確認（ベースライン取得）
+- [x] T001 現在のブランチが 015-code-quality-improvement であることを確認
+- [x] T002 全テスト実行で現在の状態を確認（ベースライン取得）
 
 **Checkpoint**: 既存テストが全てパスすることを確認。これが品質改善の出発点。
 
@@ -54,24 +54,24 @@
 
 ### Implementation for User Story 1
 
-- [ ] T003 [P] [US1] GameFacade.ts に canActivateSetSpell() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
-- [ ] T004 [P] [US1] GameFacade.ts に canActivateIgnitionEffect() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
-- [ ] T005 [P] [US1] GameFacade.ts に canSummonMonster() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
-- [ ] T006 [P] [US1] GameFacade.ts に canSetMonster() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
-- [ ] T007 [P] [US1] GameFacade.ts に canSetSpellTrap() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
-- [ ] T008 [US1] GameFacade.test.ts に canActivateSetSpell() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
-- [ ] T009 [US1] GameFacade.test.ts に canActivateIgnitionEffect() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
-- [ ] T010 [US1] GameFacade.test.ts に canSummonMonster() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
-- [ ] T011 [US1] GameFacade.test.ts に canSetMonster() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
-- [ ] T012 [US1] GameFacade.test.ts に canSetSpellTrap() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
-- [ ] T013 [US1] DuelField.svelte から Domain Layer（ActivateSpellCommand, ActivateIgnitionEffectCommand）の import を削除し、GameFacade 経由に修正（skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte）
-- [ ] T014 [US1] Hands.svelte から Domain Layer（ActivateSpellCommand, SummonMonsterCommand, SetMonsterCommand, SetSpellTrapCommand）の import を削除し、GameFacade 経由に修正（skeleton-app/src/lib/presentation/components/organisms/board/Hands.svelte）
-- [ ] T015 [US1] CardSelectionModal.svelte から Infrastructure Layer（YGOProDeckCardRepository）の直接インスタンス化を削除し、Application Layer 経由に修正（skeleton-app/src/lib/presentation/components/modals/CardSelectionModal.svelte）
-- [ ] T016 [P] [US1] GameFacade.ts の import 文付近に依存方向ルールコメント追加（例: `// ARCH: Presentation → Application → Domain の依存方向を守る`）（skeleton-app/src/lib/application/GameFacade.ts）
-- [ ] T017 [P] [US1] Domain Layer index.ts に依存ルールコメント追加（skeleton-app/src/lib/domain/index.ts）
-- [ ] T018 [P] [US1] Application Layer index.ts に依存ルールコメント追加（skeleton-app/src/lib/application/index.ts）
-- [ ] T019 [P] [US1] Presentation Layer index.ts に依存ルールコメント追加（skeleton-app/src/lib/presentation/index.ts）
-- [ ] T020 [US1] 全テスト実行（npm run test:run）で US1 の変更が既存機能を壊していないことを確認
+- [x] T003 [P] [US1] GameFacade.ts に canActivateSetSpell() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
+- [x] T004 [P] [US1] GameFacade.ts に canActivateIgnitionEffect() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
+- [x] T005 [P] [US1] GameFacade.ts に canSummonMonster() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
+- [x] T006 [P] [US1] GameFacade.ts に canSetMonster() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
+- [x] T007 [P] [US1] GameFacade.ts に canSetSpellTrap() メソッドを追加（skeleton-app/src/lib/application/GameFacade.ts）
+- [x] T008 [US1] GameFacade.test.ts に canActivateSetSpell() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
+- [x] T009 [US1] GameFacade.test.ts に canActivateIgnitionEffect() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
+- [x] T010 [US1] GameFacade.test.ts に canSummonMonster() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
+- [x] T011 [US1] GameFacade.test.ts に canSetMonster() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
+- [x] T012 [US1] GameFacade.test.ts に canSetSpellTrap() の Unit テストを追加（skeleton-app/tests/integration/game-processing/GameFacade.test.ts）
+- [x] T013 [US1] DuelField.svelte から Domain Layer（ActivateSpellCommand, ActivateIgnitionEffectCommand）の import を削除し、GameFacade 経由に修正（skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte）
+- [x] T014 [US1] Hands.svelte から Domain Layer（ActivateSpellCommand, SummonMonsterCommand, SetMonsterCommand, SetSpellTrapCommand）の import を削除し、GameFacade 経由に修正（skeleton-app/src/lib/presentation/components/organisms/board/Hands.svelte）
+- [x] T015 [US1] CardSelectionModal.svelte から Infrastructure Layer（YGOProDeckCardRepository）の直接インスタンス化を削除し、Application Layer 経由に修正（skeleton-app/src/lib/presentation/components/modals/CardSelectionModal.svelte）
+- [x] T016 [P] [US1] GameFacade.ts の import 文付近に依存方向ルールコメント追加（例: `// ARCH: Presentation → Application → Domain の依存方向を守る`）（skeleton-app/src/lib/application/GameFacade.ts）
+- [x] T017 [P] [US1] Domain Layer effects/index.ts に依存ルールコメント追加（skeleton-app/src/lib/domain/effects/index.ts）
+- [x] T018 [P] [US1] Application Layer gameStateStore.ts に依存ルールコメント追加（skeleton-app/src/lib/application/stores/gameStateStore.ts）
+- [x] T019 [P] [US1] Presentation Layer DuelField.svelte に依存ルールコメント追加（skeleton-app/src/lib/presentation/components/organisms/board/DuelField.svelte）
+- [x] T020 [US1] 全テスト実行（npm run test:run）で US1 の変更が既存機能を壊していないことを確認
 - [ ] T021 [US1] 手動動作確認：ブラウザでカード発動が正常に動作することを確認
 
 **Checkpoint**: US1 完了時点で、Presentation → Domain/Infrastructure の直接 import がゼロになり、全テストがパス。アーキテクチャルールコメントが追加され、再発防止策が講じられている。

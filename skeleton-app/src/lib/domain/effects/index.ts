@@ -8,6 +8,11 @@
  * - ChainableAction Pattern: ChainableAction interface + ChainableActionRegistry
  * - AdditionalRule Pattern: AdditionalRule interface + AdditionalRuleRegistry
  *
+ * ARCH: Domain Layer - レイヤー依存ルール
+ * - このモジュールは Domain Layer の一部であり、他の層に依存してはいけない
+ * - Application Layer（GameFacade等）と Infrastructure Layer のみが Domain Layer を import できる
+ * - Presentation Layer は Domain Layer に直接依存してはいけない（GameFacade 経由）
+ *
  * Usage:
  * ```typescript
  * import { ChainableActionRegistry } from "$lib/domain/effects";

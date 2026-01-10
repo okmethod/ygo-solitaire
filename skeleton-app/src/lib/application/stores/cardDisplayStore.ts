@@ -14,7 +14,8 @@ import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDec
 import type { CardDisplayData } from "$lib/application/types/card";
 
 // Dependency Injection: Production実装を注入
-const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
+// Export for use in other Application Layer components (e.g., CardSelectionModal)
+export const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
 
 /**
  * 手札のCardDisplayData配列を提供

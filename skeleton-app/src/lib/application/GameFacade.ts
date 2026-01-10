@@ -4,6 +4,10 @@
  * Provides a simple API for UI components to interact with game logic.
  * This is the single entry point for all game operations.
  *
+ * ARCH: Presentation → Application → Domain の依存方向を守る
+ * - Presentation Layer はこの GameFacade のみを経由して Domain Layer にアクセスする
+ * - Domain Layer の Command や Rule を直接 import してはいけない
+ *
  * @module application/GameFacade
  */
 
@@ -306,6 +310,66 @@ export class GameFacade {
       message: result.message,
       error: result.error,
     };
+  }
+
+  /**
+   * Check if a set spell card (face-down in field) can be activated
+   *
+   * @param cardInstanceId - Card instance ID to check
+   * @returns True if the set spell card can be activated
+   */
+  canActivateSetSpell(cardInstanceId: string): boolean {
+    const currentState = getCurrentState();
+    const validation = canActivateSpell(currentState, cardInstanceId);
+    return validation.canActivate;
+  }
+
+  /**
+   * Check if an ignition effect can be activated
+   *
+   * @param cardInstanceId - Card instance ID to check
+   * @returns True if the ignition effect can be activated
+   */
+  canActivateIgnitionEffect(cardInstanceId: string): boolean {
+    const currentState = getCurrentState();
+    const command = new ActivateIgnitionEffectCommand(cardInstanceId);
+    return command.canExecute(currentState);
+  }
+
+  /**
+   * Check if a monster can be summoned
+   *
+   * @param cardInstanceId - Card instance ID to check
+   * @returns True if the monster can be summoned
+   */
+  canSummonMonster(cardInstanceId: string): boolean {
+    const currentState = getCurrentState();
+    const command = new SummonMonsterCommand(cardInstanceId);
+    return command.canExecute(currentState);
+  }
+
+  /**
+   * Check if a monster can be set
+   *
+   * @param cardInstanceId - Card instance ID to check
+   * @returns True if the monster can be set
+   */
+  canSetMonster(cardInstanceId: string): boolean {
+    const currentState = getCurrentState();
+    const command = new SetMonsterCommand(cardInstanceId);
+    return command.canExecute(currentState);
+  }
+
+  /**
+   * Check if a spell/trap card can be set
+   *
+   * @param cardInstanceId - Card instance ID to check
+   * @returns True if the spell/trap card can be set
+   */
+  canSetSpellTrap(cardInstanceId: string): boolean {
+    const currentState = getCurrentState();
+    const command = new SetSpellTrapCommand(cardInstanceId);
+    return command.canExecute(currentState);
   }
 }
 

@@ -4,11 +4,7 @@
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
-  import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-  import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
-  import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
-  import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
-  import { gameStateStore } from "$lib/application/stores/gameStateStore";
+  import { gameFacade } from "$lib/application/GameFacade";
 
   interface HandZoneProps {
     cards: Array<{ card: CardDisplayData | null; instanceId: string }>;
@@ -44,9 +40,8 @@
     if (currentPhase !== "Main1") return false;
     if (!canActivateSpells) return false;
 
-    // ActivateSpellCommand.canExecute()でカード固有の発動条件をチェック
-    const command = new ActivateSpellCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    // GameFacade経由でカード固有の発動条件をチェック
+    return gameFacade.canActivateCard(instanceId);
   }
 
   // モンスター召喚可能性をチェック (T032)
@@ -54,8 +49,7 @@
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
 
-    const command = new SummonMonsterCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canSummonMonster(instanceId);
   }
 
   // モンスターセット可能性をチェック (T032)
@@ -63,8 +57,7 @@
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
 
-    const command = new SetMonsterCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canSetMonster(instanceId);
   }
 
   // 魔法・罠セット可能性をチェック (T032)
@@ -72,8 +65,7 @@
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
 
-    const command = new SetSpellTrapCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canSetSpellTrap(instanceId);
   }
 
   // 手札枚数に応じたグリッドカラム数を計算
