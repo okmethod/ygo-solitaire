@@ -1,87 +1,69 @@
 /**
- * Application Layer: Deck Recipe Data Transfer Objects (DTOs)
+ * deck - デッキレシピデータの DTO (Data Transfer Object)
  *
- * Application層が定義するデッキレシピデータの契約。
- * デッキ管理機能で使用されるデータ構造を定義する。
+ * デッキ管理機能で使用されるデータ構造。
  *
  * @module application/types/deck
  */
 
 import type { CardDisplayData } from "$lib/application/types/card";
 
-/**
- * レシピ保存時のカードエントリー（ID + 枚数 + 効果情報）
- * データベースやJSONファイルに保存する軽量な形式
- */
+/** レシピ保存用カードエントリー (ID + 枚数) */
 export interface RecipeCardEntry {
-  id: number; // YGOPRODeck API の数値 ID
-  quantity: number; // 枚数
-  effectClass?: string; // 効果クラス名（オプション）
+  id: number;
+  quantity: number;
 }
 
-/**
- * ロード済みカードエントリー（CardDisplayData + 枚数）
- * APIからロードしたカードデータと枚数の組み合わせ
- * Application層のDTOを使用
- */
+/** ロード済みカードエントリー (CardDisplayData + 枚数) */
 export interface LoadedCardEntry {
-  cardData: CardDisplayData; // カードのUI表示データ
-  quantity: number; // 枚数
+  cardData: CardDisplayData;
+  quantity: number;
 }
 
-/**
- * デッキ統計情報
- */
+/** デッキ統計情報 */
 export interface DeckStats {
-  totalCards: number; // 総カード数
-  monsterCount: number; // モンスターカード数
-  spellCount: number; // 魔法カード数
-  trapCount: number; // 罠カード数
-  uniqueCards: number; // ユニークカード種類数
+  totalCards: number;
+  monsterCount: number;
+  spellCount: number;
+  trapCount: number;
+  uniqueCards: number;
 }
 
+// デッキ基本情報
 interface DeckBase {
   name: string;
   description?: string;
   category?: string;
 }
 
-/**
- * Application層のDTO: 保存用デッキレシピ
- *
- * 軽量なID+枚数形式でデータを保持。
- * sampleDeckRecipes.tsで使用される。
- */
+/** 保存用デッキレシピ (軽量な ID + 枚数形式) */
 export interface DeckRecipe extends DeckBase {
   mainDeck: RecipeCardEntry[];
   extraDeck: RecipeCardEntry[];
 }
 
-/**
- * メインデッキの構造（カードタイプ別に事前分類）
- */
+/** メインデッキの構造 (カードタイプ別に事前分類) */
 export interface MainDeckData {
-  monsters: LoadedCardEntry[]; // モンスターカード
-  spells: LoadedCardEntry[]; // 魔法カード
-  traps: LoadedCardEntry[]; // 罠カード
+  monsters: LoadedCardEntry[];
+  spells: LoadedCardEntry[];
+  traps: LoadedCardEntry[];
 }
 
-/**
- * エクストラデッキの構造（モンスタータイプ別に事前分類）
- */
+/** エクストラデッキの構造 (モンスタータイプ別に事前分類) */
 export interface ExtraDeckData {
-  fusion: LoadedCardEntry[]; // 融合モンスター
-  synchro: LoadedCardEntry[]; // シンクロモンスター
-  xyz: LoadedCardEntry[]; // エクシーズモンスター
+  fusion: LoadedCardEntry[];
+  synchro: LoadedCardEntry[];
+  xyz: LoadedCardEntry[];
 }
 
 /**
- * ロード済みデッキデータ
- * CardDisplayDataと枚数を保持し、カードタイプ別に事前分類済み
- * フィルタリング処理を不要にしてパフォーマンス向上
+ * ロード済みデッキデータ (事前分類・統計計算済み)
+ *
+ * カードタイプ別に事前分類し、統計情報を事前計算することで、
+ * UI でのフィルタリング処理を不要にしてパフォーマンスを向上させる。
  */
 export interface DeckData extends DeckBase {
-  mainDeck: MainDeckData; // カードタイプ別に分類済み
-  extraDeck: ExtraDeckData; // モンスタータイプ別に分類済み
-  stats: DeckStats; // 統計情報を事前計算
+  mainDeck: MainDeckData;
+  extraDeck: ExtraDeckData;
+  stats: DeckStats;
 }
