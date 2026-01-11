@@ -184,8 +184,31 @@ function selectStrategy(step: EffectResolutionStep): NotificationStrategy {
   return step.cardSelectionConfig ? interactiveWithSelectionStrategy : interactiveWithoutSelectionStrategy;
 }
 
+/** 効果解決管理ストアのインターフェース */
+export interface EffectResolutionStore {
+  subscribe: (run: (value: EffectResolutionState) => void) => () => void;
+
+  /** カード選択ハンドラを登録する（Dependency Injection） */
+  registerCardSelectionHandler: (handler: CardSelectionHandler) => void;
+
+  /** 通知ハンドラを登録する（Dependency Injection） */
+  registerNotificationHandler: (handler: NotificationHandler) => void;
+
+  /** 効果解決シーケンスを開始する */
+  startResolution: (steps: EffectResolutionStep[]) => void;
+
+  /** 現在のステップを確定して次に進む */
+  confirmCurrentStep: () => Promise<void>;
+
+  /** 効果解決をキャンセルする */
+  cancelResolution: () => void;
+
+  /** ストアをリセットする */
+  reset: () => void;
+}
+
 // 効果解決ストアを生成する
-function createEffectResolutionStore() {
+function createEffectResolutionStore(): EffectResolutionStore {
   const { subscribe, update } = writable<EffectResolutionState>({
     isActive: false,
     currentStep: null,
@@ -198,17 +221,14 @@ function createEffectResolutionStore() {
   return {
     subscribe,
 
-    // カード選択ハンドラを登録する（Dependency Injection）
     registerCardSelectionHandler: (handler: CardSelectionHandler) => {
       update((state) => ({ ...state, cardSelectionHandler: handler }));
     },
 
-    // 通知ハンドラを登録する（Dependency Injection）
     registerNotificationHandler: (handler: NotificationHandler) => {
       update((state) => ({ ...state, notificationHandler: handler }));
     },
 
-    // 効果解決シーケンスを開始する
     startResolution: (steps: EffectResolutionStep[]) => {
       update((state) => ({
         ...state,
@@ -227,7 +247,6 @@ function createEffectResolutionStore() {
       }
     },
 
-    // 現在のステップを確定して次に進む
     confirmCurrentStep: async () => {
       const state = getStoreValue(effectResolutionStore);
       if (!state.currentStep) return;
@@ -257,7 +276,6 @@ function createEffectResolutionStore() {
       }
     },
 
-    // 効果解決をキャンセルする
     cancelResolution: () => {
       update((state) => ({
         ...state,
@@ -268,7 +286,6 @@ function createEffectResolutionStore() {
       }));
     },
 
-    // ストアをリセットする
     reset: () => {
       update((state) => ({
         ...state,
