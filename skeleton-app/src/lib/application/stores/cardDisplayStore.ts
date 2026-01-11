@@ -12,186 +12,75 @@ import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import type { CardDisplayData } from "$lib/application/types/card";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 
-// Dependency Injection: Singleton Repository インスタンスを取得
-// Export for use in other Application Layer components (e.g., CardSelectionModal)
+/**
+ * カードリポジトリのシングルトンインスタンス
+ *
+ * Dependency Injection: Application Layer内の他コンポーネントで使用するため公開。
+ */
 export const cardRepository: ICardDataRepository = getCardRepository();
 
 /**
- * 手札のCardDisplayData配列を提供
+ * ゾーン監視用の汎用CardDisplayDataストアを生成
  *
- * gameStateStoreの変更を監視し、自動的にYGOPRODeck APIから取得。
- * キャッシュヒット時は即座に返す。
- * エラー時は空配列を返す（placeholder表示）。
- *
- * Usage:
- * ```svelte
- * <script>
- *   import { handCards } from '$lib/application/stores/cardDisplayStore';
- * </script>
- * <div>Hand: {$handCards.length} cards</div>
- * {#each $handCards as card (card.id)}
- *   <Card {card} />
- * {/each}
- * ```
+ * gameStateStoreの変更を監視し、YGOPRODeck APIから自動取得する。
+ * キャッシュヒット時は即座に返す。エラー時は空配列を返す。
  */
-export const handCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const cardIds = $gameState.zones.hand.map((c) => c.id); // CardInstance extends CardData
+function createZoneCardStore(
+  zoneName: string,
+  zoneSelector: (state: GameState) => readonly CardInstance[],
+): Readable<CardDisplayData[]> {
+  return derived(
+    gameStateStore,
+    ($gameState, set) => {
+      const cards = zoneSelector($gameState);
+      const cardIds = cards.map((c) => c.id);
 
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
+      if (cardIds.length === 0) {
+        set([]);
+        return;
+      }
 
-    // Flag to prevent stale data from being set (Race Condition対策)
-    let isCancelled = false;
+      // Race Condition対策: 非同期処理中にストアが再評価された場合に備える
+      let isCancelled = false;
 
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        if (!isCancelled) {
-          set(cards);
-        }
-      })
-      .catch((err) => {
-        if (!isCancelled) {
-          console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
-          set([]); // エラー時は空配列（placeholder表示）
-        }
-      });
+      cardRepository
+        .getCardsByIds(cardIds)
+        .then((cards) => {
+          if (!isCancelled) {
+            set(cards);
+          }
+        })
+        .catch((err) => {
+          if (!isCancelled) {
+            console.error(`[cardDisplayStore] Failed to fetch ${zoneName} cards:`, err);
+            set([]);
+          }
+        });
 
-    // Cleanup function: called when derived re-evaluates or unsubscribes
-    return () => {
-      isCancelled = true;
-    };
-  },
-  [] as CardDisplayData[], // 初期値
-);
+      // クリーンアップ: 非同期処理中にストアが再評価された場合にキャンセルフラグを立てる
+      return () => {
+        isCancelled = true;
+      };
+    },
+    [] as CardDisplayData[],
+  );
+}
 
-/**
- * フィールドのCardDisplayData配列を提供
- *
- * gameStateStoreのzones.mainMonsterZone + zones.spellTrapZone + zones.fieldZoneを監視。
- * すべてのフィールド上のカードを含む（T031）。
- */
-export const fieldCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const fieldCardsAll = [
-      ...$gameState.zones.mainMonsterZone,
-      ...$gameState.zones.spellTrapZone,
-      ...$gameState.zones.fieldZone,
-    ];
-    const cardIds = fieldCardsAll.map((c) => c.id); // CardInstance extends CardData
+/** 手札のCardDisplayData配列 */
+export const handCards = createZoneCardStore("hand", (state) => state.zones.hand);
 
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
+/** フィールド（メインモンスターゾーン・魔法罠ゾーン・フィールドゾーン）のCardDisplayData配列 */
+export const fieldCards = createZoneCardStore("field", (state) => [
+  ...state.zones.mainMonsterZone,
+  ...state.zones.spellTrapZone,
+  ...state.zones.fieldZone,
+]);
 
-    // Flag to prevent stale data from being set (Race Condition対策)
-    let isCancelled = false;
+/** 墓地のCardDisplayData配列 */
+export const graveyardCards = createZoneCardStore("graveyard", (state) => state.zones.graveyard);
 
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        if (!isCancelled) {
-          set(cards);
-        }
-      })
-      .catch((err) => {
-        if (!isCancelled) {
-          console.error("[cardDisplayStore] Failed to fetch field cards:", err);
-          set([]);
-        }
-      });
-
-    // Cleanup function: called when derived re-evaluates or unsubscribes
-    return () => {
-      isCancelled = true;
-    };
-  },
-  [] as CardDisplayData[],
-);
-
-/**
- * 墓地のCardDisplayData配列を提供
- *
- * gameStateStoreのzones.graveyardを監視。
- */
-export const graveyardCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const cardIds = $gameState.zones.graveyard.map((c) => c.id); // CardInstance extends CardData
-
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
-
-    // Flag to prevent stale data from being set (Race Condition対策)
-    let isCancelled = false;
-
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        if (!isCancelled) {
-          set(cards);
-        }
-      })
-      .catch((err) => {
-        if (!isCancelled) {
-          console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
-          set([]);
-        }
-      });
-
-    // Cleanup function: called when derived re-evaluates or unsubscribes
-    return () => {
-      isCancelled = true;
-    };
-  },
-  [] as CardDisplayData[],
-);
-
-/**
- * 除外ゾーンのCardDisplayData配列を提供
- *
- * gameStateStoreのzones.banishedを監視。
- */
-export const banishedCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const cardIds = $gameState.zones.banished.map((c) => c.id); // CardInstance extends CardData
-
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
-
-    // Flag to prevent stale data from being set (Race Condition対策)
-    let isCancelled = false;
-
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        if (!isCancelled) {
-          set(cards);
-        }
-      })
-      .catch((err) => {
-        if (!isCancelled) {
-          console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
-          set([]);
-        }
-      });
-
-    // Cleanup function: called when derived re-evaluates or unsubscribes
-    return () => {
-      isCancelled = true;
-    };
-  },
-  [] as CardDisplayData[],
-);
+/** 除外ゾーンのCardDisplayData配列 */
+export const banishedCards = createZoneCardStore("banished", (state) => state.zones.banished);
