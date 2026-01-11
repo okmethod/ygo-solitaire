@@ -22,7 +22,6 @@ import type { GameCommand, CommandResult } from "./GameCommand";
 import { createSuccessResult, createFailureResult } from "./GameCommand";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
-import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 
 /**
@@ -158,16 +157,7 @@ export class ActivateSpellCommand implements GameCommand {
       zones: zonesAfterResolution,
     };
 
-    // Check victory conditions after activation
-    const victoryResult = checkVictoryConditions(newState);
-
-    // Update game result if victory/defeat occurred using spread syntax
-    const finalState: GameState = {
-      ...newState,
-      result: victoryResult,
-    };
-
-    return createSuccessResult(finalState, `Spell card activated (no effect): ${this.cardInstanceId}`);
+    return createSuccessResult(newState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }
 
   /**

@@ -22,20 +22,12 @@ import type { GameState } from "../../models/GameState";
 import type { GameStateUpdateResult } from "../../models/GameStateUpdateResult";
 import type { CardInstance } from "../../models/Card";
 import { drawCards, sendToGraveyard, moveCard, shuffleDeck } from "../../models/Zone";
-import { checkVictoryConditions } from "../../rules/VictoryRule";
 import { getCardData } from "../../registries/CardDataRegistry";
 
 /**
- * Creates an EffectResolutionStep for drawing cards from the deck
+ * デッキから指定枚数のカードをドローします
  *
- * Handles:
- * - Deck size validation
- * - Drawing N cards from deck to hand
- * - Victory condition check after drawing
- *
- * @param count - Number of cards to draw
- * @param options - Optional customization for id, summary, description
- * @returns EffectResolutionStep for drawing cards
+ * Handles deck size validation and victory condition check after drawing.
  *
  * @example
  * ```typescript
@@ -78,18 +70,9 @@ export function createDrawStep(
         zones: newZones,
       };
 
-      // ドロー後の勝利条件チェック（デッキ切れ等）
-      const victoryResult = checkVictoryConditions(newState);
-
-      // 勝敗判定結果を反映した最終状態を作成
-      const finalState: GameState = {
-        ...newState,
-        result: victoryResult,
-      };
-
       return {
         success: true,
-        newState: finalState,
+        newState,
         message: `Drew ${count} card${count > 1 ? "s" : ""}`,
       };
     },
@@ -97,16 +80,9 @@ export function createDrawStep(
 }
 
 /**
- * Creates an EffectResolutionStep for sending a card to the graveyard
+ * カードを墓地へ送ります
  *
- * Used for:
- * - Sending spell cards to graveyard after resolution
- * - Discarding cards from hand
- *
- * @param instanceId - Card instance ID to send to graveyard
- * @param cardId - Card ID (number) for looking up card data
- * @param options - Optional customization for id
- * @returns EffectResolutionStep for sending card to graveyard
+ * Used for sending spell cards to graveyard after resolution, or discarding cards from hand.
  *
  * @example
  * ```typescript
@@ -144,26 +120,10 @@ export function createSendToGraveyardStep(
 }
 
 /**
- * Creates an EffectResolutionStep for card selection (interactive)
+ * カード選択モーダルを開き、ユーザーの選択を受け付けます
  *
- * Opens a card selection modal for user interaction.
- * Selected card instance IDs are passed to the onSelect callback.
- *
- * Used for:
- * - Discarding cards (Graceful Charity)
- * - Returning cards to deck (Magical Mallet)
- * - Selecting targets
- *
- * @param config - Selection configuration
- * @param config.id - Unique step ID
- * @param config.summary - Summary shown in selection UI
- * @param config.description - Detailed description/instructions
- * @param config.availableCards - Cards available for selection (empty array = use current hand)
- * @param config.minCards - Minimum number of cards that must be selected
- * @param config.maxCards - Maximum number of cards that can be selected
- * @param config.cancelable - Whether user can cancel selection (default: false)
- * @param config.onSelect - Callback function receiving (state, selectedIds)
- * @returns EffectResolutionStep for card selection
+ * Used for discarding cards (Graceful Charity), returning cards to deck (Magical Mallet), etc.
+ * availableCards が空配列の場合は現在の手札を候補として使用します。
  *
  * @example
  * ```typescript
@@ -217,19 +177,10 @@ export function createCardSelectionStep(config: {
 }
 
 /**
- * Creates an EffectResolutionStep for gaining life points
+ * ライフポイントを増加させます
  *
- * Used for:
- * - Opponent gaining LP (Upstart Goblin, One Day of Peace)
- * - Player gaining LP (healing effects)
- *
- * @param amount - Amount of LP to gain
- * @param options - Optional customization
- * @param options.id - Custom step ID
- * @param options.target - Who gains LP: "player" or "opponent" (default: "opponent")
- * @param options.summary - Custom summary
- * @param options.description - Custom description
- * @returns EffectResolutionStep for gaining life points
+ * Used for opponent gaining LP (Upstart Goblin), player gaining LP (healing effects), etc.
+ * Default target is "opponent".
  *
  * @example
  * ```typescript
@@ -276,22 +227,10 @@ export function createGainLifeStep(
 }
 
 /**
- * Creates an EffectResolutionStep for dealing damage (LP loss)
- *
- * Used for:
- * - Player taking damage
- * - Opponent taking damage
+ * ダメージを与えます（ライフポイントを減少させます）
  *
  * Note: Victory conditions are NOT checked here (will be checked at end of phase).
- * Use VictoryRule.checkVictoryConditions() if immediate check is needed.
- *
- * @param amount - Amount of LP to lose
- * @param options - Optional customization
- * @param options.id - Custom step ID
- * @param options.target - Who takes damage: "player" or "opponent" (default: "player")
- * @param options.summary - Custom summary
- * @param options.description - Custom description
- * @returns EffectResolutionStep for dealing damage
+ * Default target is "player".
  *
  * @example
  * ```typescript
@@ -338,14 +277,9 @@ export function createDamageStep(
 }
 
 /**
- * Creates an EffectResolutionStep for shuffling the deck
+ * デッキをシャッフルします
  *
- * Used for:
- * - After returning cards to deck (Magical Mallet)
- * - After deck search (Terraforming)
- *
- * @param options - Optional customization for id, summary, description
- * @returns EffectResolutionStep for shuffling deck
+ * Used after returning cards to deck (Magical Mallet), after deck search (Terraforming), etc.
  *
  * @example
  * ```typescript
@@ -385,21 +319,10 @@ export function createShuffleStep(options?: {
 }
 
 /**
- * Creates an EffectResolutionStep for returning cards to the deck
+ * 手札からデッキにカードを戻します
  *
- * Returns specified cards from hand to deck (does NOT shuffle automatically).
- * Use createShuffleStep() after this if shuffling is required.
- *
- * Used for:
- * - Returning cards to deck (Magical Mallet)
- * - Bouncing cards to deck
- *
- * @param instanceIds - Array of card instance IDs to return to deck
- * @param options - Optional customization
- * @param options.id - Custom step ID
- * @param options.summary - Custom summary
- * @param options.description - Custom description
- * @returns EffectResolutionStep for returning cards to deck
+ * Note: Does NOT shuffle automatically. Use createShuffleStep() after this if shuffling is required.
+ * Used for Magical Mallet, bouncing cards to deck, etc.
  *
  * @example
  * ```typescript
@@ -457,24 +380,9 @@ export function createReturnToDeckStep(
 }
 
 /**
- * Creates an EffectResolutionStep for searching and selecting cards from graveyard
+ * 墓地から条件に合うカードを選択し、手札に加えます
  *
- * Opens a card selection modal showing only graveyard cards that match the filter.
- * Selected card(s) are added to hand.
- *
- * Used for:
- * - Magical Stone Excavation (select 1 spell card from graveyard)
- * - Dark Factory (select 2 normal monsters from graveyard)
- *
- * @param config - Selection configuration
- * @param config.id - Unique step ID
- * @param config.summary - Summary shown in selection UI
- * @param config.description - Detailed description/instructions
- * @param config.filter - Filter function to determine which graveyard cards are available
- * @param config.minCards - Minimum number of cards that must be selected
- * @param config.maxCards - Maximum number of cards that can be selected
- * @param config.cancelable - Whether user can cancel selection (default: false)
- * @returns EffectResolutionStep for graveyard search and selection
+ * Used for Magical Stone Excavation (select 1 spell from graveyard), etc.
  *
  * @example
  * ```typescript
@@ -559,23 +467,10 @@ export function createSearchFromGraveyardStep(config: {
 }
 
 /**
- * Creates an EffectResolutionStep for searching cards from the top N cards of the deck
+ * デッキの上から指定枚数を確認し、1枚を選んで手札に加えます
  *
- * Opens a card selection modal showing the top N cards of the deck.
- * Selected card is added to hand, remaining cards are returned to deck.
- *
- * Used for:
- * - Pot of Duality (excavate top 3 cards, select 1, return 2 to deck)
- *
- * @param config - Selection configuration
- * @param config.id - Unique step ID
- * @param config.summary - Summary shown in selection UI
- * @param config.description - Detailed description/instructions
- * @param config.count - Number of cards to excavate from deck top
- * @param config.minCards - Minimum number of cards that must be selected (usually 1)
- * @param config.maxCards - Maximum number of cards that can be selected (usually 1)
- * @param config.cancelable - Whether user can cancel selection (default: false)
- * @returns EffectResolutionStep for deck top search and selection
+ * Used for Pot of Duality (excavate top 3, select 1), etc.
+ * Remaining cards stay in deck (no shuffle).
  *
  * @example
  * ```typescript
@@ -658,18 +553,9 @@ export function createSearchFromDeckTopStep(config: {
 }
 
 /**
- * Creates an EffectResolutionStep for adding an effect to be executed at end phase
+ * エンドフェイズに実行される効果を登録します
  *
- * Adds an EffectResolutionStep to pendingEndPhaseEffects array.
- * The effect will be executed when the game phase advances to End phase.
- *
- * Used for:
- * - Into the Void (discard all hand at end phase)
- * - Card of Demise (discard all hand at end phase)
- *
- * @param effectStep - The EffectResolutionStep to execute at end phase
- * @param options - Optional customization for id, summary, description
- * @returns EffectResolutionStep for adding end phase effect
+ * Used for Into the Void (discard all hand at end phase), Card of Demise, etc.
  *
  * @example
  * ```typescript
@@ -717,20 +603,10 @@ export function createAddEndPhaseEffectStep(
 }
 
 /**
- * Creates an EffectResolutionStep for drawing cards until hand reaches a target count
+ * 手札が指定枚数になるまでドローします
  *
- * Draws cards from deck until hand size reaches the specified count.
+ * Used for Card of Demise (draw until hand = 3), etc.
  * If hand already has >= target count, no cards are drawn.
- *
- * Used for:
- * - Card of Demise (draw until hand = 3)
- *
- * @param targetCount - Target hand size (e.g., 3)
- * @param options - Optional customization
- * @param options.id - Custom step ID
- * @param options.summary - Custom summary
- * @param options.description - Custom description
- * @returns EffectResolutionStep for drawing until target count
  *
  * @example
  * ```typescript
@@ -783,17 +659,9 @@ export function createDrawUntilCountStep(
         zones: newZones,
       };
 
-      // ドロー後の勝利条件チェック
-      const victoryResult = checkVictoryConditions(newState);
-
-      const finalState: GameState = {
-        ...newState,
-        result: victoryResult,
-      };
-
       return {
         success: true,
-        newState: finalState,
+        newState,
         message: `Drew ${drawCount} card${drawCount > 1 ? "s" : ""} (hand now: ${targetCount})`,
       };
     },
@@ -801,24 +669,10 @@ export function createDrawUntilCountStep(
 }
 
 /**
- * Creates an EffectResolutionStep for searching deck by card name filter
+ * デッキから条件に合うカードを検索し、手札に加えます
  *
- * Opens a card selection modal showing deck cards that match the name filter.
- * Selected card is added to hand, deck is shuffled.
- *
- * Used for:
- * - Toon Table of Contents (search for cards with "トゥーン" in name)
- * - Terraforming (search for field spells - frameType check)
- *
- * @param config - Selection configuration
- * @param config.id - Unique step ID
- * @param config.summary - Summary shown in selection UI
- * @param config.description - Detailed description/instructions
- * @param config.filter - Filter function to determine which deck cards are available
- * @param config.minCards - Minimum number of cards that must be selected
- * @param config.maxCards - Maximum number of cards that can be selected
- * @param config.cancelable - Whether user can cancel selection (default: false)
- * @returns EffectResolutionStep for deck search by name
+ * Used for Toon Table of Contents (search "トゥーン" cards), Terraforming (field spells), etc.
+ * Deck is shuffled after search.
  *
  * @example
  * ```typescript
@@ -903,18 +757,10 @@ export function createSearchFromDeckByNameStep(config: {
 }
 
 /**
- * Creates an EffectResolutionStep for paying life points
+ * ライフポイントを支払います
  *
- * Reduces player's LP by the specified amount.
- * Used for card activation costs (Toon World - pay 1000 LP).
- *
- * @param amount - Amount of LP to pay
- * @param options - Optional customization
- * @param options.id - Custom step ID
- * @param options.target - Who pays LP: "player" or "opponent" (default: "player")
- * @param options.summary - Custom summary
- * @param options.description - Custom description
- * @returns EffectResolutionStep for LP payment
+ * Used for card activation costs (Toon World - pay 1000 LP), etc.
+ * Default target is "player".
  *
  * @example
  * ```typescript

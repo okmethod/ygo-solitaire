@@ -9,6 +9,7 @@
 import { derived } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import { hasActivatableSpells } from "$lib/domain/rules/SpellActivationRule";
+import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 /** 現在のゲームフェーズ */
 export const currentPhase = derived(gameStateStore, ($state) => $state.phase);
@@ -37,8 +38,16 @@ export const fieldCardCount = derived(
   ($state) => $state.zones.mainMonsterZone.length + $state.zones.spellTrapZone.length + $state.zones.fieldZone.length,
 );
 
-/** ゲーム結果 */
-export const gameResult = derived(gameStateStore, ($state) => $state.result);
+/** ゲーム結果（自動判定） */
+export const gameResult = derived(gameStateStore, ($state) => {
+  // すでにゲームが終了しているなら結果を返す
+  if ($state.result.isGameOver) {
+    return $state.result;
+  }
+
+  // 未判定なら自動的にチェック
+  return checkVictoryConditions($state);
+});
 
 /** 魔法カードが発動可能かどうか */
 export const canActivateSpells = derived(gameStateStore, ($state) => hasActivatableSpells($state));

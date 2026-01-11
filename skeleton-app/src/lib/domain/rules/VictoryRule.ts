@@ -57,7 +57,8 @@ export function checkVictoryConditions(state: GameState): GameResult {
   }
 
   // Check deck out defeat (cannot draw from empty deck)
-  if (state.zones.deck.length === 0 && state.phase === "Draw") {
+  // Note: Skip this check during game initialization (turn = 0, phase = "Draw")
+  if (state.zones.deck.length === 0 && state.phase === "Draw" && state.turn > 0) {
     return {
       isGameOver: true,
       winner: "opponent",

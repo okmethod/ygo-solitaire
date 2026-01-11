@@ -24,17 +24,12 @@ export class ShuffleDeckCommand implements GameCommand {
   /**
    * Check if shuffle is possible
    *
-   * @param state - Current game state
-   * @returns True if game is not over (shuffle is always valid otherwise)
+   * @returns Always true (shuffling is a safe operation even on empty decks or during game over)
    */
-  canExecute(state: GameState): boolean {
-    // Cannot shuffle if game is already over
-    if (state.result.isGameOver) {
-      return false;
-    }
-
-    // Shuffling is always allowed during an active game
-    // (even if deck is empty, shuffling empty array is safe)
+  canExecute(): boolean {
+    // Shuffling is always allowed
+    // - Safe operation even if deck is empty (shuffling empty array is no-op)
+    // - Can be used to reset deck state even if game is over
     return true;
   }
 
@@ -45,10 +40,6 @@ export class ShuffleDeckCommand implements GameCommand {
    * @returns Command result with new state containing shuffled deck
    */
   execute(state: GameState): CommandResult {
-    if (!this.canExecute(state)) {
-      return createFailureResult(state, "Cannot shuffle deck: game is already over");
-    }
-
     try {
       // Shuffle deck using Fisher-Yates algorithm
       const shuffledDeck = shuffleArray(state.zones.deck);

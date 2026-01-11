@@ -17,7 +17,6 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 /** カード選択ハンドラのインターフェース（コールバック関数） */
 export interface CardSelectionHandler {
@@ -98,13 +97,6 @@ function transitionToNextStep(
 
 // 解決完了時の後処理を行う（共通処理）
 function finalizeResolution(update: (updater: (state: EffectResolutionState) => EffectResolutionState) => void): void {
-  // 勝利条件チェック
-  const finalState = getStoreValue(gameStateStore);
-  const victoryResult = checkVictoryConditions(finalState);
-  if (victoryResult.isGameOver) {
-    gameStateStore.set({ ...finalState, result: victoryResult });
-  }
-
   // ストアリセット
   update((s) => ({
     ...s,

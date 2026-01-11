@@ -16,40 +16,11 @@ import {
 
 describe("ShuffleDeckCommand", () => {
   describe("canExecute", () => {
-    it("should return true when game is active", () => {
-      const state = createExodiaDeckState();
-      const command = new ShuffleDeckCommand();
-
-      expect(command.canExecute(state)).toBe(true);
-    });
-
     it("should return true even when deck is empty", () => {
-      const state = createMockGameState({
-        zones: {
-          deck: [],
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
       const command = new ShuffleDeckCommand();
 
       // Shuffling empty deck is safe (returns empty array)
-      expect(command.canExecute(state)).toBe(true);
-    });
-
-    it("should return false when game is over", () => {
-      const state = createMockGameState({
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      });
-      const command = new ShuffleDeckCommand();
-
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute()).toBe(true);
     });
   });
 
@@ -91,29 +62,14 @@ describe("ShuffleDeckCommand", () => {
       expect(result.newState).not.toBe(state);
     });
 
-    it("should fail when game is already over", () => {
-      const state = createMockGameState({
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      });
-      const command = new ShuffleDeckCommand();
-
-      const result = command.execute(state);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("game is already over");
-      expect(result.newState).toBe(state); // State unchanged on failure
-    });
-
     it("should handle empty deck without errors", () => {
       const state = createMockGameState({
         zones: {
           deck: [],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -131,7 +87,9 @@ describe("ShuffleDeckCommand", () => {
         zones: {
           deck: createCardInstances(["12345678"], "deck"),
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
