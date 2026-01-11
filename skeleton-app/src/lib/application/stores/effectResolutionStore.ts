@@ -1,7 +1,13 @@
 /**
  * effectResolutionStore - 効果解決管理ストア
  *
- * ChainableAction からの EffectResolutionStepキューを管理。
+ * 効果解決ステップキューの Single Source of Truth (SSOT)。
+ * ChainableAction からの EffectResolutionStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
+ *
+ * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
+ * - Application Layer は Domain Layer に依存できる
+ * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
+ * - Presentation Layer は Domain Layer に直接依存してはいけない
  *
  * @module application/stores/effectResolutionStore
  */
@@ -13,9 +19,7 @@ import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionSt
 import type { CardInstance } from "$lib/domain/models/Card";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
-/**
- * カード選択ハンドラのインターフェース（コールバック関数）
- */
+/** カード選択ハンドラのインターフェース（コールバック関数） */
 export interface CardSelectionHandler {
   (config: {
     availableCards: readonly CardInstance[];
@@ -29,9 +33,7 @@ export interface CardSelectionHandler {
   }): void;
 }
 
-/**
- * 通知ハンドラのインターフェース
- */
+/** 通知ハンドラのインターフェース */
 export interface NotificationHandler {
   /** info通知を表示（トースト） */
   showInfo(summary: string, description: string): void;
@@ -40,7 +42,7 @@ export interface NotificationHandler {
   showInteractive(step: EffectResolutionStep, onConfirm: () => void, onCancel?: () => void): void;
 }
 
-/** 効果解決ストアの状態インターフェース */
+// 効果解決ストアの状態インターフェース
 interface EffectResolutionState {
   isActive: boolean;
   currentStep: EffectResolutionStep | null;
@@ -50,13 +52,13 @@ interface EffectResolutionState {
   notificationHandler: NotificationHandler | null;
 }
 
-/** ステップ実行の共通結果 */
+// ステップ実行の共通結果
 type StepExecutionResult = {
   shouldContinue: boolean;
   delay?: number;
 };
 
-/** 通知レベル別の実行戦略（Strategy Pattern で分離） */
+// 通知レベル別の実行戦略（Strategy Pattern で分離）
 type NotificationStrategy = (
   step: EffectResolutionStep,
   gameState: GameState,
@@ -66,7 +68,7 @@ type NotificationStrategy = (
   },
 ) => Promise<StepExecutionResult>;
 
-/** アクション実行の共通処理 */
+// 1ステップ分のアクションを実行する（共通処理）
 function executeStepAction(step: EffectResolutionStep, gameState: GameState, selectedIds?: string[]): void {
   const result = step.action(gameState, selectedIds);
   if (result.success) {
@@ -74,7 +76,7 @@ function executeStepAction(step: EffectResolutionStep, gameState: GameState, sel
   }
 }
 
-/** 次ステップへの遷移（共通処理） */
+// 次ステップに遷移する（共通処理）
 function transitionToNextStep(
   state: EffectResolutionState,
   update: (updater: (state: EffectResolutionState) => EffectResolutionState) => void,
@@ -94,7 +96,7 @@ function transitionToNextStep(
   }
 }
 
-/** 解決完了時の後処理（共通処理） */
+// 解決完了時の後処理を行う（共通処理）
 function finalizeResolution(update: (updater: (state: EffectResolutionState) => EffectResolutionState) => void): void {
   // 勝利条件チェック
   const finalState = getStoreValue(gameStateStore);
@@ -113,13 +115,13 @@ function finalizeResolution(update: (updater: (state: EffectResolutionState) => 
   }));
 }
 
-/** Strategy: "silent"レベル - 通知なし、即座に実行 */
+// Strategy: "silent"レベル - 通知なし、即座に実行
 const silentStrategy: NotificationStrategy = async (step, gameState) => {
   executeStepAction(step, gameState);
   return { shouldContinue: true };
 };
 
-/** Strategy: "info"レベル - トースト通知を表示、自動で次へ進む */
+// Strategy: "info"レベル - トースト通知を表示、自動で次へ進む
 const infoStrategy: NotificationStrategy = async (step, gameState, handlers) => {
   executeStepAction(step, gameState);
 
@@ -130,7 +132,7 @@ const infoStrategy: NotificationStrategy = async (step, gameState, handlers) => 
   return { shouldContinue: true, delay: 300 };
 };
 
-/** Strategy: "interactive"レベル（カード選択あり） - モーダル表示、ユーザー入力待ち */
+// Strategy: "interactive"レベル（カード選択あり） - モーダル表示、ユーザー入力待ち
 const interactiveWithSelectionStrategy: NotificationStrategy = async (step, gameState, handlers) => {
   if (!handlers.cardSelection) {
     console.error("Card selection handler not registered");
@@ -166,13 +168,13 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
   return { shouldContinue: true };
 };
 
-/** Strategy: "interactive"レベル（カード選択なし） */
+// Strategy: "interactive"レベル（カード選択なし） - モーダル表示、ユーザー入力待ち
 const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, gameState) => {
   executeStepAction(step, gameState);
   return { shouldContinue: true };
 };
 
-/** 通知レベルに応じたStrategy選択 */
+// 通知レベルに応じた Strategyを選択する
 function selectStrategy(step: EffectResolutionStep): NotificationStrategy {
   const level = step.notificationLevel || "info";
 
@@ -182,6 +184,7 @@ function selectStrategy(step: EffectResolutionStep): NotificationStrategy {
   return step.cardSelectionConfig ? interactiveWithSelectionStrategy : interactiveWithoutSelectionStrategy;
 }
 
+// 効果解決ストアを生成する
 function createEffectResolutionStore() {
   const { subscribe, update } = writable<EffectResolutionState>({
     isActive: false,
@@ -195,23 +198,17 @@ function createEffectResolutionStore() {
   return {
     subscribe,
 
-    /**
-     * カード選択ハンドラを登録（Dependency Injection）
-     */
+    // カード選択ハンドラを登録する（Dependency Injection）
     registerCardSelectionHandler: (handler: CardSelectionHandler) => {
       update((state) => ({ ...state, cardSelectionHandler: handler }));
     },
 
-    /**
-     * 通知ハンドラを登録（Dependency Injection）
-     */
+    // 通知ハンドラを登録する（Dependency Injection）
     registerNotificationHandler: (handler: NotificationHandler) => {
       update((state) => ({ ...state, notificationHandler: handler }));
     },
 
-    /**
-     * 効果解決シーケンスを開始
-     */
+    // 効果解決シーケンスを開始する
     startResolution: (steps: EffectResolutionStep[]) => {
       update((state) => ({
         ...state,
@@ -230,9 +227,7 @@ function createEffectResolutionStore() {
       }
     },
 
-    /**
-     * 現在のステップを確定して次に進む
-     */
+    // 現在のステップを確定して次に進む
     confirmCurrentStep: async () => {
       const state = getStoreValue(effectResolutionStore);
       if (!state.currentStep) return;
@@ -262,9 +257,7 @@ function createEffectResolutionStore() {
       }
     },
 
-    /**
-     * 効果解決をキャンセル
-     */
+    // 効果解決をキャンセルする
     cancelResolution: () => {
       update((state) => ({
         ...state,
@@ -275,9 +268,7 @@ function createEffectResolutionStore() {
       }));
     },
 
-    /**
-     * ストアをリセット
-     */
+    // ストアをリセットする
     reset: () => {
       update((state) => ({
         ...state,

@@ -1,10 +1,10 @@
 /**
- * gameStateStore - Main game state store
+ * gameStateStore - メインゲーム状態ストア
  *
- * Svelte writable store for GameState.
- * This is the single source of truth for game state in the UI.
+ * GameState の Single Source of Truth (SSOT)。
+ * すべてのゲーム状態（ゾーン、フェーズ、LP等）はこのストアを通じて管理される。
  *
- * ARCH: Application Layer - レイヤー依存ルール
+ * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
  * - Application Layer は Domain Layer に依存できる
  * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
  * - Presentation Layer は Domain Layer に直接依存してはいけない
@@ -16,50 +16,25 @@ import { writable } from "svelte/store";
 import type { GameState } from "$lib/domain/models/GameState";
 import { createInitialGameState } from "$lib/domain/models/GameState";
 
-/**
- * Create initial empty game state
- */
+// 空の初期GameStateを生成する
 function createEmptyGameState(): GameState {
   return createInitialGameState([]);
 }
 
-/**
- * Main game state store (writable)
- *
- * Usage:
- * ```typescript
- * import { gameStateStore } from '$lib/application/stores/gameStateStore';
- *
- * // Subscribe to state changes
- * gameStateStore.subscribe(state => {
- *   console.log('Current phase:', state.phase);
- * });
- *
- * // Update state (from GameFacade)
- * gameStateStore.set(newState);
- * ```
- */
+/** メインゲーム状態ストア（writable） */
 export const gameStateStore = writable<GameState>(createEmptyGameState());
 
-/**
- * Reset store to initial state
- *
- * @param deckCardIds - Array of numeric card IDs for the deck
- */
+/** ストアを初期状態にリセットする */
 export function resetGameState(deckCardIds: number[]): void {
   gameStateStore.set(createInitialGameState(deckCardIds));
 }
 
-/**
- * Get current state snapshot (non-reactive)
- *
- * @returns Current game state
- */
+/** 現在の状態スナップショットを取得する（非リアクティブ） */
 export function getCurrentState(): GameState {
   let currentState: GameState = createEmptyGameState();
   const unsubscribe = gameStateStore.subscribe((state) => {
     currentState = state;
   });
-  unsubscribe(); // Immediately unsubscribe
+  unsubscribe();
   return currentState;
 }

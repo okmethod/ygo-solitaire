@@ -1,7 +1,7 @@
 /**
  * cardDisplayStore - CardInstance → CardDisplayData変換ストア
  *
- * gameStateStoreの変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
+ * gameStateStore の変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
  * YGOPRODeck APIからカード詳細情報を取得し、UI表示用のデータを提供する。
  *
  * @module application/stores/cardDisplayStore
