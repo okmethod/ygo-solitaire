@@ -9,7 +9,6 @@
     opponentLP,
     handCardCount,
     deckCardCount,
-    isGameOver,
     gameResult,
     canActivateSpells,
   } from "$lib/application/stores/derivedStores";
@@ -48,7 +47,7 @@
   // ゲーム開始時、Main1 まで自動進行
   let hasAutoAdvanced = $state(false);
   $effect(() => {
-    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$isGameOver) {
+    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$gameResult.isGameOver) {
       autoAdvanceToMainPhase();
       hasAutoAdvanced = true;
     }
@@ -57,12 +56,12 @@
   // ゲーム終了したらモーダルを開く
   let isGameOverModalOpen = $state(false);
   $effect(() => {
-    if ($isGameOver) isGameOverModalOpen = true;
+    if ($gameResult.isGameOver) isGameOverModalOpen = true;
   });
 
   // 現在のステータス表示文字列を取得
   function getNowStatusString(): string {
-    if ($isGameOver) return "ゲーム終了";
+    if ($gameResult.isGameOver) return "ゲーム終了";
 
     function _getPhaseDisplay(phase: string): string {
       const phaseMap: Record<string, string> = {
@@ -297,7 +296,7 @@
         handCardCount={$handCardCount}
         currentPhase={$currentPhase}
         canActivateSpells={$canActivateSpells}
-        isGameOver={$isGameOver}
+        isGameOver={$gameResult.isGameOver}
         {selectedHandCardInstanceId}
         onCardClick={handleHandCardClick}
         onSummonMonster={handleSummonMonster}

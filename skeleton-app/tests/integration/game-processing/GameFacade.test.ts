@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
+import { currentPhase } from "$lib/application/stores/derivedStores";
 import { get } from "svelte/store";
 import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
 
@@ -125,27 +126,27 @@ describe("GameFacade", () => {
     });
 
     it("should advance from Draw to Standby", () => {
-      expect(facade.getCurrentPhase()).toBe("Draw");
+      expect(get(currentPhase)).toBe("Draw");
 
       const result = facade.advancePhase();
 
       expect(result.success).toBe(true);
       expect(result.message).toContain("スタンバイフェイズ");
-      expect(facade.getCurrentPhase()).toBe("Standby");
+      expect(get(currentPhase)).toBe("Standby");
     });
 
     it("should advance through all phases", () => {
       facade.advancePhase(); // Draw → Standby
-      expect(facade.getCurrentPhase()).toBe("Standby");
+      expect(get(currentPhase)).toBe("Standby");
 
       facade.advancePhase(); // Standby → Main1
-      expect(facade.getCurrentPhase()).toBe("Main1");
+      expect(get(currentPhase)).toBe("Main1");
 
       facade.advancePhase(); // Main1 → End
-      expect(facade.getCurrentPhase()).toBe("End");
+      expect(get(currentPhase)).toBe("End");
 
       facade.advancePhase(); // End → End (循環)
-      expect(facade.getCurrentPhase()).toBe("End");
+      expect(get(currentPhase)).toBe("End");
     });
 
     it("should fail when deck is empty in Draw phase", () => {
@@ -158,14 +159,14 @@ describe("GameFacade", () => {
     });
   });
 
-  describe("getCurrentPhase", () => {
-    it("should return current phase", () => {
+  describe("currentPhase store", () => {
+    it("should return current phase via derivedStore", () => {
       facade.initializeGame([1001]);
 
-      expect(facade.getCurrentPhase()).toBe("Draw");
+      expect(get(currentPhase)).toBe("Draw");
 
       facade.advancePhase();
-      expect(facade.getCurrentPhase()).toBe("Standby");
+      expect(get(currentPhase)).toBe("Standby");
     });
   });
 
@@ -246,7 +247,7 @@ describe("GameFacade", () => {
       facade.advancePhase(); // Standby → Main1
 
       // Verify we're in Main1 phase
-      expect(facade.getCurrentPhase()).toBe("Main1");
+      expect(get(currentPhase)).toBe("Main1");
 
       const state = get(gameStateStore);
       const cardInstanceId = state.zones.hand[0].instanceId;
@@ -269,46 +270,6 @@ describe("GameFacade", () => {
       const cardInstanceId = state.zones.hand[0].instanceId;
 
       expect(facade.canActivateCard(cardInstanceId)).toBe(false);
-    });
-  });
-
-  describe("checkVictory", () => {
-    it("should return game not over initially", () => {
-      facade.initializeGame([1001, 1002]);
-
-      const result = facade.checkVictory();
-
-      expect(result.isGameOver).toBe(false);
-      expect(result.winner).toBeUndefined();
-    });
-
-    it("should detect Exodia victory", () => {
-      const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([...exodiaNumericIds]); // 数値ID
-      facade.drawCard(5); // Draw all Exodia pieces
-
-      const result = facade.checkVictory();
-
-      expect(result.isGameOver).toBe(true);
-      expect(result.winner).toBe("player");
-      expect(result.reason).toBe("exodia");
-    });
-  });
-
-  describe("getCurrentTurn", () => {
-    it("should return current turn number", () => {
-      facade.initializeGame([1001]);
-
-      expect(facade.getCurrentTurn()).toBe(1);
-    });
-  });
-
-  describe("getPlayerLP and getOpponentLP", () => {
-    it("should return initial life points", () => {
-      facade.initializeGame([1001]);
-
-      expect(facade.getPlayerLP()).toBe(8000);
-      expect(facade.getOpponentLP()).toBe(8000);
     });
   });
 

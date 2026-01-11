@@ -37,9 +37,6 @@ export const fieldCardCount = derived(
   ($state) => $state.zones.mainMonsterZone.length + $state.zones.spellTrapZone.length + $state.zones.fieldZone.length,
 );
 
-/** ゲーム終了フラグ */
-export const isGameOver = derived(gameStateStore, ($state) => $state.result.isGameOver);
-
 /** ゲーム結果 */
 export const gameResult = derived(gameStateStore, ($state) => $state.result);
 
