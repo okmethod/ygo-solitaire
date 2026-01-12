@@ -77,7 +77,7 @@ describe("DrawCardCommand", () => {
       expect(result.success).toBe(true);
       expect(result.newState.zones.hand.length).toBe(1);
       expect(result.newState.zones.deck.length).toBe(initialDeckSize - 1);
-      expect(result.message).toContain("Drew 1 card");
+      expect(result.message).toContain("Draw 1 card");
     });
 
     it("should draw multiple cards", () => {
@@ -90,7 +90,7 @@ describe("DrawCardCommand", () => {
       expect(result.success).toBe(true);
       expect(result.newState.zones.hand.length).toBe(3);
       expect(result.newState.zones.deck.length).toBe(initialDeckSize - 3);
-      expect(result.message).toContain("Drew 3 cards");
+      expect(result.message).toContain("Draw 3 cards");
     });
 
     it("should not mutate original state (immutability)", () => {

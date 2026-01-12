@@ -1,64 +1,68 @@
 /**
- * ShuffleDeckCommand - Shuffle the deck using Fisher-Yates algorithm
+ * ShuffleDeckCommand - デッキシャッフルコマンド
  *
- * Implements the Command pattern for deck shuffling.
- * Uses the Fisher-Yates algorithm to randomize card order.
+ * デッキをシャッフルし、ランダムな順序に並び替える Command パターン実装。
  *
  * @module application/commands/ShuffleDeckCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
-import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
-/**
- * Command to shuffle the deck
- *
- * This command randomizes the order of cards in the deck zone
- * using the Fisher-Yates (Knuth) shuffle algorithm.
- */
+/** デッキシャッフルコマンドクラス */
 export class ShuffleDeckCommand implements GameCommand {
-  readonly description = "Shuffle deck";
+  readonly description: string;
+
+  constructor() {
+    this.description = "Shuffle deck";
+  }
 
   /**
-   * Check if shuffle is possible
+   * デッキをシャッフル可能か判定する
    *
-   * @returns Always true (shuffling is a safe operation even on empty decks or during game over)
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * （デッキが空でも実行可能）
    */
-  canExecute(): boolean {
-    // Shuffling is always allowed
-    // - Safe operation even if deck is empty (shuffling empty array is no-op)
-    // - Can be used to reset deck state even if game is over
+  canExecute(state: GameState): boolean {
+    // 1. ゲーム終了状態でないこと
+    if (state.result.isGameOver) {
+      return false;
+    }
+
     return true;
   }
 
   /**
-   * Execute shuffle command
+   * デッキをシャッフルする
    *
-   * @param state - Current game state
-   * @returns Command result with new state containing shuffled deck
+   * 処理フロー:
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    */
-  execute(state: GameState): CommandResult {
-    try {
-      // Shuffle deck using Fisher-Yates algorithm
-      const shuffledDeck = shuffleArray(state.zones.deck);
-
-      // Create new state with shuffled deck using spread syntax
-      const newState: GameState = {
-        ...state,
-        zones: {
-          ...state.zones,
-          deck: shuffledDeck,
-        },
-      };
-
-      return createSuccessResult(newState, "デッキをシャッフルしました");
-    } catch (error) {
-      return createFailureResult(
-        state,
-        `デッキのシャッフルに失敗しました: ${error instanceof Error ? error.message : String(error)}`,
-      );
+  execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
+    if (!this.canExecute(state)) {
+      return createFailureResult(state, `Cannot shuffle deck because the game is over.`);
     }
+
+    // 2. 更新後状態の構築
+    const updatedState: GameState = {
+      ...state,
+      zones: {
+        ...state.zones,
+        deck: shuffleArray(state.zones.deck),
+      },
+    };
+
+    // 3. 戻り値の構築
+    return {
+      success: true,
+      newState: updatedState,
+      message: "Shuffled the deck",
+    };
   }
 }

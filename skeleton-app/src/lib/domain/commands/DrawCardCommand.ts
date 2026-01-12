@@ -1,56 +1,56 @@
 /**
- * DrawCardCommand - Draw cards from deck to hand
+ * DrawCardCommand - カードドローコマンド
  *
- * Implements the Command pattern for drawing cards.
- * Validates deck has sufficient cards before drawing.
+ * デッキからカードをドローする Command パターン実装。
  *
  * @module application/commands/DrawCardCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
-import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { drawCards } from "$lib/domain/models/Zone";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
-/**
- * Command to draw cards from deck
- */
+/** カードドローコマンドクラス */
 export class DrawCardCommand implements GameCommand {
   readonly description: string;
 
-  /**
-   * Create a new DrawCardCommand
-   *
-   * @param count - Number of cards to draw (default: 1)
-   */
   constructor(private readonly count: number = 1) {
     this.description = `Draw ${count} card${count > 1 ? "s" : ""}`;
   }
 
   /**
-   * Check if draw is possible
+   * 指定枚数のカードをドローが可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if deck has enough cards
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. デッキに十分な枚数のカードが存在すること
    */
   canExecute(state: GameState): boolean {
-    // Check if game is already over
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return false;
     }
 
-    // Check if deck has enough cards
-    return state.zones.deck.length >= this.count;
+    // 2. デッキに十分な枚数のカードが存在すること
+    if (state.zones.deck.length < this.count) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
-   * Execute draw command
+   * 指定枚数のカードをドローする
    *
-   * @param state - Current game state
-   * @returns Command result with new state
+   * 処理フロー:
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    */
-  execute(state: GameState): CommandResult {
+  execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
     if (!this.canExecute(state)) {
       return createFailureResult(
         state,
@@ -58,30 +58,27 @@ export class DrawCardCommand implements GameCommand {
       );
     }
 
-    // Draw cards (returns new immutable zones object)
-    const newZones = drawCards(state.zones, this.count);
-
-    // Create new state with drawn cards using spread syntax
-    const newState: GameState = {
+    // 2. 更新後状態の構築
+    const updatedState: GameState = {
       ...state,
-      zones: newZones,
+      zones: drawCards(state.zones, this.count),
     };
 
-    // Check victory conditions after drawing
-    const victoryResult = checkVictoryConditions(newState);
-
-    // Update game result if victory/defeat occurred
+    // TODO: このタイミングでの勝利判定が必要か確認する
     const finalState: GameState = {
-      ...newState,
-      result: victoryResult,
+      ...updatedState,
+      result: checkVictoryConditions(updatedState),
     };
 
-    return createSuccessResult(finalState, `Drew ${this.count} card${this.count > 1 ? "s" : ""}`);
+    // 3. 戻り値の構築
+    return {
+      success: true,
+      newState: finalState,
+      message: `Draw ${this.count} card${this.count > 1 ? "s" : ""}`,
+    };
   }
 
-  /**
-   * Get number of cards to draw
-   */
+  /** ドローするカード枚数を取得する */
   getCount(): number {
     return this.count;
   }

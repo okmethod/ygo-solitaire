@@ -1,23 +1,21 @@
 /**
- * SetMonsterCommand - Set a monster card face-down in defense position
+ * SetMonsterCommand - モンスターセットコマンド
  *
- * Sets a monster card from hand to mainMonsterZone in face-down defense position.
- * This consumes one normal summon right (same as summoning).
+ * 手札からモンスターカードをセットする Command パターン実装。
+ * 召喚権を1消費し、モンスターを裏側守備表示でメインモンスターゾーンに配置する。
  *
  * @module domain/commands/SetMonsterCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard } from "$lib/domain/models/Zone";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import type { CardInstance } from "$lib/domain/models/Card";
 
-/**
- * Command to set a monster card face-down
- */
+/** モンスターセットコマンドクラス */
 export class SetMonsterCommand implements GameCommand {
   readonly description: string;
 
@@ -26,28 +24,28 @@ export class SetMonsterCommand implements GameCommand {
   }
 
   /**
-   * Check if monster can be set
+   * 指定カードをセット可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if monster can be set
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. 通常召喚ルールを満たしていること
+   * 3. 指定カードが手札に存在し、モンスターカードであること
    */
   canExecute(state: GameState): boolean {
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return false;
     }
 
-    // Setting a monster uses the same summon rights as summoning
+    // 2. 通常召喚ルールを満たしていること
     const validation = canNormalSummon(state);
     if (!validation.canSummon) {
       return false;
     }
 
+    // 3. 指定カードがモンスターカードであり、手札に存在すること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (!cardInstance || cardInstance.location !== "hand") {
-      return false;
-    }
-
-    if (cardInstance.type !== "monster") {
+    if (!cardInstance || cardInstance.type !== "monster" || cardInstance.location !== "hand") {
       return false;
     }
 
@@ -55,12 +53,12 @@ export class SetMonsterCommand implements GameCommand {
   }
 
   /**
-   * Execute set monster command
+   * 指定カードをセットする
    *
-   * @param state - Current game state
-   * @returns Command result with new state
+   * 処理フロー:
+   * 1. TODO: 要整理
    */
-  execute(state: GameState): CommandResult {
+  execute(state: GameState): GameStateUpdateResult {
     // Validate summon rights
     const validation = canNormalSummon(state);
     if (!validation.canSummon) {
@@ -100,14 +98,10 @@ export class SetMonsterCommand implements GameCommand {
       normalSummonUsed: state.normalSummonUsed + 1,
     };
 
-    return createSuccessResult(newState, `Monster set: ${cardInstance.name}`);
+    return createSuccessResult(newState, `Monster set: ${cardInstance.jaName}`);
   }
 
-  /**
-   * Get the card instance ID being set
-   *
-   * @returns Card instance ID
-   */
+  /** セット対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
   }

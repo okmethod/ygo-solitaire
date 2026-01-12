@@ -1,84 +1,75 @@
 /**
- * DiscardCardsCommand - Discard multiple cards from hand to graveyard
+ * DiscardCardsCommand - カード破棄コマンド
  *
- * Implements the Command pattern for discarding cards.
- * Validates all cards are in hand before discarding.
+ * 手札から複数のカードを墓地に捨てる Command パターン実装。
+ * TODO: DrawCard と DiscardCards で単数形・複数形の扱いが異なるので統一したい
  *
  * @module application/commands/DiscardCardsCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
-import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { discardCards } from "$lib/domain/models/Zone";
 
-/**
- * Command to discard multiple cards from hand to graveyard
- */
+/** カード破棄コマンドクラス */
 export class DiscardCardsCommand implements GameCommand {
   readonly description: string;
 
-  /**
-   * Create a new DiscardCardsCommand
-   *
-   * @param instanceIds - Array of card instance IDs to discard
-   */
   constructor(private readonly instanceIds: string[]) {
     this.description = `Discard ${instanceIds.length} card${instanceIds.length > 1 ? "s" : ""}`;
   }
 
   /**
-   * Check if discard is possible
+   * 指定カード群を破棄可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if all cards are in hand
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. 指定カードがすべて手札に存在すること
    */
   canExecute(state: GameState): boolean {
-    // Check if game is already over
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return false;
     }
 
-    // Check if all cards are in hand
-    for (const instanceId of this.instanceIds) {
-      const cardInHand = state.zones.hand.find((c) => c.instanceId === instanceId);
-      if (!cardInHand) {
-        return false;
-      }
+    // 2. 指定カードがすべて手札に存在すること
+    if (!this.instanceIds.every((id) => state.zones.hand.some((c) => c.instanceId === id))) {
+      return false;
     }
 
     return true;
   }
 
   /**
-   * Execute discard command
+   * 指定カード群を破棄する
    *
-   * @param state - Current game state
-   * @returns Command result with new state
+   * 処理フロー:
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    */
-  execute(state: GameState): CommandResult {
+  execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
     if (!this.canExecute(state)) {
       return createFailureResult(state, `Cannot discard ${this.instanceIds.length} cards. Some cards are not in hand.`);
     }
 
-    // Discard cards (returns new immutable zones object)
-    const newZones = discardCards(state.zones, this.instanceIds);
-
-    // Create new state with discarded cards using spread syntax
-    const newState: GameState = {
+    // 2. 更新後状態の構築
+    const updatedState: GameState = {
       ...state,
-      zones: newZones,
+      zones: discardCards(state.zones, this.instanceIds),
     };
 
-    return createSuccessResult(
-      newState,
-      `Discarded ${this.instanceIds.length} card${this.instanceIds.length > 1 ? "s" : ""}`,
-    );
+    // 3. 戻り値の構築
+    return {
+      success: true,
+      newState: updatedState,
+      message: `Discarded ${this.instanceIds.length} card${this.instanceIds.length > 1 ? "s" : ""}`,
+    };
   }
 
-  /**
-   * Get card instance IDs to discard
-   */
+  /** 破棄するカードのインスタンスID群を取得する */
   getInstanceIds(): string[] {
     return [...this.instanceIds];
   }

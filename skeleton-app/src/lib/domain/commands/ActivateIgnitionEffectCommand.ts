@@ -1,67 +1,48 @@
 /**
- * ActivateIgnitionEffectCommand - Activate an ignition effect
+ * ActivateIgnitionEffectCommand - 起動効果発動コマンド
  *
- * Implements the Command pattern for ignition effect activation.
- * Ignition effects are effects of cards already face-up on the field.
- *
- * Flow: [card on field] → [activate ignition effect] → [effect execution]
- *
- * MVP Scope:
- * - Main1 phase only
- * - Currently only Chicken Game (67616300) has ignition effect (hardcoded)
- *
- * TODO: Refactor to use registry pattern when multiple ignition effects are needed
- * See: ChainableActionRegistry extension design for supporting multiple actions per card
+ * フィールドに表側表示で存在するカードの起動効果を発動する Command パターン実装。
+ * TODO: 現状「チキンレース」のハードコードとなっている。別の起動効果も扱えるように汎用化する。
+ * TODO: canExecute を、 execute 内で再利用するように修正する。
+ * TODO: チェーンシステムに対応する。
  *
  * @module domain/commands/ActivateIgnitionEffectCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 
-/**
- * Command to activate an ignition effect
- */
+/** 起動効果発動コマンドクラス */
 export class ActivateIgnitionEffectCommand implements GameCommand {
   readonly description: string;
 
-  /**
-   * Create a new ActivateIgnitionEffectCommand
-   *
-   * @param cardInstanceId - Card instance ID to activate ignition effect from
-   */
   constructor(private readonly cardInstanceId: string) {
     this.description = `Activate ignition effect of ${cardInstanceId}`;
   }
 
   /**
-   * Check if ignition effect can be activated
+   * 指定カードインスタンスの起動効果が発動可能か判定する
    *
-   * Requirements:
-   * - Game is not over
-   * - Card exists and is face-up on field
-   * - Card has an ignition effect (currently only Chicken Game)
-   * - Card-specific activation conditions are met
-   *
-   * @param state - Current game state
-   * @returns True if ignition effect can be activated
+   * チェック項目:
+   * - ゲーム終了状態でないこと
+   * - 対象カードがフィールドに表側表示で存在すること
+   * - 効果レジストリに効果処理が登録されていること
+   * - カード固有の発動条件を満たしていること
    */
   canExecute(state: GameState): boolean {
-    // 1. Check if game is over
+    // ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return false;
     }
 
-    // 2. Find card instance
+    // 対象カードがフィールドに表側表示で存在すること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
       return false;
     }
-
-    // 3. Check card is face-up on field (fieldZone, spellTrapZone, or mainMonsterZone)
     const validLocations = ["fieldZone", "spellTrapZone", "mainMonsterZone"];
     if (!validLocations.includes(cardInstance.location)) {
       return false;
@@ -70,14 +51,14 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return false;
     }
 
-    // 4. Hardcoded check for Chicken Game (TODO: use registry)
+    // 効果レジストリに効果処理が登録されていること
     const cardId = cardInstance.id;
     if (cardId !== 67616300) {
-      return false; // Only Chicken Game has ignition effect for now
+      return false; // 現在はチキンレース固定
     }
 
-    // 5. Check card-specific activation conditions
-    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
+    // カード固有の発動条件を満たしていること
+    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId); // 現在はチキンレース固定
     if (!ignitionEffect.canActivate(state)) {
       return false;
     }
@@ -86,17 +67,14 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
   }
 
   /**
-   * Execute ignition effect activation
+   * 起動効果の発動処理・解決処理ステップ配列を生成して返す
    *
-   * Flow:
-   * 1. Validate activation conditions
-   * 2. Execute activation steps (cost payment, once-per-turn recording)
-   * 3. Return result with resolution steps
+   * 処理フロー:
+   * 1. TODO: 要整理
    *
-   * @param state - Current game state
-   * @returns Command result with new state and effect steps
+   * Note: 効果処理ステップは、Application 層に返された後に逐次実行される。
    */
-  execute(state: GameState): CommandResult {
+  execute(state: GameState): GameStateUpdateResult {
     // Validate
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
@@ -133,9 +111,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     };
   }
 
-  /**
-   * Get card instance ID being activated
-   */
+  /** 発動対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
   }

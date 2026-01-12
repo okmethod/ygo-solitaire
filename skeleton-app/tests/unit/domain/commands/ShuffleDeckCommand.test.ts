@@ -10,17 +10,17 @@ import { describe, it, expect } from "vitest";
 import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import {
   createExodiaDeckState,
+  createExodiaVictoryState,
   createMockGameState,
   createCardInstances,
 } from "../../../__testUtils__/gameStateFactory";
 
 describe("ShuffleDeckCommand", () => {
   describe("canExecute", () => {
-    it("should return true even when deck is empty", () => {
+    it("should return false when game is already over", () => {
+      const state = createExodiaVictoryState();
       const command = new ShuffleDeckCommand();
-
-      // Shuffling empty deck is safe (returns empty array)
-      expect(command.canExecute()).toBe(true);
+      expect(command.canExecute(state)).toBe(false);
     });
   });
 
@@ -35,7 +35,7 @@ describe("ShuffleDeckCommand", () => {
       expect(result.success).toBe(true);
       expect(result.newState).toBeDefined();
       expect(result.newState.zones.deck.length).toBe(originalDeckLength);
-      expect(result.message).toBe("デッキをシャッフルしました");
+      expect(result.message).toBe("Shuffled the deck");
     });
 
     it("should preserve all card IDs after shuffling", () => {

@@ -65,7 +65,7 @@ export interface CardSelectionConfig {
  * Each step has a unique ID, title, message, and action callback.
  *
  * The action callback uses Dependency Injection pattern:
- * - Domain Layer: Returns callback function (state: GameState) => CommandResult
+ * - Domain Layer: Returns callback function (state: GameState) => GameStateUpdateResult
  * - Application Layer: Executes callback, injecting current GameState
  *
  * If `cardSelectionConfig` is provided, Application Layer will:

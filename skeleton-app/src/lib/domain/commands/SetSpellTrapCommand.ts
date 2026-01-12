@@ -1,23 +1,19 @@
 /**
- * SetSpellTrapCommand - Set a spell or trap card face-down
+ * SetSpellTrapCommand - 魔法・罠セットコマンド
  *
- * Sets a spell or trap card from hand to either spellTrapZone or fieldZone (for field spells).
- * Setting does NOT consume normal summon rights.
- * Field spells automatically replace any existing field spell (old one goes to graveyard).
+ * 手札から魔法・罠カードをセットする Command パターン実装。
  *
  * @module domain/commands/SetSpellTrapCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import type { CardInstance } from "$lib/domain/models/Card";
 
-/**
- * Command to set a spell or trap card face-down
- */
+/** 魔法・罠セットコマンドクラス */
 export class SetSpellTrapCommand implements GameCommand {
   readonly description: string;
 
@@ -26,45 +22,49 @@ export class SetSpellTrapCommand implements GameCommand {
   }
 
   /**
-   * Check if spell/trap can be set
+   * 指定カードをセット可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if spell/trap can be set
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. メインフェイズ1であること
+   * 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
+   * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
    */
   canExecute(state: GameState): boolean {
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return false;
     }
 
+    // 2. メインフェイズ1であること
     if (state.phase !== "Main1") {
       return false;
     }
 
+    // 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance || cardInstance.location !== "hand") {
       return false;
     }
-
     if (cardInstance.type !== "spell" && cardInstance.type !== "trap") {
       return false;
     }
 
-    // Field spell: always allowed (will auto-replace existing)
-    if (cardInstance.spellType === "field") {
-      return true;
+    // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+    if (cardInstance.spellType !== "field" && state.zones.spellTrapZone.length >= 5) {
+      return false;
     }
 
-    // Non-field spell/trap: check spellTrapZone capacity
-    return state.zones.spellTrapZone.length < 5;
+    return true;
   }
 
   /**
-   * Execute set spell/trap command
+   * 指定カードをセットする
    *
-   * @param state - Current game state
-   * @returns Command result with new state
+   * 処理フロー:
+   * 1. TODO: 要整理
    */
-  execute(state: GameState): CommandResult {
+  execute(state: GameState): GameStateUpdateResult {
     if (state.phase !== "Main1") {
       return createFailureResult(state, "Main1フェーズではありません");
     }
@@ -116,14 +116,10 @@ export class SetSpellTrapCommand implements GameCommand {
       // NOTE: Setting spell/trap does NOT consume normalSummonUsed
     };
 
-    return createSuccessResult(newState, `Card set: ${cardInstance.name}`);
+    return createSuccessResult(newState, `Card set: ${cardInstance.jaName}`);
   }
 
-  /**
-   * Get the card instance ID being set
-   *
-   * @returns Card instance ID
-   */
+  /** セット対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
   }

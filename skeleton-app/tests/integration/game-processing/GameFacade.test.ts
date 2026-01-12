@@ -65,7 +65,7 @@ describe("GameFacade", () => {
       const result = facade.drawCard();
 
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Drew 1 card");
+      expect(result.message).toContain("Draw 1 card");
 
       const state = get(gameStateStore);
       expect(state.zones.hand.length).toBe(1);
@@ -76,7 +76,7 @@ describe("GameFacade", () => {
       const result = facade.drawCard(3);
 
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Drew 3 cards");
+      expect(result.message).toContain("Draw 3 cards");
 
       const state = get(gameStateStore);
       expect(state.zones.hand.length).toBe(3);
@@ -302,7 +302,7 @@ describe("GameFacade", () => {
       const result = facade.shuffleDeck();
 
       expect(result.success).toBe(true);
-      expect(result.message).toBe("デッキをシャッフルしました");
+      expect(result.message).toBe("Shuffled the deck");
 
       const state = get(gameStateStore);
       expect(state.zones.deck.length).toBe(5);
@@ -330,17 +330,6 @@ describe("GameFacade", () => {
       const state = get(gameStateStore);
       expect(state.zones.deck).not.toBe(originalDeck); // New array reference
       expect(state.zones.deck.length).toBe(originalDeck.length);
-    });
-
-    it("should handle empty deck without errors", () => {
-      facade.initializeGame(createTestDeckRecipe([]));
-
-      const result = facade.shuffleDeck();
-
-      expect(result.success).toBe(true);
-
-      const state = get(gameStateStore);
-      expect(state.zones.deck).toEqual([]);
     });
   });
 

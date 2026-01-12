@@ -1,57 +1,44 @@
 /**
- * ActivateSpellCommand - Activate a spell card
+ * ActivateSpellCommand - 魔法カード発動コマンド
  *
- * Implements the Command pattern for spell card activation.
- * Supports activation from:
- * - Hand (all spell types)
- * - spellTrapZone (set spells, with quick-play set-turn restriction)
- * - fieldZone (set field spells)
+ * 手札またはフィールドにセットされた魔法カードを発動する Command パターン実装。
+ * TODO: canExecute を、 execute 内で再利用するように修正する。
+ * TODO: チェーンシステムに対応する。
  *
- * Flow: source zone → field → effect execution → graveyard
- *
- * MVP Scope:
- * - Main1 phase only
- * - Quick-play spells cannot be activated the turn they're set
- *
- * @module application/commands/ActivateSpellCommand
+ * @module domain/commands/ActivateSpellCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 
-/**
- * Command to activate a spell card
- */
+/** 魔法カード発動コマンドクラス */
 export class ActivateSpellCommand implements GameCommand {
   readonly description: string;
 
-  /**
-   * Create a new ActivateSpellCommand
-   *
-   * @param cardInstanceId - Card instance ID to activate
-   */
   constructor(private readonly cardInstanceId: string) {
     this.description = `Activate spell card ${cardInstanceId}`;
   }
 
   /**
-   * Check if activation is possible
+   * 指定カードインスタンスの魔法カードが発動可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if spell can be activated
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. 魔法カード発動ルールを満たしていること
+   * 3. TODO: 3以降は要整理
    */
   canExecute(state: GameState): boolean {
-    // Check if game is already over
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return false;
     }
 
-    // Check spell activation rules
+    // 2. 魔法カード発動ルールを満たしていること
     const validation = canActivateSpell(state, this.cardInstanceId);
     if (!validation.canActivate) {
       return false;
@@ -72,14 +59,14 @@ export class ActivateSpellCommand implements GameCommand {
   }
 
   /**
-   * Execute spell activation command
+   * 魔法カードの発動処理・解決処理ステップ配列を生成して返す
    *
-   * Flow: hand → field → [effect execution] → graveyard
+   * 処理フロー:
+   * 1. TODO: 要整理
    *
-   * @param state - Current game state
-   * @returns Command result with new state (effectSteps included if effect exists)
+   * Note: 効果処理ステップは、Application 層に返された後に逐次実行される。
    */
-  execute(state: GameState): CommandResult {
+  execute(state: GameState): GameStateUpdateResult {
     // Validate activation
     const validation = canActivateSpell(state, this.cardInstanceId);
     if (!validation.canActivate) {
@@ -160,9 +147,7 @@ export class ActivateSpellCommand implements GameCommand {
     return createSuccessResult(newState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }
 
-  /**
-   * Get card instance ID being activated
-   */
+  /** 発動対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
   }

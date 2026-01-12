@@ -79,7 +79,7 @@ export interface GameCommand {
 export function createSuccessResult(newState: GameState, message?: string): GameStateUpdateResult {
   return {
     success: true,
-    newState,
+    newState, // TODO: UpdatedState にリネームしたい
     message,
   };
 }

@@ -82,7 +82,7 @@
  * @param count 引く枚数（数値型）
  * @returns 成功したかどうかの結果を返します
  */
-drawCard(count: number): CommandResult;
+drawCard(count: number): GameStateUpdateResult;
 
 ```
 
@@ -90,7 +90,7 @@ drawCard(count: number): CommandResult;
 
 ```typescript
 /** デッキから指定枚数のカードをドローし、GameState を更新します。 */
-drawCard(count: number): CommandResult;
+drawCard(count: number): GameStateUpdateResult;
 
 ```
 
