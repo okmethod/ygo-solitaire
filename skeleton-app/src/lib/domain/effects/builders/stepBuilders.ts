@@ -19,7 +19,7 @@
 
 import type { EffectResolutionStep, CardSelectionConfig } from "../../models/EffectResolutionStep";
 import type { GameState } from "../../models/GameState";
-import type { GameStateUpdateResult } from "../../models/GameStateUpdateResult";
+import type { GameStateUpdateResult } from "../../models/GameStateUpdate";
 import type { CardInstance } from "../../models/Card";
 import { drawCards, sendToGraveyard, moveCard, shuffleDeck } from "../../models/Zone";
 import { getCardData } from "../../registries/CardDataRegistry";

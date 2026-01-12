@@ -1,10 +1,10 @@
 /**
- * GameStateUpdateResult - Result of GameState update operations
+ * GameStateUpdate - Result of GameState update operations
  *
  * This is a domain-level interface used by Commands, Effects, and other operations
  * that update the GameState. It does not depend on application or presentation layers.
  *
- * @module domain/models/GameStateUpdateResult
+ * @module domain/models/GameStateUpdate
  */
 
 import type { GameState } from "./GameState";

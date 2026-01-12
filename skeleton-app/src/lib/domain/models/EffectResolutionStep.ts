@@ -8,7 +8,7 @@
  */
 
 import type { GameState } from "../models/GameState";
-import type { GameStateUpdateResult } from "../models/GameStateUpdateResult";
+import type { GameStateUpdateResult } from "./GameStateUpdate";
 import type { CardInstance } from "../models/Card";
 
 /**
@@ -52,7 +52,7 @@ export interface CardSelectionConfig {
   description: string;
   /** Whether user can cancel the selection (default: true) */
   cancelable?: boolean;
-  /** Internal: Source zone for dynamic card population (e.g., "graveyard", "deck") */
+  /** Internal: Source zone for dynamic card population (e.g., "graveyard", "deck") TODO: 型エイリアスを定義するべきかも */
   _sourceZone?: "hand" | "graveyard" | "deck" | "field" | "banished";
   /** Internal: Filter function for dynamic card population (supports index for deck top selection) */
   _filter?: (card: CardInstance, index?: number) => boolean;

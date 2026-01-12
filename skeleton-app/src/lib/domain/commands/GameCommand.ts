@@ -11,8 +11,8 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdateResult";
-export { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdateResult";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+export { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 
 // Re-export as CommandResult for convenience in Command context
 export type { GameStateUpdateResult as CommandResult };
@@ -24,6 +24,8 @@ export type { GameStateUpdateResult as CommandResult };
  * 1. canExecute() - Pre-validation (checks rules without mutating state)
  * 2. execute() - Returns new GameState (immutability via spread syntax)
  * 3. description - Human-readable action name (for logs/history)
+ *
+ * TODO: 要検討 - インターフェースは、modelに置いて良いのでは？？
  */
 export interface GameCommand {
   /**
