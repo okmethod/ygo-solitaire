@@ -22,7 +22,6 @@ import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
-import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
 
 /**
@@ -116,9 +115,7 @@ export class GameFacade {
 
   /** 指定した魔法カードインスタンスを発動可能かどうかチェックして返す */
   canActivateSpell(cardInstanceId: string): boolean {
-    const currentState = getCurrentGameState();
-    const validation = canActivateSpell(currentState, cardInstanceId);
-    return validation.canActivate;
+    return this.canExecuteCommand(ActivateSpellCommand, cardInstanceId);
   }
 
   /** 指定した魔法カードインスタンスを発動する */

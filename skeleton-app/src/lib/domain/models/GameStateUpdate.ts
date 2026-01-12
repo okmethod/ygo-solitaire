@@ -11,11 +11,6 @@ import type { EffectResolutionStep } from "./EffectResolutionStep";
  * GameState更新結果の共通インターフェース
  *
  * すべてのゲーム状態更新操作（Command、Effect、Rule等）が返す統一結果型。
- *
- * Used by:
- * - GameCommand.execute() の戻り値
- * - EffectResolutionStep.action() の戻り値
- * - その他のDomain層の状態更新処理
  */
 export interface GameStateUpdateResult {
   readonly success: boolean;
@@ -31,10 +26,18 @@ export interface GameStateUpdateResult {
    * - GameFacade.activateSpell() が effectResolutionStore.startResolution() を呼ぶ
    *
    * これにより、Domain層がApplication層の制御フローに依存しない設計を実現。
-   *
-   * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
    */
   readonly effectSteps?: EffectResolutionStep[];
+}
+
+/**
+ * GameState更新前の実行可能性検証結果の共通インターフェース
+ *
+ * すべてのゲーム状態更新操作（Command、Effect、Rule等）が返す統一結果型。
+ */
+export interface ValidationResult {
+  readonly canExecute: boolean;
+  readonly reason?: string;
 }
 
 /**

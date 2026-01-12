@@ -25,7 +25,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.canExecute).toBe(true);
       expect(result.reason).toBeUndefined();
     });
 
@@ -41,7 +41,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toBe("Main1フェーズではありません");
     });
 
@@ -57,7 +57,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toBe("召喚権がありません");
     });
 
@@ -67,6 +67,7 @@ describe("SummonRule", () => {
         instanceId: `monster-${i}`,
         id: 1000 + i,
         name: `Monster ${i}`,
+        jaName: `モンスター ${i}`,
         type: "monster" as const,
         frameType: "normal" as const,
         desc: "Test monster",
@@ -100,7 +101,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toBe("モンスターゾーンが満杯です");
     });
 
@@ -116,7 +117,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.canExecute).toBe(true);
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 1", () => {
@@ -131,7 +132,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.canExecute).toBe(true);
     });
 
     it("should fail if normalSummonLimit is 2 and used is 2", () => {
@@ -146,7 +147,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toBe("召喚権がありません");
     });
 
@@ -156,6 +157,7 @@ describe("SummonRule", () => {
         instanceId: `monster-${i}`,
         id: 1000 + i,
         name: `Monster ${i}`,
+        jaName: `モンスター ${i}`,
         type: "monster" as const,
         frameType: "normal" as const,
         desc: "Test monster",
@@ -189,7 +191,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.canExecute).toBe(true);
     });
   });
 });

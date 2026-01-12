@@ -23,7 +23,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(state, cardInstanceId);
 
-      expect(result.canActivate).toBe(true);
+      expect(result.canExecute).toBe(true);
       expect(result.reason).toBeUndefined();
     });
 
@@ -33,7 +33,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(state, cardInstanceId);
 
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("メインフェイズでのみ");
     });
 
@@ -43,7 +43,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(state, cardInstanceId);
 
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("メインフェイズでのみ");
     });
 
@@ -53,7 +53,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(state, cardInstanceId);
 
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("メインフェイズでのみ");
     });
 
@@ -63,7 +63,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(state, nonExistentId);
 
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("発動可能な位置");
     });
   });
@@ -198,7 +198,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(stateWithSetCard, cardInstanceId);
 
-      expect(result.canActivate).toBe(true);
+      expect(result.canExecute).toBe(true);
       expect(result.reason).toBeUndefined();
     });
 
@@ -225,7 +225,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(stateWithSetCard, cardInstanceId);
 
-      expect(result.canActivate).toBe(true);
+      expect(result.canExecute).toBe(true);
       expect(result.reason).toBeUndefined();
     });
 
@@ -253,7 +253,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(stateWithSetCard, cardInstanceId);
 
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("速攻魔法");
       expect(result.reason).toContain("セットしたターン");
     });
@@ -281,7 +281,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(stateWithSetCard, cardInstanceId);
 
-      expect(result.canActivate).toBe(true);
+      expect(result.canExecute).toBe(true);
       expect(result.reason).toBeUndefined();
     });
 
@@ -307,7 +307,7 @@ describe("SpellActivationRule", () => {
 
       const result = canActivateSpell(stateWithCardInGraveyard, cardInstanceId);
 
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("発動可能な位置");
     });
 
@@ -335,7 +335,7 @@ describe("SpellActivationRule", () => {
       const result = canActivateSpell(stateWithSetCard, cardInstanceId);
 
       // Field spells in spellTrapZone is conceptually invalid (should be in fieldZone)
-      expect(result.canActivate).toBe(false);
+      expect(result.canExecute).toBe(false);
       expect(result.reason).toContain("フィールド魔法");
     });
   });

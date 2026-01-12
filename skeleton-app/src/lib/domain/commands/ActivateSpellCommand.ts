@@ -39,8 +39,8 @@ export class ActivateSpellCommand implements GameCommand {
     }
 
     // 2. 魔法カード発動ルールを満たしていること
-    const validation = canActivateSpell(state, this.cardInstanceId);
-    if (!validation.canActivate) {
+    const validationResult = canActivateSpell(state, this.cardInstanceId);
+    if (!validationResult.canExecute) {
       return false;
     }
 
@@ -68,9 +68,9 @@ export class ActivateSpellCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // Validate activation
-    const validation = canActivateSpell(state, this.cardInstanceId);
-    if (!validation.canActivate) {
-      return createFailureResult(state, validation.reason || "Cannot activate spell card");
+    const validationResult = canActivateSpell(state, this.cardInstanceId);
+    if (!validationResult.canExecute) {
+      return createFailureResult(state, validationResult.reason || "Cannot activate spell card");
     }
 
     // Step 2: Effect execution based on card ID

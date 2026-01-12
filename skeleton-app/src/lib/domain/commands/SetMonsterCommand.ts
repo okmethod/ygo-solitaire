@@ -38,8 +38,8 @@ export class SetMonsterCommand implements GameCommand {
     }
 
     // 2. 通常召喚ルールを満たしていること
-    const validation = canNormalSummon(state);
-    if (!validation.canSummon) {
+    const validationResult = canNormalSummon(state);
+    if (!validationResult.canExecute) {
       return false;
     }
 
@@ -60,9 +60,9 @@ export class SetMonsterCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // Validate summon rights
-    const validation = canNormalSummon(state);
-    if (!validation.canSummon) {
-      return createFailureResult(state, validation.reason || "Cannot set monster");
+    const validationResult = canNormalSummon(state);
+    if (!validationResult.canExecute) {
+      return createFailureResult(state, validationResult.reason || "Cannot set monster");
     }
 
     const cardInstance = findCardInstance(state, this.cardInstanceId);

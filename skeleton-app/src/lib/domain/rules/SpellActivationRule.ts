@@ -1,25 +1,6 @@
-/**
- * SpellActivationRule - Spell card activation validation
- *
- * Validates spell card activation conditions:
- * - Must be in Main1 phase
- * - Card must be in hand
- * - Must be a spell card
- * - MVP scope: Normal spells only (no Quick-Play during opponent's turn)
- *
- * @module domain/rules/SpellActivationRule
- */
-
-import type { GameState } from "../models/GameState";
-import type { GamePhase } from "../models/Phase";
-
-/**
- * Result of spell activation validation
- */
-export interface SpellActivationValidation {
-  readonly canActivate: boolean;
-  readonly reason?: string;
-}
+import type { GameState } from "$lib/domain/models/GameState";
+import type { GamePhase } from "$lib/domain/models/Phase";
+import type { ValidationResult } from "$lib/domain/models/GameStateUpdate";
 
 /**
  * Check if a spell card can be activated
@@ -33,11 +14,21 @@ export interface SpellActivationValidation {
  * @param cardInstanceId - Card instance ID to activate
  * @returns Validation result with reason if cannot activate
  */
-export function canActivateSpell(state: GameState, cardInstanceId: string): SpellActivationValidation {
+
+/**
+ * 魔法カードが発動可能かをチェックする
+ *
+ * チェック項目:
+ * 1. メインフェーズ1であること
+ * 2. カードタイプが魔法カードであること
+ *
+ * Note: GameStateのみによる判定を責務とし、カードインスタンスが必要な判定はコマンドに委ねる
+ */
+export function canActivateSpell(state: GameState, cardInstanceId: string): ValidationResult {
   // Check phase (must be Main1)
   if (state.phase !== "Main1") {
     return {
-      canActivate: false,
+      canExecute: false,
       reason: `魔法カードはメインフェイズでのみ発動できます（現在: ${state.phase}）`,
     };
   }
@@ -51,7 +42,7 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
 
   if (!card) {
     return {
-      canActivate: false,
+      canExecute: false,
       reason: `指定されたカードが発動可能な位置（手札、魔法・罠ゾーン、フィールドゾーン）に見つかりません`,
     };
   }
@@ -59,7 +50,7 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
   // Check card type: must be a spell card (SpellActivationRule is for spells only)
   if (card.type !== "spell") {
     return {
-      canActivate: false,
+      canExecute: false,
       reason: `魔法カード以外は発動できません`,
     };
   }
@@ -69,7 +60,7 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
     // Field spells (continuous spells) can only be activated from fieldZone
     if (card.spellType === "field" && cardInSpellTrapZone) {
       return {
-        canActivate: false,
+        canExecute: false,
         reason: `フィールド魔法は魔法・罠ゾーンから発動できません`,
       };
     }
@@ -77,7 +68,7 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
     // Quick-play spells cannot be activated the turn they were set (FR-012-2)
     if (card.spellType === "quick-play" && card.placedThisTurn) {
       return {
-        canActivate: false,
+        canExecute: false,
         reason: `速攻魔法はセットしたターンに発動できません`,
       };
     }
@@ -85,7 +76,7 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Spel
 
   // All checks passed
   return {
-    canActivate: true,
+    canExecute: true,
   };
 }
 
@@ -117,7 +108,7 @@ export function isCardInHand(state: GameState, cardInstanceId: string): boolean 
  * @param cardInstanceId - Card instance ID to activate
  * @returns Validation result
  */
-export function validateSpellActivation(state: GameState, cardInstanceId: string): SpellActivationValidation {
+export function validateSpellActivation(state: GameState, cardInstanceId: string): ValidationResult {
   return canActivateSpell(state, cardInstanceId);
 }
 

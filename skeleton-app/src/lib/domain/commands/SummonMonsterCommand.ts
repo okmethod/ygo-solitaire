@@ -38,8 +38,8 @@ export class SummonMonsterCommand implements GameCommand {
     }
 
     // 2. 通常召喚ルールを満たしていること
-    const validation = canNormalSummon(state);
-    if (!validation.canSummon) {
+    const validationResult = canNormalSummon(state);
+    if (!validationResult.canExecute) {
       return false;
     }
 
@@ -59,9 +59,9 @@ export class SummonMonsterCommand implements GameCommand {
    * 1. TODO: 要整理
    */
   execute(state: GameState): GameStateUpdateResult {
-    const validation = canNormalSummon(state);
-    if (!validation.canSummon) {
-      return createFailureResult(state, validation.reason || "Cannot summon");
+    const validationResult = canNormalSummon(state);
+    if (!validationResult.canExecute) {
+      return createFailureResult(state, validationResult.reason || "Cannot summon");
     }
 
     const cardInstance = findCardInstance(state, this.cardInstanceId);
