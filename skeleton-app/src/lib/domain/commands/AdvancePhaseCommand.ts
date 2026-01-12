@@ -11,7 +11,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { getNextPhase } from "$lib/domain/models/Phase";
-import { validatePhaseTransition, getPhaseDisplayName } from "$lib/domain/rules/PhaseRule";
+import { validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/rules/PhaseRule";
 
 /** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
@@ -62,16 +62,17 @@ export class AdvancePhaseCommand implements GameCommand {
     }
 
     const nextPhase = getNextPhase(state.phase);
-    const isAdvancingToEnd = nextPhase === "End";
-    const hasPendingEffects = isAdvancingToEnd && state.pendingEndPhaseEffects.length > 0;
+    const hasPendingEffects = isEndPhase(nextPhase) && state.pendingEndPhaseEffects.length > 0;
 
     // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
       phase: nextPhase,
       // ターン終了時に「ターン1制限」「名称ターン1制限」をリセット
-      activatedIgnitionEffectsThisTurn: isAdvancingToEnd ? new Set<string>() : state.activatedIgnitionEffectsThisTurn,
-      activatedOncePerTurnCards: isAdvancingToEnd ? new Set<number>() : state.activatedOncePerTurnCards,
+      activatedIgnitionEffectsThisTurn: isEndPhase(nextPhase)
+        ? new Set<string>()
+        : state.activatedIgnitionEffectsThisTurn,
+      activatedOncePerTurnCards: isEndPhase(nextPhase) ? new Set<number>() : state.activatedOncePerTurnCards,
       // 保留リストは、エンドフェイズに遷移した時点でクリアする
       pendingEndPhaseEffects: hasPendingEffects ? [] : state.pendingEndPhaseEffects,
     };
