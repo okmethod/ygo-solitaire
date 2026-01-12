@@ -55,7 +55,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
           return {
             success: true,
             newState: currentState,
-            message: "Opponent drew 1 card (internal)",
+            message: "Opponent draw 1 card (internal)",
           };
         },
       },

@@ -73,7 +73,7 @@ export function createDrawStep(
       return {
         success: true,
         newState,
-        message: `Drew ${count} card${count > 1 ? "s" : ""}`,
+        message: `Draw ${count} card${count > 1 ? "s" : ""}`,
       };
     },
   };
@@ -662,7 +662,7 @@ export function createDrawUntilCountStep(
       return {
         success: true,
         newState,
-        message: `Drew ${drawCount} card${drawCount > 1 ? "s" : ""} (hand now: ${targetCount})`,
+        message: `Draw ${drawCount} card${drawCount > 1 ? "s" : ""} (hand now: ${targetCount})`,
       };
     },
   };

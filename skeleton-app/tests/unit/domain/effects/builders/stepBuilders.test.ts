@@ -72,7 +72,7 @@ describe("stepBuilders", () => {
       expect(result.success).toBe(true);
       expect(result.newState.zones.hand.length).toBe(state.zones.hand.length + 2);
       expect(result.newState.zones.deck.length).toBe(state.zones.deck.length - 2);
-      expect(result.message).toBe("Drew 2 cards");
+      expect(result.message).toBe("Draw 2 cards");
     });
 
     it("should fail when deck does not have enough cards", () => {
@@ -97,7 +97,7 @@ describe("stepBuilders", () => {
       const result = step.action(state);
 
       // Assert
-      expect(result.message).toBe("Drew 1 card");
+      expect(result.message).toBe("Draw 1 card");
     });
   });
 

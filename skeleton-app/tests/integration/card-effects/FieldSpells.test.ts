@@ -59,13 +59,17 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: chickenGameCardId,
+              jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
               spellType: "field",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -92,11 +96,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const anotherFieldSpell: CardInstance = {
         instanceId: "field-0",
         id: 99999999,
+        jaName: "別のフィールド魔法",
         type: "spell",
         frameType: "spell",
         spellType: "field",
         location: "fieldZone",
         position: "faceUp",
+        placedThisTurn: false,
       };
 
       const state = createMockGameState({
@@ -107,6 +113,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: chickenGameCardId,
+              jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
               spellType: "field",
@@ -140,11 +147,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     const chickenGameOnField: CardInstance = {
       instanceId: "field-0",
       id: chickenGameCardId,
+      jaName: "チキンゲーム",
       type: "spell",
       frameType: "spell",
       spellType: "field",
       location: "fieldZone",
       position: "faceUp",
+      placedThisTurn: false,
     };
 
     it("Scenario: Activate ignition effect → Pay 1000 LP → Draw 1 card", () => {
@@ -155,7 +164,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         zones: {
           deck: createCardInstances([1001, 1002], "deck"),
           hand: [],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -199,7 +210,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         zones: {
           deck: createCardInstances([1001, 1002], "deck"),
           hand: [],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -222,7 +235,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         zones: {
           deck: createCardInstances([1001, 1002], "deck"),
           hand: [],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -248,12 +263,16 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: 1001,
+              jaName: "サンプルカード",
               type: "spell",
               frameType: "spell",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -293,13 +312,17 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: chickenGameCardId,
+              jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
               spellType: "field",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -341,7 +364,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       // Assert final state
       expect(finalState.lp.player).toBe(7000); // 8000 - 1000
       expect(finalState.zones.fieldZone.length).toBe(1); // Chicken Game still on field
-      expect(finalState.zones.hand.length).toBe(1); // Drew 1 card
+      expect(finalState.zones.hand.length).toBe(1); // Draw 1 card
       expect(finalState.zones.deck.length).toBe(2); // 3 - 1 = 2
       expect(finalState.activatedIgnitionEffectsThisTurn.size).toBe(1);
 
@@ -366,7 +389,9 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
       zones: {
         deck: createCardInstances(["12345678"], "deck"),
         hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
-        field: [],
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
         graveyard: [],
         banished: [],
       },
@@ -396,7 +421,9 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
       zones: {
         deck: createCardInstances(["12345678"], "deck"),
         hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
-        field: [],
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
         graveyard: [],
         banished: [],
       },
