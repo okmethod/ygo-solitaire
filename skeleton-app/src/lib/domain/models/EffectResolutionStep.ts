@@ -53,7 +53,7 @@ export interface CardSelectionConfig {
   /** Whether user can cancel the selection (default: true) */
   cancelable?: boolean;
   /** Internal: Source zone for dynamic card population (e.g., "graveyard", "deck") TODO: 型エイリアスを定義するべきかも */
-  _sourceZone?: "hand" | "graveyard" | "deck" | "field" | "banished";
+  _sourceZone?: "hand" | "graveyard" | "deck" | "mainMonsterZone" | "spellTrapZone" | "fieldZone" | "banished";
   /** Internal: Filter function for dynamic card population (supports index for deck top selection) */
   _filter?: (card: CardInstance, index?: number) => boolean;
 }
