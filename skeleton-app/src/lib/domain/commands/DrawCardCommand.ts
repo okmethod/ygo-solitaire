@@ -10,7 +10,6 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { drawCards } from "$lib/domain/models/Zone";
-import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 /** カードドローコマンドクラス */
 export class DrawCardCommand implements GameCommand {
@@ -64,16 +63,10 @@ export class DrawCardCommand implements GameCommand {
       zones: drawCards(state.zones, this.count),
     };
 
-    // TODO: このタイミングでの勝利判定が必要か確認する
-    const finalState: GameState = {
-      ...updatedState,
-      result: checkVictoryConditions(updatedState),
-    };
-
     // 3. 戻り値の構築
     return {
       success: true,
-      newState: finalState,
+      newState: updatedState,
       message: `Draw ${this.count} card${this.count > 1 ? "s" : ""}`,
     };
   }

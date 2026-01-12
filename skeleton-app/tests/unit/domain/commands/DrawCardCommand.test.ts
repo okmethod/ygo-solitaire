@@ -10,7 +10,6 @@ import {
   createMockGameState,
   createCardInstances,
 } from "../../../__testUtils__/gameStateFactory";
-import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
 
 describe("DrawCardCommand", () => {
   describe("canExecute", () => {
@@ -33,7 +32,9 @@ describe("DrawCardCommand", () => {
         zones: {
           deck: createCardInstances(["12345678"], "deck"), // Only 1 card
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -48,7 +49,9 @@ describe("DrawCardCommand", () => {
         zones: {
           deck: [],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -106,34 +109,14 @@ describe("DrawCardCommand", () => {
       expect(state.zones.hand.length).toBe(originalHandSize);
     });
 
-    it("should detect Exodia victory after drawing all pieces", () => {
-      // Create state with 4 Exodia pieces in hand and 1 in deck
-      const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
-      const state = createMockGameState({
-        zones: {
-          deck: createCardInstances([exodiaNumericIds[4]], "deck"), // Last piece on top
-          hand: createCardInstances([...exodiaNumericIds.slice(0, 4)], "hand"), // First 4 pieces
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
-      const command = new DrawCardCommand(1);
-      const result = command.execute(state);
-
-      expect(result.success).toBe(true);
-      expect(result.newState.result.isGameOver).toBe(true);
-      expect(result.newState.result.winner).toBe("player");
-      expect(result.newState.result.reason).toBe("exodia");
-    });
-
     it("should fail when deck has insufficient cards", () => {
       const state = createMockGameState({
         zones: {
           deck: createCardInstances(["12345678"], "deck"),
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
