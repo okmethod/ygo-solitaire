@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import { loadDeckData } from "$lib/application/utils/deckLoader";
+import { loadDeck } from "$lib/application/utils/deckLoader";
 import { gameFacade } from "$lib/application/GameFacade";
 
 /**
@@ -8,37 +8,13 @@ import { gameFacade } from "$lib/application/GameFacade";
 export const load: PageLoad = async ({ params, fetch }) => {
   const { deckId } = params;
 
-  // Load deck data from API
-  const deckData = await loadDeckData(deckId, fetch);
+  // デッキデータを読み込む
+  const { deckRecipe, deckData } = await loadDeck(deckId, fetch);
 
-  // Extract card IDs from deck (数値ID対応)
-  const deckCardIds: number[] = [];
+  console.log(`[PageLoad] Initializing game with deck: ${deckRecipe.name}`);
 
-  // Main deck monsters
-  deckData.mainDeck.monsters.forEach((entry) => {
-    for (let i = 0; i < entry.quantity; i++) {
-      deckCardIds.push(entry.cardData.id); // 数値IDをそのまま使用
-    }
-  });
-
-  // Main deck spells
-  deckData.mainDeck.spells.forEach((entry) => {
-    for (let i = 0; i < entry.quantity; i++) {
-      deckCardIds.push(entry.cardData.id); // 数値IDをそのまま使用
-    }
-  });
-
-  // Main deck traps
-  deckData.mainDeck.traps.forEach((entry) => {
-    for (let i = 0; i < entry.quantity; i++) {
-      deckCardIds.push(entry.cardData.id); // 数値IDをそのまま使用
-    }
-  });
-
-  console.log(`[PageLoad] Initializing game with ${deckCardIds.length} cards`);
-
-  // Initialize game with GameFacade
-  gameFacade.initializeGame(deckCardIds);
+  // ゲームを初期化する
+  gameFacade.initializeGame(deckRecipe);
 
   // Shuffle deck before drawing initial hand
   const shuffleResult = gameFacade.shuffleDeck();

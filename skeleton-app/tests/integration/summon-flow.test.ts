@@ -7,13 +7,18 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import type { GameState } from "$lib/domain/models/GameState";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
 import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[], extraDeckCardIds: number[] = []): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds };
+}
 
 describe("Summon Flow Integration", () => {
   let initialState: GameState;
@@ -32,7 +37,7 @@ describe("Summon Flow Integration", () => {
       exodiaIds[1], // Right Leg - will be drawn 2nd
       exodiaIds[0], // Exodia the Forbidden One - will be drawn 1st
     ];
-    initialState = createInitialGameState(deckIds, []);
+    initialState = createInitialGameState(createTestInitialDeck(deckIds, []));
   });
 
   describe("Basic Summon Flow", () => {

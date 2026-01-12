@@ -4,10 +4,28 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
+import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { currentPhase } from "$lib/application/stores/derivedStores";
 import { get } from "svelte/store";
 import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
+
+/**
+ * テスト用ヘルパー: カードID配列からDeckRecipeを生成
+ *
+ * テストでは簡易的なDeckRecipeを作成するため、
+ * カードIDのみを持つmainDeckエントリーとして扱う。
+ */
+function createTestDeckRecipe(cardIds: number[]): DeckRecipe {
+  return {
+    name: "Test Deck",
+    mainDeck: cardIds.map((id) => ({
+      id,
+      quantity: 1,
+    })),
+    extraDeck: [],
+  };
+}
 
 describe("GameFacade", () => {
   let facade: GameFacade;
@@ -20,7 +38,7 @@ describe("GameFacade", () => {
     it("should initialize game with given deck", () => {
       const deckCardIds = [12345678, 87654321, 12345678]; // 数値ID
 
-      facade.initializeGame(deckCardIds);
+      facade.initializeGame(createTestDeckRecipe(deckCardIds));
 
       const state = get(gameStateStore);
       expect(state.zones.deck.length).toBe(3);
@@ -30,17 +48,17 @@ describe("GameFacade", () => {
     });
 
     it("should reset state when called multiple times", () => {
-      facade.initializeGame([12345678]); // 数値ID
+      facade.initializeGame(createTestDeckRecipe([12345678])); // 数値ID
       expect(get(gameStateStore).zones.deck.length).toBe(1);
 
-      facade.initializeGame([12345678, 87654321]); // 数値ID
+      facade.initializeGame(createTestDeckRecipe([12345678, 87654321])); // 数値ID
       expect(get(gameStateStore).zones.deck.length).toBe(2);
     });
   });
 
   describe("drawCard", () => {
     beforeEach(() => {
-      facade.initializeGame([1001, 1002, 1003, 1001, 1002]); // 数値ID
+      facade.initializeGame(createTestDeckRecipe([1001, 1002, 1003, 1001, 1002])); // 数値ID
     });
 
     it("should draw 1 card by default", () => {
@@ -89,7 +107,7 @@ describe("GameFacade", () => {
       // Initialize with 4 Exodia pieces in deck (will be drawn)
       // and 1 Exodia piece already in hand
       const exodiaNumericIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([...exodiaNumericIds.slice(0, 4)]); // 数値ID
+      facade.initializeGame(createTestDeckRecipe([...exodiaNumericIds.slice(0, 4)])); // 数値ID
 
       // Manually set 5th piece in hand (simulating previous draw)
       const state = get(gameStateStore);
@@ -124,7 +142,7 @@ describe("GameFacade", () => {
 
   describe("advancePhase", () => {
     beforeEach(() => {
-      facade.initializeGame([1001, 1002, 1003]);
+      facade.initializeGame(createTestDeckRecipe([1001, 1002, 1003]));
     });
 
     it("should advance from Draw to Standby", () => {
@@ -152,7 +170,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when deck is empty in Draw phase", () => {
-      facade.initializeGame([]); // Empty deck
+      facade.initializeGame(createTestDeckRecipe([])); // Empty deck
 
       const result = facade.advancePhase();
 
@@ -163,7 +181,7 @@ describe("GameFacade", () => {
 
   describe("currentPhase store", () => {
     it("should return current phase via derivedStore", () => {
-      facade.initializeGame([1001]);
+      facade.initializeGame(createTestDeckRecipe([1001]));
 
       expect(get(currentPhase)).toBe("Draw");
 
@@ -174,7 +192,7 @@ describe("GameFacade", () => {
 
   describe("getGameState", () => {
     it("should return current state snapshot", () => {
-      facade.initializeGame([1001, 1002]);
+      facade.initializeGame(createTestDeckRecipe([1001, 1002]));
 
       const state = facade.getGameState();
 
@@ -186,7 +204,7 @@ describe("GameFacade", () => {
 
   describe("activateSpell", () => {
     it("should successfully activate spell card from hand", () => {
-      facade.initializeGame([1001, 1002, 1003, 1001]);
+      facade.initializeGame(createTestDeckRecipe([1001, 1002, 1003, 1001]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
@@ -206,7 +224,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when not in Main1 phase", () => {
-      facade.initializeGame([1001]);
+      facade.initializeGame(createTestDeckRecipe([1001]));
       facade.drawCard(1);
       // Still in Draw phase
 
@@ -220,7 +238,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when card is not in hand", () => {
-      facade.initializeGame([1001, 1002, 1003]);
+      facade.initializeGame(createTestDeckRecipe([1001, 1002, 1003]));
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
 
@@ -231,7 +249,7 @@ describe("GameFacade", () => {
     });
 
     it("should not update store on failed activation", () => {
-      facade.initializeGame([1001]);
+      facade.initializeGame(createTestDeckRecipe([1001]));
       const initialState = get(gameStateStore);
 
       facade.activateSpell("non-existent-card-id");
@@ -243,7 +261,7 @@ describe("GameFacade", () => {
 
   describe("canActivateSpell", () => {
     it("should return true for spell card in hand during Main1 phase", () => {
-      facade.initializeGame([1001, 1002, 1003]); // Need multiple cards
+      facade.initializeGame(createTestDeckRecipe([1001, 1002, 1003])); // Need multiple cards
       facade.drawCard(1);
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
@@ -258,13 +276,13 @@ describe("GameFacade", () => {
     });
 
     it("should return false for card not in hand", () => {
-      facade.initializeGame([1001]);
+      facade.initializeGame(createTestDeckRecipe([1001]));
 
       expect(facade.canActivateSpell("non-existent-id")).toBe(false);
     });
 
     it("should return false for card in wrong phase", () => {
-      facade.initializeGame([1001]);
+      facade.initializeGame(createTestDeckRecipe([1001]));
       facade.drawCard(1);
       // Still in Draw phase
 
@@ -277,7 +295,7 @@ describe("GameFacade", () => {
 
   describe("shuffleDeck", () => {
     beforeEach(() => {
-      facade.initializeGame([1001, 1002, 1003, 1001, 1002]);
+      facade.initializeGame(createTestDeckRecipe([1001, 1002, 1003, 1001, 1002]));
     });
 
     it("should shuffle the deck successfully", () => {
@@ -315,7 +333,7 @@ describe("GameFacade", () => {
     });
 
     it("should handle empty deck without errors", () => {
-      facade.initializeGame([]);
+      facade.initializeGame(createTestDeckRecipe([]));
 
       const result = facade.shuffleDeck();
 
@@ -330,7 +348,7 @@ describe("GameFacade", () => {
     it("should successfully summon monster from hand", () => {
       // Use Exodia pieces (monster cards)
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]); // Need extra cards in deck to avoid deck-out
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]])); // Need extra cards in deck to avoid deck-out
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -356,7 +374,7 @@ describe("GameFacade", () => {
 
     it("should increment normalSummonUsed", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -374,7 +392,7 @@ describe("GameFacade", () => {
 
     it("should fail if summon limit reached", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]); // Need extra cards
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]])); // Need extra cards
       facade.drawCard(2);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -395,7 +413,7 @@ describe("GameFacade", () => {
 
     it("should fail if not in Main1 phase", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1]]));
       facade.drawCard(1);
       // Don't advance phase - stay in Draw phase
 
@@ -410,7 +428,7 @@ describe("GameFacade", () => {
 
     it("should not update store on failure", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -431,7 +449,7 @@ describe("GameFacade", () => {
   describe("setMonster", () => {
     it("should successfully set monster from hand to mainMonsterZone face-down", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -457,7 +475,7 @@ describe("GameFacade", () => {
 
     it("should increment normalSummonUsed when setting a monster", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -475,7 +493,7 @@ describe("GameFacade", () => {
 
     it("should fail if summon limit reached", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(2);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -496,7 +514,7 @@ describe("GameFacade", () => {
 
     it("should fail if not in Main1 phase", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1]]));
       facade.drawCard(1);
       // Don't advance phase - stay in Draw phase
 
@@ -512,7 +530,7 @@ describe("GameFacade", () => {
 
   describe("setSpellTrap", () => {
     it("should successfully set normal spell to spellTrapZone face-down", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin (spell)
+      facade.initializeGame(createTestDeckRecipe([70368879, 70368879, 70368879])); // Upstart Goblin (spell)
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -536,7 +554,7 @@ describe("GameFacade", () => {
     });
 
     it("should set field spell to fieldZone", () => {
-      facade.initializeGame([67616300, 67616300, 67616300]); // Chicken Game (field spell)
+      facade.initializeGame(createTestDeckRecipe([67616300, 67616300, 67616300])); // Chicken Game (field spell)
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -555,7 +573,7 @@ describe("GameFacade", () => {
     });
 
     it("should replace existing field spell when setting a new one", () => {
-      facade.initializeGame([67616300, 67616300, 67616300]); // Two Chicken Games
+      facade.initializeGame(createTestDeckRecipe([67616300, 67616300, 67616300])); // Two Chicken Games
       facade.drawCard(2);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -584,7 +602,7 @@ describe("GameFacade", () => {
     });
 
     it("should NOT consume normalSummonUsed when setting spell", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin
+      facade.initializeGame(createTestDeckRecipe([70368879, 70368879, 70368879])); // Upstart Goblin
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -601,7 +619,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail if not in Main1 phase", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin
+      facade.initializeGame(createTestDeckRecipe([70368879, 70368879, 70368879])); // Upstart Goblin
       facade.drawCard(1);
       // Don't advance phase - stay in Draw phase
 
@@ -617,7 +635,7 @@ describe("GameFacade", () => {
 
   describe("canActivateIgnitionEffect", () => {
     it("should return true when ignition effect can be activated", () => {
-      facade.initializeGame([67616300, 67616300, 67616300]); // Chicken Game
+      facade.initializeGame(createTestDeckRecipe([67616300, 67616300, 67616300])); // Chicken Game
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -637,7 +655,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when card has no ignition effect", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin (no ignition effect)
+      facade.initializeGame(createTestDeckRecipe([70368879, 70368879, 70368879])); // Upstart Goblin (no ignition effect)
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -653,7 +671,7 @@ describe("GameFacade", () => {
   describe("canSummonMonster", () => {
     it("should return true when monster can be summoned", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -667,7 +685,7 @@ describe("GameFacade", () => {
 
     it("should return false when summon limit reached", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(2);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -686,7 +704,7 @@ describe("GameFacade", () => {
 
     it("should return false when not in Main1 phase", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1]]));
       facade.drawCard(1);
       // Don't advance phase - stay in Draw phase
 
@@ -701,7 +719,7 @@ describe("GameFacade", () => {
   describe("canSetMonster", () => {
     it("should return true when monster can be set", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -715,7 +733,7 @@ describe("GameFacade", () => {
 
     it("should return false when summon limit reached", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1], exodiaIds[2]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1], exodiaIds[2]]));
       facade.drawCard(2);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -734,7 +752,7 @@ describe("GameFacade", () => {
 
     it("should return false when not in Main1 phase", () => {
       const exodiaIds = ExodiaNonEffect.getExodiaPieceIds();
-      facade.initializeGame([exodiaIds[0], exodiaIds[1]]);
+      facade.initializeGame(createTestDeckRecipe([exodiaIds[0], exodiaIds[1]]));
       facade.drawCard(1);
       // Don't advance phase - stay in Draw phase
 
@@ -748,7 +766,7 @@ describe("GameFacade", () => {
 
   describe("canSetSpellTrap", () => {
     it("should return true when spell/trap can be set", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin
+      facade.initializeGame(createTestDeckRecipe([70368879, 70368879, 70368879])); // Upstart Goblin
       facade.drawCard(1);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -761,7 +779,9 @@ describe("GameFacade", () => {
     });
 
     it("should return false when spellTrapZone is full", () => {
-      facade.initializeGame([70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879]); // Upstart Goblin x7
+      facade.initializeGame(
+        createTestDeckRecipe([70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879]),
+      ); // Upstart Goblin x7
       facade.drawCard(6);
       facade.advancePhase(); // Draw -> Standby
       facade.advancePhase(); // Standby -> Main1
@@ -782,7 +802,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when not in Main1 phase", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]);
+      facade.initializeGame(createTestDeckRecipe([70368879, 70368879, 70368879]));
       facade.drawCard(1);
       // Don't advance phase - stay in Draw phase
 

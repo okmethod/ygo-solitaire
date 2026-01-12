@@ -13,9 +13,14 @@
 
 import { describe, it, expect } from "vitest";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /**
  * Concrete implementation of NormalSpellAction for testing
@@ -52,7 +57,7 @@ describe("NormalSpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Deck >= 2
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -64,7 +69,7 @@ describe("NormalSpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (NormalSpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       // Default phase is "Draw"
 
       // Act & Assert
@@ -73,7 +78,7 @@ describe("NormalSpellAction", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
-      const state = createInitialGameState([1001]);
+      const state = createInitialGameState(createTestInitialDeck([1001]));
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -87,7 +92,7 @@ describe("NormalSpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
 
       // Act
       const steps = action.createActivationSteps(state);

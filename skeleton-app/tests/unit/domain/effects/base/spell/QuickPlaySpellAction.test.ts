@@ -13,9 +13,14 @@
 
 import { describe, it, expect } from "vitest";
 import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /**
  * Concrete implementation of QuickPlaySpellAction for testing
@@ -52,7 +57,7 @@ describe("QuickPlaySpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Hand not empty
-      const baseState = createInitialGameState([1001, 1002, 1003]);
+      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       const stateInMain1: GameState = {
         ...baseState,
         phase: "Main1",
@@ -74,7 +79,7 @@ describe("QuickPlaySpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (QuickPlaySpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       // Default phase is "Draw"
 
       // Act & Assert
@@ -83,7 +88,7 @@ describe("QuickPlaySpellAction", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Hand is empty (additionalActivationConditions returns false)
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       const emptyHandState: GameState = {
         ...state,
         phase: "Main1",
@@ -101,7 +106,7 @@ describe("QuickPlaySpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
 
       // Act
       const steps = action.createActivationSteps(state);

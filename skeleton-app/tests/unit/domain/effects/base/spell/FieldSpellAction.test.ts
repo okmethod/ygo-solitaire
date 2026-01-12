@@ -13,9 +13,14 @@
 
 import { describe, it, expect } from "vitest";
 import { FieldSpellAction } from "$lib/domain/effects/base/spell/FieldSpellAction";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /**
  * Concrete implementation of FieldSpellAction for testing
@@ -54,7 +59,7 @@ describe("FieldSpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
       // Arrange: Main Phase 1
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -66,7 +71,7 @@ describe("FieldSpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (FieldSpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
       // Default phase is "Draw"
 
       // Act & Assert
@@ -75,7 +80,7 @@ describe("FieldSpellAction", () => {
 
     it("should return true even with empty deck (no additional conditions)", () => {
       // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
-      const state = createInitialGameState([]);
+      const state = createInitialGameState(createTestInitialDeck([]));
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -89,7 +94,7 @@ describe("FieldSpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return empty array (field spells have no activation steps)", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
 
       // Act
       const steps = action.createActivationSteps(state);
@@ -102,7 +107,7 @@ describe("FieldSpellAction", () => {
   describe("createResolutionSteps()", () => {
     it("should return empty array (field spells have no resolution steps)", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
 
       // Act
       const steps = action.createResolutionSteps(state, "test-instance");

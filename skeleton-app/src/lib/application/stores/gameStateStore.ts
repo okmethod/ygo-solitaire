@@ -13,13 +13,14 @@
  */
 
 import { writable } from "svelte/store";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { DeckRecipe } from "$lib/application/types/deck";
 import { createInitialGameState } from "$lib/domain/models/GameState";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 // 空の初期GameStateを生成する
 function createEmptyGameState(): GameState {
-  return createInitialGameState([]);
+  return createInitialGameState({ mainDeckCardIds: [], extraDeckCardIds: [] });
 }
 
 /** ゲーム状態ストアのインターフェース */
@@ -73,9 +74,29 @@ function createGameStateStore(): GameStateStore {
 /** ゲーム状態ストア */
 export const gameStateStore: GameStateStore = createGameStateStore();
 
+// DeckRecipe を Domain Layer が要求する InitialDeck 形式に変換する
+function convertDeckRecipeToInitialDeck(deckRecipe: DeckRecipe): InitialDeckCardIds {
+  const mainDeckCardIds: number[] = [];
+  deckRecipe.mainDeck.forEach((entry) => {
+    for (let i = 0; i < entry.quantity; i++) {
+      mainDeckCardIds.push(entry.id);
+    }
+  });
+
+  const extraDeckCardIds: number[] = [];
+  deckRecipe.extraDeck.forEach((entry) => {
+    for (let i = 0; i < entry.quantity; i++) {
+      extraDeckCardIds.push(entry.id);
+    }
+  });
+
+  return { mainDeckCardIds, extraDeckCardIds };
+}
+
 /** ストアを初期状態にリセットする */
-export function resetGameState(deckCardIds: number[]): void {
-  gameStateStore.set(createInitialGameState(deckCardIds));
+export function resetGameState(deckRecipe: DeckRecipe): void {
+  const initialDeck = convertDeckRecipeToInitialDeck(deckRecipe);
+  gameStateStore.set(createInitialGameState(initialDeck));
 }
 
 /** 現在の状態スナップショットを取得する（非リアクティブ） */

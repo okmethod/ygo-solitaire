@@ -1,4 +1,5 @@
 import type {
+  DeckRecipe,
   RecipeCardEntry,
   LoadedCardEntry,
   DeckData,
@@ -10,7 +11,7 @@ import type { CardDisplayData } from "$lib/application/types/card";
 import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
 
-// デッキエントリーからカードタイプ別に分類したMainDeckDataを作成する内部関数
+// デッキエントリーからカードタイプ別に分類した MainDeckData を作成する
 function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): MainDeckData {
   const monsters: LoadedCardEntry[] = [];
   const spells: LoadedCardEntry[] = [];
@@ -43,7 +44,7 @@ function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: R
   return { monsters, spells, traps };
 }
 
-// エクストラデッキをモンスタータイプ別に分類したExtraDeckDataを作成する内部関数
+// エクストラデッキをモンスタータイプ別に分類した ExtraDeckData を作成する
 function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): ExtraDeckData {
   const fusion: LoadedCardEntry[] = [];
   const synchro: LoadedCardEntry[] = [];
@@ -74,7 +75,7 @@ function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: 
   return { fusion, synchro, xyz };
 }
 
-// デッキ統計情報を計算する内部関数（新しい構造対応）
+// デッキ統計情報を計算する
 function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): DeckStats {
   // メインデッキ各タイプの総枚数を算出（quantityの合計）
   const monsterCount = mainDeck.monsters.reduce((sum, entry) => sum + entry.quantity, 0);
@@ -114,7 +115,6 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
  * カードIDが有効な数値であることを確認。
  * YGOPRODeck API互換性を保証する。
  *
- * @param entry - RecipeCardEntry オブジェクト
  * @throws Error カードIDが無効な場合
  */
 function validateRecipeCardEntry(entry: RecipeCardEntry): void {
@@ -135,18 +135,20 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
 /**
  * デッキレシピからデッキデータを生成する
  *
- * @param deckId - デッキID
- * @param _fetch - (未使用) SvelteKitのfetch関数（シグネチャ互換性のため保持）
+ * Note: _fetch は未使用だが、シグネチャ互換性のため保持している
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch): Promise<DeckData> {
-  const recipe = sampleDeckRecipes[deckId];
-  if (!recipe) {
+export async function loadDeck(
+  deckId: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _fetch?: typeof window.fetch,
+): Promise<{ deckRecipe: DeckRecipe; deckData: DeckData }> {
+  const deckRecipe = sampleDeckRecipes[deckId];
+  if (!deckRecipe) {
     throw new Error(`Deck not found: ${deckId}`);
   }
 
   // メインデッキとエクストラデッキの全カードIDを取得
-  const allCardEntries = [...recipe.mainDeck, ...recipe.extraDeck];
+  const allCardEntries = [...deckRecipe.mainDeck, ...deckRecipe.extraDeck];
 
   // RecipeCardEntryのバリデーション（IDと枚数の妥当性チェック）
   for (const entry of allCardEntries) {
@@ -170,22 +172,22 @@ export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch)
   const cardDataMap = new Map(cardDataList.map((card) => [card.id, card]));
 
   // メインデッキをカードタイプ別に分類
-  const mainDeckData = buildMainDeckData(cardDataMap, recipe.mainDeck);
+  const mainDeckData = buildMainDeckData(cardDataMap, deckRecipe.mainDeck);
 
   // エクストラデッキをモンスタータイプ別に分類
-  const extraDeckData = buildExtraDeckData(cardDataMap, recipe.extraDeck);
+  const extraDeckData = buildExtraDeckData(cardDataMap, deckRecipe.extraDeck);
 
   // 統計情報を計算
   const stats = calculateDeckStats(mainDeckData, extraDeckData);
 
   const deckData: DeckData = {
-    name: recipe.name,
-    description: recipe.description,
-    category: recipe.category,
+    name: deckRecipe.name,
+    description: deckRecipe.description,
+    category: deckRecipe.category,
     mainDeck: mainDeckData,
     extraDeck: extraDeckData,
     stats,
   };
 
-  return deckData;
+  return { deckRecipe, deckData };
 }

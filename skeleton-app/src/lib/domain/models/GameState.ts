@@ -104,21 +104,24 @@ export interface GameState {
   readonly damageNegation: boolean;
 }
 
-/**
- * Create initial game state
- *
- * @param deckCardIds - Array of numeric card IDs for the main deck
- * @returns Initial GameState
- */
-export function createInitialGameState(deckCardIds: number[]): GameState {
+/** デッキに含まれるカードID群を表す型エイリアス */
+export type InitialDeckCardIds = {
+  readonly mainDeckCardIds: readonly number[];
+  readonly extraDeckCardIds: readonly number[];
+};
+
+/** 初期デッキ情報からGameStateを生成する */
+export function createInitialGameState(initialDeck: InitialDeckCardIds): GameState {
   return {
     zones: {
-      deck: deckCardIds.map((cardId, index) => {
+      // TODO: メインデッキとエクストラデッキを分離する
+      deck: initialDeck.mainDeckCardIds.map((cardId, index) => {
         const cardData = getCardData(cardId);
         return {
           ...cardData,
           instanceId: `deck-${index}`,
           location: "deck" as const,
+          placedThisTurn: false,
         };
       }),
       hand: [],

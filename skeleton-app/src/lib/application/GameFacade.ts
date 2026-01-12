@@ -10,7 +10,10 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import { gameStateStore, resetGameState, getCurrentGameState } from "./stores/gameStateStore";
+import type { GameCommand } from "$lib/domain/models/GameStateUpdate";
+import type { DeckRecipe } from "$lib/application/types/deck";
+import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
+import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
 import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
@@ -20,8 +23,6 @@ import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand"
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
-import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
-import type { GameCommand } from "$lib/domain/models/GameStateUpdate";
 import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
 
 /**
@@ -85,9 +86,9 @@ export class GameFacade {
     };
   }
 
-  /** デッキを初期化する */
-  initializeGame(deckCardIds: number[]): void {
-    resetGameState(deckCardIds);
+  /** ゲーム状態を初期化する */
+  initializeGame(deckRecipe: DeckRecipe): void {
+    resetGameState(deckRecipe);
   }
 
   /** 現在のゲーム状態全体を取得する
