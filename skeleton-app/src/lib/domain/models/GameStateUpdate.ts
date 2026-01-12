@@ -38,20 +38,6 @@ export interface GameStateUpdateResult {
 }
 
 /**
- * Presentation Layerへの公開型
- *
- * GameFacadeのメソッドが返す結果型。
- * GameStateUpdateResultから一部のフィールドのみを公開する。
- * - newState: Application層で消費されるため、Presentation層には公開しない
- * - effectSteps: Application層で消費されるため、Presentation層には公開しない
- */
-export type CommandResult = {
-  success: boolean;
-  message?: string;
-  error?: string;
-};
-
-/**
  * GameCommand - Command Patternの基底インターフェース
  *
  * プレイヤーアクションをオブジェクトとしてカプセル化。

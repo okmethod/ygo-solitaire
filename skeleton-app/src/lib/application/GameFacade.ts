@@ -21,13 +21,60 @@ import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import type { GameCommand } from "$lib/domain/models/GameStateUpdate";
 import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
+
+/**
+ * GameFacadeのメソッドが返す結果型（Presentation Layerへの公開用）
+ *
+ * GameStateUpdateResult から、一部のフィールドのみを公開する。
+ */
+export type FacadeResult = {
+  success: boolean;
+  message?: string;
+  error?: string;
+  // newState: Application層で消費されるため、Presentation層には公開しない
+  // effectSteps: Application層で消費されるため、Presentation層には公開しない
+};
 
 /**
  * 全ゲーム操作の唯一の入り口（Single Entry Point）
  */
 export class GameFacade {
-  /** デッキを初期化する TODO: deckCardIds: number[] が引数として適切かどうか確認する */
+  /**
+   * Commandの実行可否をチェックする（共通処理）
+   */
+  private canExecuteCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): boolean {
+    const currentState = getCurrentGameState();
+    const command = new CommandClass(param);
+    return command.canExecute(currentState);
+  }
+
+  /**
+   * Commandを実行してストアを更新する（共通処理）
+   */
+  private executeCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): FacadeResult {
+    const currentState = getCurrentGameState();
+    const command = new CommandClass(param);
+    const result = command.execute(currentState);
+
+    if (result.success) {
+      gameStateStore.set(result.newState);
+
+      // 効果解決ステップがある場合は委譲
+      if (result.effectSteps && result.effectSteps.length > 0) {
+        effectResolutionStore.startResolution(result.effectSteps);
+      }
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      error: result.error,
+    };
+  }
+
+  /** デッキを初期化する */
   initializeGame(deckCardIds: number[]): void {
     resetGameState(deckCardIds);
   }
@@ -41,7 +88,7 @@ export class GameFacade {
   }
 
   /** 次のフェイズに進行する */
-  advancePhase(): { success: boolean; message?: string; error?: string } {
+  advancePhase(): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new AdvancePhaseCommand();
 
@@ -59,7 +106,7 @@ export class GameFacade {
   }
 
   /** デッキをシャッフルする */
-  shuffleDeck(): { success: boolean; message?: string; error?: string } {
+  shuffleDeck(): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new ShuffleDeckCommand();
 
@@ -77,7 +124,7 @@ export class GameFacade {
   }
 
   /** デッキから指定枚数のカードをドローする */
-  drawCard(count: number = 1): { success: boolean; message?: string; error?: string } {
+  drawCard(count: number = 1): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new DrawCardCommand(count);
 
@@ -109,7 +156,7 @@ export class GameFacade {
   }
 
   /** 指定した魔法カードを手札から発動する TODO: 魔法カードのみかどうか確認する。手札からのみかどうか確認する。*/
-  activateSpell(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+  activateSpell(cardInstanceId: string): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new ActivateSpellCommand(cardInstanceId);
 
@@ -138,8 +185,8 @@ export class GameFacade {
     return command.canExecute(currentState);
   }
 
-  /** 指定したカード(インスタンス) の起動効果を発動する TODO: GameStateUpdateResult の一部を切り出したInterfaceを定義するべきかも */
-  activateIgnitionEffect(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+  /** 指定したカード(インスタンス) の起動効果を発動する */
+  activateIgnitionEffect(cardInstanceId: string): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new ActivateIgnitionEffectCommand(cardInstanceId);
 
@@ -167,8 +214,8 @@ export class GameFacade {
     return command.canExecute(currentState);
   }
 
-  /** 手札からモンスターを表側攻撃表示で通常召喚する TODO: GameStateUpdateResult の一部を切り出したInterfaceを定義するべきかも */
-  summonMonster(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+  /** 手札からモンスターを表側攻撃表示で通常召喚する */
+  summonMonster(cardInstanceId: string): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new SummonMonsterCommand(cardInstanceId);
 
@@ -192,8 +239,8 @@ export class GameFacade {
     return command.canExecute(currentState);
   }
 
-  /** 手札からモンスターを裏側守備表示でセットする TODO: GameStateUpdateResult の一部を切り出したInterfaceを定義するべきかも */
-  setMonster(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+  /** 手札からモンスターを裏側守備表示でセットする */
+  setMonster(cardInstanceId: string): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new SetMonsterCommand(cardInstanceId);
 
@@ -217,8 +264,8 @@ export class GameFacade {
     return command.canExecute(currentState);
   }
 
-  /** 手札から魔法カードまたは罠カードをセットする TODO: GameStateUpdateResult の一部を切り出したInterfaceを定義するべきかも */
-  setSpellTrap(cardInstanceId: string): { success: boolean; message?: string; error?: string } {
+  /** 手札から魔法カードまたは罠カードをセットする */
+  setSpellTrap(cardInstanceId: string): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new SetSpellTrapCommand(cardInstanceId);
 
