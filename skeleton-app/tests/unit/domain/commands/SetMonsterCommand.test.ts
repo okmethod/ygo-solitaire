@@ -367,7 +367,7 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Main1フェーズではありません");
+      expect(result.error).toBe("メインフェイズではありません");
     });
 
     it("should fail if summon limit reached", () => {

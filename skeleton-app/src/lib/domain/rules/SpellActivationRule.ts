@@ -19,17 +19,18 @@ import type { ValidationResult } from "$lib/domain/models/GameStateUpdate";
  * 魔法カードが発動可能かをチェックする
  *
  * チェック項目:
- * 1. メインフェーズ1であること
- * 2. カードタイプが魔法カードであること
+ * 1. メインフェイズであること
+ * TODO: 要調整
  *
  * Note: GameStateのみによる判定を責務とし、カードインスタンスが必要な判定はコマンドに委ねる
+ * TODO: canNormalSummon は↑のように役割分担を決めたが、現状の canActivateSpell とは噛み合わない
  */
 export function canActivateSpell(state: GameState, cardInstanceId: string): ValidationResult {
-  // Check phase (must be Main1)
+  // 1. メインフェイズであること
   if (state.phase !== "Main1") {
     return {
       canExecute: false,
-      reason: `魔法カードはメインフェイズでのみ発動できます（現在: ${state.phase}）`,
+      reason: "メインフェイズではありません",
     };
   }
 
@@ -44,14 +45,6 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Vali
     return {
       canExecute: false,
       reason: `指定されたカードが発動可能な位置（手札、魔法・罠ゾーン、フィールドゾーン）に見つかりません`,
-    };
-  }
-
-  // Check card type: must be a spell card (SpellActivationRule is for spells only)
-  if (card.type !== "spell") {
-    return {
-      canExecute: false,
-      reason: `魔法カード以外は発動できません`,
     };
   }
 

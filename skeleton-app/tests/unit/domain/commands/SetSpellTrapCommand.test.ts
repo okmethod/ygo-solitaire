@@ -520,7 +520,7 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Main1フェーズではありません");
+      expect(result.error).toBe("メインフェイズではありません");
     });
 
     it("should fail if card not found", () => {

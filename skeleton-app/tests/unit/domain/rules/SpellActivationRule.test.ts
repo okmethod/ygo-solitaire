@@ -34,7 +34,7 @@ describe("SpellActivationRule", () => {
       const result = canActivateSpell(state, cardInstanceId);
 
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toContain("メインフェイズでのみ");
+      expect(result.reason).toBe("メインフェイズではありません");
     });
 
     it("should reject activation in Standby phase", () => {
@@ -44,7 +44,7 @@ describe("SpellActivationRule", () => {
       const result = canActivateSpell(state, cardInstanceId);
 
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toContain("メインフェイズでのみ");
+      expect(result.reason).toBe("メインフェイズではありません");
     });
 
     it("should reject activation in End phase", () => {
@@ -54,7 +54,7 @@ describe("SpellActivationRule", () => {
       const result = canActivateSpell(state, cardInstanceId);
 
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toContain("メインフェイズでのみ");
+      expect(result.reason).toBe("メインフェイズではありません");
     });
 
     it("should reject activation if card is not in hand", () => {

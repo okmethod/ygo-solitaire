@@ -66,7 +66,7 @@ export class SetSpellTrapCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     if (state.phase !== "Main1") {
-      return createFailureResult(state, "Main1フェーズではありません");
+      return createFailureResult(state, "メインフェイズではありません");
     }
 
     const cardInstance = findCardInstance(state, this.cardInstanceId);

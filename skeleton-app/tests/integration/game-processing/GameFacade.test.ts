@@ -234,7 +234,7 @@ describe("GameFacade", () => {
       const result = facade.activateSpell(cardInstanceId);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("メインフェイズでのみ発動できます");
+      expect(result.error).toBe("メインフェイズではありません");
     });
 
     it("should fail when card is not in hand", () => {
@@ -412,7 +412,7 @@ describe("GameFacade", () => {
       const result = facade.summonMonster(monsterInstanceId);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Main1フェーズではありません");
+      expect(result.error).toBe("メインフェイズではありません");
     });
 
     it("should not update store on failure", () => {
@@ -513,7 +513,7 @@ describe("GameFacade", () => {
       const result = facade.setMonster(monsterInstanceId);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Main1フェーズではありません");
+      expect(result.error).toBe("メインフェイズではありません");
     });
   });
 
@@ -618,7 +618,7 @@ describe("GameFacade", () => {
       const result = facade.setSpellTrap(spellInstanceId);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Main1フェーズではありません");
+      expect(result.error).toBe("メインフェイズではありません");
     });
   });
 

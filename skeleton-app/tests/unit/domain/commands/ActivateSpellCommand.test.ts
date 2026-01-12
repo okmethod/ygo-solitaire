@@ -195,7 +195,7 @@ describe("ActivateSpellCommand", () => {
       const result = command.execute(drawPhaseState);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("メインフェイズでのみ発動できます");
+      expect(result.error).toBe("メインフェイズではありません");
 
       // State should remain unchanged
       expect(result.newState).toEqual(drawPhaseState);

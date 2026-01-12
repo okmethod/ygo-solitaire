@@ -42,7 +42,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toBe("Main1フェーズではありません");
+      expect(result.reason).toBe("メインフェイズではありません");
     });
 
     it("should fail if summon limit reached", () => {
@@ -102,7 +102,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toBe("モンスターゾーンが満杯です");
+      expect(result.reason).toBe("モンスターゾーンに空きがありません");
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 0", () => {
