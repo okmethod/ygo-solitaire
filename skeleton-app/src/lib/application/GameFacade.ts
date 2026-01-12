@@ -37,25 +37,36 @@ export type FacadeResult = {
   // effectSteps: Application層で消費されるため、Presentation層には公開しない
 };
 
+// 許容される GameCommand のコンストラクタ引数パターンの定義
+type GameCommandArgs = [] | [string] | [number];
+
 /**
  * 全ゲーム操作の唯一の入り口（Single Entry Point）
  */
 export class GameFacade {
-  /**
-   * Commandの実行可否をチェックする（共通処理）
-   */
-  private canExecuteCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): boolean {
+  /** 各種 GameCommand の実行可否チェックのヘルパー */
+  private canExecuteCommand<T extends GameCommand>(CommandClass: new () => T): boolean;
+  private canExecuteCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): boolean;
+  private canExecuteCommand<T extends GameCommand>(CommandClass: new (param: number) => T, param: number): boolean;
+  private canExecuteCommand<T extends GameCommand>(
+    CommandClass: new (...args: GameCommandArgs) => T,
+    ...params: GameCommandArgs
+  ): boolean {
     const currentState = getCurrentGameState();
-    const command = new CommandClass(param);
+    const command = new CommandClass(...params);
     return command.canExecute(currentState);
   }
 
-  /**
-   * Commandを実行してストアを更新する（共通処理）
-   */
-  private executeCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): FacadeResult {
+  /** 各種 GameCommand の実行およびストア更新のヘルパー */
+  private executeCommand<T extends GameCommand>(CommandClass: new () => T): FacadeResult;
+  private executeCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): FacadeResult;
+  private executeCommand<T extends GameCommand>(CommandClass: new (param: number) => T, param: number): FacadeResult;
+  private executeCommand<T extends GameCommand>(
+    CommandClass: new (...args: GameCommandArgs) => T,
+    ...params: GameCommandArgs
+  ): FacadeResult {
     const currentState = getCurrentGameState();
-    const command = new CommandClass(param);
+    const command = new CommandClass(...params);
     const result = command.execute(currentState);
 
     if (result.success) {
@@ -89,56 +100,17 @@ export class GameFacade {
 
   /** 次のフェイズに進行する */
   advancePhase(): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new AdvancePhaseCommand();
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(AdvancePhaseCommand);
   }
 
   /** デッキをシャッフルする */
   shuffleDeck(): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new ShuffleDeckCommand();
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(ShuffleDeckCommand);
   }
 
-  /** デッキから指定枚数のカードをドローする */
+  /** デッキから指定枚数のカードをドローする TODO: canDrawCardが必要か確認する。 */
   drawCard(count: number = 1): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new DrawCardCommand(count);
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(DrawCardCommand, count);
   }
 
   /** 指定したカード(インスタンス) が発動可能かどうかを返す */
@@ -157,129 +129,47 @@ export class GameFacade {
 
   /** 指定した魔法カードを手札から発動する TODO: 魔法カードのみかどうか確認する。手札からのみかどうか確認する。*/
   activateSpell(cardInstanceId: string): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new ActivateSpellCommand(cardInstanceId);
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-
-      // If effectSteps are returned, delegate to Application Layer
-      if (result.effectSteps && result.effectSteps.length > 0) {
-        effectResolutionStore.startResolution(result.effectSteps);
-      }
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(ActivateSpellCommand, cardInstanceId);
   }
 
   /** 指定したカード(インスタンス) の起動効果が発動可能かどうかを返す */
   canActivateIgnitionEffect(cardInstanceId: string): boolean {
-    const currentState = getCurrentGameState();
-    const command = new ActivateIgnitionEffectCommand(cardInstanceId);
-    return command.canExecute(currentState);
+    return this.canExecuteCommand(ActivateIgnitionEffectCommand, cardInstanceId);
   }
 
   /** 指定したカード(インスタンス) の起動効果を発動する */
   activateIgnitionEffect(cardInstanceId: string): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new ActivateIgnitionEffectCommand(cardInstanceId);
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-
-      if (result.effectSteps && result.effectSteps.length > 0) {
-        effectResolutionStore.startResolution(result.effectSteps);
-      }
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(ActivateIgnitionEffectCommand, cardInstanceId);
   }
 
   /** モンスターを通常召喚可能かどうかを返す */
   canSummonMonster(cardInstanceId: string): boolean {
-    const currentState = getCurrentGameState();
-    const command = new SummonMonsterCommand(cardInstanceId);
-    return command.canExecute(currentState);
+    return this.canExecuteCommand(SummonMonsterCommand, cardInstanceId);
   }
 
   /** 手札からモンスターを表側攻撃表示で通常召喚する */
   summonMonster(cardInstanceId: string): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new SummonMonsterCommand(cardInstanceId);
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(SummonMonsterCommand, cardInstanceId);
   }
 
   /** モンスターをセット可能かどうかを返す */
   canSetMonster(cardInstanceId: string): boolean {
-    const currentState = getCurrentGameState();
-    const command = new SetMonsterCommand(cardInstanceId);
-    return command.canExecute(currentState);
+    return this.canExecuteCommand(SetMonsterCommand, cardInstanceId);
   }
 
   /** 手札からモンスターを裏側守備表示でセットする */
   setMonster(cardInstanceId: string): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new SetMonsterCommand(cardInstanceId);
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(SetMonsterCommand, cardInstanceId);
   }
 
   /** 魔法カードまたは罠カードをセット可能かどうかを返す */
   canSetSpellTrap(cardInstanceId: string): boolean {
-    const currentState = getCurrentGameState();
-    const command = new SetSpellTrapCommand(cardInstanceId);
-    return command.canExecute(currentState);
+    return this.canExecuteCommand(SetSpellTrapCommand, cardInstanceId);
   }
 
   /** 手札から魔法カードまたは罠カードをセットする */
   setSpellTrap(cardInstanceId: string): FacadeResult {
-    const currentState = getCurrentGameState();
-    const command = new SetSpellTrapCommand(cardInstanceId);
-
-    const result = command.execute(currentState);
-
-    if (result.success) {
-      gameStateStore.set(result.newState);
-    }
-
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return this.executeCommand(SetSpellTrapCommand, cardInstanceId);
   }
 }
 
