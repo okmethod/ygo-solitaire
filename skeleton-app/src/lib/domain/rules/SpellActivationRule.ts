@@ -1,19 +1,5 @@
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GamePhase } from "$lib/domain/models/Phase";
 import type { ValidationResult } from "$lib/domain/models/GameStateUpdate";
-
-/**
- * Check if a spell card can be activated
- *
- * Supports activation from:
- * - Hand (all spell types)
- * - spellTrapZone (face-down spells, with quick-play set-turn restriction)
- * - fieldZone (face-down field spells)
- *
- * @param state - Current game state
- * @param cardInstanceId - Card instance ID to activate
- * @returns Validation result with reason if cannot activate
- */
 
 /**
  * 魔法カードが発動可能かをチェックする
@@ -71,68 +57,4 @@ export function canActivateSpell(state: GameState, cardInstanceId: string): Vali
   return {
     canExecute: true,
   };
-}
-
-/**
- * Check if spell activation is allowed in current phase
- *
- * @param phase - Current game phase
- * @returns True if Main1 phase
- */
-export function isSpellActivationPhase(phase: GamePhase): boolean {
-  return phase === "Main1";
-}
-
-/**
- * Check if card exists in hand
- *
- * @param state - Current game state
- * @param cardInstanceId - Card instance ID to check
- * @returns True if card is in hand
- */
-export function isCardInHand(state: GameState, cardInstanceId: string): boolean {
-  return state.zones.hand.some((card) => card.instanceId === cardInstanceId);
-}
-
-/**
- * Validate spell activation with detailed error
- *
- * @param state - Current game state
- * @param cardInstanceId - Card instance ID to activate
- * @returns Validation result
- */
-export function validateSpellActivation(state: GameState, cardInstanceId: string): ValidationResult {
-  return canActivateSpell(state, cardInstanceId);
-}
-
-/**
- * Check if any spells can be activated in current state
- * (Useful for UI to enable/disable activation buttons)
- *
- * @param state - Current game state
- * @returns True if at least one spell in hand can be activated
- */
-export function hasActivatableSpells(state: GameState): boolean {
-  if (state.phase !== "Main1") {
-    return false;
-  }
-
-  // In MVP, all spell cards in hand during Main1 are activatable
-  return state.zones.hand.length > 0;
-}
-
-/**
- * Get list of activatable spell card instance IDs
- *
- * @param state - Current game state
- * @returns Array of card instance IDs that can be activated
- */
-export function getActivatableSpellIds(state: GameState): string[] {
-  if (state.phase !== "Main1") {
-    return [];
-  }
-
-  // In MVP, all cards in hand during Main1 are potentially activatable
-  // (We don't check card type here as that requires CardData lookup)
-  return state.zones.hand.map((card) => card.instanceId);
 }
