@@ -10,7 +10,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
-import { getNextValidPhase, validatePhaseTransition, getPhaseDisplayName } from "$lib/domain/rules/PhaseRule";
+import { getNextPhase } from "$lib/domain/models/Phase";
+import { validatePhaseTransition, getPhaseDisplayName } from "$lib/domain/rules/PhaseRule";
 
 /** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
@@ -33,7 +34,7 @@ export class AdvancePhaseCommand implements GameCommand {
       return false;
     }
 
-    const nextPhase = getNextValidPhase(state.phase);
+    const nextPhase = getNextPhase(state.phase);
 
     // 2. フェイズ遷移が許可されていること
     const validation = validatePhaseTransition(state.phase, nextPhase);
@@ -60,7 +61,7 @@ export class AdvancePhaseCommand implements GameCommand {
       return createFailureResult(state, `Cannot advance from ${state.phase} phase`);
     }
 
-    const nextPhase = getNextValidPhase(state.phase);
+    const nextPhase = getNextPhase(state.phase);
     const isAdvancingToEnd = nextPhase === "End";
     const hasPendingEffects = isAdvancingToEnd && state.pendingEndPhaseEffects.length > 0;
 
@@ -87,6 +88,6 @@ export class AdvancePhaseCommand implements GameCommand {
 
   /** 次のフェイズ名を取得する */
   getNextPhase(state: GameState): string {
-    return getNextValidPhase(state.phase);
+    return getNextPhase(state.phase);
   }
 }

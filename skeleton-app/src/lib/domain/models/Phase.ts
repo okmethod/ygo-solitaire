@@ -18,7 +18,7 @@ export type GamePhase = "Draw" | "Standby" | "Main1" | "End";
 /**
  * All game phases in order
  */
-export const GAME_PHASES: readonly GamePhase[] = ["Draw", "Standby", "Main1", "End"] as const;
+const GAME_PHASES: readonly GamePhase[] = ["Draw", "Standby", "Main1", "End"] as const;
 
 /**
  * Phase display names (Japanese)
