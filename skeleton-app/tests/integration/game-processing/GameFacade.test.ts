@@ -102,9 +102,11 @@ describe("GameFacade", () => {
             {
               instanceId: "hand-0",
               id: fifthPieceId,
+              jaName: "Test Card",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
           ],
         },
@@ -239,8 +241,8 @@ describe("GameFacade", () => {
     });
   });
 
-  describe("canActivateCard", () => {
-    it("should return true for card in hand during Main1 phase", () => {
+  describe("canActivateSpell", () => {
+    it("should return true for spell card in hand during Main1 phase", () => {
       facade.initializeGame([1001, 1002, 1003]); // Need multiple cards
       facade.drawCard(1);
       facade.advancePhase(); // Draw → Standby
@@ -252,13 +254,13 @@ describe("GameFacade", () => {
       const state = get(gameStateStore);
       const cardInstanceId = state.zones.hand[0].instanceId;
 
-      expect(facade.canActivateCard(cardInstanceId)).toBe(true);
+      expect(facade.canActivateSpell(cardInstanceId)).toBe(true);
     });
 
     it("should return false for card not in hand", () => {
       facade.initializeGame([1001]);
 
-      expect(facade.canActivateCard("non-existent-id")).toBe(false);
+      expect(facade.canActivateSpell("non-existent-id")).toBe(false);
     });
 
     it("should return false for card in wrong phase", () => {
@@ -269,7 +271,7 @@ describe("GameFacade", () => {
       const state = get(gameStateStore);
       const cardInstanceId = state.zones.hand[0].instanceId;
 
-      expect(facade.canActivateCard(cardInstanceId)).toBe(false);
+      expect(facade.canActivateSpell(cardInstanceId)).toBe(false);
     });
   });
 
@@ -610,49 +612,6 @@ describe("GameFacade", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Main1フェーズではありません");
-    });
-  });
-
-  describe("canActivateSetSpell", () => {
-    it("should return true when set spell can be activated", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]); // Upstart Goblin
-      facade.drawCard(1);
-      facade.advancePhase(); // Draw -> Standby
-      facade.advancePhase(); // Standby -> Main1
-
-      const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
-
-      // Set the spell face-down
-      facade.setSpellTrap(spellInstanceId);
-
-      const newState = get(gameStateStore);
-      const setSpellId = newState.zones.spellTrapZone[0].instanceId;
-
-      // Check if it can be activated
-      const canActivate = facade.canActivateSetSpell(setSpellId);
-      expect(canActivate).toBe(true);
-    });
-
-    it("should return false when not in Main1 phase", () => {
-      facade.initializeGame([70368879, 70368879, 70368879]);
-      facade.drawCard(1);
-      facade.advancePhase(); // Draw -> Standby
-      facade.advancePhase(); // Standby -> Main1
-
-      const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
-
-      facade.setSpellTrap(spellInstanceId);
-
-      const newState = get(gameStateStore);
-      const setSpellId = newState.zones.spellTrapZone[0].instanceId;
-
-      // Advance to Battle phase
-      facade.advancePhase();
-
-      const canActivate = facade.canActivateSetSpell(setSpellId);
-      expect(canActivate).toBe(false);
     });
   });
 

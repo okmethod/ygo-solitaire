@@ -64,20 +64,20 @@
     }
   }
 
-  // セット魔法・罠の発動可能性をチェック (T038)
-  function canActivateSetSpell(instanceId: string): boolean {
-    return gameFacade.canActivateSetSpell(instanceId);
+  // セット魔法・罠の発動可能性をチェック
+  function canActivateSpell(instanceId: string): boolean {
+    return gameFacade.canActivateSpell(instanceId);
   }
 
-  // 起動効果の発動可能性をチェック (T038)
+  // 起動効果の発動可能性をチェック
   function canActivateIgnitionEffect(instanceId: string): boolean {
     return gameFacade.canActivateIgnitionEffect(instanceId);
   }
 
-  // セット魔法カード用のアクション定義 (T033-T034, T038)
+  // セット魔法カード用のアクション定義
   function getSetSpellActions(instanceId: string): CardActionButton[] {
     // 発動条件を満たしていない場合は空配列を返す（ボタンを表示しない）
-    if (!canActivateSetSpell(instanceId)) {
+    if (!canActivateSpell(instanceId)) {
       return [];
     }
     return [
@@ -90,11 +90,11 @@
     ];
   }
 
-  // フィールド魔法カード用のアクション定義 (T038)
+  // フィールド魔法カード用のアクション定義
   function getFieldSpellActions(instanceId: string, faceDown: boolean): CardActionButton[] {
     if (faceDown) {
       // 裏側表示: カードの発動
-      if (!canActivateSetSpell(instanceId)) {
+      if (!canActivateSpell(instanceId)) {
         return [];
       }
       return [

@@ -34,17 +34,17 @@
     onHandCardSelect,
   }: HandZoneProps = $props();
 
-  // カードごとの発動可能性をチェック (T032)
-  function isCardActivatable(instanceId: string): boolean {
+  // カードごとの発動可能性をチェック
+  function isActivatable(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
     if (!canActivateSpells) return false;
 
     // GameFacade経由でカード固有の発動条件をチェック
-    return gameFacade.canActivateCard(instanceId);
+    return gameFacade.canActivateSpell(instanceId);
   }
 
-  // モンスター召喚可能性をチェック (T032)
+  // モンスター召喚可能性をチェック
   function canSummonMonster(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
@@ -153,7 +153,7 @@
     // 魔法・罠カードの場合
     else if (card.type === "spell" || card.type === "trap") {
       // 発動ボタン
-      if (isCardActivatable(instanceId)) {
+      if (isActivatable(instanceId)) {
         actionButtons.push({
           label: "発動",
           style: "filled",

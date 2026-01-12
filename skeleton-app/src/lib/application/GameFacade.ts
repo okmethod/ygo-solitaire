@@ -108,66 +108,59 @@ export class GameFacade {
     return this.executeCommand(ShuffleDeckCommand);
   }
 
-  /** デッキから指定枚数のカードをドローする TODO: canDrawCardが必要か確認する。 */
+  /** デッキから指定枚数のカードをドローする */
   drawCard(count: number = 1): FacadeResult {
     return this.executeCommand(DrawCardCommand, count);
   }
 
-  /** 指定したカード(インスタンス) が発動可能かどうかを返す */
-  canActivateCard(cardInstanceId: string): boolean {
+  /** 指定した魔法カードインスタンスを発動可能かどうかチェックして返す */
+  canActivateSpell(cardInstanceId: string): boolean {
     const currentState = getCurrentGameState();
     const validation = canActivateSpell(currentState, cardInstanceId);
     return validation.canActivate;
   }
 
-  /** セットされた魔法カードが発動可能かどうかを返す TODO: canActivateCardと重複してそう。不要なら削除する。*/
-  canActivateSetSpell(cardInstanceId: string): boolean {
-    const currentState = getCurrentGameState();
-    const validation = canActivateSpell(currentState, cardInstanceId);
-    return validation.canActivate;
-  }
-
-  /** 指定した魔法カードを手札から発動する TODO: 魔法カードのみかどうか確認する。手札からのみかどうか確認する。*/
+  /** 指定した魔法カードインスタンスを発動する */
   activateSpell(cardInstanceId: string): FacadeResult {
     return this.executeCommand(ActivateSpellCommand, cardInstanceId);
   }
 
-  /** 指定したカード(インスタンス) の起動効果が発動可能かどうかを返す */
+  /** 指定したカードインスタンスの起動効果を発動可能かどうかチェックして返す */
   canActivateIgnitionEffect(cardInstanceId: string): boolean {
     return this.canExecuteCommand(ActivateIgnitionEffectCommand, cardInstanceId);
   }
 
-  /** 指定したカード(インスタンス) の起動効果を発動する */
+  /** 指定したカードインスタンスの起動効果を発動する */
   activateIgnitionEffect(cardInstanceId: string): FacadeResult {
     return this.executeCommand(ActivateIgnitionEffectCommand, cardInstanceId);
   }
 
-  /** モンスターを通常召喚可能かどうかを返す */
+  /** 指定したモンスターカードインスタンスを通常召喚可能かどうかチェックして返す */
   canSummonMonster(cardInstanceId: string): boolean {
     return this.canExecuteCommand(SummonMonsterCommand, cardInstanceId);
   }
 
-  /** 手札からモンスターを表側攻撃表示で通常召喚する */
+  /** 指定したモンスターカードインスタンスを表側攻撃表示で通常召喚する */
   summonMonster(cardInstanceId: string): FacadeResult {
     return this.executeCommand(SummonMonsterCommand, cardInstanceId);
   }
 
-  /** モンスターをセット可能かどうかを返す */
+  /** 指定したモンスターカードインスタンスをセット可能かどうかチェックして返す */
   canSetMonster(cardInstanceId: string): boolean {
     return this.canExecuteCommand(SetMonsterCommand, cardInstanceId);
   }
 
-  /** 手札からモンスターを裏側守備表示でセットする */
+  /** 指定したモンスターカードインスタンスを裏側守備表示でセットする */
   setMonster(cardInstanceId: string): FacadeResult {
     return this.executeCommand(SetMonsterCommand, cardInstanceId);
   }
 
-  /** 魔法カードまたは罠カードをセット可能かどうかを返す */
+  /** 指定した魔法・罠カードインスタンスをセット可能かどうかチェックして返す */
   canSetSpellTrap(cardInstanceId: string): boolean {
     return this.canExecuteCommand(SetSpellTrapCommand, cardInstanceId);
   }
 
-  /** 手札から魔法カードまたは罠カードをセットする */
+  /** 指定した魔法・罠カードインスタンスをセットする */
   setSpellTrap(cardInstanceId: string): FacadeResult {
     return this.executeCommand(SetSpellTrapCommand, cardInstanceId);
   }
