@@ -21,32 +21,40 @@ describe("ActivateSpellCommand", () => {
           {
             instanceId: "deck-0",
             id: 1001,
+            jaName: "Test Card 1",
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
+            placedThisTurn: false,
           },
           {
             instanceId: "deck-1",
             id: 1002,
+            jaName: "Test Card 2",
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
+            placedThisTurn: false,
           },
         ],
         hand: [
           {
             instanceId: spellCardId,
             id: 55144522,
+            jaName: "強欲な壺",
             type: "spell" as const,
             frameType: "spell" as const,
             location: "hand" as const,
+            placedThisTurn: false,
           }, // Pot of Greed
           {
             instanceId: "hand-2",
             id: 1003,
+            jaName: "Test Card 3",
             type: "spell" as const,
             frameType: "spell" as const,
             location: "hand" as const,
+            placedThisTurn: false,
           },
         ],
         mainMonsterZone: [],
@@ -80,9 +88,11 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: spellCardId,
               id: 55144522,
+              jaName: "強欲な壺",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -107,9 +117,11 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: spellCardId,
               id: 55144522,
+              jaName: "強欲な壺",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -162,7 +174,7 @@ describe("ActivateSpellCommand", () => {
       const result = command.execute(initialState);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("見つかりません");
+      expect(result.error).toBe("Card instance non-existent-card not found");
 
       // State should remain unchanged
       expect(result.newState).toEqual(initialState);
@@ -177,9 +189,11 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: spellCardId,
               id: 55144522,
+              jaName: "強欲な壺",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -235,6 +249,7 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
             {
               instanceId: "exodia-head",
@@ -243,6 +258,7 @@ describe("ActivateSpellCommand", () => {
               type: "monster" as const,
               frameType: "effect" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             }, // Exodia the Forbidden One
             {
               instanceId: "exodia-right-arm",
@@ -251,6 +267,7 @@ describe("ActivateSpellCommand", () => {
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
             {
               instanceId: "exodia-left-arm",
@@ -259,6 +276,7 @@ describe("ActivateSpellCommand", () => {
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
             {
               instanceId: "exodia-right-leg",
@@ -267,6 +285,7 @@ describe("ActivateSpellCommand", () => {
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
             {
               instanceId: "exodia-left-leg",
@@ -275,6 +294,7 @@ describe("ActivateSpellCommand", () => {
               type: "monster" as const,
               frameType: "normal" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -338,6 +358,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "field-spell-1",
               id: 67616300, // Chicken Game
+              jaName: "チキンレース",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
@@ -373,6 +394,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "deck-0",
               id: 1001,
+              jaName: "Test Card 1",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
@@ -381,6 +403,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "deck-1",
               id: 1002,
+              jaName: "Test Card 2",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
@@ -391,6 +414,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "normal-spell-1",
               id: 55144522, // Pot of Greed
+              jaName: "強欲な壺",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "normal" as const,
@@ -428,6 +452,7 @@ describe("ActivateSpellCommand", () => {
             {
               instanceId: "continuous-spell-1",
               id: 99999998, // Unregistered continuous spell
+              jaName: "未登録の永続魔法",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "continuous" as const,

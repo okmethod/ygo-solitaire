@@ -13,7 +13,7 @@ import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
-import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
+import { isMainPhase } from "$lib/domain/rules/PhaseRule";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 
 /** 魔法カード発動コマンドクラス */
@@ -29,8 +29,11 @@ export class ActivateSpellCommand implements GameCommand {
    *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. 魔法カード発動ルールを満たしていること
-   * 3. TODO: 3以降は要整理
+   * 2. メインフェイズであること
+   * 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+   * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+   * 5. 速攻魔法の場合、セットしたターンでは無いこと
+   * 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
    */
   canExecute(state: GameState): boolean {
     // 1. ゲーム終了状態でないこと
@@ -38,21 +41,35 @@ export class ActivateSpellCommand implements GameCommand {
       return false;
     }
 
-    // 2. 魔法カード発動ルールを満たしていること
-    const validationResult = canActivateSpell(state, this.cardInstanceId);
-    if (!validationResult.canExecute) {
+    // 2. メインフェイズであること
+    if (!isMainPhase(state.phase)) {
       return false;
     }
 
-    // Check card-specific effect requirements (if registered)
     const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (cardInstance) {
-      const cardId = cardInstance.id; // CardInstance extends CardData
-      const chainableAction = ChainableActionRegistry.get(cardId);
 
-      if (chainableAction && !chainableAction.canActivate(state)) {
-        return false;
-      }
+    // 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+    if (!cardInstance || !(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
+      return false;
+    }
+    if (cardInstance.type !== "spell") {
+      return false;
+    }
+
+    // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+    if (cardInstance.spellType !== "field" && state.zones.spellTrapZone.length >= 5) {
+      return false;
+    }
+
+    // 5. 速攻魔法の場合、セットしたターンでは無いこと
+    if (cardInstance.spellType === "quick-play" && cardInstance.placedThisTurn) {
+      return false;
+    }
+
+    // 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
+    if (chainableAction && !chainableAction.canActivate(state)) {
+      return false;
     }
 
     return true;
@@ -68,15 +85,17 @@ export class ActivateSpellCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // Validate activation
-    const validationResult = canActivateSpell(state, this.cardInstanceId);
-    if (!validationResult.canExecute) {
-      return createFailureResult(state, validationResult.reason || "Cannot activate spell card");
+    if (!isMainPhase(state.phase)) {
+      return createFailureResult(state, "メインフェイズではありません");
     }
 
     // Step 2: Effect execution based on card ID
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
+    }
+    if (cardInstance.spellType === "quick-play" && cardInstance.placedThisTurn) {
+      return createFailureResult(state, "速攻魔法はセットしたターンに発動できません");
     }
 
     const cardId = cardInstance.id; // CardInstance extends CardData

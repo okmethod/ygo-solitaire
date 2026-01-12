@@ -245,7 +245,7 @@ describe("GameFacade", () => {
       const result = facade.activateSpell("non-existent-card-id");
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("見つかりません");
+      expect(result.error).toBe("Card instance non-existent-card-id not found");
     });
 
     it("should not update store on failed activation", () => {

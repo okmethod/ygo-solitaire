@@ -8,7 +8,6 @@
 
 import { derived } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
-import { hasActivatableSpells } from "$lib/domain/rules/SpellActivationRule";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 /** 現在のゲームフェーズ */
@@ -49,8 +48,8 @@ export const gameResult = derived(gameStateStore, ($state) => {
   return checkVictoryConditions($state);
 });
 
-/** 魔法カードが発動可能かどうか */
-export const canActivateSpells = derived(gameStateStore, ($state) => hasActivatableSpells($state));
+/** 魔法カードが発動可能かどうか TODO: 仮の判定。要修正 */
+export const canActivateSpells = derived(gameStateStore, ($state) => $state.zones.hand.length === 0);
 
 /** デッキが空かどうか */
 export const isDeckEmpty = derived(gameStateStore, ($state) => $state.zones.deck.length === 0);
