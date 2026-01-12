@@ -12,6 +12,7 @@ import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/Game
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import type { CardInstance } from "$lib/domain/models/Card";
+import { isMainPhase } from "$lib/domain/rules/PhaseRule";
 
 /** 魔法・罠セットコマンドクラス */
 export class SetSpellTrapCommand implements GameCommand {
@@ -26,7 +27,7 @@ export class SetSpellTrapCommand implements GameCommand {
    *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. メインフェイズ1であること
+   * 2. メインフェイズであること
    * 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
    * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
    */
@@ -36,8 +37,8 @@ export class SetSpellTrapCommand implements GameCommand {
       return false;
     }
 
-    // 2. メインフェイズ1であること
-    if (state.phase !== "Main1") {
+    // 2. メインフェイズであること
+    if (!isMainPhase(state.phase)) {
       return false;
     }
 
@@ -65,7 +66,7 @@ export class SetSpellTrapCommand implements GameCommand {
    * 1. TODO: 要整理
    */
   execute(state: GameState): GameStateUpdateResult {
-    if (state.phase !== "Main1") {
+    if (!isMainPhase(state.phase)) {
       return createFailureResult(state, "メインフェイズではありません");
     }
 
