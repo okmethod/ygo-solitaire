@@ -18,8 +18,8 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "./GameCommand";
-import { createFailureResult } from "./GameCommand";
+import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
+import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 
 /**

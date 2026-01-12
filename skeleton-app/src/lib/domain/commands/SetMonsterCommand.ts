@@ -9,8 +9,8 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "./GameCommand";
-import { createSuccessResult, createFailureResult } from "./GameCommand";
+import type { GameCommand, CommandResult } from "$lib/domain/models/GameStateUpdate";
+import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard } from "$lib/domain/models/Zone";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import type { CardInstance } from "$lib/domain/models/Card";
