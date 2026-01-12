@@ -10,12 +10,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
-import {
-  getNextValidPhase,
-  validatePhaseTransition,
-  canManuallyAdvancePhase,
-  getPhaseDisplayName,
-} from "$lib/domain/rules/PhaseRule";
+import { getNextValidPhase, validatePhaseTransition, getPhaseDisplayName } from "$lib/domain/rules/PhaseRule";
 
 /** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
@@ -31,7 +26,6 @@ export class AdvancePhaseCommand implements GameCommand {
    * チェック項目:
    * 1. ゲーム終了状態でないこと
    * 2. フェイズ遷移が許可されていること
-   * 3. TODO: 3以降は要整理
    */
   canExecute(state: GameState): boolean {
     // 1. ゲーム終了状態でないこと
@@ -47,9 +41,7 @@ export class AdvancePhaseCommand implements GameCommand {
       return false;
     }
 
-    // TODO: このタイミングでのデッキアウトの検証が必要か確認する
-    const deckIsEmpty = state.zones.deck.length === 0;
-    return canManuallyAdvancePhase(state.phase, deckIsEmpty);
+    return true;
   }
 
   /**

@@ -8,7 +8,6 @@ import {
   getNextValidPhase,
   requiresAutoDraw,
   canActivateSpellsInPhase,
-  canManuallyAdvancePhase,
   isFirstTurn,
   shouldSkipFirstTurnDraw,
   getPhaseDisplayName,
@@ -95,29 +94,6 @@ describe("PhaseRule", () => {
 
     it("should return false for End phase", () => {
       expect(canActivateSpellsInPhase("End")).toBe(false);
-    });
-  });
-
-  describe("canManuallyAdvancePhase", () => {
-    it("should return true for Standby phase with cards in deck", () => {
-      expect(canManuallyAdvancePhase("Standby", false)).toBe(true);
-    });
-
-    it("should return true for Main1 phase with cards in deck", () => {
-      expect(canManuallyAdvancePhase("Main1", false)).toBe(true);
-    });
-
-    it("should return false for Draw phase with empty deck", () => {
-      expect(canManuallyAdvancePhase("Draw", true)).toBe(false);
-    });
-
-    it("should return true for Draw phase with cards in deck", () => {
-      expect(canManuallyAdvancePhase("Draw", false)).toBe(true);
-    });
-
-    it("should return true for End phase regardless of deck state", () => {
-      expect(canManuallyAdvancePhase("End", true)).toBe(true);
-      expect(canManuallyAdvancePhase("End", false)).toBe(true);
     });
   });
 

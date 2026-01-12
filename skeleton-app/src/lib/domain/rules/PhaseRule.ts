@@ -1,14 +1,5 @@
-/**
- * PhaseRule - Phase transition validation
- *
- * Validates phase transitions and determines valid actions per phase.
- * MVP scope: Draw → Standby → Main1 → End (no Battle Phase, no Main2)
- *
- * @module domain/rules/PhaseRule
- */
-
-import type { GamePhase } from "../models/Phase";
-import { getNextPhase, GAME_PHASES } from "../models/Phase";
+import type { GamePhase } from "$lib/domain/models/Phase";
+import { getNextPhase, GAME_PHASES } from "$lib/domain/models/Phase";
 
 /**
  * Validate if phase transition is allowed
@@ -50,23 +41,6 @@ export function requiresAutoDraw(phase: GamePhase): boolean {
  */
 export function canActivateSpellsInPhase(phase: GamePhase): boolean {
   return phase === "Main1";
-}
-
-/**
- * Check if player can manually advance to next phase
- *
- * @param phase - Current game phase
- * @param deckIsEmpty - Whether deck has cards remaining
- * @returns True if phase advance is allowed
- */
-export function canManuallyAdvancePhase(phase: GamePhase, deckIsEmpty: boolean): boolean {
-  // Cannot advance from Draw phase if deck is empty (deck out)
-  if (phase === "Draw" && deckIsEmpty) {
-    return false;
-  }
-
-  // Can advance from all other phases
-  return true;
 }
 
 /**
