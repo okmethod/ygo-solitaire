@@ -19,6 +19,7 @@ class YGOProDeckCardRepository implements ICardDataRepository {
   /**
    * カードIDリストから複数のカードデータを取得
    *
+   * @param fetchFunction - SvelteKitのfetch関数（SSR対応）
    * @param cardIds - カードIDの配列
    * @returns Promise<CardDisplayData[]> - カード表示データの配列
    *
@@ -27,19 +28,20 @@ class YGOProDeckCardRepository implements ICardDataRepository {
    * - 未キャッシュIDのみAPIリクエスト（バッチ最適化）
    * - YGOProDeckCard → CardDisplayData への変換を実施
    */
-  async getCardsByIds(cardIds: number[]): Promise<CardDisplayData[]> {
-    const ygoprodeckCards = await apiGetCardsByIds(fetch, cardIds);
+  async getCardsByIds(fetchFunction: typeof fetch, cardIds: number[]): Promise<CardDisplayData[]> {
+    const ygoprodeckCards = await apiGetCardsByIds(fetchFunction, cardIds);
     return ygoprodeckCards.map((card) => this.convertToCardDisplayData(card));
   }
 
   /**
    * 単一のカードデータを取得
    *
+   * @param fetchFunction - SvelteKitのfetch関数（SSR対応）
    * @param cardId - カードID
    * @returns Promise<CardDisplayData> - カード表示データ
    */
-  async getCardById(cardId: number): Promise<CardDisplayData> {
-    const ygoprodeckCard = await apiGetCardById(fetch, cardId);
+  async getCardById(fetchFunction: typeof fetch, cardId: number): Promise<CardDisplayData> {
+    const ygoprodeckCard = await apiGetCardById(fetchFunction, cardId);
     if (!ygoprodeckCard) {
       throw new Error(`Card not found: ID ${cardId}`);
     }

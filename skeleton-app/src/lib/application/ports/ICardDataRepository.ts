@@ -15,6 +15,7 @@ export interface ICardDataRepository {
   /**
    * カードIDリストから複数のカードデータを取得
    *
+   * @param fetchFunction - SvelteKitのfetch関数（SSR対応）
    * @param cardIds - カードIDの配列（YGOPRODeck API互換の数値ID）
    * @returns Promise<CardDisplayData[]> - カード表示データの配列
    *
@@ -23,16 +24,17 @@ export interface ICardDataRepository {
    * - 実装側でキャッシングを行う想定
    * - 存在しないIDがあった場合のエラーハンドリングは実装に委ねる
    */
-  getCardsByIds(cardIds: number[]): Promise<CardDisplayData[]>;
+  getCardsByIds(fetchFunction: typeof fetch, cardIds: number[]): Promise<CardDisplayData[]>;
 
   /**
    * 単一のカードデータを取得
    *
+   * @param fetchFunction - SvelteKitのfetch関数（SSR対応）
    * @param cardId - カードID（YGOPRODeck API互換の数値ID）
    * @returns Promise<CardDisplayData> - カード表示データ
    *
    * @remarks
    * - 内部的には getCardsByIds([cardId]) を呼び出す想定
    */
-  getCardById(cardId: number): Promise<CardDisplayData>;
+  getCardById(fetchFunction: typeof fetch, cardId: number): Promise<CardDisplayData>;
 }

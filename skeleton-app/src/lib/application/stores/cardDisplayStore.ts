@@ -47,7 +47,7 @@ function createZoneCardStore(
       let isCancelled = false;
 
       cardRepository
-        .getCardsByIds(cardIds)
+        .getCardsByIds(fetch, cardIds)
         .then((cards) => {
           if (!isCancelled) {
             set(cards);

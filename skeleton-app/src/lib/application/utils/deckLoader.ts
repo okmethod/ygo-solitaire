@@ -132,15 +132,10 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
   }
 }
 
-/**
- * デッキレシピからデッキデータを生成する
- *
- * Note: _fetch は未使用だが、シグネチャ互換性のため保持している
- */
+/** デッキレシピからデッキデータを生成する */
 export async function loadDeck(
   deckId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _fetch?: typeof window.fetch,
+  fetchFunction: typeof fetch,
 ): Promise<{ deckRecipe: DeckRecipe; deckData: DeckData }> {
   const deckRecipe = sampleDeckRecipes[deckId];
   if (!deckRecipe) {
@@ -162,7 +157,7 @@ export async function loadDeck(
   const repository = getCardRepository();
   let cardDataList: CardDisplayData[];
   try {
-    cardDataList = await repository.getCardsByIds(uniqueCardIds);
+    cardDataList = await repository.getCardsByIds(fetchFunction, uniqueCardIds);
   } catch (err) {
     console.error("カード情報のAPI取得に失敗しました:", err);
     throw new Error(`Failed to fetch card data: ${err instanceof Error ? err.message : String(err)}`);
