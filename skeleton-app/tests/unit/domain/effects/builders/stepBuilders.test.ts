@@ -70,8 +70,8 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(state.zones.hand.length + 2);
-      expect(result.newState.zones.deck.length).toBe(state.zones.deck.length - 2);
+      expect(result.updatedState.zones.hand.length).toBe(state.zones.hand.length + 2);
+      expect(result.updatedState.zones.deck.length).toBe(state.zones.deck.length - 2);
       expect(result.message).toBe("Draw 2 cards");
     });
 
@@ -149,7 +149,7 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.graveyard.length).toBe(state.zones.graveyard.length + 1);
+      expect(result.updatedState.zones.graveyard.length).toBe(state.zones.graveyard.length + 1);
       expect(result.message).toContain("Test Spell 1 to graveyard"); // Uses jaName from registry
     });
   });
@@ -266,7 +266,7 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.lp.opponent).toBe(initialOpponentLP + 1000);
+      expect(result.updatedState.lp.opponent).toBe(initialOpponentLP + 1000);
       expect(result.message).toBe("Opponent gained 1000 LP");
     });
 
@@ -281,7 +281,7 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.lp.player).toBe(initialPlayerLP + 500);
+      expect(result.updatedState.lp.player).toBe(initialPlayerLP + 500);
       expect(result.message).toBe("Player gained 500 LP");
     });
   });
@@ -319,7 +319,7 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.lp.player).toBe(initialPlayerLP - 1000);
+      expect(result.updatedState.lp.player).toBe(initialPlayerLP - 1000);
       expect(result.message).toBe("Player took 1000 damage");
     });
 
@@ -334,7 +334,7 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.lp.opponent).toBe(initialOpponentLP - 500);
+      expect(result.updatedState.lp.opponent).toBe(initialOpponentLP - 500);
       expect(result.message).toBe("Opponent took 500 damage");
     });
   });
@@ -376,7 +376,7 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.deck.length).toBe(originalDeckSize);
+      expect(result.updatedState.zones.deck.length).toBe(originalDeckSize);
       expect(result.message).toBe("Deck shuffled");
       // Note: Shuffle randomness is hard to test, just verify deck size unchanged
     });
@@ -438,8 +438,8 @@ describe("stepBuilders", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(state.zones.hand.length - 1);
-      expect(result.newState.zones.deck.length).toBe(state.zones.deck.length + 1);
+      expect(result.updatedState.zones.hand.length).toBe(state.zones.hand.length - 1);
+      expect(result.updatedState.zones.deck.length).toBe(state.zones.deck.length + 1);
       expect(result.message).toBe("Returned 1 card to deck");
     });
 

@@ -64,14 +64,14 @@ export class CardOfDemiseActivation extends NormalSpellAction {
           const newActivatedCards = new Set(currentState.activatedOncePerTurnCards);
           newActivatedCards.add(this.cardId);
 
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             activatedOncePerTurnCards: newActivatedCards,
           };
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: `${cardData.jaName} activated`,
           };
         },
@@ -98,14 +98,14 @@ export class CardOfDemiseActivation extends NormalSpellAction {
           updatedZones = sendToGraveyard(updatedZones, card.instanceId);
         }
 
-        const newState: GameState = {
+        const updatedState: GameState = {
           ...state,
           zones: updatedZones,
         };
 
         return {
           success: true,
-          newState,
+          updatedState,
           message: `Discarded all ${handCards.length} cards from hand (Card of Demise effect)`,
         };
       },

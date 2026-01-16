@@ -63,14 +63,14 @@ export class IntoTheVoidActivation extends NormalSpellAction {
           updatedZones = sendToGraveyard(updatedZones, card.instanceId);
         }
 
-        const newState: GameState = {
+        const updatedState: GameState = {
           ...state,
           zones: updatedZones,
         };
 
         return {
           success: true,
-          newState,
+          updatedState,
           message: `Discarded all ${handCards.length} cards from hand (Into the Void effect)`,
         };
       },

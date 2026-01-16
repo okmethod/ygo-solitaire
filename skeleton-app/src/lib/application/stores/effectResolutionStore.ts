@@ -71,7 +71,7 @@ type NotificationStrategy = (
 function executeStepAction(step: EffectResolutionStep, gameState: GameState, selectedIds?: string[]): void {
   const result = step.action(gameState, selectedIds);
   if (result.success) {
-    gameStateStore.set(result.newState);
+    gameStateStore.set(result.updatedState);
   }
 }
 

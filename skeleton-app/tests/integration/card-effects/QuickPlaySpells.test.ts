@@ -41,7 +41,9 @@ describe("Quick-Play Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
           hand: createCardInstances([cardDestructionCardId, "hand1", "hand2", "hand3"], "hand", "destruction"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -88,7 +90,9 @@ describe("Quick-Play Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([cardDestructionCardId, "hand1"], "hand", "destruction"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -99,7 +103,7 @@ describe("Quick-Play Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 3 cards in hand)
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("Scenario: Can activate when hand has exactly 3 cards", () => {
@@ -109,7 +113,9 @@ describe("Quick-Play Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([cardDestructionCardId, "hand1", "hand2"], "hand", "destruction"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -120,7 +126,7 @@ describe("Quick-Play Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Can activate
-      expect(result).toBe(true);
+      expect(result.canExecute).toBe(true);
     });
 
     it("Scenario: Spell Speed 2 allows chaining (verified via property)", async () => {

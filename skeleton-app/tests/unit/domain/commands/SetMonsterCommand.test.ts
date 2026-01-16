@@ -83,7 +83,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result.canExecute).toBe(true);
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -110,7 +110,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("should fail if summon limit reached", () => {
@@ -137,7 +137,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("should fail if mainMonsterZone is full (5 cards)", () => {
@@ -165,7 +165,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("should fail if card not found", () => {
@@ -182,7 +182,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("should fail if card is not in hand", () => {
@@ -209,7 +209,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("should fail if card is not a monster", () => {
@@ -245,7 +245,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
 
     it("should fail if game is already over", () => {
@@ -273,7 +273,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.canExecute).toBe(false);
     });
   });
 
@@ -303,10 +303,10 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(0);
-      expect(result.newState.zones.mainMonsterZone.length).toBe(1);
+      expect(result.updatedState.zones.hand.length).toBe(0);
+      expect(result.updatedState.zones.mainMonsterZone.length).toBe(1);
 
-      const setCard = result.newState.zones.mainMonsterZone[0];
+      const setCard = result.updatedState.zones.mainMonsterZone[0];
       expect(setCard.instanceId).toBe("monster-1");
       expect(setCard.location).toBe("mainMonsterZone");
       expect(setCard.position).toBe("faceDown");
@@ -339,7 +339,7 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.normalSummonUsed).toBe(1);
+      expect(result.updatedState.normalSummonUsed).toBe(1);
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -413,7 +413,7 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toContain("not found");
+      expect(result.error).toBe("カードが見つかりません");
     });
 
     it("should fail if card is not in hand", () => {
@@ -441,7 +441,7 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Card not in hand");
+      expect(result.error).toBe("カードが手札にありません");
     });
 
     it("should fail if card is not a monster", () => {
@@ -478,7 +478,7 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Not a monster card");
+      expect(result.error).toBe("モンスターカードではありません");
     });
 
     it("should preserve other zones when setting", () => {
@@ -509,8 +509,8 @@ describe("SetMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.deck).toEqual([existingDeckCard]);
-      expect(result.newState.zones.graveyard).toEqual([existingGraveyardCard]);
+      expect(result.updatedState.zones.deck).toEqual([existingDeckCard]);
+      expect(result.updatedState.zones.graveyard).toEqual([existingGraveyardCard]);
     });
   });
 

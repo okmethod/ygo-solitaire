@@ -56,7 +56,7 @@ export function createDrawStep(
       if (currentState.zones.deck.length < count) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: `Cannot draw ${count} cards. Not enough cards in deck.`,
         };
       }
@@ -65,14 +65,14 @@ export function createDrawStep(
       const newZones = drawCards(currentState.zones, count);
 
       // ドロー後の新しいゲーム状態を作成
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: newZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Draw ${count} card${count > 1 ? "s" : ""}`,
       };
     },
@@ -105,14 +105,14 @@ export function createSendToGraveyardStep(
       // カードを墓地へ送る
       const newZones = sendToGraveyard(currentState.zones, instanceId);
 
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: newZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Sent ${cardData.jaName} to graveyard`,
       };
     },
@@ -209,7 +209,7 @@ export function createGainLifeStep(
     description: options?.description ?? `${targetJa}のLPが${amount}増加します`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         lp: {
           ...currentState.lp,
@@ -219,7 +219,7 @@ export function createGainLifeStep(
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `${target === "player" ? "Player" : "Opponent"} gained ${amount} LP`,
       };
     },
@@ -259,7 +259,7 @@ export function createDamageStep(
     description: options?.description ?? `${targetJa}は${amount}ダメージを受けます`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         lp: {
           ...currentState.lp,
@@ -269,7 +269,7 @@ export function createDamageStep(
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `${target === "player" ? "Player" : "Opponent"} took ${amount} damage`,
       };
     },
@@ -304,14 +304,14 @@ export function createShuffleStep(options?: {
       // デッキをシャッフル
       const newZones = shuffleDeck(currentState.zones);
 
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: newZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: "Deck shuffled",
       };
     },
@@ -354,7 +354,7 @@ export function createReturnToDeckStep(
       if (instanceIds.length === 0) {
         return {
           success: true,
-          newState: currentState,
+          updatedState: currentState,
           message: "No cards to return",
         };
       }
@@ -365,14 +365,14 @@ export function createReturnToDeckStep(
         updatedZones = moveCard(updatedZones, instanceId, "hand", "deck");
       }
 
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: updatedZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Returned ${count} card${count > 1 ? "s" : ""} to deck`,
       };
     },
@@ -432,7 +432,7 @@ export function createSearchFromGraveyardStep(config: {
       if (availableCards.length === 0) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: "No cards available in graveyard matching the criteria",
         };
       }
@@ -441,7 +441,7 @@ export function createSearchFromGraveyardStep(config: {
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: "No cards selected",
         };
       }
@@ -452,14 +452,14 @@ export function createSearchFromGraveyardStep(config: {
         updatedZones = moveCard(updatedZones, instanceId, "graveyard", "hand");
       }
 
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: updatedZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from graveyard to hand`,
       };
     },
@@ -517,7 +517,7 @@ export function createSearchFromDeckTopStep(config: {
       if (topCards.length < config.count) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: `Cannot excavate ${config.count} cards. Deck has only ${topCards.length} cards.`,
         };
       }
@@ -526,7 +526,7 @@ export function createSearchFromDeckTopStep(config: {
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: "No cards selected",
         };
       }
@@ -538,14 +538,14 @@ export function createSearchFromDeckTopStep(config: {
       }
 
       // 残りのカードはデッキに残る（シャッフルなし - 元の位置に戻る）
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: updatedZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from deck to hand`,
       };
     },
@@ -588,14 +588,14 @@ export function createAddEndPhaseEffectStep(
     description: options?.description ?? "エンドフェイズに実行される効果を登録します",
     notificationLevel: "silent",
     action: (currentState: GameState): GameStateUpdateResult => {
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         pendingEndPhaseEffects: [...currentState.pendingEndPhaseEffects, effectStep],
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Added end phase effect: ${effectStep.summary}`,
       };
     },
@@ -637,7 +637,7 @@ export function createDrawUntilCountStep(
       if (drawCount === 0) {
         return {
           success: true,
-          newState: currentState,
+          updatedState: currentState,
           message: `Hand already has ${currentHandCount} cards (target: ${targetCount})`,
         };
       }
@@ -646,7 +646,7 @@ export function createDrawUntilCountStep(
       if (currentState.zones.deck.length < drawCount) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: `Cannot draw ${drawCount} cards to reach target. Deck has only ${currentState.zones.deck.length} cards.`,
         };
       }
@@ -654,14 +654,14 @@ export function createDrawUntilCountStep(
       // 目標枚数に達するまでカードをドロー
       const newZones = drawCards(currentState.zones, drawCount);
 
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: newZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Draw ${drawCount} card${drawCount > 1 ? "s" : ""} (hand now: ${targetCount})`,
       };
     },
@@ -719,7 +719,7 @@ export function createSearchFromDeckByNameStep(config: {
       if (availableCards.length === 0) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: "No cards available in deck matching the criteria",
         };
       }
@@ -728,7 +728,7 @@ export function createSearchFromDeckByNameStep(config: {
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return {
           success: false,
-          newState: currentState,
+          updatedState: currentState,
           error: "No cards selected",
         };
       }
@@ -742,14 +742,14 @@ export function createSearchFromDeckByNameStep(config: {
       // デッキサーチ後はデッキをシャッフル
       updatedZones = shuffleDeck(updatedZones);
 
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         zones: updatedZones,
       };
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from deck to hand and shuffled`,
       };
     },
@@ -788,7 +788,7 @@ export function createLPPaymentStep(
     description: options?.description ?? `${targetJa}が${amount}LPを支払います`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
-      const newState: GameState = {
+      const updatedState: GameState = {
         ...currentState,
         lp: {
           ...currentState.lp,
@@ -798,7 +798,7 @@ export function createLPPaymentStep(
 
       return {
         success: true,
-        newState,
+        updatedState,
         message: `${target === "player" ? "Player" : "Opponent"} paid ${amount} LP`,
       };
     },

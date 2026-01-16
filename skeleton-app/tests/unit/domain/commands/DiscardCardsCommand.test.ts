@@ -18,7 +18,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -26,7 +28,7 @@ describe("DiscardCardsCommand", () => {
 
       const command = new DiscardCardsCommand([cards[0].instanceId, cards[1].instanceId]);
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return true when discarding single card", () => {
@@ -35,7 +37,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -43,17 +47,19 @@ describe("DiscardCardsCommand", () => {
 
       const command = new DiscardCardsCommand([cards[0].instanceId]);
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return false when card is not in hand", () => {
       const handCards = createCardInstances(["12345678"], "hand");
-      const fieldCards = createCardInstances(["87654321"], "field");
+      const fieldCards = createCardInstances(["87654321"], "mainMonsterZone");
       const state = createMockGameState({
         zones: {
           deck: [],
           hand: handCards,
-          field: fieldCards,
+          mainMonsterZone: fieldCards,
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -62,7 +68,7 @@ describe("DiscardCardsCommand", () => {
       // Try to discard a card that's on field, not in hand
       const command = new DiscardCardsCommand([fieldCards[0].instanceId]);
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
 
     it("should return false when hand is empty", () => {
@@ -70,7 +76,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -78,14 +86,14 @@ describe("DiscardCardsCommand", () => {
 
       const command = new DiscardCardsCommand(["non-existent-id"]);
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
 
     it("should return false when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new DiscardCardsCommand(["any-id"]);
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
 
     it("should return false when some cards are not in hand", () => {
@@ -94,7 +102,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: handCards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -103,7 +113,7 @@ describe("DiscardCardsCommand", () => {
       // Try to discard 1 valid + 1 invalid card
       const command = new DiscardCardsCommand([handCards[0].instanceId, "invalid-id"]);
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
   });
 
@@ -114,7 +124,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -124,8 +136,8 @@ describe("DiscardCardsCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(1); // 3 - 2 = 1
-      expect(result.newState.zones.graveyard.length).toBe(2); // 0 + 2 = 2
+      expect(result.updatedState.zones.hand.length).toBe(1); // 3 - 2 = 1
+      expect(result.updatedState.zones.graveyard.length).toBe(2); // 0 + 2 = 2
       expect(result.message).toContain("Discarded 2 cards");
     });
 
@@ -135,7 +147,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -145,8 +159,8 @@ describe("DiscardCardsCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(1); // 2 - 1 = 1
-      expect(result.newState.zones.graveyard.length).toBe(1); // 0 + 1 = 1
+      expect(result.updatedState.zones.hand.length).toBe(1); // 2 - 1 = 1
+      expect(result.updatedState.zones.graveyard.length).toBe(1); // 0 + 1 = 1
       expect(result.message).toContain("Discarded 1 card");
     });
 
@@ -156,7 +170,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -179,7 +195,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -188,7 +206,7 @@ describe("DiscardCardsCommand", () => {
       const command = new DiscardCardsCommand([cards[0].instanceId]);
       const result = command.execute(state);
 
-      const discardedCard = result.newState.zones.graveyard.find((c) => c.instanceId === cards[0].instanceId);
+      const discardedCard = result.updatedState.zones.graveyard.find((c) => c.instanceId === cards[0].instanceId);
 
       expect(discardedCard).toBeDefined();
       expect(discardedCard!.location).toBe("graveyard");
@@ -200,7 +218,9 @@ describe("DiscardCardsCommand", () => {
         zones: {
           deck: [],
           hand: cards,
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -210,8 +230,8 @@ describe("DiscardCardsCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Cannot discard");
-      expect(result.newState).toBe(state); // State unchanged on failure
+      expect(result.error).toBe("カードが手札にありません");
+      expect(result.updatedState).toBe(state); // State unchanged on failure
     });
 
     it("should fail when game is already over", () => {
@@ -221,7 +241,7 @@ describe("DiscardCardsCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(false);
-      expect(result.newState).toBe(state);
+      expect(result.updatedState).toBe(state);
     });
   });
 

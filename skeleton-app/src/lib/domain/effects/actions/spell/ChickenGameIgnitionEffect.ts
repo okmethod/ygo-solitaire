@@ -112,13 +112,13 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
           if (currentState.lp.player < 1000) {
             return {
               success: false,
-              newState: currentState,
+              updatedState: currentState,
               error: "Cannot pay 1000 LP. Not enough Life Points.",
             };
           }
 
           // Pay 1000 LP
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             lp: {
               ...currentState.lp,
@@ -128,7 +128,7 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: "Paid 1000 LP",
           };
         },
@@ -144,14 +144,14 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
           const newActivatedEffects = new Set(currentState.activatedIgnitionEffectsThisTurn);
           newActivatedEffects.add(effectKey);
 
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             activatedIgnitionEffectsThisTurn: newActivatedEffects,
           };
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: "Recorded ignition effect activation",
           };
         },

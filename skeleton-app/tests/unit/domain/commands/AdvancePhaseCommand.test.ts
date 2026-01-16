@@ -33,35 +33,35 @@ describe("AdvancePhaseCommand", () => {
       });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return true for Standby → Main1", () => {
       const state = createMockGameState({ phase: "Standby" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return true for Main1 → End", () => {
       const state = createMockGameState({ phase: "Main1" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return true for End → End (循環)", () => {
       const state = createMockGameState({ phase: "End" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return false when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
   });
 
@@ -94,7 +94,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("Standby");
+      expect(result.updatedState.phase).toBe("Standby");
       expect(result.message).toContain("スタンバイフェイズ");
     });
 
@@ -105,7 +105,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("Main1");
+      expect(result.updatedState.phase).toBe("Main1");
       expect(result.message).toContain("メインフェイズ");
     });
 
@@ -116,7 +116,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("End");
+      expect(result.updatedState.phase).toBe("End");
       expect(result.message).toContain("エンドフェイズ");
     });
 
@@ -127,7 +127,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("End");
+      expect(result.updatedState.phase).toBe("End");
     });
 
     it("should not mutate original state (immutability)", () => {
@@ -148,7 +148,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(false);
-      expect(result.newState).toBe(state);
+      expect(result.updatedState).toBe(state);
     });
   });
 

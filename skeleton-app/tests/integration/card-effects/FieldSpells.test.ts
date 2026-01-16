@@ -85,10 +85,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(result.effectSteps!.length).toBe(0); // Field spell has no resolution steps
 
       // Verify card moved to field
-      expect(result.newState.zones.hand.length).toBe(0);
-      expect(result.newState.zones.fieldZone.length).toBe(1);
-      expect(result.newState.zones.fieldZone[0].id).toBe(chickenGameCardId);
-      expect(result.newState.zones.fieldZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.hand.length).toBe(0);
+      expect(result.updatedState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.zones.fieldZone[0].id).toBe(chickenGameCardId);
+      expect(result.updatedState.zones.fieldZone[0].position).toBe("faceUp");
     });
 
     it("Scenario: Cannot activate when another field spell is already on field", () => {
@@ -183,14 +183,14 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       for (const step of activationSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       // Execute resolution steps
       for (const step of resolutionSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       // Assert: LP decreased by 1000, hand increased by 1
@@ -283,10 +283,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const advanceToEnd = new AdvancePhaseCommand();
       const endPhaseResult = advanceToEnd.execute(stateAfterActivation);
       expect(endPhaseResult.success).toBe(true);
-      expect(endPhaseResult.newState.phase).toBe("End");
+      expect(endPhaseResult.updatedState.phase).toBe("End");
 
       // Assert: activatedIgnitionEffectsThisTurn is cleared
-      expect(endPhaseResult.newState.activatedIgnitionEffectsThisTurn.size).toBe(0);
+      expect(endPhaseResult.updatedState.activatedIgnitionEffectsThisTurn.size).toBe(0);
     });
   });
 
@@ -333,7 +333,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const activateResult = activateCommand.execute(initialState);
       expect(activateResult.success).toBe(true);
 
-      const stateAfterActivation = activateResult.newState;
+      const stateAfterActivation = activateResult.updatedState;
       expect(stateAfterActivation.zones.fieldZone.length).toBe(1);
       expect(stateAfterActivation.zones.fieldZone[0].id).toBe(chickenGameCardId);
 
@@ -350,13 +350,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       for (const step of activationSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       for (const step of resolutionSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       const finalState = currentState;
@@ -434,6 +434,6 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     const result = command.canExecute(state);
 
     // Assert: Cannot activate (insufficient LP)
-    expect(result).toBe(false);
+    expect(result.canExecute).toBe(false);
   });
 });

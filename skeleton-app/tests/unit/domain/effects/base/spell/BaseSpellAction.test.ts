@@ -130,7 +130,7 @@ describe("BaseSpellAction", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState).toBe(state);
+      expect(result.updatedState).toBe(state);
       expect(result.message).toBe("Test Monster A activated"); // Uses jaName from registry
     });
   });

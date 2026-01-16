@@ -65,14 +65,14 @@ export class PotOfDualityActivation extends NormalSpellAction {
           const newActivatedCards = new Set(currentState.activatedOncePerTurnCards);
           newActivatedCards.add(this.cardId);
 
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             activatedOncePerTurnCards: newActivatedCards,
           };
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: `${cardData.jaName} activated`,
           };
         },

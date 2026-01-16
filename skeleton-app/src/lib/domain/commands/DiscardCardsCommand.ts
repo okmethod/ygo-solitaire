@@ -9,8 +9,15 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { discardCards } from "$lib/domain/models/Zone";
+import {
+  ValidationErrorCode,
+  validationSuccess,
+  validationFailure,
+  getValidationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
 /** カード破棄コマンドクラス */
 export class DiscardCardsCommand implements GameCommand {
@@ -27,18 +34,18 @@ export class DiscardCardsCommand implements GameCommand {
    * 1. ゲーム終了状態でないこと
    * 2. 指定カードがすべて手札に存在すること
    */
-  canExecute(state: GameState): boolean {
+  canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return validationFailure(ValidationErrorCode.GAME_OVER);
     }
 
     // 2. 指定カードがすべて手札に存在すること
     if (!this.instanceIds.every((id) => state.zones.hand.some((c) => c.instanceId === id))) {
-      return false;
+      return validationFailure(ValidationErrorCode.CARD_NOT_IN_HAND);
     }
 
-    return true;
+    return validationSuccess();
   }
 
   /**
@@ -51,8 +58,9 @@ export class DiscardCardsCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // 1. 実行可能性判定
-    if (!this.canExecute(state)) {
-      return createFailureResult(state, `Cannot discard ${this.instanceIds.length} cards. Some cards are not in hand.`);
+    const validation = this.canExecute(state);
+    if (!validation.canExecute) {
+      return createFailureResult(state, getValidationErrorMessage(validation));
     }
 
     // 2. 更新後状態の構築
@@ -64,7 +72,7 @@ export class DiscardCardsCommand implements GameCommand {
     // 3. 戻り値の構築
     return {
       success: true,
-      newState: updatedState,
+      updatedState: updatedState,
       message: `Discarded ${this.instanceIds.length} card${this.instanceIds.length > 1 ? "s" : ""}`,
     };
   }

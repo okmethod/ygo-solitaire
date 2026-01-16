@@ -68,7 +68,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
           if (selectedInstanceIds.length !== 2) {
             return {
               success: false,
-              newState: currentState,
+              updatedState: currentState,
               error: "Must select exactly 2 cards to discard",
             };
           }
@@ -92,7 +92,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
 
           return {
             success: true,
-            newState: currentState,
+            updatedState: currentState,
             message: "Opponent discarded 2 cards (internal)",
           };
         },

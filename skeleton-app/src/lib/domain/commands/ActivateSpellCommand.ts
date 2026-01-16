@@ -9,12 +9,19 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { findCardInstance } from "$lib/domain/models/GameState";
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/rules/PhaseRule";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import {
+  ValidationErrorCode,
+  validationSuccess,
+  validationFailure,
+  getValidationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
 /** 魔法カード発動コマンドクラス */
 export class ActivateSpellCommand implements GameCommand {
@@ -35,44 +42,47 @@ export class ActivateSpellCommand implements GameCommand {
    * 5. 速攻魔法の場合、セットしたターンでは無いこと
    * 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
    */
-  canExecute(state: GameState): boolean {
+  canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return validationFailure(ValidationErrorCode.GAME_OVER);
     }
 
     // 2. メインフェイズであること
     if (!isMainPhase(state.phase)) {
-      return false;
+      return validationFailure(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
     const cardInstance = findCardInstance(state, this.cardInstanceId);
 
     // 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
-    if (!cardInstance || !(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
-      return false;
+    if (!cardInstance) {
+      return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
+    }
+    if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
+      return validationFailure(ValidationErrorCode.CARD_NOT_IN_VALID_LOCATION);
     }
     if (cardInstance.type !== "spell") {
-      return false;
+      return validationFailure(ValidationErrorCode.NOT_SPELL_CARD);
     }
 
     // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (cardInstance.spellType !== "field" && state.zones.spellTrapZone.length >= 5) {
-      return false;
+      return validationFailure(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
     }
 
     // 5. 速攻魔法の場合、セットしたターンでは無いこと
     if (cardInstance.spellType === "quick-play" && cardInstance.placedThisTurn) {
-      return false;
+      return validationFailure(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
     }
 
     // 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
     const chainableAction = ChainableActionRegistry.get(cardInstance.id);
     if (chainableAction && !chainableAction.canActivate(state)) {
-      return false;
+      return validationFailure(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return validationSuccess();
   }
 
   /**
@@ -85,8 +95,9 @@ export class ActivateSpellCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // Validate activation
-    if (!isMainPhase(state.phase)) {
-      return createFailureResult(state, "メインフェイズではありません");
+    const validation = this.canExecute(state);
+    if (!validation.canExecute) {
+      return createFailureResult(state, getValidationErrorMessage(validation));
     }
 
     // Step 2: Effect execution based on card ID
@@ -94,17 +105,11 @@ export class ActivateSpellCommand implements GameCommand {
     if (!cardInstance) {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
     }
-    if (cardInstance.spellType === "quick-play" && cardInstance.placedThisTurn) {
-      return createFailureResult(state, "速攻魔法はセットしたターンに発動できません");
-    }
 
     const cardId = cardInstance.id; // CardInstance extends CardData
 
     // Check card-specific activation conditions (before moving to field)
     const chainableAction = ChainableActionRegistry.get(cardId);
-    if (chainableAction && !chainableAction.canActivate(state)) {
-      return createFailureResult(state, "発動条件を満たしていません");
-    }
 
     // Step 1: Determine source and target zones (T030-3)
     const sourceZone = cardInstance.location; // hand, spellTrapZone, or fieldZone
@@ -148,7 +153,7 @@ export class ActivateSpellCommand implements GameCommand {
       // Application Layer will execute all steps sequentially with proper notifications
       return {
         success: true,
-        newState: stateAfterActivation,
+        updatedState: stateAfterActivation,
         message: `Spell card activated: ${this.cardInstanceId}`,
         effectSteps: allEffectSteps,
       };
@@ -158,12 +163,12 @@ export class ActivateSpellCommand implements GameCommand {
     const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
 
     // Create new state with updated zones using spread syntax
-    const newState: GameState = {
+    const updatedState: GameState = {
       ...state,
       zones: zonesAfterResolution,
     };
 
-    return createSuccessResult(newState, `Spell card activated (no effect): ${this.cardInstanceId}`);
+    return createSuccessResult(updatedState, `Spell card activated (no effect): ${this.cardInstanceId}`);
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

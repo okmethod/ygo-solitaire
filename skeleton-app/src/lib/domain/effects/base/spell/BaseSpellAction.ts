@@ -116,7 +116,7 @@ export abstract class BaseSpellAction implements ChainableAction {
           // No state change, just notification
           return {
             success: true,
-            newState: currentState,
+            updatedState: currentState,
             message: `${cardData.jaName} activated`,
           };
         },

@@ -54,7 +54,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
 
           return {
             success: true,
-            newState: currentState,
+            updatedState: currentState,
             message: "Opponent draw 1 card (internal)",
           };
         },
@@ -67,14 +67,14 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
         description: "このターン、全てのダメージは0になります",
         notificationLevel: "info",
         action: (currentState: GameState) => {
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             damageNegation: true,
           };
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: "Damage negation activated for this turn",
           };
         },

@@ -70,13 +70,13 @@ describe("ActivateSpellCommand", () => {
     it("should return true when spell can be activated (Main1 phase, card in hand)", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
-      expect(command.canExecute(initialState)).toBe(true);
+      expect(command.canExecute(initialState).canExecute).toBe(true);
     });
 
     it("should return false when card is not in hand", () => {
       const command = new ActivateSpellCommand("non-existent-card");
 
-      expect(command.canExecute(initialState)).toBe(false);
+      expect(command.canExecute(initialState).canExecute).toBe(false);
     });
 
     it("should return false when not in Main1 phase", () => {
@@ -105,7 +105,7 @@ describe("ActivateSpellCommand", () => {
 
       const command = new ActivateSpellCommand(spellCardId);
 
-      expect(command.canExecute(drawPhaseState)).toBe(false);
+      expect(command.canExecute(drawPhaseState).canExecute).toBe(false);
     });
 
     it("should return false when game is over", () => {
@@ -140,7 +140,7 @@ describe("ActivateSpellCommand", () => {
 
       const command = new ActivateSpellCommand(spellCardId);
 
-      expect(command.canExecute(gameOverState)).toBe(false);
+      expect(command.canExecute(gameOverState).canExecute).toBe(false);
     });
   });
 
@@ -154,14 +154,14 @@ describe("ActivateSpellCommand", () => {
       expect(result.message).toContain("Spell card activated");
 
       // Check card moved from hand
-      expect(result.newState.zones.hand.length).toBe(1);
-      expect(result.newState.zones.hand.some((c) => c.instanceId === spellCardId)).toBe(false);
+      expect(result.updatedState.zones.hand.length).toBe(1);
+      expect(result.updatedState.zones.hand.some((c) => c.instanceId === spellCardId)).toBe(false);
 
       // Pot of Greed has registered effect in ChainableActionRegistry (new system)
       // Card stays on spellTrapZone (effect will send to graveyard later)
-      expect(result.newState.zones.spellTrapZone.length).toBe(1);
-      expect(result.newState.zones.spellTrapZone.some((c) => c.instanceId === spellCardId)).toBe(true);
-      expect(result.newState.zones.graveyard.length).toBe(0);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone.some((c) => c.instanceId === spellCardId)).toBe(true);
+      expect(result.updatedState.zones.graveyard.length).toBe(0);
 
       // NEW: Verify effectSteps are returned
       expect(result.effectSteps).toBeDefined();
@@ -174,10 +174,10 @@ describe("ActivateSpellCommand", () => {
       const result = command.execute(initialState);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Card instance non-existent-card not found");
+      expect(result.error).toBe("カードが見つかりません");
 
       // State should remain unchanged
-      expect(result.newState).toEqual(initialState);
+      expect(result.updatedState).toEqual(initialState);
     });
 
     it("should fail when not in Main1 phase", () => {
@@ -212,7 +212,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.error).toBe("メインフェイズではありません");
 
       // State should remain unchanged
-      expect(result.newState).toEqual(drawPhaseState);
+      expect(result.updatedState).toEqual(drawPhaseState);
     });
 
     it("should preserve other zones during activation", () => {
@@ -223,13 +223,13 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
 
       // Other zones should remain unchanged
-      expect(result.newState.zones.deck).toEqual(initialState.zones.deck);
-      expect(result.newState.zones.banished).toEqual(initialState.zones.banished);
+      expect(result.updatedState.zones.deck).toEqual(initialState.zones.deck);
+      expect(result.updatedState.zones.banished).toEqual(initialState.zones.banished);
 
       // Only hand and spellTrapZone should change (Pot of Greed has effect, so stays on spellTrapZone)
-      expect(result.newState.zones.hand.length).toBe(initialState.zones.hand.length - 1);
-      expect(result.newState.zones.spellTrapZone.length).toBe(initialState.zones.spellTrapZone.length + 1);
-      expect(result.newState.zones.graveyard.length).toBe(initialState.zones.graveyard.length);
+      expect(result.updatedState.zones.hand.length).toBe(initialState.zones.hand.length - 1);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(initialState.zones.spellTrapZone.length + 1);
+      expect(result.updatedState.zones.graveyard.length).toBe(initialState.zones.graveyard.length);
     });
 
     it("should check victory conditions after activation", () => {
@@ -313,7 +313,7 @@ describe("ActivateSpellCommand", () => {
 
       // Should check for Exodia victory (5 pieces in hand after spell activation)
       // Result state should have victory check applied
-      expect(result.newState.result).toBeDefined();
+      expect(result.updatedState.result).toBeDefined();
     });
 
     it("should maintain immutability (original state unchanged)", () => {
@@ -380,9 +380,9 @@ describe("ActivateSpellCommand", () => {
 
       // Assert: Field spell should be in fieldZone, not spellTrapZone
       expect(result.success).toBe(true);
-      expect(result.newState.zones.fieldZone.length).toBe(1);
-      expect(result.newState.zones.spellTrapZone.length).toBe(0);
-      expect(result.newState.zones.fieldZone[0].id).toBe(67616300);
+      expect(result.updatedState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(0);
+      expect(result.updatedState.zones.fieldZone[0].id).toBe(67616300);
     });
 
     it("should place normal spell in spellTrapZone", () => {
@@ -437,9 +437,9 @@ describe("ActivateSpellCommand", () => {
       // Assert: Normal spell should be placed in spellTrapZone (not fieldZone)
       // The spell will remain in spellTrapZone until effect resolution in Application Layer
       expect(result.success).toBe(true);
-      expect(result.newState.zones.spellTrapZone.length).toBe(1);
-      expect(result.newState.zones.fieldZone.length).toBe(0);
-      expect(result.newState.zones.spellTrapZone[0].id).toBe(55144522);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.fieldZone.length).toBe(0);
+      expect(result.updatedState.zones.spellTrapZone[0].id).toBe(55144522);
     });
 
     it("should place continuous spell in spellTrapZone", () => {
@@ -475,8 +475,8 @@ describe("ActivateSpellCommand", () => {
       // Assert: Continuous spell should be in graveyard (no effect registered)
       // But it was placed in spellTrapZone before being sent to graveyard
       expect(result.success).toBe(true);
-      expect(result.newState.zones.graveyard.length).toBe(1);
-      expect(result.newState.zones.fieldZone.length).toBe(0);
+      expect(result.updatedState.zones.graveyard.length).toBe(1);
+      expect(result.updatedState.zones.fieldZone.length).toBe(0);
     });
   });
 
@@ -534,8 +534,8 @@ describe("ActivateSpellCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.spellTrapZone.length).toBe(1);
-      expect(result.newState.zones.spellTrapZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceUp");
     });
 
     it("should allow activating field spell from fieldZone", () => {
@@ -571,9 +571,9 @@ describe("ActivateSpellCommand", () => {
 
       // Assert: Field spell should be flipped face-up and stay in fieldZone
       expect(result.success).toBe(true);
-      expect(result.newState.zones.fieldZone.length).toBe(1);
-      expect(result.newState.zones.fieldZone[0].position).toBe("faceUp");
-      expect(result.newState.zones.fieldZone[0].instanceId).toBe("set-field-spell-1");
+      expect(result.updatedState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.zones.fieldZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.fieldZone[0].instanceId).toBe("set-field-spell-1");
       // Chicken Game has ignition effect, so effectSteps may be empty if no choice is made
       expect(result.effectSteps).toBeDefined();
     });
@@ -648,8 +648,8 @@ describe("ActivateSpellCommand", () => {
 
       // Assert: Quick-play spell has no effect registered, so goes to graveyard
       expect(result.success).toBe(true);
-      expect(result.newState.zones.graveyard.length).toBe(1);
-      expect(result.newState.zones.spellTrapZone.length).toBe(0);
+      expect(result.updatedState.zones.graveyard.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(0);
     });
   });
 });

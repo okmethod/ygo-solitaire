@@ -16,15 +16,17 @@ describe("ActivateIgnitionEffectCommand", () => {
     // Create state with Chicken Game face-up on field during Main1 phase
     initialState = createMockGameState({
       phase: "Main1",
-      playerLP: 5000,
+      lp: { player: 5000, opponent: 5000 },
       zones: {
         deck: [
           {
             instanceId: "deck-0",
             id: 1001,
+            jaName: "サンプルカード",
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
+            placedThisTurn: false,
           },
         ],
         hand: [],
@@ -34,11 +36,13 @@ describe("ActivateIgnitionEffectCommand", () => {
           {
             instanceId: chickenGameInstanceId,
             id: 67616300, // Chicken Game
+            jaName: "チキンゲーム",
             type: "spell" as const,
-            frameType: "field" as const,
+            frameType: "spell" as const,
             spellType: "field" as const,
             location: "fieldZone" as const,
             position: "faceUp" as const,
+            placedThisTurn: false,
           },
         ],
         graveyard: [],
@@ -51,19 +55,19 @@ describe("ActivateIgnitionEffectCommand", () => {
     it("should return true when ignition effect can be activated (Main1 phase, face-up on field, LP >= 1000)", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(initialState)).toBe(true);
+      expect(command.canExecute(initialState).canExecute).toBe(true);
     });
 
     it("should return false when card does not exist", () => {
       const command = new ActivateIgnitionEffectCommand("non-existent-card");
 
-      expect(command.canExecute(initialState)).toBe(false);
+      expect(command.canExecute(initialState).canExecute).toBe(false);
     });
 
     it("should return false when card is face-down", () => {
       const faceDownState = createMockGameState({
         phase: "Main1",
-        playerLP: 5000,
+        lp: { player: 5000, opponent: 5000 },
         zones: {
           deck: [],
           hand: [],
@@ -73,11 +77,13 @@ describe("ActivateIgnitionEffectCommand", () => {
             {
               instanceId: chickenGameInstanceId,
               id: 67616300,
+              jaName: "チキンゲーム",
               type: "spell" as const,
-              frameType: "field" as const,
+              frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
               position: "faceDown" as const,
+              placedThisTurn: false,
             },
           ],
           graveyard: [],
@@ -87,23 +93,25 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(faceDownState)).toBe(false);
+      expect(command.canExecute(faceDownState).canExecute).toBe(false);
     });
 
     it("should return false when card is not on field", () => {
       const handState = createMockGameState({
         phase: "Main1",
-        playerLP: 5000,
+        lp: { player: 5000, opponent: 5000 },
         zones: {
           deck: [],
           hand: [
             {
               instanceId: chickenGameInstanceId,
               id: 67616300,
+              jaName: "チキンゲーム",
               type: "spell" as const,
-              frameType: "field" as const,
+              frameType: "spell" as const,
               spellType: "field" as const,
               location: "hand" as const,
+              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -116,17 +124,17 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(handState)).toBe(false);
+      expect(command.canExecute(handState).canExecute).toBe(false);
     });
 
     it("should return false when game is over", () => {
       const gameOverState = createMockGameState({
         phase: "Main1",
-        playerLP: 5000,
+        lp: { player: 5000, opponent: 5000 },
         result: {
           isGameOver: true,
           winner: "player" as const,
-          reason: "Exodia" as const,
+          reason: "exodia" as const,
         },
         zones: {
           deck: [],
@@ -137,11 +145,13 @@ describe("ActivateIgnitionEffectCommand", () => {
             {
               instanceId: chickenGameInstanceId,
               id: 67616300,
+              jaName: "チキンゲーム",
               type: "spell" as const,
-              frameType: "field" as const,
+              frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
               position: "faceUp" as const,
+              placedThisTurn: false,
             },
           ],
           graveyard: [],
@@ -151,7 +161,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(gameOverState)).toBe(false);
+      expect(command.canExecute(gameOverState).canExecute).toBe(false);
     });
 
     it("should return false when card has no registered ignition effect", () => {
@@ -166,11 +176,13 @@ describe("ActivateIgnitionEffectCommand", () => {
             {
               instanceId: "field-spell-1",
               id: 9999999, // Unknown card
+              jaName: "未知のカード",
               type: "spell" as const,
-              frameType: "field" as const,
+              frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
               position: "faceUp" as const,
+              placedThisTurn: false,
             },
           ],
           graveyard: [],
@@ -180,7 +192,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand("field-spell-1");
 
-      expect(command.canExecute(noEffectState)).toBe(false);
+      expect(command.canExecute(noEffectState).canExecute).toBe(false);
     });
 
     // TODO: Add more detailed tests when ChainableActionRegistry is extended
@@ -195,7 +207,7 @@ describe("ActivateIgnitionEffectCommand", () => {
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
-      expect(result.newState).toBeDefined();
+      expect(result.updatedState).toBeDefined();
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBeGreaterThan(0);
       expect(result.message).toContain("Ignition effect activated");
@@ -207,7 +219,7 @@ describe("ActivateIgnitionEffectCommand", () => {
       const result = command.execute(initialState);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("not found");
+      expect(result.error).toBe("カードが見つかりません");
     });
 
     it("should return failure when card has no ignition effect", () => {
@@ -222,11 +234,13 @@ describe("ActivateIgnitionEffectCommand", () => {
             {
               instanceId: "field-spell-1",
               id: 9999999,
+              jaName: "未知のカード",
               type: "spell" as const,
-              frameType: "field" as const,
+              frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
               position: "faceUp" as const,
+              placedThisTurn: false,
             },
           ],
           graveyard: [],
@@ -239,7 +253,7 @@ describe("ActivateIgnitionEffectCommand", () => {
       const result = command.execute(noEffectState);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("no ignition effect");
+      expect(result.error).toBe("このカードには起動効果がありません");
     });
 
     // TODO: Add more detailed tests when ChainableActionRegistry is extended

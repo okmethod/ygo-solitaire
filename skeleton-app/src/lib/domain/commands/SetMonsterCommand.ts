@@ -8,12 +8,19 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { findCardInstance } from "$lib/domain/models/GameState";
 import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard } from "$lib/domain/models/Zone";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
-import type { CardInstance } from "$lib/domain/models/Card";
+import {
+  ValidationErrorCode,
+  validationSuccess,
+  validationFailure,
+  getValidationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
 /** モンスターセットコマンドクラス */
 export class SetMonsterCommand implements GameCommand {
@@ -31,25 +38,31 @@ export class SetMonsterCommand implements GameCommand {
    * 2. 通常召喚ルールを満たしていること
    * 3. 指定カードが手札に存在し、モンスターカードであること
    */
-  canExecute(state: GameState): boolean {
+  canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return validationFailure(ValidationErrorCode.GAME_OVER);
     }
 
     // 2. 通常召喚ルールを満たしていること
     const validationResult = canNormalSummon(state);
     if (!validationResult.canExecute) {
-      return false;
+      return validationResult;
     }
 
     // 3. 指定カードがモンスターカードであり、手札に存在すること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (!cardInstance || cardInstance.type !== "monster" || cardInstance.location !== "hand") {
-      return false;
+    if (!cardInstance) {
+      return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
+    }
+    if (cardInstance.type !== "monster") {
+      return validationFailure(ValidationErrorCode.NOT_MONSTER_CARD);
+    }
+    if (cardInstance.location !== "hand") {
+      return validationFailure(ValidationErrorCode.CARD_NOT_IN_HAND);
     }
 
-    return true;
+    return validationSuccess();
   }
 
   /**
@@ -59,23 +72,15 @@ export class SetMonsterCommand implements GameCommand {
    * 1. TODO: 要整理
    */
   execute(state: GameState): GameStateUpdateResult {
-    // Validate summon rights
-    const validationResult = canNormalSummon(state);
-    if (!validationResult.canExecute) {
-      return createFailureResult(state, validationResult.reason || "Cannot set monster");
+    // Validate
+    const validation = this.canExecute(state);
+    if (!validation.canExecute) {
+      return createFailureResult(state, getValidationErrorMessage(validation));
     }
 
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
       return createFailureResult(state, `Card ${this.cardInstanceId} not found`);
-    }
-
-    if (cardInstance.location !== "hand") {
-      return createFailureResult(state, "Card not in hand");
-    }
-
-    if (cardInstance.type !== "monster") {
-      return createFailureResult(state, "Not a monster card");
     }
 
     // Move card to mainMonsterZone with faceDown position
@@ -89,7 +94,7 @@ export class SetMonsterCommand implements GameCommand {
         : card,
     );
 
-    const newState: GameState = {
+    const updatedState: GameState = {
       ...state,
       zones: {
         ...zonesAfterMove,
@@ -98,7 +103,7 @@ export class SetMonsterCommand implements GameCommand {
       normalSummonUsed: state.normalSummonUsed + 1,
     };
 
-    return createSuccessResult(newState, `Monster set: ${cardInstance.jaName}`);
+    return createSuccessResult(updatedState, `Monster set: ${cardInstance.jaName}`);
   }
 
   /** セット対象のカードインスタンスIDを取得する */

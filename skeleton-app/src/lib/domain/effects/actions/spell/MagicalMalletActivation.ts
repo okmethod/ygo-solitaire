@@ -60,7 +60,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
           selectedInstanceIds = selectedIds;
           return {
             success: true,
-            newState: currentState,
+            updatedState: currentState,
             message: `Selected ${selectedIds.length} cards to return`,
           };
         },
@@ -76,7 +76,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
           if (selectedInstanceIds.length === 0) {
             return {
               success: true,
-              newState: currentState,
+              updatedState: currentState,
               message: "No cards to return",
             };
           }
@@ -88,7 +88,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
           }
 
           // Shuffle deck
-          const shuffleResult = createShuffleStep().action(returnResult.newState);
+          const shuffleResult = createShuffleStep().action(returnResult.updatedState);
           return shuffleResult;
         },
       },
@@ -103,7 +103,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
           if (selectedInstanceIds.length === 0) {
             return {
               success: true,
-              newState: currentState,
+              updatedState: currentState,
               message: "No cards to draw",
             };
           }

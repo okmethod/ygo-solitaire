@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+import { ValidationErrorCode } from "$lib/domain/models/ValidationResult";
 
 describe("SummonRule", () => {
   describe("canNormalSummon", () => {
@@ -26,7 +27,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(true);
-      expect(result.reason).toBeUndefined();
+      expect(result.errorCode).toBeUndefined();
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -42,7 +43,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toBe("メインフェイズではありません");
+      expect(result.errorCode).toBe(ValidationErrorCode.NOT_MAIN_PHASE);
     });
 
     it("should fail if summon limit reached", () => {
@@ -58,7 +59,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toBe("召喚権がありません");
+      expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
     });
 
     it("should fail if mainMonsterZone is full (5 cards)", () => {
@@ -102,7 +103,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toBe("モンスターゾーンに空きがありません");
+      expect(result.errorCode).toBe(ValidationErrorCode.MONSTER_ZONE_FULL);
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 0", () => {
@@ -148,7 +149,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.canExecute).toBe(false);
-      expect(result.reason).toBe("召喚権がありません");
+      expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
     });
 
     it("should allow summon when mainMonsterZone has 4 cards", () => {

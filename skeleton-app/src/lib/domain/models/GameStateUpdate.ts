@@ -4,8 +4,9 @@
  * @module domain/models/GameStateUpdate
  */
 
-import type { GameState } from "./GameState";
-import type { EffectResolutionStep } from "./EffectResolutionStep";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 
 /**
  * GameState更新結果の共通インターフェース
@@ -14,7 +15,7 @@ import type { EffectResolutionStep } from "./EffectResolutionStep";
  */
 export interface GameStateUpdateResult {
   readonly success: boolean;
-  readonly newState: GameState;
+  readonly updatedState: GameState;
   readonly message?: string;
   readonly error?: string;
 
@@ -31,16 +32,6 @@ export interface GameStateUpdateResult {
 }
 
 /**
- * GameState更新前の実行可能性検証結果の共通インターフェース
- *
- * すべてのゲーム状態更新操作（Command、Effect、Rule等）が返す統一結果型。
- */
-export interface ValidationResult {
-  readonly canExecute: boolean;
-  readonly reason?: string;
-}
-
-/**
  * GameCommand - Command Patternの基底インターフェース
  *
  * プレイヤーアクションをオブジェクトとしてカプセル化。
@@ -48,41 +39,23 @@ export interface ValidationResult {
  * - アクション履歴/リプレイ（将来対応）
  * - テスト可能なゲームロジック
  * - 関心の分離
- *
- * Commandは以下のパターンに従う:
- * 1. canExecute() - 事前検証（状態を変更せずルールチェック）
- * 2. execute() - 新しいGameStateを返す（不変性を維持）
- * 3. description - 人間が読める操作名（ログ/履歴用）
  */
 export interface GameCommand {
-  /**
-   * Commandの説明（ログ/履歴用）
-   * 例: "Draw 2 cards", "Advance to Main Phase"
-   */
+  /** Commandの説明（ログ/履歴用）*/
   readonly description: string;
 
-  /**
-   * 状態を変更せずにCommand実行可能かをチェック
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 実行可能ならtrue、そうでなければfalse
-   */
-  canExecute(state: GameState): boolean;
+  /** 状態を変更せずにCommand実行可能かをチェックする */
+  canExecute(state: GameState): ValidationResult;
 
-  /**
-   * Commandを実行して新しいゲーム状態を返す
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 更新結果（新しい状態、メッセージ、効果ステップ等）
-   */
+  /* Commandを実行して更新後のゲーム状態を返す */
   execute(state: GameState): GameStateUpdateResult;
 }
 
 /** 成功した GameStateUpdateResult を作成するヘルパー */
-export function createSuccessResult(newState: GameState, message?: string): GameStateUpdateResult {
+export function createSuccessResult(updatedState: GameState, message?: string): GameStateUpdateResult {
   return {
     success: true,
-    newState, // TODO: UpdatedState にリネームしたい
+    updatedState,
     message,
   };
 }
@@ -91,7 +64,7 @@ export function createSuccessResult(newState: GameState, message?: string): Game
 export function createFailureResult(state: GameState, error: string): GameStateUpdateResult {
   return {
     success: false,
-    newState: state, // 状態は変更されない
+    updatedState: state, // 状態は変更されない
     error,
   };
 }

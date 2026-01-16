@@ -80,7 +80,7 @@ export class DarkFactoryActivation implements ChainableAction {
           // No state change, just notification
           return {
             success: true,
-            newState: currentState,
+            updatedState: currentState,
             message: "Dark Factory activated",
           };
         },
@@ -126,7 +126,7 @@ export class DarkFactoryActivation implements ChainableAction {
           if (!selectedInstanceIds || selectedInstanceIds.length !== 2) {
             return {
               success: false,
-              newState: currentState,
+              updatedState: currentState,
               error: "Must select exactly 2 Normal Monsters from graveyard",
             };
           }
@@ -137,14 +137,14 @@ export class DarkFactoryActivation implements ChainableAction {
             updatedZones = moveCard(updatedZones, instanceId, "graveyard", "hand");
           }
 
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             zones: updatedZones,
           };
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: "Added 2 Normal Monsters from graveyard to hand",
           };
         },
@@ -160,14 +160,14 @@ export class DarkFactoryActivation implements ChainableAction {
           // Send activated spell card to graveyard
           const newZones = sendToGraveyard(currentState.zones, activatedCardInstanceId);
 
-          const newState: GameState = {
+          const updatedState: GameState = {
             ...currentState,
             zones: newZones,
           };
 
           return {
             success: true,
-            newState,
+            updatedState,
             message: "Sent Dark Factory to graveyard",
           };
         },

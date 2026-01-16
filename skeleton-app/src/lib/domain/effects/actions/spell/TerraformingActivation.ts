@@ -30,10 +30,14 @@ export class TerraformingActivation extends NormalSpellAction {
     return fieldSpells.length >= 1;
   }
 
+  /**
+   * RESOLUTION: デッキからフィールド魔法を選択 → 手札に加える → デッキシャッフル → 墓地へ送る
+   */
   createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
 
     return [
+      // Step 1: デッキからフィールド魔法を選択して手札に加える
       createCardSelectionStep({
         id: "terraforming-select",
         summary: "フィールド魔法を選択",
@@ -46,7 +50,7 @@ export class TerraformingActivation extends NormalSpellAction {
           if (selectedIds.length !== 1) {
             return {
               success: false,
-              newState: currentState,
+              updatedState: currentState,
               error: "Must select exactly 1 Field Spell from deck",
             };
           }
@@ -54,12 +58,16 @@ export class TerraformingActivation extends NormalSpellAction {
           const updatedZones = moveCard(currentState.zones, selectedIds[0], "deck", "hand");
           return {
             success: true,
-            newState: { ...currentState, zones: updatedZones },
+            updatedState: { ...currentState, zones: updatedZones },
             message: "Added 1 Field Spell from deck to hand",
           };
         },
       }),
+
+      // Step 2: デッキをシャッフル（デッキサーチ後の標準処理）
       createShuffleStep(),
+
+      // Step 3: このカードを墓地へ送る
       createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }

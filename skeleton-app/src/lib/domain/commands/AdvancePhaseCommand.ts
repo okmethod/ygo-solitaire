@@ -9,9 +9,16 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { getNextPhase } from "$lib/domain/models/Phase";
 import { validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/rules/PhaseRule";
+import {
+  ValidationErrorCode,
+  validationSuccess,
+  validationFailure,
+  getValidationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
 /** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
@@ -28,10 +35,10 @@ export class AdvancePhaseCommand implements GameCommand {
    * 1. ゲーム終了状態でないこと
    * 2. フェイズ遷移が許可されていること
    */
-  canExecute(state: GameState): boolean {
+  canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return validationFailure(ValidationErrorCode.GAME_OVER);
     }
 
     const nextPhase = getNextPhase(state.phase);
@@ -39,10 +46,10 @@ export class AdvancePhaseCommand implements GameCommand {
     // 2. フェイズ遷移が許可されていること
     const validation = validatePhaseTransition(state.phase, nextPhase);
     if (!validation.valid) {
-      return false;
+      return validationFailure(ValidationErrorCode.PHASE_TRANSITION_NOT_ALLOWED);
     }
 
-    return true;
+    return validationSuccess();
   }
 
   /**
@@ -57,8 +64,9 @@ export class AdvancePhaseCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // 1. 実行可能性判定
-    if (!this.canExecute(state)) {
-      return createFailureResult(state, `Cannot advance from ${state.phase} phase`);
+    const validation = this.canExecute(state);
+    if (!validation.canExecute) {
+      return createFailureResult(state, getValidationErrorMessage(validation));
     }
 
     const nextPhase = getNextPhase(state.phase);
@@ -80,7 +88,7 @@ export class AdvancePhaseCommand implements GameCommand {
     // 3. 戻り値の構築
     return {
       success: true,
-      newState: updatedState,
+      updatedState: updatedState,
       message: `Advanced to ${getPhaseDisplayName(nextPhase)}`,
       // 効果がある場合のみ、解決ステップを配列として付与する
       ...(hasPendingEffects && { effectSteps: [...state.pendingEndPhaseEffects] }),

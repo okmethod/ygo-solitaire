@@ -20,7 +20,7 @@ describe("ShuffleDeckCommand", () => {
     it("should return false when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new ShuffleDeckCommand();
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
   });
 
@@ -33,8 +33,8 @@ describe("ShuffleDeckCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState).toBeDefined();
-      expect(result.newState.zones.deck.length).toBe(originalDeckLength);
+      expect(result.updatedState).toBeDefined();
+      expect(result.updatedState.zones.deck.length).toBe(originalDeckLength);
       expect(result.message).toBe("Shuffled the deck");
     });
 
@@ -45,7 +45,7 @@ describe("ShuffleDeckCommand", () => {
 
       const result = command.execute(state);
 
-      const shuffledCardIds = result.newState.zones.deck.map((card) => card.id).sort();
+      const shuffledCardIds = result.updatedState.zones.deck.map((card) => card.id).sort();
       expect(shuffledCardIds).toEqual(originalCardIds);
     });
 
@@ -59,7 +59,7 @@ describe("ShuffleDeckCommand", () => {
       // 元の状態が変更されていないことを確認
       expect(state.zones.deck).toEqual(originalDeck);
       // 新しい状態は異なるオブジェクトであること
-      expect(result.newState).not.toBe(state);
+      expect(result.updatedState).not.toBe(state);
     });
 
     it("should handle empty deck without errors", () => {
@@ -79,7 +79,7 @@ describe("ShuffleDeckCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.zones.deck).toEqual([]);
+      expect(result.updatedState.zones.deck).toEqual([]);
     });
 
     it("should handle single-card deck without errors", () => {
@@ -99,8 +99,8 @@ describe("ShuffleDeckCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.zones.deck.length).toBe(1);
-      expect(result.newState.zones.deck[0].id).toBe(12345678); // CardInstance extends CardData
+      expect(result.updatedState.zones.deck.length).toBe(1);
+      expect(result.updatedState.zones.deck[0].id).toBe(12345678); // CardInstance extends CardData
     });
   });
 

@@ -10,10 +10,17 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import { findCardInstance } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
+import {
+  ValidationErrorCode,
+  validationSuccess,
+  validationFailure,
+  getValidationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
 /** 起動効果発動コマンドクラス */
 export class ActivateIgnitionEffectCommand implements GameCommand {
@@ -32,38 +39,38 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    * - 効果レジストリに効果処理が登録されていること
    * - カード固有の発動条件を満たしていること
    */
-  canExecute(state: GameState): boolean {
+  canExecute(state: GameState): ValidationResult {
     // ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return validationFailure(ValidationErrorCode.GAME_OVER);
     }
 
     // 対象カードがフィールドに表側表示で存在すること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
-      return false;
+      return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
     }
     const validLocations = ["fieldZone", "spellTrapZone", "mainMonsterZone"];
     if (!validLocations.includes(cardInstance.location)) {
-      return false;
+      return validationFailure(ValidationErrorCode.CARD_NOT_ON_FIELD);
     }
     if (cardInstance.position !== "faceUp") {
-      return false;
+      return validationFailure(ValidationErrorCode.CARD_NOT_FACE_UP);
     }
 
     // 効果レジストリに効果処理が登録されていること
     const cardId = cardInstance.id;
     if (cardId !== 67616300) {
-      return false; // 現在はチキンレース固定
+      return validationFailure(ValidationErrorCode.NO_IGNITION_EFFECT);
     }
 
     // カード固有の発動条件を満たしていること
     const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId); // 現在はチキンレース固定
     if (!ignitionEffect.canActivate(state)) {
-      return false;
+      return validationFailure(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return validationSuccess();
   }
 
   /**
@@ -76,23 +83,18 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // Validate
+    const validation = this.canExecute(state);
+    if (!validation.canExecute) {
+      return createFailureResult(state, getValidationErrorMessage(validation));
+    }
+
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
       return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
     }
 
-    // Hardcoded check for Chicken Game (TODO: use registry)
-    const cardId = cardInstance.id;
-    if (cardId !== 67616300) {
-      return createFailureResult(state, "This card has no ignition effect");
-    }
-
     // Instantiate Chicken Game ignition effect
     const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
-
-    if (!ignitionEffect.canActivate(state)) {
-      return createFailureResult(state, "発動条件を満たしていません");
-    }
 
     // Get activation and resolution steps
     const activationSteps = ignitionEffect.createActivationSteps(state);
@@ -105,7 +107,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     // Application Layer will execute all steps sequentially with proper notifications
     return {
       success: true,
-      newState: state,
+      updatedState: state,
       message: `Ignition effect activated: ${this.cardInstanceId}`,
       effectSteps: allEffectSteps,
     };

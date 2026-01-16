@@ -56,7 +56,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
           if (selectedInstanceIds.length !== 2) {
             return {
               success: false,
-              newState: currentState,
+              updatedState: currentState,
               error: "Must select exactly 2 cards to discard",
             };
           }

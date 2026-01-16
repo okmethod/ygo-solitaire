@@ -87,7 +87,7 @@ describe("GameFacade", () => {
       const result = facade.drawCard(10);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Cannot draw 10 cards");
+      expect(result.error).toBe("デッキのカードが不足しています");
 
       const state = get(gameStateStore);
       expect(state.zones.hand.length).toBe(0); // No cards drawn
@@ -175,7 +175,7 @@ describe("GameFacade", () => {
       const result = facade.advancePhase();
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Cannot advance from Draw phase");
+      expect(result.error).toBe("ゲームは終了しています");
     });
   });
 
@@ -224,7 +224,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([1001]));
+      facade.initializeGame(createTestDeckRecipe([1001, 1002])); // Need 2 cards: 1 for initial hand, 1 to draw
       facade.drawCard(1);
       // Still in Draw phase
 
@@ -245,7 +245,7 @@ describe("GameFacade", () => {
       const result = facade.activateSpell("non-existent-card-id");
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Card instance non-existent-card-id not found");
+      expect(result.error).toBe("カードが見つかりません");
     });
 
     it("should not update store on failed activation", () => {

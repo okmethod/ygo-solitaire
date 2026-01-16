@@ -17,14 +17,14 @@ describe("DrawCardCommand", () => {
       const state = createExodiaDeckState();
       const command = new DrawCardCommand(1);
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return true when drawing multiple cards with sufficient deck", () => {
       const state = createExodiaDeckState();
       const command = new DrawCardCommand(5);
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).canExecute).toBe(true);
     });
 
     it("should return false when deck has insufficient cards", () => {
@@ -41,7 +41,7 @@ describe("DrawCardCommand", () => {
       });
       const command = new DrawCardCommand(2); // Try to draw 2
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
 
     it("should return false when deck is empty", () => {
@@ -58,14 +58,14 @@ describe("DrawCardCommand", () => {
       });
       const command = new DrawCardCommand(1);
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
 
     it("should return false when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new DrawCardCommand(1);
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).canExecute).toBe(false);
     });
   });
 
@@ -78,8 +78,8 @@ describe("DrawCardCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(1);
-      expect(result.newState.zones.deck.length).toBe(initialDeckSize - 1);
+      expect(result.updatedState.zones.hand.length).toBe(1);
+      expect(result.updatedState.zones.deck.length).toBe(initialDeckSize - 1);
       expect(result.message).toContain("Draw 1 card");
     });
 
@@ -91,8 +91,8 @@ describe("DrawCardCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(3);
-      expect(result.newState.zones.deck.length).toBe(initialDeckSize - 3);
+      expect(result.updatedState.zones.hand.length).toBe(3);
+      expect(result.updatedState.zones.deck.length).toBe(initialDeckSize - 3);
       expect(result.message).toContain("Draw 3 cards");
     });
 
@@ -126,8 +126,8 @@ describe("DrawCardCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Cannot draw 2 cards");
-      expect(result.newState).toBe(state); // State unchanged on failure
+      expect(result.error).toBe("デッキのカードが不足しています");
+      expect(result.updatedState).toBe(state); // State unchanged on failure
     });
 
     it("should fail when game is already over", () => {
@@ -137,7 +137,7 @@ describe("DrawCardCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(false);
-      expect(result.newState).toBe(state);
+      expect(result.updatedState).toBe(state);
     });
   });
 
