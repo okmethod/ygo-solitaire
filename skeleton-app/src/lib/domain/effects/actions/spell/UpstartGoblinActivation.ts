@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createGainLifeStep } from "../../builders/stepBuilders";
 
@@ -36,7 +36,8 @@ export class UpstartGoblinActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 1 card, opponent gains 1000 LP
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [createDrawStep(1), createGainLifeStep(1000, { target: "opponent" })];
   }
 }

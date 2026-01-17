@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep } from "../../builders/stepBuilders";
 
@@ -36,7 +36,8 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 1 card (player), opponent draws (internal), damage negation
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Player draws 1 card
       createDrawStep(1),

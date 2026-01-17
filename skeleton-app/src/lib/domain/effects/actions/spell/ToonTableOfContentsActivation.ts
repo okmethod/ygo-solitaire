@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createSearchFromDeckByNameStep } from "../../builders/stepBuilders";
 
@@ -41,7 +41,7 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Search for Toon card from deck → Add to hand → Shuffle deck
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Search for Toon card from deck and add to hand
       createSearchFromDeckByNameStep({

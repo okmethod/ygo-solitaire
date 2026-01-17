@@ -71,7 +71,7 @@ export class GameFacade {
     if (result.success) {
       gameStateStore.set(result.updatedState);
 
-      // 効果解決ステップがある場合は委譲
+      // 効果処理ステップがある場合は委譲
       if (result.effectSteps && result.effectSteps.length > 0) {
         effectResolutionStore.startResolution(result.effectSteps);
       }

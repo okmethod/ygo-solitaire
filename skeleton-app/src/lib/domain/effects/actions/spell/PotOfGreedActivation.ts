@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep } from "../../builders/stepBuilders";
 
@@ -36,7 +36,8 @@ export class PotOfGreedActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 2 cards
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [createDrawStep(2)];
   }
 }

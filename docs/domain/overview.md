@@ -65,7 +65,7 @@
 
 ゲーム状態を変化させる手続きをゲーム状態更新として定義し、これを処理することでゲームを進行させる。  
 すべてのゲーム状態更新は、変更前のゲーム状態に対して適用可能かどうかを判定し、満たしていれば変更後のゲーム状態を返す。  
-ゲーム状態更新には、プレイヤーの行動によってトリガーするものや、ルールやカード効果解決に従い自動的に処理されるものがある。
+ゲーム状態更新には、プレイヤーの行動によってトリガーするものや、ルールやカード効果処理に従い自動的に処理されるものがある。
 
 **実装箇所**: `domain/GameStateUpdate.ts`, `application/GameFacade.ts`
 
@@ -86,9 +86,9 @@
 
 **実装箇所**: `domain/effects/builders/stepBuilders.ts`
 
-詳細は [効果処理モデル](./effect-model.md) を参照。
+詳細は [効果処理モデル](./effect-processing-model.md) を参照。
 
-**実装箇所**: `domain/models/EffectResolutionStep.ts`, `domain/models/effects/`
+**実装箇所**: `domain/models/AtomicStep.ts`, `domain/models/effects/`
 
 ---
 

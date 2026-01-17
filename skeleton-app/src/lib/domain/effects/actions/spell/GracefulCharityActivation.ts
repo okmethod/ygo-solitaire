@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
 import { discardCards } from "../../../models/Zone";
@@ -38,7 +38,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
    * RESOLUTION: Draw 3 cards, discard 2 cards (player selection)
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Draw 3 cards
       createDrawStep(3),

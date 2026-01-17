@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { BaseSpellAction } from "./BaseSpellAction";
 
 /**
@@ -30,7 +30,7 @@ import { BaseSpellAction } from "./BaseSpellAction";
  *     return state.zones.deck.length >= 2;
  *   }
  *
- *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
+ *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
  *     return [createDrawStep(2)];
  *   }
  * }
@@ -89,5 +89,5 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @returns 効果解決ステップ配列
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
+  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
 }

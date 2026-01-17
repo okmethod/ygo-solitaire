@@ -18,7 +18,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { EffectResolutionStep } from "$lib/domain/effects/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
 /**
  * Mock ChainableAction for testing
@@ -39,28 +39,29 @@ class MockChainableAction implements ChainableAction {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): AtomicStep[] {
     return [
       {
         id: `${this.cardName}-activation`,
-        title: `${this.cardName} Activation`,
-        message: `${this.cardName} activation step`,
+        summary: `${this.cardName} Activation`,
+        description: `${this.cardName} activation step`,
         action: (state: GameState) => {
-          return { success: true, newState: state };
+          return { success: true, updatedState: state };
         },
       },
     ];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       {
         id: `${this.cardName}-resolution`,
-        title: `${this.cardName} Resolution`,
-        message: `${this.cardName} resolution step`,
+        summary: `${this.cardName} Resolution`,
+        description: `${this.cardName} resolution step
+        `,
         action: (state: GameState) => {
-          return { success: true, newState: state };
+          return { success: true, updatedState: state };
         },
       },
     ];

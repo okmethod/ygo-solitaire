@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import {
   createCardSelectionStep,
@@ -42,7 +42,8 @@ export class MagicalMalletActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Select cards, return to deck, shuffle, draw same number
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     let selectedInstanceIds: string[] = [];
 
     return [

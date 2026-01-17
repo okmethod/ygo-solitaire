@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
 import { sendToGraveyard } from "../../../models/Zone";
@@ -47,9 +47,9 @@ export class IntoTheVoidActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 1 card → Register end phase effect (discard all hand)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     // Create end phase discard effect
-    const endPhaseDiscardEffect: EffectResolutionStep = {
+    const endPhaseDiscardEffect: AtomicStep = {
       id: `into-the-void-end-phase-discard-${activatedCardInstanceId}`,
       summary: "手札を全て捨てる",
       description: "エンドフェイズに手札を全て捨てます",

@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createCardSelectionStep, createSearchFromGraveyardStep } from "../../builders/stepBuilders";
 import { discardCards } from "../../../models/Zone";
@@ -54,7 +54,7 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Discard 2 cards → Select 1 spell from graveyard → Add to hand
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Discard 2 cards from hand
       createCardSelectionStep({

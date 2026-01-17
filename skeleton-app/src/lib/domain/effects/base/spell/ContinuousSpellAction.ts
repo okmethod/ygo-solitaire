@@ -14,7 +14,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { BaseSpellAction } from "./BaseSpellAction";
 
 /**
@@ -32,7 +32,7 @@ import { BaseSpellAction } from "./BaseSpellAction";
  *     return state.lp.player >= 1000; // Need 1000 LP to activate
  *   }
  *
- *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
+ *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
  *     return [
  *       createLPPaymentStep(1000, { ... })
  *     ];
@@ -92,7 +92,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @returns 空配列（発動時の処理なし）
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): AtomicStep[] {
     // Continuous Spell has no activation steps (placement handled by ActivateSpellCommand)
     return [];
   }
@@ -109,5 +109,5 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @returns 効果解決ステップ配列
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
+  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
 }

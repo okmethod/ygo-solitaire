@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createCardSelectionStep, createShuffleStep } from "../../builders/stepBuilders";
 import { moveCard } from "../../../models/Zone";
@@ -33,7 +33,8 @@ export class TerraformingActivation extends NormalSpellAction {
   /**
    * RESOLUTION: デッキからフィールド魔法を選択 → 手札に加える → デッキシャッフル
    */
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
 
     return [

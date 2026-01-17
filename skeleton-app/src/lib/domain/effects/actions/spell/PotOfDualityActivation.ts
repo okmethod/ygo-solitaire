@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createSearchFromDeckTopStep } from "../../builders/stepBuilders";
 import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
@@ -52,7 +52,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
    * Adds this card's ID to activatedOncePerTurnCards set.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(_state: GameState): EffectResolutionStep[] {
+  createActivationSteps(_state: GameState): AtomicStep[] {
     const cardData = getCardData(this.cardId);
     return [
       {
@@ -83,7 +83,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Excavate top 3 cards → Select 1 → Add to hand → Return rest to deck
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Excavate top 3 cards and select 1 to add to hand
       createSearchFromDeckTopStep({

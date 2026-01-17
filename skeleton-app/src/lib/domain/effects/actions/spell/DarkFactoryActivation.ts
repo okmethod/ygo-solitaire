@@ -13,7 +13,7 @@
 
 import type { ChainableAction } from "../../../models/ChainableAction";
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { moveCard, sendToGraveyard } from "../../../models/Zone";
 
 /**
@@ -69,7 +69,7 @@ export class DarkFactoryActivation implements ChainableAction {
    * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): AtomicStep[] {
     return [
       {
         id: "dark-factory-activation",
@@ -99,7 +99,7 @@ export class DarkFactoryActivation implements ChainableAction {
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決ステップ配列
    */
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     // Filter graveyard for Normal Monsters only
     const normalMonsters = state.zones.graveyard.filter(
       (card) => card.type === "monster" && card.frameType === "normal",

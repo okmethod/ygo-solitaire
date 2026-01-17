@@ -1,18 +1,18 @@
 /**
- * EffectResolutionStep - Domain definition for effect resolution steps
+ * AtomicStep - Domain definition for effect resolution steps
  *
  * Defines the structure for card effect resolution steps.
  * This is a domain-level interface that does not depend on application or presentation layers.
  *
- * @module domain/effects/EffectResolutionStep
+ * @module domain/effects/AtomicStep
  */
 
-import type { GameState } from "../models/GameState";
+import type { GameState } from "./GameState";
 import type { GameStateUpdateResult } from "./GameStateUpdate";
-import type { CardInstance } from "../models/Card";
+import type { CardInstance } from "./Card";
 
 /**
- * NotificationLevel - 効果解決ステップの通知レベル
+ * NotificationLevel - 効果処理ステップの通知レベル
  *
  * Domain層で定義され、Presentation層が表示方法を決定する。
  * - silent: 通知なし（内部状態変更のみ、即座に実行）
@@ -76,7 +76,7 @@ export interface CardSelectionConfig {
  * @example
  * ```typescript
  * // Simple step (no user input required)
- * const step: EffectResolutionStep = {
+ * const step: AtomicStep = {
  *   id: "pot-of-greed-draw",
  *   summary: "カードをドロー",
  *   description: "デッキから2枚ドローします",
@@ -86,7 +86,7 @@ export interface CardSelectionConfig {
  * };
  *
  * // Step with card selection (user input required)
- * const step: EffectResolutionStep = {
+ * const step: AtomicStep = {
  *   id: "graceful-charity-discard",
  *   summary: "手札を捨てる",
  *   description: "手札から2枚選んで捨ててください",
@@ -103,7 +103,7 @@ export interface CardSelectionConfig {
  * };
  * ```
  */
-export interface EffectResolutionStep {
+export interface AtomicStep {
   /** Unique identifier for this step */
   id: string;
 

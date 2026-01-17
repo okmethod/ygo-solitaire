@@ -8,7 +8,7 @@
  */
 
 import type { GameState } from "./GameState";
-import type { EffectResolutionStep } from "./EffectResolutionStep";
+import type { AtomicStep } from "./AtomicStep";
 
 /**
  * ChainableAction Interface
@@ -60,7 +60,7 @@ export interface ChainableAction {
    * @param state - 現在のゲーム状態
    * @returns 発動時の処理ステップ配列（空配列も可）
    */
-  createActivationSteps(state: GameState): EffectResolutionStep[];
+  createActivationSteps(state: GameState): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決時の処理（チェーン解決時に実行）
@@ -77,5 +77,5 @@ export interface ChainableAction {
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決時の処理ステップ配列
    */
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
 }

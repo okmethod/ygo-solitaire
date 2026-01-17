@@ -1,15 +1,15 @@
 /**
- * stepBuilders - AtomicStep ビルダー（効果解決の構成単位）
+ * stepBuilders - AtomicStep ビルダー（効果処理の構成単位）
  *
  * カード効果の解決処理で使用する、再利用可能な最小単位のステップ（AtomicStep）を生成する Factory Function 群。
  *
  * ## AtomicStep とは
  *
  * AtomicStep は、カード効果を構成する最小単位の処理ステップ。
- * Zone Utilities（Layer 1）をラップして EffectResolutionStep オブジェクトとして提供する。
+ * Zone Utilities（Layer 1）をラップして AtomicStep オブジェクトとして提供する。
  *
  * - **使用場所**: ChainableAction.createResolutionSteps() の戻り値
- * - **バリデーション**: なし（効果解決は発動条件を満たした前提で実行）
+ * - **バリデーション**: なし（効果処理は発動条件を満たした前提で実行）
  * - **GameCommand との違い**: プレイヤーアクションではなく、カード効果による自動処理
  *
  * ## 提供する AtomicStep
@@ -43,12 +43,12 @@
  * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
-import type { EffectResolutionStep, CardSelectionConfig } from "../../models/EffectResolutionStep";
-import type { GameState } from "../../models/GameState";
-import type { GameStateUpdateResult } from "../../models/GameStateUpdate";
-import type { CardInstance } from "../../models/Card";
-import { drawCards, sendToGraveyard, moveCard, shuffleDeck } from "../../models/Zone";
-import { getCardData } from "../../registries/CardDataRegistry";
+import type { AtomicStep, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { drawCards, sendToGraveyard, moveCard, shuffleDeck } from "$lib/domain/models/Zone";
+import { getCardData } from "$lib/domain/registries/CardDataRegistry";
 
 /**
  * デッキから指定枚数のカードをドローします
@@ -71,7 +71,7 @@ export function createDrawStep(
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   return {
     id: options?.id ?? `draw-${count}`,
     summary: options?.summary ?? "カードをドロー",
@@ -117,11 +117,7 @@ export function createDrawStep(
  * createSendToGraveyardStep(instanceId, 55144522)
  * ```
  */
-export function createSendToGraveyardStep(
-  instanceId: string,
-  cardId: number,
-  options?: { id?: string },
-): EffectResolutionStep {
+export function createSendToGraveyardStep(instanceId: string, cardId: number, options?: { id?: string }): AtomicStep {
   // CardDataRegistryからカード名を取得（未登録の場合はフォールバック）
   // getCardDataが例外をスローする作りになっているためtry-catchで対応
   // TODO: そもそも例外をスローしない設計に変更することを検討
@@ -188,7 +184,7 @@ export function createCardSelectionStep(config: {
   maxCards: number;
   cancelable?: boolean;
   onSelect: (state: GameState, selectedIds: string[]) => GameStateUpdateResult;
-}): EffectResolutionStep {
+}): AtomicStep {
   return {
     id: config.id,
     summary: config.summary,
@@ -236,7 +232,7 @@ export function createGainLifeStep(
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   const target = options?.target ?? "opponent";
   const targetJa = target === "player" ? "プレイヤー" : "相手";
 
@@ -286,7 +282,7 @@ export function createDamageStep(
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   const target = options?.target ?? "player";
   const targetJa = target === "player" ? "プレイヤー" : "相手";
 
@@ -327,11 +323,7 @@ export function createDamageStep(
  * createShuffleStep({ description: "カードを戻してデッキをシャッフルします" })
  * ```
  */
-export function createShuffleStep(options?: {
-  id?: string;
-  summary?: string;
-  description?: string;
-}): EffectResolutionStep {
+export function createShuffleStep(options?: { id?: string; summary?: string; description?: string }): AtomicStep {
   return {
     id: options?.id ?? "shuffle-deck",
     summary: options?.summary ?? "デッキシャッフル",
@@ -379,7 +371,7 @@ export function createReturnToDeckStep(
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   const count = instanceIds.length;
 
   return {
@@ -442,7 +434,7 @@ export function createSearchFromGraveyardStep(config: {
   minCards: number;
   maxCards: number;
   cancelable?: boolean;
-}): EffectResolutionStep {
+}): AtomicStep {
   // 注: availableCardsは実行時に動的に設定される
   // _sourceZone: "graveyard" マーカーにより、effectResolutionStoreが墓地から候補カードを設定する
   return {
@@ -530,7 +522,7 @@ export function createSearchFromDeckTopStep(config: {
   minCards: number;
   maxCards: number;
   cancelable?: boolean;
-}): EffectResolutionStep {
+}): AtomicStep {
   return {
     id: config.id,
     summary: config.summary,
@@ -612,13 +604,13 @@ export function createSearchFromDeckTopStep(config: {
  * ```
  */
 export function createAddEndPhaseEffectStep(
-  effectStep: EffectResolutionStep,
+  effectStep: AtomicStep,
   options?: {
     id?: string;
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   return {
     id: options?.id ?? `add-end-phase-effect-${effectStep.id}`,
     summary: options?.summary ?? "エンドフェイズ効果を登録",
@@ -660,7 +652,7 @@ export function createDrawUntilCountStep(
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   return {
     id: options?.id ?? `draw-until-${targetCount}`,
     summary: options?.summary ?? `手札が${targetCount}枚になるようにドロー`,
@@ -732,7 +724,7 @@ export function createSearchFromDeckByNameStep(config: {
   minCards: number;
   maxCards: number;
   cancelable?: boolean;
-}): EffectResolutionStep {
+}): AtomicStep {
   return {
     id: config.id,
     summary: config.summary,
@@ -815,7 +807,7 @@ export function createLPPaymentStep(
     summary?: string;
     description?: string;
   },
-): EffectResolutionStep {
+): AtomicStep {
   const target = options?.target ?? "player";
   const targetJa = target === "player" ? "プレイヤー" : "相手";
 

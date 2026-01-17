@@ -7,7 +7,7 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 - **Domain Layer**: 効果の分類と手続き・ルールの定義
   - **ChainableAction**:「発動する効果: チェーンブロックを作る処理」のモデル化と具体実装とレジストリ
   - **AdditionalRule**: 「適用する効果: 追加適用されるルール」のモデル化と具体実装とレジストリ
-- **Application Layer**: 効果解決・ルール適用のワークフロー
+- **Application Layer**: 効果処理・ルール適用のワークフロー
 - **Presentation Layer**: 通知や、カード選択などの UI 提供
 
 この 3 層構造により、以下を実現している:
@@ -35,7 +35,7 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 domain/
 ├── models/
 │   ├── ChainableAction.ts           # チェーンブロックを作る処理のインターフェース
-│   └── EffectResolutionStep.ts      # 各効果解決ステップのインターフェース
+│   └── AtomicStep.ts                # 効果処理ステップのインターフェース
 │
 ├── effects/
 │   ├── base/                        # 種別ごとの基底クラス
@@ -131,9 +131,9 @@ domain/
 
 ## Application Layer
 
-### 効果解決のワークフロー
+### 効果処理のワークフロー
 
-効果の解決は、UI との対話（対象の選択など）を伴うため、ステップ形式で実行する。
+効果処理は、UI との対話（対象の選択など）を伴うため、ステップ形式で実行する。
 
 1. **発動フェーズ**:
 

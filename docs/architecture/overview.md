@@ -104,7 +104,7 @@ skeleton-app/src/lib/domain/
   - spread 構文によるゲーム状態の不変更新を保証
   - 行動履歴の追跡とテストが容易
   - `GameStateUpdateResult`を返却（newState + オプショナルな effectSteps）
-  - 効果解決ステップは Application Layer に委譲（Clean Architecture 準拠）
+  - 効果処理ステップは Application Layer に委譲（Clean Architecture 準拠）
 
 ### Application Layer
 

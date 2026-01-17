@@ -15,7 +15,7 @@ import { describe, it, expect } from "vitest";
 import { FieldSpellAction } from "$lib/domain/effects/base/spell/FieldSpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -37,7 +37,7 @@ class TestFieldSpell extends FieldSpellAction {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
     // Field Spells typically have no resolution steps (only continuous effects)
     return [];
   }

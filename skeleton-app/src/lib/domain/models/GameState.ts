@@ -7,10 +7,10 @@
  * @module domain/models/GameState
  */
 
-import type { Zones } from "./Zone";
-import type { GamePhase } from "./Phase";
-import type { EffectResolutionStep } from "./EffectResolutionStep";
-import { getCardData } from "../registries/CardDataRegistry";
+import type { Zones } from "$lib/domain/models/Zone";
+import type { GamePhase } from "$lib/domain/models/Phase";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { getCardData } from "$lib/domain/registries/CardDataRegistry";
 
 /**
  * Initial life points for both players
@@ -93,7 +93,7 @@ export interface GameState {
    * エンドフェイズに実行される遅延効果
    * 例: 無の煉獄、命削りの宝札、等
    */
-  readonly pendingEndPhaseEffects: readonly EffectResolutionStep[];
+  readonly pendingEndPhaseEffects: readonly AtomicStep[];
 
   /**
    * ダメージ無効化フラグ

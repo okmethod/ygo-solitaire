@@ -14,7 +14,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { FieldSpellAction } from "../../base/spell/FieldSpellAction";
 
 /**
@@ -60,7 +60,7 @@ export class ChickenGameActivation extends FieldSpellAction {
    * @returns 空配列（解決ステップなし）
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     // Field Spell stays on field, no graveyard step
     // Continuous effect is handled by ChickenGameContinuousRule in AdditionalRuleRegistry
     // Ignition effect is handled by ChickenGameIgnitionEffect

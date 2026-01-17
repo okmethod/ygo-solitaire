@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawUntilCountStep, createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
 import { sendToGraveyard } from "../../../models/Zone";
@@ -47,7 +47,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    * Adds this card's ID to activatedOncePerTurnCards set.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(_state: GameState): EffectResolutionStep[] {
+  createActivationSteps(_state: GameState): AtomicStep[] {
     const cardData = getCardData(this.cardId);
     return [
       {
@@ -78,9 +78,9 @@ export class CardOfDemiseActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw until hand = 3 → Register end phase effect (discard all hand)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     // Create end phase discard effect
-    const endPhaseDiscardEffect: EffectResolutionStep = {
+    const endPhaseDiscardEffect: AtomicStep = {
       id: `card-of-demise-end-phase-discard-${activatedCardInstanceId}`,
       summary: "手札を全て捨てる",
       description: "エンドフェイズに手札を全て捨てます",

@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { QuickPlaySpellAction } from "../../base/spell/QuickPlaySpellAction";
 import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
 import { discardCards } from "../../../models/Zone";
@@ -52,7 +52,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    * @returns 効果解決ステップ配列
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(state: GameState, _activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Player discards 2 cards (player selection required, non-cancelable)
       createCardSelectionStep({

@@ -2,7 +2,7 @@
  * effectResolutionStore - 効果解決管理ストア
  *
  * 効果解決ステップキューの Single Source of Truth (SSOT)。
- * ChainableAction からの EffectResolutionStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
+ * ChainableAction からの AtomicStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
  *
  * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
  * - Application Layer は Domain Layer に依存できる
@@ -15,7 +15,7 @@
 import { writable, get as getStoreValue } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 
 /** カード選択ハンドラのインターフェース（コールバック関数） */
@@ -38,14 +38,14 @@ export interface NotificationHandler {
   showInfo(summary: string, description: string): void;
 
   /** interactive通知を表示（モーダル） */
-  showInteractive(step: EffectResolutionStep, onConfirm: () => void, onCancel?: () => void): void;
+  showInteractive(step: AtomicStep, onConfirm: () => void, onCancel?: () => void): void;
 }
 
 // 効果解決ストアの状態インターフェース
 interface EffectResolutionState {
   isActive: boolean;
-  currentStep: EffectResolutionStep | null;
-  steps: EffectResolutionStep[];
+  currentStep: AtomicStep | null;
+  steps: AtomicStep[];
   currentIndex: number;
   cardSelectionHandler: CardSelectionHandler | null;
   notificationHandler: NotificationHandler | null;
@@ -59,7 +59,7 @@ type StepExecutionResult = {
 
 // 通知レベル別の実行戦略（Strategy Pattern で分離）
 type NotificationStrategy = (
-  step: EffectResolutionStep,
+  step: AtomicStep,
   gameState: GameState,
   handlers: {
     notification: NotificationHandler | null;
@@ -68,7 +68,7 @@ type NotificationStrategy = (
 ) => Promise<StepExecutionResult>;
 
 // 1ステップ分のアクションを実行する（共通処理）
-function executeStepAction(step: EffectResolutionStep, gameState: GameState, selectedIds?: string[]): void {
+function executeStepAction(step: AtomicStep, gameState: GameState, selectedIds?: string[]): void {
   const result = step.action(gameState, selectedIds);
   if (result.success) {
     gameStateStore.set(result.updatedState);
@@ -167,7 +167,7 @@ const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, g
 };
 
 // 通知レベルに応じた Strategyを選択する
-function selectStrategy(step: EffectResolutionStep): NotificationStrategy {
+function selectStrategy(step: AtomicStep): NotificationStrategy {
   const level = step.notificationLevel || "info";
 
   if (level === "silent") return silentStrategy;
@@ -187,7 +187,7 @@ export interface EffectResolutionStore {
   registerNotificationHandler: (handler: NotificationHandler) => void;
 
   /** 効果解決シーケンスを開始する */
-  startResolution: (steps: EffectResolutionStep[]) => void;
+  startResolution: (steps: AtomicStep[]) => void;
 
   /** 現在のステップを確定して次に進む */
   confirmCurrentStep: () => Promise<void>;
@@ -221,7 +221,7 @@ function createEffectResolutionStore(): EffectResolutionStore {
       update((state) => ({ ...state, notificationHandler: handler }));
     },
 
-    startResolution: (steps: EffectResolutionStep[]) => {
+    startResolution: (steps: AtomicStep[]) => {
       update((state) => ({
         ...state,
         isActive: true,

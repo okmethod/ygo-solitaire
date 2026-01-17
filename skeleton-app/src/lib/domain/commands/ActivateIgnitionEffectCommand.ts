@@ -13,7 +13,7 @@ import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { isMainPhase } from "$lib/domain/rules/PhaseRule";
@@ -114,7 +114,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
   }
 
   // 効果処理ステップ配列を生成する
-  private buildEffectSteps(state: GameState, cardInstance: CardInstance): EffectResolutionStep[] {
+  private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
     const ignitionEffect = new ChickenGameIgnitionEffect(cardInstance.instanceId);
     const activationSteps = ignitionEffect.createActivationSteps(state);
     const resolutionSteps = ignitionEffect.createResolutionSteps(state, this.cardInstanceId);

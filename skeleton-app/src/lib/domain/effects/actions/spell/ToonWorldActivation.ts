@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { ContinuousSpellAction } from "../../base/spell/ContinuousSpellAction";
 import { createLPPaymentStep } from "../../builders/stepBuilders";
 
@@ -38,7 +38,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
   /**
    * RESOLUTION: Pay 1000 LP → Card stays on field (placement handled by ActivateSpellCommand)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Pay 1000 LP
       createLPPaymentStep(1000, {

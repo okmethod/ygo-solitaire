@@ -18,7 +18,7 @@
 
 import type { ChainableAction } from "../../../models/ChainableAction";
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { getCardData, getCardNameWithBrackets } from "../../../registries/CardDataRegistry";
 
 /**
@@ -38,7 +38,7 @@ import { getCardData, getCardNameWithBrackets } from "../../../registries/CardDa
  *     return state.zones.deck.length >= 2;
  *   }
  *
- *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
+ *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
  *     return [createDrawStep(2)];
  *   }
  * }
@@ -104,7 +104,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @returns 発動通知ステップ
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): AtomicStep[] {
     const cardData = getCardData(this.cardId);
     return [
       {
@@ -134,5 +134,5 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @returns 効果解決ステップ配列
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
+  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
 }

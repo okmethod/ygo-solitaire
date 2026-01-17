@@ -14,7 +14,7 @@
  */
 
 import type { GameState } from "../../../models/GameState";
-import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
+import type { AtomicStep } from "../../../models/AtomicStep";
 import { BaseSpellAction } from "./BaseSpellAction";
 
 /**
@@ -32,7 +32,7 @@ import { BaseSpellAction } from "./BaseSpellAction";
  *     return true; // No additional conditions
  *   }
  *
- *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
+ *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
  *     return []; // Field Spells typically have no resolution steps (only continuous effects)
  *   }
  * }
@@ -90,7 +90,7 @@ export abstract class FieldSpellAction extends BaseSpellAction {
    * @returns 空配列（発動時の処理なし）
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): EffectResolutionStep[] {
+  createActivationSteps(state: GameState): AtomicStep[] {
     // Field Spell has no activation steps (placement handled by ActivateSpellCommand)
     return [];
   }
@@ -107,5 +107,5 @@ export abstract class FieldSpellAction extends BaseSpellAction {
    * @returns 効果解決ステップ配列
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[];
+  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
 }
