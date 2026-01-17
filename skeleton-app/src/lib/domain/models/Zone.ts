@@ -56,6 +56,25 @@ export function moveCard(
   };
 }
 
+/** 指定カードの表示形式を変更する*/
+export function updateCardInPlace(currentZones: Zones, instanceId: string, updates: Partial<CardInstance>): Zones {
+  // 全ゾーンからカードを検索
+  for (const zoneName of Object.keys(currentZones) as (keyof Zones)[]) {
+    const zone = currentZones[zoneName];
+    const cardIndex = zone.findIndex((card) => card.instanceId === instanceId);
+
+    if (cardIndex !== -1) {
+      // カードが見つかった場合、そのゾーン内で更新
+      return {
+        ...currentZones,
+        [zoneName]: zone.map((card) => (card.instanceId === instanceId ? { ...card, ...updates } : card)),
+      };
+    }
+  }
+
+  throw new Error(`Card with instanceId ${instanceId} not found in any zone`);
+}
+
 /** 指定枚数のカードをデッキから手札に移動する */
 export function drawCards(currentZones: Zones, count: number = 1): Zones {
   if (currentZones.deck.length < count) {

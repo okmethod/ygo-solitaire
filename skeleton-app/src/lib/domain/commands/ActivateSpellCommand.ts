@@ -11,9 +11,11 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { Zones } from "$lib/domain/models/Zone";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
-import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
+import { moveCard, sendToGraveyard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/rules/PhaseRule";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
@@ -108,7 +110,7 @@ export class ActivateSpellCommand implements GameCommand {
     // 2. カードの配置(手札→フィールド or セット→表向き)
     const updatedState: GameState = {
       ...state,
-      zones: this.moveActivatedCard(state.zones, cardInstance),
+      zones: this.moveActivatedSpellCard(state.zones, cardInstance),
     };
 
     // 3. 効果処理ステップ配列の生成(レジストリ登録されている場合)
@@ -136,37 +138,27 @@ export class ActivateSpellCommand implements GameCommand {
   }
 
   /**
-   * カードを適切なゾーンに表向きで配置する
+   * 発動した魔法カードを適切なゾーンに表向きで配置する
    *
    * - 手札から発動: 適切なゾーンに表向きで配置
-   *   - 通常魔法/速攻魔法 → spellTrapZone
-   *   - フィールド魔法 → fieldZone
+   *   - 通常魔法/速攻魔法 → 魔法・罠ゾーン
+   *   - フィールド魔法 → フィールドゾーン
    * - セットから発動: 同じゾーンに表向きで配置
    */
-  private moveActivatedCard(
-    zones: GameState["zones"],
-    cardInstance: ReturnType<typeof findCardInstance>,
-  ): GameState["zones"] {
-    const sourceZone = cardInstance!.location;
+  private moveActivatedSpellCard(zones: Zones, cardInstance: CardInstance): Zones {
+    const activatedCardState: Partial<CardInstance> = {
+      position: "faceUp",
+      placedThisTurn: true,
+    };
 
-    if (sourceZone === "hand") {
-      // 手札から発動: 適切なゾーンに表向きで配置
+    // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
+    if (cardInstance!.location === "hand") {
       const targetZone = cardInstance!.spellType === "field" ? "fieldZone" : "spellTrapZone";
-      return moveCard(zones, this.cardInstanceId, "hand", targetZone, { position: "faceUp" });
+      return moveCard(zones, this.cardInstanceId, "hand", targetZone, activatedCardState);
     }
 
-    if (sourceZone === "spellTrapZone" || sourceZone === "fieldZone") {
-      // セットから発動: 同じゾーンに表向きで配置
-      return {
-        ...zones,
-        [sourceZone]: zones[sourceZone].map((card) =>
-          card.instanceId === this.cardInstanceId ? { ...card, position: "faceUp" as const } : card,
-        ),
-      };
-    }
-
-    // 到達不可能なパス(canExecute で検証済み)
-    throw new Error(`Invalid source zone for spell activation: ${sourceZone}`);
+    // セットから発動: 同じゾーンに表向きで配置
+    return updateCardInPlace(zones, this.cardInstanceId, activatedCardState);
   }
 
   /** 発動対象のカードインスタンスIDを取得する */
