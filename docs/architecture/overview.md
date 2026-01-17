@@ -132,7 +132,7 @@ skeleton-app/src/lib/application/
 
   - Presentation Layer と Domain Layer の橋渡し
   - Domain 層の Commands を呼び出し、結果を Store に反映
-  - すべてのゲーム操作をシンプルなメソッドで提供
+  - すべてのゲーム操作コマンドのエンドポイントをシンプルなメソッドで提供
   - Store 更新の責任を一元管理
 
 - **Stores**: 状態管理（Observer Pattern）

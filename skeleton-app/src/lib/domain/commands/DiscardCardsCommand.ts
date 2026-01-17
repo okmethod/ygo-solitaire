@@ -4,6 +4,10 @@
  * 手札から複数のカードを墓地に捨てる Command パターン実装。
  * TODO: DrawCard と DiscardCards で単数形・複数形の扱いが異なるので統一したい
  *
+ * @deprecated このコマンドはプレイヤーアクションとして使用されません。
+ * カード効果による手札破棄は stepBuilders.ts の createDiscardStep() を使用してください。
+ * GameCommand はプレイヤーが直接トリガーする操作のみを対象とします。
+ *
  * @module domain/commands/DiscardCardsCommand
  */
 
@@ -20,7 +24,10 @@ import {
   getValidationErrorMessage,
 } from "$lib/domain/models/ValidationResult";
 
-/** カード破棄コマンドクラス */
+/**
+ * カード破棄コマンドクラス
+ * @deprecated プレイヤーアクションではないため非推奨。createDiscardStep() を使用してください。
+ */
 export class DiscardCardsCommand implements GameCommand {
   readonly description: string;
 

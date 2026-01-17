@@ -1,5 +1,5 @@
 /**
- * GameFacade - 全てのゲーム操作の唯一の入り口（Single Entry Point）
+ * GameFacade - 全てのゲーム操作コマンドの唯一の入り口（Single Entry Point）
  *
  * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
  * - Application Layer は Domain Layer に依存できる

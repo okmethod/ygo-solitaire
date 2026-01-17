@@ -3,6 +3,10 @@
  *
  * デッキからカードをドローする Command パターン実装。
  *
+ * @deprecated このコマンドはプレイヤーアクションとして使用されません。
+ * カード効果によるドロー処理は stepBuilders.ts の createDrawStep() を使用してください。
+ * GameCommand はプレイヤーが直接トリガーする操作のみを対象とします。
+ *
  * @module domain/commands/DrawCardCommand
  */
 
@@ -19,7 +23,10 @@ import {
   getValidationErrorMessage,
 } from "$lib/domain/models/ValidationResult";
 
-/** カードドローコマンドクラス */
+/**
+ * カードドローコマンドクラス
+ * @deprecated プレイヤーアクションではないため非推奨。createDrawStep() を使用してください。
+ */
 export class DrawCardCommand implements GameCommand {
   readonly description: string;
 

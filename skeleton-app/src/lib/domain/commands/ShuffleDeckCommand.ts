@@ -3,6 +3,10 @@
  *
  * デッキをシャッフルし、ランダムな順序に並び替える Command パターン実装。
  *
+ * @deprecated このコマンドはプレイヤーアクションとして使用されません。
+ * デッキシャッフルは、ゲーム開始時の自動処理やカード効果（stepBuilders.ts の createShuffleStep()）で実行されます。
+ * GameCommand はプレイヤーが直接トリガーする操作のみを対象とします。
+ *
  * @module domain/commands/ShuffleDeckCommand
  */
 
@@ -19,7 +23,10 @@ import {
   getValidationErrorMessage,
 } from "$lib/domain/models/ValidationResult";
 
-/** デッキシャッフルコマンドクラス */
+/**
+ * デッキシャッフルコマンドクラス
+ * @deprecated プレイヤーアクションではないため非推奨。createShuffleStep() または shuffleDeck() を使用してください。
+ */
 export class ShuffleDeckCommand implements GameCommand {
   readonly description: string;
 
