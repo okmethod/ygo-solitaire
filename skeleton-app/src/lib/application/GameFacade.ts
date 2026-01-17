@@ -13,7 +13,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
-import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
@@ -73,7 +73,7 @@ export class GameFacade {
 
       // 効果処理ステップがある場合は委譲
       if (result.effectSteps && result.effectSteps.length > 0) {
-        effectResolutionStore.startResolution(result.effectSteps);
+        effectQueueStore.startProcessing(result.effectSteps);
       }
     }
 

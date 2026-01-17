@@ -1,15 +1,15 @@
 /**
- * effectResolutionStore - 効果解決管理ストア
+ * effectQueueStore - 効果処理ステップキューストア
  *
- * 効果解決ステップキューの Single Source of Truth (SSOT)。
- * ChainableAction からの AtomicStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
+ * 効果処理ステップキューの Single Source of Truth (SSOT)。
+ * 蓄積された AtomicStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
  *
  * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
  * - Application Layer は Domain Layer に依存できる
  * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
  * - Presentation Layer は Domain Layer に直接依存してはいけない
  *
- * @module application/stores/effectResolutionStore
+ * @module application/stores/effectQueueStore
  */
 
 import { writable, get as getStoreValue } from "svelte/store";
@@ -41,8 +41,8 @@ export interface NotificationHandler {
   showInteractive(step: AtomicStep, onConfirm: () => void, onCancel?: () => void): void;
 }
 
-// 効果解決ストアの状態インターフェース
-interface EffectResolutionState {
+// 効果処理ステップキューストアの状態インターフェース
+interface EffectQueueState {
   isActive: boolean;
   currentStep: AtomicStep | null;
   steps: AtomicStep[];
@@ -77,8 +77,8 @@ function executeStepAction(step: AtomicStep, gameState: GameState, selectedIds?:
 
 // 次ステップに遷移する（共通処理）
 function transitionToNextStep(
-  state: EffectResolutionState,
-  update: (updater: (state: EffectResolutionState) => EffectResolutionState) => void,
+  state: EffectQueueState,
+  update: (updater: (state: EffectQueueState) => EffectQueueState) => void,
 ): boolean {
   const nextIndex = state.currentIndex + 1;
 
@@ -90,13 +90,13 @@ function transitionToNextStep(
     }));
     return true;
   } else {
-    finalizeResolution(update);
+    finalizeProcessing(update);
     return false;
   }
 }
 
-// 解決完了時の後処理を行う（共通処理）
-function finalizeResolution(update: (updater: (state: EffectResolutionState) => EffectResolutionState) => void): void {
+// 効果処理完了時の後処理を行う（共通処理）
+function finalizeProcessing(update: (updater: (state: EffectQueueState) => EffectQueueState) => void): void {
   // ストアリセット
   update((s) => ({
     ...s,
@@ -176,9 +176,9 @@ function selectStrategy(step: AtomicStep): NotificationStrategy {
   return step.cardSelectionConfig ? interactiveWithSelectionStrategy : interactiveWithoutSelectionStrategy;
 }
 
-/** 効果解決管理ストアのインターフェース */
-export interface EffectResolutionStore {
-  subscribe: (run: (value: EffectResolutionState) => void) => () => void;
+/** 効果処理ステップキューストアのインターフェース */
+export interface EffectQueueStore {
+  subscribe: (run: (value: EffectQueueState) => void) => () => void;
 
   /** カード選択ハンドラを登録する（Dependency Injection） */
   registerCardSelectionHandler: (handler: CardSelectionHandler) => void;
@@ -186,22 +186,22 @@ export interface EffectResolutionStore {
   /** 通知ハンドラを登録する（Dependency Injection） */
   registerNotificationHandler: (handler: NotificationHandler) => void;
 
-  /** 効果解決シーケンスを開始する */
-  startResolution: (steps: AtomicStep[]) => void;
+  /** 効果処理シーケンスを開始する */
+  startProcessing: (steps: AtomicStep[]) => void;
 
   /** 現在のステップを確定して次に進む */
   confirmCurrentStep: () => Promise<void>;
 
-  /** 効果解決をキャンセルする */
-  cancelResolution: () => void;
+  /** 効果処理をキャンセルする */
+  cancelProcessing: () => void;
 
   /** ストアをリセットする */
   reset: () => void;
 }
 
-// 効果解決ストアを生成する
-function createEffectResolutionStore(): EffectResolutionStore {
-  const { subscribe, update } = writable<EffectResolutionState>({
+// 効果処理ステップキューストアを生成する
+function createEffectQueueStore(): EffectQueueStore {
+  const { subscribe, update } = writable<EffectQueueState>({
     isActive: false,
     currentStep: null,
     steps: [],
@@ -221,7 +221,7 @@ function createEffectResolutionStore(): EffectResolutionStore {
       update((state) => ({ ...state, notificationHandler: handler }));
     },
 
-    startResolution: (steps: AtomicStep[]) => {
+    startProcessing: (steps: AtomicStep[]) => {
       update((state) => ({
         ...state,
         isActive: true,
@@ -234,13 +234,13 @@ function createEffectResolutionStore(): EffectResolutionStore {
       if (firstStep) {
         const level = firstStep.notificationLevel || "info";
         if (level === "info" || level === "silent") {
-          effectResolutionStore.confirmCurrentStep();
+          effectQueueStore.confirmCurrentStep();
         }
       }
     },
 
     confirmCurrentStep: async () => {
-      const state = getStoreValue(effectResolutionStore);
+      const state = getStoreValue(effectQueueStore);
       if (!state.currentStep) return;
 
       const currentGameState = getStoreValue(gameStateStore);
@@ -261,14 +261,14 @@ function createEffectResolutionStore(): EffectResolutionStore {
       if (result.shouldContinue) {
         const hasNext = transitionToNextStep(state, update);
         if (hasNext) {
-          effectResolutionStore.confirmCurrentStep();
+          effectQueueStore.confirmCurrentStep();
         }
       } else {
-        finalizeResolution(update);
+        finalizeProcessing(update);
       }
     },
 
-    cancelResolution: () => {
+    cancelProcessing: () => {
       update((state) => ({
         ...state,
         isActive: false,
@@ -290,4 +290,4 @@ function createEffectResolutionStore(): EffectResolutionStore {
   };
 }
 
-export const effectResolutionStore = createEffectResolutionStore();
+export const effectQueueStore = createEffectQueueStore();

@@ -23,7 +23,7 @@ export interface GameStateUpdateResult {
    *
    * Domain層がApplication層に効果処理を委譲する際に使用。
    * - ActivateSpellCommand.execute() が effectSteps を返す
-   * - GameFacade.activateSpell() が effectResolutionStore.startResolution() を呼ぶ
+   * - GameFacade.activateSpell() が effectQueueStore.startProcessing() を呼ぶ
    *
    * これにより、Domain層がApplication層の制御フローに依存しない設計を実現。
    */

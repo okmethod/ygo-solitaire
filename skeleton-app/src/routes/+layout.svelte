@@ -9,7 +9,7 @@
   import { applyTheme } from "$lib/presentation/stores/theme";
   import { toaster, showSuccessToast } from "$lib/presentation/utils/toaster";
   import { base } from "$app/paths";
-  import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+  import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
 
   let { children } = $props();
@@ -17,12 +17,12 @@
   let isLoaded = $state(false);
   onMount(async () => {
     // Store間の依存関係をDIで解決（Presentation層の責務）
-    effectResolutionStore.registerCardSelectionHandler((config) => {
+    effectQueueStore.registerCardSelectionHandler((config) => {
       cardSelectionStore.startSelection(config);
     });
 
     // NotificationHandlerを登録（Dependency Injection）
-    effectResolutionStore.registerNotificationHandler({
+    effectQueueStore.registerNotificationHandler({
       showInfo: (_summary, description) => {
         // Display description only to reduce toast text length
         showSuccessToast(description);
