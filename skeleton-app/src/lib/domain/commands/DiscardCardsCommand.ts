@@ -4,7 +4,7 @@
  * 手札から複数のカードを墓地に捨てる Command パターン実装。
  * TODO: DrawCard と DiscardCards で単数形・複数形の扱いが異なるので統一したい
  *
- * @module application/commands/DiscardCardsCommand
+ * @module domain/commands/DiscardCardsCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";

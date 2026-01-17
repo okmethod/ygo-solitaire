@@ -3,7 +3,6 @@
  *
  * フィールドに表側表示で存在するカードの起動効果を発動する Command パターン実装。
  * TODO: 現状「チキンレース」のハードコードとなっている。別の起動効果も扱えるように汎用化する。
- * TODO: canExecute を、 execute 内で再利用するように修正する。
  * TODO: チェーンシステムに対応する。
  *
  * @module domain/commands/ActivateIgnitionEffectCommand
@@ -14,6 +13,7 @@ import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/Game
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { isMainPhase } from "$lib/domain/rules/PhaseRule";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 import {
   ValidationErrorCode,
@@ -34,18 +34,23 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    * 指定カードインスタンスの起動効果が発動可能か判定する
    *
    * チェック項目:
-   * - ゲーム終了状態でないこと
-   * - 対象カードがフィールドに表側表示で存在すること
-   * - 効果レジストリに効果処理が登録されていること
-   * - カード固有の発動条件を満たしていること
+   * 1. ゲーム終了状態でないこと
+   * 2. メインフェイズであること
+   * 3. 指定カードがフィールドに存在し、表側表示であること
+   * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
    */
   canExecute(state: GameState): ValidationResult {
-    // ゲーム終了状態でないこと
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return validationFailure(ValidationErrorCode.GAME_OVER);
     }
 
-    // 対象カードがフィールドに表側表示で存在すること
+    // 2. メインフェイズであること
+    if (!isMainPhase(state.phase)) {
+      return validationFailure(ValidationErrorCode.NOT_MAIN_PHASE);
+    }
+
+    // 3. 指定カードがフィールドに存在し、表側表示であること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
       return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
@@ -58,14 +63,13 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return validationFailure(ValidationErrorCode.CARD_NOT_FACE_UP);
     }
 
-    // 効果レジストリに効果処理が登録されていること
+    // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+    // 現在はチキンレース固定
     const cardId = cardInstance.id;
     if (cardId !== 67616300) {
       return validationFailure(ValidationErrorCode.NO_IGNITION_EFFECT);
     }
-
-    // カード固有の発動条件を満たしていること
-    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId); // 現在はチキンレース固定
+    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
     if (!ignitionEffect.canActivate(state)) {
       return validationFailure(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
@@ -74,37 +78,31 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
   }
 
   /**
-   * 起動効果の発動処理・解決処理ステップ配列を生成して返す
+   * 起動効果の効果処理ステップ配列を生成して返す
    *
    * 処理フロー:
-   * 1. TODO: 要整理
+   * 1. 実行可能性判定
+   * 2. 効果処理ステップ配列の構築
+   * 3. 戻り値の構築
    *
-   * Note: 効果処理ステップは、Application 層に返された後に逐次実行される。
+   * Note: 効果処理は、Application 層に返された後に実行される
    */
   execute(state: GameState): GameStateUpdateResult {
-    // Validate
+    // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
       return createFailureResult(state, getValidationErrorMessage(validation));
     }
+    // cardInstance は canExecute で存在が保証されている
+    const cardInstance = findCardInstance(state, this.cardInstanceId)!;
 
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (!cardInstance) {
-      return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
-    }
-
-    // Instantiate Chicken Game ignition effect
-    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
-
-    // Get activation and resolution steps
+    // 2. 効果処理ステップ配列の構築
+    const ignitionEffect = new ChickenGameIgnitionEffect(cardInstance.instanceId);
     const activationSteps = ignitionEffect.createActivationSteps(state);
     const resolutionSteps = ignitionEffect.createResolutionSteps(state, this.cardInstanceId);
-
-    // Combine activation and resolution steps into a single sequence
     const allEffectSteps = [...activationSteps, ...resolutionSteps];
 
-    // Return result with all effect steps (delegate to Application Layer)
-    // Application Layer will execute all steps sequentially with proper notifications
+    // 3. 戻り値の構築
     return {
       success: true,
       updatedState: state,

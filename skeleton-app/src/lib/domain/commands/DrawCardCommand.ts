@@ -3,7 +3,7 @@
  *
  * デッキからカードをドローする Command パターン実装。
  *
- * @module application/commands/DrawCardCommand
+ * @module domain/commands/DrawCardCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";

@@ -16,6 +16,9 @@ import { shuffleArray } from "$lib/shared/utils/arrayUtils";
  */
 export interface Zones {
   readonly deck: readonly CardInstance[];
+  // TODO: メインデッキとエクストラデッキを分離する
+  // readonly mainDeck: readonly CardInstance[];
+  // readonly extraDeck: readonly CardInstance[];
   readonly hand: readonly CardInstance[];
   readonly mainMonsterZone: readonly CardInstance[];
   readonly spellTrapZone: readonly CardInstance[];
@@ -23,6 +26,9 @@ export interface Zones {
   readonly graveyard: readonly CardInstance[];
   readonly banished: readonly CardInstance[];
 }
+
+// TODO: ゾーン名の型エイリアスを定義する
+// export type ZoneName = keyof Zones
 
 /**
  * Helper to move a card from one zone to another
@@ -32,7 +38,12 @@ export interface Zones {
  * @param from - Source zone name
  * @param to - Destination zone name
  * @param position - Optional position for field zone
+ * @param battlePosition - Optional battle position for monster cards
+ * @param placedThisTurn - Optional flag to indicate if the card was placed this turn
+ * @param battlePosition - Optional battle position for monster cards
  * @returns Updated zones object
+ * 
+ * TODO: updates?: Partial<CardInstance> のようにした方が良いかも
  *
  * @example
  * const newZones = moveCard(zones, "deck-0", "deck", "hand");
@@ -43,6 +54,8 @@ export function moveCard(
   from: keyof Zones,
   to: keyof Zones,
   position?: "faceUp" | "faceDown",
+  battlePosition?: "attack" | "defense",
+  placedThisTurn?: boolean,
 ): Zones {
   const sourceZone = zones[from];
   const cardIndex = sourceZone.findIndex((card) => card.instanceId === instanceId);
@@ -56,6 +69,8 @@ export function moveCard(
     ...card,
     location: to,
     ...(position && { position }),
+    ...(battlePosition && { battlePosition }),
+    ...(placedThisTurn !== undefined && { placedThisTurn }),
   };
 
   return {

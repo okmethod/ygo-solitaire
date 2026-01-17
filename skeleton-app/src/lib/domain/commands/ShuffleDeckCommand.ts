@@ -3,7 +3,7 @@
  *
  * デッキをシャッフルし、ランダムな順序に並び替える Command パターン実装。
  *
- * @module application/commands/ShuffleDeckCommand
+ * @module domain/commands/ShuffleDeckCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";

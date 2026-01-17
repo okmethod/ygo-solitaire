@@ -4,15 +4,14 @@
  * 手札からモンスターカードを通常召喚する Command パターン実装。
  * 召喚権を1消費し、モンスターを表側攻撃表示でメインモンスターゾーンに配置する。
  *
- * @module application/commands/SummonMonsterCommand
+ * @module domain/commands/SummonMonsterCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import type { CardInstance } from "$lib/domain/models/Card";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { createSuccessResult, createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard } from "$lib/domain/models/Zone";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import {
@@ -36,7 +35,7 @@ export class SummonMonsterCommand implements GameCommand {
    * チェック項目:
    * 1. ゲーム終了状態でないこと
    * 2. 通常召喚ルールを満たしていること
-   * 3. 指定カードが手札に存在し、モンスターカードであること
+   * 3. 指定カードがモンスターカードであり、手札に存在すること
    */
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
@@ -69,40 +68,33 @@ export class SummonMonsterCommand implements GameCommand {
    * 指定カードを通常召喚する
    *
    * 処理フロー:
-   * 1. TODO: 要整理
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    */
   execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
       return createFailureResult(state, getValidationErrorMessage(validation));
     }
+    // cardInstance は canExecute で存在が保証されている
+    const cardInstance = findCardInstance(state, this.cardInstanceId)!;
 
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (!cardInstance) {
-      return createFailureResult(state, `Card ${this.cardInstanceId} not found`);
-    }
-
-    // Move card to mainMonsterZone with faceUp position
-    const zonesAfterMove = moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", "faceUp");
-
-    // Update card properties: battlePosition and placedThisTurn
-    // moveCard doesn't handle these new fields, so we need to update them manually
-    const mainMonsterZone = zonesAfterMove.mainMonsterZone.map((card) =>
-      card.instanceId === this.cardInstanceId
-        ? ({ ...card, battlePosition: "attack", placedThisTurn: true } as CardInstance)
-        : card,
-    );
-
+    // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
-      zones: {
-        ...zonesAfterMove,
-        mainMonsterZone,
-      },
+      zones: moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", "faceUp", "attack", true),
       normalSummonUsed: state.normalSummonUsed + 1,
     };
 
-    return createSuccessResult(updatedState, `Monster summoned: ${cardInstance.jaName}`);
+    // 3. 戻り値の構築
+    return {
+      success: true,
+      updatedState,
+      message: `Monster summoned: ${cardInstance.jaName}`,
+      // TODO: 召喚成功時に誘発する効果があればここに追加
+    };
   }
 
   /** 召喚対象のカードインスタンスIDを取得する */

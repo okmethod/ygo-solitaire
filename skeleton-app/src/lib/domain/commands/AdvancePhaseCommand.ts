@@ -53,14 +53,14 @@ export class AdvancePhaseCommand implements GameCommand {
   }
 
   /**
-   * フェイズ遷移を実行する
+   * フェイズ遷移する
    *
    * 処理フロー:
    * 1. 実行可能性判定
    * 2. 更新後状態の構築
    * 3. 戻り値の構築
    *
-   * Note: 効果処理ステップは、Application 層に返された後に逐次実行される。
+   * Note: 効果処理は、Application 層に返された後に実行される
    */
   execute(state: GameState): GameStateUpdateResult {
     // 1. 実行可能性判定
