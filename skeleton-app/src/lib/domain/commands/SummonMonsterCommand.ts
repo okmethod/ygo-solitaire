@@ -84,7 +84,11 @@ export class SummonMonsterCommand implements GameCommand {
     // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
-      zones: moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", "faceUp", "attack", true),
+      zones: moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", {
+        position: "faceUp",
+        battlePosition: "attack",
+        placedThisTurn: true,
+      }),
       normalSummonUsed: state.normalSummonUsed + 1,
     };
 

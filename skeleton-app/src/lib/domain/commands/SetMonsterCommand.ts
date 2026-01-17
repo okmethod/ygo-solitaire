@@ -84,7 +84,11 @@ export class SetMonsterCommand implements GameCommand {
     // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
-      zones: moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", "faceDown", "defense", true),
+      zones: moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", {
+        position: "faceDown",
+        battlePosition: "defense",
+        placedThisTurn: true,
+      }),
       normalSummonUsed: state.normalSummonUsed + 1,
     };
 

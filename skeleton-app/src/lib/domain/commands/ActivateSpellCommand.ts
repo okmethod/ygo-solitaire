@@ -152,7 +152,7 @@ export class ActivateSpellCommand implements GameCommand {
     if (sourceZone === "hand") {
       // 手札から発動: 適切なゾーンに表向きで配置
       const targetZone = cardInstance!.spellType === "field" ? "fieldZone" : "spellTrapZone";
-      return moveCard(zones, this.cardInstanceId, "hand", targetZone, "faceUp");
+      return moveCard(zones, this.cardInstanceId, "hand", targetZone, { position: "faceUp" });
     }
 
     if (sourceZone === "spellTrapZone" || sourceZone === "fieldZone") {

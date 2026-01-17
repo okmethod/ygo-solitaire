@@ -101,9 +101,10 @@ export class SetSpellTrapCommand implements GameCommand {
         this.cardInstanceId,
         "hand",
         isFieldSpell ? "fieldZone" : "spellTrapZone",
-        "faceDown",
-        undefined,
-        true,
+        {
+          position: "faceDown",
+          placedThisTurn: true,
+        },
       ),
     };
 
