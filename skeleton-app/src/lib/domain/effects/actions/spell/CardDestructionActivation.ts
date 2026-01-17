@@ -15,7 +15,7 @@ import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { QuickPlaySpellAction } from "../../base/spell/QuickPlaySpellAction";
 import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
-import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
+import { discardCards } from "../../../models/Zone";
 
 /**
  * CardDestructionActivation
@@ -51,7 +51,8 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決ステップ配列
    */
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(state: GameState, _activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
       // Step 1: Player discards 2 cards (player selection required, non-cancelable)
       createCardSelectionStep({
@@ -72,9 +73,15 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
             };
           }
 
-          // Execute discard command
-          const command = new DiscardCardsCommand(selectedInstanceIds);
-          return command.execute(currentState);
+          // Execute discard using Zone utility
+          const updatedZones = discardCards(currentState.zones, selectedInstanceIds);
+          return {
+            success: true,
+            updatedState: {
+              ...currentState,
+              zones: updatedZones,
+            },
+          };
         },
       }),
 

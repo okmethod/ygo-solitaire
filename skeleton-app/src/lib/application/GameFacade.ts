@@ -14,11 +14,9 @@ import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
-import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { ShuffleDeckCommand } from "$lib/domain/commands/ShuffleDeckCommand";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
@@ -33,7 +31,7 @@ export type FacadeResult = {
   success: boolean;
   message?: string;
   error?: string;
-  // newState: Application層で消費されるため、Presentation層には公開しない
+  // updatedState: Application層で消費されるため、Presentation層には公開しない
   // effectSteps: Application層で消費されるため、Presentation層には公開しない
 };
 
@@ -102,16 +100,6 @@ export class GameFacade {
   /** 次のフェイズに進行する */
   advancePhase(): FacadeResult {
     return this.executeCommand(AdvancePhaseCommand);
-  }
-
-  /** デッキをシャッフルする */
-  shuffleDeck(): FacadeResult {
-    return this.executeCommand(ShuffleDeckCommand);
-  }
-
-  /** デッキから指定枚数のカードをドローする */
-  drawCard(count: number = 1): FacadeResult {
-    return this.executeCommand(DrawCardCommand, count);
   }
 
   /** 指定した魔法カードインスタンスを発動可能かどうかチェックして返す */

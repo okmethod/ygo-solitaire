@@ -12,12 +12,21 @@ import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand"
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
-import { DrawCardCommand } from "$lib/domain/commands/DrawCardCommand";
+import { drawCards } from "$lib/domain/models/Zone";
 import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[], extraDeckCardIds: number[] = []): InitialDeckCardIds {
   return { mainDeckCardIds, extraDeckCardIds };
+}
+
+/** テスト用ヘルパー: 指定枚数カードをドローする */
+function drawCardsToHand(state: GameState, count: number): GameState {
+  const updatedZones = drawCards(state.zones, count);
+  return {
+    ...state,
+    zones: updatedZones,
+  };
 }
 
 describe("Summon Flow Integration", () => {
@@ -44,8 +53,7 @@ describe("Summon Flow Integration", () => {
     it("should allow summoning a monster after drawing and advancing to Main1", () => {
       // Arrange: Start in Draw phase, draw a card, advance to Main1
       let state = initialState;
-      const drawCommand = new DrawCardCommand(1);
-      state = drawCommand.execute(state).updatedState;
+      state = drawCardsToHand(state, 1);
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -73,8 +81,7 @@ describe("Summon Flow Integration", () => {
     it("should allow setting a monster instead of summoning", () => {
       // Arrange
       let state = initialState;
-      const drawCommand = new DrawCardCommand(1);
-      state = drawCommand.execute(state).updatedState;
+      state = drawCardsToHand(state, 1);
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -100,11 +107,7 @@ describe("Summon Flow Integration", () => {
     it("should prevent second summon after already summoning once", () => {
       // Arrange: Draw 2 monsters, advance to Main1, summon first
       let state = initialState;
-      const draw1 = new DrawCardCommand(1);
-      state = draw1.execute(state).updatedState;
-
-      const draw2 = new DrawCardCommand(1);
-      state = draw2.execute(state).updatedState;
+      state = drawCardsToHand(state, 2);
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -135,11 +138,7 @@ describe("Summon Flow Integration", () => {
     it("should prevent summoning after setting a monster", () => {
       // Arrange: Draw 2 monsters, set first
       let state = initialState;
-      const draw1 = new DrawCardCommand(1);
-      state = draw1.execute(state).updatedState;
-
-      const draw2 = new DrawCardCommand(1);
-      state = draw2.execute(state).updatedState;
+      state = drawCardsToHand(state, 2);
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -166,14 +165,7 @@ describe("Summon Flow Integration", () => {
     it("should allow setting a spell card without consuming summon rights", () => {
       // Arrange: Draw spell card
       let state = initialState;
-      const draw1 = new DrawCardCommand(1);
-      state = draw1.execute(state).updatedState;
-
-      const draw2 = new DrawCardCommand(1);
-      state = draw2.execute(state).updatedState;
-
-      const draw3 = new DrawCardCommand(1);
-      state = draw3.execute(state).updatedState; // This should be Upstart Goblin
+      state = drawCardsToHand(state, 3); // This should be Upstart Goblin
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -199,14 +191,7 @@ describe("Summon Flow Integration", () => {
     it("should allow both setting spell and summoning monster in same turn", () => {
       // Arrange: Draw both monster and spell
       let state = initialState;
-      const draw1 = new DrawCardCommand(1);
-      state = draw1.execute(state).updatedState; // Monster
-
-      const draw2 = new DrawCardCommand(1);
-      state = draw2.execute(state).updatedState; // Monster
-
-      const draw3 = new DrawCardCommand(1);
-      state = draw3.execute(state).updatedState; // Spell
+      state = drawCardsToHand(state, 3); // Monster, Monster, Spell
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -237,10 +222,7 @@ describe("Summon Flow Integration", () => {
     it("should set field spell to fieldZone", () => {
       // Arrange: Draw field spell (Chicken Game)
       let state = initialState;
-      for (let i = 0; i < 5; i++) {
-        const drawCommand = new DrawCardCommand(1);
-        state = drawCommand.execute(state).updatedState;
-      }
+      state = drawCardsToHand(state, 5);
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -266,10 +248,7 @@ describe("Summon Flow Integration", () => {
     it("should replace existing field spell when setting a new one", () => {
       // Arrange: Activate first field spell, then draw and set another
       let state = initialState;
-      for (let i = 0; i < 5; i++) {
-        const drawCommand = new DrawCardCommand(1);
-        state = drawCommand.execute(state).updatedState;
-      }
+      state = drawCardsToHand(state, 5);
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;
@@ -316,14 +295,7 @@ describe("Summon Flow Integration", () => {
     it("should handle complete flow: summon → set spell", () => {
       // Arrange
       let state = initialState;
-      const draw1 = new DrawCardCommand(1);
-      state = draw1.execute(state).updatedState; // Monster
-
-      const draw2 = new DrawCardCommand(1);
-      state = draw2.execute(state).updatedState; // Monster
-
-      const draw3 = new DrawCardCommand(1);
-      state = draw3.execute(state).updatedState; // Upstart Goblin
+      state = drawCardsToHand(state, 3); // Monster, Monster, Upstart Goblin
 
       const advanceToStandby = new AdvancePhaseCommand();
       state = advanceToStandby.execute(state).updatedState;

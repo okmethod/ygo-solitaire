@@ -15,7 +15,7 @@ import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
-import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
+import { discardCards } from "../../../models/Zone";
 
 /**
  * GracefulCharityActivation
@@ -37,7 +37,8 @@ export class GracefulCharityActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 3 cards, discard 2 cards (player selection)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
       // Step 1: Draw 3 cards
       createDrawStep(3),
@@ -61,9 +62,15 @@ export class GracefulCharityActivation extends NormalSpellAction {
             };
           }
 
-          // Execute discard command
-          const command = new DiscardCardsCommand(selectedInstanceIds);
-          return command.execute(currentState);
+          // Execute discard using Zone utility
+          const updatedZones = discardCards(currentState.zones, selectedInstanceIds);
+          return {
+            success: true,
+            updatedState: {
+              ...currentState,
+              zones: updatedZones,
+            },
+          };
         },
       }),
     ];

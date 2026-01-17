@@ -15,7 +15,7 @@ import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
 import { createCardSelectionStep, createSearchFromGraveyardStep } from "../../builders/stepBuilders";
-import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
+import { discardCards } from "../../../models/Zone";
 
 /**
  * MagicalStoneExcavationActivation
@@ -75,9 +75,15 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
             };
           }
 
-          // Execute discard command
-          const command = new DiscardCardsCommand(selectedInstanceIds);
-          return command.execute(currentState);
+          // Execute discard using Zone utility
+          const updatedZones = discardCards(currentState.zones, selectedInstanceIds);
+          return {
+            success: true,
+            updatedState: {
+              ...currentState,
+              zones: updatedZones,
+            },
+          };
         },
       }),
 

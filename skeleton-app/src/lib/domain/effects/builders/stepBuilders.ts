@@ -1,17 +1,43 @@
 /**
- * stepBuilders - Helper functions for creating EffectResolutionStep objects
+ * stepBuilders - AtomicStep ビルダー（効果解決の構成単位）
  *
- * Provides reusable builder functions for common card effect operations.
- * Eliminates code duplication across card implementations by providing
- * standardized step creation for:
- * - Drawing cards (createDrawStep)
- * - Sending cards to graveyard (createSendToGraveyardStep)
- * - Card selection (createCardSelectionStep)
- * - Life point changes (createGainLifeStep, createDamageStep)
- * - Deck manipulation (createShuffleStep, createReturnToDeckStep)
+ * カード効果の解決処理で使用する、再利用可能な最小単位のステップ（AtomicStep）を生成する Factory Function 群。
  *
- * All functions return EffectResolutionStep objects that can be used
- * in createResolutionSteps() methods of ChainableAction implementations.
+ * ## AtomicStep とは
+ *
+ * AtomicStep は、カード効果を構成する最小単位の処理ステップ。
+ * Zone Utilities（Layer 1）をラップして EffectResolutionStep オブジェクトとして提供する。
+ *
+ * - **使用場所**: ChainableAction.createResolutionSteps() の戻り値
+ * - **バリデーション**: なし（効果解決は発動条件を満たした前提で実行）
+ * - **GameCommand との違い**: プレイヤーアクションではなく、カード効果による自動処理
+ *
+ * ## 提供する AtomicStep
+ *
+ * ### カード移動系
+ * - createDrawStep() - デッキから手札へドロー
+ * - createSendToGraveyardStep() - カードを墓地へ送る
+ * - createReturnToDeckStep() - 手札からデッキへ戻す
+ * - createSearchFromGraveyardStep() - 墓地から手札へサーチ
+ * - createSearchFromDeckByNameStep() - デッキから手札へサーチ
+ * - createSearchFromDeckTopStep() - デッキトップから手札へサーチ
+ *
+ * ### ライフポイント系
+ * - createGainLifeStep() - ライフポイント増加
+ * - createDamageStep() - ダメージ（ライフポイント減少）
+ * - createLPPaymentStep() - ライフポイント支払い
+ *
+ * ### デッキ操作系
+ * - createShuffleStep() - デッキシャッフル
+ *
+ * ### インタラクション系
+ * - createCardSelectionStep() - カード選択モーダル表示
+ *
+ * ### エンドフェイズ系
+ * - createAddEndPhaseEffectStep() - エンドフェイズ効果を登録
+ *
+ * ### 特殊系
+ * - createDrawUntilCountStep() - 手札が指定枚数になるまでドロー
  *
  * @module domain/effects/builders/stepBuilders
  * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
