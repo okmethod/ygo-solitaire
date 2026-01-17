@@ -11,6 +11,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { isMainPhase } from "$lib/domain/rules/PhaseRule";
@@ -82,7 +84,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * 処理フロー:
    * 1. 実行可能性判定
-   * 2. 効果処理ステップ配列の構築
+   * 2. 更新後状態の構築
    * 3. 戻り値の構築
    *
    * Note: 効果処理は、Application 層に返された後に実行される
@@ -96,19 +98,27 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;
 
-    // 2. 効果処理ステップ配列の構築
-    const ignitionEffect = new ChickenGameIgnitionEffect(cardInstance.instanceId);
-    const activationSteps = ignitionEffect.createActivationSteps(state);
-    const resolutionSteps = ignitionEffect.createResolutionSteps(state, this.cardInstanceId);
-    const allEffectSteps = [...activationSteps, ...resolutionSteps];
+    // 2. 更新後状態の構築
+    const updatedState: GameState = {
+      ...state, // 起動効果発動に伴う状態変化は特に無し
+    };
 
     // 3. 戻り値の構築
     return {
       success: true,
-      updatedState: state,
+      updatedState,
       message: `Ignition effect activated: ${this.cardInstanceId}`,
-      effectSteps: allEffectSteps,
+      effectSteps: this.buildEffectSteps(updatedState, cardInstance),
     };
+  }
+
+  // 効果処理ステップ配列を生成する
+  private buildEffectSteps(state: GameState, cardInstance: CardInstance): EffectResolutionStep[] {
+    const ignitionEffect = new ChickenGameIgnitionEffect(cardInstance.instanceId);
+    const activationSteps = ignitionEffect.createActivationSteps(state);
+    const resolutionSteps = ignitionEffect.createResolutionSteps(state, this.cardInstanceId);
+    const allEffectSteps = [...activationSteps, ...resolutionSteps];
+    return allEffectSteps;
   }
 
   /** 発動対象のカードインスタンスIDを取得する */
