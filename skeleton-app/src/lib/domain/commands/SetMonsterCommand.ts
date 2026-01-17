@@ -10,6 +10,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { Zones } from "$lib/domain/models/Zone";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard } from "$lib/domain/models/Zone";
@@ -84,11 +86,8 @@ export class SetMonsterCommand implements GameCommand {
     // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
-      zones: moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", {
-        position: "faceDown",
-        battlePosition: "defense",
-        placedThisTurn: true,
-      }),
+      zones: this.moveSetMonsterCard(state.zones, cardInstance),
+      // 召喚権を1消費
       normalSummonUsed: state.normalSummonUsed + 1,
     };
 
@@ -98,6 +97,15 @@ export class SetMonsterCommand implements GameCommand {
       updatedState,
       message: `Monster set: ${cardInstance.jaName}`,
     };
+  }
+
+  // セットするモンスターカードをメインモンスターゾーンに裏側守備表示で配置する
+  private moveSetMonsterCard(zones: Zones, cardInstance: CardInstance): Zones {
+    return moveCard(zones, cardInstance.instanceId, "hand", "mainMonsterZone", {
+      position: "faceDown",
+      battlePosition: "defense",
+      placedThisTurn: true,
+    });
   }
 
   /** セット対象のカードインスタンスIDを取得する */
