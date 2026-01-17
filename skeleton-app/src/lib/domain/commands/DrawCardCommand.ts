@@ -7,8 +7,9 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { drawCards } from "$lib/domain/models/Zone";
 import {

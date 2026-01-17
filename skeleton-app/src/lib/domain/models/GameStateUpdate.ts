@@ -6,7 +6,6 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 
 /**
  * GameState更新結果の共通インターフェース
@@ -29,26 +28,6 @@ export interface GameStateUpdateResult {
    * これにより、Domain層がApplication層の制御フローに依存しない設計を実現。
    */
   readonly effectSteps?: EffectResolutionStep[];
-}
-
-/**
- * GameCommand - Command Patternの基底インターフェース
- *
- * プレイヤーアクションをオブジェクトとしてカプセル化。
- * - Undo/Redo機能（将来対応）
- * - アクション履歴/リプレイ（将来対応）
- * - テスト可能なゲームロジック
- * - 関心の分離
- */
-export interface GameCommand {
-  /** Commandの説明（ログ/履歴用）*/
-  readonly description: string;
-
-  /** 状態を変更せずにCommand実行可能かをチェックする */
-  canExecute(state: GameState): ValidationResult;
-
-  /* Commandを実行して更新後のゲーム状態を返す */
-  execute(state: GameState): GameStateUpdateResult;
 }
 
 /** 成功した GameStateUpdateResult を作成するヘルパー */

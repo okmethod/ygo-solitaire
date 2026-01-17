@@ -10,7 +10,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameCommand } from "$lib/domain/models/GameStateUpdate";
+import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
