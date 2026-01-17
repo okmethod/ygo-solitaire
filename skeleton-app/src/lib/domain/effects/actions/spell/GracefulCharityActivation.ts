@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createSendToGraveyardStep, createCardSelectionStep } from "../../builders/stepBuilders";
+import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
 import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
 
 /**
@@ -35,7 +35,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Draw 3 cards, discard 2 cards (player selection), then send this card to graveyard
+   * RESOLUTION: Draw 3 cards, discard 2 cards (player selection)
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
@@ -66,9 +66,6 @@ export class GracefulCharityActivation extends NormalSpellAction {
           return command.execute(currentState);
         },
       }),
-
-      // Step 3: Send spell card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

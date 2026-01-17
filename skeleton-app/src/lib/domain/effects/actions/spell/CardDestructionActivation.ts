@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { QuickPlaySpellAction } from "../../base/spell/QuickPlaySpellAction";
-import { createDrawStep, createSendToGraveyardStep, createCardSelectionStep } from "../../builders/stepBuilders";
+import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
 import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
 
 /**
@@ -46,7 +46,6 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    * 1. プレイヤーが手札から2枚選んで破棄
    * 2. 相手が手札から2枚破棄（内部状態のみ）
    * 3. 両プレイヤーが2枚ドロー
-   * 4. このカードを墓地に送る
    *
    * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
@@ -103,9 +102,6 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
         id: "card-destruction-draw",
         description: "両プレイヤーがデッキから2枚ドローします",
       }),
-
-      // Step 4: Send spell card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

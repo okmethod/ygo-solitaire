@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
+import { createDrawStep } from "../../builders/stepBuilders";
 
 /**
  * PotOfGreedActivation
@@ -34,9 +34,9 @@ export class PotOfGreedActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Draw 2 cards, then send this card to graveyard
+   * RESOLUTION: Draw 2 cards
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
-    return [createDrawStep(2), createSendToGraveyardStep(activatedCardInstanceId, this.cardId)];
+    return [createDrawStep(2)];
   }
 }

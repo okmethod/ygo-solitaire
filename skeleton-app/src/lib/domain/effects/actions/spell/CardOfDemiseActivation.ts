@@ -14,11 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import {
-  createDrawUntilCountStep,
-  createAddEndPhaseEffectStep,
-  createSendToGraveyardStep,
-} from "../../builders/stepBuilders";
+import { createDrawUntilCountStep, createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
 import { sendToGraveyard } from "../../../models/Zone";
 import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
 
@@ -80,7 +76,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Draw until hand = 3 → Register end phase effect (discard all hand) → Send this card to graveyard
+   * RESOLUTION: Draw until hand = 3 → Register end phase effect (discard all hand)
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     // Create end phase discard effect
@@ -122,9 +118,6 @@ export class CardOfDemiseActivation extends NormalSpellAction {
         summary: "エンドフェイズ効果を登録",
         description: "エンドフェイズに手札を全て捨てる効果を登録します",
       }),
-
-      // Step 3: Send this card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

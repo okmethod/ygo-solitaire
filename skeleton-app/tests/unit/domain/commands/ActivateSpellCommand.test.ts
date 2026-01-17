@@ -646,10 +646,13 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("set-quick-play-2");
       const result = command.execute(setQuickPlayState);
 
-      // Assert: Quick-play spell has no effect registered, so goes to graveyard
+      // Assert: Quick-play spell creates graveyard step (effectSteps contains graveyard step)
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.graveyard.length).toBe(1);
-      expect(result.updatedState.zones.spellTrapZone.length).toBe(0);
+      expect(result.effectSteps).toHaveLength(1);
+      expect(result.effectSteps![0].id).toContain("-graveyard");
+      // Game state not yet changed (before effectSteps execution)
+      expect(result.updatedState.zones.graveyard.length).toBe(0);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
     });
   });
 });

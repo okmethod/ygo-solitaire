@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
+import { createDrawStep } from "../../builders/stepBuilders";
 
 /**
  * OneDayOfPeaceActivation
@@ -34,7 +34,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Draw 1 card (player), opponent draws (internal), damage negation, then send to graveyard
+   * RESOLUTION: Draw 1 card (player), opponent draws (internal), damage negation
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
@@ -79,9 +79,6 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
           };
         },
       },
-
-      // Step 4: Send spell card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

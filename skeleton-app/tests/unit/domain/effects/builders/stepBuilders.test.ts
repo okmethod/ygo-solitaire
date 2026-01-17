@@ -109,7 +109,7 @@ describe("stepBuilders", () => {
       // Assert
       expect(step.id).toBe("pot-of-greed-1-graveyard");
       expect(step.summary).toBe("墓地へ送る");
-      expect(step.description).toBe("強欲な壺を墓地に送ります"); // Uses card data from registry
+      expect(step.description).toBe("強欲な壺を墓地に送ります"); // Uses card name from CardDataRegistry
       expect(step.notificationLevel).toBe("info");
     });
 

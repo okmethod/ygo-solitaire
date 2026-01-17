@@ -139,7 +139,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       // is checked again, which should fail because there are now 2 field spells.
       // This means the command will use fallback (graveyard) logic.
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeUndefined(); // Fallback logic doesn't set effectSteps
+      expect(result.effectSteps).toEqual([]); // Fallback logic doesn't set effectSteps
     });
   });
 

@@ -39,7 +39,7 @@ import { getCardData, getCardNameWithBrackets } from "../../../registries/CardDa
  *   }
  *
  *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
- *     return [createDrawStep(2), createSendToGraveyardStep(instanceId, this.cardId)];
+ *     return [createDrawStep(2)];
  *   }
  * }
  * ```

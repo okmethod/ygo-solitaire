@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createCardSelectionStep, createSendToGraveyardStep, createShuffleStep } from "../../builders/stepBuilders";
+import { createCardSelectionStep, createShuffleStep } from "../../builders/stepBuilders";
 import { moveCard } from "../../../models/Zone";
 
 /**
@@ -31,7 +31,7 @@ export class TerraformingActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: デッキからフィールド魔法を選択 → 手札に加える → デッキシャッフル → 墓地へ送る
+   * RESOLUTION: デッキからフィールド魔法を選択 → 手札に加える → デッキシャッフル
    */
   createResolutionSteps(state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
@@ -66,9 +66,6 @@ export class TerraformingActivation extends NormalSpellAction {
 
       // Step 2: デッキをシャッフル（デッキサーチ後の標準処理）
       createShuffleStep(),
-
-      // Step 3: このカードを墓地へ送る
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

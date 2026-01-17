@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createSearchFromDeckByNameStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
+import { createSearchFromDeckByNameStep } from "../../builders/stepBuilders";
 
 /**
  * ToonTableOfContentsActivation
@@ -39,7 +39,7 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Search for Toon card from deck → Add to hand → Shuffle deck → Send this card to graveyard
+   * RESOLUTION: Search for Toon card from deck → Add to hand → Shuffle deck
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
@@ -53,9 +53,6 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
         maxCards: 1,
         cancelable: false,
       }),
-
-      // Step 2: Send this card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

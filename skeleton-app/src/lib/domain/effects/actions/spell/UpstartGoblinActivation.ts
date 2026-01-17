@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createGainLifeStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
+import { createDrawStep, createGainLifeStep } from "../../builders/stepBuilders";
 
 /**
  * UpstartGoblinActivation
@@ -34,13 +34,9 @@ export class UpstartGoblinActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Draw 1 card, opponent gains 1000 LP, then send to graveyard
+   * RESOLUTION: Draw 1 card, opponent gains 1000 LP
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
-    return [
-      createDrawStep(1),
-      createGainLifeStep(1000, { target: "opponent" }),
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
-    ];
+    return [createDrawStep(1), createGainLifeStep(1000, { target: "opponent" })];
   }
 }

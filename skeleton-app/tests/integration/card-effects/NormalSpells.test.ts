@@ -55,9 +55,9 @@ describe("Normal Spell Card Effects", () => {
       // Assert: effectSteps are returned in the result
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3);
+      expect(result.effectSteps!.length).toBe(2);
 
-      // Verify steps: [activation step, draw step, graveyard step]
+      // Verify steps: [activation step, draw step]
       expect(result.effectSteps![0]).toMatchObject({
         id: "55144522-activation", // ID now uses card ID
         summary: "カード発動",
@@ -67,11 +67,6 @@ describe("Normal Spell Card Effects", () => {
         id: "draw-2", // ID now uses step builder format
         summary: "カードをドロー",
         description: "デッキから2枚ドローします",
-      });
-      expect(result.effectSteps![2]).toMatchObject({
-        id: "pot-0-graveyard", // ID now includes instance ID
-        summary: "墓地へ送る",
-        description: "強欲な壺を墓地に送ります",
       });
     });
 
@@ -120,9 +115,9 @@ describe("Normal Spell Card Effects", () => {
       // Assert: effectSteps are returned in the result
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
-      // Verify steps: [activation step, draw step, discard step, graveyard step]
+      // Verify steps: [activation step, draw step, discard step]
       expect(result.effectSteps![0]).toMatchObject({
         id: "79571449-activation",
         summary: "カード発動",
@@ -137,11 +132,6 @@ describe("Normal Spell Card Effects", () => {
         id: "graceful-charity-discard",
         summary: "手札を捨てる",
         description: "手札から2枚選んで捨ててください",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
-        id: "charity-0-graveyard",
-        summary: "墓地へ送る",
-        description: "天使の施しを墓地に送ります",
       });
     });
 
@@ -187,10 +177,10 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("mallet-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include selection, return+shuffle, draw, graveyard
+      // Assert: effectSteps include selection, return+shuffle, draw
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5); // activation + selection + return-shuffle + draw + graveyard
+      expect(result.effectSteps!.length).toBe(4); // activation + selection + return-shuffle + draw
 
       expect(result.effectSteps![0]).toMatchObject({
         id: "85852291-activation",
@@ -207,10 +197,6 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![3]).toMatchObject({
         id: "magical-mallet-draw",
         summary: "カードをドロー",
-      });
-      expect(result.effectSteps![4]).toMatchObject({
-        id: "mallet-0-graveyard",
-        summary: "墓地へ送る",
       });
     });
 
@@ -257,10 +243,10 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("peace-0");
       const result = command.execute(state);
 
-      // Assert: 4 steps (activation + draw + opponent draw + damage negation + graveyard)
+      // Assert: 4 steps (activation + draw + opponent draw + damage negation)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5);
+      expect(result.effectSteps!.length).toBe(4);
 
       expect(result.effectSteps![1]).toMatchObject({
         id: "draw-1",
@@ -319,10 +305,10 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("goblin-0");
       const result = command.execute(state);
 
-      // Assert: 3 steps (activation + draw + gain life + graveyard)
+      // Assert: 3 steps (activation + draw + gain life)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
       expect(result.effectSteps![1]).toMatchObject({
         id: "draw-1",
@@ -488,10 +474,10 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("terra-0");
       const result = command.execute(state);
 
-      // Assert: 4 steps (activation + selection + shuffle + graveyard)
+      // Assert: 3 steps (activation + selection + shuffle)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
       expect(result.effectSteps![1]).toMatchObject({
         id: "terraforming-select",
@@ -545,10 +531,10 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("excavation-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include activation, discard, search, graveyard
+      // Assert: effectSteps include activation, discard, search
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
       expect(result.effectSteps![0]).toMatchObject({
         id: "98494543-activation",
@@ -564,11 +550,6 @@ describe("Normal Spell Card Effects", () => {
         id: "magical-stone-excavation-search-excavation-0",
         summary: "墓地から魔法カードを回収",
         description: "墓地から魔法カードを1枚選んで手札に加えてください",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
-        id: "excavation-0-graveyard",
-        summary: "墓地へ送る",
-        description: "魔法石の採掘を墓地に送ります",
       });
     });
 
@@ -632,10 +613,10 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("void-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include activation, draw, end phase registration, graveyard
+      // Assert: effectSteps include activation, draw, end phase registration
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
       expect(result.effectSteps![0]).toMatchObject({
         id: "93946239-activation",
@@ -650,11 +631,6 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![2]).toMatchObject({
         summary: "エンドフェイズ効果を登録",
         description: "エンドフェイズに手札を全て捨てる効果を登録します",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
-        id: "void-0-graveyard",
-        summary: "墓地へ送る",
-        description: "無の煉獄を墓地に送ります",
       });
     });
 
@@ -720,7 +696,7 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+      expect(result.effectSteps!.length).toBe(2); // activation + search
 
       // Verify activation step added card to activatedOncePerTurnCards
       expect(result.effectSteps![0].id).toBe("98645731-activation");
@@ -730,9 +706,6 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![1].cardSelectionConfig).toBeDefined();
       expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
       expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
-
-      // Verify graveyard step
-      expect(result.effectSteps![2].id).toContain("graveyard");
     });
 
     it("Scenario: Activate 1st card → success, activate 2nd card same turn → fail (once-per-turn constraint)", () => {
@@ -805,7 +778,7 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4); // activation + draw + add end phase effect + graveyard
+      expect(result.effectSteps!.length).toBe(3); // activation + draw + add end phase effect
 
       // Verify activation step added card to activatedOncePerTurnCards
       expect(result.effectSteps![0].id).toBe("59750328-activation");
@@ -815,9 +788,6 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify end phase effect registration
       expect(result.effectSteps![2].id).toContain("add-end-phase-effect");
-
-      // Verify graveyard step
-      expect(result.effectSteps![3].id).toContain("graveyard");
     });
 
     it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {
@@ -840,7 +810,7 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
       // Verify draw step (should draw 2 cards to reach total 3)
       expect(result.effectSteps![1].id).toContain("draw-until-3");
@@ -904,16 +874,13 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+      expect(result.effectSteps!.length).toBe(2); // activation + search
 
       // Verify search step
       expect(result.effectSteps![1].id).toContain("toon-table-search");
       expect(result.effectSteps![1].cardSelectionConfig).toBeDefined();
       expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
       expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
-
-      // Verify graveyard step
-      expect(result.effectSteps![2].id).toContain("graveyard");
     });
 
     it("Scenario: Cannot activate when deck has no Toon cards", () => {

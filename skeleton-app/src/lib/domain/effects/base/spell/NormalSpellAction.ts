@@ -31,10 +31,7 @@ import { BaseSpellAction } from "./BaseSpellAction";
  *   }
  *
  *   createResolutionSteps(state: GameState, instanceId: string): EffectResolutionStep[] {
- *     return [
- *       createDrawStep(2),
- *       createSendToGraveyardStep(instanceId, "Pot of Greed", "強欲な壺")
- *     ];
+ *     return [createDrawStep(2)];
  *   }
  * }
  * ```
@@ -85,9 +82,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * RESOLUTION: 効果解決時の処理
    *
    * Subclasses must implement this to define card-specific resolution steps.
-   * Typically includes:
-   * 1. Card effect (draw, search, etc.)
-   * 2. Send spell card to graveyard (createSendToGraveyardStep)
+   * Note: Sending the spell card to graveyard is handled automatically by the framework.
    *
    * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID

@@ -16,9 +16,10 @@ import type { Zones } from "$lib/domain/models/Zone";
 import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
-import { moveCard, sendToGraveyard, updateCardInPlace } from "$lib/domain/models/Zone";
+import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/rules/PhaseRule";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { createSendToGraveyardStep } from "$lib/domain/effects/builders";
 import {
   ValidationErrorCode,
   validationSuccess,
@@ -93,10 +94,8 @@ export class ActivateSpellCommand implements GameCommand {
    *
    * 処理フロー:
    * 1. 実行可能性判定
-   * 2. カードの配置(手札→フィールド or セット→表向き)
-   * 3. 効果処理ステップ配列の生成(レジストリ登録されている場合)
-   * 4. 墓地送り判定(spellTypeに応じて)
-   * 5. 戻り値の構築
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    *
    * Note: 効果処理は、Application 層に返された後に実行される
    */
@@ -109,35 +108,18 @@ export class ActivateSpellCommand implements GameCommand {
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;
 
-    // 2. カードの配置(手札→フィールド or セット→表向き)
+    // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
       zones: this.moveActivatedSpellCard(state.zones, cardInstance),
     };
 
-    // 3. 効果処理ステップ配列の生成(レジストリ登録されている場合)
-    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
-    const effectSteps = chainableAction?.canActivate(updatedState)
-      ? [
-          ...chainableAction.createActivationSteps(updatedState),
-          ...chainableAction.createResolutionSteps(updatedState, this.cardInstanceId),
-        ]
-      : undefined;
-
-    // 4. 墓地送り判定(spellTypeに応じて)
-    const shouldSendToGraveyard = this.shouldSendToGraveyardAfterActivation(cardInstance, effectSteps);
-
-    // 5. 戻り値の構築
+    // 3. 戻り値の構築
     return {
       success: true,
-      updatedState: shouldSendToGraveyard
-        ? {
-            ...updatedState,
-            zones: sendToGraveyard(updatedState.zones, this.cardInstanceId),
-          }
-        : updatedState,
+      updatedState,
       message: `Spell card activated: ${this.cardInstanceId}`,
-      effectSteps,
+      effectSteps: this.buildEffectSteps(updatedState, cardInstance),
     };
   }
 
@@ -165,25 +147,21 @@ export class ActivateSpellCommand implements GameCommand {
     return updateCardInPlace(zones, this.cardInstanceId, activatedCardState);
   }
 
-  /**
-   * 魔法カード発動後に墓地送りすべきかを判定する
-   *
-   * - フィールド魔法・永続魔法: フィールドに残るため墓地送りなし
-   * - 通常魔法・速攻魔法: effectStepsがない場合のみ墓地送り
-   *   (effectStepsがある場合は、効果処理内で墓地送りステップが含まれる想定)
-   */
-  private shouldSendToGraveyardAfterActivation(
-    cardInstance: CardInstance,
-    effectSteps: EffectResolutionStep[] | undefined,
-  ): boolean {
-    // フィールド魔法・永続魔法はフィールドに残る
-    if (cardInstance.spellType === "field" || cardInstance.spellType === "continuous") {
-      return false;
-    }
+  // 効果処理ステップ配列を生成する
+  private buildEffectSteps(state: GameState, cardInstance: CardInstance): EffectResolutionStep[] {
+    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
+    const registeredEffectSteps = chainableAction?.canActivate(state)
+      ? [
+          ...chainableAction.createActivationSteps(state),
+          ...chainableAction.createResolutionSteps(state, this.cardInstanceId),
+        ]
+      : [];
 
-    // 通常魔法・速攻魔法は、effectStepsがない場合のみCommand側で墓地送り
-    // (effectStepsがある場合は、効果処理内で墓地送りステップが含まれる)
-    return effectSteps === undefined;
+    // 通常魔法・速攻魔法は末尾に墓地送りステップを追加して返す
+    if (cardInstance.spellType === "normal" || cardInstance.spellType === "quick-play") {
+      return [...registeredEffectSteps, createSendToGraveyardStep(this.cardInstanceId, cardInstance.id)];
+    }
+    return registeredEffectSteps;
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

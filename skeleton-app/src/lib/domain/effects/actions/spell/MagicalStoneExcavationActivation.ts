@@ -14,11 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import {
-  createCardSelectionStep,
-  createSearchFromGraveyardStep,
-  createSendToGraveyardStep,
-} from "../../builders/stepBuilders";
+import { createCardSelectionStep, createSearchFromGraveyardStep } from "../../builders/stepBuilders";
 import { DiscardCardsCommand } from "../../../commands/DiscardCardsCommand";
 
 /**
@@ -56,7 +52,7 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Discard 2 cards → Select 1 spell from graveyard → Add to hand → Send this card to graveyard
+   * RESOLUTION: Discard 2 cards → Select 1 spell from graveyard → Add to hand
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
@@ -95,9 +91,6 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
         maxCards: 1,
         cancelable: false,
       }),
-
-      // Step 3: Send this card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

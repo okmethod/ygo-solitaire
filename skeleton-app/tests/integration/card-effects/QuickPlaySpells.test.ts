@@ -56,9 +56,9 @@ describe("Quick-Play Spell Card Effects", () => {
       // Assert: effectSteps are returned in the result
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5);
+      expect(result.effectSteps!.length).toBe(4);
 
-      // Verify steps: [activation, player discard, opponent discard, player draw, graveyard]
+      // Verify steps: [activation, player discard, opponent discard, player draw]
       expect(result.effectSteps![0]).toMatchObject({
         id: "74519184-activation",
         summary: "カード発動",
@@ -75,11 +75,6 @@ describe("Quick-Play Spell Card Effects", () => {
       expect(result.effectSteps![3]).toMatchObject({
         id: "card-destruction-draw",
         summary: "カードをドロー",
-      });
-      expect(result.effectSteps![4]).toMatchObject({
-        id: "destruction-0-graveyard",
-        summary: "墓地へ送る",
-        description: "手札断札を墓地に送ります",
       });
     });
 

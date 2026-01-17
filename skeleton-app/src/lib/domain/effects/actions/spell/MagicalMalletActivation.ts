@@ -19,7 +19,6 @@ import {
   createReturnToDeckStep,
   createShuffleStep,
   createDrawStep,
-  createSendToGraveyardStep,
 } from "../../builders/stepBuilders";
 
 /**
@@ -41,7 +40,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Select cards, return to deck, shuffle, draw same number, then send to graveyard
+   * RESOLUTION: Select cards, return to deck, shuffle, draw same number
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     let selectedInstanceIds: string[] = [];
@@ -112,9 +111,6 @@ export class MagicalMalletActivation extends NormalSpellAction {
           return result;
         },
       },
-
-      // Step 5: Send spell card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }

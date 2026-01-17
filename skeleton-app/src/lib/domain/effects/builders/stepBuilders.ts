@@ -83,6 +83,7 @@ export function createDrawStep(
  * カードを墓地へ送ります
  *
  * Used for sending spell cards to graveyard after resolution, or discarding cards from hand.
+ * Falls back to "レジストリ未登録カード" if card is not registered in CardDataRegistry.
  *
  * @example
  * ```typescript
@@ -95,11 +96,21 @@ export function createSendToGraveyardStep(
   cardId: number,
   options?: { id?: string },
 ): EffectResolutionStep {
-  const cardData = getCardData(cardId);
+  // CardDataRegistryからカード名を取得（未登録の場合はフォールバック）
+  // getCardDataが例外をスローする作りになっているためtry-catchで対応
+  // TODO: そもそも例外をスローしない設計に変更することを検討
+  let cardName: string;
+  try {
+    const cardData = getCardData(cardId);
+    cardName = cardData.jaName;
+  } catch {
+    cardName = "レジストリ未登録カード";
+  }
+
   return {
     id: options?.id ?? `${instanceId}-graveyard`,
     summary: "墓地へ送る",
-    description: `${cardData.jaName}を墓地に送ります`,
+    description: `${cardName}を墓地に送ります`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
       // カードを墓地へ送る
@@ -113,7 +124,7 @@ export function createSendToGraveyardStep(
       return {
         success: true,
         updatedState,
-        message: `Sent ${cardData.jaName} to graveyard`,
+        message: `Sent ${cardName} to graveyard`,
       };
     },
   };

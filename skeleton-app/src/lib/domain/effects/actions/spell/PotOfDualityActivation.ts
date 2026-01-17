@@ -14,7 +14,7 @@
 import type { GameState } from "../../../models/GameState";
 import type { EffectResolutionStep } from "../../../models/EffectResolutionStep";
 import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createSearchFromDeckTopStep, createSendToGraveyardStep } from "../../builders/stepBuilders";
+import { createSearchFromDeckTopStep } from "../../builders/stepBuilders";
 import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
 
 /**
@@ -81,7 +81,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Excavate top 3 cards → Select 1 → Add to hand → Return rest to deck → Send this card to graveyard
+   * RESOLUTION: Excavate top 3 cards → Select 1 → Add to hand → Return rest to deck
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): EffectResolutionStep[] {
     return [
@@ -95,9 +95,6 @@ export class PotOfDualityActivation extends NormalSpellAction {
         maxCards: 1,
         cancelable: false,
       }),
-
-      // Step 2: Send this card to graveyard
-      createSendToGraveyardStep(activatedCardInstanceId, this.cardId),
     ];
   }
 }
