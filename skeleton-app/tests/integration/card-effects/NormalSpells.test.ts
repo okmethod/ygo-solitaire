@@ -7,7 +7,7 @@
  * Test Responsibility:
  * - Normal Spell card activation scenarios (end-to-end gameplay flow)
  * - Registry integration (cardId → Effect retrieval → Effect execution)
- * - Side effects (effectResolutionStore.startResolution calls)
+ * - Side effects (effectQueueStore.startProcessing calls)
  * - Actual game state changes (deck → hand, hand → graveyard)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
@@ -42,7 +42,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -77,7 +79,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1"], "deck"),
           hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -102,7 +106,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
           hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -142,7 +148,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2"], "deck"),
           hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -167,7 +175,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1", "deck2", "deck3", "deck4", "deck5"], "deck"),
           hand: createCardInstances([magicalMalletCardId, "hand1", "hand2"], "hand", "mallet"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -207,7 +217,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1", "deck2"], "deck"),
           hand: createCardInstances([magicalMalletCardId], "hand", "mallet"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -232,7 +244,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -269,7 +283,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [],
           hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -295,7 +311,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -326,7 +344,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [],
           hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -351,7 +371,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1"], "deck"),
           hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [
             {
               id: 12345678,
@@ -360,6 +382,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
             {
               id: 87654321,
@@ -368,6 +391,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster B",
               location: "graveyard",
+              placedThisTurn: false,
             },
             {
               id: 12345678,
@@ -376,6 +400,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -404,7 +429,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1"], "deck"),
           hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [
             {
               id: 12345678,
@@ -413,6 +440,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -444,6 +472,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "モンスター1",
               location: "deck",
+              placedThisTurn: false,
             },
             {
               id: 67616300,
@@ -453,6 +482,7 @@ describe("Normal Spell Card Effects", () => {
               jaName: "チキンレース",
               spellType: "field",
               location: "deck",
+              placedThisTurn: false,
             },
             {
               id: 1002,
@@ -461,10 +491,13 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "モンスター2",
               location: "deck",
+              placedThisTurn: false,
             },
           ],
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -492,7 +525,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["monster1", "monster2"], "deck"),
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -521,7 +556,9 @@ describe("Normal Spell Card Effects", () => {
             "hand",
             "excavation",
           ),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: createCardInstances(["55144522", "79571449"], "graveyard"), // Pot of Greed + Graceful Charity
           banished: [],
         },
@@ -560,7 +597,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678"], "deck"),
           hand: createCardInstances([magicalStoneExcavationCardId, "33782437", "70368879"], "hand", "excavation"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [
             // Only monsters in graveyard
             {
@@ -570,6 +609,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
             {
               id: 87654321,
@@ -578,6 +618,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster B",
               location: "graveyard",
+              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -603,7 +644,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321"], "deck"),
           hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -641,7 +684,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [], // Empty deck
           hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -683,7 +728,9 @@ describe("Normal Spell Card Effects", () => {
             "deck",
           ),
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -715,7 +762,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -737,7 +786,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321"], "deck"), // Only 2 cards
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -765,7 +816,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -797,7 +850,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321"], "deck"),
           hand: createCardInstances([cardOfDemiseCardId, "33782437"], "hand", "demise"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -823,7 +878,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -854,6 +911,7 @@ describe("Normal Spell Card Effects", () => {
         frameType: "spell" as const,
         jaName: "トゥーン・ワールド",
         location: "deck" as const,
+        placedThisTurn: false,
       };
 
       const state = createMockGameState({
@@ -861,7 +919,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [toonWorldCard, ...createCardInstances(["12345678", "87654321"], "deck")],
           hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -890,7 +950,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },

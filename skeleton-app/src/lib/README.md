@@ -101,7 +101,7 @@ _要点：型からわかる枚数や戻り値の説明を省き、1 行で役�
 ```typescript
 /**
  * 魔法カードを発動します。
- * 解決にユーザーの選択が必要な場合は {@link effectResolutionStore} に制御を移譲します。
+ * 解決にユーザーの選択が必要な場合は {@link effectQueueStore} に制御を移譲します。
  * @see ADR-0008 (効果解決モデルの導入)
  */
 activateSpell(cardInstanceId: string): GameStateUpdateResult;

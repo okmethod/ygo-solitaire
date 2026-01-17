@@ -13,7 +13,7 @@
     canActivateSpells,
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
-  import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+  import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
   import Hands from "$lib/presentation/components/organisms/board/Hands.svelte";
@@ -177,8 +177,8 @@
     selectedFieldCardInstanceId = null;
   }
 
-  // 効果解決ストアの状態を購読
-  const effectResolutionState = effectResolutionStore;
+  // 効果処理キューストアの状態を購読
+  const effectQueueState = effectQueueStore;
 
   // 手札カードとinstanceIdのマッピング
   const handCardsWithInstanceId = $derived(
@@ -317,18 +317,18 @@
   </main>
 </div>
 
-<!-- 効果解決モーダル (interactive level without card selection only) -->
+<!-- 効果処理モーダル (interactive level without card selection only) -->
 <!-- Note: Only show modal for interactive level steps that don't have cardSelectionConfig -->
-<!-- info/silent levels are handled by effectResolutionStore (toast/no-ui) -->
+<!-- info/silent levels are handled by effectQueueStore (toast/no-ui) -->
 <EffectResolutionModal
-  isOpen={$effectResolutionState.isActive &&
-    $effectResolutionState.currentStep?.notificationLevel === "interactive" &&
-    !$effectResolutionState.currentStep?.cardSelectionConfig}
-  summary={$effectResolutionState.currentStep?.summary || ""}
-  description={$effectResolutionState.currentStep?.description || ""}
-  onConfirm={effectResolutionStore.confirmCurrentStep}
-  onCancel={$effectResolutionState.currentStep?.showCancel ? effectResolutionStore.cancelResolution : undefined}
-  showCancel={$effectResolutionState.currentStep?.showCancel || false}
+  isOpen={$effectQueueState.isActive &&
+    $effectQueueState.currentStep?.notificationLevel === "interactive" &&
+    !$effectQueueState.currentStep?.cardSelectionConfig}
+  summary={$effectQueueState.currentStep?.summary || ""}
+  description={$effectQueueState.currentStep?.description || ""}
+  onConfirm={effectQueueStore.confirmCurrentStep}
+  onCancel={$effectQueueState.currentStep?.showCancel ? effectQueueStore.cancelProcessing : undefined}
+  showCancel={$effectQueueState.currentStep?.showCancel || false}
 />
 
 <!-- カード選択モーダル -->

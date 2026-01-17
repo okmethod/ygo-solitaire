@@ -29,7 +29,7 @@
 
 - レイヤー間の連携（Application → Domain）
 - カード発動シナリオ（Command 実行 → Effect 解決 → Store 更新）
-- 副作用の発生（effectResolutionStore.startResolution 呼び出し）
+- 副作用の発生（effectQueueStore.startProcessing 呼び出し）
 - 実際のゲームフロー（ドロー → 発動 → 墓地送り）
 
 **検証しないもの**:

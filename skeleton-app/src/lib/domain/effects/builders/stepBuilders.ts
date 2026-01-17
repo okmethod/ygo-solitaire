@@ -436,7 +436,7 @@ export function createSearchFromGraveyardStep(config: {
   cancelable?: boolean;
 }): AtomicStep {
   // 注: availableCardsは実行時に動的に設定される
-  // _sourceZone: "graveyard" マーカーにより、effectResolutionStoreが墓地から候補カードを設定する
+  // _sourceZone: "graveyard" マーカーにより、effectQueueStoreが墓地から候補カードを設定する
   return {
     id: config.id,
     summary: config.summary,
