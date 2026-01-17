@@ -442,7 +442,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.updatedState.zones.spellTrapZone[0].id).toBe(55144522);
     });
 
-    it("should place continuous spell in spellTrapZone", () => {
+    it("should place continuous spell in spellTrapZone and keep it on field", () => {
       // Arrange: Continuous spell in hand (no effect registered, for testing zone placement)
       const continuousSpellState = createMockGameState({
         phase: "Main1",
@@ -472,11 +472,11 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("continuous-spell-1");
       const result = command.execute(continuousSpellState);
 
-      // Assert: Continuous spell should be in graveyard (no effect registered)
-      // But it was placed in spellTrapZone before being sent to graveyard
+      // Assert: Continuous spell stays on field (not sent to graveyard)
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.graveyard.length).toBe(1);
-      expect(result.updatedState.zones.fieldZone.length).toBe(0);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.graveyard.length).toBe(0);
+      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceUp");
     });
   });
 

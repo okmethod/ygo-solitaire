@@ -13,6 +13,7 @@ import type { GameCommand, GameStateUpdateResult } from "$lib/domain/models/Game
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
+import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard, updateCardInPlace } from "$lib/domain/models/Zone";
@@ -94,7 +95,8 @@ export class ActivateSpellCommand implements GameCommand {
    * 1. 実行可能性判定
    * 2. カードの配置(手札→フィールド or セット→表向き)
    * 3. 効果処理ステップ配列の生成(レジストリ登録されている場合)
-   * 4. 戻り値の構築
+   * 4. 墓地送り判定(spellTypeに応じて)
+   * 5. 戻り値の構築
    *
    * Note: 効果処理は、Application 層に返された後に実行される
    */
@@ -122,16 +124,18 @@ export class ActivateSpellCommand implements GameCommand {
         ]
       : undefined;
 
-    // 4. 戻り値の構築
+    // 4. 墓地送り判定(spellTypeに応じて)
+    const shouldSendToGraveyard = this.shouldSendToGraveyardAfterActivation(cardInstance, effectSteps);
+
+    // 5. 戻り値の構築
     return {
       success: true,
-      updatedState: effectSteps
-        ? updatedState
-        : // 効果処理がない場合: カードを墓地へ送る
-          {
+      updatedState: shouldSendToGraveyard
+        ? {
             ...updatedState,
             zones: sendToGraveyard(updatedState.zones, this.cardInstanceId),
-          },
+          }
+        : updatedState,
       message: `Spell card activated: ${this.cardInstanceId}`,
       effectSteps,
     };
@@ -159,6 +163,27 @@ export class ActivateSpellCommand implements GameCommand {
 
     // セットから発動: 同じゾーンに表向きで配置
     return updateCardInPlace(zones, this.cardInstanceId, activatedCardState);
+  }
+
+  /**
+   * 魔法カード発動後に墓地送りすべきかを判定する
+   *
+   * - フィールド魔法・永続魔法: フィールドに残るため墓地送りなし
+   * - 通常魔法・速攻魔法: effectStepsがない場合のみ墓地送り
+   *   (effectStepsがある場合は、効果処理内で墓地送りステップが含まれる想定)
+   */
+  private shouldSendToGraveyardAfterActivation(
+    cardInstance: CardInstance,
+    effectSteps: EffectResolutionStep[] | undefined,
+  ): boolean {
+    // フィールド魔法・永続魔法はフィールドに残る
+    if (cardInstance.spellType === "field" || cardInstance.spellType === "continuous") {
+      return false;
+    }
+
+    // 通常魔法・速攻魔法は、effectStepsがない場合のみCommand側で墓地送り
+    // (effectStepsがある場合は、効果処理内で墓地送りステップが含まれる)
+    return effectSteps === undefined;
   }
 
   /** 発動対象のカードインスタンスIDを取得する */
