@@ -57,7 +57,10 @@ describe("NormalSpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Deck >= 2
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -69,7 +72,10 @@ describe("NormalSpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (NormalSpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Default phase is "Draw"
 
       // Act & Assert
@@ -78,7 +84,7 @@ describe("NormalSpellAction", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
-      const state = createInitialGameState(createTestInitialDeck([1001]));
+      const state = createInitialGameState(createTestInitialDeck([1001]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -92,7 +98,10 @@ describe("NormalSpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);

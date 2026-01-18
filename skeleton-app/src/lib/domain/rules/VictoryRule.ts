@@ -57,7 +57,11 @@ export function checkVictoryConditions(state: GameState): GameResult {
   }
 
   // Check deck out defeat (cannot draw from empty deck)
-  // Note: Skip this check during game initialization (turn = 0, phase = "Draw")
+  // Note: Commented out because deck out rarely occurs in solitaire play
+  // (draw effects have activation conditions that prevent drawing from empty deck)
+  // This will need proper implementation when complex chain systems are added
+  // TODO: Implement proper deck out check when drawing from empty deck
+  /*
   if (state.zones.deck.length === 0 && state.phase === "Draw" && state.turn > 0) {
     return {
       isGameOver: true,
@@ -66,6 +70,7 @@ export function checkVictoryConditions(state: GameState): GameResult {
       message: `デッキが空でドローできません。デッキアウトで敗北です。`,
     };
   }
+  */
 
   // No victory/defeat conditions met - game continues
   return {

@@ -13,20 +13,8 @@ export const load: PageLoad = async ({ params, fetch }) => {
 
   console.log(`[PageLoad] Initializing game with deck: ${deckRecipe.name}`);
 
-  // ゲームを初期化する
+  // ゲームを初期化する（デッキシャッフルと初期手札ドローを含む）
   gameFacade.initializeGame(deckRecipe);
-
-  // Shuffle deck before drawing initial hand
-  const shuffleResult = gameFacade.shuffleDeck();
-  if (!shuffleResult.success) {
-    console.error("[PageLoad] Failed to shuffle deck:", shuffleResult.error);
-  }
-
-  // Draw initial hand (5 cards)
-  const drawResult = gameFacade.drawCard(5);
-  if (!drawResult.success) {
-    console.error("[PageLoad] Failed to draw initial hand:", drawResult.error);
-  }
 
   console.log("[PageLoad] Initial state:", gameFacade.getGameState());
 

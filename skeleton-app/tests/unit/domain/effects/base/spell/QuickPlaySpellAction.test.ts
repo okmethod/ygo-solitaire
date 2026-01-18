@@ -57,7 +57,10 @@ describe("QuickPlaySpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Hand not empty
-      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...baseState,
         phase: "Main1",
@@ -79,7 +82,10 @@ describe("QuickPlaySpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (QuickPlaySpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Default phase is "Draw"
 
       // Act & Assert
@@ -88,7 +94,10 @@ describe("QuickPlaySpellAction", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Hand is empty (additionalActivationConditions returns false)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const emptyHandState: GameState = {
         ...state,
         phase: "Main1",
@@ -106,7 +115,10 @@ describe("QuickPlaySpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);

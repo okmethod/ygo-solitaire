@@ -11,6 +11,7 @@ import type { Zones } from "$lib/domain/models/Zone";
 import type { GamePhase } from "$lib/domain/models/Phase";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+import { shuffleDeck, drawCards } from "$lib/domain/models/Zone";
 
 /**
  * Initial life points for both players
@@ -111,26 +112,43 @@ export type InitialDeckCardIds = {
 };
 
 /** 初期デッキ情報からGameStateを生成する */
-export function createInitialGameState(initialDeck: InitialDeckCardIds): GameState {
+export function createInitialGameState(
+  initialDeck: InitialDeckCardIds,
+  options?: { skipShuffle?: boolean; skipInitialDraw?: boolean },
+): GameState {
+  // デッキカードを生成
+  const deckCards = initialDeck.mainDeckCardIds.map((cardId, index) => {
+    const cardData = getCardData(cardId);
+    return {
+      ...cardData,
+      instanceId: `deck-${index}`,
+      location: "deck" as const,
+      placedThisTurn: false,
+    };
+  });
+
+  // 初期ゾーン（シャッフル前）
+  const initialZones: Zones = {
+    // TODO: メインデッキとエクストラデッキを分離する
+    deck: deckCards,
+    hand: [],
+    mainMonsterZone: [],
+    spellTrapZone: [],
+    fieldZone: [],
+    graveyard: [],
+    banished: [],
+  };
+
+  // デッキをシャッフル（テスト時はスキップ可能）
+  let finalZones = options?.skipShuffle ? initialZones : shuffleDeck(initialZones);
+
+  // 初期手札をドロー（テスト時はスキップ可能）
+  if (!options?.skipInitialDraw) {
+    finalZones = drawCards(finalZones, 5);
+  }
+
   return {
-    zones: {
-      // TODO: メインデッキとエクストラデッキを分離する
-      deck: initialDeck.mainDeckCardIds.map((cardId, index) => {
-        const cardData = getCardData(cardId);
-        return {
-          ...cardData,
-          instanceId: `deck-${index}`,
-          location: "deck" as const,
-          placedThisTurn: false,
-        };
-      }),
-      hand: [],
-      mainMonsterZone: [],
-      spellTrapZone: [],
-      fieldZone: [],
-      graveyard: [],
-      banished: [],
-    },
+    zones: finalZones,
     lp: {
       player: INITIAL_LP,
       opponent: INITIAL_LP,

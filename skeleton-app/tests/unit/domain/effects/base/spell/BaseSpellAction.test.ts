@@ -64,7 +64,10 @@ describe("BaseSpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when game is not over and additional conditions are met", () => {
       // Arrange: Game not over, deck has cards
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -76,7 +79,10 @@ describe("BaseSpellAction", () => {
 
     it("should return false when game is over", () => {
       // Arrange: Game is over
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const gameOverState: GameState = {
         ...state,
         phase: "Main1",
@@ -93,7 +99,7 @@ describe("BaseSpellAction", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Deck is empty (additionalActivationConditions returns false)
-      const state = createInitialGameState(createTestInitialDeck([]));
+      const state = createInitialGameState(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -107,7 +113,10 @@ describe("BaseSpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step with card info", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);
@@ -122,7 +131,10 @@ describe("BaseSpellAction", () => {
 
     it("should return step with action that does not modify state", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const steps = action.createActivationSteps(state);
 
       // Act
@@ -138,7 +150,10 @@ describe("BaseSpellAction", () => {
   describe("Abstract methods", () => {
     it("should implement createResolutionSteps()", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createResolutionSteps(state, "test-instance");

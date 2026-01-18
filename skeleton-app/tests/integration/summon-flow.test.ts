@@ -46,7 +46,10 @@ describe("Summon Flow Integration", () => {
       exodiaIds[1], // Right Leg - will be drawn 2nd
       exodiaIds[0], // Exodia the Forbidden One - will be drawn 1st
     ];
-    initialState = createInitialGameState(createTestInitialDeck(deckIds, []));
+    initialState = createInitialGameState(createTestInitialDeck(deckIds, []), {
+      skipShuffle: true,
+      skipInitialDraw: true,
+    });
   });
 
   describe("Basic Summon Flow", () => {

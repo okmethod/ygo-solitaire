@@ -59,7 +59,10 @@ describe("FieldSpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
       // Arrange: Main Phase 1
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -71,7 +74,10 @@ describe("FieldSpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (FieldSpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Default phase is "Draw"
 
       // Act & Assert
@@ -80,7 +86,7 @@ describe("FieldSpellAction", () => {
 
     it("should return true even with empty deck (no additional conditions)", () => {
       // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
-      const state = createInitialGameState(createTestInitialDeck([]));
+      const state = createInitialGameState(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
@@ -94,7 +100,10 @@ describe("FieldSpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return empty array (field spells have no activation steps)", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);
@@ -107,7 +116,10 @@ describe("FieldSpellAction", () => {
   describe("createResolutionSteps()", () => {
     it("should return empty array (field spells have no resolution steps)", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createResolutionSteps(state, "test-instance");

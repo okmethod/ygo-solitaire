@@ -62,7 +62,10 @@ describe("stepBuilders", () => {
 
     it("should successfully draw cards when deck has enough cards", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003, 1001]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003, 1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const step = createDrawStep(2);
 
       // Act
@@ -77,7 +80,7 @@ describe("stepBuilders", () => {
 
     it("should fail when deck does not have enough cards", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001]));
+      const state = createInitialGameState(createTestInitialDeck([1001]), { skipShuffle: true, skipInitialDraw: true });
       const step = createDrawStep(2);
 
       // Act
@@ -90,7 +93,10 @@ describe("stepBuilders", () => {
 
     it("should use singular form for 1 card", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const step = createDrawStep(1);
 
       // Act
@@ -125,7 +131,10 @@ describe("stepBuilders", () => {
 
     it("should successfully send card to graveyard from spellTrapZone", () => {
       // Arrange
-      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Add a card to spellTrapZone manually
       const state: GameState = {
         ...baseState,
@@ -168,7 +177,7 @@ describe("stepBuilders", () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onSelect: (state, _selectedIds) => ({
           success: true,
-          newState: state,
+          updatedState: state,
           message: "Selected",
         }),
       });
@@ -185,7 +194,10 @@ describe("stepBuilders", () => {
 
     it("should call onSelect with selected card IDs", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       let receivedIds: string[] = [];
       const step = createCardSelectionStep({
         id: "test-select",
@@ -196,7 +208,7 @@ describe("stepBuilders", () => {
         maxCards: 2,
         onSelect: (s, selectedIds) => {
           receivedIds = selectedIds;
-          return { success: true, newState: s, message: "OK" };
+          return { success: true, updatedState: s, message: "OK" };
         },
       });
 
@@ -209,7 +221,10 @@ describe("stepBuilders", () => {
 
     it("should handle empty selection when minCards is 0", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const step = createCardSelectionStep({
         id: "test-select",
         summary: "テスト",
@@ -219,7 +234,7 @@ describe("stepBuilders", () => {
         maxCards: 5,
         onSelect: (s, selectedIds) => ({
           success: true,
-          newState: s,
+          updatedState: s,
           message: `Selected ${selectedIds.length}`,
         }),
       });
@@ -257,7 +272,10 @@ describe("stepBuilders", () => {
 
     it("should successfully increase opponent LP", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const initialOpponentLP = state.lp.opponent;
       const step = createGainLifeStep(1000);
 
@@ -272,7 +290,10 @@ describe("stepBuilders", () => {
 
     it("should successfully increase player LP", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const initialPlayerLP = state.lp.player;
       const step = createGainLifeStep(500, { target: "player" });
 
@@ -310,7 +331,10 @@ describe("stepBuilders", () => {
 
     it("should successfully decrease player LP", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const initialPlayerLP = state.lp.player;
       const step = createDamageStep(1000);
 
@@ -325,7 +349,10 @@ describe("stepBuilders", () => {
 
     it("should successfully decrease opponent LP", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const initialOpponentLP = state.lp.opponent;
       const step = createDamageStep(500, { target: "opponent" });
 
@@ -367,7 +394,10 @@ describe("stepBuilders", () => {
 
     it("should successfully shuffle deck", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003, 1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003, 1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const originalDeckSize = state.zones.deck.length;
       const step = createShuffleStep();
 
@@ -410,7 +440,10 @@ describe("stepBuilders", () => {
 
     it("should successfully return cards to deck from hand", () => {
       // Arrange
-      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Add cards to hand manually
       const state: GameState = {
         ...baseState,
@@ -445,7 +478,10 @@ describe("stepBuilders", () => {
 
     it("should handle empty instanceIds array", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const step = createReturnToDeckStep([]);
 
       // Act
@@ -458,7 +494,10 @@ describe("stepBuilders", () => {
 
     it("should use plural form for multiple cards", () => {
       // Arrange
-      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002]));
+      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Add cards to hand manually
       const state: GameState = {
         ...baseState,
