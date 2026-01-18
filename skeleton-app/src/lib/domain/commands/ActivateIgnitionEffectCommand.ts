@@ -15,7 +15,7 @@ import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
@@ -95,7 +95,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
-      return createFailureResult(state, getValidationErrorMessage(validation));
+      return failureUpdateResult(state, getValidationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;

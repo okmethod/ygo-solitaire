@@ -40,8 +40,8 @@ export const createSuccessResult = (updatedState: GameState, message?: string): 
   };
 };
 
-/** 失敗した GameStateUpdateResult を作成する */
-export const createFailureResult = (state: GameState, error: string): GameStateUpdateResult => {
+/** 失敗した GameStateUpdateResult */
+export const failureUpdateResult = (state: GameState, error: string): GameStateUpdateResult => {
   return {
     success: false,
     updatedState: state, // 状態は変更されない

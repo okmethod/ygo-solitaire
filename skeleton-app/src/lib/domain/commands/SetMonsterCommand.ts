@@ -12,7 +12,7 @@ import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isMonsterCard } from "$lib/domain/models/Card";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import {
@@ -77,7 +77,7 @@ export class SetMonsterCommand implements GameCommand {
     // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
-      return createFailureResult(state, getValidationErrorMessage(validation));
+      return failureUpdateResult(state, getValidationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;

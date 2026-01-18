@@ -11,7 +11,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
 import {
   ValidationErrorCode,
@@ -66,7 +66,7 @@ export class AdvancePhaseCommand implements GameCommand {
     // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
-      return createFailureResult(state, getValidationErrorMessage(validation));
+      return failureUpdateResult(state, getValidationErrorMessage(validation));
     }
 
     const nextPhase = getNextPhase(state.phase);
