@@ -16,7 +16,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
-import { isMainPhase } from "$lib/domain/rules/PhaseRule";
+import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 import {
   ValidationErrorCode,

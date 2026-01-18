@@ -18,7 +18,7 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
-import { isMainPhase } from "$lib/domain/rules/PhaseRule";
+import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import { createSendToGraveyardStep } from "$lib/domain/effects/builders";
 import {

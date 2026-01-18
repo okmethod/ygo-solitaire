@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { getPhaseDisplayName, validatePhaseTransition, isMainPhase, isEndPhase } from "$lib/domain/rules/PhaseRule";
+import { getPhaseDisplayName, validatePhaseTransition, isMainPhase, isEndPhase } from "$lib/domain/models/Phase";
 
 describe("PhaseRule", () => {
   describe("getPhaseDisplayName", () => {

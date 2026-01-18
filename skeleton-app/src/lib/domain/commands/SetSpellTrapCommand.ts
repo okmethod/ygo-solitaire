@@ -15,7 +15,7 @@ import type { Zones } from "$lib/domain/models/Zone";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
-import { isMainPhase } from "$lib/domain/rules/PhaseRule";
+import { isMainPhase } from "$lib/domain/models/Phase";
 import {
   ValidationErrorCode,
   validationSuccess,

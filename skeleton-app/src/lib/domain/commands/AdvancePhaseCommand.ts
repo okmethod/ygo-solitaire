@@ -12,8 +12,7 @@ import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
-import { getNextPhase } from "$lib/domain/models/Phase";
-import { validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/rules/PhaseRule";
+import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
 import {
   ValidationErrorCode,
   validationSuccess,

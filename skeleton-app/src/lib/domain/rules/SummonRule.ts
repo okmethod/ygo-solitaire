@@ -7,7 +7,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { ValidationErrorCode, validationSuccess, validationFailure } from "$lib/domain/models/ValidationResult";
-import { isMainPhase } from "$lib/domain/rules/PhaseRule";
+import { isMainPhase } from "$lib/domain/models/Phase";
 
 /**
  * 通常召喚が可能かをチェックする
