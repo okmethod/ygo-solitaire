@@ -51,7 +51,7 @@ describe("loadDeck - Deck Recipe Loading Integration Test (T033)", () => {
   it("should validate RecipeCardEntry card IDs (T032)", async () => {
     const mockFetch = vi.fn();
 
-    // Note: 実際のsampleDeckRecipesは常に有効なので
+    // Note: 実際のpresetDeckRecipesは常に有効なので
     // このテストは型エラーを防ぐための概念的な検証
     vi.mocked(ygoprodeckApi.getCardsByIds).mockResolvedValue([
       exodiaFixture,

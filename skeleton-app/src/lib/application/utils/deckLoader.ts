@@ -1,3 +1,9 @@
+/**
+ * deckLoader - 指定したデッキIDから、デッキレシピとデッキデータを読み込むユーティリティ
+ *
+ * @module application/utils/deckLoader
+ */
+
 import type {
   DeckRecipe,
   RecipeCardEntry,
@@ -9,7 +15,7 @@ import type {
 } from "$lib/application/types/deck";
 import type { CardDisplayData } from "$lib/application/types/card";
 import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
-import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
+import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
 
 // デッキエントリーからカードタイプ別に分類した MainDeckData を作成する
 function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): MainDeckData {
@@ -137,7 +143,7 @@ export async function loadDeck(
   deckId: string,
   fetchFunction: typeof fetch,
 ): Promise<{ deckRecipe: DeckRecipe; deckData: DeckData }> {
-  const deckRecipe = sampleDeckRecipes[deckId];
+  const deckRecipe = presetDeckRecipes[deckId];
   if (!deckRecipe) {
     throw new Error(`Deck not found: ${deckId}`);
   }

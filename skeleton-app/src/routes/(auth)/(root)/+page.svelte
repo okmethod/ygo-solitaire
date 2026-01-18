@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
+  import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
   import { navigateTo } from "$lib/presentation/utils/navigation";
 
   // レシピのキーと値の配列を作成
-  const recipeEntries = Object.entries(sampleDeckRecipes);
+  const recipeEntries = Object.entries(presetDeckRecipes);
   let selectedRecipeId = recipeEntries[0][0]; // 初期値として最初のIDを設定
 
   function navigateToSimulator() {

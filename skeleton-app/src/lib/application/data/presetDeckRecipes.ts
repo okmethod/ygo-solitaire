@@ -1,8 +1,12 @@
+/**
+ * presetDeckRecipes - プリセットデッキレシピ集
+ *
+ * @module application/data/presetDeckRecipes
+ */
+
 import type { DeckRecipe } from "$lib/application/types/deck";
 
-// YGOProDeckAPI の ID を使用したサンプルデッキレシピ
-// 例) https://db.ygoprodeck.com/api/v7/cardinfo.php?id=33396948
-export const sampleDeckRecipes: Record<string, DeckRecipe> = {
+export const presetDeckRecipes: Record<string, DeckRecipe> = {
   "greedy-exodia-deck": {
     name: "強欲なエクゾディア",
     description: "あまりにも強欲で、必ずワンキルできるデッキです",
