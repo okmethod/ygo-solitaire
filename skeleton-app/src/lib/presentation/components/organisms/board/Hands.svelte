@@ -10,7 +10,6 @@
     cards: Array<{ card: CardDisplayData | null; instanceId: string }>;
     handCardCount: number;
     currentPhase: string;
-    canActivateSpells: boolean;
     isGameOver: boolean;
     selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId (T038)
     onCardClick: (card: CardDisplayData, instanceId: string) => void;
@@ -24,7 +23,6 @@
     cards,
     handCardCount,
     currentPhase,
-    canActivateSpells,
     isGameOver,
     selectedHandCardInstanceId,
     onCardClick,
@@ -38,7 +36,6 @@
   function isActivatable(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
-    if (!canActivateSpells) return false;
 
     // GameFacade経由でカード固有の発動条件をチェック
     return gameFacade.canActivateSpell(instanceId);

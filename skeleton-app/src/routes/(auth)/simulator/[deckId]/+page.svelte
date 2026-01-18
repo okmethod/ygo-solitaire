@@ -10,7 +10,6 @@
     handCardCount,
     deckCardCount,
     gameResult,
-    canActivateSpells,
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
@@ -295,7 +294,6 @@
         cards={handCardsWithInstanceId}
         handCardCount={$handCardCount}
         currentPhase={$currentPhase}
-        canActivateSpells={$canActivateSpells}
         isGameOver={$gameResult.isGameOver}
         {selectedHandCardInstanceId}
         onCardClick={handleHandCardClick}
