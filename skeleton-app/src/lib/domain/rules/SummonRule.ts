@@ -6,9 +6,10 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { BattlePosition } from "$lib/domain/models/Card";
 import { ValidationErrorCode, validationSuccess, validationFailure } from "$lib/domain/models/ValidationResult";
 import { isMainPhase } from "$lib/domain/models/Phase";
-import { isMainMonsterZoneFull } from "$lib/domain/models/Zone";
+import { moveCard, isMainMonsterZoneFull } from "$lib/domain/models/Zone";
 
 /**
  * 通常召喚が可能かをチェックする
@@ -37,4 +38,25 @@ export function canNormalSummon(state: GameState): ValidationResult {
   }
 
   return validationSuccess();
+}
+
+/** モンスターを通常召喚する */
+export function executeNormalSummon(
+  state: GameState,
+  cardInstanceId: string,
+  battlePosition: BattlePosition,
+): GameState {
+  // モンスターカードを、メインモンスターゾーンに表側攻撃表示 or 裏側守備表示で配置する
+  const updatedZones = moveCard(state.zones, cardInstanceId, "hand", "mainMonsterZone", {
+    position: battlePosition === "attack" ? "faceUp" : "faceDown",
+    battlePosition: battlePosition,
+    placedThisTurn: true,
+  });
+
+  return {
+    ...state,
+    zones: updatedZones,
+    // 召喚権を1消費
+    normalSummonUsed: state.normalSummonUsed + 1,
+  };
 }

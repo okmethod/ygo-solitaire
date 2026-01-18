@@ -40,6 +40,12 @@ export interface CardData {
   // readonly level?: number;
 }
 
+/** カードの表側表示・裏側表示 */
+export type Position = "faceUp" | "faceDown";
+
+/** モンスターカードの攻撃表示・守備表示 */
+export type BattlePosition = "attack" | "defense";
+
 /**
  * 1枚のカードインスタンス
  *
@@ -49,9 +55,9 @@ export interface CardData {
 export interface CardInstance extends CardData {
   readonly instanceId: string; // Unique instance ID
   readonly location: ZoneName;
-  readonly position?: "faceUp" | "faceDown"; // For field cards
-  readonly battlePosition?: "attack" | "defense"; // For monster cards (召喚時attack、セット時defense)
-  readonly placedThisTurn: boolean; // このターンに配置されたか（初期値false）
+  readonly position?: Position;
+  readonly battlePosition?: BattlePosition;
+  readonly placedThisTurn: boolean; // Default: false
 }
 
 /** CardData型ガード: モンスターカード */
