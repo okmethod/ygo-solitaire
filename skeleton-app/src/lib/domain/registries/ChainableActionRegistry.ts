@@ -2,60 +2,41 @@
  * ChainableActionRegistry - チェーン可能な処理のレジストリ
  *
  * Card ID → ChainableAction のマッピングを管理
- * Registry Pattern + Strategy Pattern
- * - O(1) 高速ルックアップ（Map使用）
- * - 効果の登録・取得をシンプルに
+ * TODO: 1つのIDに複数の処理を登録できるようにする
  *
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * Registry Pattern + Strategy Pattern
+ * - 効果の一元管理と、交換しやすい実装
+ * - Map による O(1) 高速ルックアップ
  */
 
-import type { ChainableAction } from "../models/ChainableAction";
+import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 
 /**
- * ChainableActionRegistry クラス
+ * チェーン可能な処理のレジストリ（クラス）
  *
  * カードIDをキーとして ChainableAction を管理する。
  * Strategy Pattern により、カード効果を交換可能に実装する。
  */
 export class ChainableActionRegistry {
-  /**
-   * 効果のマップ (Card ID → ChainableAction)
-   * @private
-   */
+  /** チェーン可能な処理のマップ (Card ID → ChainableAction) */
   private static actions = new Map<number, ChainableAction>();
 
-  /**
-   * 効果を登録
-   *
-   * @param cardId - カードID（Card Data ID）
-   * @param action - チェーン可能な処理
-   */
+  /** そのゲームで使用する効果を登録する */
   static register(cardId: number, action: ChainableAction): void {
     this.actions.set(cardId, action);
   }
 
-  /**
-   * 効果を取得
-   *
-   * @param cardId - カードID
-   * @returns ChainableAction（未登録の場合はundefined）
-   */
+  /** レジストリから効果を取得する */
   static get(cardId: number): ChainableAction | undefined {
     return this.actions.get(cardId);
   }
 
-  /**
-   * レジストリをクリア（テスト用）
-   */
+  /** レジストリをクリアする（テスト用） */
   static clear(): void {
     this.actions.clear();
   }
 
-  /**
-   * 登録済みカードIDの一覧を取得（デバッグ用）
-   *
-   * @returns 登録済みカードID配列
-   */
+  /** 登録済みカードIDの一覧を取得する（デバッグ用） */
   static getRegisteredCardIds(): number[] {
     return Array.from(this.actions.keys());
   }

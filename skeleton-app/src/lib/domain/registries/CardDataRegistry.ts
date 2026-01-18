@@ -1,24 +1,23 @@
 /**
- * CardDataRegistry - Domain Layer Card Data Registry (Registry Pattern)
+ * CardDataRegistry - カードデータレジストリ
  *
- * Provides card data for game logic without depending on external APIs.
- * This ensures Domain Layer independence from Infrastructure Layer (YGOPRODeck API).
+ * ゲームロジック向けにカードデータを提供する。
  *
- * Registry Pattern:
- * - Centralizes card data management
- * - Provides O(1) lookup by card ID
- * - Separates from Infrastructure Layer's "database" concept
+ * Registry Pattern
+ * - カードデータの一元管理
+ * - Map による O(1) 高速ルックアップ
+ * - ドメイン層をインフラ層（YGOPRODeck API）から分離
  *
  * @module domain/registries/CardDataRegistry
  */
 
-import type { CardData, CardType } from "../models/Card";
+import type { CardData } from "$lib/domain/models/Card";
 
 /**
- * Card data registry (Registry Pattern)
+ * カードデータレジストリ（辞書）
  *
- * Maps card ID to domain card data.
- * Only includes cards used in the game (not a complete database).
+ * カードIDとドメインカードデータをマッピングする。
+ * ゲームで使用されるカードプールのみを含む。
  */
 const CARD_DATA_REGISTRY: Record<number, CardData> = {
   // モンスター
@@ -61,10 +60,8 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
 };
 
 /**
- * Get card data from registry
+ * レジストリからカードデータを取得する
  *
- * @param cardId - Card ID (YGOPRODeck compatible)
- * @returns Domain card data
  * @throws Error if card not found in registry
  */
 export function getCardData(cardId: number): CardData {
@@ -79,34 +76,10 @@ export function getCardData(cardId: number): CardData {
 }
 
 /**
- * Get card type from registry
- *
- * @param cardId - Card ID
- * @returns Card type ("monster" | "spell" | "trap")
- */
-export function getCardType(cardId: number): CardType {
-  return getCardData(cardId).type;
-}
-
-/**
- * Check if card exists in registry
- *
- * @param cardId - Card ID
- * @returns True if card exists
- */
-export function hasCardData(cardId: number): boolean {
-  return CARD_DATA_REGISTRY[cardId] !== undefined;
-}
-
-/**
- * Get card name with Yu-Gi-Oh brackets
- *
- * @param cardId - Card ID
- * @returns Card name in format: 《カード名》
- * @throws Error if card not found in registry
+ * 《》付きでカード名を取得する
  *
  * @example
- * getCardNameWithBrackets(67616300) // "《チキンレース》"
+ * getCardNameWithBrackets(55144522) // "《強欲な壺》"
  */
 export function getCardNameWithBrackets(cardId: number): string {
   const card = getCardData(cardId);
