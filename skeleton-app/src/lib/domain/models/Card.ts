@@ -61,41 +61,41 @@ export interface CardInstance extends CardData {
 }
 
 /** CardData型ガード: モンスターカード */
-export function isMonsterCard(card: CardData): boolean {
+export const isMonsterCard = (card: CardData): boolean => {
   return card.type === "monster";
-}
+};
 
 /** CardData型ガード: 魔法カード */
-export function isSpellCard(card: CardData): boolean {
+export const isSpellCard = (card: CardData): boolean => {
   return card.type === "spell";
-}
+};
 
 /** CardData型ガード: 通常魔法カード */
-export function isNormalSpellCard(card: CardData): boolean {
+export const isNormalSpellCard = (card: CardData): boolean => {
   return card.type === "spell" && card.spellType === "normal";
-}
+};
 
 /** CardData型ガード: 速攻魔法カード */
-export function isQuickPlaySpellCard(card: CardData): boolean {
+export const isQuickPlaySpellCard = (card: CardData): boolean => {
   return card.type === "spell" && card.spellType === "quick-play";
-}
+};
 
 /** CardData型ガード: フィールド魔法カード */
-export function isFieldSpellCard(card: CardData): boolean {
+export const isFieldSpellCard = (card: CardData): boolean => {
   return card.type === "spell" && card.spellType === "field";
-}
+};
 
 /** CardData型ガード: 罠カード */
-export function isTrapCard(card: CardData): boolean {
+export const isTrapCard = (card: CardData): boolean => {
   return card.type === "trap";
-}
+};
 
-/** カードが表側表示かどうかをチェックする */
-export function isFaceUp(card: CardInstance): boolean {
+/** カードが表側表示かどうか */
+export const isFaceUp = (card: CardInstance): boolean => {
   return card.position === "faceUp";
-}
+};
 
-/** カードが裏側表示かどうかをチェックする */
-export function isFaceDown(card: CardInstance): boolean {
+/** カードが裏側表示かどうか */
+export const isFaceDown = (card: CardInstance): boolean => {
   return card.position === "faceDown";
-}
+};

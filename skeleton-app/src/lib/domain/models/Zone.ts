@@ -135,36 +135,6 @@ export function banishCard(currentZones: Zones, instanceId: string, from: keyof 
   return moveCard(currentZones, instanceId, from, "banished");
 }
 
-/** ゾーン内のカード枚数をカウントする */
-export function countZone(zones: Zones, zone: keyof Zones): number {
-  return zones[zone].length;
-}
-
-/** デッキが空かどうかをチェックする */
-export function isDeckEmpty(zones: Zones): boolean {
-  return zones.deck.length === 0;
-}
-
-/** 手札が最大枚数に達しているかどうかをチェックする */
-export function isHandFull(zones: Zones, maxHandSize: number = 6): boolean {
-  return zones.hand.length >= maxHandSize;
-}
-
-/** メインモンスターゾーンが最大枚数に達しているかどうかをチェックする */
-export function isMainMonsterZoneFull(zones: Zones, maxMainMonsterZoneSize: number = 5): boolean {
-  return zones.mainMonsterZone.length >= maxMainMonsterZoneSize;
-}
-
-/** 魔法・罠ゾーンが最大枚数に達しているかどうかをチェックする */
-export function isSpellTrapZoneFull(zones: Zones, maxSpellTrapZoneSize: number = 5): boolean {
-  return zones.spellTrapZone.length >= maxSpellTrapZoneSize;
-}
-
-/** フィールドゾーンが最大枚数に達しているかどうかをチェックする */
-export function isFieldZoneFull(zones: Zones, maxFieldZoneSize: number = 1): boolean {
-  return zones.fieldZone.length >= maxFieldZoneSize;
-}
-
 /** デッキをシャッフルする */
 export function shuffleDeck(zones: Zones): Zones {
   return {
@@ -172,3 +142,33 @@ export function shuffleDeck(zones: Zones): Zones {
     deck: shuffleArray(zones.deck),
   };
 }
+
+/** ゾーン内のカード枚数 */
+export const countZone = (zones: Zones, zone: keyof Zones): number => {
+  return zones[zone].length;
+};
+
+/** デッキが空かどうか */
+export const isDeckEmpty = (zones: Zones): boolean => {
+  return zones.deck.length === 0;
+};
+
+/** 手札が最大枚数に達しているかどうか */
+export const isHandFull = (zones: Zones, maxHandSize: number = 6): boolean => {
+  return zones.hand.length >= maxHandSize;
+};
+
+/** メインモンスターゾーンが最大枚数に達しているかどうか */
+export const isMainMonsterZoneFull = (zones: Zones, maxMainMonsterZoneSize: number = 5): boolean => {
+  return zones.mainMonsterZone.length >= maxMainMonsterZoneSize;
+};
+
+/** 魔法・罠ゾーンが最大枚数に達しているかどうか */
+export const isSpellTrapZoneFull = (zones: Zones, maxSpellTrapZoneSize: number = 5): boolean => {
+  return zones.spellTrapZone.length >= maxSpellTrapZoneSize;
+};
+
+/** フィールドゾーンが最大枚数に達しているかどうか */
+export const isFieldZoneFull = (zones: Zones, maxFieldZoneSize: number = 1): boolean => {
+  return zones.fieldZone.length >= maxFieldZoneSize;
+};

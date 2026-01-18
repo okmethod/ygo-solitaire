@@ -32,19 +32,19 @@ export interface GameStateUpdateResult {
 }
 
 /** 成功した GameStateUpdateResult を作成する */
-export function createSuccessResult(updatedState: GameState, message?: string): GameStateUpdateResult {
+export const createSuccessResult = (updatedState: GameState, message?: string): GameStateUpdateResult => {
   return {
     success: true,
     updatedState,
     message,
   };
-}
+};
 
 /** 失敗した GameStateUpdateResult を作成する */
-export function createFailureResult(state: GameState, error: string): GameStateUpdateResult {
+export const createFailureResult = (state: GameState, error: string): GameStateUpdateResult => {
   return {
     success: false,
     updatedState: state, // 状態は変更されない
     error,
   };
-}
+};

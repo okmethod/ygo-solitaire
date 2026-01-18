@@ -84,24 +84,24 @@ export const ValidationErrorMessages: Record<ValidationErrorCode, string> = {
 };
 
 /** 成功結果を返す */
-export function validationSuccess(): ValidationResult {
+export const validationSuccess = (): ValidationResult => {
   return { canExecute: true };
-}
+};
 
 /** 失敗結果を返す */
-export function validationFailure(
+export const validationFailure = (
   errorCode: ValidationErrorCode,
   errorParams?: Record<string, unknown>,
-): ValidationResult {
+): ValidationResult => {
   return { canExecute: false, errorCode, errorParams };
-}
+};
 
 /**
  * エラーメッセージ（文字列）を取得する
  *
  * TODO: 将来的にはテンプレート変数の置換処理を実装予定。
  */
-export function getValidationErrorMessage(result: ValidationResult): string {
+export const getValidationErrorMessage = (result: ValidationResult): string => {
   if (result.canExecute || !result.errorCode) {
     return "";
   }
@@ -115,4 +115,4 @@ export function getValidationErrorMessage(result: ValidationResult): string {
   }
 
   return template;
-}
+};
