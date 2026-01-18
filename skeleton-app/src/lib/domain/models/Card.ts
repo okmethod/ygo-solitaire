@@ -89,3 +89,13 @@ export function isFieldSpellCard(card: CardData): boolean {
 export function isTrapCard(card: CardData): boolean {
   return card.type === "trap";
 }
+
+/** カードが表側表示かどうかをチェックする */
+export function isFaceUp(card: CardInstance): boolean {
+  return card.position === "faceUp";
+}
+
+/** カードが裏側表示かどうかをチェックする */
+export function isFaceDown(card: CardInstance): boolean {
+  return card.position === "faceDown";
+}

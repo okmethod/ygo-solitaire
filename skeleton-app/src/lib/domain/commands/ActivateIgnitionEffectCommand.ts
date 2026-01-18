@@ -16,6 +16,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { isFaceUp } from "$lib/domain/models/Card";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
 import {
@@ -62,7 +63,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     if (!validLocations.includes(cardInstance.location)) {
       return validationFailure(ValidationErrorCode.CARD_NOT_ON_FIELD);
     }
-    if (cardInstance.position !== "faceUp") {
+    if (!isFaceUp(cardInstance)) {
       return validationFailure(ValidationErrorCode.CARD_NOT_FACE_UP);
     }
 

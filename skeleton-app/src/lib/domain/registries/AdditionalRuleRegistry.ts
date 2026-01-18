@@ -10,9 +10,10 @@
  * - フィールド全体から適用可能なルールを収集
  */
 
-import type { AdditionalRule, RuleCategory } from "../models/AdditionalRule";
-import type { RuleContext } from "../models/RuleContext";
-import type { GameState } from "../models/GameState";
+import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
+import type { RuleContext } from "$lib/domain/models/RuleContext";
+import type { GameState } from "$lib/domain/models/GameState";
+import { isFaceUp } from "$lib/domain/models/Card";
 
 /**
  * 追加ルールのレジストリ（クラス）
@@ -53,7 +54,7 @@ export class AdditionalRuleRegistry {
     const fieldCards = [...state.zones.spellTrapZone, ...state.zones.fieldZone];
     for (const card of fieldCards) {
       // 表側表示のカードのみチェック
-      if (card.position !== "faceUp") continue;
+      if (!isFaceUp(card)) continue;
 
       const cardRules = this.getByCategory(card.id, category);
       for (const rule of cardRules) {
