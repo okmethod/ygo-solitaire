@@ -83,13 +83,13 @@ export const ValidationErrorMessages: Record<ValidationErrorCode, string> = {
   PHASE_TRANSITION_NOT_ALLOWED: "フェイズ遷移が許可されていません",
 };
 
-/** 成功結果を返す */
-export const validationSuccess = (): ValidationResult => {
+/** 成功した ValidationResult */
+export const successValidationResult = (): ValidationResult => {
   return { canExecute: true };
 };
 
-/** 失敗結果を返す */
-export const validationFailure = (
+/** 失敗した ValidationResult */
+export const failureValidationResult = (
   errorCode: ValidationErrorCode,
   errorParams?: Record<string, unknown>,
 ): ValidationResult => {
@@ -101,7 +101,7 @@ export const validationFailure = (
  *
  * TODO: 将来的にはテンプレート変数の置換処理を実装予定。
  */
-export const getValidationErrorMessage = (result: ValidationResult): string => {
+export const validationErrorMessage = (result: ValidationResult): string => {
   if (result.canExecute || !result.errorCode) {
     return "";
   }

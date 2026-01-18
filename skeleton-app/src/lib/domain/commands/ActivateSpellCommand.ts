@@ -24,9 +24,9 @@ import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionR
 import { createSendToGraveyardStep } from "$lib/domain/effects/builders";
 import {
   ValidationErrorCode,
-  validationSuccess,
-  validationFailure,
-  getValidationErrorMessage,
+  successValidationResult,
+  failureValidationResult,
+  validationErrorMessage,
 } from "$lib/domain/models/ValidationResult";
 
 /** 魔法カード発動コマンドクラス */
@@ -51,44 +51,44 @@ export class ActivateSpellCommand implements GameCommand {
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return validationFailure(ValidationErrorCode.GAME_OVER);
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
     // 2. メインフェイズであること
     if (!isMainPhase(state.phase)) {
-      return validationFailure(ValidationErrorCode.NOT_MAIN_PHASE);
+      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
     const cardInstance = findCardInstance(state, this.cardInstanceId);
 
     // 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
     if (!cardInstance) {
-      return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
     if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
-      return validationFailure(ValidationErrorCode.CARD_NOT_IN_VALID_LOCATION);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_IN_VALID_LOCATION);
     }
     if (!isSpellCard(cardInstance)) {
-      return validationFailure(ValidationErrorCode.NOT_SPELL_CARD);
+      return failureValidationResult(ValidationErrorCode.NOT_SPELL_CARD);
     }
 
     // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (!isFieldSpellCard(cardInstance) && state.zones.spellTrapZone.length >= 5) {
-      return validationFailure(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
+      return failureValidationResult(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
     }
 
     // 5. 速攻魔法の場合、セットしたターンでは無いこと
     if (isQuickPlaySpellCard(cardInstance) && cardInstance.placedThisTurn) {
-      return validationFailure(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
+      return failureValidationResult(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
     }
 
     // 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
     const chainableAction = ChainableActionRegistry.get(cardInstance.id);
     if (chainableAction && !chainableAction.canActivate(state)) {
-      return validationFailure(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return validationSuccess();
+    return successValidationResult();
   }
 
   /**
@@ -105,7 +105,7 @@ export class ActivateSpellCommand implements GameCommand {
     // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
-      return failureUpdateResult(state, getValidationErrorMessage(validation));
+      return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;

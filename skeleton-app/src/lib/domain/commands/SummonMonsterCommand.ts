@@ -17,9 +17,9 @@ import { isMonsterCard } from "$lib/domain/models/Card";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import {
   ValidationErrorCode,
-  validationSuccess,
-  validationFailure,
-  getValidationErrorMessage,
+  successValidationResult,
+  failureValidationResult,
+  validationErrorMessage,
 } from "$lib/domain/models/ValidationResult";
 
 /** モンスター通常召喚コマンドクラス */
@@ -41,7 +41,7 @@ export class SummonMonsterCommand implements GameCommand {
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return validationFailure(ValidationErrorCode.GAME_OVER);
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
     // 2. 通常召喚ルールを満たしていること
@@ -53,16 +53,16 @@ export class SummonMonsterCommand implements GameCommand {
     // 3. 指定カードがモンスターカードであり、手札に存在すること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
-      return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
     if (!isMonsterCard(cardInstance)) {
-      return validationFailure(ValidationErrorCode.NOT_MONSTER_CARD);
+      return failureValidationResult(ValidationErrorCode.NOT_MONSTER_CARD);
     }
     if (cardInstance.location !== "hand") {
-      return validationFailure(ValidationErrorCode.CARD_NOT_IN_HAND);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_IN_HAND);
     }
 
-    return validationSuccess();
+    return successValidationResult();
   }
 
   /**
@@ -77,7 +77,7 @@ export class SummonMonsterCommand implements GameCommand {
     // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
-      return failureUpdateResult(state, getValidationErrorMessage(validation));
+      return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;

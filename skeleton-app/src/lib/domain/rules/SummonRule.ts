@@ -7,7 +7,11 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { BattlePosition } from "$lib/domain/models/Card";
-import { ValidationErrorCode, validationSuccess, validationFailure } from "$lib/domain/models/ValidationResult";
+import {
+  ValidationErrorCode,
+  successValidationResult,
+  failureValidationResult,
+} from "$lib/domain/models/ValidationResult";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { moveCard, isMainMonsterZoneFull } from "$lib/domain/models/Zone";
 
@@ -24,20 +28,20 @@ import { moveCard, isMainMonsterZoneFull } from "$lib/domain/models/Zone";
 export function canNormalSummon(state: GameState): ValidationResult {
   // 1. メインフェイズであること
   if (!isMainPhase(state.phase)) {
-    return validationFailure(ValidationErrorCode.NOT_MAIN_PHASE);
+    return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
   }
 
   // 2. モンスターゾーンに空きがあること
   if (isMainMonsterZoneFull(state.zones)) {
-    return validationFailure(ValidationErrorCode.MONSTER_ZONE_FULL);
+    return failureValidationResult(ValidationErrorCode.MONSTER_ZONE_FULL);
   }
 
   // 3. 召喚権が残っていること
   if (state.normalSummonUsed >= state.normalSummonLimit) {
-    return validationFailure(ValidationErrorCode.SUMMON_LIMIT_REACHED);
+    return failureValidationResult(ValidationErrorCode.SUMMON_LIMIT_REACHED);
   }
 
-  return validationSuccess();
+  return successValidationResult();
 }
 
 /** モンスターを通常召喚する */

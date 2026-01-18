@@ -19,9 +19,9 @@ import { moveCard, sendToGraveyard, isSpellTrapZoneFull, isFieldZoneFull } from 
 import { isMainPhase } from "$lib/domain/models/Phase";
 import {
   ValidationErrorCode,
-  validationSuccess,
-  validationFailure,
-  getValidationErrorMessage,
+  successValidationResult,
+  failureValidationResult,
+  validationErrorMessage,
 } from "$lib/domain/models/ValidationResult";
 
 /** 魔法・罠セットコマンドクラス */
@@ -44,32 +44,32 @@ export class SetSpellTrapCommand implements GameCommand {
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return validationFailure(ValidationErrorCode.GAME_OVER);
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
     // 2. メインフェイズであること
     if (!isMainPhase(state.phase)) {
-      return validationFailure(ValidationErrorCode.NOT_MAIN_PHASE);
+      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
     // 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
     const cardInstance = findCardInstance(state, this.cardInstanceId);
     if (!cardInstance) {
-      return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
     if (cardInstance.location !== "hand") {
-      return validationFailure(ValidationErrorCode.CARD_NOT_IN_HAND);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_IN_HAND);
     }
     if (!isSpellCard(cardInstance) && !isTrapCard(cardInstance)) {
-      return validationFailure(ValidationErrorCode.NOT_SPELL_OR_TRAP_CARD);
+      return failureValidationResult(ValidationErrorCode.NOT_SPELL_OR_TRAP_CARD);
     }
 
     // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (!isFieldSpellCard(cardInstance) && isSpellTrapZoneFull(state.zones)) {
-      return validationFailure(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
+      return failureValidationResult(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
     }
 
-    return validationSuccess();
+    return successValidationResult();
   }
 
   /**
@@ -84,7 +84,7 @@ export class SetSpellTrapCommand implements GameCommand {
     // 1. 実行可能性判定
     const validation = this.canExecute(state);
     if (!validation.canExecute) {
-      return failureUpdateResult(state, getValidationErrorMessage(validation));
+      return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;
