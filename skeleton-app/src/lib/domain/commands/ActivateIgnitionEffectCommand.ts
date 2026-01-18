@@ -15,7 +15,7 @@ import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
@@ -106,12 +106,11 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
-    return {
-      success: true,
+    return successUpdateResult(
       updatedState,
-      message: `Ignition effect activated: ${this.cardInstanceId}`,
-      effectSteps: this.buildEffectSteps(updatedState, cardInstance),
-    };
+      `Ignition effect activated: ${this.cardInstanceId}`,
+      this.buildEffectSteps(updatedState, cardInstance),
+    );
   }
 
   // 効果処理ステップ配列を生成する

@@ -31,12 +31,17 @@ export interface GameStateUpdateResult {
   readonly effectSteps?: AtomicStep[];
 }
 
-/** 成功した GameStateUpdateResult を作成する */
-export const createSuccessResult = (updatedState: GameState, message?: string): GameStateUpdateResult => {
+/** 成功した GameStateUpdateResult */
+export const successUpdateResult = (
+  updatedState: GameState,
+  message?: string,
+  effectSteps?: AtomicStep[],
+): GameStateUpdateResult => {
   return {
     success: true,
     updatedState,
     message,
+    effectSteps,
   };
 };
 

@@ -12,7 +12,7 @@ import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isMonsterCard } from "$lib/domain/models/Card";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import {
@@ -86,11 +86,7 @@ export class SetMonsterCommand implements GameCommand {
     const updatedState: GameState = executeNormalSummon(state, this.cardInstanceId, "defense");
 
     // 3. 戻り値の構築
-    return {
-      success: true,
-      updatedState,
-      message: `Monster set: ${cardInstance.jaName}`,
-    };
+    return successUpdateResult(updatedState, `Monster set: ${cardInstance.jaName}`);
   }
 
   /** セット対象のカードインスタンスIDを取得する */

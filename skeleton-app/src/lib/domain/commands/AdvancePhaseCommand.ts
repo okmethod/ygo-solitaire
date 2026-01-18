@@ -11,7 +11,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
 import {
   ValidationErrorCode,
@@ -86,13 +86,12 @@ export class AdvancePhaseCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
-    return {
-      success: true,
-      updatedState: updatedState,
-      message: `Advanced to ${getPhaseDisplayName(nextPhase)}`,
+    return successUpdateResult(
+      updatedState,
+      `Advanced to ${getPhaseDisplayName(nextPhase)}`,
       // 効果がある場合のみ、解決ステップを配列として付与する
-      ...(hasPendingEffects && { effectSteps: [...state.pendingEndPhaseEffects] }),
-    };
+      hasPendingEffects ? [...state.pendingEndPhaseEffects] : undefined,
+    );
   }
 
   /** 次のフェイズ名を取得する */

@@ -13,7 +13,7 @@ import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isSpellCard, isTrapCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, sendToGraveyard, isSpellTrapZoneFull, isFieldZoneFull } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/models/Phase";
@@ -96,11 +96,7 @@ export class SetSpellTrapCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
-    return {
-      success: true,
-      updatedState,
-      message: `Card set: ${cardInstance.jaName}`,
-    };
+    return successUpdateResult(updatedState, `Card set: ${cardInstance.jaName}`);
   }
 
   // セットする魔法・罠カードを適切なゾーンに裏向きで配置する

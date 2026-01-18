@@ -16,7 +16,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
-import { failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isSpellCard, isNormalSpellCard, isQuickPlaySpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/models/Phase";
@@ -117,12 +117,11 @@ export class ActivateSpellCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
-    return {
-      success: true,
+    return successUpdateResult(
       updatedState,
-      message: `Spell card activated: ${this.cardInstanceId}`,
-      effectSteps: this.buildEffectSteps(updatedState, cardInstance),
-    };
+      `Spell card activated: ${this.cardInstanceId}`,
+      this.buildEffectSteps(updatedState, cardInstance),
+    );
   }
 
   /**
