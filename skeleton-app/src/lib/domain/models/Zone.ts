@@ -1,16 +1,17 @@
 /**
  * Zone - 領域モデル
  *
- * ゲーム中にカードを配置する領域を表現するモデル。
+ * ゲーム中にカードが配置される領域を表現するモデル。
  * 領域間でのカード移動や状態管理のためのユーティリティ関数も提供する。
  *
  * @module domain/models/Zone
+ * @see {@link docs/domain/overview.md}
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
-/** カードを配置する領域モデル */
+/** カードが配置される全ての領域 */
 export interface Zones {
   readonly deck: readonly CardInstance[];
   // TODO: メインデッキとエクストラデッキを分離する
@@ -24,7 +25,7 @@ export interface Zones {
   readonly banished: readonly CardInstance[];
 }
 
-/** ゾーン名の型エイリアス */
+/** ゾーン名 */
 export type ZoneName = keyof Zones;
 
 /** カードの移動および表示形式を変更を行う（汎用）*/

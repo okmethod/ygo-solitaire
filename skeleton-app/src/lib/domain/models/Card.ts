@@ -1,44 +1,39 @@
 /**
- * Card - Type definitions for card data and instances
- *
- * Defines:
- * - CardData: Minimal card data for game logic
- * - CardInstance: Runtime representation with unique instanceId
+ * Card - カードモデル
  *
  * @module domain/models/Card
+ * @see {@link docs/domain/card-model.md}
  */
 
-/**
- * Card type for Domain Layer
- */
+import type { ZoneName } from "$lib/domain/models/Zone";
+
+/** カードタイプ */
 export type CardType = "monster" | "spell" | "trap";
 
-/**
- * Sub type for Domain Layer
- */
+/** メインデッキ向けモンスターサブタイプ */
 export type MainMonsterSubType = "normal" | "effect" | "ritual" | "pendulum";
+/** エクストラデッキ向けモンスターサブタイプ */
 export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "link";
+/** カードフレームタイプ */
 export type FrameSubType = MainMonsterSubType | ExtraMonsterSubType | "spell" | "trap";
+/** 魔法カードサブタイプ */
 export type SpellSubType = "normal" | "quick-play" | "continuous" | "field" | "equip" | "ritual";
+/** 罠カードサブタイプ */
 export type TrapSubType = "normal" | "continuous" | "counter";
 
 /**
- * Domain Layer用の最小限カードデータ
+ * 1種類のカードデータ（定義情報）
  *
- * ゲームロジック実装に必要な最小限のプロパティのみを保持。
- * カード名は通知メッセージ用に保持（例: 「《チキンレース》を手札に加えます」）。
- * その他の表示用データ（description, imagesなど）は含まない。
- *
- * 用途: GameState, Rule実装などのDomain Layer内部処理
- * 利点: YGOPRODeck APIに依存せず、ユニットテストがネットワーク不要
+ * ゲームロジック実装に必要なプロパティのみを保持。
+ * 画像等の表示用データは含まない。
  */
 export interface CardData {
   readonly id: number; // カードを一意に識別するID（YGOPRODeck API ID）
-  readonly jaName: string; // カード名（日本語、通知用）※YGOProDeck APIの name とは異なる
-  readonly type: CardType; // カードタイプ
-  readonly frameType: FrameSubType; // カードフレームタイプ
-  readonly spellType?: SpellSubType; // 魔法カード種別（spellの場合のみ）
-  readonly trapType?: TrapSubType; // 罠カード種別（trapの場合のみ）
+  readonly jaName: string; // 日本語カード名（YGOProDeck APIの name は英語名）
+  readonly type: CardType;
+  readonly frameType: FrameSubType;
+  readonly spellType?: SpellSubType;
+  readonly trapType?: TrapSubType;
   // 将来拡張用:
   // readonly attack?: number;
   // readonly defense?: number;
@@ -46,35 +41,18 @@ export interface CardData {
 }
 
 /**
- * Card instance in game (runtime)
+ * 1枚のカードインスタンス
  *
- * Extends CardData to include all card properties plus runtime instance information.
- * Each physical card in the deck has a unique instanceId.
- * Multiple copies of the same card have different instanceIds but same id (CardData.id).
- *
- * Design Decision: CardInstance extends CardData to avoid data duplication
- * and ensure CardInstance always has access to all card properties without
- * requiring lookups to CardDataRegistry.
+ * カードデータを継承し、全プロパティに加えて1枚ごとのカードを区別するためのユニークIDを持つ。
+ * 同じカードを複数枚デッキに入れた場合、 id は同一で、instanceId は異なる。
  */
 export interface CardInstance extends CardData {
-  readonly instanceId: string; // Unique instance ID (e.g., "deck-0", "hand-1")
-  readonly location: ZoneLocation; // Current location
+  readonly instanceId: string; // Unique instance ID
+  readonly location: ZoneName;
   readonly position?: "faceUp" | "faceDown"; // For field cards
   readonly battlePosition?: "attack" | "defense"; // For monster cards (召喚時attack、セット時defense)
   readonly placedThisTurn: boolean; // このターンに配置されたか（初期値false）
 }
-
-/**
- * Zone location type
- */
-export type ZoneLocation =
-  | "deck"
-  | "hand"
-  | "mainMonsterZone"
-  | "spellTrapZone"
-  | "fieldZone"
-  | "graveyard"
-  | "banished";
 
 /**
  * CardData型ガード: monster type

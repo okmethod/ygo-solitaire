@@ -1,13 +1,14 @@
 /**
- * ValidationResult - バリデーション結果とエラー管理
+ * ValidationResult - ゲーム状態更新の実行可能性チェック結果モデル
  *
  * GameCommand.canExecute() の戻り値型とエラーコード定数を定義。
  * エラーメッセージの一元管理と、将来的な多言語対応の基盤を提供。
  *
  * @module domain/models/ValidationResult
+ * @see {@link docs/domain/game-command-model.md}
  */
 
-/** バリデーションエラーコード定数 */
+/** ゲーム状態更新エラーコード定数 */
 export const ValidationErrorCode = {
   // 共通エラー
   GAME_OVER: "GAME_OVER",
@@ -41,7 +42,7 @@ export const ValidationErrorCode = {
 
 export type ValidationErrorCode = (typeof ValidationErrorCode)[keyof typeof ValidationErrorCode];
 
-/** バリデーション結果インターフェース */
+/** 実行可能性チェック結果 */
 export interface ValidationResult {
   readonly canExecute: boolean;
   readonly errorCode?: ValidationErrorCode;

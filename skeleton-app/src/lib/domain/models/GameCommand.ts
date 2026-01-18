@@ -1,7 +1,8 @@
 /**
- * GameCommand - ゲーム操作の基底インターフェース
+ * GameCommand - ゲーム操作コマンドモデル
  *
  * @module domain/models/GameCommand
+ * @see {@link docs/domain/game-command-model.md}
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -9,7 +10,7 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 
 /**
- * GameCommand - Command Patternの基底インターフェース
+ * ゲーム操作コマンド
  *
  * プレイヤーによるゲーム操作をオブジェクトとしてカプセル化。
  * - ゲーム操作履歴/リプレイ（将来対応）

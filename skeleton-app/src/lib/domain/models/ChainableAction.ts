@@ -1,19 +1,18 @@
 /**
  * ChainableAction - チェーンブロックを作る処理のモデル
  *
- * カードの発動と効果の発動を統一的に扱う。
- * 公式ルールのCONDITIONS/ACTIVATION/RESOLUTIONに対応。
- *
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * @module domain/models/ChainableAction
+ * @see {@link docs/domain/effect-model.md}
  */
 
 import type { GameState } from "./GameState";
 import type { AtomicStep } from "./AtomicStep";
 
 /**
- * ChainableAction Interface
+ * チェーンブロックを作る処理
  *
- * チェーンブロックを作る処理（カードの発動、効果の発動）を表現する。
+ * カードの発動、効果の発動を表現する。
+ * 公式ルールの CONDITIONS/ACTIVATION/RESOLUTION に対応。
  */
 export interface ChainableAction {
   /**

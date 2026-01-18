@@ -1,28 +1,20 @@
 /**
- * Phase - Game phase type definitions
- *
- * Defines the game phases for Yu-Gi-Oh! turn structure.
- * MVP scope: Draw, Standby, Main1, End only
- * (Battle Phase and Main2 are excluded for first-turn-kill decks)
+ * Phase - フェイズモデル
  *
  * @module domain/models/Phase
+ * @see {@link docs/domain/overview.md}
  */
 
-/**
- * Game phase type
- * MVP scope: Draw, Standby, Main1, End only
- * (Battle Phase and Main2 are excluded for Exodia Draw Deck)
+/** フェイズ
+ *
+ * 先行1ターン目のフェイズ進行のみをスコープとする。
  */
 export type GamePhase = "Draw" | "Standby" | "Main1" | "End";
 
-/**
- * All game phases in order
- */
+/** 全フェイズの順序付き配列 */
 const GAME_PHASES: readonly GamePhase[] = ["Draw", "Standby", "Main1", "End"] as const;
 
-/**
- * Phase display names (Japanese)
- */
+/** 各フェイズの日本語名 */
 export const PHASE_NAMES: Record<GamePhase, string> = {
   Draw: "ドローフェイズ",
   Standby: "スタンバイフェイズ",
@@ -30,12 +22,7 @@ export const PHASE_NAMES: Record<GamePhase, string> = {
   End: "エンドフェイズ",
 } as const;
 
-/**
- * Helper to get next phase
- *
- * @param currentPhase - Current game phase
- * @returns Next phase in sequence, or "End" if at end of turn
- */
+/** 次のフェイズを取得する */
 export function getNextPhase(currentPhase: GamePhase): GamePhase {
   const currentIndex = GAME_PHASES.indexOf(currentPhase);
   if (currentIndex === -1 || currentIndex === GAME_PHASES.length - 1) {

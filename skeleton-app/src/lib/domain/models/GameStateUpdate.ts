@@ -1,16 +1,17 @@
 /**
- * GameStateUpdate - GameState更新モデルの型とインターフェース
+ * GameStateUpdate - ゲーム状態更新モデル
  *
  * @module domain/models/GameStateUpdate
+ * @see {@link docs/domain/overview.md}
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
 /**
- * GameState更新結果の共通インターフェース
+ * ゲーム状態更新結果の共通インターフェース
  *
- * すべてのゲーム状態更新操作（Command、Effect、Rule等）が返す統一結果型。
+ * すべてのゲーム状態更新操作（Command、Effect、Rule等）が、このインターフェースを返す。
  */
 export interface GameStateUpdateResult {
   readonly success: boolean;
@@ -30,7 +31,7 @@ export interface GameStateUpdateResult {
   readonly effectSteps?: AtomicStep[];
 }
 
-/** 成功した GameStateUpdateResult を作成するヘルパー */
+/** 成功した GameStateUpdateResult を作成する */
 export function createSuccessResult(updatedState: GameState, message?: string): GameStateUpdateResult {
   return {
     success: true,
@@ -39,7 +40,7 @@ export function createSuccessResult(updatedState: GameState, message?: string): 
   };
 }
 
-/** 失敗した GameStateUpdateResult を作成するヘルパー */
+/** 失敗した GameStateUpdateResult を作成する */
 export function createFailureResult(state: GameState, error: string): GameStateUpdateResult {
   return {
     success: false,

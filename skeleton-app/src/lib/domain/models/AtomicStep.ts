@@ -1,7 +1,8 @@
 /**
- * AtomicStep - 効果処理の単一ステップの型とインターフェース
+ * AtomicStep - 効果処理の単一ステップのモデル
  *
- * @module domain/effects/AtomicStep
+ * @module domain/models/AtomicStep
+ * @see {@link docs/domain/effect-processing-model.md}
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,10 +21,10 @@ import type { ZoneName } from "$lib/domain/models/Zone";
 export type NotificationLevel = "silent" | "info" | "interactive";
 
 /**
- * カード選択設定（Domain層）
+ * カード選択設定
  *
  * ユーザーにカード選択を要求するための設定。
- * Svelteのstoreに依存しないドメイン層のインターフェース。
+ * ドメイン層向けで、Svelte の store に依存しない。
  */
 export interface CardSelectionConfig {
   availableCards: readonly CardInstance[]; // 選択可能なカードインスタンス一覧
@@ -37,7 +38,7 @@ export interface CardSelectionConfig {
 }
 
 /**
- * 効果処理の単一ステップインターフェース
+ * 効果処理の単一ステップ
  *
  * 各ステップは一意のID、タイトル、メッセージ、およびアクションコールバックを持つ。
  *

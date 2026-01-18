@@ -1,10 +1,8 @@
 /**
- * GameState - Immutable game state representation
- *
- * This is the central state object for the Yu-Gi-Oh! solitaire game.
- * All game operations return a new GameState instance (immutability via Immer.js).
+ * GameState - ゲーム状態モデル
  *
  * @module domain/models/GameState
+ * @see {@link docs/domain/overview.md}
  */
 
 import type { Zones } from "$lib/domain/models/Zone";
@@ -13,31 +11,22 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { getCardData } from "$lib/domain/registries/CardDataRegistry";
 import { shuffleDeck, drawCards } from "$lib/domain/models/Zone";
 
-/**
- * Initial life points for both players
- */
+/** 初期ライフポイント */
 export const INITIAL_LP = 8000 as const;
 
-/**
- * Life Points for both players
- */
+/** 両プレイヤーのライフポイント */
 export interface LifePoints {
   readonly player: number;
   readonly opponent: number;
 }
 
-/**
- * Chain block in the chain stack
- * Represents a spell/trap activation waiting to resolve
- */
+/** チェーンブロック TODO: 詳細設計 */
 export interface ChainBlock {
   readonly cardInstanceId: string;
   readonly effectDescription: string;
 }
 
-/**
- * Game result state
- */
+/** ゲーム結果（勝敗判定） */
 export interface GameResult {
   readonly isGameOver: boolean;
   readonly winner?: "player" | "opponent" | "draw";
@@ -46,8 +35,9 @@ export interface GameResult {
 }
 
 /**
- * Main game state interface
- * All fields are readonly to enforce immutability at type level
+ * イミュータブルなゲーム状態
+ *
+ * すべてのゲーム操作は、新しい GameState インスタンスを返す。
  */
 export interface GameState {
   readonly zones: Zones;
@@ -57,17 +47,13 @@ export interface GameState {
   readonly chainStack: readonly ChainBlock[];
   readonly result: GameResult;
 
-  /**
-   * 通常召喚可能回数（デフォルト1、カード効果で増減可）
-   * 例: Double Summon発動時は2になる
-   */
+  /** 通常召喚権の数（デフォルト1、カード効果で増減可） */
   readonly normalSummonLimit: number;
 
-  /**
-   * 通常召喚使用回数（初期値0、召喚・セット毎に+1）
-   * 召喚権の残り確認: normalSummonUsed < normalSummonLimit
-   */
+  /** 通常召喚回数（初期値0、召喚・セット毎に+1） */
   readonly normalSummonUsed: number;
+
+  // TODO: 効果関連をまとめて管理するオブジェクトが必要か検討する
 
   /**
    * カード名を指定した「1 ターンに 1 度」制限の発動管理
@@ -168,13 +154,7 @@ export function createInitialGameState(
   };
 }
 
-/**
- * Helper to get card instance by ID
- *
- * @param state - Current game state
- * @param instanceId - Card instance ID to find
- * @returns Card instance or undefined if not found
- */
+/** インスタンスIDからカードインスタンスを検索する */
 export function findCardInstance(state: GameState, instanceId: string) {
   const allZones = [
     ...state.zones.deck,
