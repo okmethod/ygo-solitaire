@@ -150,6 +150,21 @@ export function isHandFull(zones: Zones, maxHandSize: number = 6): boolean {
   return zones.hand.length >= maxHandSize;
 }
 
+/** メインモンスターゾーンが最大枚数に達しているかどうかをチェックする */
+export function isMainMonsterZoneFull(zones: Zones, maxMainMonsterZoneSize: number = 5): boolean {
+  return zones.mainMonsterZone.length >= maxMainMonsterZoneSize;
+}
+
+/** 魔法・罠ゾーンが最大枚数に達しているかどうかをチェックする */
+export function isSpellTrapZoneFull(zones: Zones, maxSpellTrapZoneSize: number = 5): boolean {
+  return zones.spellTrapZone.length >= maxSpellTrapZoneSize;
+}
+
+/** フィールドゾーンが最大枚数に達しているかどうかをチェックする */
+export function isFieldZoneFull(zones: Zones, maxFieldZoneSize: number = 1): boolean {
+  return zones.fieldZone.length >= maxFieldZoneSize;
+}
+
 /** デッキをシャッフルする */
 export function shuffleDeck(zones: Zones): Zones {
   return {

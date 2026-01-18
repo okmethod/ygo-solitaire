@@ -8,6 +8,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { ValidationErrorCode, validationSuccess, validationFailure } from "$lib/domain/models/ValidationResult";
 import { isMainPhase } from "$lib/domain/models/Phase";
+import { isMainMonsterZoneFull } from "$lib/domain/models/Zone";
 
 /**
  * 通常召喚が可能かをチェックする
@@ -26,7 +27,7 @@ export function canNormalSummon(state: GameState): ValidationResult {
   }
 
   // 2. モンスターゾーンに空きがあること
-  if (state.zones.mainMonsterZone.length >= 5) {
+  if (isMainMonsterZoneFull(state.zones)) {
     return validationFailure(ValidationErrorCode.MONSTER_ZONE_FULL);
   }
 
