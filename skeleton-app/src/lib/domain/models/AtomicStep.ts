@@ -29,16 +29,16 @@ export interface CardSelectionConfig {
   availableCards: readonly CardInstance[]; // 選択可能なカードインスタンス一覧
   minCards: number;
   maxCards: number;
-  summary: string;  // 選択UIに表示される要約
+  summary: string; // 選択UIに表示される要約
   description: string; // 選択UIに表示される詳細説明
-  cancelable?: boolean; // キャンセル可能かどうか（デフォルト: true）
+  cancelable?: boolean; // キャンセル可能かどうか（デフォルト: false）
   _sourceZone?: ZoneName;
   _filter?: (card: CardInstance, index?: number) => boolean;
 }
 
 /**
  * 効果処理の単一ステップインターフェース
- * 
+ *
  * 各ステップは一意のID、タイトル、メッセージ、およびアクションコールバックを持つ。
  *
  * アクションコールバックは依存性注入パターンを使用する：
@@ -48,24 +48,22 @@ export interface CardSelectionConfig {
  * もし cardSelectionConfig が提供されている場合、アプリケーション層は以下を行う：
  * 1. CardSelectionModal を開き、設定を渡す
  * 2. ユーザーがカードを選択するのを待つ
- * 3. 選択されたインスタンスIDをアクションコールバックに渡す 
+ * 3. 選択されたインスタンスIDをアクションコールバックに渡す
  */
 export interface AtomicStep {
   id: string;
-  summary: string;  // UIに表示される要約
-  description: string;  // UIに表示される詳細説明
-  notificationLevel?: NotificationLevel;  // Default: "info"
+  summary: string; // UIに表示される要約
+  description: string; // UIに表示される詳細説明
+  notificationLevel?: NotificationLevel; // Default: "info"
   cardSelectionConfig?: CardSelectionConfig;
 
   /**
    * 効果処理ステップの処理内容定義（アクションコールバック）
-   * 
+   *
    * Callback Pattern + Dependency Injection:
    * - GameStateはアプリケーション層が実行時に注入
    * - 更新後の状態を含む GameStateUpdateResult を返す
    * - 型安全のため同期関数（非async）のみ
    */
   action: (state: GameState, selectedInstanceIds?: string[]) => GameStateUpdateResult;
-
-  showCancel?: boolean;  // Default: false
 }

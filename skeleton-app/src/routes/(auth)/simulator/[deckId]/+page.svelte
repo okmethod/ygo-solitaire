@@ -327,8 +327,6 @@
   summary={$effectQueueState.currentStep?.summary || ""}
   description={$effectQueueState.currentStep?.description || ""}
   onConfirm={effectQueueStore.confirmCurrentStep}
-  onCancel={$effectQueueState.currentStep?.showCancel ? effectQueueStore.cancelProcessing : undefined}
-  showCancel={$effectQueueState.currentStep?.showCancel || false}
 />
 
 <!-- カード選択モーダル -->

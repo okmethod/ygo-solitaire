@@ -6,37 +6,22 @@
     summary: string;
     description: string;
     onConfirm: () => void;
-    onCancel?: () => void;
-    showCancel?: boolean;
   }
 
-  let { isOpen, summary, description, onConfirm, onCancel, showCancel = false }: EffectResolutionModalProps = $props();
+  let { isOpen, summary, description, onConfirm }: EffectResolutionModalProps = $props();
 
   function handleConfirm() {
     onConfirm();
-  }
-
-  function handleCancel() {
-    if (onCancel) {
-      onCancel();
-    }
-  }
-
-  function onOpenChange(event: { open: boolean }) {
-    if (!event.open && showCancel && onCancel) {
-      handleCancel();
-    }
   }
 </script>
 
 <Modal
   open={isOpen}
-  {onOpenChange}
   contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-md shadow-2xl border-2 border-surface-300 dark:border-surface-700"
   backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}
-  closeOnEscape={showCancel}
+  closeOnEscape={false}
   preventScroll={true}
 >
   {#snippet content()}
@@ -48,10 +33,7 @@
       <p class="text-lg">{description}</p>
     </article>
 
-    <footer class="flex justify-end gap-2">
-      {#if showCancel}
-        <button class="btn variant-ghost" onclick={handleCancel}> キャンセル </button>
-      {/if}
+    <footer class="flex justify-center">
       <button class="btn variant-filled-primary" onclick={handleConfirm}> OK </button>
     </footer>
   {/snippet}

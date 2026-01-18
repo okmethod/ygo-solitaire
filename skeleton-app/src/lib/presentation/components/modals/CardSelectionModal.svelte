@@ -10,7 +10,7 @@
   const config = $derived(cardSelectionStore.config);
   const selectedCount = $derived(cardSelectionStore.selectedCount);
   const isValidSelection = $derived(cardSelectionStore.isValidSelection);
-  const cancelable = $derived(config?.cancelable ?? true); // Default: true (backward compatible)
+  const cancelable = $derived(config?.cancelable ?? false); // Default: false
 
   // availableCardsのCardDisplayDataをフェッチ
   let availableCardDisplays = $state<CardDisplayData[]>([]);
