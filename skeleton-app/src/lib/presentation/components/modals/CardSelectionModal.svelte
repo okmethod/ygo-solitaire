@@ -19,7 +19,7 @@
     if (config?.availableCards && config.availableCards.length > 0) {
       const cardIds = config.availableCards.map((c) => c.id);
       cardRepository
-        .getCardsByIds(cardIds)
+        .getCardsByIds(window.fetch, cardIds)
         .then((cards) => {
           availableCardDisplays = cards;
         })
