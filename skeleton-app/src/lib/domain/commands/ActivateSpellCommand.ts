@@ -17,6 +17,7 @@ import type { Zones } from "$lib/domain/models/Zone";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { isSpellCard, isNormalSpellCard, isQuickPlaySpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
@@ -67,17 +68,17 @@ export class ActivateSpellCommand implements GameCommand {
     if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
       return validationFailure(ValidationErrorCode.CARD_NOT_IN_VALID_LOCATION);
     }
-    if (cardInstance.type !== "spell") {
+    if (!isSpellCard(cardInstance)) {
       return validationFailure(ValidationErrorCode.NOT_SPELL_CARD);
     }
 
     // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
-    if (cardInstance.spellType !== "field" && state.zones.spellTrapZone.length >= 5) {
+    if (!isFieldSpellCard(cardInstance) && state.zones.spellTrapZone.length >= 5) {
       return validationFailure(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
     }
 
     // 5. 速攻魔法の場合、セットしたターンでは無いこと
-    if (cardInstance.spellType === "quick-play" && cardInstance.placedThisTurn) {
+    if (isQuickPlaySpellCard(cardInstance) && cardInstance.placedThisTurn) {
       return validationFailure(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
     }
 
@@ -140,7 +141,7 @@ export class ActivateSpellCommand implements GameCommand {
 
     // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
     if (cardInstance!.location === "hand") {
-      const targetZone = cardInstance!.spellType === "field" ? "fieldZone" : "spellTrapZone";
+      const targetZone = isFieldSpellCard(cardInstance) ? "fieldZone" : "spellTrapZone";
       return moveCard(zones, this.cardInstanceId, "hand", targetZone, activatedCardState);
     }
 
@@ -159,7 +160,7 @@ export class ActivateSpellCommand implements GameCommand {
       : [];
 
     // 通常魔法・速攻魔法は末尾に墓地送りステップを追加して返す
-    if (cardInstance.spellType === "normal" || cardInstance.spellType === "quick-play") {
+    if (isNormalSpellCard(cardInstance) || isQuickPlaySpellCard(cardInstance)) {
       return [...registeredEffectSteps, createSendToGraveyardStep(this.cardInstanceId, cardInstance.id)];
     }
     return registeredEffectSteps;

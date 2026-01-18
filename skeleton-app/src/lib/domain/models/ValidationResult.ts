@@ -21,6 +21,7 @@ export const ValidationErrorCode = {
   CARD_NOT_ON_FIELD: "CARD_NOT_ON_FIELD",
   CARD_NOT_FACE_UP: "CARD_NOT_FACE_UP",
   NOT_SPELL_CARD: "NOT_SPELL_CARD",
+  NOT_SPELL_OR_TRAP_CARD: "NOT_SPELL_OR_TRAP_CARD",
   NOT_MONSTER_CARD: "NOT_MONSTER_CARD",
 
   // ゾーン関連
@@ -62,6 +63,7 @@ export const ValidationErrorMessages: Record<ValidationErrorCode, string> = {
   CARD_NOT_ON_FIELD: "カードがフィールドにありません",
   CARD_NOT_FACE_UP: "カードが表側表示ではありません",
   NOT_SPELL_CARD: "魔法カードではありません",
+  NOT_SPELL_OR_TRAP_CARD: "魔法または罠カードではありません",
   NOT_MONSTER_CARD: "モンスターカードではありません",
 
   // ゾーン関連

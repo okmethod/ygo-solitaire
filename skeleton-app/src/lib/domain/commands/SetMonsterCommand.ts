@@ -15,6 +15,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { createFailureResult } from "$lib/domain/models/GameStateUpdate";
+import { isMonsterCard } from "$lib/domain/models/Card";
 import { moveCard } from "$lib/domain/models/Zone";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import {
@@ -57,7 +58,7 @@ export class SetMonsterCommand implements GameCommand {
     if (!cardInstance) {
       return validationFailure(ValidationErrorCode.CARD_NOT_FOUND);
     }
-    if (cardInstance.type !== "monster") {
+    if (!isMonsterCard(cardInstance)) {
       return validationFailure(ValidationErrorCode.NOT_MONSTER_CARD);
     }
     if (cardInstance.location !== "hand") {

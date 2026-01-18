@@ -54,63 +54,32 @@ export interface CardInstance extends CardData {
   readonly placedThisTurn: boolean; // このターンに配置されたか（初期値false）
 }
 
-/**
- * CardData型ガード: monster type
- *
- * @param card - CardData オブジェクト
- * @returns カードタイプがmonsterの場合true
- */
+/** CardData型ガード: モンスターカード */
 export function isMonsterCard(card: CardData): boolean {
   return card.type === "monster";
 }
 
-/**
- * CardData型ガード: spell type
- *
- * @param card - CardData オブジェクト
- * @returns カードタイプがspellの場合true
- */
+/** CardData型ガード: 魔法カード */
 export function isSpellCard(card: CardData): boolean {
   return card.type === "spell";
 }
 
-/**
- * CardData型ガード: trap type
- *
- * @param card - CardData オブジェクト
- * @returns カードタイプがtrapの場合true
- */
-export function isTrapCard(card: CardData): boolean {
-  return card.type === "trap";
+/** CardData型ガード: 通常魔法カード */
+export function isNormalSpellCard(card: CardData): boolean {
+  return card.type === "spell" && card.spellType === "normal";
 }
 
-/**
- * CardData検証関数
- *
- * オブジェクトがCardDataの必須プロパティを持つかを検証。
- *
- * @param obj - 検証対象のオブジェクト
- * @returns CardDataの型を満たす場合はtrue
- */
-export function isCardData(obj: unknown): obj is CardData {
-  if (typeof obj !== "object" || obj === null) {
-    return false;
-  }
+/** CardData型ガード: 速攻魔法カード */
+export function isQuickPlaySpellCard(card: CardData): boolean {
+  return card.type === "spell" && card.spellType === "quick-play";
+}
 
-  const data = obj as Record<string, unknown>;
+/** CardData型ガード: フィールド魔法カード */
+export function isFieldSpellCard(card: CardData): boolean {
+  return card.type === "spell" && card.spellType === "field";
+}
 
-  // 必須プロパティの検証
-  if (typeof data.id !== "number") return false;
-  if (typeof data.type !== "string") return false;
-
-  // typeが有効な値かを検証
-  const validTypes: CardType[] = ["monster", "spell", "trap"];
-  if (!validTypes.includes(data.type as CardType)) return false;
-
-  // frameTypeはオプショナルだが、存在する場合はstringであること
-  if (data.frameType !== undefined && typeof data.frameType !== "string") {
-    return false;
-  }
-
-  return true;
+/** CardData型ガード: 罠カード */
+export function isTrapCard(card: CardData): boolean {
+  return card.type === "trap";
 }
