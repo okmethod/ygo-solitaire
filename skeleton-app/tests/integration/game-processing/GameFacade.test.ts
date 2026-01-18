@@ -51,8 +51,8 @@ function advanceToMain1Phase(facade: GameFacade): void {
 
 // テスト用デッキパターン
 const SIX_ANY_CARDS = [1001, 1002, 1003, 12345678, 87654321, 1001] as const;
-const FIVE_DUMMY_SPELLS = [1001, 1002, 1003, 1001, 1002] as const;
 const FIVE_DUMMY_MONSTERS = [12345678, 87654321, 12345678, 87654321, 12345678] as const;
+const FIVE_DUMMY_SPELLS = [1001, 1002, 1003, 1001, 1002] as const;
 const FIVE_NORMAL_SPELLS = [70368879, 70368879, 70368879, 70368879, 70368879] as const; // Upstart Goblin
 const FIVE_FIELD_SPELLS = [67616300, 67616300, 67616300, 67616300, 67616300] as const; // Chicken Game
 
@@ -80,6 +80,17 @@ describe("GameFacade", () => {
 
       facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS, SIX_ANY_CARDS[0]])); // もう1枚追加した別のデッキ
       expect(get(gameStateStore).zones.deck.length).toBe(2);
+    });
+  });
+
+  describe("getGameState", () => {
+    it("should return current state snapshot", () => {
+      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+
+      const state = facade.getGameState();
+      expect(state.zones.deck.length).toBe(1);
+      expect(state.phase).toBe("Draw");
+      expect(state.turn).toBe(1);
     });
   });
 
@@ -112,89 +123,40 @@ describe("GameFacade", () => {
     });
   });
 
-  describe("getGameState", () => {
-    it("should return current state snapshot", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
-
-      const state = facade.getGameState();
-      expect(state.zones.deck.length).toBe(1);
-      expect(state.phase).toBe("Draw");
-      expect(state.turn).toBe(1);
-    });
-  });
-
-  describe("activateSpell", () => {
-    it("should successfully activate spell card from hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
-      facade.advancePhase(); // Draw → Standby
-      facade.advancePhase(); // Standby → Main1
-
-      const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
-      const initialHandSize = state.zones.hand.length;
-
-      const result = facade.activateSpell(cardInstanceId);
-      expect(result.success).toBe(true);
-      expect(result.message).toContain("Spell card activated");
-
-      const updatedState = get(gameStateStore);
-      expect(updatedState.zones.hand.length).toBe(initialHandSize - 1);
-      expect(updatedState.zones.graveyard.length).toBe(1);
-    });
-
-    it("should fail when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
-
-      const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
-
-      const result = facade.activateSpell(cardInstanceId);
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("メインフェイズではありません");
-    });
-
-    it("should fail when card is not in hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
-      advanceToMain1Phase(facade);
-
-      const result = facade.activateSpell("non-existent-card-id");
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("カードが見つかりません");
-    });
-
-    it("should not update store on failed activation", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
-
-      const initialState = get(gameStateStore);
-      facade.activateSpell("non-existent-card-id");
-
-      const updatedState = get(gameStateStore);
-      expect(updatedState).toEqual(initialState);
-    });
-  });
-
-  describe("canActivateSpell", () => {
-    it("should return true for spell card in hand during Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+  describe("canSummonMonster", () => {
+    it("should return true when monster can be summoned", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
-      expect(facade.canActivateSpell(cardInstanceId)).toBe(true);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSummon = facade.canSummonMonster(monsterInstanceId);
+      expect(canSummon).toBe(true);
     });
 
-    it("should return false for card not in hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
-
-      expect(facade.canActivateSpell("non-existent-id")).toBe(false);
-    });
-
-    it("should return false for card in wrong phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+    it("should return false when summon limit reached", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
-      expect(facade.canActivateSpell(cardInstanceId)).toBe(false);
+      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
+      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+
+      facade.summonMonster(firstMonsterInstanceId); // 召喚1体目
+      const canSummon = facade.canSummonMonster(secondMonsterInstanceId); // 召喚2体目
+      expect(canSummon).toBe(false);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      // ドローフェイズのまま
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSummon = facade.canSummonMonster(monsterInstanceId);
+      expect(canSummon).toBe(false);
     });
   });
 
@@ -276,6 +238,42 @@ describe("GameFacade", () => {
     });
   });
 
+  describe("canSetMonster", () => {
+    it("should return true when monster can be set", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      advanceToMain1Phase(facade);
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+
+      const canSet = facade.canSetMonster(monsterInstanceId);
+      expect(canSet).toBe(true);
+    });
+
+    it("should return false when summon limit reached", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      advanceToMain1Phase(facade);
+
+      const state = get(gameStateStore);
+      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
+      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+
+      facade.setMonster(firstMonsterInstanceId); // セット1体目
+      const canSet = facade.canSetMonster(secondMonsterInstanceId); // セット2体目
+      expect(canSet).toBe(false);
+    });
+
+    it("should return false when not in Main1 phase", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      // ドローフェイズのまま
+
+      const state = get(gameStateStore);
+      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const canSet = facade.canSetMonster(monsterInstanceId);
+      expect(canSet).toBe(false);
+    });
+  });
+
   describe("setMonster", () => {
     it("should successfully set monster from hand to mainMonsterZone face-down", () => {
       facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
@@ -337,6 +335,19 @@ describe("GameFacade", () => {
       const result = facade.setMonster(monsterInstanceId);
       expect(result.success).toBe(false);
       expect(result.error).toBe("メインフェイズではありません");
+    });
+  });
+
+  describe("canSetSpellTrap", () => {
+    it("should return true when spell/trap can be set", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      advanceToMain1Phase(facade);
+
+      const state = get(gameStateStore);
+      const spellInstanceId = state.zones.hand[0].instanceId;
+
+      const canSet = facade.canSetSpellTrap(spellInstanceId);
+      expect(canSet).toBe(true);
     });
   });
 
@@ -429,6 +440,111 @@ describe("GameFacade", () => {
     });
   });
 
+  it("should return false when spellTrapZone is full", () => {
+    facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, FIVE_NORMAL_SPELLS[0]])); // 6枚デッキ
+    advanceToMain1Phase(facade);
+    drawCards(1); // 6枚目が必要
+
+    const state = get(gameStateStore);
+
+    // 5枚セットして魔法・罠ゾーンを埋める
+    for (let i = 0; i < 5; i++) {
+      facade.setSpellTrap(state.zones.hand[i].instanceId);
+    }
+
+    const updatedState = get(gameStateStore);
+    const sixthSpellId = updatedState.zones.hand[0].instanceId;
+
+    const canSet = facade.canSetSpellTrap(sixthSpellId); // 6枚目をセット
+    expect(canSet).toBe(false);
+  });
+
+  it("should return false when not in Main1 phase", () => {
+    facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+    // ドローフェイズのまま
+
+    const state = get(gameStateStore);
+    const spellInstanceId = state.zones.hand[0].instanceId;
+
+    const canSet = facade.canSetSpellTrap(spellInstanceId);
+    expect(canSet).toBe(false);
+  });
+
+  describe("canActivateSpell", () => {
+    it("should return true for spell card in hand during Main1 phase", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+      advanceToMain1Phase(facade);
+
+      const state = get(gameStateStore);
+      const cardInstanceId = state.zones.hand[0].instanceId;
+      expect(facade.canActivateSpell(cardInstanceId)).toBe(true);
+    });
+
+    it("should return false for card not in hand", () => {
+      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+
+      expect(facade.canActivateSpell("non-existent-id")).toBe(false);
+    });
+
+    it("should return false for card in wrong phase", () => {
+      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+
+      const state = get(gameStateStore);
+      const cardInstanceId = state.zones.hand[0].instanceId;
+      expect(facade.canActivateSpell(cardInstanceId)).toBe(false);
+    });
+  });
+
+  describe("activateSpell", () => {
+    it("should successfully activate spell card from hand", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+      facade.advancePhase(); // Draw → Standby
+      facade.advancePhase(); // Standby → Main1
+
+      const state = get(gameStateStore);
+      const cardInstanceId = state.zones.hand[0].instanceId;
+      const initialHandSize = state.zones.hand.length;
+
+      const result = facade.activateSpell(cardInstanceId);
+      expect(result.success).toBe(true);
+      expect(result.message).toContain("Spell card activated");
+
+      const updatedState = get(gameStateStore);
+      expect(updatedState.zones.hand.length).toBe(initialHandSize - 1);
+      expect(updatedState.zones.graveyard.length).toBe(1);
+    });
+
+    it("should fail when not in Main1 phase", () => {
+      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+
+      const state = get(gameStateStore);
+      const cardInstanceId = state.zones.hand[0].instanceId;
+
+      const result = facade.activateSpell(cardInstanceId);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("メインフェイズではありません");
+    });
+
+    it("should fail when card is not in hand", () => {
+      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      advanceToMain1Phase(facade);
+
+      const result = facade.activateSpell("non-existent-card-id");
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("カードが見つかりません");
+    });
+
+    it("should not update store on failed activation", () => {
+      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+
+      const initialState = get(gameStateStore);
+      facade.activateSpell("non-existent-card-id");
+
+      const updatedState = get(gameStateStore);
+      expect(updatedState).toEqual(initialState);
+    });
+  });
+
   describe("canActivateIgnitionEffect", () => {
     it("should return true when ignition effect can be activated", () => {
       facade.initializeGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
@@ -457,119 +573,5 @@ describe("GameFacade", () => {
     });
   });
 
-  describe("canSummonMonster", () => {
-    it("should return true when monster can be summoned", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
-      advanceToMain1Phase(facade);
-
-      const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
-
-      const canSummon = facade.canSummonMonster(monsterInstanceId);
-      expect(canSummon).toBe(true);
-    });
-
-    it("should return false when summon limit reached", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
-      advanceToMain1Phase(facade);
-
-      const state = get(gameStateStore);
-      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
-      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
-
-      facade.summonMonster(firstMonsterInstanceId); // 召喚1体目
-      const canSummon = facade.canSummonMonster(secondMonsterInstanceId); // 召喚2体目
-      expect(canSummon).toBe(false);
-    });
-
-    it("should return false when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
-      // ドローフェイズのまま
-
-      const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
-
-      const canSummon = facade.canSummonMonster(monsterInstanceId);
-      expect(canSummon).toBe(false);
-    });
-  });
-
-  describe("canSetMonster", () => {
-    it("should return true when monster can be set", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
-      advanceToMain1Phase(facade);
-
-      const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
-
-      const canSet = facade.canSetMonster(monsterInstanceId);
-      expect(canSet).toBe(true);
-    });
-
-    it("should return false when summon limit reached", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
-      advanceToMain1Phase(facade);
-
-      const state = get(gameStateStore);
-      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
-      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
-
-      facade.setMonster(firstMonsterInstanceId); // セット1体目
-      const canSet = facade.canSetMonster(secondMonsterInstanceId); // セット2体目
-      expect(canSet).toBe(false);
-    });
-
-    it("should return false when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
-      // ドローフェイズのまま
-
-      const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
-      const canSet = facade.canSetMonster(monsterInstanceId);
-      expect(canSet).toBe(false);
-    });
-  });
-
-  describe("canSetSpellTrap", () => {
-    it("should return true when spell/trap can be set", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
-      advanceToMain1Phase(facade);
-
-      const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
-
-      const canSet = facade.canSetSpellTrap(spellInstanceId);
-      expect(canSet).toBe(true);
-    });
-
-    it("should return false when spellTrapZone is full", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, FIVE_NORMAL_SPELLS[0]])); // 6枚デッキ
-      advanceToMain1Phase(facade);
-      drawCards(1); // 6枚目が必要
-
-      const state = get(gameStateStore);
-
-      // 5枚セットして魔法・罠ゾーンを埋める
-      for (let i = 0; i < 5; i++) {
-        facade.setSpellTrap(state.zones.hand[i].instanceId);
-      }
-
-      const updatedState = get(gameStateStore);
-      const sixthSpellId = updatedState.zones.hand[0].instanceId;
-
-      const canSet = facade.canSetSpellTrap(sixthSpellId); // 6枚目をセット
-      expect(canSet).toBe(false);
-    });
-
-    it("should return false when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
-      // ドローフェイズのまま
-
-      const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
-
-      const canSet = facade.canSetSpellTrap(spellInstanceId);
-      expect(canSet).toBe(false);
-    });
-  });
+  // TODO: activateIgnitionEffect のテストケースを追加する
 });

@@ -15,11 +15,11 @@ import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
-import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
 
 /**
@@ -102,26 +102,6 @@ export class GameFacade {
     return this.executeCommand(AdvancePhaseCommand);
   }
 
-  /** 指定した魔法カードインスタンスを発動可能かどうかチェックして返す */
-  canActivateSpell(cardInstanceId: string): boolean {
-    return this.canExecuteCommand(ActivateSpellCommand, cardInstanceId);
-  }
-
-  /** 指定した魔法カードインスタンスを発動する */
-  activateSpell(cardInstanceId: string): FacadeResult {
-    return this.executeCommand(ActivateSpellCommand, cardInstanceId);
-  }
-
-  /** 指定したカードインスタンスの起動効果を発動可能かどうかチェックして返す */
-  canActivateIgnitionEffect(cardInstanceId: string): boolean {
-    return this.canExecuteCommand(ActivateIgnitionEffectCommand, cardInstanceId);
-  }
-
-  /** 指定したカードインスタンスの起動効果を発動する */
-  activateIgnitionEffect(cardInstanceId: string): FacadeResult {
-    return this.executeCommand(ActivateIgnitionEffectCommand, cardInstanceId);
-  }
-
   /** 指定したモンスターカードインスタンスを通常召喚可能かどうかチェックして返す */
   canSummonMonster(cardInstanceId: string): boolean {
     return this.canExecuteCommand(SummonMonsterCommand, cardInstanceId);
@@ -150,6 +130,26 @@ export class GameFacade {
   /** 指定した魔法・罠カードインスタンスをセットする */
   setSpellTrap(cardInstanceId: string): FacadeResult {
     return this.executeCommand(SetSpellTrapCommand, cardInstanceId);
+  }
+
+  /** 指定した魔法カードインスタンスを発動可能かどうかチェックして返す */
+  canActivateSpell(cardInstanceId: string): boolean {
+    return this.canExecuteCommand(ActivateSpellCommand, cardInstanceId);
+  }
+
+  /** 指定した魔法カードインスタンスを発動する */
+  activateSpell(cardInstanceId: string): FacadeResult {
+    return this.executeCommand(ActivateSpellCommand, cardInstanceId);
+  }
+
+  /** 指定したカードインスタンスの起動効果を発動可能かどうかチェックして返す */
+  canActivateIgnitionEffect(cardInstanceId: string): boolean {
+    return this.canExecuteCommand(ActivateIgnitionEffectCommand, cardInstanceId);
+  }
+
+  /** 指定したカードインスタンスの起動効果を発動する */
+  activateIgnitionEffect(cardInstanceId: string): FacadeResult {
+    return this.executeCommand(ActivateIgnitionEffectCommand, cardInstanceId);
   }
 }
 

@@ -20,7 +20,10 @@ import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 // 空の初期GameStateを生成する
 function createEmptyGameState(): GameState {
-  return createInitialGameState({ mainDeckCardIds: [], extraDeckCardIds: [] });
+  return createInitialGameState(
+    { mainDeckCardIds: [], extraDeckCardIds: [] },
+    { skipShuffle: true, skipInitialDraw: true },
+  );
 }
 
 /** ゲーム状態ストアのインターフェース */
