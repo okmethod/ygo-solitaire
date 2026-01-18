@@ -1,3 +1,9 @@
+/**
+ * SummonRule - 召喚ルール
+ *
+ * @module domain/rules/SummonRule
+ */
+
 import type { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { ValidationErrorCode, validationSuccess, validationFailure } from "$lib/domain/models/ValidationResult";
