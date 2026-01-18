@@ -1,20 +1,18 @@
 /**
- * AtomicStep - Domain definition for effect resolution steps
- *
- * Defines the structure for card effect resolution steps.
- * This is a domain-level interface that does not depend on application or presentation layers.
+ * AtomicStep - 効果処理の単一ステップの型とインターフェース
  *
  * @module domain/effects/AtomicStep
  */
 
-import type { GameState } from "./GameState";
-import type { GameStateUpdateResult } from "./GameStateUpdate";
-import type { CardInstance } from "./Card";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ZoneName } from "$lib/domain/models/Zone";
 
 /**
- * NotificationLevel - 効果処理ステップの通知レベル
+ * 効果処理ステップの通知レベル
  *
- * Domain層で定義され、Presentation層が表示方法を決定する。
+ * Domain層で定義され、Presentation層が表示方法を決定する：
  * - silent: 通知なし（内部状態変更のみ、即座に実行）
  * - info: 情報通知（トースト、非ブロッキング、自動進行）
  * - interactive: ユーザー入力要求（モーダル、ブロッキング）
@@ -22,133 +20,52 @@ import type { CardInstance } from "./Card";
 export type NotificationLevel = "silent" | "info" | "interactive";
 
 /**
- * Card Selection Configuration (Domain Layer)
+ * カード選択設定（Domain層）
  *
- * Configuration for requesting user to select cards.
- * This is a domain-level interface that does not depend on Svelte stores.
- *
- * @example
- * ```typescript
- * const config: CardSelectionConfig = {
- *   availableCards: state.zones.hand,
- *   minCards: 2,
- *   maxCards: 2,
- *   summary: "手札を捨てる",
- *   description: "手札から2枚選んで捨ててください",
- *   cancelable: false, // Cannot cancel during effect resolution
- * };
- * ```
+ * ユーザーにカード選択を要求するための設定。
+ * Svelteのstoreに依存しないドメイン層のインターフェース。
  */
 export interface CardSelectionConfig {
-  /** Available cards to choose from */
-  availableCards: readonly CardInstance[];
-  /** Minimum number of cards that must be selected */
+  availableCards: readonly CardInstance[]; // 選択可能なカードインスタンス一覧
   minCards: number;
-  /** Maximum number of cards that can be selected */
   maxCards: number;
-  /** Summary shown in selection UI */
-  summary: string;
-  /** Description/instructions shown in selection UI */
-  description: string;
-  /** Whether user can cancel the selection (default: true) */
-  cancelable?: boolean;
-  /** Internal: Source zone for dynamic card population (e.g., "graveyard", "deck") TODO: 型エイリアスを定義するべきかも */
-  _sourceZone?: "hand" | "graveyard" | "deck" | "mainMonsterZone" | "spellTrapZone" | "fieldZone" | "banished";
-  /** Internal: Filter function for dynamic card population (supports index for deck top selection) */
+  summary: string;  // 選択UIに表示される要約
+  description: string; // 選択UIに表示される詳細説明
+  cancelable?: boolean; // キャンセル可能かどうか（デフォルト: true）
+  _sourceZone?: ZoneName;
   _filter?: (card: CardInstance, index?: number) => boolean;
 }
 
 /**
- * Effect Resolution Step
+ * 効果処理の単一ステップインターフェース
+ * 
+ * 各ステップは一意のID、タイトル、メッセージ、およびアクションコールバックを持つ。
  *
- * Represents a single step in a card effect resolution sequence.
- * Each step has a unique ID, title, message, and action callback.
+ * アクションコールバックは依存性注入パターンを使用する：
+ * - ドメイン層：コールバック関数 (state: GameState) => GameStateUpdateResult を返す
+ * - アプリケーション層：現在の GameState を注入してコールバックを実行する
  *
- * The action callback uses Dependency Injection pattern:
- * - Domain Layer: Returns callback function (state: GameState) => GameStateUpdateResult
- * - Application Layer: Executes callback, injecting current GameState
- *
- * If `cardSelectionConfig` is provided, Application Layer will:
- * 1. Open CardSelectionModal with the configuration
- * 2. Wait for user to select cards
- * 3. Pass selected instanceIds to action callback
- *
- * @example
- * ```typescript
- * // Simple step (no user input required)
- * const step: AtomicStep = {
- *   id: "pot-of-greed-draw",
- *   summary: "カードをドロー",
- *   description: "デッキから2枚ドローします",
- *   action: (state: GameState) => {
- *     return new DrawCardCommand(2).execute(state);
- *   }
- * };
- *
- * // Step with card selection (user input required)
- * const step: AtomicStep = {
- *   id: "graceful-charity-discard",
- *   summary: "手札を捨てる",
- *   description: "手札から2枚選んで捨ててください",
- *   cardSelectionConfig: {
- *     availableCards: state.zones.hand,
- *     minCards: 2,
- *     maxCards: 2,
- *     summary: "手札を捨てる",
- *     description: "手札から2枚選んで捨ててください",
- *   },
- *   action: (state: GameState, selectedInstanceIds?: string[]) => {
- *     return new DiscardCardsCommand(selectedInstanceIds!).execute(state);
- *   }
- * };
- * ```
+ * もし cardSelectionConfig が提供されている場合、アプリケーション層は以下を行う：
+ * 1. CardSelectionModal を開き、設定を渡す
+ * 2. ユーザーがカードを選択するのを待つ
+ * 3. 選択されたインスタンスIDをアクションコールバックに渡す 
  */
 export interface AtomicStep {
-  /** Unique identifier for this step */
   id: string;
-
-  /** Summary displayed to user */
-  summary: string;
-
-  /** Detailed description displayed to user */
-  description: string;
-
-  /**
-   * Notification level (optional)
-   *
-   * Controls how this step is presented to the user:
-   * - "silent": No notification, executes immediately (internal state changes)
-   * - "info": Toast notification, non-blocking, auto-advance (informational)
-   * - "interactive": Modal dialog, blocking, waits for user input (requires interaction)
-   *
-   * Default: "info" (for backward compatibility)
-   */
-  notificationLevel?: NotificationLevel;
-
-  /**
-   * Card selection configuration (optional)
-   *
-   * If provided, Application Layer will open CardSelectionModal before executing action.
-   * Selected card instanceIds will be passed to action callback as second parameter.
-   */
+  summary: string;  // UIに表示される要約
+  description: string;  // UIに表示される詳細説明
+  notificationLevel?: NotificationLevel;  // Default: "info"
   cardSelectionConfig?: CardSelectionConfig;
 
   /**
-   * Action callback executed when step is confirmed
-   *
+   * 効果処理ステップの処理内容定義（アクションコールバック）
+   * 
    * Callback Pattern + Dependency Injection:
-   * - GameState is injected by Application Layer at execution time
-   * - Returns GameStateUpdateResult with new state
-   * - Synchronous function only (non-async) for type safety
-   *
-   * If cardSelectionConfig is provided:
-   * - selectedInstanceIds parameter will contain user-selected card instance IDs
-   * - Otherwise, selectedInstanceIds will be undefined
-   *
-   * @see research.md#2-effectSteps-の型安全性と非同期処理
+   * - GameStateはアプリケーション層が実行時に注入
+   * - 更新後の状態を含む GameStateUpdateResult を返す
+   * - 型安全のため同期関数（非async）のみ
    */
   action: (state: GameState, selectedInstanceIds?: string[]) => GameStateUpdateResult;
 
-  /** Whether to show cancel button (optional) */
-  showCancel?: boolean;
+  showCancel?: boolean;  // Default: false
 }

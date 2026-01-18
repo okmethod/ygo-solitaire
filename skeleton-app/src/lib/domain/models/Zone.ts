@@ -7,7 +7,7 @@
  * @module domain/models/Zone
  */
 
-import type { CardInstance } from "./Card";
+import type { CardInstance } from "$lib/domain/models/Card";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
 /** カードを配置する領域モデル */
@@ -24,8 +24,8 @@ export interface Zones {
   readonly banished: readonly CardInstance[];
 }
 
-// TODO: ゾーン名の型エイリアスを定義する
-// export type ZoneName = keyof Zones
+/** ゾーン名の型エイリアス */
+export type ZoneName = keyof Zones;
 
 /** カードの移動および表示形式を変更を行う（汎用）*/
 export function moveCard(
