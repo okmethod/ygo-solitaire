@@ -153,11 +153,6 @@ export const isDeckEmpty = (zones: Zones): boolean => {
   return zones.deck.length === 0;
 };
 
-/** 手札が最大枚数に達しているかどうか */
-export const isHandFull = (zones: Zones, maxHandSize: number = 6): boolean => {
-  return zones.hand.length >= maxHandSize;
-};
-
 /** メインモンスターゾーンが最大枚数に達しているかどうか */
 export const isMainMonsterZoneFull = (zones: Zones, maxMainMonsterZoneSize: number = 5): boolean => {
   return zones.mainMonsterZone.length >= maxMainMonsterZoneSize;
