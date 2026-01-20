@@ -11,10 +11,10 @@
  * @module domain/effects/actions/spell/ToonWorldActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { ContinuousSpellAction } from "../../base/spell/ContinuousSpellAction";
-import { createLPPaymentStep } from "../../builders/stepBuilders";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { ContinuousSpellAction } from "$lib/domain/effects/base/spell/ContinuousSpellAction";
+import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 
 /**
  * ToonWorldActivation
@@ -38,13 +38,10 @@ export class ToonWorldActivation extends ContinuousSpellAction {
   /**
    * RESOLUTION: Pay 1000 LP → Card stays on field (placement handled by ActivateSpellCommand)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Pay 1000 LP
-      createLPPaymentStep(1000, {
-        id: `toon-world-lp-payment-${activatedCardInstanceId}`,
-        description: "1000LPを払ってトゥーン・ワールドを発動します",
-      }),
+      payLpStep(1000, "player"),
 
       // Note: No graveyard step - Continuous Spells stay on field after activation
     ];

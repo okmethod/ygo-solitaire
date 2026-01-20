@@ -377,6 +377,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
 // ===========================
 // Toon World (15259703) - P3 Card
+// TODO: 永続魔法なので、ファイルを分ける
 // ===========================
 describe("Field Spell Card Effects > Toon World (15259703)", () => {
   const toonWorldCardId = "15259703";
@@ -407,7 +408,7 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     expect(result.effectSteps!.length).toBe(1); // LP payment only (no activation step for Field Spells)
 
     // Verify LP payment step
-    expect(result.effectSteps![0].id).toContain("toon-world-lp-payment");
+    expect(result.effectSteps![0].id).toContain("pay-lp-player-1000");
 
     // Note: Card stays on field (not sent to graveyard)
     // Field spell placement is handled by ActivateSpellCommand

@@ -11,10 +11,11 @@
  * @module domain/effects/actions/spell/UpstartGoblinActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createGainLifeStep } from "../../builders/stepBuilders";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { createDrawStep } from "$lib/domain/effects/steps/cardMovement";
+import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 
 /**
  * UpstartGoblinActivation
@@ -36,8 +37,7 @@ export class UpstartGoblinActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 1 card, opponent gains 1000 LP
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [createDrawStep(1), createGainLifeStep(1000, { target: "opponent" })];
+    return [createDrawStep(1), gainLpStep(1000, "opponent")];
   }
 }
