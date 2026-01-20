@@ -11,11 +11,12 @@
  * @module domain/effects/actions/spell/TerraformingActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createCardSelectionStep, createShuffleStep } from "../../builders/stepBuilders";
-import { moveCard } from "../../../models/Zone";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { createCardSelectionStep } from "../../builders/stepBuilders";
+import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
+import { moveCard } from "$lib/domain/models/Zone";
 
 /**
  * TerraformingActivation - デッキからフィールド魔法1枚を手札に加える
@@ -33,7 +34,6 @@ export class TerraformingActivation extends NormalSpellAction {
   /**
    * RESOLUTION: デッキからフィールド魔法を選択 → 手札に加える → デッキシャッフル
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
 
@@ -66,7 +66,7 @@ export class TerraformingActivation extends NormalSpellAction {
       }),
 
       // Step 2: デッキをシャッフル（デッキサーチ後の標準処理）
-      createShuffleStep(),
+      shuffleDeckStep(),
     ];
   }
 }

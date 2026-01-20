@@ -11,15 +11,11 @@
  * @module domain/effects/actions/spell/MagicalMalletActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import {
-  createCardSelectionStep,
-  createReturnToDeckStep,
-  createShuffleStep,
-  createDrawStep,
-} from "../../builders/stepBuilders";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { createCardSelectionStep, createReturnToDeckStep, createDrawStep } from "../../builders/stepBuilders";
+import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 
 /**
  * MagicalMalletActivation
@@ -34,7 +30,6 @@ export class MagicalMalletActivation extends NormalSpellAction {
   /**
    * Card-specific activation condition: Magical Mallet can be activated even with empty hand
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected additionalActivationConditions(_state: GameState): boolean {
     return true;
   }
@@ -42,7 +37,6 @@ export class MagicalMalletActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Select cards, return to deck, shuffle, draw same number
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     let selectedInstanceIds: string[] = [];
 
@@ -88,7 +82,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
           }
 
           // Shuffle deck
-          const shuffleResult = createShuffleStep().action(returnResult.updatedState);
+          const shuffleResult = shuffleDeckStep().action(returnResult.updatedState);
           return shuffleResult;
         },
       },
