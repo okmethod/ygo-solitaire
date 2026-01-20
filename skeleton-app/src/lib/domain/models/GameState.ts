@@ -26,10 +26,13 @@ export interface ChainBlock {
   readonly effectDescription: string;
 }
 
+/** プレイヤー種別 */
+export type PlayerType = "player" | "opponent";
+
 /** ゲーム結果（勝敗判定） */
 export interface GameResult {
   readonly isGameOver: boolean;
-  readonly winner?: "player" | "opponent" | "draw";
+  readonly winner?: PlayerType | "draw";
   readonly reason?: "exodia" | "lp0" | "deckout" | "surrender";
   readonly message?: string;
 }
