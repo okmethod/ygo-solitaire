@@ -14,7 +14,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { createCardSelectionStep } from "../../builders/stepBuilders";
+import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 import { moveCard } from "$lib/domain/models/Zone";
 
@@ -39,7 +39,7 @@ export class TerraformingActivation extends NormalSpellAction {
 
     return [
       // Step 1: デッキからフィールド魔法を選択して手札に加える
-      createCardSelectionStep({
+      selectCardsStep({
         id: "terraforming-select",
         summary: "フィールド魔法を選択",
         description: "デッキからフィールド魔法1枚を選択してください",

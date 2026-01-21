@@ -14,7 +14,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { createCardSelectionStep, createReturnToDeckStep, createDrawStep } from "../../builders/stepBuilders";
+import { createReturnToDeckStep, createDrawStep } from "../../builders/stepBuilders";
+import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 
 /**
@@ -42,7 +43,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
 
     return [
       // Step 1: Select cards to return (0 to hand.length)
-      createCardSelectionStep({
+      selectCardsStep({
         id: "magical-mallet-select",
         summary: "手札を選択",
         description: "デッキに戻すカードを選択してください（0枚から全てまで選択可能）",
