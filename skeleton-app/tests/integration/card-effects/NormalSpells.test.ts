@@ -840,7 +840,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![1].id).toContain("fill-hands-3");
 
       // Verify end phase effect registration
-      expect(result.effectSteps![2].id).toContain("add-end-phase-effect");
+      expect(result.effectSteps![2].id).toContain("queue-end-phase-effect-card-of-demise-end-phase-discard-demise-0");
     });
 
     it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {

@@ -15,7 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/autoMovements";
-import { createAddEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
+import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
 import { createDiscardAllHandEndPhaseStep } from "$lib/domain/effects/steps/handDiscard";
 
 /**
@@ -59,7 +59,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
       drawStep(1),
 
       // Step 2: エンドフェイズ効果を登録
-      createAddEndPhaseEffectStep(endPhaseDiscardEffect, {
+      queueEndPhaseEffectStep(endPhaseDiscardEffect, {
         summary: "エンドフェイズ効果を登録",
         description: "エンドフェイズに手札を全て捨てる効果を登録します",
       }),
