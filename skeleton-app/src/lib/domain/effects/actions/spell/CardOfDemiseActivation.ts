@@ -109,9 +109,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
 
     return [
       // Step 1: 手札が3枚になるまでドロー
-      fillHandsStep(3, {
-        description: "手札が3枚になるようにデッキからドローします",
-      }),
+      fillHandsStep(3),
 
       // Step 2: Register end phase effect
       createAddEndPhaseEffectStep(endPhaseDiscardEffect, {

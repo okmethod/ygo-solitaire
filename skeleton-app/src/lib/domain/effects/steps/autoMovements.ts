@@ -15,20 +15,19 @@ import { drawCards } from "$lib/domain/models/Zone";
 
 // ドローステップの共通ヘルパー
 const commonDrawStep = (
-  calculateCount: (state: GameState) => { drawCount: number; message: string },
+  calculateActualDrawCount: (state: GameState) => { drawCount: number; message: string },
   options: {
-    id?: string;
-    summary?: string;
-    description?: string;
+    id: string;
+    summary: string;
+    description: string;
   },
-  defaultId: string,
 ): AtomicStep => ({
-  id: options.id ?? defaultId,
-  summary: options.summary ?? "カードをドロー",
-  description: options.description ?? "デッキからカードをドローします",
+  id: options.id,
+  summary: options.summary,
+  description: options.description,
   notificationLevel: "info",
   action: (state: GameState): GameStateUpdateResult => {
-    const { drawCount, message } = calculateCount(state);
+    const { drawCount, message } = calculateActualDrawCount(state);
 
     // ドロー不要なケース（fillHands用）
     if (drawCount === 0) {
@@ -44,6 +43,7 @@ const commonDrawStep = (
       };
     }
 
+    // ドロー実行
     return {
       success: true,
       updatedState: { ...state, zones: drawCards(state.zones, drawCount) },
@@ -53,33 +53,15 @@ const commonDrawStep = (
 });
 
 /** 指定枚数をドローするステップ */
-export const drawStep = (
-  count: number,
-  options?: {
-    id?: string;
-    summary?: string;
-    description?: string;
-  },
-): AtomicStep =>
-  commonDrawStep(
-    () => ({ drawCount: count, message: `Drew ${count} card(s)` }),
-    {
-      summary: "カードをドロー",
-      description: `デッキから${count}枚ドローします`,
-      ...options,
-    },
-    `draw-${count}`,
-  );
+export const drawStep = (count: number): AtomicStep =>
+  commonDrawStep(() => ({ drawCount: count, message: `Draw ${count} card(s)` }), {
+    id: `draw-${count}`,
+    summary: "カードをドロー",
+    description: `デッキから${count}枚ドローします`,
+  });
 
 /** 手札が指定枚数になるまでドローするステップ */
-export const fillHandsStep = (
-  targetCount: number,
-  options?: {
-    id?: string;
-    summary?: string;
-    description?: string;
-  },
-): AtomicStep =>
+export const fillHandsStep = (targetCount: number): AtomicStep =>
   commonDrawStep(
     (state) => {
       const needed = Math.max(0, targetCount - state.zones.hand.length);
@@ -89,9 +71,8 @@ export const fillHandsStep = (
       };
     },
     {
+      id: `fill-hands-${targetCount}`,
       summary: `手札が${targetCount}枚になるまでドロー`,
       description: `手札が${targetCount}枚になるまでドローします`,
-      ...options,
     },
-    `fill-hands-${targetCount}`,
   );

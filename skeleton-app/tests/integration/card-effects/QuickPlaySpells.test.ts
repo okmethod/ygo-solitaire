@@ -73,7 +73,7 @@ describe("Quick-Play Spell Card Effects", () => {
         summary: "相手が手札を捨てる",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "card-destruction-draw",
+        id: "draw-2",
         summary: "カードをドロー",
       });
     });

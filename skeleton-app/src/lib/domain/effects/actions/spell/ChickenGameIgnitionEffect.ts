@@ -18,11 +18,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { drawStep } from "$lib/domain/effects/steps/autoMovements";
 
-/**
- * ChickenGameIgnitionEffect
- *
- * Implements ChainableAction for Chicken Game ignition effect.
- */
+/** ChickenGameIgnitionEffect */
 export class ChickenGameIgnitionEffect implements ChainableAction {
   /** 効果の発動（カードの発動ではない） */
   readonly isCardActivation = false;
@@ -30,16 +26,9 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
   /** スペルスピード1（起動効果） */
   readonly spellSpeed = 1 as const;
 
-  /**
-   * 起動効果のID（1ターンに1度制限用）
-   */
+  /** 起動効果のID（1ターンに1度制限用）*/
   private readonly effectId = "chicken-game-ignition";
 
-  /**
-   * Constructor
-   *
-   * @param cardInstanceId - フィールド上のChicken GameカードのインスタンスID
-   */
   constructor(private readonly cardInstanceId: string) {}
 
   /**
@@ -50,9 +39,6 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
    * - Player LP >= 1000 (コスト支払い可能)
    * - 1ターンに1度制限（activatedIgnitionEffectsThisTurnにこの効果がない）
    * - Chicken GameがフィールドにfaceUpで存在する
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 発動可能ならtrue
    */
   canActivate(state: GameState): boolean {
     // Game must not be over
@@ -93,9 +79,6 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
    *
    * 1. 1000LP支払い
    * 2. 発動記録（1ターンに1度制限用）
-   *
-   * @param _state - 現在のゲーム状態（未使用）
-   * @returns 発動ステップ配列
    */
   createActivationSteps(_state: GameState): AtomicStep[] {
     const effectKey = `${this.cardInstanceId}:${this.effectId}`;
@@ -163,18 +146,11 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
    *
    * 実装簡略化のため、選択肢1（デッキから1枚ドロー）のみ実装。
    * 本来は3つの選択肢から1つを選択する。
-   *
-   * @param state - 現在のゲーム状態
-   * @param activatedCardInstanceId - 発動したカードのインスタンスID（未使用）
-   * @returns 効果解決ステップ配列
    */
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
-      // Option 1: Draw 1 card (簡略化のためこの選択肢のみ実装)
-      drawStep(1, {
-        id: "chicken-game-draw",
-        description: "デッキから1枚ドローします",
-      }),
+      // Option 1: Draw 1 card (簡略化のためドローの選択肢のみ実装)
+      drawStep(1),
     ];
   }
 }

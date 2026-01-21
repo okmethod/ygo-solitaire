@@ -82,11 +82,8 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
         },
       },
 
-      // Step 3: 両プレイヤーがデッキから2枚ドロー
-      drawStep(2, {
-        id: "card-destruction-draw",
-        description: "両プレイヤーがデッキから2枚ドローします",
-      }),
+      // Step 3: 両プレイヤーがデッキから2枚ドロー（実際は自分だけドロー）
+      drawStep(2),
     ];
   }
 }

@@ -56,9 +56,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
 
     return [
       // Step 1: 1枚ドロー
-      drawStep(1, {
-        description: "デッキから1枚ドローします",
-      }),
+      drawStep(1),
 
       // Step 2: エンドフェイズ効果を登録
       createAddEndPhaseEffectStep(endPhaseDiscardEffect, {
