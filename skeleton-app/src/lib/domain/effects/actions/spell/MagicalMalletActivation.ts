@@ -14,7 +14,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { createReturnToDeckStep, createDrawStep } from "../../builders/stepBuilders";
+import { createReturnToDeckStep } from "../../builders/stepBuilders";
+import { drawStep } from "$lib/domain/effects/steps/autoMovements";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 
@@ -103,7 +104,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
             };
           }
 
-          const result = createDrawStep(selectedInstanceIds.length).action(currentState);
+          const result = drawStep(selectedInstanceIds.length).action(currentState);
           return result;
         },
       },

@@ -11,10 +11,10 @@
  * @module domain/effects/actions/spell/PotOfGreedActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep } from "../../builders/stepBuilders";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { drawStep } from "$lib/domain/effects/steps/autoMovements";
 
 /**
  * PotOfGreedActivation
@@ -36,8 +36,7 @@ export class PotOfGreedActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 2 cards
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [createDrawStep(2)];
+    return [drawStep(2)];
   }
 }

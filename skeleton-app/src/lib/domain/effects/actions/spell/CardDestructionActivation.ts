@@ -11,11 +11,11 @@
  * @module domain/effects/actions/spell/CardDestructionActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { QuickPlaySpellAction } from "../../base/spell/QuickPlaySpellAction";
-import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
-import { discardCards } from "../../../models/Zone";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
+import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { createDiscardCardsSelectionStep } from "$lib/domain/effects/steps/handDiscard";
 
 /**
  * CardDestructionActivation
@@ -43,58 +43,36 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * 1. プレイヤーが手札から2枚選んで破棄
-   * 2. 相手が手札から2枚破棄（内部状態のみ）
-   * 3. 両プレイヤーが2枚ドロー
+   * 効果の流れ:
+   * 1. プレイヤーが手札から2枚選んで墓地へ送る
+   * 2. 相手が手札から2枚墓地へ送る（内部状態のみ、1ターンキルでは実装不要）
+   * 3. 両プレイヤーがデッキから2枚ドロー
    *
    * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID
    * @returns 効果解決ステップ配列
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
-      // Step 1: Player discards 2 cards (player selection required, non-cancelable)
-      createCardSelectionStep({
+      // Step 1: プレイヤーが手札から2枚選んで墓地へ送る
+      createDiscardCardsSelectionStep({
         id: "card-destruction-discard-player",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください（キャンセル不可）",
-        availableCards: state.zones.hand,
-        minCards: 2,
-        maxCards: 2,
+        summary: "手札を2枚捨てる",
+        description: "手札から2枚選んで墓地へ送ってください（キャンセル不可）",
+        cardCount: 2,
         cancelable: false,
-        onSelect: (currentState, selectedInstanceIds) => {
-          // Validate selection
-          if (selectedInstanceIds.length !== 2) {
-            return {
-              success: false,
-              updatedState: currentState,
-              error: "Must select exactly 2 cards to discard",
-            };
-          }
-
-          // Execute discard using Zone utility
-          const updatedZones = discardCards(currentState.zones, selectedInstanceIds);
-          return {
-            success: true,
-            updatedState: {
-              ...currentState,
-              zones: updatedZones,
-            },
-          };
-        },
       }),
 
-      // Step 2: Opponent discards 2 cards (internal state only, no UI update)
+      // Step 2: 相手が手札から2枚墓地へ送る（内部状態のみ）
       {
         id: "card-destruction-discard-opponent",
         summary: "相手が手札を捨てる",
         description: "相手が手札から2枚捨てます（内部状態のみ）",
         notificationLevel: "info",
         action: (currentState: GameState) => {
-          // In 1-turn kill solitaire, opponent's hand is not tracked in UI
-          // This step is for completeness and future compatibility
-          // No actual state change needed for opponent's hand
+          // 1ターンキルモードでは相手の手札をUIで管理していないため、
+          // このステップは将来の拡張性のために残されています。
+          // 実際の状態変更は不要です。
 
           return {
             success: true,
@@ -104,8 +82,8 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
         },
       },
 
-      // Step 3: Both players draw 2 cards
-      createDrawStep(2, {
+      // Step 3: 両プレイヤーがデッキから2枚ドロー
+      drawStep(2, {
         id: "card-destruction-draw",
         description: "両プレイヤーがデッキから2枚ドローします",
       }),

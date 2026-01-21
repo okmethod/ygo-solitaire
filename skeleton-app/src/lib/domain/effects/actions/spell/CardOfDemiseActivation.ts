@@ -6,17 +6,18 @@
  * Implementation using ChainableAction model:
  * - CONDITIONS: ゲーム続行中、メインフェイズ、1ターンに1度制限
  * - ACTIVATION: 発動通知、1ターンに1度制限の記録
- * - RESOLUTION: 手札が3枚になるようにドロー、エンドフェーズ効果登録（手札全破棄）、墓地へ送る
+ * - RESOLUTION: 手札が3枚になるようにドロー、エンドフェイズ効果登録（手札全破棄）、墓地へ送る
  *
  * @module domain/effects/actions/spell/CardOfDemiseActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawUntilCountStep, createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
-import { sendToGraveyard } from "../../../models/Zone";
-import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
+import { fillHandsStep } from "$lib/domain/effects/steps/autoMovements";
+import { sendToGraveyard } from "$lib/domain/models/Zone";
+import { getCardNameWithBrackets, getCardData } from "$lib/domain/registries/CardDataRegistry";
 
 /**
  * CardOfDemiseActivation
@@ -46,7 +47,6 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    *
    * Adds this card's ID to activatedOncePerTurnCards set.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(_state: GameState): AtomicStep[] {
     const cardData = getCardData(this.cardId);
     return [
@@ -108,8 +108,8 @@ export class CardOfDemiseActivation extends NormalSpellAction {
     };
 
     return [
-      // Step 1: Draw until hand = 3
-      createDrawUntilCountStep(3, {
+      // Step 1: 手札が3枚になるまでドロー
+      fillHandsStep(3, {
         description: "手札が3枚になるようにデッキからドローします",
       }),
 

@@ -11,11 +11,12 @@
  * @module domain/effects/actions/spell/IntoTheVoidActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
-import { sendToGraveyard } from "../../../models/Zone";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { createAddEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
+import { createDiscardAllHandEndPhaseStep } from "$lib/domain/effects/steps/handDiscard";
 
 /**
  * IntoTheVoidActivation
@@ -48,41 +49,18 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    * RESOLUTION: Draw 1 card → Register end phase effect (discard all hand)
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
-    // Create end phase discard effect
-    const endPhaseDiscardEffect: AtomicStep = {
+    // エンドフェイズ手札全破棄効果を作成
+    const endPhaseDiscardEffect = createDiscardAllHandEndPhaseStep({
       id: `into-the-void-end-phase-discard-${activatedCardInstanceId}`,
-      summary: "手札を全て捨てる",
-      description: "エンドフェイズに手札を全て捨てます",
-      notificationLevel: "info",
-      action: (state: GameState) => {
-        // Discard all cards in hand
-        let updatedZones = state.zones;
-        const handCards = [...state.zones.hand]; // Copy to avoid mutation during iteration
-
-        for (const card of handCards) {
-          updatedZones = sendToGraveyard(updatedZones, card.instanceId);
-        }
-
-        const updatedState: GameState = {
-          ...state,
-          zones: updatedZones,
-        };
-
-        return {
-          success: true,
-          updatedState,
-          message: `Discarded all ${handCards.length} cards from hand (Into the Void effect)`,
-        };
-      },
-    };
+    });
 
     return [
-      // Step 1: Draw 1 card
-      createDrawStep(1, {
+      // Step 1: 1枚ドロー
+      drawStep(1, {
         description: "デッキから1枚ドローします",
       }),
 
-      // Step 2: Register end phase effect
+      // Step 2: エンドフェイズ効果を登録
       createAddEndPhaseEffectStep(endPhaseDiscardEffect, {
         summary: "エンドフェイズ効果を登録",
         description: "エンドフェイズに手札を全て捨てる効果を登録します",

@@ -11,11 +11,11 @@
  * @module domain/effects/actions/spell/GracefulCharityActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createDrawStep, createCardSelectionStep } from "../../builders/stepBuilders";
-import { discardCards } from "../../../models/Zone";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { createDiscardCardsSelectionStep } from "$lib/domain/effects/steps/handDiscard";
 
 /**
  * GracefulCharityActivation
@@ -36,42 +36,23 @@ export class GracefulCharityActivation extends NormalSpellAction {
 
   /**
    * RESOLUTION: Draw 3 cards, discard 2 cards (player selection)
+   *
+   * 効果の流れ:
+   * 1. デッキから3枚ドローする
+   * 2. 手札から2枚を選んで墓地へ送る（プレイヤーが選択）
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
-      // Step 1: Draw 3 cards
-      createDrawStep(3),
+      // Step 1: デッキから3枚ドロー
+      drawStep(3),
 
-      // Step 2: Discard 2 cards (player selection required)
-      createCardSelectionStep({
+      // Step 2: 手札から2枚選んで墓地へ送る
+      createDiscardCardsSelectionStep({
         id: "graceful-charity-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
-        availableCards: [], // Empty array means "use current hand"
-        minCards: 2,
-        maxCards: 2,
+        summary: "手札を2枚捨てる",
+        description: "手札から2枚選んで墓地へ送ってください",
+        cardCount: 2,
         cancelable: false,
-        onSelect: (currentState: GameState, selectedInstanceIds: string[]) => {
-          // Validate selection
-          if (selectedInstanceIds.length !== 2) {
-            return {
-              success: false,
-              updatedState: currentState,
-              error: "Must select exactly 2 cards to discard",
-            };
-          }
-
-          // Execute discard using Zone utility
-          const updatedZones = discardCards(currentState.zones, selectedInstanceIds);
-          return {
-            success: true,
-            updatedState: {
-              ...currentState,
-              zones: updatedZones,
-            },
-          };
-        },
       }),
     ];
   }

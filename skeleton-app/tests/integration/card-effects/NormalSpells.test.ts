@@ -837,7 +837,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![0].id).toBe("59750328-activation");
 
       // Verify draw step
-      expect(result.effectSteps![1].id).toContain("draw-until-3");
+      expect(result.effectSteps![1].id).toContain("fill-hands-3");
 
       // Verify end phase effect registration
       expect(result.effectSteps![2].id).toContain("add-end-phase-effect");
@@ -868,7 +868,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(3);
 
       // Verify draw step (should draw 2 cards to reach total 3)
-      expect(result.effectSteps![1].id).toContain("draw-until-3");
+      expect(result.effectSteps![1].id).toContain("fill-hands-3");
     });
 
     it("Scenario: Once-per-turn constraint test", () => {
@@ -898,6 +898,7 @@ describe("Normal Spell Card Effects", () => {
 
   // ===========================
   // Toon Table of Contents (89997728) - P3 Card
+  // TODO: 永続魔法なので、ファイルを分ける
   // ===========================
   describe("Toon Table of Contents (89997728) - Scenario Tests", () => {
     const toonTableCardId = "89997728";

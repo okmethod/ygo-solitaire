@@ -13,10 +13,10 @@
  * @module domain/effects/actions/spell/ChickenGameIgnitionEffect
  */
 
-import type { ChainableAction } from "../../../models/ChainableAction";
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { createDrawStep } from "../../builders/stepBuilders";
+import type { ChainableAction } from "$lib/domain/models/ChainableAction";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { drawStep } from "$lib/domain/effects/steps/autoMovements";
 
 /**
  * ChickenGameIgnitionEffect
@@ -97,7 +97,6 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
    * @param _state - 現在のゲーム状態（未使用）
    * @returns 発動ステップ配列
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(_state: GameState): AtomicStep[] {
     const effectKey = `${this.cardInstanceId}:${this.effectId}`;
 
@@ -169,11 +168,10 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
    * @param activatedCardInstanceId - 発動したカードのインスタンスID（未使用）
    * @returns 効果解決ステップ配列
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Option 1: Draw 1 card (簡略化のためこの選択肢のみ実装)
-      createDrawStep(1, {
+      drawStep(1, {
         id: "chicken-game-draw",
         description: "デッキから1枚ドローします",
       }),
