@@ -16,7 +16,7 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
-import { createDiscardAllHandEndPhaseStep } from "$lib/domain/effects/steps/handDiscard";
+import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 
 /**
  * IntoTheVoidActivation
@@ -50,7 +50,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     // エンドフェイズ手札全破棄効果を作成
-    const endPhaseDiscardEffect = createDiscardAllHandEndPhaseStep({
+    const endPhaseDiscardEffect = discardAllHandEndPhaseStep({
       id: `into-the-void-end-phase-discard-${activatedCardInstanceId}`,
     });
 

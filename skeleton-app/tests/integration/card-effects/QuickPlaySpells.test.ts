@@ -65,8 +65,8 @@ describe("Quick-Play Spell Card Effects", () => {
         description: "《手札断札》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "card-destruction-discard-player",
-        summary: "手札を捨てる",
+        id: "discard-selected-2-cards",
+        summary: "手札を2枚捨てる",
       });
       expect(result.effectSteps![2]).toMatchObject({
         id: "card-destruction-discard-opponent",

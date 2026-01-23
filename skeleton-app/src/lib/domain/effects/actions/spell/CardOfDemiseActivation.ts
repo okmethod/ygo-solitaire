@@ -14,10 +14,9 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { createAddEndPhaseEffectStep } from "../../builders/stepBuilders";
-import { fillHandsStep } from "$lib/domain/effects/steps/autoMovements";
-import { sendToGraveyard } from "$lib/domain/models/Zone";
-import { getCardNameWithBrackets, getCardData } from "$lib/domain/registries/CardDataRegistry";
+import { fillHandsStep } from "$lib/domain/effects/steps/draws";
+import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
+import { discardAllHandStep } from "$lib/domain/effects/steps/discards";
 
 /**
  * CardOfDemiseActivation
@@ -34,7 +33,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    * - Card must not be in activatedOncePerTurnCards (once-per-turn constraint)
    */
   protected additionalActivationConditions(state: GameState): boolean {
-    // Once-per-turn constraint: check if card already activated this turn
+    // 1ターンに1度制限: 既にこのターン発動済みでないかチェック
     if (state.activatedOncePerTurnCards.has(this.cardId)) {
       return false;
     }
@@ -45,74 +44,28 @@ export class CardOfDemiseActivation extends NormalSpellAction {
   /**
    * ACTIVATION: Override to add once-per-turn tracking
    *
-   * Adds this card's ID to activatedOncePerTurnCards set.
+   * 基底クラスの createOncePerTurnActivationSteps() を使用して、
+   * 1ターンに1度制限を記録します。
    */
   createActivationSteps(_state: GameState): AtomicStep[] {
-    const cardData = getCardData(this.cardId);
-    return [
-      {
-        id: `${this.cardId}-activation`,
-        summary: "カード発動",
-        description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // Add to once-per-turn tracking
-          const newActivatedCards = new Set(currentState.activatedOncePerTurnCards);
-          newActivatedCards.add(this.cardId);
-
-          const updatedState: GameState = {
-            ...currentState,
-            activatedOncePerTurnCards: newActivatedCards,
-          };
-
-          return {
-            success: true,
-            updatedState,
-            message: `${cardData.jaName} activated`,
-          };
-        },
-      },
-    ];
+    return this.createOncePerTurnActivationSteps();
   }
 
   /**
    * RESOLUTION: Draw until hand = 3 → Register end phase effect (discard all hand)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
-    // Create end phase discard effect
-    const endPhaseDiscardEffect: AtomicStep = {
-      id: `card-of-demise-end-phase-discard-${activatedCardInstanceId}`,
-      summary: "手札を全て捨てる",
-      description: "エンドフェイズに手札を全て捨てます",
-      notificationLevel: "info",
-      action: (state: GameState) => {
-        // Discard all cards in hand
-        let updatedZones = state.zones;
-        const handCards = [...state.zones.hand]; // Copy to avoid mutation during iteration
-
-        for (const card of handCards) {
-          updatedZones = sendToGraveyard(updatedZones, card.instanceId);
-        }
-
-        const updatedState: GameState = {
-          ...state,
-          zones: updatedZones,
-        };
-
-        return {
-          success: true,
-          updatedState,
-          message: `Discarded all ${handCards.length} cards from hand (Card of Demise effect)`,
-        };
-      },
-    };
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    // エンドフェイズ手札全破棄効果を作成
+    const endPhaseDiscardEffect = discardAllHandStep({
+      id: `card-of-demise-end-phase-discard-${_activatedCardInstanceId}`,
+    });
 
     return [
       // Step 1: 手札が3枚になるまでドロー
       fillHandsStep(3),
 
-      // Step 2: Register end phase effect
-      createAddEndPhaseEffectStep(endPhaseDiscardEffect, {
+      // Step 2: エンドフェイズ効果を登録
+      queueEndPhaseEffectStep(endPhaseDiscardEffect, {
         summary: "エンドフェイズ効果を登録",
         description: "エンドフェイズに手札を全て捨てる効果を登録します",
       }),

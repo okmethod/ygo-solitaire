@@ -15,7 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { createDiscardCardsSelectionStep } from "$lib/domain/effects/steps/handDiscard";
+import { discardCardsSelectionStep } from "$lib/domain/effects/steps/discards";
 
 /**
  * GracefulCharityActivation
@@ -47,13 +47,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
       drawStep(3),
 
       // Step 2: 手札から2枚選んで墓地へ送る
-      createDiscardCardsSelectionStep({
-        id: "graceful-charity-discard",
-        summary: "手札を2枚捨てる",
-        description: "手札から2枚選んで墓地へ送ってください",
-        cardCount: 2,
-        cancelable: false,
-      }),
+      discardCardsSelectionStep(2),
     ];
   }
 }

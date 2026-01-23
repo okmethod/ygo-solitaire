@@ -135,9 +135,9 @@ describe("Normal Spell Card Effects", () => {
         description: "デッキから3枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "graceful-charity-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
+        id: "discard-selected-2-cards",
+        summary: "手札を2枚捨てる",
+        description: "手札から2枚選んで捨てます",
       });
     });
 
@@ -579,9 +579,9 @@ describe("Normal Spell Card Effects", () => {
         description: "《魔法石の採掘》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "magical-stone-excavation-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
+        id: "discard-selected-2-cards",
+        summary: "手札を2枚捨てる",
+        description: "手札から2枚選んで捨てます",
       });
       expect(result.effectSteps![2]).toMatchObject({
         id: "magical-stone-excavation-search-excavation-0",
@@ -840,7 +840,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![1].id).toContain("fill-hands-3");
 
       // Verify end phase effect registration
-      expect(result.effectSteps![2].id).toContain("queue-end-phase-effect-card-of-demise-end-phase-discard-demise-0");
+      expect(result.effectSteps![2].id).toContain("queue-end-phase-effect-discard-all-hand");
     });
 
     it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {

@@ -15,7 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { createDiscardCardsSelectionStep } from "$lib/domain/effects/steps/handDiscard";
+import { discardCardsSelectionStep } from "$lib/domain/effects/steps/discards";
 
 /**
  * CardDestructionActivation
@@ -55,13 +55,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: プレイヤーが手札から2枚選んで墓地へ送る
-      createDiscardCardsSelectionStep({
-        id: "card-destruction-discard-player",
-        summary: "手札を2枚捨てる",
-        description: "手札から2枚選んで墓地へ送ってください（キャンセル不可）",
-        cardCount: 2,
-        cancelable: false,
-      }),
+      discardCardsSelectionStep(2),
 
       // Step 2: 相手が手札から2枚墓地へ送る（内部状態のみ）
       {

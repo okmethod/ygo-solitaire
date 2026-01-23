@@ -11,11 +11,11 @@
  * @module domain/effects/actions/spell/MagicalStoneExcavationActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createCardSelectionStep, createSearchFromGraveyardStep } from "../../builders/stepBuilders";
-import { discardCards } from "../../../models/Zone";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { discardCardsSelectionStep } from "$lib/domain/effects/steps/discards";
+import { createSearchFromGraveyardStep } from "$lib/domain/effects/steps/manualMovements";
 
 /**
  * MagicalStoneExcavationActivation
@@ -53,41 +53,17 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
 
   /**
    * RESOLUTION: Discard 2 cards → Select 1 spell from graveyard → Add to hand
+   *
+   * 効果の流れ:
+   * 1. 手札から2枚を選んで墓地へ送る（コスト）
+   * 2. 墓地から魔法カード1枚を選んで手札に加える
    */
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
-      // Step 1: Discard 2 cards from hand
-      createCardSelectionStep({
-        id: "magical-stone-excavation-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
-        availableCards: [], // Empty array means "use current hand"
-        minCards: 2,
-        maxCards: 2,
-        cancelable: false,
-        onSelect: (currentState: GameState, selectedInstanceIds: string[]) => {
-          // Validate selection
-          if (selectedInstanceIds.length !== 2) {
-            return {
-              success: false,
-              updatedState: currentState,
-              error: "Must select exactly 2 cards to discard",
-            };
-          }
+      // Step 1: 手札から2枚選んで墓地へ送る（コスト）
+      discardCardsSelectionStep(2),
 
-          // Execute discard using Zone utility
-          const updatedZones = discardCards(currentState.zones, selectedInstanceIds);
-          return {
-            success: true,
-            updatedState: {
-              ...currentState,
-              zones: updatedZones,
-            },
-          };
-        },
-      }),
-
-      // Step 2: Select 1 spell card from graveyard and add to hand
+      // Step 2: 墓地から魔法カード1枚を選んで手札に加える
       createSearchFromGraveyardStep({
         id: `magical-stone-excavation-search-${activatedCardInstanceId}`,
         summary: "墓地から魔法カードを回収",
