@@ -14,7 +14,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { drawStep } from "$lib/domain/effects/steps/draws";
 import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
 import { createDiscardAllHandEndPhaseStep } from "$lib/domain/effects/steps/handDiscard";
 

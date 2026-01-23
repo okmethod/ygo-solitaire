@@ -14,7 +14,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
-import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { drawStep } from "$lib/domain/effects/steps/draws";
 import { createDiscardCardsSelectionStep } from "$lib/domain/effects/steps/handDiscard";
 
 /**

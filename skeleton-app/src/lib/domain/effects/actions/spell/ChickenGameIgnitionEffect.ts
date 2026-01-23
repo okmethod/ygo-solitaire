@@ -16,7 +16,7 @@
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { drawStep } from "$lib/domain/effects/steps/draws";
 
 /** ChickenGameIgnitionEffect */
 export class ChickenGameIgnitionEffect implements ChainableAction {

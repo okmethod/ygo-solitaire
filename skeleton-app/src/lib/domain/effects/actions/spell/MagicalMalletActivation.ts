@@ -15,7 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { createReturnToDeckStep } from "../../builders/stepBuilders";
-import { drawStep } from "$lib/domain/effects/steps/autoMovements";
+import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 
