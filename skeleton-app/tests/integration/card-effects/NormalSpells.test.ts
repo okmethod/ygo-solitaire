@@ -135,7 +135,7 @@ describe("Normal Spell Card Effects", () => {
         description: "デッキから3枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "discard-selected-2-cards",
+        id: "select-and-discard-2-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
       });
@@ -579,7 +579,7 @@ describe("Normal Spell Card Effects", () => {
         description: "《魔法石の採掘》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "discard-selected-2-cards",
+        id: "select-and-discard-2-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
       });
@@ -746,7 +746,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(2); // activation + search
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("98645731-activation");
+      expect(result.effectSteps![0].id).toBe("98645731-activation-once-per-turn");
 
       // Verify search step
       expect(result.effectSteps![1].id).toContain("pot-of-duality-search");
@@ -834,7 +834,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(3); // activation + draw + add end phase effect
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("59750328-activation");
+      expect(result.effectSteps![0].id).toBe("59750328-activation-once-per-turn");
 
       // Verify draw step
       expect(result.effectSteps![1].id).toContain("fill-hands-3");

@@ -14,8 +14,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { discardCardsSelectionStep } from "$lib/domain/effects/steps/discards";
-import { createSearchFromGraveyardStep } from "$lib/domain/effects/steps/manualMovements";
+import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
+import { createSearchFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
 /**
  * MagicalStoneExcavationActivation
@@ -61,7 +61,7 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: 手札から2枚選んで墓地へ送る（コスト）
-      discardCardsSelectionStep(2),
+      selectAndDiscardStep(2),
 
       // Step 2: 墓地から魔法カード1枚を選んで手札に加える
       createSearchFromGraveyardStep({

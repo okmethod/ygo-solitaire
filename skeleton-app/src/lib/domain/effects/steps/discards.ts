@@ -5,7 +5,7 @@
  * - sendToGraveyardStep: カードを墓地へ送る
  * - discardAllHandStep: 手札を全て捨てる
  * - discardAllHandEndPhaseStep: エンドフェイズに手札を全て捨てる
- * - discardCardsSelectionStep: 手札から指定枚数を選択して捨てる
+ * - selectAndDiscardStep: 手札から指定枚数を選択して捨てる
  *
  * TODO: 「墓地の送る」と「捨てる」を区別する
  *
@@ -102,9 +102,9 @@ export const discardAllHandEndPhaseStep = (): AtomicStep => {
 };
 
 /** 手札から指定枚数のカードを選択して捨てるステップ */
-export const discardCardsSelectionStep = (cardCount: number, cancelable?: boolean): AtomicStep => {
+export const selectAndDiscardStep = (cardCount: number, cancelable?: boolean): AtomicStep => {
   return selectCardsStep({
-    id: `discard-selected-${cardCount}-cards`,
+    id: `select-and-discard-${cardCount}-cards`,
     summary: `手札を${cardCount}枚捨てる`,
     description: `手札から${cardCount}枚選んで捨てます`,
     availableCards: null, // 動的指定: 実行時に_sourceZoneから取得

@@ -15,7 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { discardCardsSelectionStep } from "$lib/domain/effects/steps/discards";
+import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
 /**
  * GracefulCharityActivation
@@ -47,7 +47,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
       drawStep(3),
 
       // Step 2: 手札から2枚選んで墓地へ送る
-      discardCardsSelectionStep(2),
+      selectAndDiscardStep(2),
     ];
   }
 }
