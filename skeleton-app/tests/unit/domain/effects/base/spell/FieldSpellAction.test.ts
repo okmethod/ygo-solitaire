@@ -35,8 +35,28 @@ class TestFieldSpell extends FieldSpellAction {
     return true;
   }
 
-  createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
     // Field Spells typically have no resolution steps (only continuous effects)
+    return [];
+  }
+
+  protected subTypePostResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [];
   }
 }
@@ -96,7 +116,7 @@ describe("FieldSpellAction", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return empty array (field spells have no activation steps)", () => {
+    it("should return only notification step (field spells have no additional activation steps)", () => {
       // Arrange
       const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
@@ -106,8 +126,9 @@ describe("FieldSpellAction", () => {
       // Act
       const steps = action.createActivationSteps(state);
 
-      // Assert: Field Spells have no activation steps (placement handled by ActivateSpellCommand)
-      expect(steps).toHaveLength(0);
+      // Assert: Field Spells have only notification step (placement handled by ActivateSpellCommand)
+      expect(steps).toHaveLength(1);
+      expect(steps[0].summary).toBe("カード発動");
     });
   });
 

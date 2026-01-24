@@ -4,9 +4,9 @@
  * Card ID: 79571449 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに3枚以上
- * - ACTIVATION: 発動通知
- * - RESOLUTION: 3枚ドロー、手札から2枚選んで破棄、墓地へ送る
+ * - CONDITIONS: デッキに3枚以上
+ * - ACTIVATION: 無し
+ * - RESOLUTION: 3枚ドロー、手札を2枚捨てる
  *
  * @module domain/effects/actions/spell/GracefulCharityActivation
  */
@@ -17,37 +17,45 @@ import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAct
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
-/**
- * GracefulCharityActivation
- *
- * Extends NormalSpellAction for Graceful Charity implementation.
- */
+/** 《天使の施し》効果クラス */
 export class GracefulCharityActivation extends NormalSpellAction {
   constructor() {
     super(79571449);
   }
 
   /**
-   * Card-specific activation condition: Deck must have at least 3 cards
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * チェック項目:
+   * 1. デッキに3枚以上あること
    */
   protected individualConditions(state: GameState): boolean {
-    return state.zones.deck.length >= 3;
+    if (state.zones.deck.length < 3) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
-   * RESOLUTION: Draw 3 cards, discard 2 cards (player selection)
+   * ACTIVATION: 発動処理（カード固有）
    *
-   * 効果の流れ:
-   * 1. デッキから3枚ドローする
-   * 2. 手札から2枚を選んで墓地へ送る（プレイヤーが選択）
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [
-      // Step 1: デッキから3枚ドロー
-      drawStep(3),
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 固有ステップ無し
+  }
 
-      // Step 2: 手札から2枚選んで墓地へ送る
-      selectAndDiscardStep(2),
-    ];
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 3枚ドロー
+   * 2. 手札を2枚捨てる
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [drawStep(3), selectAndDiscardStep(2)];
   }
 }

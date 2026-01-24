@@ -4,8 +4,8 @@
  * Card ID: 85852291 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ
- * - ACTIVATION: 発動通知
+ * - CONDITIONS: 無し
+ * - ACTIVATION: 無し
  * - RESOLUTION: 手札から任意枚数選択、デッキに戻してシャッフル、同じ枚数ドロー
  *
  * @module domain/effects/actions/spell/MagicalMalletActivation
@@ -16,30 +16,41 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { selectReturnShuffleDrawStep } from "$lib/domain/effects/steps/compositeOperations";
 
-/**
- * MagicalMalletActivation
- *
- * Extends NormalSpellAction for Magical Mallet implementation.
- */
+/** 《打ち出の小槌》効果クラス */
 export class MagicalMalletActivation extends NormalSpellAction {
   constructor() {
     super(85852291);
   }
 
   /**
-   * Card-specific activation condition: Magical Mallet can be activated even with empty hand
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * @protected
    */
   protected individualConditions(_state: GameState): boolean {
-    return true;
+    return true; // 固有条件無し
   }
 
   /**
-   * RESOLUTION: Select cards, return to deck, shuffle, draw same number
+   * ACTIVATION: 発動処理（カード固有）
    *
-   * 効果の流れ:
-   * 1. 手札から1枚以上選択、デッキに戻してシャッフル、同じ枚数ドロー
+   * Note: デッキに戻す処理はコストではなく、効果として扱われる
+   *
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [selectReturnShuffleDrawStep({ min: 1 })];
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 固有ステップ無し
+  }
+
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 手札から任意枚数選択し、デッキに戻してシャッフル、同じ枚数ドロー
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [selectReturnShuffleDrawStep({ min: 0 })];
   }
 }

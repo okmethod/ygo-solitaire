@@ -31,9 +31,10 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * チェック項目:
    * 1. メインフェイズであること
    *
+   * @protected
    * @final このメソッドはオーバーライドしない
    */
-  subTypeConditions(state: GameState): boolean {
+  protected subTypeConditions(state: GameState): boolean {
     // 1. メインフェイズであること
     if (!isMainPhase(state.phase)) {
       return false;
@@ -51,12 +52,93 @@ export abstract class NormalSpellAction extends BaseSpellAction {
   protected abstract individualConditions(state: GameState): boolean;
 
   /**
-   * RESOLUTION: 効果解決時の処理
+   * ACTIVATION: 発動前処理（通常魔法共通）
    *
-   * サブクラスでこのメソッドを実装し、カード固有の効果解決ステップを定義する。
-   * TODO: 通常魔法の墓地送りは現状コマンド側。どっちでやるべき？？
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 通常魔法は発動前処理なし
+  }
+
+  /**
+   * ACTIVATION: 発動処理（カード固有）
    *
+   * @protected
+   */
+  protected abstract individualActivationSteps(_state: GameState): AtomicStep[];
+
+  /**
+   * ACTIVATION: 発動後処理（通常魔法共通）
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 通常魔法は発動後処理なし
+  }
+
+  /**
+   * RESOLUTION: 効果解決前処理（通常魔法共通）
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return []; // 通常魔法は効果解決前処理なし
+  }
+
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * @protected
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+  protected abstract individualResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+
+  /**
+   * RESOLUTION: 効果解決後処理（通常魔法共通）
+   *
+   * 通常魔法は効果解決後に墓地へ送られる。
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePostResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+    return [
+      // TODO: sendToGraveyardStep を使うように修正したいので、CardInstance を引数で受け取るように変更する必要がある
+      {
+        id: `${activatedCardInstanceId}-send-to-graveyard`,
+        summary: "墓地へ送る",
+        description: "通常魔法カードを墓地へ送ります",
+        notificationLevel: "info",
+        action: (currentState: GameState) => {
+          // カードを魔法・罠ゾーンから墓地へ移動
+          const card = currentState.zones.spellTrapZone.find((c) => c.instanceId === activatedCardInstanceId);
+          if (!card) {
+            return {
+              success: false,
+              updatedState: currentState,
+              message: `Card not found in spell/trap zone: ${activatedCardInstanceId}`,
+            };
+          }
+
+          const updatedState: GameState = {
+            ...currentState,
+            zones: {
+              ...currentState.zones,
+              spellTrapZone: currentState.zones.spellTrapZone.filter((c) => c.instanceId !== activatedCardInstanceId),
+              graveyard: [...currentState.zones.graveyard, card],
+            },
+          };
+
+          return {
+            success: true,
+            updatedState,
+            message: `Normal spell sent to graveyard: ${activatedCardInstanceId}`,
+          };
+        },
+      },
+    ];
+  }
 }

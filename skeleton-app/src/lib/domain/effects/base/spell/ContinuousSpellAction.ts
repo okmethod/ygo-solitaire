@@ -31,9 +31,10 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * チェック項目:
    * 1. メインフェイズであること
    *
+   * @protected
    * @final このメソッドはオーバーライドしない
    */
-  subTypeConditions(state: GameState): boolean {
+  protected subTypeConditions(state: GameState): boolean {
     // 1. メインフェイズであること
     if (!isMainPhase(state.phase)) {
       return false;
@@ -51,30 +52,58 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
   protected abstract individualConditions(state: GameState): boolean;
 
   /**
-   * ACTIVATION: 発動時の処理
+   * ACTIVATION: 発動前処理（永続魔法共通）
    *
-   * 永続魔法は発動ステップを持ちません（配置はActivateSpellCommandが行います）。
-   * 基底クラスをオーバーライドして空配列を返します。
-   *
-   * @param _state - 現在のゲーム状態
-   * @returns 空配列（発動時の処理なし）
+   * @protected
+   * @final このメソッドはオーバーライドしない
    */
-  createActivationSteps(_state: GameState): AtomicStep[] {
-    // 永続魔法は発動ステップを持ちません（配置はActivateSpellCommandが行います）
-    return [];
+  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 永続魔法は発動前処理なし
   }
 
   /**
-   * RESOLUTION: 効果解決時の処理
+   * ACTIVATION: 発動処理（カード固有）
    *
-   * サブクラスでこのメソッドを実装し、カード固有の効果解決ステップを定義します。
-   * 永続魔法は発動コストや初期効果を持つ場合があります。
-   * 発動によりカードがフィールドに配置され、墓地送りステップは不要です。
-   *
-   * @param state - 現在のゲーム状態
-   * @param activatedCardInstanceId - 発動したカードのインスタンスID
-   * @returns 効果解決ステップ配列
+   * @protected
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+  protected abstract individualActivationSteps(_state: GameState): AtomicStep[];
+
+  /**
+   * ACTIVATION: 発動後処理（永続魔法共通）
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 永続魔法は発動後処理なし
+  }
+
+  /**
+   * RESOLUTION: 効果解決前処理（永続魔法共通）
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return []; // 永続魔法は効果解決前処理なし
+  }
+
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * @protected
+   * @abstract
+   */
+  protected abstract individualResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+
+  /**
+   * RESOLUTION: 効果解決後処理（永続魔法共通）
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePostResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return []; // 永続魔法は効果解決後処理なし（フィールドに残る）
+  }
 }

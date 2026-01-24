@@ -4,9 +4,9 @@
  * Card ID: 59750328 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、1ターンに1度制限
- * - ACTIVATION: 発動通知、1ターンに1度制限の記録
- * - RESOLUTION: 手札が3枚になるようにドロー、エンドフェイズ効果登録（手札全破棄）、墓地へ送る
+ * - CONDITIONS: 1ターンに1度制限
+ * - ACTIVATION: 無し
+ * - RESOLUTION: 手札が3枚になるようにドロー、エンドフェイズに手札を全て捨てる
  *
  * @module domain/effects/actions/spell/CardOfDemiseActivation
  */
@@ -15,14 +15,9 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { fillHandsStep } from "$lib/domain/effects/steps/draws";
-import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
-import { discardAllHandStep } from "$lib/domain/effects/steps/discards";
+import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 
-/**
- * CardOfDemiseActivation
- *
- * Extends NormalSpellAction for Card of Demise implementation.
- */
+/** 《命削りの宝札》効果クラス */
 export class CardOfDemiseActivation extends NormalSpellAction {
   constructor() {
     super(59750328);
@@ -44,21 +39,24 @@ export class CardOfDemiseActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Draw until hand = 3 → Register end phase effect (discard all hand)
+   * ACTIVATION: 発動処理（カード固有）
+   *
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    // エンドフェイズ手札全破棄効果を作成
-    const endPhaseDiscardEffect = discardAllHandStep();
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 固有ステップ無し
+  }
 
-    return [
-      // Step 1: 手札が3枚になるまでドロー
-      fillHandsStep(3),
-
-      // Step 2: エンドフェイズ効果を登録
-      queueEndPhaseEffectStep(endPhaseDiscardEffect, {
-        summary: "エンドフェイズ効果を登録",
-        description: "エンドフェイズに手札を全て捨てる効果を登録します",
-      }),
-    ];
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 手札が3枚になるまでドロー
+   * 2. エンドフェイズに手札を全て捨てる効果を登録
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [fillHandsStep(3), discardAllHandEndPhaseStep()];
   }
 }

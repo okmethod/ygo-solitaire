@@ -4,9 +4,9 @@
  * Card ID: 15259703 | Type: Spell | Subtype: Continuous
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、LP>=1000
- * - ACTIVATION: 発動通知
- * - RESOLUTION: 1000LP支払い、フィールドに残る
+ * - CONDITIONS: LP>1000
+ * - ACTIVATION: 1000LP支払い
+ * - RESOLUTION: 無し
  *
  * @module domain/effects/actions/spell/ToonWorldActivation
  */
@@ -16,11 +16,7 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { ContinuousSpellAction } from "$lib/domain/effects/base/spell/ContinuousSpellAction";
 import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 
-/**
- * ToonWorldActivation
- *
- * Extends ContinuousSpellAction for Toon World implementation.
- */
+/** 《トゥーン・ワールド》効果クラス */
 export class ToonWorldActivation extends ContinuousSpellAction {
   constructor() {
     super(15259703);
@@ -33,19 +29,31 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    * 1. プレイヤーのLPが1000以上であること
    */
   protected individualConditions(state: GameState): boolean {
-    // 1. プレイヤーのLPが1000以上であること（発動コスト支払い可能）
-    return state.lp.player >= 1000;
+    // 1. プレイヤーのLPが1000以上であること
+    if (state.lp.player < 1000) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
-   * RESOLUTION: Pay 1000 LP → Card stays on field (placement handled by ActivateSpellCommand)
+   * ACTIVATION: 発動処理（カード固有）
+   *
+   * コスト: 1000LP支払う
+   *
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [
-      // Step 1: Pay 1000 LP
-      payLpStep(1000, "player"),
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return [payLpStep(1000, "player")];
+  }
 
-      // Note: No graveyard step - Continuous Spells stay on field after activation
-    ];
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return []; // 固有ステップ無し
   }
 }

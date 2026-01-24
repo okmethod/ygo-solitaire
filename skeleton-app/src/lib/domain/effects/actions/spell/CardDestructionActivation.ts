@@ -4,9 +4,11 @@
  * Card ID: 74519184 | Type: Spell | Subtype: Quick-Play
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、手札が3枚以上（発動カード含む+捨てる2枚）
- * - ACTIVATION: 発動通知
- * - RESOLUTION: プレイヤーが2枚破棄、相手が2枚破棄（内部処理）、両者が2枚ドロー、墓地へ送る
+ * - CONDITIONS: 手札が2枚以上、デッキに2枚以上
+ * - ACTIVATION: 無し
+ * - RESOLUTION: 手札を2枚捨てる、2枚ドロー
+ *
+ * Note: 相手の捨てる処理・ドロー処理は未実装
  *
  * @module domain/effects/actions/spell/CardDestructionActivation
  */
@@ -17,67 +19,51 @@ import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySp
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
-/**
- * CardDestructionActivation
- *
- * Extends QuickPlaySpellAction for Card Destruction implementation.
- */
+/** 《手札断札》効果クラス */
 export class CardDestructionActivation extends QuickPlaySpellAction {
   constructor() {
     super(74519184);
   }
 
   /**
-   * Card-specific activation conditions
+   * CONDITIONS: 発動条件チェック（カード固有）
    *
-   * - Hand must have at least 3 cards (spell + 2 to discard)
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 発動可能ならtrue
+   * チェック項目:
+   * 1. 手札が2枚以上あること
+   * 2. デッキに2枚以上あること
    */
   protected individualConditions(state: GameState): boolean {
-    // Hand must have at least 3 cards (spell + 2 to discard)
-    return state.zones.hand.length >= 3;
+    // 1. 自分の手札が2枚以上であること
+    // 手札から発動する場合は、このカード自身を除いた枚数をチェックする必要がある
+    // FIXME: 要検討
+
+    // 2. デッキに2枚以上あること
+    if (state.zones.deck.length < 2) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
-   * RESOLUTION: 効果解決時の処理
+   * ACTIVATION: 発動処理（カード固有）
    *
-   * 効果の流れ:
-   * 1. プレイヤーが手札から2枚選んで墓地へ送る
-   * 2. 相手が手札から2枚墓地へ送る（内部状態のみ、1ターンキルでは実装不要）
-   * 3. 両プレイヤーがデッキから2枚ドロー
-   *
-   * @param state - 現在のゲーム状態
-   * @param activatedCardInstanceId - 発動したカードのインスタンスID
-   * @returns 効果解決ステップ配列
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [
-      // Step 1: プレイヤーが手札から2枚選んで墓地へ送る
-      selectAndDiscardStep(2),
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 固有ステップ無し
+  }
 
-      // Step 2: 相手が手札から2枚墓地へ送る（内部状態のみ）
-      {
-        id: "card-destruction-discard-opponent",
-        summary: "相手が手札を捨てる",
-        description: "相手が手札から2枚捨てます（内部状態のみ）",
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // 1ターンキルモードでは相手の手札をUIで管理していないため、
-          // このステップは将来の拡張性のために残されています。
-          // 実際の状態変更は不要です。
-
-          return {
-            success: true,
-            updatedState: currentState,
-            message: "Opponent discarded 2 cards (internal)",
-          };
-        },
-      },
-
-      // Step 3: 両プレイヤーがデッキから2枚ドロー（実際は自分だけドロー）
-      drawStep(2),
-    ];
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 手札を2枚捨てる
+   * 2. 2枚ドロー
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [selectAndDiscardStep(2), drawStep(2)];
   }
 }

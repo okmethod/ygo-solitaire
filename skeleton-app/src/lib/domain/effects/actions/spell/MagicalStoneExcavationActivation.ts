@@ -4,9 +4,9 @@
  * Card ID: 98494543 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: 墓地に魔法カードが1枚以上、手札に2枚以上
+ * - CONDITIONS: 墓地に魔法カードが1枚以上、捨てられる手札が2枚以上
  * - ACTIVATION: 手札を2枚捨てる
- * - RESOLUTION: 墓地から魔法カード1枚選んで手札に加える、墓地へ送る
+ * - RESOLUTION: 魔法カード1枚をサルベージ
  *
  * @module domain/effects/actions/spell/MagicalStoneExcavationActivation
  */
@@ -50,18 +50,31 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
   }
 
   /**
-   * RESOLUTION: Discard 2 cards → Select 1 spell from graveyard → Add to hand
+   * ACTIVATION: 発動処理（カード固有）
    *
-   * 効果の流れ:
-   * 1. 手札から2枚を選んで墓地へ送る（コスト）
-   * 2. 墓地から魔法カード1枚を選んで手札に加える
+   * コスト:
+   * 1. 手札から2枚を選んで捨てる
+   *
+   * @protected
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
     return [
-      // Step 1: 手札から2枚選んで墓地へ送る（コスト）
+      // 1. 手札から2枚を選んで捨てる
       selectAndDiscardStep(2),
+    ];
+  }
 
-      // Step 2: 墓地から魔法カード1枚を選んで手札に加える
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 魔法カード1枚をサルベージ
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+    return [
+      // 1. 魔法カード1枚をサルベージ
       salvageFromGraveyardStep({
         id: `magical-stone-excavation-search-${activatedCardInstanceId}`,
         summary: "魔法カード1枚をサルベージ",

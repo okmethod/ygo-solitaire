@@ -4,9 +4,11 @@
  * Card ID: 33782437 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、デッキに1枚以上
- * - ACTIVATION: 発動通知
- * - RESOLUTION: プレイヤーが1枚ドロー、相手が1枚ドロー（内部処理）、ダメージ無効化フラグ設定、墓地へ送る
+ * - CONDITIONS: デッキに1枚以上
+ * - ACTIVATION: 無し
+ * - RESOLUTION: 1枚ドロー、ダメージ無効化フラグ設定
+ *
+ * Note: 相手のドロー処理は未実装
  *
  * @module domain/effects/actions/spell/OneDayOfPeaceActivation
  */
@@ -16,51 +18,50 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 
-/**
- * OneDayOfPeaceActivation
- *
- * Extends NormalSpellAction for One Day of Peace implementation.
- */
+/** 《一時休戦》効果クラス */
 export class OneDayOfPeaceActivation extends NormalSpellAction {
   constructor() {
     super(33782437);
   }
 
   /**
-   * Card-specific activation condition: Deck must have at least 1 card
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * チェック項目:
+   * 1. デッキに1枚以上あること
    */
   protected individualConditions(state: GameState): boolean {
-    return state.zones.deck.length >= 1;
+    if (state.zones.deck.length < 1) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
-   * RESOLUTION: Draw 1 card (player), opponent draws (internal), damage negation
+   * ACTIVATION: 発動処理（カード固有）
+   *
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 固有ステップ無し
+  }
+
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 1枚ドロー
+   * 2. ダメージ無効化フラグ設定
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
-      // Step 1: Player draws 1 card
+      // 1. 1枚ドロー
       drawStep(1),
 
-      // Step 2: Opponent draws 1 card (internal state only, no UI update)
-      {
-        id: "one-day-of-peace-draw-opponent",
-        summary: "相手がドロー",
-        description: "相手がデッキから1枚ドローします（内部状態のみ）",
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // In 1-turn kill solitaire, opponent's hand is not tracked in UI
-          // This step is for completeness and future compatibility
-          // No actual state change needed for opponent's hand
-
-          return {
-            success: true,
-            updatedState: currentState,
-            message: "Opponent draw 1 card (internal)",
-          };
-        },
-      },
-
-      // Step 3: Set damageNegation flag to true
+      // 2. ダメージ無効化フラグ設定
       {
         id: "one-day-of-peace-damage-negation",
         summary: "ダメージ無効化",

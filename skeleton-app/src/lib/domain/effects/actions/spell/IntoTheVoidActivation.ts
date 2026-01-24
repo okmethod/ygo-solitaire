@@ -4,9 +4,9 @@
  * Card ID: 93946239 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、手札が3枚以上（発動前）、デッキに1枚以上
- * - ACTIVATION: 発動通知
- * - RESOLUTION: 1枚ドロー、エンドフェーズ効果登録（手札全破棄）、墓地へ送る
+ * - CONDITIONS: 手札が3枚以上、デッキに1枚以上
+ * - ACTIVATION: 無し
+ * - RESOLUTION: 1枚ドロー、エンドフェイズに手札を全て捨てる
  *
  * @module domain/effects/actions/spell/IntoTheVoidActivation
  */
@@ -15,52 +15,54 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 
-/**
- * IntoTheVoidActivation
- *
- * Extends NormalSpellAction for Into the Void implementation.
- */
+/** 《無の煉獄》効果クラス */
 export class IntoTheVoidActivation extends NormalSpellAction {
   constructor() {
     super(93946239);
   }
 
   /**
-   * Card-specific activation condition:
-   * - Hand must have at least 2 cards (activation requirement: 3+ cards including this card)
-   *   Note: This is checked AFTER the card moves to field, so original hand had 3+ cards
-   * - Deck must have at least 1 card
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * チェック項目:
+   * 1. 自分の手札が3枚以上であること
+   * 2. デッキに1枚以上あること
+   *
    */
   protected individualConditions(state: GameState): boolean {
-    // Card text: "自分の手札が３枚以上の場合に発動できる"
-    // (Card is already moved to field when this is called during execution)
-    if (state.zones.hand.length < 2) {
+    // 1. 自分の手札が3枚以上であること
+    // 手札から発動する場合は、このカード自身を除いた枚数をチェックする必要がある
+    // FIXME: 要検討
+
+    // 2. デッキに1枚以上あること
+    if (state.zones.deck.length < 1) {
       return false;
     }
 
-    // Need at least 1 card in deck to draw
-    return state.zones.deck.length >= 1;
+    return true;
   }
 
   /**
-   * RESOLUTION: Draw 1 card → Register end phase effect (discard all hand)
+   * ACTIVATION: 発動処理（カード固有）
+   *
+   * @protected
    */
-  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    // エンドフェイズ手札全破棄効果を作成
-    const endPhaseDiscardEffect = discardAllHandEndPhaseStep();
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return []; // 固有ステップ無し
+  }
 
-    return [
-      // Step 1: 1枚ドロー
-      drawStep(1),
-
-      // Step 2: エンドフェイズ効果を登録
-      queueEndPhaseEffectStep(endPhaseDiscardEffect, {
-        summary: "エンドフェイズ効果を登録",
-        description: "エンドフェイズに手札を全て捨てる効果を登録します",
-      }),
-    ];
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * 効果:
+   * 1. 1枚ドロー
+   * 2. エンドフェイズに手札を全て捨てる効果を登録
+   *
+   * @protected
+   */
+  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [drawStep(1), discardAllHandEndPhaseStep()];
   }
 }

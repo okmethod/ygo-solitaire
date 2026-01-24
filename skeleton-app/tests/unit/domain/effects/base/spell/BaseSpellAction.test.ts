@@ -47,7 +47,27 @@ class TestSpellAction extends BaseSpellAction {
     return state.zones.deck.length > 0;
   }
 
-  createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePostResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [];
   }
 }

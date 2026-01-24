@@ -51,7 +51,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    *
    * Template Method パターン
    * - このメソッドは final として扱う。
-   * - サブクラスは subTypeConditions() と individualConditions() を実装する。
+   * - サブクラスで抽象メソッドを実装する。
    *
    * チェック項目:
    * 1. 魔法カード共通の発動条件
@@ -96,12 +96,35 @@ export abstract class BaseSpellAction implements ChainableAction {
   /**
    * ACTIVATION: 発動時の処理
    *
-   * TODO: CONDITIONS と同じく Template Method パターンにしたい
+   * Template Method パターン
+   * - このメソッドは final として扱う。
+   * - サブクラスで抽象メソッドを実装する。
    *
-   * 魔法カードのデフォルト発動ステップ（通知のみ）。
-   * サブクラスは発動コストが必要なカードでこれをオーバーライドできる。
+   * 実行順序:
+   * 1. notificationSteps: 魔法カード発動通知（共通）
+   * 2. subTypePreActivationSteps: 魔法カードサブタイプ共通の発動処理
+   * 3. individualActivationSteps: カード固有の発動処理
+   * 4. subTypePostActivationSteps: 魔法カードサブタイプ共通の発動後処理
+   *
+   * @final このメソッドはオーバーライドしない
    */
-  createActivationSteps(_state: GameState): AtomicStep[] {
+  createActivationSteps(state: GameState): AtomicStep[] {
+    return [
+      ...this.notificationSteps(state),
+      ...this.subTypePreActivationSteps(state),
+      ...this.individualActivationSteps(state),
+      ...this.subTypePostActivationSteps(state),
+    ];
+  }
+
+  /**
+   * ACTIVATION: 発動処理（魔法カード共通）
+   *
+   * 魔法カードのデフォルト発動通知ステップ。
+   *
+   * @protected
+   */
+  protected notificationSteps(_state: GameState): AtomicStep[] {
     const cardData = getCardData(this.cardId);
     return [
       {
@@ -122,13 +145,69 @@ export abstract class BaseSpellAction implements ChainableAction {
   }
 
   /**
+   * ACTIVATION: 発動前処理（魔法カードサブタイプ共通）
+   *
+   * @protected
+   */
+  protected abstract subTypePreActivationSteps(state: GameState): AtomicStep[];
+
+  /**
+   * ACTIVATION: 発動処理（カード固有）
+   *
+   * @protected
+   */
+  protected abstract individualActivationSteps(state: GameState): AtomicStep[];
+
+  /**
+   * ACTIVATION: 発動後処理（魔法カードサブタイプ共通）
+   *
+   * @protected
+   */
+  protected abstract subTypePostActivationSteps(state: GameState): AtomicStep[];
+
+  /**
    * RESOLUTION: 効果解決時の処理
    *
-   * TODO: CONDITIONS と同じく Template Method パターンにしたい
+   * Template Method パターン
+   * - このメソッドは final として扱う。
+   * - サブクラスで抽象メソッドを実装する。
    *
-   * サブクラスでこのメソッドを実装し、カード固有の効果解決ステップを定義する。
+   * 実行順序:
+   * 1. subTypePreResolutionSteps: 魔法カードサブタイプ共通の解決前処理
+   * 2. individualResolutionSteps: カード固有の解決処理
+   * 3. subTypePostResolutionSteps: 魔法カードサブタイプ共通の解決後処理
    *
+   * @final このメソッドはオーバーライドしない
+   */
+  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+    return [
+      ...this.subTypePreResolutionSteps(state, activatedCardInstanceId),
+      ...this.individualResolutionSteps(state, activatedCardInstanceId),
+      ...this.subTypePostResolutionSteps(state, activatedCardInstanceId),
+    ];
+  }
+
+  /**
+   * RESOLUTION: 効果解決前処理（魔法カードサブタイプ共通）
+   *
+   * @protected
    * @abstract
    */
-  abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+  protected abstract subTypePreResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+
+  /**
+   * RESOLUTION: 効果解決処理（カード固有）
+   *
+   * @protected
+   * @abstract
+   */
+  protected abstract individualResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+
+  /**
+   * RESOLUTION: 効果解決後処理（魔法カードサブタイプ共通）
+   *
+   * @protected
+   * @abstract
+   */
+  protected abstract subTypePostResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
 }

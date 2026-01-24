@@ -35,7 +35,11 @@ class TestNormalSpell extends NormalSpellAction {
     return state.zones.deck.length >= 2;
   }
 
-  createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
     return [];
   }
 }
