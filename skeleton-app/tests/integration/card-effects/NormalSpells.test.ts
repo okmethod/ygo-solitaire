@@ -72,7 +72,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![2]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《強欲な壺》を墓地に送ります",
       });
     });
 
@@ -145,7 +145,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《天使の施し》を墓地に送ります",
       });
     });
 
@@ -210,7 +210,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![2]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《打ち出の小槌》を墓地に送ります",
       });
     });
 
@@ -276,7 +276,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《一時休戦》を墓地に送ります",
       });
     });
 
@@ -341,7 +341,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《成金ゴブリン》を墓地に送ります",
       });
     });
 
@@ -430,7 +430,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![2]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《闇の量産工場》を墓地に送ります",
       });
     });
 
@@ -530,7 +530,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![2]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《テラ・フォーミング》を墓地に送ります",
       });
     });
 
@@ -605,9 +605,9 @@ describe("Normal Spell Card Effects", () => {
         description: "墓地から魔法カード1枚を選択し、手札に加えます",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "excavation-0-send-to-graveyard",
+        id: "send-excavation-0-to-graveyard",
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《魔法石の採掘》を墓地に送ります",
       });
     });
 
@@ -698,7 +698,7 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《無の煉獄》を墓地に送ります",
       });
     });
 
@@ -785,7 +785,7 @@ describe("Normal Spell Card Effects", () => {
       // Verify send-to-graveyard step
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《強欲で謙虚な壺》を墓地に送ります",
       });
     });
 
@@ -879,7 +879,7 @@ describe("Normal Spell Card Effects", () => {
       // Verify send-to-graveyard step
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《命削りの宝札》を墓地に送ります",
       });
     });
 
@@ -913,7 +913,7 @@ describe("Normal Spell Card Effects", () => {
       // Verify send-to-graveyard step
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《命削りの宝札》を墓地に送ります",
       });
     });
 
@@ -992,7 +992,7 @@ describe("Normal Spell Card Effects", () => {
       // Verify send-to-graveyard step
       expect(result.effectSteps![2]).toMatchObject({
         summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
+        description: "《トゥーンのもくじ》を墓地に送ります",
       });
     });
 

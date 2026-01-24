@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { fillHandsStep } from "$lib/domain/effects/steps/draws";
@@ -29,7 +30,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    * チェック項目:
    * 1. 1ターンに1度制限をクリアしていること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     // 1. 1ターンに1度制限: 既にこのターン発動済みでないかチェック
     if (state.activatedOncePerTurnCards.has(this.cardId)) {
       return false;
@@ -43,7 +44,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -56,7 +57,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [fillHandsStep(3), discardAllHandEndPhaseStep()];
   }
 }

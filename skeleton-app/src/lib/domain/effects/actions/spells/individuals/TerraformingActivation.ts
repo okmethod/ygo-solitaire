@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
@@ -30,7 +31,7 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
     return fieldSpells.length >= 1;
   }
@@ -40,7 +41,7 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -52,10 +53,10 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
       searchFromDeckByConditionStep({
-        id: `terraforming-search-${activatedCardInstanceId}`,
+        id: `terraforming-search-${sourceInstance.instanceId}`,
         summary: "フィールド魔法1枚をサーチ",
         description: "デッキからフィールド魔法1枚を選択し、手札に加えます",
         filter: (card) => card.type === "spell" && card.spellType === "field",

@@ -17,11 +17,10 @@ import type { Zones } from "$lib/domain/models/Zone";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/GameState";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isSpellCard, isNormalSpellCard, isQuickPlaySpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
+import { isSpellCard, isQuickPlaySpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
 import {
   ValidationErrorCode,
   successValidationResult,
@@ -84,7 +83,7 @@ export class ActivateSpellCommand implements GameCommand {
 
     // 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
     const chainableAction = ChainableActionRegistry.get(cardInstance.id);
-    if (chainableAction && !chainableAction.canActivate(state)) {
+    if (chainableAction && !chainableAction.canActivate(state, cardInstance)) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -156,20 +155,16 @@ export class ActivateSpellCommand implements GameCommand {
   }
 
   // 効果処理ステップ配列を生成する
+  // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
     const chainableAction = ChainableActionRegistry.get(cardInstance.id);
-    const registeredEffectSteps = chainableAction?.canActivate(state)
-      ? [
-          ...chainableAction.createActivationSteps(state),
-          ...chainableAction.createResolutionSteps(state, this.cardInstanceId),
-        ]
-      : [];
-
-    // 通常魔法・速攻魔法は末尾に墓地送りステップを追加して返す
-    if (isNormalSpellCard(cardInstance) || isQuickPlaySpellCard(cardInstance)) {
-      return [...registeredEffectSteps, sendToGraveyardStep(this.cardInstanceId, cardInstance.jaName)];
+    if (chainableAction?.canActivate(state, cardInstance)) {
+      return [
+        ...chainableAction.createActivationSteps(state, cardInstance),
+        ...chainableAction.createResolutionSteps(state, cardInstance),
+      ];
     }
-    return registeredEffectSteps;
+    return [];
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

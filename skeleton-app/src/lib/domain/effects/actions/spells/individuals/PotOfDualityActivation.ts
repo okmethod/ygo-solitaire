@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckTopStep } from "$lib/domain/effects/steps/searches";
@@ -30,7 +31,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
    * 1. 1ターンに1度制限をクリアしていること
    * 2. デッキに3枚以上あること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     // 1. 1ターンに1度制限: 既にこのターン発動済みでないかチェック
     if (state.activatedOncePerTurnCards.has(this.cardId)) {
       return false;
@@ -49,7 +50,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -62,11 +63,11 @@ export class PotOfDualityActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. デッキトップ3枚を確認し、1枚を手札に加える
       searchFromDeckTopStep({
-        id: `pot-of-duality-search-${activatedCardInstanceId}`,
+        id: `pot-of-duality-search-${sourceInstance.instanceId}`,
         summary: "デッキトップ3枚から1枚をサーチ",
         description: "デッキトップ3枚から1枚を選択し、手札に加えます",
         count: 3,

@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
@@ -28,7 +29,7 @@ export class DarkFactoryActivation extends NormalSpellAction {
    * チェック項目:
    * 1. 墓地に通常モンスターが2枚以上いること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     const normalMonsters = state.zones.graveyard.filter(
       (card) => card.type === "monster" && card.frameType === "normal",
     );
@@ -44,7 +45,7 @@ export class DarkFactoryActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -56,10 +57,10 @@ export class DarkFactoryActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
       salvageFromGraveyardStep({
-        id: `dark-factory-search-${activatedCardInstanceId}`,
+        id: `dark-factory-search-${sourceInstance.instanceId}`,
         summary: "通常モンスター2枚をサルベージ",
         description: "墓地から通常モンスター2枚を選択し、手札に加えます",
         filter: (card) => card.type === "monster" && card.frameType === "normal",

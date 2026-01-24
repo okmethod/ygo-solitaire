@@ -15,6 +15,7 @@ import { describe, it, expect } from "vitest";
 import { QuickPlaySpellAction } from "$lib/domain/effects/actions/spells/QuickPlaySpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
@@ -30,42 +31,35 @@ class TestQuickPlaySpell extends QuickPlaySpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     // Test implementation: check hand size
     return state.zones.hand.length > 0;
   }
 
-  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
+}
 
-  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
-    return [];
-  }
-
-  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [];
-  }
-
-  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
-    return [];
-  }
-
-  protected subTypePostResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [];
-  }
-
-  createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[] {
-    return [
-      ...this.subTypePreResolutionSteps(state, activatedCardInstanceId),
-      ...this.individualResolutionSteps(state, activatedCardInstanceId),
-      ...this.subTypePostResolutionSteps(state, activatedCardInstanceId),
-    ];
-  }
+/** テスト用ダミー CardInstance */
+function createDummyCardInstance(overrides: Partial<CardInstance> = {}): CardInstance {
+  return {
+    id: 12345678,
+    instanceId: "test-instance-0",
+    enName: "Test Card",
+    jaName: "テストカード",
+    type: "spell",
+    spellType: "quick-play",
+    frameType: "spell",
+    location: "hand",
+    position: "faceUp",
+    placedThisTurn: false,
+    ...overrides,
+  } as CardInstance;
 }
 
 describe("QuickPlaySpellAction", () => {
@@ -88,23 +82,23 @@ describe("QuickPlaySpellAction", () => {
         skipShuffle: true,
         skipInitialDraw: true,
       });
+      const handCard: CardInstance = {
+        ...baseState.zones.deck[0],
+        instanceId: "hand-0",
+        location: "hand",
+      };
       const stateInMain1: GameState = {
         ...baseState,
         phase: "Main1",
         zones: {
           ...baseState.zones,
-          hand: [
-            {
-              ...baseState.zones.deck[0],
-              instanceId: "hand-0",
-              location: "hand",
-            },
-          ],
+          hand: [handCard],
         },
       };
+      const sourceInstance = createDummyCardInstance({ location: "hand" });
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      expect(action.canActivate(stateInMain1, sourceInstance)).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
@@ -113,10 +107,11 @@ describe("QuickPlaySpellAction", () => {
         skipShuffle: true,
         skipInitialDraw: true,
       });
+      const sourceInstance = createDummyCardInstance({ location: "hand" });
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state)).toBe(false);
+      expect(action.canActivate(state, sourceInstance)).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {
@@ -133,9 +128,10 @@ describe("QuickPlaySpellAction", () => {
           hand: [],
         },
       };
+      const sourceInstance = createDummyCardInstance({ location: "hand" });
 
       // Act & Assert
-      expect(action.canActivate(emptyHandState)).toBe(false);
+      expect(action.canActivate(emptyHandState, sourceInstance)).toBe(false);
     });
   });
 
@@ -146,9 +142,10 @@ describe("QuickPlaySpellAction", () => {
         skipShuffle: true,
         skipInitialDraw: true,
       });
+      const sourceInstance = createDummyCardInstance();
 
       // Act
-      const steps = action.createActivationSteps(state);
+      const steps = action.createActivationSteps(state, sourceInstance);
 
       // Assert
       expect(steps).toHaveLength(1);

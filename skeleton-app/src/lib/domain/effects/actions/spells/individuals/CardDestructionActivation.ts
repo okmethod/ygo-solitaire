@@ -14,6 +14,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { QuickPlaySpellAction } from "$lib/domain/effects/actions/spells/QuickPlaySpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
@@ -32,10 +33,16 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    * 1. 手札が2枚以上あること
    * 2. デッキに2枚以上あること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, sourceInstance: CardInstance): boolean {
     // 1. 自分の手札が2枚以上であること
-    // 手札から発動する場合は、このカード自身を除いた枚数をチェックする必要がある
-    // FIXME: 要検討
+    // 手札から発動する場合は、このカード自身を除いた枚数をチェック
+    const handCountExcludingSelf =
+      sourceInstance.location === "hand"
+        ? state.zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
+        : state.zones.hand.length;
+    if (handCountExcludingSelf < 2) {
+      return false;
+    }
 
     // 2. デッキに2枚以上あること
     if (state.zones.deck.length < 2) {
@@ -50,7 +57,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -63,7 +70,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [selectAndDiscardStep(2), drawStep(2)];
   }
 }

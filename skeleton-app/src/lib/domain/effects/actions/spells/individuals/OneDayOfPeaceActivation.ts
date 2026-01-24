@@ -14,6 +14,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
@@ -30,7 +31,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
    * チェック項目:
    * 1. デッキに1枚以上あること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     if (state.zones.deck.length < 1) {
       return false;
     }
@@ -43,7 +44,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -56,7 +57,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. 1枚ドロー
       drawStep(1),

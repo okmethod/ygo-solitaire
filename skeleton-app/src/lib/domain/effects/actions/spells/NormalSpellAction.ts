@@ -12,9 +12,11 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAction";
 import { isMainPhase } from "$lib/domain/models/Phase";
+import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
 
 /**
  * NormalSpellAction - 通常魔法カードの抽象基底クラス
@@ -34,7 +36,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypeConditions(state: GameState): boolean {
+  protected subTypeConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     // 1. メインフェイズであること
     if (!isMainPhase(state.phase)) {
       return false;
@@ -49,7 +51,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @protected
    * @abstract
    */
-  protected abstract individualConditions(state: GameState): boolean;
+  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): boolean;
 
   /**
    * ACTIVATION: 発動前処理（通常魔法共通）
@@ -57,7 +59,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+  protected subTypePreActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 通常魔法は発動前処理なし
   }
 
@@ -66,7 +68,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    *
    * @protected
    */
-  protected abstract individualActivationSteps(_state: GameState): AtomicStep[];
+  protected abstract individualActivationSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * ACTIVATION: 発動後処理（通常魔法共通）
@@ -84,7 +86,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected subTypePreResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 通常魔法は効果解決前処理なし
   }
 
@@ -94,7 +96,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @protected
    * @abstract
    */
-  protected abstract individualResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];
+  protected abstract individualResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決後処理（通常魔法共通）
@@ -104,41 +106,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePostResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
-    return [
-      // TODO: sendToGraveyardStep を使うように修正したいので、CardInstance を引数で受け取るように変更する必要がある
-      {
-        id: `${activatedCardInstanceId}-send-to-graveyard`,
-        summary: "墓地へ送る",
-        description: "通常魔法カードを墓地へ送ります",
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // カードを魔法・罠ゾーンから墓地へ移動
-          const card = currentState.zones.spellTrapZone.find((c) => c.instanceId === activatedCardInstanceId);
-          if (!card) {
-            return {
-              success: false,
-              updatedState: currentState,
-              message: `Card not found in spell/trap zone: ${activatedCardInstanceId}`,
-            };
-          }
-
-          const updatedState: GameState = {
-            ...currentState,
-            zones: {
-              ...currentState.zones,
-              spellTrapZone: currentState.zones.spellTrapZone.filter((c) => c.instanceId !== activatedCardInstanceId),
-              graveyard: [...currentState.zones.graveyard, card],
-            },
-          };
-
-          return {
-            success: true,
-            updatedState,
-            message: `Normal spell sent to graveyard: ${activatedCardInstanceId}`,
-          };
-        },
-      },
-    ];
+  protected subTypePostResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+    return [sendToGraveyardStep(sourceInstance.instanceId, sourceInstance.jaName)];
   }
 }

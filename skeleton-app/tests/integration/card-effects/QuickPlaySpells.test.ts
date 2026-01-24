@@ -74,12 +74,11 @@ describe("Quick-Play Spell Card Effects", () => {
       });
       expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "速攻魔法カードを墓地へ送ります",
+        description: "《手札断札》を墓地に送ります",
       });
     });
 
-    // FIXME: CardDestructionActivation の individualConditions で手札チェックが未実装のため、一旦スキップ
-    it.skip("Scenario: Cannot activate when hand has only 2 cards (insufficient)", () => {
+    it("Scenario: Cannot activate when hand has only 2 cards (insufficient)", () => {
       // Arrange: Hand with only 2 cards (Card Destruction + 1 other)
       const state = createMockGameState({
         phase: "Main1",

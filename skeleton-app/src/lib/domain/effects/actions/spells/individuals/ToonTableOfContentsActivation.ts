@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
@@ -30,7 +31,7 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     const toonCardsInDeck = state.zones.deck.filter((card) => card.jaName.includes("トゥーン"));
     if (toonCardsInDeck.length < 1) {
       return false;
@@ -44,7 +45,7 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -55,10 +56,10 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
       searchFromDeckByConditionStep({
-        id: `toon-table-search-${activatedCardInstanceId}`,
+        id: `toon-table-search-${sourceInstance.instanceId}`,
         summary: "「トゥーン」カード1枚をサーチ",
         description: "デッキから「トゥーン」カード1枚を選択し、手札に加えます",
         filter: (card) => card.jaName.includes("トゥーン"),

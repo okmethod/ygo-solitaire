@@ -15,6 +15,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellAction";
 
@@ -29,7 +30,7 @@ export class ChickenGameActivation extends FieldSpellAction {
    *
    * @protected
    */
-  protected individualConditions(_state: GameState): boolean {
+  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): boolean {
     return true; // 固有条件無し
   }
 
@@ -38,7 +39,7 @@ export class ChickenGameActivation extends FieldSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -47,7 +48,7 @@ export class ChickenGameActivation extends FieldSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 }

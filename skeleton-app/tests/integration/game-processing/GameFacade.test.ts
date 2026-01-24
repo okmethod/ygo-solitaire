@@ -497,7 +497,9 @@ describe("GameFacade", () => {
 
   describe("activateSpell", () => {
     it("should successfully activate spell card from hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+      // Use registered spell cards (Upstart Goblin) for proper effect processing
+      // Need 6 cards: 5 for initial hand + 1 for Upstart Goblin's draw condition
+      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, 70368879]));
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
 
@@ -510,8 +512,10 @@ describe("GameFacade", () => {
       expect(result.message).toContain("Spell card activated");
 
       const updatedState = get(gameStateStore);
+      // Card is removed from hand and placed on spellTrapZone
       expect(updatedState.zones.hand.length).toBe(initialHandSize - 1);
-      expect(updatedState.zones.graveyard.length).toBe(1);
+      expect(updatedState.zones.spellTrapZone.length).toBe(1);
+      // Note: Graveyard step is in effectSteps, processed asynchronously by effectQueueStore
     });
 
     it("should fail when not in Main1 phase", () => {

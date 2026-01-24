@@ -562,13 +562,13 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("set-quick-play-2");
       const result = command.execute(setQuickPlayState);
 
-      // Assert: Quick-play spell creates graveyard step (effectSteps contains graveyard step)
+      // Assert: Activation succeeds (effectSteps is empty for unregistered cards)
+      // Note: 墓地送りは ChainableAction 側で処理されるため、未登録カードでは effectSteps は空
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toHaveLength(1);
-      expect(result.effectSteps![0].id).toContain("-graveyard");
-      // Game state not yet changed (before effectSteps execution)
-      expect(result.updatedState.zones.graveyard.length).toBe(0);
+      expect(result.effectSteps).toHaveLength(0);
+      // Game state: card moved to face-up position
       expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceUp");
     });
   });
 });

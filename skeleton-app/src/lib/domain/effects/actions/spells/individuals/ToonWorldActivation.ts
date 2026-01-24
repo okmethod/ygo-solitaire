@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { ContinuousSpellAction } from "$lib/domain/effects/actions/spells/ContinuousSpellAction";
 import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
@@ -28,7 +29,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    * チェック項目:
    * 1. プレイヤーのLPが1000以上であること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
     // 1. プレイヤーのLPが1000以上であること
     if (state.lp.player < 1000) {
       return false;
@@ -44,7 +45,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [payLpStep(1000, "player")];
   }
 
@@ -53,7 +54,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 }

@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
@@ -31,10 +32,17 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    * 2. デッキに1枚以上あること
    *
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, sourceInstance: CardInstance): boolean {
     // 1. 自分の手札が3枚以上であること
-    // 手札から発動する場合は、このカード自身を除いた枚数をチェックする必要がある
-    // FIXME: 要検討
+    // 手札から発動する場合は、このカード自身を除いた枚数をチェック
+    const handCountExcludingSelf =
+      sourceInstance.location === "hand"
+        ? state.zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
+        : state.zones.hand.length;
+    if (handCountExcludingSelf < 2) {
+      // 発動後に手札が2枚以上残る必要がある（合計3枚以上）
+      return false;
+    }
 
     // 2. デッキに1枚以上あること
     if (state.zones.deck.length < 1) {
@@ -49,7 +57,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -62,7 +70,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [drawStep(1), discardAllHandEndPhaseStep()];
   }
 }

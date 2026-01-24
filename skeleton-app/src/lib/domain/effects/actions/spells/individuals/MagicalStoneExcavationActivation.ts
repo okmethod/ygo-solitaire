@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
@@ -30,13 +31,14 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    * 1. 手札に捨てられるカードが2枚以上あること
    * 2. 墓地に魔法カードが1枚以上あること
    */
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, sourceInstance: CardInstance): boolean {
     // 1. 手札に捨てられるカードが2枚以上あること
-    // 手札から発動する場合は、このカード自身を除いた枚数をチェック
-    // FIXME: 手札に同名カードが複数ある場合に意図する動作をしない
-    const thisCardInHand = state.zones.hand.some((card) => card.id === this.cardId);
-    const requiredHandSize = thisCardInHand ? 3 : 2;
-    if (state.zones.hand.length < requiredHandSize) {
+    // 手札から発動する場合は、このカード自身を除いた枚数をチェック（instanceIdで正確に判定）
+    const handCountExcludingSelf =
+      sourceInstance.location === "hand"
+        ? state.zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
+        : state.zones.hand.length;
+    if (handCountExcludingSelf < 2) {
       return false;
     }
 
@@ -57,7 +59,7 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. 手札から2枚を選んで捨てる
       selectAndDiscardStep(2),
@@ -72,11 +74,11 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. 魔法カード1枚をサルベージ
       salvageFromGraveyardStep({
-        id: `magical-stone-excavation-search-${activatedCardInstanceId}`,
+        id: `magical-stone-excavation-search-${sourceInstance.instanceId}`,
         summary: "魔法カード1枚をサルベージ",
         description: "墓地から魔法カード1枚を選択し、手札に加えます",
         filter: (card) => card.type === "spell",

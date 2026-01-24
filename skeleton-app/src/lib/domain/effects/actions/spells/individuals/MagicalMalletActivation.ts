@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { selectReturnShuffleDrawStep } from "$lib/domain/effects/steps/compositeOperations";
@@ -27,7 +28,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualConditions(_state: GameState): boolean {
+  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): boolean {
     return true; // 固有条件無し
   }
 
@@ -38,7 +39,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -50,7 +51,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [selectReturnShuffleDrawStep({ min: 0 })];
   }
 }
