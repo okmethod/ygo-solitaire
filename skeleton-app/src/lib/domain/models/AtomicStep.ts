@@ -27,14 +27,14 @@ export type NotificationLevel = "silent" | "info" | "interactive";
  * ドメイン層向けで、Svelte の store に依存しない。
  */
 export interface CardSelectionConfig {
-  availableCards: readonly CardInstance[]; // 選択可能なカードインスタンス一覧
+  availableCards: readonly CardInstance[] | null; // 配列: 直接指定, null: 動的指定(_sourceZoneから取得)
+  _sourceZone?: ZoneName;
+  _filter?: (card: CardInstance, index?: number) => boolean;
   minCards: number;
   maxCards: number;
   summary: string; // 選択UIに表示される要約
   description: string; // 選択UIに表示される詳細説明
   cancelable?: boolean; // キャンセル可能かどうか（デフォルト: false）
-  _sourceZone?: ZoneName;
-  _filter?: (card: CardInstance, index?: number) => boolean;
 }
 
 /**

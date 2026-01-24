@@ -11,13 +11,16 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
+import type { ZoneName } from "$lib/domain/models/Zone";
 
 /** カード選択モーダルを開き、ユーザーの選択を受け付けるステップ*/
 export const selectCardsStep = (config: {
   id: string;
   summary: string;
   description: string;
-  availableCards: readonly CardInstance[] | [];
+  availableCards: readonly CardInstance[] | null;
+  _sourceZone?: ZoneName;
+  _filter?: (card: CardInstance, index?: number) => boolean;
   minCards: number;
   maxCards: number;
   cancelable?: boolean;
@@ -30,6 +33,8 @@ export const selectCardsStep = (config: {
     notificationLevel: "interactive",
     cardSelectionConfig: {
       availableCards: config.availableCards,
+      _sourceZone: config._sourceZone,
+      _filter: config._filter,
       minCards: config.minCards,
       maxCards: config.maxCards,
       summary: config.summary,

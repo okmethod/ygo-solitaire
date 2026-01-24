@@ -133,13 +133,19 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
 
   const config = step.cardSelectionConfig!;
 
-  // availableCardsの動的取得
-  let availableCards = config.availableCards;
-  if (availableCards.length === 0 && config._sourceZone) {
+  // availableCardsの取得: 配列=直接指定, null=動的指定
+  let availableCards: readonly CardInstance[];
+  if (config.availableCards !== null) {
+    // 直接指定: config.availableCards をそのまま使用
+    availableCards = config.availableCards;
+  } else {
+    // 動的指定: _sourceZone から実行時に取得
+    if (!config._sourceZone) {
+      console.error("_sourceZone must be specified when availableCards is null");
+      return { shouldContinue: false };
+    }
     const sourceZone = gameState.zones[config._sourceZone];
     availableCards = config._filter ? sourceZone.filter((card, index) => config._filter!(card, index)) : sourceZone;
-  } else if (availableCards.length === 0) {
-    availableCards = gameState.zones.hand;
   }
 
   // カード選択モーダル（Promise化）

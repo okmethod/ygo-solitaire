@@ -109,7 +109,9 @@ export const discardCardsSelectionStep = (cardCount: number, cancelable?: boolea
     id: `discard-selected-${cardCount}-cards`,
     summary: `手札を${cardCount}枚捨てる`,
     description: `手札から${cardCount}枚選んで捨てます`,
-    availableCards: [], // 手札から選択（実行時に動的に設定）
+    availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
+    _sourceZone: "hand",
+    _filter: undefined, // 全て対象
     minCards: cardCount,
     maxCards: cardCount,
     cancelable: cancelable ?? false, // Default: キャンセル不可
