@@ -149,7 +149,7 @@ export class ActivateSpellCommand implements GameCommand {
     }
 
     // セットから発動: 同じゾーンに表向きで配置
-    return updateCardInPlace(zones, this.cardInstanceId, activatedCardState);
+    return updateCardInPlace(zones, cardInstance, activatedCardState);
   }
 
   // 効果処理ステップ配列を生成する
