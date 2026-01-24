@@ -30,13 +30,11 @@ class TestFieldSpell extends FieldSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected additionalActivationConditions(_state: GameState): boolean {
     // Test implementation: always true (no additional conditions)
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
     // Field Spells typically have no resolution steps (only continuous effects)
     return [];

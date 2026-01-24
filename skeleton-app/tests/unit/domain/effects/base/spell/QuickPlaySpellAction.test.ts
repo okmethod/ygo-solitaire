@@ -35,7 +35,6 @@ class TestQuickPlaySpell extends QuickPlaySpellAction {
     return state.zones.hand.length > 0;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
     return [];
   }

@@ -35,7 +35,6 @@ class TestNormalSpell extends NormalSpellAction {
     return state.zones.deck.length >= 2;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
     return [];
   }

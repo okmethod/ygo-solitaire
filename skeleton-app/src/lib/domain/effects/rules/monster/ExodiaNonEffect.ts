@@ -63,7 +63,6 @@ export class ExodiaNonEffect implements AdditionalRule {
    * @param _context - ルール適用コンテキスト（未使用）
    * @returns 5パーツが揃っている場合true
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canApply(state: GameState, _context: RuleContext): boolean {
     const handCardIds = state.zones.hand.map((card) => card.id);
     return ExodiaNonEffect.EXODIA_PIECE_IDS.every((pieceId) => handCardIds.includes(pieceId));
@@ -79,7 +78,6 @@ export class ExodiaNonEffect implements AdditionalRule {
    * @param _context - ルール適用コンテキスト（未使用）
    * @returns 勝利条件を満たしている（常にtrue）
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   checkPermission(_state: GameState, _context: RuleContext): boolean {
     return true;
   }

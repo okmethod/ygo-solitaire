@@ -74,7 +74,6 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
    * @param _context - ルール適用コンテキスト（未使用）
    * @returns ダメージ禁止（常にfalse）
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   checkPermission(_state: GameState, _context: RuleContext): boolean {
     // ダメージ禁止（false を返す）
     return false;
