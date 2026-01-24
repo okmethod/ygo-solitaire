@@ -187,26 +187,18 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("mallet-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include selection, return+shuffle, draw
+      // Assert: effectSteps include activation + select-return-shuffle-draw (unified)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4); // activation + selection + return-shuffle + draw
+      expect(result.effectSteps!.length).toBe(2); // activation + select-return-shuffle-draw
 
       expect(result.effectSteps![0]).toMatchObject({
         id: "85852291-activation",
         summary: "カード発動",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "magical-mallet-select",
-        summary: "手札を選択",
-      });
-      expect(result.effectSteps![2]).toMatchObject({
-        id: "magical-mallet-return-shuffle",
-        summary: "デッキに戻してシャッフル",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
-        id: "magical-mallet-draw",
-        summary: "カードをドロー",
+        id: "select-and-return-to-deck",
+        summary: "手札をデッキに戻す",
       });
     });
 
