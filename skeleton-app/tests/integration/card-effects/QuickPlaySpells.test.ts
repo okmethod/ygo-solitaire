@@ -98,7 +98,7 @@ describe("Quick-Play Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 3 cards in hand)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("Scenario: Can activate when hand has exactly 3 cards", () => {
@@ -121,7 +121,7 @@ describe("Quick-Play Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Can activate
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("Scenario: Spell Speed 2 allows chaining (verified via property)", async () => {

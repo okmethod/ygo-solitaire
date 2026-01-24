@@ -64,9 +64,9 @@ export class AdvancePhaseCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // 1. 実行可能性判定
-    const validation = this.canExecute(state);
-    if (!validation.canExecute) {
-      return failureUpdateResult(state, validationErrorMessage(validation));
+    const validationResult = this.canExecute(state);
+    if (!validationResult.isValid) {
+      return failureUpdateResult(state, validationErrorMessage(validationResult));
     }
 
     const nextPhase = getNextPhase(state.phase);

@@ -385,6 +385,6 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     const result = command.canExecute(state);
 
     // Assert: Cannot activate (insufficient LP)
-    expect(result.canExecute).toBe(false);
+    expect(result.isValid).toBe(false);
   });
 });

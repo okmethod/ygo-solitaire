@@ -33,35 +33,35 @@ describe("AdvancePhaseCommand", () => {
       });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state).canExecute).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for Standby → Main1", () => {
       const state = createMockGameState({ phase: "Standby" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state).canExecute).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for Main1 → End", () => {
       const state = createMockGameState({ phase: "Main1" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state).canExecute).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for End → End (循環)", () => {
       const state = createMockGameState({ phase: "End" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state).canExecute).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return false when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state).canExecute).toBe(false);
+      expect(command.canExecute(state).isValid).toBe(false);
     });
   });
 

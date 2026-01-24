@@ -45,7 +45,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should return false if game is over", () => {
@@ -73,7 +73,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should return false if not in Main1 phase", () => {
@@ -100,7 +100,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should return false if summon limit reached", () => {
@@ -127,7 +127,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should return false if card not found", () => {
@@ -153,7 +153,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should return false if card is not in hand", () => {
@@ -180,7 +180,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should return false if card is not a monster", () => {
@@ -218,7 +218,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should return false if mainMonsterZone is full", () => {
@@ -252,7 +252,7 @@ describe("SummonMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 

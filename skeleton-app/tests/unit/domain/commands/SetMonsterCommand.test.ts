@@ -83,7 +83,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -110,7 +110,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if summon limit reached", () => {
@@ -137,7 +137,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if mainMonsterZone is full (5 cards)", () => {
@@ -165,7 +165,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card not found", () => {
@@ -182,7 +182,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card is not in hand", () => {
@@ -209,7 +209,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card is not a monster", () => {
@@ -245,7 +245,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if game is already over", () => {
@@ -273,7 +273,7 @@ describe("SetMonsterCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 

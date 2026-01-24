@@ -55,13 +55,13 @@ describe("ActivateIgnitionEffectCommand", () => {
     it("should return true when ignition effect can be activated (Main1 phase, face-up on field, LP >= 1000)", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(initialState).canExecute).toBe(true);
+      expect(command.canExecute(initialState).isValid).toBe(true);
     });
 
     it("should return false when card does not exist", () => {
       const command = new ActivateIgnitionEffectCommand("non-existent-card");
 
-      expect(command.canExecute(initialState).canExecute).toBe(false);
+      expect(command.canExecute(initialState).isValid).toBe(false);
     });
 
     it("should return false when card is face-down", () => {
@@ -93,7 +93,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(faceDownState).canExecute).toBe(false);
+      expect(command.canExecute(faceDownState).isValid).toBe(false);
     });
 
     it("should return false when card is not on field", () => {
@@ -124,7 +124,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(handState).canExecute).toBe(false);
+      expect(command.canExecute(handState).isValid).toBe(false);
     });
 
     it("should return false when game is over", () => {
@@ -161,7 +161,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
-      expect(command.canExecute(gameOverState).canExecute).toBe(false);
+      expect(command.canExecute(gameOverState).isValid).toBe(false);
     });
 
     it("should return false when card has no registered ignition effect", () => {
@@ -192,7 +192,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       const command = new ActivateIgnitionEffectCommand("field-spell-1");
 
-      expect(command.canExecute(noEffectState).canExecute).toBe(false);
+      expect(command.canExecute(noEffectState).isValid).toBe(false);
     });
 
     // TODO: Add more detailed tests when ChainableActionRegistry is extended

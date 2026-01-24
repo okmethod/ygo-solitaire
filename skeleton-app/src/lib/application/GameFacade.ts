@@ -52,8 +52,8 @@ export class GameFacade {
   ): boolean {
     const currentState = getCurrentGameState();
     const command = new CommandClass(...params);
-    const validation = command.canExecute(currentState);
-    return validation.canExecute;
+    const validationResult = command.canExecute(currentState);
+    return validationResult.isValid;
   }
 
   /** 各種 GameCommand の実行およびストア更新のヘルパー */

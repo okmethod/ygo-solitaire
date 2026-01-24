@@ -1,5 +1,5 @@
 /**
- * ValidationResult - ゲーム状態更新の実行可能性チェック結果モデル
+ * ValidationResult - ゲーム状態更新の実行条件チェック結果モデル
  *
  * GameCommand.canExecute() の戻り値型とエラーコード定数を定義。
  * エラーメッセージの一元管理と、将来的な多言語対応の基盤を提供。
@@ -43,9 +43,9 @@ export const ValidationErrorCode = {
 
 export type ValidationErrorCode = (typeof ValidationErrorCode)[keyof typeof ValidationErrorCode];
 
-/** 実行可能性チェック結果 */
+/** 実行条件チェック結果 */
 export interface ValidationResult {
-  readonly canExecute: boolean;
+  readonly isValid: boolean;
   readonly errorCode?: ValidationErrorCode;
   readonly errorParams?: Record<string, unknown>; // 動的パラメータ（カード名、枚数等）
 }
@@ -85,7 +85,7 @@ export const ValidationErrorMessages: Record<ValidationErrorCode, string> = {
 
 /** 成功した ValidationResult */
 export const successValidationResult = (): ValidationResult => {
-  return { canExecute: true };
+  return { isValid: true };
 };
 
 /** 失敗した ValidationResult */
@@ -93,7 +93,7 @@ export const failureValidationResult = (
   errorCode: ValidationErrorCode,
   errorParams?: Record<string, unknown>,
 ): ValidationResult => {
-  return { canExecute: false, errorCode, errorParams };
+  return { isValid: false, errorCode, errorParams };
 };
 
 /**
@@ -102,7 +102,7 @@ export const failureValidationResult = (
  * TODO: 将来的にはテンプレート変数の置換処理を実装予定。
  */
 export const validationErrorMessage = (result: ValidationResult): string => {
-  if (result.canExecute || !result.errorCode) {
+  if (result.isValid || !result.errorCode) {
     return "";
   }
 

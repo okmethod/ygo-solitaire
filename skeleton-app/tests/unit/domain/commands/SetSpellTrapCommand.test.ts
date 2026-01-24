@@ -123,7 +123,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should allow setting a field spell even if fieldZone is occupied", () => {
@@ -149,7 +149,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -174,7 +174,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if spellTrapZone is full (5 cards)", () => {
@@ -200,7 +200,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card not found", () => {
@@ -215,7 +215,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card is not in hand", () => {
@@ -240,7 +240,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card is not a spell or trap", () => {
@@ -277,7 +277,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if game is already over", () => {
@@ -303,7 +303,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 

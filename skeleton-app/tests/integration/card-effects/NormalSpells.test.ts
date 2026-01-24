@@ -96,7 +96,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -169,7 +169,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -234,7 +234,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Can activate (no additional conditions)
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
   });
 
@@ -300,7 +300,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 card in deck)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -365,7 +365,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -464,7 +464,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 2 monsters)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -554,7 +554,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 Field Spell in deck)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -651,7 +651,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 spell in graveyard)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -722,7 +722,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 card in deck to draw)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -810,7 +810,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (once-per-turn constraint)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("Scenario: Cannot activate when deck has less than 3 cards", () => {
@@ -833,7 +833,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 3 cards in deck)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -938,7 +938,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (once-per-turn constraint)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -1016,7 +1016,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (no Toon cards in deck)
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 });

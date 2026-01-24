@@ -70,13 +70,13 @@ describe("ActivateSpellCommand", () => {
     it("should return true when spell can be activated (Main1 phase, card in hand)", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
-      expect(command.canExecute(initialState).canExecute).toBe(true);
+      expect(command.canExecute(initialState).isValid).toBe(true);
     });
 
     it("should return false when card is not in hand", () => {
       const command = new ActivateSpellCommand("non-existent-card");
 
-      expect(command.canExecute(initialState).canExecute).toBe(false);
+      expect(command.canExecute(initialState).isValid).toBe(false);
     });
 
     it("should return false when not in Main1 phase", () => {
@@ -105,7 +105,7 @@ describe("ActivateSpellCommand", () => {
 
       const command = new ActivateSpellCommand(spellCardId);
 
-      expect(command.canExecute(drawPhaseState).canExecute).toBe(false);
+      expect(command.canExecute(drawPhaseState).isValid).toBe(false);
     });
 
     it("should return false when game is over", () => {
@@ -140,7 +140,7 @@ describe("ActivateSpellCommand", () => {
 
       const command = new ActivateSpellCommand(spellCardId);
 
-      expect(command.canExecute(gameOverState).canExecute).toBe(false);
+      expect(command.canExecute(gameOverState).isValid).toBe(false);
     });
   });
 

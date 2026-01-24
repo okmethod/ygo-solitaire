@@ -82,9 +82,9 @@ export class SetSpellTrapCommand implements GameCommand {
    */
   execute(state: GameState): GameStateUpdateResult {
     // 1. 実行可能性判定
-    const validation = this.canExecute(state);
-    if (!validation.canExecute) {
-      return failureUpdateResult(state, validationErrorMessage(validation));
+    const validationResult = this.canExecute(state);
+    if (!validationResult.isValid) {
+      return failureUpdateResult(state, validationErrorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;

@@ -26,7 +26,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
       expect(result.errorCode).toBeUndefined();
     });
 
@@ -42,7 +42,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(ValidationErrorCode.NOT_MAIN_PHASE);
     });
 
@@ -58,7 +58,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
     });
 
@@ -102,7 +102,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(ValidationErrorCode.MONSTER_ZONE_FULL);
     });
 
@@ -118,7 +118,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 1", () => {
@@ -133,7 +133,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should fail if normalSummonLimit is 2 and used is 2", () => {
@@ -148,7 +148,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(false);
+      expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
     });
 
@@ -192,7 +192,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canExecute).toBe(true);
+      expect(result.isValid).toBe(true);
     });
   });
 });
