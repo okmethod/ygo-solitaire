@@ -11,7 +11,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { findCardInstance } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isMonsterCard } from "$lib/domain/models/Card";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
@@ -51,7 +51,7 @@ export class SetMonsterCommand implements GameCommand {
     }
 
     // 3. 指定カードがモンスターカードであり、手札に存在すること
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
@@ -80,7 +80,7 @@ export class SetMonsterCommand implements GameCommand {
       return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state, this.cardInstanceId)!;
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
     const updatedState: GameState = executeNormalSummon(state, this.cardInstanceId, "defense");

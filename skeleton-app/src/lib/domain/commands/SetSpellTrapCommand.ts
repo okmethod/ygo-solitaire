@@ -12,7 +12,7 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
-import { findCardInstance } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isSpellCard, isTrapCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, sendToGraveyard, isSpellTrapZoneFull, isFieldZoneFull } from "$lib/domain/models/Zone";
@@ -53,7 +53,7 @@ export class SetSpellTrapCommand implements GameCommand {
     }
 
     // 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
@@ -87,7 +87,7 @@ export class SetSpellTrapCommand implements GameCommand {
       return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state, this.cardInstanceId)!;
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
     const updatedState: GameState = {

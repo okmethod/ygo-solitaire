@@ -158,18 +158,3 @@ export function createInitialGameState(
     damageNegation: false,
   };
 }
-
-/** インスタンスIDからカードインスタンスを検索する */
-export function findCardInstance(state: GameState, instanceId: string) {
-  const allZones = [
-    ...state.zones.deck,
-    ...state.zones.hand,
-    ...state.zones.mainMonsterZone,
-    ...state.zones.spellTrapZone,
-    ...state.zones.fieldZone,
-    ...state.zones.graveyard,
-    ...state.zones.banished,
-  ];
-
-  return allZones.find((card) => card.instanceId === instanceId);
-}

@@ -15,7 +15,7 @@ import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { findCardInstance } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isSpellCard, isQuickPlaySpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
@@ -60,7 +60,7 @@ export class ActivateSpellCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
 
     // 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
     if (!cardInstance) {
@@ -109,7 +109,7 @@ export class ActivateSpellCommand implements GameCommand {
       return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state, this.cardInstanceId)!;
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
     const updatedActivatedCards = new Set(state.activatedOncePerTurnCards);

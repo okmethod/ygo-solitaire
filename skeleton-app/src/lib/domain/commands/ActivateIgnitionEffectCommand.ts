@@ -14,7 +14,7 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { findCardInstance } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
 import { isMainPhase } from "$lib/domain/models/Phase";
@@ -55,7 +55,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     }
 
     // 3. 指定カードがフィールドに存在し、表側表示であること
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
@@ -98,7 +98,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureUpdateResult(state, validationErrorMessage(validation));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state, this.cardInstanceId)!;
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
     const updatedState: GameState = {

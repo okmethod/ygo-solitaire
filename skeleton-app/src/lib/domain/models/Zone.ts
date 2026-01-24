@@ -31,6 +31,21 @@ export interface Zones {
 /** ゾーン名 */
 export type ZoneName = keyof Zones;
 
+/** インスタンスIDからカードインスタンスを検索する */
+export function findCardInstance(zones: Zones, instanceId: string) {
+  const allZones = [
+    ...zones.deck,
+    ...zones.hand,
+    ...zones.mainMonsterZone,
+    ...zones.spellTrapZone,
+    ...zones.fieldZone,
+    ...zones.graveyard,
+    ...zones.banished,
+  ];
+
+  return allZones.find((card) => card.instanceId === instanceId);
+}
+
 /** カードの移動および表示形式を変更を行う（汎用）*/
 export function moveCard(
   currentZones: Zones,

@@ -9,8 +9,9 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { createInitialGameState, findCardInstance, type InitialDeckCardIds } from "$lib/domain/models/GameState";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import { createInitialGameState } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/Zone";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -245,7 +246,7 @@ describe("GameState", () => {
           skipShuffle: true,
           skipInitialDraw: true,
         });
-        const card = findCardInstance(state, "deck-0");
+        const card = findCardInstance(state.zones, "deck-0");
 
         expect(card).toBeDefined();
         expect(card?.instanceId).toBe("deck-0");
@@ -268,7 +269,7 @@ describe("GameState", () => {
           },
         };
 
-        const card = findCardInstance(state, "deck-0");
+        const card = findCardInstance(state.zones, "deck-0");
         expect(card).toBeDefined();
         expect(card?.location).toBe("hand");
       });
@@ -278,7 +279,7 @@ describe("GameState", () => {
           skipShuffle: true,
           skipInitialDraw: true,
         });
-        const card = findCardInstance(state, "non-existent-id");
+        const card = findCardInstance(state.zones, "non-existent-id");
 
         expect(card).toBeUndefined();
       });
@@ -300,9 +301,9 @@ describe("GameState", () => {
           },
         };
 
-        expect(findCardInstance(state, "deck-0")).toBeDefined();
-        expect(findCardInstance(state, "deck-1")).toBeDefined();
-        expect(findCardInstance(state, "deck-2")).toBeDefined();
+        expect(findCardInstance(state.zones, "deck-0")).toBeDefined();
+        expect(findCardInstance(state.zones, "deck-1")).toBeDefined();
+        expect(findCardInstance(state.zones, "deck-2")).toBeDefined();
       });
     });
   });
