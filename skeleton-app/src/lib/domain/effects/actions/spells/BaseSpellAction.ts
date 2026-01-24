@@ -19,7 +19,7 @@
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { getCardData, getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
+import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
  * BaseSpellAction - 魔法カードアクションの抽象基底クラス
@@ -101,7 +101,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * - サブクラスで抽象メソッドを実装する。
    *
    * 実行順序:
-   * 1. notificationSteps: 魔法カード発動通知（共通）
+   * 1. notifyActivationStep: 発動通知（共通）
    * 2. subTypePreActivationSteps: 魔法カードサブタイプ共通の発動処理
    * 3. individualActivationSteps: カード固有の発動処理
    * 4. subTypePostActivationSteps: 魔法カードサブタイプ共通の発動後処理
@@ -110,37 +110,10 @@ export abstract class BaseSpellAction implements ChainableAction {
    */
   createActivationSteps(state: GameState): AtomicStep[] {
     return [
-      ...this.notificationSteps(state),
+      notifyActivationStep(this.cardId), // 発動通知ステップ
       ...this.subTypePreActivationSteps(state),
       ...this.individualActivationSteps(state),
       ...this.subTypePostActivationSteps(state),
-    ];
-  }
-
-  /**
-   * ACTIVATION: 発動処理（魔法カード共通）
-   *
-   * 魔法カードのデフォルト発動通知ステップ。
-   *
-   * @protected
-   */
-  protected notificationSteps(_state: GameState): AtomicStep[] {
-    const cardData = getCardData(this.cardId);
-    return [
-      {
-        id: `${this.cardId}-activation`,
-        summary: "カード発動",
-        description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // 状態変更なし、通知のみ
-          return {
-            success: true,
-            updatedState: currentState,
-            message: `${cardData.jaName} activated`,
-          };
-        },
-      },
     ];
   }
 

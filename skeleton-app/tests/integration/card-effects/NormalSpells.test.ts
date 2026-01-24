@@ -61,7 +61,7 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify steps: [activation step, draw step, send-to-graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "55144522-activation", // ID now uses card ID
+        id: "55144522-activation-notification", // ID now uses card ID
         summary: "カード発動",
         description: "《強欲な壺》を発動します",
       });
@@ -129,7 +129,7 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify steps: [activation step, draw step, discard step, send-to-graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "79571449-activation",
+        id: "79571449-activation-notification",
         summary: "カード発動",
         description: "《天使の施し》を発動します",
       });
@@ -201,7 +201,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(3); // activation + select-return-shuffle-draw + send-to-graveyard
 
       expect(result.effectSteps![0]).toMatchObject({
-        id: "85852291-activation",
+        id: "85852291-activation-notification",
         summary: "カード発動",
       });
       expect(result.effectSteps![1]).toMatchObject({
@@ -590,7 +590,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(4);
 
       expect(result.effectSteps![0]).toMatchObject({
-        id: "98494543-activation",
+        id: "98494543-activation-notification",
         summary: "カード発動",
         description: "《魔法石の採掘》を発動します",
       });
@@ -683,7 +683,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(4);
 
       expect(result.effectSteps![0]).toMatchObject({
-        id: "93946239-activation",
+        id: "93946239-activation-notification",
         summary: "カード発動",
         description: "《無の煉獄》を発動します",
       });
@@ -771,7 +771,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(4); // activation + search + shuffle + send-to-graveyard
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("98645731-activation");
+      expect(result.effectSteps![0].id).toBe("98645731-activation-notification");
 
       // Verify search step
       expect(result.effectSteps![1].id).toContain("pot-of-duality-search");
@@ -868,7 +868,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(4); // activation + draw + add end phase effect + send-to-graveyard
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("59750328-activation");
+      expect(result.effectSteps![0].id).toBe("59750328-activation-notification");
 
       // Verify draw step
       expect(result.effectSteps![1].id).toContain("fill-hands-3");

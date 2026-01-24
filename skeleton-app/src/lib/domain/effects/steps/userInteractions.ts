@@ -2,6 +2,7 @@
  * interaction.ts - ユーザーインタラクション系ステップビルダー
  *
  * 公開関数:
+ * - notifyActivationStep: 発動通知
  * - selectCardsStep: カード選択モーダル表示
  *
  * @module domain/effects/steps/interaction
@@ -12,6 +13,24 @@ import type { AtomicStep, CardSelectionConfig } from "$lib/domain/models/AtomicS
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { ZoneName } from "$lib/domain/models/Zone";
+import { getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
+
+/** 発動を通知するステップ */
+export const notifyActivationStep = (cardId: number): AtomicStep => {
+  return {
+    id: `${cardId}-activation-notification`,
+    summary: "カード発動",
+    description: `${getCardNameWithBrackets(cardId)}を発動します`,
+    notificationLevel: "info",
+    action: (currentState: GameState): GameStateUpdateResult => {
+      return {
+        success: true,
+        updatedState: currentState,
+        message: `${getCardNameWithBrackets(cardId)} activated`,
+      };
+    },
+  };
+};
 
 /** カード選択モーダルを開き、ユーザーの選択を受け付けるステップ*/
 export const selectCardsStep = (config: {

@@ -60,7 +60,7 @@ describe("Quick-Play Spell Card Effects", () => {
 
       // Verify steps: [activation, player discard, player draw, send-to-graveyard]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "74519184-activation",
+        id: "74519184-activation-notification",
         summary: "カード発動",
         description: "《手札断札》を発動します",
       });
