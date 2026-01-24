@@ -15,7 +15,7 @@ import type { Zones } from "$lib/domain/models/Zone";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isSpellCard, isTrapCard, isFieldSpellCard } from "$lib/domain/models/Card";
-import { moveCard, sendToGraveyard, isSpellTrapZoneFull, isFieldZoneFull } from "$lib/domain/models/Zone";
+import { moveCard, isSpellTrapZoneFull, isFieldZoneFull } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import {
   ValidationErrorCode,
@@ -110,7 +110,7 @@ export class SetSpellTrapCommand implements GameCommand {
     if (isFieldSpellCard(cardInstance)) {
       // 既存フィールド魔法カードが存在する場合、先に墓地へ送る
       if (isFieldZoneFull(zones)) {
-        zones = sendToGraveyard(zones, zones.fieldZone[0]);
+        zones = moveCard(zones, zones.fieldZone[0], "graveyard");
       }
       return moveCard(zones, cardInstance, "fieldZone", setCardState);
     }

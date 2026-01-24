@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { sendToGraveyard, type Zones } from "$lib/domain/models/Zone";
+import { moveCard, type Zones } from "$lib/domain/models/Zone";
 import { createCardInstances } from "../../../__testUtils__/gameStateFactory";
 
 describe("Zone", () => {
-  describe("sendToGraveyard", () => {
+  describe("moveCard", () => {
     // 代表例テスト: mainMonsterZone から graveyard への移動
-    it("should send card from mainMonsterZone to graveyard", () => {
+    it("should move card from mainMonsterZone to graveyard", () => {
       const zones: Zones = {
         deck: [],
         hand: [],
@@ -17,7 +17,7 @@ describe("Zone", () => {
       };
       const card = zones.mainMonsterZone[0];
 
-      const result = sendToGraveyard(zones, card);
+      const result = moveCard(zones, card, "graveyard");
 
       expect(result.mainMonsterZone.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
@@ -26,7 +26,7 @@ describe("Zone", () => {
     });
 
     // 代表例テスト: hand から graveyard への移動
-    it("should send card from hand to graveyard", () => {
+    it("should move card from hand to graveyard", () => {
       const zones: Zones = {
         deck: [],
         hand: createCardInstances(["12345678"], "hand"),
@@ -38,7 +38,7 @@ describe("Zone", () => {
       };
       const card = zones.hand[0];
 
-      const result = sendToGraveyard(zones, card);
+      const result = moveCard(zones, card, "graveyard");
 
       expect(result.hand.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
@@ -47,7 +47,7 @@ describe("Zone", () => {
     });
 
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
-    it("should preserve other zones when sending card to graveyard", () => {
+    it("should preserve other zones when moving card", () => {
       const zones: Zones = {
         deck: createCardInstances(["1001"], "deck"),
         hand: createCardInstances(["1002"], "hand"),
@@ -59,7 +59,7 @@ describe("Zone", () => {
       };
       const card = zones.spellTrapZone[0];
 
-      const result = sendToGraveyard(zones, card);
+      const result = moveCard(zones, card, "graveyard");
 
       // 変更対象以外のゾーンは保持される
       expect(result.deck.length).toBe(1);

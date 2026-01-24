@@ -98,16 +98,6 @@ export function drawCards(currentZones: Zones, count: number = 1): Zones {
   return updatedZones;
 }
 
-/** 指定カードを墓地に移動する */
-export function sendToGraveyard(currentZones: Zones, card: CardInstance): Zones {
-  return moveCard(currentZones, card, "graveyard");
-}
-
-/** 指定カードを除外する */
-export function banishCard(currentZones: Zones, card: CardInstance): Zones {
-  return moveCard(currentZones, card, "banished");
-}
-
 /** デッキをシャッフルする */
 export function shuffleDeck(zones: Zones): Zones {
   return {
