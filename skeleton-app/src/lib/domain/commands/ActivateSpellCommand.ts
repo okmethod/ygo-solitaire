@@ -116,11 +116,18 @@ export class ActivateSpellCommand implements GameCommand {
       zones: this.moveActivatedSpellCard(state.zones, cardInstance),
     };
 
+    // 発動済みカードIDを記録（「1ターンに1度」制限チェック用）
+    const updatedActivatedCards = new Set(state.activatedOncePerTurnCards);
+    updatedActivatedCards.add(cardInstance.id);
+
     // 3. 戻り値の構築
     return successUpdateResult(
-      updatedState,
+      {
+        ...updatedState,
+        activatedOncePerTurnCards: updatedActivatedCards,
+      },
       `Spell card activated: ${this.cardInstanceId}`,
-      this.buildEffectSteps(updatedState, cardInstance),
+      this.buildEffectSteps(updatedState, cardInstance), // activatedOncePerTurnCards を更新する前の state を渡す
     );
   }
 

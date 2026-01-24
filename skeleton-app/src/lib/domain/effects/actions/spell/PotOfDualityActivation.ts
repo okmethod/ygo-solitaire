@@ -46,16 +46,6 @@ export class PotOfDualityActivation extends NormalSpellAction {
   }
 
   /**
-   * ACTIVATION: Override to add once-per-turn tracking
-   *
-   * 基底クラスの createOncePerTurnActivationSteps() を使用して、
-   * 1ターンに1度制限を記録します。
-   */
-  createActivationSteps(_state: GameState): AtomicStep[] {
-    return this.createOncePerTurnActivationSteps();
-  }
-
-  /**
    * RESOLUTION: Excavate top 3 cards → Select 1 → Add to hand → Return rest to deck
    */
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {

@@ -13,10 +13,8 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
 import { isMainPhase } from "$lib/domain/models/Phase";
-import { getCardData, getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
 
 /**
  * NormalSpellAction - 通常魔法カードの抽象基底クラス
@@ -51,52 +49,6 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    * @abstract
    */
   protected abstract individualConditions(state: GameState): boolean;
-
-  /**
-   * 「1ターンに1度」制限を持つカードの発動ステップを作成します
-   *
-   * このメソッドは、カード名を指定した「1ターンに1度」制限を持つカードで使用します。
-   * activatedOncePerTurnCards に cardId を記録するステップを返します。
-   *
-   * @param _state - 現在のゲーム状態（未使用だが、インターフェース統一のため）
-   * @returns 発動ステップ配列
-   * @protected
-   * @example
-   * ```typescript
-   * // Card of Demise / Pot of Duality 等の「1ターンに1度」制限カード
-   * createActivationSteps(_state: GameState): AtomicStep[] {
-   *   return this.createOncePerTurnActivationSteps();
-   * }
-   * ```
-   */
-  protected createOncePerTurnActivationSteps(): AtomicStep[] {
-    const cardData = getCardData(this.cardId);
-
-    return [
-      {
-        id: `${this.cardId}-activation-once-per-turn`,
-        summary: "カード発動",
-        description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
-        notificationLevel: "info",
-        action: (currentState: GameState): GameStateUpdateResult => {
-          // activatedOncePerTurnCards に記録
-          const newActivatedCards = new Set(currentState.activatedOncePerTurnCards);
-          newActivatedCards.add(this.cardId);
-
-          const updatedState: GameState = {
-            ...currentState,
-            activatedOncePerTurnCards: newActivatedCards,
-          };
-
-          return {
-            success: true,
-            updatedState,
-            message: `${cardData.jaName} activated (once per turn)`,
-          };
-        },
-      },
-    ];
-  }
 
   /**
    * RESOLUTION: 効果解決時の処理

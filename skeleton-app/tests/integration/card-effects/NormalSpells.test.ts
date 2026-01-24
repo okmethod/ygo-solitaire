@@ -738,7 +738,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(2); // activation + search
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("98645731-activation-once-per-turn");
+      expect(result.effectSteps![0].id).toBe("98645731-activation");
 
       // Verify search step
       expect(result.effectSteps![1].id).toContain("pot-of-duality-search");
@@ -826,7 +826,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(3); // activation + draw + add end phase effect
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("59750328-activation-once-per-turn");
+      expect(result.effectSteps![0].id).toBe("59750328-activation");
 
       // Verify draw step
       expect(result.effectSteps![1].id).toContain("fill-hands-3");

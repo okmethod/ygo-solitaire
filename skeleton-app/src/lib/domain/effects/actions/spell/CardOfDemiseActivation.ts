@@ -44,16 +44,6 @@ export class CardOfDemiseActivation extends NormalSpellAction {
   }
 
   /**
-   * ACTIVATION: Override to add once-per-turn tracking
-   *
-   * 基底クラスの createOncePerTurnActivationSteps() を使用して、
-   * 1ターンに1度制限を記録します。
-   */
-  createActivationSteps(_state: GameState): AtomicStep[] {
-    return this.createOncePerTurnActivationSteps();
-  }
-
-  /**
    * RESOLUTION: Draw until hand = 3 → Register end phase effect (discard all hand)
    */
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
