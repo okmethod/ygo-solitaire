@@ -56,9 +56,7 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    */
   createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     // エンドフェイズ手札全破棄効果を作成
-    const endPhaseDiscardEffect = discardAllHandStep({
-      id: `card-of-demise-end-phase-discard-${_activatedCardInstanceId}`,
-    });
+    const endPhaseDiscardEffect = discardAllHandStep();
 
     return [
       // Step 1: 手札が3枚になるまでドロー

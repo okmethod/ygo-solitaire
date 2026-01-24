@@ -48,11 +48,9 @@ export class IntoTheVoidActivation extends NormalSpellAction {
   /**
    * RESOLUTION: Draw 1 card → Register end phase effect (discard all hand)
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     // エンドフェイズ手札全破棄効果を作成
-    const endPhaseDiscardEffect = discardAllHandEndPhaseStep({
-      id: `into-the-void-end-phase-discard-${activatedCardInstanceId}`,
-    });
+    const endPhaseDiscardEffect = discardAllHandEndPhaseStep();
 
     return [
       // Step 1: 1枚ドロー
