@@ -12,6 +12,7 @@
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
+import { updatedCardInstance } from "$lib/domain/models/Card";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
 /** カードが配置される全ての領域 */
@@ -87,7 +88,7 @@ export function updateCardInPlace(currentZones: Zones, instanceId: string, updat
       // カードが見つかった場合、そのゾーン内で更新
       return {
         ...currentZones,
-        [zoneName]: zone.map((card) => (card.instanceId === instanceId ? { ...card, ...updates } : card)),
+        [zoneName]: zone.map((card) => (card.instanceId === instanceId ? updatedCardInstance(card, updates) : card)),
       };
     }
   }

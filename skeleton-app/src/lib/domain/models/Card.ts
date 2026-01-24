@@ -64,6 +64,11 @@ export interface CardInstance extends CardData {
   readonly placedThisTurn: boolean; // Default: false
 }
 
+/** カードインスタンスの状態を更新する */
+export const updatedCardInstance = (card: CardInstance, updates: Partial<CardInstance>): CardInstance => {
+  return { ...card, ...updates };
+};
+
 /** CardData型ガード: モンスターカード */
 export const isMonsterCard = (card: CardData): boolean => {
   return card.type === "monster";
