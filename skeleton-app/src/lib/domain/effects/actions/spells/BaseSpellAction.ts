@@ -13,7 +13,7 @@
  * - カードが存在し、魔法カードであること
  * - 魔法・罠ゾーンに空きがあること（フィールド魔法除く）
  *
- * @module domain/effects/base/spell/BaseSpellAction
+ * @module domain/effects/actions/spells/BaseSpellAction
  */
 
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";

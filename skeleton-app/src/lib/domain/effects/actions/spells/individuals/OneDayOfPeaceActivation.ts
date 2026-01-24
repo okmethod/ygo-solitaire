@@ -10,12 +10,12 @@
  *
  * Note: 相手のドロー処理は未実装
  *
- * @module domain/effects/actions/spell/OneDayOfPeaceActivation
+ * @module domain/effects/actions/spells/individuals/OneDayOfPeaceActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 
 /** 《一時休戦》効果クラス */

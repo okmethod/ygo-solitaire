@@ -13,11 +13,11 @@
  * Subclass テストでは、各サブクラス固有の条件（subTypeConditions, individualConditions）をテストする。
  * ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテストする。
  *
- * @module tests/unit/domain/effects/base/spell/BaseSpellAction
+ * @module tests/unit/domain/effects/actions/spells/BaseSpellAction
  */
 
 import { describe, it, expect } from "vitest";
-import { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
+import { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";

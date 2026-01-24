@@ -8,12 +8,12 @@
  * - ACTIVATION: 1000LP支払い
  * - RESOLUTION: 無し
  *
- * @module domain/effects/actions/spell/ToonWorldActivation
+ * @module domain/effects/actions/spells/individuals/ToonWorldActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { ContinuousSpellAction } from "$lib/domain/effects/base/spell/ContinuousSpellAction";
+import { ContinuousSpellAction } from "$lib/domain/effects/actions/spells/ContinuousSpellAction";
 import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 
 /** 《トゥーン・ワールド》効果クラス */

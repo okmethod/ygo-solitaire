@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 1枚ドロー、エンドフェイズに手札を全て捨てる
  *
- * @module domain/effects/actions/spell/IntoTheVoidActivation
+ * @module domain/effects/actions/spells/individuals/IntoTheVoidActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 

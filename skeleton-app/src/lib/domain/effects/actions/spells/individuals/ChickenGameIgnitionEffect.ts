@@ -10,7 +10,7 @@
  *
  * 実装簡略化のため選択肢1（ドロー）のみ実装。本来は3つの選択肢がある
  *
- * @module domain/effects/actions/spell/ChickenGameIgnitionEffect
+ * @module domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect
  */
 
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";

@@ -5,14 +5,12 @@
  *
  * カテゴリ: VictoryCondition（特殊勝利条件）
  *
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
- * @see specs/009-victory-rule-refactor/spec.md
- * @module domain/effects/rules/spell/ExodiaNonEffect
+ * @module domain/effects/rules/monsters/ExodiaNonEffect
  */
 
-import type { AdditionalRule, RuleCategory } from "../../../models/AdditionalRule";
-import type { RuleContext } from "../../../models/RuleContext";
-import type { GameState } from "../../../models/GameState";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { RuleContext } from "$lib/domain/models/RuleContext";
+import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 
 /**
  * ExodiaNonEffect - エクゾディアの特殊勝利条件

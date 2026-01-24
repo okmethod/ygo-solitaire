@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 1枚ドロー、相手が1000LP回復
  *
- * @module domain/effects/actions/spell/UpstartGoblinActivation
+ * @module domain/effects/actions/spells/individuals/UpstartGoblinActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 

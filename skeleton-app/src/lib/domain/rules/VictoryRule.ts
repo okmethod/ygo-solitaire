@@ -7,7 +7,7 @@
  */
 
 import type { GameState, GameResult } from "../models/GameState";
-import { ExodiaNonEffect } from "../effects/rules/monster/ExodiaNonEffect";
+import { ExodiaNonEffect } from "../effects/rules/monsters/ExodiaNonEffect";
 
 /**
  * 勝敗判定を行う

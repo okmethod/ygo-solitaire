@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 手札から任意枚数選択、デッキに戻してシャッフル、同じ枚数ドロー
  *
- * @module domain/effects/actions/spell/MagicalMalletActivation
+ * @module domain/effects/actions/spells/individuals/MagicalMalletActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { selectReturnShuffleDrawStep } from "$lib/domain/effects/steps/compositeOperations";
 
 /** 《打ち出の小槌》効果クラス */

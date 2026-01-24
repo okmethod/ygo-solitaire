@@ -11,7 +11,7 @@
  * - Actual game state changes (hand → graveyard → deck → hand)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
- * - **Base class validation**: Tested in tests/unit/domain/effects/base/spell/
+ * - **Base class validation**: Tested in tests/unit/domain/effects/actions/spells/
  *   - BaseSpellAction.test.ts: Game-over check
  *   - QuickPlaySpellAction.test.ts: spellSpeed=2, Main1 phase check
  * - **Card scenarios**: Tested here

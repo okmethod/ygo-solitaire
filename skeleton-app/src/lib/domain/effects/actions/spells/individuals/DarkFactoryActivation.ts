@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 通常モンスター2枚をサルベージ
  *
- * @module domain/effects/actions/spell/DarkFactoryActivation
+ * @module domain/effects/actions/spells/individuals/DarkFactoryActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
 /** 《闇の量産工場》効果クラス */

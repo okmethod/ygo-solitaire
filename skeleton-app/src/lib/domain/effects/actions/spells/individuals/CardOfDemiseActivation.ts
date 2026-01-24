@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 手札が3枚になるようにドロー、エンドフェイズに手札を全て捨てる
  *
- * @module domain/effects/actions/spell/CardOfDemiseActivation
+ * @module domain/effects/actions/spells/individuals/CardOfDemiseActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { fillHandsStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 

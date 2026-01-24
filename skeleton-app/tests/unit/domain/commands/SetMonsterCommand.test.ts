@@ -9,7 +9,7 @@ import { describe, it, expect } from "vitest";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
+import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";
 
 // Helper to create a mock GameState
 function createMockGameState(overrides: Partial<GameState> = {}): GameState {

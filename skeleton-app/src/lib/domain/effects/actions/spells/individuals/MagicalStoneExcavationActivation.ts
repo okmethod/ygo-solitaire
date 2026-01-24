@@ -8,12 +8,12 @@
  * - ACTIVATION: 手札を2枚捨てる
  * - RESOLUTION: 魔法カード1枚をサルベージ
  *
- * @module domain/effects/actions/spell/MagicalStoneExcavationActivation
+ * @module domain/effects/actions/spells/individuals/MagicalStoneExcavationActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 

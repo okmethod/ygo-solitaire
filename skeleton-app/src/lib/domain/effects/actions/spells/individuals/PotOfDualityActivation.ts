@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: デッキトップ3枚確認、1枚選んで手札に加える、残りをデッキに戻す、墓地へ送る
  *
- * @module domain/effects/actions/spell/PotOfDualityActivation
+ * @module domain/effects/actions/spells/individuals/PotOfDualityActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckTopStep } from "$lib/domain/effects/steps/searches";
 import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 

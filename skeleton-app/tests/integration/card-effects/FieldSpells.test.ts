@@ -11,7 +11,7 @@
  * - Actual game state changes (hand → field, continuous effects)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
- * - **Base class validation**: Tested in tests/unit/domain/effects/base/spell/
+ * - **Base class validation**: Tested in tests/unit/domain/effects/actions/spells/
  *   - BaseSpellAction.test.ts: Game-over check
  *   - FieldSpellAction.test.ts: spellSpeed=1, Main1 phase check, empty activation steps
  * - **Card scenarios**: Tested here
@@ -29,7 +29,7 @@ import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameState } from "$lib/domain/models/GameState";
 

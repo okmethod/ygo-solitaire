@@ -11,12 +11,12 @@
  * 永続効果: @see ChickenGameContinuousRule
  * 起動効果: @see ChickenGameIgnitionEffect
  *
- * @module domain/effects/actions/spell/ChickenGameActivation
+ * @module domain/effects/actions/spells/individuals/ChickenGameActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { FieldSpellAction } from "../../base/spell/FieldSpellAction";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellAction";
 
 /** 《チキンレース》効果クラス */
 export class ChickenGameActivation extends FieldSpellAction {

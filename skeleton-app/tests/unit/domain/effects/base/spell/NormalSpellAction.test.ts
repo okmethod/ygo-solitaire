@@ -8,11 +8,11 @@
  * - canActivate() Normal Spell conditions (Main Phase check)
  * - Inherits BaseSpellAction behavior
  *
- * @module tests/unit/domain/effects/base/spell/NormalSpellAction
+ * @module tests/unit/domain/effects/actions/spells/NormalSpellAction
  */
 
 import { describe, it, expect } from "vitest";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";

@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 「トゥーン」カード1枚をサーチ
  *
- * @module domain/effects/actions/spell/ToonTableOfContentsActivation
+ * @module domain/effects/actions/spells/individuals/ToonTableOfContentsActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
 /** 《トゥーンのもくじ》効果クラス */

@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: フィールド魔法1枚をサーチ
  *
- * @module domain/effects/actions/spell/TerraformingActivation
+ * @module domain/effects/actions/spells/individuals/TerraformingActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
 /** 《テラ・フォーミング》効果クラス */

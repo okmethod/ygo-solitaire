@@ -8,12 +8,12 @@
  * - ACTIVATION: 特になし（サブクラスで実装）
  * - RESOLUTION: 特になし（サブクラスで実装）
  *
- * @module domain/effects/base/spell/ContinuousSpellAction
+ * @module domain/effects/actions/spells/ContinuousSpellAction
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
+import { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAction";
 import { isMainPhase } from "$lib/domain/models/Phase";
 
 /**

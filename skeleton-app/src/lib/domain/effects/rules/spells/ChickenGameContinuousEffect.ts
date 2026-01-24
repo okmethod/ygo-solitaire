@@ -8,13 +8,12 @@
  *
  * カテゴリ: ActionPermission (ダメージ禁止)
  *
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
- * @see specs/008-effect-model/data-model.md - Chicken Game仕様
+ * @module domain/effects/rules/spells/ChickenGameContinuousEffect
  */
 
-import type { AdditionalRule, RuleCategory } from "../../../models/AdditionalRule";
-import type { RuleContext } from "../../../models/RuleContext";
-import type { GameState } from "../../../models/GameState";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { RuleContext } from "$lib/domain/models/RuleContext";
+import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 
 /**
  * ChickenGameContinuousEffect クラス

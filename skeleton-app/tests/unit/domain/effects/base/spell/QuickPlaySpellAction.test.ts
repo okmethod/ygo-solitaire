@@ -8,11 +8,11 @@
  * - canActivate() Quick-Play Spell conditions (Main Phase check for current scope)
  * - Inherits BaseSpellAction behavior
  *
- * @module tests/unit/domain/effects/base/spell/QuickPlaySpellAction
+ * @module tests/unit/domain/effects/actions/spells/QuickPlaySpellAction
  */
 
 import { describe, it, expect } from "vitest";
-import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
+import { QuickPlaySpellAction } from "$lib/domain/effects/actions/spells/QuickPlaySpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";

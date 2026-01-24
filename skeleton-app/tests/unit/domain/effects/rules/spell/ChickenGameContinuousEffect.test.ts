@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spell/ChickenGameContinuousEffect";
+import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { RuleContext } from "$lib/domain/models/RuleContext";
 import type { CardInstance } from "$lib/domain/models/Zone";

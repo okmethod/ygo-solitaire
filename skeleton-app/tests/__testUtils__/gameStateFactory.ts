@@ -14,7 +14,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState";
 import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
 import type { GamePhase } from "$lib/domain/models/Phase";
-import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
+import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";
 
 /**
  * Create a minimal game state for testing

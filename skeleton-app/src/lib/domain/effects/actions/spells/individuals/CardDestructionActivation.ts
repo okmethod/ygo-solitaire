@@ -10,12 +10,12 @@
  *
  * Note: 相手の捨てる処理・ドロー処理は未実装
  *
- * @module domain/effects/actions/spell/CardDestructionActivation
+ * @module domain/effects/actions/spells/individuals/CardDestructionActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
+import { QuickPlaySpellAction } from "$lib/domain/effects/actions/spells/QuickPlaySpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 

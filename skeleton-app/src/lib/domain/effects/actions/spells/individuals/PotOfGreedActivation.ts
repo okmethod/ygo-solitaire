@@ -8,12 +8,12 @@
  * - ACTIVATION: 無し
  * - RESOLUTION: 2枚ドロー
  *
- * @module domain/effects/actions/spell/PotOfGreedActivation
+ * @module domain/effects/actions/spells/individuals/PotOfGreedActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 
 /** 《強欲な壺》効果クラス */
