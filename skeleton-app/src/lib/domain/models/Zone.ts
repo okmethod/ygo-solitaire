@@ -103,15 +103,6 @@ export function sendToGraveyard(currentZones: Zones, card: CardInstance): Zones 
   return moveCard(currentZones, card, "graveyard");
 }
 
-/** 指定複数枚のカードを手札から墓地に移動する */
-export function discardCards(currentZones: Zones, cards: CardInstance[]): Zones {
-  let updatedZones = currentZones;
-  for (const card of cards) {
-    updatedZones = moveCard(updatedZones, card, "graveyard");
-  }
-  return updatedZones;
-}
-
 /** 指定カードを除外する */
 export function banishCard(currentZones: Zones, card: CardInstance): Zones {
   return moveCard(currentZones, card, "banished");
