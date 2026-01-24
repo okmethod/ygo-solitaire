@@ -21,7 +21,7 @@ import { isSpellCard, isNormalSpellCard, isQuickPlaySpellCard, isFieldSpellCard 
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { createSendToGraveyardStep } from "$lib/domain/effects/builders";
+import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
 import {
   ValidationErrorCode,
   successValidationResult,
@@ -160,7 +160,7 @@ export class ActivateSpellCommand implements GameCommand {
 
     // 通常魔法・速攻魔法は末尾に墓地送りステップを追加して返す
     if (isNormalSpellCard(cardInstance) || isQuickPlaySpellCard(cardInstance)) {
-      return [...registeredEffectSteps, createSendToGraveyardStep(this.cardInstanceId, cardInstance.id)];
+      return [...registeredEffectSteps, sendToGraveyardStep(this.cardInstanceId, cardInstance.jaName)];
     }
     return registeredEffectSteps;
   }
