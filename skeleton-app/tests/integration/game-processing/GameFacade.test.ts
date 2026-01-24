@@ -487,10 +487,12 @@ describe("GameFacade", () => {
     });
 
     it("should return false for card in wrong phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      // 登録済みカード（Upstart Goblin）を使用してメインフェイズチェックを行う
+      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
 
       const state = get(gameStateStore);
       const cardInstanceId = state.zones.hand[0].instanceId;
+      // ドローフェイズでは発動不可
       expect(facade.canActivateSpell(cardInstanceId)).toBe(false);
     });
   });
@@ -519,14 +521,16 @@ describe("GameFacade", () => {
     });
 
     it("should fail when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+      // 登録済みカード（Upstart Goblin）を使用してメインフェイズチェックを行う
+      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
 
       const state = get(gameStateStore);
       const cardInstanceId = state.zones.hand[0].instanceId;
 
       const result = facade.activateSpell(cardInstanceId);
       expect(result.success).toBe(false);
-      expect(result.error).toBe("メインフェイズではありません");
+      // Note: メインフェイズチェックは ChainableAction 側で行われるため、汎用的なエラーメッセージが返る
+      expect(result.error).toBe("発動条件を満たしていません");
     });
 
     it("should fail when card is not in hand", () => {

@@ -17,9 +17,8 @@ import type { Zones } from "$lib/domain/models/Zone";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isSpellCard, isQuickPlaySpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
+import { isSpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
-import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
   ValidationErrorCode,
@@ -39,15 +38,13 @@ export class ActivateSpellCommand implements GameCommand {
   /**
    * 指定カードインスタンスの魔法カードが発動可能か判定する
    *
-   * TODO: ChainableAction 側の発動条件と一部重複しているため、整理する
-   *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. メインフェイズであること
-   * 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
-   * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
-   * 5. 速攻魔法の場合、セットしたターンでは無いこと
-   * 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+   * 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+   * 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+   * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+   *
+   * Note: メインフェイズ判定・速攻魔法のセットターン制限は ChainableAction 側でチェック
    */
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
@@ -55,14 +52,9 @@ export class ActivateSpellCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    // 2. メインフェイズであること
-    if (!isMainPhase(state.phase)) {
-      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
-    }
-
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
 
-    // 3. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+    // 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
     if (!cardInstance) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
@@ -73,17 +65,12 @@ export class ActivateSpellCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.NOT_SPELL_CARD);
     }
 
-    // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+    // 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (!isFieldSpellCard(cardInstance) && state.zones.spellTrapZone.length >= 5) {
       return failureValidationResult(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
     }
 
-    // 5. 速攻魔法の場合、セットしたターンでは無いこと
-    if (isQuickPlaySpellCard(cardInstance) && cardInstance.placedThisTurn) {
-      return failureValidationResult(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
-    }
-
-    // 6. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+    // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
     const chainableAction = ChainableActionRegistry.get(cardInstance.id);
     if (chainableAction && !chainableAction.canActivate(state, cardInstance)) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
