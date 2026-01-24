@@ -145,7 +145,7 @@ export class ActivateSpellCommand implements GameCommand {
     // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
     if (cardInstance!.location === "hand") {
       const targetZone = isFieldSpellCard(cardInstance) ? "fieldZone" : "spellTrapZone";
-      return moveCard(zones, this.cardInstanceId, "hand", targetZone, activatedCardState);
+      return moveCard(zones, cardInstance, targetZone, activatedCardState);
     }
 
     // セットから発動: 同じゾーンに表向きで配置

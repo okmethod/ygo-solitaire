@@ -15,7 +15,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { sendToGraveyard } from "$lib/domain/models/Zone";
+import { sendToGraveyard, findCardInstance } from "$lib/domain/models/Zone";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
 /** 指定カードを墓地に送るステップ */
@@ -26,9 +26,10 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
     description: `《${cardName}》を墓地に送ります`,
     notificationLevel: "info",
     action: (currentState: GameState): GameStateUpdateResult => {
+      const card = findCardInstance(currentState.zones, instanceId)!;
       const updatedState: GameState = {
         ...currentState,
-        zones: sendToGraveyard(currentState.zones, instanceId),
+        zones: sendToGraveyard(currentState.zones, card),
       };
 
       return {
@@ -44,7 +45,8 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
 const sendMultipleToGraveyardResult = (state: GameState, instanceIds: string[]): GameStateUpdateResult => {
   let updatedZones = state.zones;
   for (const instanceId of instanceIds) {
-    updatedZones = sendToGraveyard(updatedZones, instanceId);
+    const card = findCardInstance(updatedZones, instanceId)!;
+    updatedZones = sendToGraveyard(updatedZones, card);
   }
 
   return {

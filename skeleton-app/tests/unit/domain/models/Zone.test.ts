@@ -15,13 +15,13 @@ describe("Zone", () => {
         graveyard: [],
         banished: [],
       };
-      const cardInstanceId = zones.mainMonsterZone[0].instanceId;
+      const card = zones.mainMonsterZone[0];
 
-      const result = sendToGraveyard(zones, cardInstanceId);
+      const result = sendToGraveyard(zones, card);
 
       expect(result.mainMonsterZone.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
-      expect(result.graveyard[0].instanceId).toBe(cardInstanceId);
+      expect(result.graveyard[0].instanceId).toBe(card.instanceId);
       expect(result.graveyard[0].location).toBe("graveyard");
     });
 
@@ -36,29 +36,14 @@ describe("Zone", () => {
         graveyard: [],
         banished: [],
       };
-      const cardInstanceId = zones.hand[0].instanceId;
+      const card = zones.hand[0];
 
-      const result = sendToGraveyard(zones, cardInstanceId);
+      const result = sendToGraveyard(zones, card);
 
       expect(result.hand.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
-      expect(result.graveyard[0].instanceId).toBe(cardInstanceId);
+      expect(result.graveyard[0].instanceId).toBe(card.instanceId);
       expect(result.graveyard[0].location).toBe("graveyard");
-    });
-
-    // エラーハンドリング: カードが見つからない場合
-    it("should throw error if card not found in any zone", () => {
-      const zones: Zones = {
-        deck: [],
-        hand: [],
-        mainMonsterZone: [],
-        spellTrapZone: [],
-        fieldZone: [],
-        graveyard: [],
-        banished: [],
-      };
-
-      expect(() => sendToGraveyard(zones, "non-existent-id")).toThrow("Card with instanceId non-existent-id not found");
     });
 
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
@@ -72,9 +57,9 @@ describe("Zone", () => {
         graveyard: [],
         banished: [],
       };
-      const cardInstanceId = zones.spellTrapZone[0].instanceId;
+      const card = zones.spellTrapZone[0];
 
-      const result = sendToGraveyard(zones, cardInstanceId);
+      const result = sendToGraveyard(zones, card);
 
       // 変更対象以外のゾーンは保持される
       expect(result.deck.length).toBe(1);
@@ -83,7 +68,7 @@ describe("Zone", () => {
       // 変更対象のゾーンは更新される
       expect(result.spellTrapZone.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
-      expect(result.graveyard[0].instanceId).toBe(cardInstanceId);
+      expect(result.graveyard[0].instanceId).toBe(card.instanceId);
     });
   });
 });

@@ -9,7 +9,7 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { shuffleDeck, moveCard, drawCards } from "$lib/domain/models/Zone";
+import { shuffleDeck, moveCard, drawCards, findCardInstance } from "$lib/domain/models/Zone";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
@@ -44,7 +44,8 @@ export const selectReturnShuffleDrawStep = (options: { min: number; max?: number
 
       // 選択したカードをデッキに戻す
       for (const instanceId of selectedInstanceIds) {
-        updatedZones = moveCard(updatedZones, instanceId, "hand", "deck");
+        const card = findCardInstance(updatedZones, instanceId)!;
+        updatedZones = moveCard(updatedZones, card, "deck");
       }
 
       // デッキをシャッフル

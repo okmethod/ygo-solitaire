@@ -13,7 +13,7 @@ import {
   failureValidationResult,
 } from "$lib/domain/models/ValidationResult";
 import { isMainPhase } from "$lib/domain/models/Phase";
-import { moveCard, isMainMonsterZoneFull } from "$lib/domain/models/Zone";
+import { moveCard, isMainMonsterZoneFull, findCardInstance } from "$lib/domain/models/Zone";
 
 /**
  * 通常召喚が可能かをチェックする
@@ -51,7 +51,8 @@ export function executeNormalSummon(
   battlePosition: BattlePosition,
 ): GameState {
   // モンスターカードを、メインモンスターゾーンに表側攻撃表示 or 裏側守備表示で配置する
-  const updatedZones = moveCard(state.zones, cardInstanceId, "hand", "mainMonsterZone", {
+  const card = findCardInstance(state.zones, cardInstanceId)!;
+  const updatedZones = moveCard(state.zones, card, "mainMonsterZone", {
     position: battlePosition === "attack" ? "faceUp" : "faceDown",
     battlePosition: battlePosition,
     placedThisTurn: true,

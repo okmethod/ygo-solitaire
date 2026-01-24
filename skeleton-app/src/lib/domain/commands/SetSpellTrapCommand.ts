@@ -110,12 +110,12 @@ export class SetSpellTrapCommand implements GameCommand {
     if (isFieldSpellCard(cardInstance)) {
       // 既存フィールド魔法カードが存在する場合、先に墓地へ送る
       if (isFieldZoneFull(zones)) {
-        zones = sendToGraveyard(zones, zones.fieldZone[0].instanceId);
+        zones = sendToGraveyard(zones, zones.fieldZone[0]);
       }
-      return moveCard(zones, this.cardInstanceId, "hand", "fieldZone", setCardState);
+      return moveCard(zones, cardInstance, "fieldZone", setCardState);
     }
 
-    return moveCard(zones, this.cardInstanceId, "hand", "spellTrapZone", setCardState);
+    return moveCard(zones, cardInstance, "spellTrapZone", setCardState);
   }
 
   /** セット対象のカードインスタンスIDを取得する */

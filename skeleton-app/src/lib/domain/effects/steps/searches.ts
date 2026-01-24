@@ -13,7 +13,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { moveCard, shuffleDeck } from "$lib/domain/models/Zone";
+import { moveCard, shuffleDeck, findCardInstance } from "$lib/domain/models/Zone";
 
 // カードを検索して手札に加える処理の共通ステップ
 const internalSearchStep = (
@@ -72,7 +72,8 @@ const internalSearchStep = (
       // 選択されたカードをソースゾーンから手札に移動
       let updatedZones = currentState.zones;
       for (const instanceId of selectedInstanceIds) {
-        updatedZones = moveCard(updatedZones, instanceId, sourceZone, "hand");
+        const card = findCardInstance(updatedZones, instanceId)!;
+        updatedZones = moveCard(updatedZones, card, "hand");
       }
 
       // フラグで指示されている場合はシャッフル
@@ -171,7 +172,8 @@ export const searchFromDeckTopStep = (config: {
       // 選択されたカードを手札に移動
       let updatedZones = currentState.zones;
       for (const instanceId of selectedInstanceIds) {
-        updatedZones = moveCard(updatedZones, instanceId, "deck", "hand");
+        const card = findCardInstance(updatedZones, instanceId)!;
+        updatedZones = moveCard(updatedZones, card, "hand");
       }
 
       // 残りのカードはデッキに残る（シャッフルなし - 元の位置に戻る）

@@ -50,20 +50,14 @@ export function findCardInstance(zones: Zones, instanceId: string) {
 /** カードの移動および表示形式を変更を行う（汎用）*/
 export function moveCard(
   currentZones: Zones,
-  instanceId: string,
-  from: keyof Zones,
+  card: CardInstance,
   to: keyof Zones,
   updates?: Partial<CardInstance>,
 ): Zones {
+  const from = card.location;
   const sourceZone = currentZones[from];
-  // TODO: 直接CardInstanceを渡した方が良いかも
-  const cardIndex = sourceZone.findIndex((card) => card.instanceId === instanceId);
+  const cardIndex = sourceZone.findIndex((c) => c.instanceId === card.instanceId);
 
-  if (cardIndex === -1) {
-    throw new Error(`Card with instanceId ${instanceId} not found in ${from} zone`);
-  }
-
-  const card = sourceZone[cardIndex];
   const updatedCard: CardInstance = {
     ...card,
     ...updates,
@@ -98,53 +92,29 @@ export function drawCards(currentZones: Zones, count: number = 1): Zones {
 
   for (let i = 0; i < count; i++) {
     const topCard = updatedZones.deck[updatedZones.deck.length - 1];
-    updatedZones = moveCard(updatedZones, topCard.instanceId, "deck", "hand");
+    updatedZones = moveCard(updatedZones, topCard, "hand");
   }
 
   return updatedZones;
 }
 
 /** 指定カードを墓地に移動する */
-export function sendToGraveyard(currentZones: Zones, instanceId: string): Zones {
-  const card = [
-    ...currentZones.mainMonsterZone,
-    ...currentZones.spellTrapZone,
-    ...currentZones.fieldZone,
-    ...currentZones.hand,
-  ].find((c) => c.instanceId === instanceId);
-
-  if (!card) {
-    throw new Error(
-      `Card with instanceId ${instanceId} not found in mainMonsterZone, spellTrapZone, fieldZone, or hand`,
-    );
-  }
-
-  const sourceZone = card.location as keyof Zones;
-  return moveCard(currentZones, instanceId, sourceZone, "graveyard");
+export function sendToGraveyard(currentZones: Zones, card: CardInstance): Zones {
+  return moveCard(currentZones, card, "graveyard");
 }
 
 /** 指定複数枚のカードを手札から墓地に移動する */
-export function discardCards(currentZones: Zones, instanceIds: string[]): Zones {
-  // カードが手札に存在することを確認する
-  for (const instanceId of instanceIds) {
-    const cardInHand = currentZones.hand.find((c) => c.instanceId === instanceId);
-    if (!cardInHand) {
-      throw new Error(`Card with instanceId ${instanceId} not found in hand`);
-    }
-  }
-
-  // カードを1枚ずつ墓地に移動する
+export function discardCards(currentZones: Zones, cards: CardInstance[]): Zones {
   let updatedZones = currentZones;
-  for (const instanceId of instanceIds) {
-    updatedZones = moveCard(updatedZones, instanceId, "hand", "graveyard");
+  for (const card of cards) {
+    updatedZones = moveCard(updatedZones, card, "graveyard");
   }
-
   return updatedZones;
 }
 
 /** 指定カードを除外する */
-export function banishCard(currentZones: Zones, instanceId: string, from: keyof Zones): Zones {
-  return moveCard(currentZones, instanceId, from, "banished");
+export function banishCard(currentZones: Zones, card: CardInstance): Zones {
+  return moveCard(currentZones, card, "banished");
 }
 
 /** デッキをシャッフルする */
