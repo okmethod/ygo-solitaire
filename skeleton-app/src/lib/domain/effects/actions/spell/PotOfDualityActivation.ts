@@ -31,7 +31,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
    * - Deck must have at least 3 cards
    * - Card must not be in activatedOncePerTurnCards (once-per-turn constraint)
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // Need at least 3 cards in deck to excavate
     if (state.zones.deck.length < 3) {
       return false;

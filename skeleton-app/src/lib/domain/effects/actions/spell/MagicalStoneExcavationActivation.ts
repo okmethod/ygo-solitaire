@@ -4,9 +4,9 @@
  * Card ID: 98494543 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、墓地に魔法カードが1枚以上
- * - ACTIVATION: 発動通知
- * - RESOLUTION: 手札から2枚破棄、墓地から魔法カード1枚選んで手札に加える、墓地へ送る
+ * - CONDITIONS: 墓地に魔法カードが1枚以上、手札に2枚以上
+ * - ACTIVATION: 手札を2枚捨てる
+ * - RESOLUTION: 墓地から魔法カード1枚選んで手札に加える、墓地へ送る
  *
  * @module domain/effects/actions/spell/MagicalStoneExcavationActivation
  */
@@ -17,38 +17,36 @@ import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAct
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
-/**
- * MagicalStoneExcavationActivation
- *
- * Extends NormalSpellAction for Magical Stone Excavation implementation.
- */
+/** 《魔法石の採掘》効果クラス */
 export class MagicalStoneExcavationActivation extends NormalSpellAction {
   constructor() {
     super(98494543);
   }
 
   /**
-   * Card-specific activation condition:
-   * - Hand must have at least 2 cards (to discard) (T037)
-   * - Graveyard must have at least 1 spell card
+   * CONDITIONS: 発動条件チェック（カード固有）
    *
-   * Note: This method is called twice by ActivateSpellCommand:
-   * 1. Before activation (with this card still in hand) - need 3 cards: this card + 2 to discard
-   * 2. After moving to field (with this card on field) - need 2 cards in hand to discard
+   * チェック項目:
+   * 1. 手札に捨てられるカードが2枚以上あること
+   * 2. 墓地に魔法カードが1枚以上あること
    */
-  protected additionalActivationConditions(state: GameState): boolean {
-    // Check if this card is in hand. If yes, we need 3 cards total (this card + 2 to discard)
-    // If this card is already on field (after activation), we need 2 cards in hand (T037)
+  protected individualConditions(state: GameState): boolean {
+    // 1. 手札に捨てられるカードが2枚以上あること
+    // 手札から発動する場合は、このカード自身を除いた枚数をチェック
+    // FIXME: 手札に同名カードが複数ある場合に意図する動作をしない
     const thisCardInHand = state.zones.hand.some((card) => card.id === this.cardId);
     const requiredHandSize = thisCardInHand ? 3 : 2;
-
     if (state.zones.hand.length < requiredHandSize) {
       return false;
     }
 
-    // Need at least 1 spell card in graveyard to target
+    // 2. 墓地に魔法カードが1枚以上あること
     const spellCardsInGraveyard = state.zones.graveyard.filter((card) => card.type === "spell");
-    return spellCardsInGraveyard.length >= 1;
+    if (spellCardsInGraveyard.length < 1) {
+      return false;
+    }
+
+    return true;
   }
 
   /**

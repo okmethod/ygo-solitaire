@@ -30,7 +30,7 @@ class TestNormalSpell extends NormalSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // Test implementation: check deck size
     return state.zones.deck.length >= 2;
   }

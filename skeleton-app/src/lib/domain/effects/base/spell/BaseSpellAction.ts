@@ -1,48 +1,32 @@
 /**
- * BaseSpellAction - Abstract base class for all spell card activations
+ * BaseSpellAction - 魔法カード発動の抽象基底クラス
  *
- * Provides common properties and methods for spell card ChainableAction implementations.
- * All spell cards share:
- * - isCardActivation = true (card placement from hand to field)
- * - Common canActivate() with game-over check
- * - Default createActivationSteps() (can be overridden)
+ * Template Methodパターンを使用し、魔法カード発動の基本フローを定義する。
  *
- * Subclasses:
- * - NormalSpellAction (spellSpeed = 1, Main Phase only)
- * - QuickPlaySpellAction (spellSpeed = 2, Main Phase only in current scope)
- * - FieldSpellAction (spellSpeed = 1, stays on field)
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: 特になし（コマンド側でチェック済み、サブクラスで実装）
+ * - ACTIVATION: 発動通知
+ * - RESOLUTION: 特になし（サブクラスで実装）
+ *
+ * 補足: ActivateSpellCommandが事前にチェックする前提条件:
+ * - ゲーム終了状態でないこと
+ * - カードが存在し、魔法カードであること
+ * - 魔法・罠ゾーンに空きがあること（フィールド魔法除く）
  *
  * @module domain/effects/base/spell/BaseSpellAction
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
-import type { ChainableAction } from "../../../models/ChainableAction";
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { getCardData, getCardNameWithBrackets } from "../../../registries/CardDataRegistry";
+import type { ChainableAction } from "$lib/domain/models/ChainableAction";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { getCardData, getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
 
 /**
- * BaseSpellAction - Abstract base class for spell card actions
+ * BaseSpellAction - 魔法カードアクションの抽象基底クラス
  *
- * Implements ChainableAction interface with common spell card logic.
+ * ChainableActionインターフェースを実装し、魔法カード共通のロジックを提供する。
  *
  * @abstract
- * @example
- * ```typescript
- * export class PotOfGreedActivation extends NormalSpellAction {
- *   constructor() {
- *     super(55144522);
- *   }
- *
- *   protected additionalActivationConditions(state: GameState): boolean {
- *     return state.zones.deck.length >= 2;
- *   }
- *
- *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
- *     return [createDrawStep(2)];
- *   }
- * }
- * ```
  */
 export abstract class BaseSpellAction implements ChainableAction {
   /** カードID（数値） */
@@ -55,56 +39,69 @@ export abstract class BaseSpellAction implements ChainableAction {
   abstract readonly spellSpeed: 1 | 2;
 
   /**
-   * Constructor
-   * @param cardId - Card ID (number)
+   * コンストラクタ
+   * @param cardId - カードID（数値）
    */
   constructor(cardId: number) {
     this.cardId = cardId;
   }
 
   /**
-   * CONDITIONS: 発動条件チェック
+   * CONDITIONS: 発動条件チェック（魔法カード共通）
    *
-   * Common conditions for all spell cards:
-   * - Game must not be over
+   * Template Method パターン
+   * - このメソッドは final として扱う。
+   * - サブクラスは subTypeConditions() と individualConditions() を実装する。
    *
-   * Subclasses add additional conditions via additionalActivationConditions()
+   * チェック項目:
+   * 1. 魔法カード共通の発動条件
+   * 2. 魔法カードサブタイプ共通の発動条件
+   * 3. カード固有の発動条件
    *
-   * @param state - 現在のゲーム状態
-   * @returns 発動可能ならtrue
+   * @final このメソッドはオーバーライドしない
    */
   canActivate(state: GameState): boolean {
-    // Game must not be over
-    if (state.result.isGameOver) {
+    // 1. 魔法カード共通の発動条件チェック
+    // 特になし
+
+    // 2. 魔法カードサブタイプ共通の発動条件チェック
+    if (!this.subTypeConditions(state)) {
       return false;
     }
 
-    // Subclass-specific conditions
-    return this.additionalActivationConditions(state);
+    // 3. カード固有の発動条件チェック
+    if (!this.individualConditions(state)) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
-   * Card-specific activation conditions
+   * CONDITIONS: 発動条件チェック（魔法カードサブタイプ共通）
    *
-   * Subclasses implement this to add card-specific conditions (e.g., deck size check)
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 追加条件を満たすならtrue
    * @protected
+   * @abstract
    */
-  protected abstract additionalActivationConditions(state: GameState): boolean;
+  protected abstract subTypeConditions(state: GameState): boolean;
+
+  /**
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * @protected
+   * @abstract
+   */
+  protected abstract individualConditions(state: GameState): boolean;
 
   /**
    * ACTIVATION: 発動時の処理
    *
-   * Default activation step for spell cards (notification only).
-   * Subclasses can override this for cards with activation costs.
+   * TODO: CONDITIONS と同じく Template Method パターンにしたい
    *
-   * @param state - 現在のゲーム状態
-   * @returns 発動通知ステップ
+   * 魔法カードのデフォルト発動ステップ（通知のみ）。
+   * サブクラスは発動コストが必要なカードでこれをオーバーライドできる。
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): AtomicStep[] {
+  createActivationSteps(_state: GameState): AtomicStep[] {
     const cardData = getCardData(this.cardId);
     return [
       {
@@ -113,7 +110,7 @@ export abstract class BaseSpellAction implements ChainableAction {
         description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
         notificationLevel: "info",
         action: (currentState: GameState) => {
-          // No state change, just notification
+          // 状態変更なし、通知のみ
           return {
             success: true,
             updatedState: currentState,
@@ -127,11 +124,10 @@ export abstract class BaseSpellAction implements ChainableAction {
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * Subclasses must implement this to define card-specific resolution steps.
+   * TODO: CONDITIONS と同じく Template Method パターンにしたい
    *
-   * @param state - 現在のゲーム状態
-   * @param activatedCardInstanceId - 発動したカードのインスタンスID
-   * @returns 効果解決ステップ配列
+   * サブクラスでこのメソッドを実装し、カード固有の効果解決ステップを定義する。
+   *
    * @abstract
    */
   abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];

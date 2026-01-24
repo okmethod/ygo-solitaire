@@ -35,7 +35,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    * @param state - 現在のゲーム状態
    * @returns 発動可能ならtrue
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // Hand must have at least 3 cards (spell + 2 to discard)
     return state.zones.hand.length >= 3;
   }

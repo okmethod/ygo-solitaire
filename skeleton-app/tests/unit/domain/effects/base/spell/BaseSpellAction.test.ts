@@ -5,13 +5,13 @@
  *
  * Test Coverage:
  * - ChainableAction interface properties (isCardActivation, spellSpeed)
- * - canActivate() common conditions (game over check)
+ * - canActivate() Template Method pattern (delegates to subTypeConditions and individualConditions)
  * - createActivationSteps() default implementation
  * - Abstract methods must be implemented by subclasses
  *
- * TEST STRATEGY: Base Class テストでは全サブクラス共通のルール（ゲームオーバーチェック等）をテスト。
- * Subclass テストでは、各サブクラス固有の条件（フェーズ制約、追加発動条件）のみをテストする。
- * これにより、重複を避け、テストの保守性を向上させる。
+ * TEST STRATEGY: Base Class テストでは Template Method パターンの動作をテスト。
+ * Subclass テストでは、各サブクラス固有の条件（subTypeConditions, individualConditions）をテストする。
+ * ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテストする。
  *
  * @module tests/unit/domain/effects/base/spell/BaseSpellAction
  */
@@ -37,8 +37,13 @@ class TestSpellAction extends BaseSpellAction {
     super(12345678); // Test card ID from registry
   }
 
-  protected additionalActivationConditions(state: GameState): boolean {
-    // Test implementation: always true
+  protected subTypeConditions(_state: GameState): boolean {
+    // Test implementation: no subtype restrictions
+    return true;
+  }
+
+  protected individualConditions(state: GameState): boolean {
+    // Test implementation: check deck has cards
     return state.zones.deck.length > 0;
   }
 
@@ -61,8 +66,8 @@ describe("BaseSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when game is not over and additional conditions are met", () => {
-      // Arrange: Game not over, deck has cards
+    it("should return true when subtype conditions and individual conditions are met", () => {
+      // Arrange: Deck has cards (individualConditions returns true)
       const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
@@ -76,28 +81,8 @@ describe("BaseSpellAction", () => {
       expect(action.canActivate(stateInMain1)).toBe(true);
     });
 
-    it("should return false when game is over", () => {
-      // Arrange: Game is over
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
-      const gameOverState: GameState = {
-        ...state,
-        phase: "Main1",
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(gameOverState)).toBe(false);
-    });
-
-    it("should return false when additional conditions are not met", () => {
-      // Arrange: Deck is empty (additionalActivationConditions returns false)
+    it("should return false when individual conditions are not met", () => {
+      // Arrange: Deck is empty (individualConditions returns false)
       const state = createInitialGameState(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,

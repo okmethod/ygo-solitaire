@@ -27,11 +27,13 @@ export class ToonWorldActivation extends ContinuousSpellAction {
   }
 
   /**
-   * Card-specific activation condition:
-   * - Player LP must be >= 1000 (to pay activation cost)
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * チェック項目:
+   * 1. プレイヤーのLPが1000以上であること
    */
-  protected additionalActivationConditions(state: GameState): boolean {
-    // Need at least 1000 LP to pay activation cost
+  protected individualConditions(state: GameState): boolean {
+    // 1. プレイヤーのLPが1000以上であること（発動コスト支払い可能）
     return state.lp.player >= 1000;
   }
 

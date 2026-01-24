@@ -30,7 +30,7 @@ class TestQuickPlaySpell extends QuickPlaySpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // Test implementation: check hand size
     return state.zones.hand.length > 0;
   }

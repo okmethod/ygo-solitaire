@@ -1,92 +1,109 @@
 /**
- * NormalSpellAction - Abstract base class for Normal Spell card activations
+ * NormalSpellAction - 通常魔法カード発動の抽象基底クラス
  *
- * Extends BaseSpellAction with Normal Spell specific properties:
- * - spellSpeed = 1
- * - Main Phase only activation
+ * BaseSpellAction を拡張し、通常魔法に共通するプロパティとメソッドを提供する。
  *
- * Normal Spell cards are sent to graveyard after resolution.
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: メインフェイズのみ
+ * - ACTIVATION: 特になし（サブクラスで実装）
+ * - RESOLUTION: 効果解決後に墓地に送られる
  *
  * @module domain/effects/base/spell/NormalSpellAction
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { BaseSpellAction } from "./BaseSpellAction";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
+import { isMainPhase } from "$lib/domain/models/Phase";
+import { getCardData, getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
 
 /**
- * NormalSpellAction - Abstract base class for Normal Spell cards
+ * NormalSpellAction - 通常魔法カードの抽象基底クラス
  *
  * @abstract
- * @example
- * ```typescript
- * export class PotOfGreedActivation extends NormalSpellAction {
- *   constructor() {
- *     super(55144522, "Pot of Greed");
- *   }
- *
- *   protected additionalActivationConditions(state: GameState): boolean {
- *     return state.zones.deck.length >= 2;
- *   }
- *
- *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
- *     return [createDrawStep(2)];
- *   }
- * }
- * ```
  */
 export abstract class NormalSpellAction extends BaseSpellAction {
   /** スペルスピード1（通常魔法） */
   readonly spellSpeed = 1 as const;
 
   /**
-   * CONDITIONS: 発動条件チェック
+   * CONDITIONS: 発動条件チェック（通常魔法共通）
    *
-   * Normal Spell specific conditions:
-   * - Game must not be over (checked by BaseSpellAction)
-   * - Current phase must be Main1
-   * - Card-specific conditions (via additionalActivationConditions)
+   * チェック項目:
+   * 1. メインフェイズであること
    *
-   * @param state - 現在のゲーム状態
-   * @returns 発動可能ならtrue
+   * @final このメソッドはオーバーライドしない
    */
-  canActivate(state: GameState): boolean {
-    // Check base conditions (game over)
-    if (!super.canActivate(state)) {
+  subTypeConditions(state: GameState): boolean {
+    // 1. メインフェイズであること
+    if (!isMainPhase(state.phase)) {
       return false;
     }
 
-    // Must be Main Phase 1
-    if (state.phase !== "Main1") {
-      return false;
-    }
-
-    // Subclass-specific conditions
-    return this.additionalActivationConditions(state);
+    return true;
   }
 
   /**
-   * Card-specific activation conditions
+   * CONDITIONS: 発動条件チェック（カード固有）
    *
-   * Subclasses implement this to add card-specific conditions
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 追加条件を満たすならtrue
    * @protected
    * @abstract
    */
-  protected abstract additionalActivationConditions(state: GameState): boolean;
+  protected abstract individualConditions(state: GameState): boolean;
+
+  /**
+   * 「1ターンに1度」制限を持つカードの発動ステップを作成します
+   *
+   * このメソッドは、カード名を指定した「1ターンに1度」制限を持つカードで使用します。
+   * activatedOncePerTurnCards に cardId を記録するステップを返します。
+   *
+   * @param _state - 現在のゲーム状態（未使用だが、インターフェース統一のため）
+   * @returns 発動ステップ配列
+   * @protected
+   * @example
+   * ```typescript
+   * // Card of Demise / Pot of Duality 等の「1ターンに1度」制限カード
+   * createActivationSteps(_state: GameState): AtomicStep[] {
+   *   return this.createOncePerTurnActivationSteps();
+   * }
+   * ```
+   */
+  protected createOncePerTurnActivationSteps(): AtomicStep[] {
+    const cardData = getCardData(this.cardId);
+
+    return [
+      {
+        id: `${this.cardId}-activation-once-per-turn`,
+        summary: "カード発動",
+        description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
+        notificationLevel: "info",
+        action: (currentState: GameState): GameStateUpdateResult => {
+          // activatedOncePerTurnCards に記録
+          const newActivatedCards = new Set(currentState.activatedOncePerTurnCards);
+          newActivatedCards.add(this.cardId);
+
+          const updatedState: GameState = {
+            ...currentState,
+            activatedOncePerTurnCards: newActivatedCards,
+          };
+
+          return {
+            success: true,
+            updatedState,
+            message: `${cardData.jaName} activated (once per turn)`,
+          };
+        },
+      },
+    ];
+  }
 
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * Subclasses must implement this to define card-specific resolution steps.
-   * Note: Sending the spell card to graveyard is handled automatically by the framework.
+   * サブクラスでこのメソッドを実装し、カード固有の効果解決ステップを定義する。
+   * TODO: 通常魔法の墓地送りは現状コマンド側。どっちでやるべき？？
    *
-   * @param state - 現在のゲーム状態
-   * @param activatedCardInstanceId - 発動したカードのインスタンスID
-   * @returns 効果解決ステップ配列
    * @abstract
    */
   abstract createResolutionSteps(state: GameState, activatedCardInstanceId: string): AtomicStep[];

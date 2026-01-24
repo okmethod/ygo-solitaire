@@ -29,7 +29,7 @@ export class PotOfGreedActivation extends NormalSpellAction {
   /**
    * Card-specific activation condition: Deck must have at least 2 cards
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     return state.zones.deck.length >= 2;
   }
 

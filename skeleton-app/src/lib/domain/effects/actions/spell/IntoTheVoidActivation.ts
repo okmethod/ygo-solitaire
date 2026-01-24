@@ -34,7 +34,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    *   Note: This is checked AFTER the card moves to field, so original hand had 3+ cards
    * - Deck must have at least 1 card
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // Card text: "自分の手札が３枚以上の場合に発動できる"
     // (Card is already moved to field when this is called during execution)
     if (state.zones.hand.length < 2) {

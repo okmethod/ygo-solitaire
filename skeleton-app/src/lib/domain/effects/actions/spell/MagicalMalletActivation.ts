@@ -29,7 +29,7 @@ export class MagicalMalletActivation extends NormalSpellAction {
   /**
    * Card-specific activation condition: Magical Mallet can be activated even with empty hand
    */
-  protected additionalActivationConditions(_state: GameState): boolean {
+  protected individualConditions(_state: GameState): boolean {
     return true;
   }
 

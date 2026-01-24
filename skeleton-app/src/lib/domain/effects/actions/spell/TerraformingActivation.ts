@@ -24,7 +24,7 @@ export class TerraformingActivation extends NormalSpellAction {
     super(73628505);
   }
 
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
     return fieldSpells.length >= 1;
   }

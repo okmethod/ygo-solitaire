@@ -1,106 +1,75 @@
 /**
- * FieldSpellAction - Abstract base class for Field Spell card activations
+ * FieldSpellAction - フィールド魔法カード発動の抽象基底クラス
  *
- * Extends BaseSpellAction with Field Spell specific properties:
- * - spellSpeed = 1
- * - Main Phase only activation
- * - Stays on field (not sent to graveyard after resolution)
+ * BaseSpellAction を拡張し、フィールド魔法に共通するプロパティとメソッドを提供する。
  *
- * Field Spells stay on the field and provide continuous effects.
- * Activation is handled by ActivateSpellCommand (places card on field).
+ * Implementation using ChainableAction model:
+ * - CONDITIONS: メインフェイズのみ
+ * - ACTIVATION: 特になし（サブクラスで実装）
+ * - RESOLUTION: 特になし（サブクラスで実装）
  *
  * @module domain/effects/base/spell/FieldSpellAction
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { BaseSpellAction } from "./BaseSpellAction";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
+import { isMainPhase } from "$lib/domain/models/Phase";
 
 /**
- * FieldSpellAction - Abstract base class for Field Spell cards
+ * FieldSpellAction - フィールド魔法カードの抽象基底クラス
  *
  * @abstract
- * @example
- * ```typescript
- * export class ChickenGameActivation extends FieldSpellAction {
- *   constructor() {
- *     super(67616300, "Chicken Game");
- *   }
- *
- *   protected additionalActivationConditions(state: GameState): boolean {
- *     return true; // No additional conditions
- *   }
- *
- *   createResolutionSteps(state: GameState, instanceId: string): AtomicStep[] {
- *     return []; // Field Spells typically have no resolution steps (only continuous effects)
- *   }
- * }
- * ```
  */
 export abstract class FieldSpellAction extends BaseSpellAction {
   /** スペルスピード1（フィールド魔法） */
   readonly spellSpeed = 1 as const;
 
   /**
-   * CONDITIONS: 発動条件チェック
+   * CONDITIONS: 発動条件チェック（フィールド魔法共通）
    *
-   * Field Spell specific conditions:
-   * - Game must not be over (checked by BaseSpellAction)
-   * - Current phase must be Main1
-   * - Card-specific conditions (via additionalActivationConditions)
+   * チェック項目:
+   * 1. メインフェイズであること
    *
-   * @param state - 現在のゲーム状態
-   * @returns 発動可能ならtrue
+   * @final このメソッドはオーバーライドしない
    */
-  canActivate(state: GameState): boolean {
-    // Check base conditions (game over)
-    if (!super.canActivate(state)) {
+  subTypeConditions(state: GameState): boolean {
+    // 1. メインフェイズであること
+    if (!isMainPhase(state.phase)) {
       return false;
     }
 
-    // Must be Main Phase 1
-    if (state.phase !== "Main1") {
-      return false;
-    }
-
-    // Subclass-specific conditions
-    return this.additionalActivationConditions(state);
+    return true;
   }
 
   /**
-   * Card-specific activation conditions
+   * CONDITIONS: 発動条件チェック（カード固有）
    *
-   * Subclasses implement this to add card-specific conditions
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 追加条件を満たすならtrue
    * @protected
    * @abstract
    */
-  protected abstract additionalActivationConditions(state: GameState): boolean;
+  protected abstract individualConditions(state: GameState): boolean;
 
   /**
    * ACTIVATION: 発動時の処理
    *
-   * Field Spells have no activation steps (placement handled by ActivateSpellCommand).
-   * Override base class to return empty array.
+   * フィールド魔法は発動ステップを持ちません（配置はActivateSpellCommandが行います）。
+   * 基底クラスをオーバーライドして空配列を返します。
    *
-   * @param state - 現在のゲーム状態
+   * @param _state - 現在のゲーム状態
    * @returns 空配列（発動時の処理なし）
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createActivationSteps(state: GameState): AtomicStep[] {
-    // Field Spell has no activation steps (placement handled by ActivateSpellCommand)
+  createActivationSteps(_state: GameState): AtomicStep[] {
+    // フィールド魔法は発動ステップを持ちません（配置はActivateSpellCommandが行います）
     return [];
   }
 
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * Subclasses must implement this to define card-specific resolution steps.
-   * Field Spells typically have empty resolution steps (only continuous effects).
-   * Activation places card on field, no graveyard step needed.
+   * サブクラスでこのメソッドを実装し、カード固有の効果解決ステップを定義します。
+   * フィールド魔法は通常、空の解決ステップを持ちます（継続効果のみ）。
+   * 発動によりカードがフィールドに配置され、墓地送りステップは不要です。
    *
    * @param state - 現在のゲーム状態
    * @param activatedCardInstanceId - 発動したカードのインスタンスID

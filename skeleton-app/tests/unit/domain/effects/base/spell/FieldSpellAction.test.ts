@@ -30,7 +30,7 @@ class TestFieldSpell extends FieldSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected additionalActivationConditions(_state: GameState): boolean {
+  protected individualConditions(_state: GameState): boolean {
     // Test implementation: always true (no additional conditions)
     return true;
   }

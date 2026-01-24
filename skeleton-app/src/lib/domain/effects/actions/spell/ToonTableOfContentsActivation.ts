@@ -30,7 +30,7 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
    * Card-specific activation condition:
    * - Deck must have at least 1 card with "トゥーン" (Toon) in name
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // Check if deck has at least 1 Toon card (cards with "トゥーン" in name)
     const toonCardsInDeck = state.zones.deck.filter((card) => card.jaName.includes("トゥーン"));
     return toonCardsInDeck.length >= 1;

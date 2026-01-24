@@ -29,11 +29,13 @@ export class CardOfDemiseActivation extends NormalSpellAction {
   }
 
   /**
-   * Card-specific activation condition:
-   * - Card must not be in activatedOncePerTurnCards (once-per-turn constraint)
+   * CONDITIONS: 発動条件チェック（カード固有）
+   *
+   * チェック項目:
+   * 1. 1ターンに1度制限をクリアしていること
    */
-  protected additionalActivationConditions(state: GameState): boolean {
-    // 1ターンに1度制限: 既にこのターン発動済みでないかチェック
+  protected individualConditions(state: GameState): boolean {
+    // 1. 1ターンに1度制限: 既にこのターン発動済みでないかチェック
     if (state.activatedOncePerTurnCards.has(this.cardId)) {
       return false;
     }

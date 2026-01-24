@@ -29,7 +29,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
   /**
    * Card-specific activation condition: Deck must have at least 1 card
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     return state.zones.deck.length >= 1;
   }
 

@@ -11,9 +11,9 @@
  * @module domain/effects/actions/spell/DarkFactoryActivation
  */
 
-import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
 /**
@@ -21,70 +21,23 @@ import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
  *
  * Implements ChainableAction for Dark Factory of Mass Production implementation.
  */
-export class DarkFactoryActivation implements ChainableAction {
-  /** カードの発動（手札→フィールド） */
-  readonly isCardActivation = true;
-
-  /** スペルスピード1（通常魔法） */
-  readonly spellSpeed = 1 as const;
-
-  /**
-   * CONDITIONS: 発動条件チェック
-   *
-   * - Game is not over
-   * - Current phase is Main Phase 1
-   * - Graveyard has at least 2 Normal Monsters
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 発動可能ならtrue
-   */
-  canActivate(state: GameState): boolean {
-    // Game must not be over
-    if (state.result.isGameOver) {
-      return false;
-    }
-
-    // Must be Main Phase 1
-    if (state.phase !== "Main1") {
-      return false;
-    }
-
-    // Graveyard must have at least 2 Normal Monsters
-    const normalMonsters = state.zones.graveyard.filter(
-      (card) => card.type === "monster" && card.frameType === "normal",
-    );
-    if (normalMonsters.length < 2) {
-      return false;
-    }
-
-    return true;
+export class DarkFactoryActivation extends NormalSpellAction {
+  constructor() {
+    super(90928333);
   }
 
   /**
-   * ACTIVATION: 発動時の処理
+   * CONDITIONS: 発動条件チェック（カード固有）
    *
-   * 通常魔法はコストなし、対象なしのため、発動通知のみ。
-   *
-   * @param state - 現在のゲーム状態
-   * @returns 発動通知ステップ
+   * チェック項目:
+   * 1. 墓地に通常モンスターが2体以上いること
    */
-  createActivationSteps(_state: GameState): AtomicStep[] {
-    return [
-      {
-        id: "dark-factory-activation",
-        summary: "カード発動",
-        description: "闇の量産工場を発動します",
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // No state change, just notification
-          return {
-            success: true,
-            updatedState: currentState,
-            message: "Dark Factory activated",
-          };
-        },
-      },
-    ];
+  protected individualConditions(state: GameState): boolean {
+    // 1. 墓地に通常モンスターが2体以上いること
+    const normalMonsters = state.zones.graveyard.filter(
+      (card) => card.type === "monster" && card.frameType === "normal",
+    );
+    return normalMonsters.length >= 2;
   }
 
   /**

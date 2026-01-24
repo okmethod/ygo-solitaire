@@ -38,7 +38,7 @@ export class ChickenGameActivation extends FieldSpellAction {
    * @param state - 現在のゲーム状態
    * @returns 発動可能ならtrue
    */
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState): boolean {
     // フィールド魔法が2枚以上ある場合は発動不可
     // （通常は1枚まで、発動中のカードを含めて）
     const fieldSpellCount = state.zones.fieldZone.filter(
