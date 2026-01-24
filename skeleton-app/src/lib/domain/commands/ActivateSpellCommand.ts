@@ -39,6 +39,8 @@ export class ActivateSpellCommand implements GameCommand {
   /**
    * 指定カードインスタンスの魔法カードが発動可能か判定する
    *
+   * TODO: ChainableAction 側の発動条件と一部重複しているため、整理する
+   *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
    * 2. メインフェイズであること
@@ -110,23 +112,19 @@ export class ActivateSpellCommand implements GameCommand {
     const cardInstance = findCardInstance(state, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
+    const updatedActivatedCards = new Set(state.activatedOncePerTurnCards);
+    updatedActivatedCards.add(cardInstance.id);
     const updatedState: GameState = {
       ...state,
       zones: this.moveActivatedSpellCard(state.zones, cardInstance),
+      activatedOncePerTurnCards: updatedActivatedCards, // 発動済みカードIDを記録
     };
-
-    // 発動済みカードIDを記録（「1ターンに1度」制限チェック用）
-    const updatedActivatedCards = new Set(state.activatedOncePerTurnCards);
-    updatedActivatedCards.add(cardInstance.id);
 
     // 3. 戻り値の構築
     return successUpdateResult(
-      {
-        ...updatedState,
-        activatedOncePerTurnCards: updatedActivatedCards,
-      },
+      updatedState,
       `Spell card activated: ${this.cardInstanceId}`,
-      this.buildEffectSteps(updatedState, cardInstance), // activatedOncePerTurnCards を更新する前の state を渡す
+      this.buildEffectSteps(updatedState, cardInstance),
     );
   }
 
@@ -155,10 +153,11 @@ export class ActivateSpellCommand implements GameCommand {
   }
 
   // 効果処理ステップ配列を生成する
+  // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
   // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
     const chainableAction = ChainableActionRegistry.get(cardInstance.id);
-    if (chainableAction?.canActivate(state, cardInstance)) {
+    if (chainableAction) {
       return [
         ...chainableAction.createActivationSteps(state, cardInstance),
         ...chainableAction.createResolutionSteps(state, cardInstance),
