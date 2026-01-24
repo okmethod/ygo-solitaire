@@ -15,6 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { countHandExcludingSelf } from "$lib/domain/models/Zone";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 
@@ -33,14 +34,8 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    *
    */
   protected individualConditions(state: GameState, sourceInstance: CardInstance): boolean {
-    // 1. 自分の手札が3枚以上であること
-    // 手札から発動する場合は、このカード自身を除いた枚数をチェック
-    const handCountExcludingSelf =
-      sourceInstance.location === "hand"
-        ? state.zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
-        : state.zones.hand.length;
-    if (handCountExcludingSelf < 2) {
-      // 発動後に手札が2枚以上残る必要がある（合計3枚以上）
+    // 1. 自分の手札が3枚以上であること（発動後に手札が2枚以上残る必要がある）
+    if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
       return false;
     }
 

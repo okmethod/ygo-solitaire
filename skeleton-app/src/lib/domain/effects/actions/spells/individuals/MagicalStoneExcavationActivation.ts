@@ -4,7 +4,7 @@
  * Card ID: 98494543 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: 墓地に魔法カードが1枚以上、捨てられる手札が2枚以上
+ * - CONDITIONS: 捨てられる手札が2枚以上、墓地に魔法カードが1枚以上
  * - ACTIVATION: 手札を2枚捨てる
  * - RESOLUTION: 魔法カード1枚をサルベージ
  *
@@ -15,6 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { countHandExcludingSelf } from "$lib/domain/models/Zone";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
@@ -28,17 +29,12 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. 手札に捨てられるカードが2枚以上あること
+   * 1. このカードを除き、手札が2枚以上であること
    * 2. 墓地に魔法カードが1枚以上あること
    */
   protected individualConditions(state: GameState, sourceInstance: CardInstance): boolean {
-    // 1. 手札に捨てられるカードが2枚以上あること
-    // 手札から発動する場合は、このカード自身を除いた枚数をチェック（instanceIdで正確に判定）
-    const handCountExcludingSelf =
-      sourceInstance.location === "hand"
-        ? state.zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
-        : state.zones.hand.length;
-    if (handCountExcludingSelf < 2) {
+    // 1. このカードを除き、手札が2枚以上であること
+    if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
       return false;
     }
 

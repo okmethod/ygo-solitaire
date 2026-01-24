@@ -148,6 +148,13 @@ export const countZone = (zones: Zones, zone: keyof Zones): number => {
   return zones[zone].length;
 };
 
+/** 手札のカード枚数（発動元が手札にある場合は除外） */
+export const countHandExcludingSelf = (zones: Zones, sourceInstance: CardInstance): number => {
+  return sourceInstance.location === "hand"
+    ? zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
+    : zones.hand.length;
+};
+
 /** デッキが空かどうか */
 export const isDeckEmpty = (zones: Zones): boolean => {
   return zones.deck.length === 0;
