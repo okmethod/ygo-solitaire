@@ -1,6 +1,10 @@
 /**
  * Card - カードモデル
  *
+ * 「カード1種類」と「カード1枚」を表現するモデル。
+ * プレーンなオブジェクトとして実装し、クラス化しない。
+ * （理由: Zones 経由で GameState に内包されるため）
+ *
  * @module domain/models/Card
  * @see {@link docs/domain/card-model.md}
  */

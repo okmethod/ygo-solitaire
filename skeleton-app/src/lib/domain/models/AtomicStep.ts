@@ -1,6 +1,11 @@
 /**
  * AtomicStep - 効果処理の単一ステップのモデル
  *
+ * 効果処理の単一ステップの手続きを表現するモデル。
+ * Domain層で定義され、アプリケーション層が実行時に処理を注入する。
+ * プレーンなオブジェクトとして実装し、クラス化しない。
+ * （理由: GameState に内包されるため）
+ *
  * @module domain/models/AtomicStep
  * @see {@link docs/domain/effect-processing-model.md}
  */

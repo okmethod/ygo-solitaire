@@ -2,6 +2,9 @@
  * Zone - 領域モデル
  *
  * ゲーム中にカードが配置される領域を表現するモデル。
+ * プレーンなオブジェクトとして実装し、クラス化しない。
+ * （理由: GameState に内包されるため）
+ *
  * 領域間でのカード移動や状態管理のためのユーティリティ関数も提供する。
  *
  * @module domain/models/Zone
@@ -37,6 +40,7 @@ export function moveCard(
   updates?: Partial<CardInstance>,
 ): Zones {
   const sourceZone = currentZones[from];
+  // TODO: 直接CardInstanceを渡した方が良いかも
   const cardIndex = sourceZone.findIndex((card) => card.instanceId === instanceId);
 
   if (cardIndex === -1) {

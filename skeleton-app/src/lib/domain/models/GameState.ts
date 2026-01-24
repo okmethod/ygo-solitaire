@@ -1,6 +1,10 @@
 /**
  * GameState - ゲーム状態モデル
  *
+ * すべてのゲーム操作は、新しい GameState インスタンスを返す。
+ * プレーンなオブジェクトとして実装し、クラスを内包しないようにする。
+ * （理由: 不変性担保 / Svelte 5 Runes での変更追跡性 / シリアライズ可能）
+ *
  * @module domain/models/GameState
  * @see {@link docs/domain/overview.md}
  */
@@ -37,11 +41,7 @@ export interface GameResult {
   readonly message?: string;
 }
 
-/**
- * イミュータブルなゲーム状態
- *
- * すべてのゲーム操作は、新しい GameState インスタンスを返す。
- */
+/** イミュータブルなゲーム状態 */
 export interface GameState {
   readonly zones: Zones;
   readonly lp: LifePoints;
@@ -60,6 +60,7 @@ export interface GameState {
 
   /**
    * カード名を指定した「1 ターンに 1 度」制限の発動管理
+   * TODO: 単に activatedCardIds で良さそう。一律で記録して、制限は個別カード側に書く。
    * - カードID（数値）をキーとして管理
    * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
    * - 先行1ターン目のみのため、「1 デュエルに 1度」制限も兼ねる
@@ -72,6 +73,7 @@ export interface GameState {
   /**
    * カード名指定のない「1 ターンに 1 度」制限の発動管理
    * - `${cardInstanceId}:${effectId}` をキーとして管理
+   * FIXME: これだと、一度引っ込んだ後再度フィールドに出た場合にリセットされない。インスタンス側が持つべきステートな気がする。
    * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
    * - 例: チキンレースの起動効果、等
    * NOTE: フラグ名変更は将来検討（現状は互換性優先で維持）
