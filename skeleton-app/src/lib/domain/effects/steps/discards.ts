@@ -1,7 +1,5 @@
 /**
- * handDiscards.ts - 手札破棄系ステップビルダー
- *
- * 手札を破棄する AtomicStep を生成します。
+ * discards.ts - カード破棄系ステップビルダー
  *
  * 公開関数:
  * - sendToGraveyardStep: カードを墓地へ送る
@@ -11,7 +9,7 @@
  *
  * TODO: 「墓地の送る」と「捨てる」を区別する
  *
- * @module domain/effects/steps/handDiscard
+ * @module domain/effects/steps/discards
  */
 
 import type { GameState } from "$lib/domain/models/GameState";

@@ -1,11 +1,11 @@
 /**
- * autoMovements.ts - ユーザーの操作を伴わないカード移動系ステップビルダー
+ * draws.ts - ドロー系ステップビルダー
  *
  * 公開関数:
  * - drawStep: 指定枚数ドロー
  * - fillHandsStep: 手札が指定枚数になるまでドロー
  *
- * @module domain/effects/steps/autoMovements
+ * @module domain/effects/steps/draws
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
