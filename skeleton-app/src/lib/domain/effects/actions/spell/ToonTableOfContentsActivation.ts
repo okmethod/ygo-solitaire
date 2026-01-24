@@ -11,10 +11,10 @@
  * @module domain/effects/actions/spell/ToonTableOfContentsActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createSearchFromDeckByNameStep } from "../../builders/stepBuilders";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
 /**
  * ToonTableOfContentsActivation
@@ -31,10 +31,8 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
    * - Deck must have at least 1 card with "トゥーン" (Toon) in name
    */
   protected additionalActivationConditions(state: GameState): boolean {
-    // Check if deck has at least 1 Toon card (cards with "トゥーン" or "Toon" in name)
-    const toonCardsInDeck = state.zones.deck.filter(
-      (card) => card.jaName.includes("トゥーン") || (card.name && card.name.includes("Toon")),
-    );
+    // Check if deck has at least 1 Toon card (cards with "トゥーン" in name)
+    const toonCardsInDeck = state.zones.deck.filter((card) => card.jaName.includes("トゥーン"));
     return toonCardsInDeck.length >= 1;
   }
 
@@ -44,11 +42,11 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
   createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Search for Toon card from deck and add to hand
-      createSearchFromDeckByNameStep({
+      searchFromDeckByConditionStep({
         id: `toon-table-search-${activatedCardInstanceId}`,
-        summary: "デッキからトゥーンカードを検索",
-        description: "デッキから「トゥーン」カード1枚を選んで手札に加えてください",
-        filter: (card) => card.jaName.includes("トゥーン") || (card.name && card.name.includes("Toon")),
+        summary: "「トゥーン」カード1枚をサーチ",
+        description: "デッキから「トゥーン」カード1枚を選択し、手札に加えます",
+        filter: (card) => card.jaName.includes("トゥーン"),
         minCards: 1,
         maxCards: 1,
         cancelable: false,

@@ -11,11 +11,10 @@
  * @module domain/effects/actions/spell/PotOfDualityActivation
  */
 
-import type { GameState } from "../../../models/GameState";
-import type { AtomicStep } from "../../../models/AtomicStep";
-import { NormalSpellAction } from "../../base/spell/NormalSpellAction";
-import { createSearchFromDeckTopStep } from "../../builders/stepBuilders";
-import { getCardNameWithBrackets, getCardData } from "../../../registries/CardDataRegistry";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
+import { searchFromDeckTopStep } from "$lib/domain/effects/steps/searches";
 
 /**
  * PotOfDualityActivation
@@ -49,47 +48,23 @@ export class PotOfDualityActivation extends NormalSpellAction {
   /**
    * ACTIVATION: Override to add once-per-turn tracking
    *
-   * Adds this card's ID to activatedOncePerTurnCards set.
+   * 基底クラスの createOncePerTurnActivationSteps() を使用して、
+   * 1ターンに1度制限を記録します。
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createActivationSteps(_state: GameState): AtomicStep[] {
-    const cardData = getCardData(this.cardId);
-    return [
-      {
-        id: `${this.cardId}-activation`,
-        summary: "カード発動",
-        description: `${getCardNameWithBrackets(this.cardId)}を発動します`,
-        notificationLevel: "info",
-        action: (currentState: GameState) => {
-          // Add to once-per-turn tracking
-          const newActivatedCards = new Set(currentState.activatedOncePerTurnCards);
-          newActivatedCards.add(this.cardId);
-
-          const updatedState: GameState = {
-            ...currentState,
-            activatedOncePerTurnCards: newActivatedCards,
-          };
-
-          return {
-            success: true,
-            updatedState,
-            message: `${cardData.jaName} activated`,
-          };
-        },
-      },
-    ];
+    return this.createOncePerTurnActivationSteps();
   }
 
   /**
    * RESOLUTION: Excavate top 3 cards → Select 1 → Add to hand → Return rest to deck
    */
-  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
+  createResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: Excavate top 3 cards and select 1 to add to hand
-      createSearchFromDeckTopStep({
-        id: `pot-of-duality-search-${activatedCardInstanceId}`,
-        summary: "デッキの上から3枚を確認",
-        description: "デッキの上から3枚を確認し、1枚を選んで手札に加えてください。残りはデッキに戻ります",
+      searchFromDeckTopStep({
+        id: `pot-of-duality-search-${_activatedCardInstanceId}`,
+        summary: "デッキトップ3枚から1枚をサーチ",
+        description: "デッキトップ3枚から1枚を選択し、手札に加えます",
         count: 3,
         minCards: 1,
         maxCards: 1,

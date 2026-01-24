@@ -406,11 +406,11 @@ describe("Normal Spell Card Effects", () => {
       // Assert: 3 steps (activation + selection + graveyard)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3);
+      expect(result.effectSteps!.length).toBe(2);
 
       expect(result.effectSteps![1]).toMatchObject({
-        id: "dark-factory-select",
-        summary: "モンスターを選択",
+        id: "dark-factory-search-factory-0",
+        summary: "通常モンスター2枚をサルベージ",
       });
     });
 
@@ -499,14 +499,14 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("terra-0");
       const result = command.execute(state);
 
-      // Assert: 3 steps (activation + selection + shuffle)
+      // Assert: 2 steps (activation + search with auto-shuffle)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3);
+      expect(result.effectSteps!.length).toBe(2);
 
       expect(result.effectSteps![1]).toMatchObject({
-        id: "terraforming-select",
-        summary: "フィールド魔法を選択",
+        id: "terraforming-search-terra-0",
+        summary: "フィールド魔法1枚をサーチ",
       });
     });
 
@@ -577,8 +577,8 @@ describe("Normal Spell Card Effects", () => {
       });
       expect(result.effectSteps![2]).toMatchObject({
         id: "magical-stone-excavation-search-excavation-0",
-        summary: "墓地から魔法カードを回収",
-        description: "墓地から魔法カードを1枚選んで手札に加えてください",
+        summary: "魔法カード1枚をサルベージ",
+        description: "墓地から魔法カード1枚を選択し、手札に加えます",
       });
     });
 

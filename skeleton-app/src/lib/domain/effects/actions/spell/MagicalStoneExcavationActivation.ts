@@ -15,7 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
-import { createSearchFromGraveyardStep } from "$lib/domain/effects/steps/searches";
+import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
 /**
  * MagicalStoneExcavationActivation
@@ -64,10 +64,10 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
       selectAndDiscardStep(2),
 
       // Step 2: 墓地から魔法カード1枚を選んで手札に加える
-      createSearchFromGraveyardStep({
+      salvageFromGraveyardStep({
         id: `magical-stone-excavation-search-${activatedCardInstanceId}`,
-        summary: "墓地から魔法カードを回収",
-        description: "墓地から魔法カードを1枚選んで手札に加えてください",
+        summary: "魔法カード1枚をサルベージ",
+        description: "墓地から魔法カード1枚を選択し、手札に加えます",
         filter: (card) => card.type === "spell",
         minCards: 1,
         maxCards: 1,

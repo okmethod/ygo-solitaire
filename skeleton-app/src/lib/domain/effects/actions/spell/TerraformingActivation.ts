@@ -14,9 +14,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
-import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
-import { moveCard } from "$lib/domain/models/Zone";
+import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
 /**
  * TerraformingActivation - デッキからフィールド魔法1枚を手札に加える
@@ -34,39 +32,18 @@ export class TerraformingActivation extends NormalSpellAction {
   /**
    * RESOLUTION: デッキからフィールド魔法を選択 → 手札に加える → デッキシャッフル
    */
-  createResolutionSteps(state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
-
+  createResolutionSteps(_state: GameState, activatedCardInstanceId: string): AtomicStep[] {
     return [
       // Step 1: デッキからフィールド魔法を選択して手札に加える
-      selectCardsStep({
-        id: "terraforming-select",
-        summary: "フィールド魔法を選択",
-        description: "デッキからフィールド魔法1枚を選択してください",
-        availableCards: fieldSpells,
+      searchFromDeckByConditionStep({
+        id: `terraforming-search-${activatedCardInstanceId}`,
+        summary: "フィールド魔法1枚をサーチ",
+        description: "デッキからフィールド魔法1枚を選択し、手札に加えます",
+        filter: (card) => card.type === "spell" && card.spellType === "field",
         minCards: 1,
         maxCards: 1,
         cancelable: false,
-        onSelect: (currentState, selectedIds) => {
-          if (selectedIds.length !== 1) {
-            return {
-              success: false,
-              updatedState: currentState,
-              error: "Must select exactly 1 Field Spell from deck",
-            };
-          }
-
-          const updatedZones = moveCard(currentState.zones, selectedIds[0], "deck", "hand");
-          return {
-            success: true,
-            updatedState: { ...currentState, zones: updatedZones },
-            message: "Added 1 Field Spell from deck to hand",
-          };
-        },
       }),
-
-      // Step 2: デッキをシャッフル（デッキサーチ後の標準処理）
-      shuffleDeckStep(),
     ];
   }
 }
