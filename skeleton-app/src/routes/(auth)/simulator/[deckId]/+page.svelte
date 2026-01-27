@@ -9,12 +9,10 @@
     opponentLP,
     handCardCount,
     deckCardCount,
-    isGameOver,
     gameResult,
-    canActivateSpells,
   } from "$lib/application/stores/derivedStores";
   import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
-  import { effectResolutionStore } from "$lib/application/stores/effectResolutionStore";
+  import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
   import Hands from "$lib/presentation/components/organisms/board/Hands.svelte";
@@ -48,7 +46,7 @@
   // ゲーム開始時、Main1 まで自動進行
   let hasAutoAdvanced = $state(false);
   $effect(() => {
-    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$isGameOver) {
+    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$gameResult.isGameOver) {
       autoAdvanceToMainPhase();
       hasAutoAdvanced = true;
     }
@@ -57,12 +55,12 @@
   // ゲーム終了したらモーダルを開く
   let isGameOverModalOpen = $state(false);
   $effect(() => {
-    if ($isGameOver) isGameOverModalOpen = true;
+    if ($gameResult.isGameOver) isGameOverModalOpen = true;
   });
 
   // 現在のステータス表示文字列を取得
   function getNowStatusString(): string {
-    if ($isGameOver) return "ゲーム終了";
+    if ($gameResult.isGameOver) return "ゲーム終了";
 
     function _getPhaseDisplay(phase: string): string {
       const phaseMap: Record<string, string> = {
@@ -178,8 +176,8 @@
     selectedFieldCardInstanceId = null;
   }
 
-  // 効果解決ストアの状態を購読
-  const effectResolutionState = effectResolutionStore;
+  // 効果処理キューストアの状態を購読
+  const effectQueueState = effectQueueStore;
 
   // 手札カードとinstanceIdのマッピング
   const handCardsWithInstanceId = $derived(
@@ -296,8 +294,7 @@
         cards={handCardsWithInstanceId}
         handCardCount={$handCardCount}
         currentPhase={$currentPhase}
-        canActivateSpells={$canActivateSpells}
-        isGameOver={$isGameOver}
+        isGameOver={$gameResult.isGameOver}
         {selectedHandCardInstanceId}
         onCardClick={handleHandCardClick}
         onSummonMonster={handleSummonMonster}
@@ -318,18 +315,16 @@
   </main>
 </div>
 
-<!-- 効果解決モーダル (interactive level without card selection only) -->
+<!-- 効果処理モーダル (interactive level without card selection only) -->
 <!-- Note: Only show modal for interactive level steps that don't have cardSelectionConfig -->
-<!-- info/silent levels are handled by effectResolutionStore (toast/no-ui) -->
+<!-- info/silent levels are handled by effectQueueStore (toast/no-ui) -->
 <EffectResolutionModal
-  isOpen={$effectResolutionState.isActive &&
-    $effectResolutionState.currentStep?.notificationLevel === "interactive" &&
-    !$effectResolutionState.currentStep?.cardSelectionConfig}
-  summary={$effectResolutionState.currentStep?.summary || ""}
-  description={$effectResolutionState.currentStep?.description || ""}
-  onConfirm={effectResolutionStore.confirmCurrentStep}
-  onCancel={$effectResolutionState.currentStep?.showCancel ? effectResolutionStore.cancelResolution : undefined}
-  showCancel={$effectResolutionState.currentStep?.showCancel || false}
+  isOpen={$effectQueueState.isActive &&
+    $effectQueueState.currentStep?.notificationLevel === "interactive" &&
+    !$effectQueueState.currentStep?.cardSelectionConfig}
+  summary={$effectQueueState.currentStep?.summary || ""}
+  description={$effectQueueState.currentStep?.description || ""}
+  onConfirm={effectQueueStore.confirmCurrentStep}
 />
 
 <!-- カード選択モーダル -->

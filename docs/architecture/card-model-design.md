@@ -93,7 +93,7 @@ YGOPRODeck API レスポンス → `CardDisplayData` への変換。
 
 ### デッキローダー
 
-**`loadDeckData()`**
+**`loadDeck()`**
 
 デッキレシピからカードデータを読み込み、CardData と CardDisplayData を生成。
 

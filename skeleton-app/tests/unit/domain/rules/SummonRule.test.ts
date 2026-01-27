@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+import { ValidationErrorCode } from "$lib/domain/models/ValidationResult";
 
 describe("SummonRule", () => {
   describe("canNormalSummon", () => {
@@ -25,8 +26,8 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
-      expect(result.reason).toBeUndefined();
+      expect(result.isValid).toBe(true);
+      expect(result.errorCode).toBeUndefined();
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -41,8 +42,8 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
-      expect(result.reason).toBe("Main1フェーズではありません");
+      expect(result.isValid).toBe(false);
+      expect(result.errorCode).toBe(ValidationErrorCode.NOT_MAIN_PHASE);
     });
 
     it("should fail if summon limit reached", () => {
@@ -57,8 +58,8 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
-      expect(result.reason).toBe("召喚権がありません");
+      expect(result.isValid).toBe(false);
+      expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
     });
 
     it("should fail if mainMonsterZone is full (5 cards)", () => {
@@ -67,6 +68,7 @@ describe("SummonRule", () => {
         instanceId: `monster-${i}`,
         id: 1000 + i,
         name: `Monster ${i}`,
+        jaName: `モンスター ${i}`,
         type: "monster" as const,
         frameType: "normal" as const,
         desc: "Test monster",
@@ -100,8 +102,8 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
-      expect(result.reason).toBe("モンスターゾーンが満杯です");
+      expect(result.isValid).toBe(false);
+      expect(result.errorCode).toBe(ValidationErrorCode.MONSTER_ZONE_FULL);
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 0", () => {
@@ -116,7 +118,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 1", () => {
@@ -131,7 +133,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should fail if normalSummonLimit is 2 and used is 2", () => {
@@ -146,8 +148,8 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(false);
-      expect(result.reason).toBe("召喚権がありません");
+      expect(result.isValid).toBe(false);
+      expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
     });
 
     it("should allow summon when mainMonsterZone has 4 cards", () => {
@@ -156,6 +158,7 @@ describe("SummonRule", () => {
         instanceId: `monster-${i}`,
         id: 1000 + i,
         name: `Monster ${i}`,
+        jaName: `モンスター ${i}`,
         type: "monster" as const,
         frameType: "normal" as const,
         desc: "Test monster",
@@ -189,7 +192,7 @@ describe("SummonRule", () => {
       const result = canNormalSummon(state);
 
       // Assert
-      expect(result.canSummon).toBe(true);
+      expect(result.isValid).toBe(true);
     });
   });
 });

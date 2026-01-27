@@ -110,25 +110,8 @@ npm run deploy        # GitHub Pages
 すべてを CLAUDE.md に記載することはしない。
 単純追加するのではなく、追加したら古いものを削除するなど。
 
-現在進行中または最近完了した仕様:
-
-- [specs/013-card-pool-expansion/](specs/013-card-pool-expansion/) - カードプール拡張（魔法カード6枚追加）✅ 完了
-  - 新規魔法カード6枚追加: Magical Stone Excavation, Into the Void, Pot of Duality, Card of Demise, Toon Table of Contents, Toon World
-  - GameState拡張: pendingEndPhaseEffects, activatedOncePerTurnCards
-  - 6つの新step builder: 墓地サーチ、デッキトップサーチ、エンドフェーズ効果、ドロー上限、名前フィルタ、LP支払い
-  - 全439テスト合格、18シナリオ追加
-- [specs/012-spell-action-refactor/](specs/012-spell-action-refactor/) - 魔法カード効果の抽象化リファクタリング ✅ 完了
-  - 10枚の魔法カードを抽象クラス（BaseSpellAction/NormalSpellAction/QuickPlaySpellAction/FieldSpellAction）で統一
-  - 7つのstep builder関数で重複コード削減
-  - LOC削減: 2123→1290行（39%削減）、全604テストパス
-
 ## Active Technologies
 
 - TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability), Vitest (unit testing), Playwright (E2E testing), TailwindCSS (styling), Skeleton UI
 - Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
 - N/A (フロントエンドのみ、状態はメモリ内)
-
-## Recent Changes
-
-- 008-effect-model: Added ChainableAction and AdditionalRule models with Chicken Game implementation (2025-01-28)
-- 007-domain-refactor: Added TypeScript (ES2022) + Svelte 5 (Runes mode), SvelteKit 2, TailwindCSS, Skeleton UI

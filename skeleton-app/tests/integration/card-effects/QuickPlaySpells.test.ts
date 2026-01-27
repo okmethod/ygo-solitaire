@@ -7,11 +7,11 @@
  * Test Responsibility:
  * - Quick-Play Spell card activation scenarios (end-to-end gameplay flow)
  * - Registry integration (cardId → Effect retrieval → Effect execution)
- * - Side effects (effectResolutionStore.startResolution calls)
+ * - Side effects (effectQueueStore.startProcessing calls)
  * - Actual game state changes (hand → graveyard → deck → hand)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
- * - **Base class validation**: Tested in tests/unit/domain/effects/base/spell/
+ * - **Base class validation**: Tested in tests/unit/domain/effects/actions/spells/
  *   - BaseSpellAction.test.ts: Game-over check
  *   - QuickPlaySpellAction.test.ts: spellSpeed=2, Main1 phase check
  * - **Card scenarios**: Tested here
@@ -41,7 +41,9 @@ describe("Quick-Play Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
           hand: createCardInstances([cardDestructionCardId, "hand1", "hand2", "hand3"], "hand", "destruction"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -54,30 +56,25 @@ describe("Quick-Play Spell Card Effects", () => {
       // Assert: effectSteps are returned in the result
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5);
+      expect(result.effectSteps!.length).toBe(4);
 
-      // Verify steps: [activation, player discard, opponent discard, player draw, graveyard]
+      // Verify steps: [activation, player discard, player draw, send-to-graveyard]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "74519184-activation",
+        id: "74519184-activation-notification",
         summary: "カード発動",
         description: "《手札断札》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "card-destruction-discard-player",
-        summary: "手札を捨てる",
+        id: "select-and-discard-2-cards",
+        summary: "手札を2枚捨てる",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "card-destruction-discard-opponent",
-        summary: "相手が手札を捨てる",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
-        id: "card-destruction-draw",
+        id: "draw-2",
         summary: "カードをドロー",
       });
-      expect(result.effectSteps![4]).toMatchObject({
-        id: "destruction-0-graveyard",
+      expect(result.effectSteps![3]).toMatchObject({
         summary: "墓地へ送る",
-        description: "手札断札を墓地に送ります",
+        description: "《手札断札》を墓地に送ります",
       });
     });
 
@@ -88,7 +85,9 @@ describe("Quick-Play Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([cardDestructionCardId, "hand1"], "hand", "destruction"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -99,7 +98,7 @@ describe("Quick-Play Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 3 cards in hand)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("Scenario: Can activate when hand has exactly 3 cards", () => {
@@ -109,7 +108,9 @@ describe("Quick-Play Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([cardDestructionCardId, "hand1", "hand2"], "hand", "destruction"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -120,7 +121,7 @@ describe("Quick-Play Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Can activate
-      expect(result).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("Scenario: Spell Speed 2 allows chaining (verified via property)", async () => {

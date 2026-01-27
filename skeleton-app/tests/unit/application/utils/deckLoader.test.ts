@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { loadDeckData } from "$lib/application/utils/deckLoader";
+import { loadDeck } from "$lib/application/utils/deckLoader";
 import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
 import exodiaFixture from "../../../fixtures/ygoprodeck/exodia.json";
 import potOfGreedFixture from "../../../fixtures/ygoprodeck/pot-of-greed.json";
@@ -11,7 +11,7 @@ vi.mock("$lib/infrastructure/api/ygoprodeck", () => ({
   clearCache: vi.fn(),
 }));
 
-describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
+describe("loadDeck - Deck Recipe Loading Integration Test (T033)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -28,9 +28,10 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
     ]);
 
     // デッキレシピをロード
-    const deckData = await loadDeckData("greedy-exodia-deck", mockFetch);
+    const { deckRecipe, deckData } = await loadDeck("greedy-exodia-deck", mockFetch);
 
     // 基本検証
+    expect(deckRecipe).toBeDefined();
     expect(deckData).toBeDefined();
     expect(deckData.name).toBeDefined();
     expect(deckData.mainDeck).toBeDefined();
@@ -50,7 +51,7 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
   it("should validate RecipeCardEntry card IDs (T032)", async () => {
     const mockFetch = vi.fn();
 
-    // Note: 実際のsampleDeckRecipesは常に有効なので
+    // Note: 実際のpresetDeckRecipesは常に有効なので
     // このテストは型エラーを防ぐための概念的な検証
     vi.mocked(ygoprodeckApi.getCardsByIds).mockResolvedValue([
       exodiaFixture,
@@ -59,7 +60,7 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
     ]);
 
     // 有効なデッキをロード（エラーが発生しないことを確認）
-    await expect(loadDeckData("greedy-exodia-deck", mockFetch)).resolves.toBeDefined();
+    await expect(loadDeck("greedy-exodia-deck", mockFetch)).resolves.toBeDefined();
   });
 
   it("should handle API errors gracefully", async () => {
@@ -69,7 +70,7 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
     vi.mocked(ygoprodeckApi.getCardsByIds).mockRejectedValue(new Error("Network error"));
 
     // エラーがスローされることを確認
-    await expect(loadDeckData("greedy-exodia-deck", mockFetch)).rejects.toThrow();
+    await expect(loadDeck("greedy-exodia-deck", mockFetch)).rejects.toThrow();
   });
 
   it("should handle missing deck ID", async () => {
@@ -77,7 +78,7 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
 
     // 存在しないデッキIDを指定
     // Note: SvelteKit error() 関数の動作により、エラーオブジェクトの形式が異なる
-    await expect(loadDeckData("non-existent-deck", mockFetch)).rejects.toThrow();
+    await expect(loadDeck("non-existent-deck", mockFetch)).rejects.toThrow();
   });
 
   it("should calculate deck stats correctly", async () => {
@@ -90,7 +91,7 @@ describe("loadDeckData - Deck Recipe Loading Integration Test (T033)", () => {
       gracefulCharityFixture,
     ]);
 
-    const deckData = await loadDeckData("greedy-exodia-deck", mockFetch);
+    const { deckData } = await loadDeck("greedy-exodia-deck", mockFetch);
 
     // 統計情報が計算されていることを確認
     expect(deckData.stats).toBeDefined();

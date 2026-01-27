@@ -123,7 +123,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should allow setting a field spell even if fieldZone is occupied", () => {
@@ -149,7 +149,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result.isValid).toBe(true);
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -174,7 +174,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if spellTrapZone is full (5 cards)", () => {
@@ -200,7 +200,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card not found", () => {
@@ -215,7 +215,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card is not in hand", () => {
@@ -240,7 +240,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if card is not a spell or trap", () => {
@@ -277,7 +277,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("should fail if game is already over", () => {
@@ -303,7 +303,7 @@ describe("SetSpellTrapCommand", () => {
       const result = command.canExecute(state);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -331,10 +331,10 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(0);
-      expect(result.newState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.hand.length).toBe(0);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
 
-      const setCard = result.newState.zones.spellTrapZone[0];
+      const setCard = result.updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe("spell-1");
       expect(setCard.location).toBe("spellTrapZone");
       expect(setCard.position).toBe("faceDown");
@@ -364,9 +364,9 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
 
-      const setCard = result.newState.zones.spellTrapZone[0];
+      const setCard = result.updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe("quick-1");
       expect(setCard.position).toBe("faceDown");
       expect(setCard.placedThisTurn).toBe(true);
@@ -395,9 +395,9 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
 
-      const setCard = result.newState.zones.spellTrapZone[0];
+      const setCard = result.updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe("continuous-1");
       expect(setCard.position).toBe("faceDown");
     });
@@ -425,10 +425,10 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.hand.length).toBe(0);
-      expect(result.newState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.zones.hand.length).toBe(0);
+      expect(result.updatedState.zones.fieldZone.length).toBe(1);
 
-      const setCard = result.newState.zones.fieldZone[0];
+      const setCard = result.updatedState.zones.fieldZone[0];
       expect(setCard.instanceId).toBe("field-1");
       expect(setCard.location).toBe("fieldZone");
       expect(setCard.position).toBe("faceDown");
@@ -464,10 +464,10 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.fieldZone.length).toBe(1);
-      expect(result.newState.zones.fieldZone[0].instanceId).toBe("field-new");
-      expect(result.newState.zones.graveyard.length).toBe(1);
-      expect(result.newState.zones.graveyard[0].instanceId).toBe("field-old");
+      expect(result.updatedState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.zones.fieldZone[0].instanceId).toBe("field-new");
+      expect(result.updatedState.zones.graveyard.length).toBe(1);
+      expect(result.updatedState.zones.graveyard[0].instanceId).toBe("field-old");
     });
 
     it("should NOT consume normalSummonUsed when setting spell", () => {
@@ -494,7 +494,7 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.normalSummonUsed).toBe(0); // Should NOT increment
+      expect(result.updatedState.normalSummonUsed).toBe(0); // Should NOT increment
     });
 
     it("should fail if not in Main1 phase", () => {
@@ -520,7 +520,7 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Main1フェーズではありません");
+      expect(result.error).toBe("メインフェイズではありません");
     });
 
     it("should fail if card not found", () => {
@@ -536,7 +536,7 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toContain("not found");
+      expect(result.error).toBe("カードが見つかりません");
     });
 
     it("should fail if card is not in hand", () => {
@@ -562,7 +562,7 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Card not in hand");
+      expect(result.error).toBe("カードが手札にありません");
     });
 
     it("should fail if spellTrapZone is full", () => {
@@ -592,7 +592,7 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe("魔法・罠ゾーンが満杯です");
+      expect(result.error).toBe("魔法・罠ゾーンに空きがありません");
     });
 
     it("should preserve other zones when setting", () => {
@@ -621,8 +621,8 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState.zones.deck).toEqual([existingDeckCard]);
-      expect(result.newState.zones.graveyard).toEqual([existingGraveyardCard]);
+      expect(result.updatedState.zones.deck).toEqual([existingDeckCard]);
+      expect(result.updatedState.zones.graveyard).toEqual([existingGraveyardCard]);
     });
   });
 

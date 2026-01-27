@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
+import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";
 import { createExodiaVictoryState, createMockGameState } from "../../../../../__testUtils__/gameStateFactory";
 
 describe("ExodiaNonEffect", () => {

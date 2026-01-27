@@ -1,4 +1,11 @@
+/**
+ * deckLoader - 指定したデッキIDから、デッキレシピとデッキデータを読み込むユーティリティ
+ *
+ * @module application/utils/deckLoader
+ */
+
 import type {
+  DeckRecipe,
   RecipeCardEntry,
   LoadedCardEntry,
   DeckData,
@@ -7,15 +14,16 @@ import type {
   ExtraDeckData,
 } from "$lib/application/types/deck";
 import type { CardDisplayData } from "$lib/application/types/card";
-import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
-import { sampleDeckRecipes } from "$lib/application/data/sampleDeckRecipes";
+import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
 
-// デッキエントリーからカードタイプ別に分類したMainDeckDataを作成する内部関数
+// デッキエントリーからカードタイプ別に分類した MainDeckData を作成する
 function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): MainDeckData {
   const monsters: LoadedCardEntry[] = [];
   const spells: LoadedCardEntry[] = [];
   const traps: LoadedCardEntry[] = [];
 
+  // 各エントリーをカードデータと紐付けて分類
   for (const entry of entries) {
     const cardData = cardDataMap.get(entry.id);
     if (cardData) {
@@ -24,7 +32,7 @@ function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: R
         quantity: entry.quantity,
       };
 
-      // カードタイプ別に分類
+      // カードタイプ（monster/spell/trap）に応じて配列に振り分け
       switch (cardData.type) {
         case "monster":
           monsters.push(loadedEntry);
@@ -42,12 +50,13 @@ function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: R
   return { monsters, spells, traps };
 }
 
-// エクストラデッキをモンスタータイプ別に分類したExtraDeckDataを作成する内部関数
+// エクストラデッキをモンスタータイプ別に分類した ExtraDeckData を作成する
 function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): ExtraDeckData {
   const fusion: LoadedCardEntry[] = [];
   const synchro: LoadedCardEntry[] = [];
   const xyz: LoadedCardEntry[] = [];
 
+  // 各エントリーをカードデータと紐付けて分類
   for (const entry of entries) {
     const cardData = cardDataMap.get(entry.id);
     if (cardData) {
@@ -56,7 +65,7 @@ function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: 
         quantity: entry.quantity,
       };
 
-      // frameTypeでエクストラデッキモンスターを分類
+      // frameTypeの文字列を小文字化して部分一致判定（例: "fusion" → 融合モンスター）
       const frameType = cardData.frameType?.toLowerCase() || "";
       if (frameType.includes("fusion")) {
         fusion.push(loadedEntry);
@@ -72,20 +81,23 @@ function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: 
   return { fusion, synchro, xyz };
 }
 
-// デッキ統計情報を計算する内部関数（新しい構造対応）
+// デッキ統計情報を計算する
 function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): DeckStats {
-  // 各カードタイプの枚数を直接計算（フィルタリング不要）
+  // メインデッキ各タイプの総枚数を算出（quantityの合計）
   const monsterCount = mainDeck.monsters.reduce((sum, entry) => sum + entry.quantity, 0);
   const spellCount = mainDeck.spells.reduce((sum, entry) => sum + entry.quantity, 0);
   const trapCount = mainDeck.traps.reduce((sum, entry) => sum + entry.quantity, 0);
 
+  // エクストラデッキの総枚数を算出（全タイプの合計）
   const extraCount =
     extraDeck.fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
     extraDeck.synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
     extraDeck.xyz.reduce((sum, entry) => sum + entry.quantity, 0);
 
+  // デッキ全体の総枚数
   const totalCards = monsterCount + spellCount + trapCount + extraCount;
 
+  // ユニークカード種類数（配列の長さ = 異なるカードの種類数）
   const uniqueCards =
     mainDeck.monsters.length +
     mainDeck.spells.length +
@@ -109,7 +121,6 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
  * カードIDが有効な数値であることを確認。
  * YGOPRODeck API互換性を保証する。
  *
- * @param entry - RecipeCardEntry オブジェクト
  * @throws Error カードIDが無効な場合
  */
 function validateRecipeCardEntry(entry: RecipeCardEntry): void {
@@ -127,59 +138,57 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
   }
 }
 
-/**
- * デッキレシピからデッキデータを生成する
- *
- * @param deckId - デッキID
- * @param _fetch - (未使用) SvelteKitのfetch関数（シグネチャ互換性のため保持）
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function loadDeckData(deckId: string, _fetch?: typeof window.fetch): Promise<DeckData> {
-  const recipe = sampleDeckRecipes[deckId];
-  if (!recipe) {
+/** デッキレシピからデッキデータを生成する */
+export async function loadDeck(
+  deckId: string,
+  fetchFunction: typeof fetch,
+): Promise<{ deckRecipe: DeckRecipe; deckData: DeckData }> {
+  const deckRecipe = presetDeckRecipes[deckId];
+  if (!deckRecipe) {
     throw new Error(`Deck not found: ${deckId}`);
   }
 
-  // メインデッキとエクストラデッキの全カード ID を取得
-  const allCardEntries = [...recipe.mainDeck, ...recipe.extraDeck];
+  // メインデッキとエクストラデッキの全カードIDを取得
+  const allCardEntries = [...deckRecipe.mainDeck, ...deckRecipe.extraDeck];
 
-  // RecipeCardEntry のバリデーション
+  // RecipeCardEntryのバリデーション（IDと枚数の妥当性チェック）
   for (const entry of allCardEntries) {
     validateRecipeCardEntry(entry);
   }
 
+  // 重複を除いたユニークなカードIDリストを作成
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
-  // Repository経由でカード情報を取得（変換済みのCardDisplayData）
-  const repository = new YGOProDeckCardRepository();
+  // Singleton Repository経由でカード情報を取得（変換済みのCardDisplayData）
+  const repository = getCardRepository();
   let cardDataList: CardDisplayData[];
   try {
-    cardDataList = await repository.getCardsByIds(uniqueCardIds);
+    cardDataList = await repository.getCardsByIds(fetchFunction, uniqueCardIds);
   } catch (err) {
     console.error("カード情報のAPI取得に失敗しました:", err);
     throw new Error(`Failed to fetch card data: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // カード情報をマップに変換
+  // カード情報をID→CardDisplayDataのマップに変換（高速検索用）
   const cardDataMap = new Map(cardDataList.map((card) => [card.id, card]));
 
   // メインデッキをカードタイプ別に分類
-  const mainDeckData = buildMainDeckData(cardDataMap, recipe.mainDeck);
+  const mainDeckData = buildMainDeckData(cardDataMap, deckRecipe.mainDeck);
 
   // エクストラデッキをモンスタータイプ別に分類
-  const extraDeckData = buildExtraDeckData(cardDataMap, recipe.extraDeck);
+  const extraDeckData = buildExtraDeckData(cardDataMap, deckRecipe.extraDeck);
 
   // 統計情報を計算
   const stats = calculateDeckStats(mainDeckData, extraDeckData);
 
   const deckData: DeckData = {
-    name: recipe.name,
-    description: recipe.description,
-    category: recipe.category,
+    name: deckRecipe.name,
+    description: deckRecipe.description,
+    category: deckRecipe.category,
     mainDeck: mainDeckData,
     extraDeck: extraDeckData,
     stats,
   };
 
-  return deckData;
+  return { deckRecipe, deckData };
 }

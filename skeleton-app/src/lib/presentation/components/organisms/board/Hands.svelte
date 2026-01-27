@@ -1,34 +1,43 @@
 <script lang="ts">
+  /**
+   * Hands - 手札表示・操作コンポーネント
+   *
+   * プレイヤーの手札を表示し、カードの発動・召喚・セット操作を提供する。
+   * ゲーム操作が集中する重要なコンポーネント。
+   *
+   * ARCH: Presentation Layer - レイヤー依存ルール
+   * - Application Layer（GameFacade）経由でのみゲームロジック呼び出し可能
+   * - 魔法・罠セット、モンスター召喚等の操作は GameFacade メソッドで検証
+   *
+   * @module presentation/components/organisms/board/Hands
+   */
   import Card from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
   import type { Card as CardDisplayData } from "$lib/presentation/types/card";
-  import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-  import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
-  import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
-  import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
-  import { gameStateStore } from "$lib/application/stores/gameStateStore";
+  import { gameFacade } from "$lib/application/GameFacade";
 
+  /**
+   * Hands コンポーネントのプロパティ
+   */
   interface HandZoneProps {
     cards: Array<{ card: CardDisplayData | null; instanceId: string }>;
     handCardCount: number;
     currentPhase: string;
-    canActivateSpells: boolean;
     isGameOver: boolean;
-    selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId (T038)
+    selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId
     onCardClick: (card: CardDisplayData, instanceId: string) => void;
     onSummonMonster: (card: CardDisplayData, instanceId: string) => void;
     onSetMonster: (card: CardDisplayData, instanceId: string) => void;
     onSetSpellTrap: (card: CardDisplayData, instanceId: string) => void;
-    onHandCardSelect: (instanceId: string | null) => void; // 手札カード選択変更の通知 (T038)
+    onHandCardSelect: (instanceId: string | null) => void; // 手札カード選択変更の通知
   }
 
   let {
     cards,
     handCardCount,
     currentPhase,
-    canActivateSpells,
     isGameOver,
     selectedHandCardInstanceId,
     onCardClick,
@@ -38,42 +47,37 @@
     onHandCardSelect,
   }: HandZoneProps = $props();
 
-  // カードごとの発動可能性をチェック (T032)
-  function isCardActivatable(instanceId: string): boolean {
+  // カードごとの発動可能性をチェック
+  function isActivatable(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
-    if (!canActivateSpells) return false;
 
-    // ActivateSpellCommand.canExecute()でカード固有の発動条件をチェック
-    const command = new ActivateSpellCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    // GameFacade経由でカード固有の発動条件をチェック
+    return gameFacade.canActivateSpell(instanceId);
   }
 
-  // モンスター召喚可能性をチェック (T032)
+  // モンスター召喚可能性をチェック
   function canSummonMonster(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
 
-    const command = new SummonMonsterCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canSummonMonster(instanceId);
   }
 
-  // モンスターセット可能性をチェック (T032)
+  // モンスターセット可能性をチェック
   function canSetMonster(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
 
-    const command = new SetMonsterCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canSetMonster(instanceId);
   }
 
-  // 魔法・罠セット可能性をチェック (T032)
+  // 魔法・罠セット可能性をチェック
   function canSetSpellTrap(instanceId: string): boolean {
     if (isGameOver) return false;
     if (currentPhase !== "Main1") return false;
 
-    const command = new SetSpellTrapCommand(instanceId);
-    return command.canExecute($gameStateStore);
+    return gameFacade.canSetSpellTrap(instanceId);
   }
 
   // 手札枚数に応じたグリッドカラム数を計算
@@ -97,7 +101,7 @@
     return gridClassMap[handCount];
   }
 
-  // カードクリック時：選択状態をトグルして親に通知 (T038)
+  // カードクリック時：選択状態をトグルして親に通知
   function handleSelect(card: CardDisplayData, instanceId: string) {
     // 同じカードをクリックしたら選択解除、違うカードなら選択
     const newSelection = selectedHandCardInstanceId === instanceId ? null : instanceId;
@@ -110,19 +114,19 @@
     onHandCardSelect(null);
   }
 
-  // 召喚ボタンクリック時 (T032)
+  // 召喚ボタンクリック時
   function handleSummon(card: CardDisplayData, instanceId: string) {
     onSummonMonster(card, instanceId);
     onHandCardSelect(null);
   }
 
-  // モンスターセットボタンクリック時 (T032)
+  // モンスターセットボタンクリック時
   function handleSetMonster(card: CardDisplayData, instanceId: string) {
     onSetMonster(card, instanceId);
     onHandCardSelect(null);
   }
 
-  // 魔法・罠セットボタンクリック時 (T032)
+  // 魔法・罠セットボタンクリック時
   function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
     onSetSpellTrap(card, instanceId);
     onHandCardSelect(null);
@@ -133,7 +137,7 @@
     onHandCardSelect(null);
   }
 
-  // カードタイプに応じたアクション定義 (T032)
+  // カードタイプに応じたアクション定義
   function getActionsForCard(card: CardDisplayData, instanceId: string): CardActionButton[] {
     const actionButtons: CardActionButton[] = [];
 
@@ -161,7 +165,7 @@
     // 魔法・罠カードの場合
     else if (card.type === "spell" || card.type === "trap") {
       // 発動ボタン
-      if (isCardActivatable(instanceId)) {
+      if (isActivatable(instanceId)) {
         actionButtons.push({
           label: "発動",
           style: "filled",

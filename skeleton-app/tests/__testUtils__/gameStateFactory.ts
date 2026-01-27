@@ -12,9 +12,23 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState";
-import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
+import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/Card";
 import type { GamePhase } from "$lib/domain/models/Phase";
-import { ExodiaNonEffect } from "$lib/domain/effects/rules/monster/ExodiaNonEffect";
+import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";
+
+// CardDataRegistry から実際のカード名を取得するためのインポート
+import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+
+/**
+ * カードIDからCardDataを取得（存在しない場合はフォールバック）
+ */
+function getCardDataSafe(cardId: number): CardData | null {
+  try {
+    return getCardData(cardId);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Create a minimal game state for testing
@@ -87,15 +101,18 @@ export function createCardInstances(
   const instancePrefix = prefix || location;
   return cardIds.map((cardId, index) => {
     const numericId = typeof cardId === "string" ? parseInt(cardId, 10) : cardId;
-    const frameType: FrameSubType = type === "monster" ? "normal" : type;
+    const registeredCard = getCardDataSafe(numericId);
+    const frameType: FrameSubType = registeredCard?.frameType ?? (type === "monster" ? "normal" : type);
+    const spellType = registeredCard?.spellType;
     return {
       instanceId: `${instancePrefix}-${index}`,
-      id: numericId, // CardInstance extends CardData
-      type,
+      id: numericId,
+      type: registeredCard?.type ?? type,
       frameType,
-      jaName: `Test Card ${numericId}`, // Default test name
+      spellType,
+      jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
       location,
-      placedThisTurn: false, // デフォルト値
+      placedThisTurn: false,
     };
   });
 }

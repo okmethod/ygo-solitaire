@@ -1,14 +1,12 @@
 /**
  * RuleContext - ルール適用時のコンテキスト
  *
- * AdditionalRuleのcanApply/apply/checkPermission/replaceメソッドに
- * 汎用的なパラメータを受け渡すためのインターフェース。
- *
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * @module domain/models/RuleContext
+ * @see {@link docs/domain/effect-model.md}
  */
 
 /**
- * RuleContext インターフェース
+ * ルール適用時のコンテキスト
  *
  * ルール適用時に必要なパラメータを汎用的に受け渡す。
  * カテゴリに応じて必要なフィールドのみを使用する。

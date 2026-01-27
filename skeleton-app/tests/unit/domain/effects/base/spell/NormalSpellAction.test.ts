@@ -8,14 +8,26 @@
  * - canActivate() Normal Spell conditions (Main Phase check)
  * - Inherits BaseSpellAction behavior
  *
- * @module tests/unit/domain/effects/base/spell/NormalSpellAction
+ * @module tests/unit/domain/effects/actions/spells/NormalSpellAction
  */
 
 import { describe, it, expect } from "vitest";
-import { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /**
  * Concrete implementation of NormalSpellAction for testing
@@ -25,13 +37,19 @@ class TestNormalSpell extends NormalSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected additionalActivationConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check deck size
-    return state.zones.deck.length >= 2;
+    if (state.zones.deck.length >= 2) {
+      return successValidationResult();
+    }
+    return failureValidationResult(ValidationErrorCode.INSUFFICIENT_DECK);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 }
@@ -50,80 +68,60 @@ describe("NormalSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met", () => {
-      // Arrange: Game not over, Main Phase 1, Deck >= 2
-      const state = createInitialGameState([1001, 1002, 1003]);
+    it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
+      // Arrange: Main Phase 1, Deck >= 2
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
-    });
-
-    it("should return false when game is over", () => {
-      // Arrange: Game is over
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const gameOverState: GameState = {
-        ...state,
-        phase: "Main1",
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(gameOverState)).toBe(false);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw
-      const state = createInitialGameState([1001, 1002, 1003]);
+      // Arrange: Phase is Draw (NormalSpellAction固有のフェーズ制約テスト)
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state)).toBe(false);
-    });
-
-    it("should return false when phase is Standby", () => {
-      // Arrange: Phase is Standby
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const standbyState: GameState = {
-        ...state,
-        phase: "Standby",
-      };
-
-      // Act & Assert
-      expect(action.canActivate(standbyState)).toBe(false);
+      expect(action.canActivate(state).isValid).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
-      const state = createInitialGameState([1001]);
+      const state = createInitialGameState(createTestInitialDeck([1001]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(false);
+      expect(action.canActivate(stateInMain1).isValid).toBe(false);
     });
   });
 
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("12345678-activation");
+      expect(steps[0].id).toBe("12345678-activation-notification");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します");
     });

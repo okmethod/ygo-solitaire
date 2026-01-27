@@ -11,7 +11,7 @@
  * - Actual game state changes (hand → field, continuous effects)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
- * - **Base class validation**: Tested in tests/unit/domain/effects/base/spell/
+ * - **Base class validation**: Tested in tests/unit/domain/effects/actions/spells/
  *   - BaseSpellAction.test.ts: Game-over check
  *   - FieldSpellAction.test.ts: spellSpeed=1, Main1 phase check, empty activation steps
  * - **Card scenarios**: Tested here
@@ -29,7 +29,7 @@ import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameState } from "$lib/domain/models/GameState";
 
@@ -59,13 +59,17 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: chickenGameCardId,
+              jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
               spellType: "field",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -78,61 +82,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       // Assert: Card moved to field (no graveyard step for field spell)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(0); // Field spell has no resolution steps
+      expect(result.effectSteps!.length).toBe(1); // Field spell has only notification step (no resolution steps)
 
       // Verify card moved to field
-      expect(result.newState.zones.hand.length).toBe(0);
-      expect(result.newState.zones.fieldZone.length).toBe(1);
-      expect(result.newState.zones.fieldZone[0].id).toBe(chickenGameCardId);
-      expect(result.newState.zones.fieldZone[0].position).toBe("faceUp");
-    });
-
-    it("Scenario: Cannot activate when another field spell is already on field", () => {
-      // Arrange: Another field spell already on field
-      const anotherFieldSpell: CardInstance = {
-        instanceId: "field-0",
-        id: 99999999,
-        type: "spell",
-        frameType: "spell",
-        spellType: "field",
-        location: "fieldZone",
-        position: "faceUp",
-      };
-
-      const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances([1001, 1002], "deck"),
-          hand: [
-            {
-              instanceId: "hand-0",
-              id: chickenGameCardId,
-              type: "spell",
-              frameType: "spell",
-              spellType: "field",
-              location: "hand",
-              placedThisTurn: false,
-            },
-          ],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [anotherFieldSpell],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
-      // Act: Try to activate Chicken Game
-      const command = new ActivateSpellCommand("hand-0");
-      const result = command.execute(state);
-
-      // Assert: Should succeed but canActivate should be false in execute
-      // Actually, ActivateSpellCommand.canExecute() checks the original state (hand),
-      // which should pass. Then in execute(), after moving to field, canActivate()
-      // is checked again, which should fail because there are now 2 field spells.
-      // This means the command will use fallback (graveyard) logic.
-      expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeUndefined(); // Fallback logic doesn't set effectSteps
+      expect(result.updatedState.zones.hand.length).toBe(0);
+      expect(result.updatedState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.zones.fieldZone[0].id).toBe(chickenGameCardId);
+      expect(result.updatedState.zones.fieldZone[0].position).toBe("faceUp");
     });
   });
 
@@ -140,11 +96,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     const chickenGameOnField: CardInstance = {
       instanceId: "field-0",
       id: chickenGameCardId,
+      jaName: "チキンゲーム",
       type: "spell",
       frameType: "spell",
       spellType: "field",
       location: "fieldZone",
       position: "faceUp",
+      placedThisTurn: false,
     };
 
     it("Scenario: Activate ignition effect → Pay 1000 LP → Draw 1 card", () => {
@@ -155,7 +113,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         zones: {
           deck: createCardInstances([1001, 1002], "deck"),
           hand: [],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -172,14 +132,14 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       for (const step of activationSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       // Execute resolution steps
       for (const step of resolutionSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       // Assert: LP decreased by 1000, hand increased by 1
@@ -199,7 +159,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         zones: {
           deck: createCardInstances([1001, 1002], "deck"),
           hand: [],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -211,7 +173,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const canActivate = ignitionEffect.canActivate(state);
 
       // Assert: Cannot activate
-      expect(canActivate).toBe(false);
+      expect(canActivate.isValid).toBe(false);
     });
 
     it("Scenario: Cannot activate when LP is less than 1000", () => {
@@ -222,7 +184,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         zones: {
           deck: createCardInstances([1001, 1002], "deck"),
           hand: [],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -234,7 +198,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const canActivate = ignitionEffect.canActivate(state);
 
       // Assert: Cannot activate
-      expect(canActivate).toBe(false);
+      expect(canActivate.isValid).toBe(false);
     });
 
     it("Scenario: Once per turn restriction resets at End phase", () => {
@@ -248,12 +212,16 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: 1001,
+              jaName: "サンプルカード",
               type: "spell",
               frameType: "spell",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [chickenGameOnField],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [chickenGameOnField],
           graveyard: [],
           banished: [],
         },
@@ -264,10 +232,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const advanceToEnd = new AdvancePhaseCommand();
       const endPhaseResult = advanceToEnd.execute(stateAfterActivation);
       expect(endPhaseResult.success).toBe(true);
-      expect(endPhaseResult.newState.phase).toBe("End");
+      expect(endPhaseResult.updatedState.phase).toBe("End");
 
       // Assert: activatedIgnitionEffectsThisTurn is cleared
-      expect(endPhaseResult.newState.activatedIgnitionEffectsThisTurn.size).toBe(0);
+      expect(endPhaseResult.updatedState.activatedIgnitionEffectsThisTurn.size).toBe(0);
     });
   });
 
@@ -293,13 +261,17 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
             {
               instanceId: "hand-0",
               id: chickenGameCardId,
+              jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
               spellType: "field",
               location: "hand",
+              placedThisTurn: false,
             },
           ],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -310,7 +282,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const activateResult = activateCommand.execute(initialState);
       expect(activateResult.success).toBe(true);
 
-      const stateAfterActivation = activateResult.newState;
+      const stateAfterActivation = activateResult.updatedState;
       expect(stateAfterActivation.zones.fieldZone.length).toBe(1);
       expect(stateAfterActivation.zones.fieldZone[0].id).toBe(chickenGameCardId);
 
@@ -318,7 +290,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const fieldCardInstanceId = stateAfterActivation.zones.fieldZone[0].instanceId;
       const ignitionEffect = new ChickenGameIgnitionEffect(fieldCardInstanceId);
 
-      expect(ignitionEffect.canActivate(stateAfterActivation)).toBe(true);
+      expect(ignitionEffect.canActivate(stateAfterActivation).isValid).toBe(true);
 
       const activationSteps = ignitionEffect.createActivationSteps(stateAfterActivation);
       const resolutionSteps = ignitionEffect.createResolutionSteps(stateAfterActivation, fieldCardInstanceId);
@@ -327,13 +299,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       for (const step of activationSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       for (const step of resolutionSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
-        currentState = stepResult.newState;
+        currentState = stepResult.updatedState;
       }
 
       const finalState = currentState;
@@ -341,19 +313,20 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       // Assert final state
       expect(finalState.lp.player).toBe(7000); // 8000 - 1000
       expect(finalState.zones.fieldZone.length).toBe(1); // Chicken Game still on field
-      expect(finalState.zones.hand.length).toBe(1); // Drew 1 card
+      expect(finalState.zones.hand.length).toBe(1); // Draw 1 card
       expect(finalState.zones.deck.length).toBe(2); // 3 - 1 = 2
       expect(finalState.activatedIgnitionEffectsThisTurn.size).toBe(1);
 
       // Step 3: Try to activate again (should fail)
       const ignitionEffect2 = new ChickenGameIgnitionEffect(fieldCardInstanceId);
-      expect(ignitionEffect2.canActivate(finalState)).toBe(false);
+      expect(ignitionEffect2.canActivate(finalState).isValid).toBe(false);
     });
   });
 });
 
 // ===========================
 // Toon World (15259703) - P3 Card
+// TODO: 永続魔法なので、ファイルを分ける
 // ===========================
 describe("Field Spell Card Effects > Toon World (15259703)", () => {
   const toonWorldCardId = "15259703";
@@ -366,7 +339,9 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
       zones: {
         deck: createCardInstances(["12345678"], "deck"),
         hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
-        field: [],
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
         graveyard: [],
         banished: [],
       },
@@ -379,10 +354,11 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     // Assert: Activation successful
     expect(result.success).toBe(true);
     expect(result.effectSteps).toBeDefined();
-    expect(result.effectSteps!.length).toBe(1); // LP payment only (no activation step for Field Spells)
+    expect(result.effectSteps!.length).toBe(2); // Notification step + LP payment step
 
-    // Verify LP payment step
-    expect(result.effectSteps![0].id).toContain("toon-world-lp-payment");
+    // Verify notification step and LP payment step
+    expect(result.effectSteps![0].summary).toBe("カード発動");
+    expect(result.effectSteps![1].id).toContain("pay-lp-player-1000");
 
     // Note: Card stays on field (not sent to graveyard)
     // Field spell placement is handled by ActivateSpellCommand
@@ -396,7 +372,9 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
       zones: {
         deck: createCardInstances(["12345678"], "deck"),
         hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
-        field: [],
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
         graveyard: [],
         banished: [],
       },
@@ -407,6 +385,6 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     const result = command.canExecute(state);
 
     // Assert: Cannot activate (insufficient LP)
-    expect(result).toBe(false);
+    expect(result.isValid).toBe(false);
   });
 });

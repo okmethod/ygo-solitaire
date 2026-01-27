@@ -270,8 +270,8 @@ Follow-up TODOs:
 
 ## References（参考資料）
 
-- [Planning Guide](https://github.com/okmethod/okmethod/blob/main/docs/planning-guide/README.md) - 要件定義の心得
-- [Architecting Guide](https://github.com/okmethod/okmethod/blob/main/docs/architecting-guide/README.md) - アーキテクチャ設計の心得
-- [Coding Guide](https://github.com/okmethod/okmethod/blob/main/docs/coding-guide/README.md) - コーディングの心得
+- [Planning Principles](https://github.com/okmethod/okmethod/blob/main/docs/development-domains/planning-principles/README.md) - 要件定義の心得
+- [Architecting Principles](https://github.com/okmethod/okmethod/blob/main/docs/development-domains/architecting-principles/README.md) - アーキテクチャ設計の心得
+- [Coding Principles](https://github.com/okmethod/okmethod/blob/main/docs/development-domains/coding-principles/README.md) - コーディングの心得
 
 **Version**: 2.0.1 | **Ratified**: 2025-01-23 | **Last Amended**: 2025-12-21

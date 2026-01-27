@@ -7,7 +7,7 @@
  * Test Responsibility:
  * - Normal Spell card activation scenarios (end-to-end gameplay flow)
  * - Registry integration (cardId → Effect retrieval → Effect execution)
- * - Side effects (effectResolutionStore.startResolution calls)
+ * - Side effects (effectQueueStore.startProcessing calls)
  * - Actual game state changes (deck → hand, hand → graveyard)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
@@ -42,7 +42,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -57,9 +59,9 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBe(3);
 
-      // Verify steps: [activation step, draw step, graveyard step]
+      // Verify steps: [activation step, draw step, send-to-graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "55144522-activation", // ID now uses card ID
+        id: "55144522-activation-notification", // ID now uses card ID
         summary: "カード発動",
         description: "《強欲な壺》を発動します",
       });
@@ -69,9 +71,8 @@ describe("Normal Spell Card Effects", () => {
         description: "デッキから2枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "pot-0-graveyard", // ID now includes instance ID
         summary: "墓地へ送る",
-        description: "強欲な壺を墓地に送ります",
+        description: "《強欲な壺》を墓地に送ります",
       });
     });
 
@@ -82,7 +83,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1"], "deck"),
           hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -93,7 +96,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -107,7 +110,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
           hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -122,9 +127,9 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBe(4);
 
-      // Verify steps: [activation step, draw step, discard step, graveyard step]
+      // Verify steps: [activation step, draw step, discard step, send-to-graveyard step]
       expect(result.effectSteps![0]).toMatchObject({
-        id: "79571449-activation",
+        id: "79571449-activation-notification",
         summary: "カード発動",
         description: "《天使の施し》を発動します",
       });
@@ -134,14 +139,13 @@ describe("Normal Spell Card Effects", () => {
         description: "デッキから3枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "graceful-charity-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
+        id: "select-and-discard-2-cards",
+        summary: "手札を2枚捨てる",
+        description: "手札から2枚選んで捨てます",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "charity-0-graveyard",
         summary: "墓地へ送る",
-        description: "天使の施しを墓地に送ります",
+        description: "《天使の施し》を墓地に送ります",
       });
     });
 
@@ -152,7 +156,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2"], "deck"),
           hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -163,7 +169,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -177,7 +183,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1", "deck2", "deck3", "deck4", "deck5"], "deck"),
           hand: createCardInstances([magicalMalletCardId, "hand1", "hand2"], "hand", "mallet"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -187,30 +195,22 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("mallet-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include selection, return+shuffle, draw, graveyard
+      // Assert: effectSteps include activation + select-return-shuffle-draw (unified) + send-to-graveyard
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5); // activation + selection + return-shuffle + draw + graveyard
+      expect(result.effectSteps!.length).toBe(3); // activation + select-return-shuffle-draw + send-to-graveyard
 
       expect(result.effectSteps![0]).toMatchObject({
-        id: "85852291-activation",
+        id: "85852291-activation-notification",
         summary: "カード発動",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "magical-mallet-select",
-        summary: "手札を選択",
+        id: "select-and-return-to-deck",
+        summary: "手札をデッキに戻す",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "magical-mallet-return-shuffle",
-        summary: "デッキに戻してシャッフル",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
-        id: "magical-mallet-draw",
-        summary: "カードをドロー",
-      });
-      expect(result.effectSteps![4]).toMatchObject({
-        id: "mallet-0-graveyard",
         summary: "墓地へ送る",
+        description: "《打ち出の小槌》を墓地に送ります",
       });
     });
 
@@ -221,7 +221,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1", "deck2"], "deck"),
           hand: createCardInstances([magicalMalletCardId], "hand", "mallet"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -232,7 +234,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Can activate (no additional conditions)
-      expect(result).toBe(true);
+      expect(result.isValid).toBe(true);
     });
   });
 
@@ -246,7 +248,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -257,22 +261,22 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("peace-0");
       const result = command.execute(state);
 
-      // Assert: 4 steps (activation + draw + opponent draw + damage negation + graveyard)
+      // Assert: 4 steps (activation + draw + damage negation + send-to-graveyard)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5);
+      expect(result.effectSteps!.length).toBe(4);
 
       expect(result.effectSteps![1]).toMatchObject({
         id: "draw-1",
         summary: "カードをドロー",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        id: "one-day-of-peace-draw-opponent",
-        summary: "相手がドロー",
-      });
-      expect(result.effectSteps![3]).toMatchObject({
         id: "one-day-of-peace-damage-negation",
         summary: "ダメージ無効化",
+      });
+      expect(result.effectSteps![3]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《一時休戦》を墓地に送ります",
       });
     });
 
@@ -283,7 +287,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [],
           hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -294,7 +300,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 card in deck)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -309,7 +315,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["card1", "card2", "card3"], "deck"),
           hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -319,7 +327,7 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("goblin-0");
       const result = command.execute(state);
 
-      // Assert: 3 steps (activation + draw + gain life + graveyard)
+      // Assert: 4 steps (activation + draw + gain life + send-to-graveyard)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBe(4);
@@ -331,6 +339,10 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![2]).toMatchObject({
         id: "gain-lp-opponent-1000",
       });
+      expect(result.effectSteps![3]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《成金ゴブリン》を墓地に送ります",
+      });
     });
 
     it("Scenario: Cannot activate when deck is empty", () => {
@@ -340,7 +352,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [],
           hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -351,7 +365,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -365,7 +379,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1"], "deck"),
           hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [
             {
               id: 12345678,
@@ -374,6 +390,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
             {
               id: 87654321,
@@ -382,6 +399,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster B",
               location: "graveyard",
+              placedThisTurn: false,
             },
             {
               id: 12345678,
@@ -390,6 +408,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -400,14 +419,18 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("factory-0");
       const result = command.execute(state);
 
-      // Assert: 3 steps (activation + selection + graveyard)
+      // Assert: 3 steps (activation + selection + send-to-graveyard)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBe(3);
 
       expect(result.effectSteps![1]).toMatchObject({
-        id: "dark-factory-select",
-        summary: "モンスターを選択",
+        id: "dark-factory-search-factory-0",
+        summary: "通常モンスター2枚をサルベージ",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《闇の量産工場》を墓地に送ります",
       });
     });
 
@@ -418,7 +441,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["deck1"], "deck"),
           hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [
             {
               id: 12345678,
@@ -427,6 +452,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -438,7 +464,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 2 monsters)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -458,6 +484,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "モンスター1",
               location: "deck",
+              placedThisTurn: false,
             },
             {
               id: 67616300,
@@ -467,6 +494,7 @@ describe("Normal Spell Card Effects", () => {
               jaName: "チキンレース",
               spellType: "field",
               location: "deck",
+              placedThisTurn: false,
             },
             {
               id: 1002,
@@ -475,10 +503,13 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "モンスター2",
               location: "deck",
+              placedThisTurn: false,
             },
           ],
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -488,14 +519,18 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("terra-0");
       const result = command.execute(state);
 
-      // Assert: 4 steps (activation + selection + shuffle + graveyard)
+      // Assert: 3 steps (activation + search with auto-shuffle + send-to-graveyard)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(3);
 
       expect(result.effectSteps![1]).toMatchObject({
-        id: "terraforming-select",
-        summary: "フィールド魔法を選択",
+        id: "terraforming-search-terra-0",
+        summary: "フィールド魔法1枚をサーチ",
+      });
+      expect(result.effectSteps![2]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《テラ・フォーミング》を墓地に送ります",
       });
     });
 
@@ -506,7 +541,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["monster1", "monster2"], "deck"),
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -517,7 +554,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 Field Spell in deck)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -535,7 +572,9 @@ describe("Normal Spell Card Effects", () => {
             "hand",
             "excavation",
           ),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: createCardInstances(["55144522", "79571449"], "graveyard"), // Pot of Greed + Graceful Charity
           banished: [],
         },
@@ -545,30 +584,30 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("excavation-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include activation, discard, search, graveyard
+      // Assert: effectSteps include activation, discard (cost), search (effect), send to graveyard (post-resolution)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBe(4);
 
       expect(result.effectSteps![0]).toMatchObject({
-        id: "98494543-activation",
+        id: "98494543-activation-notification",
         summary: "カード発動",
         description: "《魔法石の採掘》を発動します",
       });
       expect(result.effectSteps![1]).toMatchObject({
-        id: "magical-stone-excavation-discard",
-        summary: "手札を捨てる",
-        description: "手札から2枚選んで捨ててください",
+        id: "select-and-discard-2-cards",
+        summary: "手札を2枚捨てる",
+        description: "手札から2枚選んで捨てます",
       });
       expect(result.effectSteps![2]).toMatchObject({
         id: "magical-stone-excavation-search-excavation-0",
-        summary: "墓地から魔法カードを回収",
-        description: "墓地から魔法カードを1枚選んで手札に加えてください",
+        summary: "魔法カード1枚をサルベージ",
+        description: "墓地から魔法カード1枚を選択し、手札に加えます",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "excavation-0-graveyard",
+        id: "send-excavation-0-to-graveyard",
         summary: "墓地へ送る",
-        description: "魔法石の採掘を墓地に送ります",
+        description: "《魔法石の採掘》を墓地に送ります",
       });
     });
 
@@ -579,7 +618,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678"], "deck"),
           hand: createCardInstances([magicalStoneExcavationCardId, "33782437", "70368879"], "hand", "excavation"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [
             // Only monsters in graveyard
             {
@@ -589,6 +630,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
+              placedThisTurn: false,
             },
             {
               id: 87654321,
@@ -597,6 +639,7 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster B",
               location: "graveyard",
+              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -608,7 +651,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 spell in graveyard)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -622,7 +665,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321"], "deck"),
           hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -632,13 +677,13 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("void-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps include activation, draw, end phase registration, graveyard
+      // Assert: effectSteps include activation, draw, end phase registration, send-to-graveyard
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
       expect(result.effectSteps!.length).toBe(4);
 
       expect(result.effectSteps![0]).toMatchObject({
-        id: "93946239-activation",
+        id: "93946239-activation-notification",
         summary: "カード発動",
         description: "《無の煉獄》を発動します",
       });
@@ -648,13 +693,12 @@ describe("Normal Spell Card Effects", () => {
         description: "デッキから1枚ドローします",
       });
       expect(result.effectSteps![2]).toMatchObject({
-        summary: "エンドフェイズ効果を登録",
-        description: "エンドフェイズに手札を全て捨てる効果を登録します",
+        summary: "手札を全て捨てる",
+        description: "エンドフェイズに手札を全て捨てます",
       });
       expect(result.effectSteps![3]).toMatchObject({
-        id: "void-0-graveyard",
         summary: "墓地へ送る",
-        description: "無の煉獄を墓地に送ります",
+        description: "《無の煉獄》を墓地に送ります",
       });
     });
 
@@ -665,7 +709,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [], // Empty deck
           hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -676,7 +722,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 1 card in deck to draw)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -707,7 +753,9 @@ describe("Normal Spell Card Effects", () => {
             "deck",
           ),
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -720,10 +768,10 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+      expect(result.effectSteps!.length).toBe(4); // activation + search + shuffle + send-to-graveyard
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("98645731-activation");
+      expect(result.effectSteps![0].id).toBe("98645731-activation-notification");
 
       // Verify search step
       expect(result.effectSteps![1].id).toContain("pot-of-duality-search");
@@ -731,8 +779,14 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
       expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
 
-      // Verify graveyard step
-      expect(result.effectSteps![2].id).toContain("graveyard");
+      // Verify shuffle step
+      expect(result.effectSteps![2].id).toBe("shuffle-deck");
+
+      // Verify send-to-graveyard step
+      expect(result.effectSteps![3]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《強欲で謙虚な壺》を墓地に送ります",
+      });
     });
 
     it("Scenario: Activate 1st card → success, activate 2nd card same turn → fail (once-per-turn constraint)", () => {
@@ -742,7 +796,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -754,7 +810,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (once-per-turn constraint)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
 
     it("Scenario: Cannot activate when deck has less than 3 cards", () => {
@@ -764,7 +820,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321"], "deck"), // Only 2 cards
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -775,7 +833,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (need at least 3 cards in deck)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
@@ -792,7 +850,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -805,19 +865,22 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4); // activation + draw + add end phase effect + graveyard
+      expect(result.effectSteps!.length).toBe(4); // activation + draw + add end phase effect + send-to-graveyard
 
       // Verify activation step added card to activatedOncePerTurnCards
-      expect(result.effectSteps![0].id).toBe("59750328-activation");
+      expect(result.effectSteps![0].id).toBe("59750328-activation-notification");
 
       // Verify draw step
-      expect(result.effectSteps![1].id).toContain("draw-until-3");
+      expect(result.effectSteps![1].id).toContain("fill-hands-3");
 
       // Verify end phase effect registration
-      expect(result.effectSteps![2].id).toContain("add-end-phase-effect");
+      expect(result.effectSteps![2].id).toBe("end-phase-discard-all-hand");
 
-      // Verify graveyard step
-      expect(result.effectSteps![3].id).toContain("graveyard");
+      // Verify send-to-graveyard step
+      expect(result.effectSteps![3]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《命削りの宝札》を墓地に送ります",
+      });
     });
 
     it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {
@@ -827,7 +890,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321"], "deck"),
           hand: createCardInstances([cardOfDemiseCardId, "33782437"], "hand", "demise"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -843,7 +908,13 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps!.length).toBe(4);
 
       // Verify draw step (should draw 2 cards to reach total 3)
-      expect(result.effectSteps![1].id).toContain("draw-until-3");
+      expect(result.effectSteps![1].id).toContain("fill-hands-3");
+
+      // Verify send-to-graveyard step
+      expect(result.effectSteps![3]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《命削りの宝札》を墓地に送ります",
+      });
     });
 
     it("Scenario: Once-per-turn constraint test", () => {
@@ -853,7 +924,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -865,12 +938,13 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (once-per-turn constraint)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 
   // ===========================
   // Toon Table of Contents (89997728) - P3 Card
+  // TODO: 永続魔法なので、ファイルを分ける
   // ===========================
   describe("Toon Table of Contents (89997728) - Scenario Tests", () => {
     const toonTableCardId = "89997728";
@@ -884,6 +958,7 @@ describe("Normal Spell Card Effects", () => {
         frameType: "spell" as const,
         jaName: "トゥーン・ワールド",
         location: "deck" as const,
+        placedThisTurn: false,
       };
 
       const state = createMockGameState({
@@ -891,7 +966,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: [toonWorldCard, ...createCardInstances(["12345678", "87654321"], "deck")],
           hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -904,7 +981,7 @@ describe("Normal Spell Card Effects", () => {
       // Assert: Activation successful
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3); // activation + search + graveyard
+      expect(result.effectSteps!.length).toBe(3); // activation + search + send-to-graveyard
 
       // Verify search step
       expect(result.effectSteps![1].id).toContain("toon-table-search");
@@ -912,8 +989,11 @@ describe("Normal Spell Card Effects", () => {
       expect(result.effectSteps![1].cardSelectionConfig!.minCards).toBe(1);
       expect(result.effectSteps![1].cardSelectionConfig!.maxCards).toBe(1);
 
-      // Verify graveyard step
-      expect(result.effectSteps![2].id).toContain("graveyard");
+      // Verify send-to-graveyard step
+      expect(result.effectSteps![2]).toMatchObject({
+        summary: "墓地へ送る",
+        description: "《トゥーンのもくじ》を墓地に送ります",
+      });
     });
 
     it("Scenario: Cannot activate when deck has no Toon cards", () => {
@@ -923,7 +1003,9 @@ describe("Normal Spell Card Effects", () => {
         zones: {
           deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
           hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -934,7 +1016,7 @@ describe("Normal Spell Card Effects", () => {
       const result = command.canExecute(state);
 
       // Assert: Cannot activate (no Toon cards in deck)
-      expect(result).toBe(false);
+      expect(result.isValid).toBe(false);
     });
   });
 });

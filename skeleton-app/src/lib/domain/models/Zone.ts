@@ -1,21 +1,26 @@
 /**
- * Zone - Game zone type definitions
+ * Zone - 領域モデル
  *
- * Defines the structure of game zones (deck, hand, field, graveyard, banished)
- * and operations for moving cards between zones.
+ * ゲーム中にカードが配置される領域を表現するモデル。
+ * プレーンなオブジェクトとして実装し、クラス化しない。
+ * （理由: GameState に内包されるため）
+ *
+ * 領域間でのカード移動や状態管理のためのユーティリティ関数も提供する。
  *
  * @module domain/models/Zone
+ * @see {@link docs/domain/overview.md}
  */
 
-import type { CardInstance } from "./Card";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { updatedCardInstance } from "$lib/domain/models/Card";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
-/**
- * Collection of all game zones
- * Each zone is an array of CardInstance
- */
+/** カードが配置される全ての領域 */
 export interface Zones {
   readonly deck: readonly CardInstance[];
+  // TODO: メインデッキとエクストラデッキを分離する
+  // readonly mainDeck: readonly CardInstance[];
+  // readonly extraDeck: readonly CardInstance[];
   readonly hand: readonly CardInstance[];
   readonly mainMonsterZone: readonly CardInstance[];
   readonly spellTrapZone: readonly CardInstance[];
@@ -24,168 +29,111 @@ export interface Zones {
   readonly banished: readonly CardInstance[];
 }
 
-/**
- * Helper to move a card from one zone to another
- *
- * @param zones - Current zones state
- * @param instanceId - Card instance ID to move
- * @param from - Source zone name
- * @param to - Destination zone name
- * @param position - Optional position for field zone
- * @returns Updated zones object
- *
- * @example
- * const newZones = moveCard(zones, "deck-0", "deck", "hand");
- */
+/** ゾーン名 */
+export type ZoneName = keyof Zones;
+
+/** インスタンスIDからカードインスタンスを検索する */
+export function findCardInstance(zones: Zones, instanceId: string) {
+  const allZones = [
+    ...zones.deck,
+    ...zones.hand,
+    ...zones.mainMonsterZone,
+    ...zones.spellTrapZone,
+    ...zones.fieldZone,
+    ...zones.graveyard,
+    ...zones.banished,
+  ];
+
+  return allZones.find((card) => card.instanceId === instanceId);
+}
+
+/** カードの移動および表示形式を変更を行う（汎用）*/
 export function moveCard(
-  zones: Zones,
-  instanceId: string,
-  from: keyof Zones,
+  currentZones: Zones,
+  card: CardInstance,
   to: keyof Zones,
-  position?: "faceUp" | "faceDown",
+  updates?: Partial<CardInstance>,
 ): Zones {
-  const sourceZone = zones[from];
-  const cardIndex = sourceZone.findIndex((card) => card.instanceId === instanceId);
+  const from = card.location;
+  const sourceZone = currentZones[from];
+  const cardIndex = sourceZone.findIndex((c) => c.instanceId === card.instanceId);
 
-  if (cardIndex === -1) {
-    throw new Error(`Card with instanceId ${instanceId} not found in ${from} zone`);
-  }
-
-  const card = sourceZone[cardIndex];
   const updatedCard: CardInstance = {
     ...card,
-    location: to,
-    ...(position && { position }),
+    ...updates,
+    location: to, // location は常に上書き
   };
 
   return {
-    ...zones,
+    ...currentZones,
     [from]: [...sourceZone.slice(0, cardIndex), ...sourceZone.slice(cardIndex + 1)],
-    [to]: [...zones[to], updatedCard],
+    [to]: [...currentZones[to], updatedCard],
   };
 }
 
-/**
- * Helper to draw top N cards from deck to hand
- *
- * @param zones - Current zones state
- * @param count - Number of cards to draw (default: 1)
- * @returns Updated zones object
- * @throws Error if deck has insufficient cards
- */
-export function drawCards(zones: Zones, count: number = 1): Zones {
-  if (zones.deck.length < count) {
-    throw new Error(`Cannot draw ${count} cards. Only ${zones.deck.length} cards remaining in deck.`);
+/** 指定カードの表示形式を変更する（カードの位置は変わらない）*/
+export function updateCardInPlace(currentZones: Zones, card: CardInstance, updates: Partial<CardInstance>): Zones {
+  const zoneName = card.location;
+  const zone = currentZones[zoneName];
+
+  return {
+    ...currentZones,
+    [zoneName]: zone.map((c) => (c.instanceId === card.instanceId ? updatedCardInstance(c, updates) : c)),
+  };
+}
+
+/** 指定枚数のカードをデッキから手札に移動する */
+export function drawCards(currentZones: Zones, count: number = 1): Zones {
+  if (currentZones.deck.length < count) {
+    throw new Error(`Cannot draw ${count} cards. Only ${currentZones.deck.length} cards remaining in deck.`);
   }
 
-  let updatedZones = zones;
+  let updatedZones = currentZones;
 
   for (let i = 0; i < count; i++) {
     const topCard = updatedZones.deck[updatedZones.deck.length - 1];
-    updatedZones = moveCard(updatedZones, topCard.instanceId, "deck", "hand");
+    updatedZones = moveCard(updatedZones, topCard, "hand");
   }
 
   return updatedZones;
 }
 
-/**
- * Helper to send a card to graveyard
- *
- * @param zones - Current zones state
- * @param instanceId - Card instance ID to send to graveyard
- * @returns Updated zones object
- */
-export function sendToGraveyard(zones: Zones, instanceId: string): Zones {
-  const card = [...zones.mainMonsterZone, ...zones.spellTrapZone, ...zones.fieldZone, ...zones.hand].find(
-    (c) => c.instanceId === instanceId,
-  );
-
-  if (!card) {
-    throw new Error(
-      `Card with instanceId ${instanceId} not found in mainMonsterZone, spellTrapZone, fieldZone, or hand`,
-    );
-  }
-
-  const sourceZone = card.location as keyof Zones;
-  return moveCard(zones, instanceId, sourceZone, "graveyard");
-}
-
-/**
- * Helper to discard multiple cards from hand to graveyard
- *
- * @param zones - Current zones state
- * @param instanceIds - Array of card instance IDs to discard
- * @returns Updated zones object
- * @throws Error if any card is not found in hand
- *
- * @example
- * const newZones = discardCards(zones, ["hand-0", "hand-2"]);
- */
-export function discardCards(zones: Zones, instanceIds: string[]): Zones {
-  // Validate all cards are in hand
-  for (const instanceId of instanceIds) {
-    const cardInHand = zones.hand.find((c) => c.instanceId === instanceId);
-    if (!cardInHand) {
-      throw new Error(`Card with instanceId ${instanceId} not found in hand`);
-    }
-  }
-
-  // Move cards one by one to graveyard
-  let updatedZones = zones;
-  for (const instanceId of instanceIds) {
-    updatedZones = moveCard(updatedZones, instanceId, "hand", "graveyard");
-  }
-
-  return updatedZones;
-}
-
-/**
- * Helper to banish a card
- *
- * @param zones - Current zones state
- * @param instanceId - Card instance ID to banish
- * @param from - Source zone name
- * @returns Updated zones object
- */
-export function banishCard(zones: Zones, instanceId: string, from: keyof Zones): Zones {
-  return moveCard(zones, instanceId, from, "banished");
-}
-
-/**
- * Helper to count cards in a specific zone
- */
-export function countZone(zones: Zones, zone: keyof Zones): number {
-  return zones[zone].length;
-}
-
-/**
- * Helper to check if deck is empty
- */
-export function isDeckEmpty(zones: Zones): boolean {
-  return zones.deck.length === 0;
-}
-
-/**
- * Helper to check if hand is full (max 6 cards in typical rules)
- * Note: In some formats, there's no hand size limit, but for this implementation
- * we'll enforce a soft limit for UI purposes
- */
-export function isHandFull(zones: Zones, maxHandSize: number = 6): boolean {
-  return zones.hand.length >= maxHandSize;
-}
-
-/**
- * Helper to shuffle the deck
- *
- * @param zones - Current zones state
- * @returns Updated zones object with shuffled deck
- *
- * @example
- * const newZones = shuffleDeck(zones);
- */
+/** デッキをシャッフルする */
 export function shuffleDeck(zones: Zones): Zones {
   return {
     ...zones,
     deck: shuffleArray(zones.deck),
   };
 }
+
+/** ゾーン内のカード枚数 */
+export const countZone = (zones: Zones, zone: keyof Zones): number => {
+  return zones[zone].length;
+};
+
+/** 手札のカード枚数（発動元が手札にある場合は除外） */
+export const countHandExcludingSelf = (zones: Zones, sourceInstance: CardInstance): number => {
+  return sourceInstance.location === "hand"
+    ? zones.hand.filter((c) => c.instanceId !== sourceInstance.instanceId).length
+    : zones.hand.length;
+};
+
+/** デッキが空かどうか */
+export const isDeckEmpty = (zones: Zones): boolean => {
+  return zones.deck.length === 0;
+};
+
+/** メインモンスターゾーンが最大枚数に達しているかどうか */
+export const isMainMonsterZoneFull = (zones: Zones, maxMainMonsterZoneSize: number = 5): boolean => {
+  return zones.mainMonsterZone.length >= maxMainMonsterZoneSize;
+};
+
+/** 魔法・罠ゾーンが最大枚数に達しているかどうか */
+export const isSpellTrapZoneFull = (zones: Zones, maxSpellTrapZoneSize: number = 5): boolean => {
+  return zones.spellTrapZone.length >= maxSpellTrapZoneSize;
+};
+
+/** フィールドゾーンが最大枚数に達しているかどうか */
+export const isFieldZoneFull = (zones: Zones, maxFieldZoneSize: number = 1): boolean => {
+  return zones.fieldZone.length >= maxFieldZoneSize;
+};

@@ -1,20 +1,14 @@
 /**
  * AdditionalRule - 追加ルールのモデル
  *
- * 永続効果、ルール効果、効果外テキストを体系的に扱う。
- * カテゴリ別にどの処理に介入するかを定義する。
- *
- * @see ADR-0008: 効果モデルの導入とClean Architectureの完全実現
+ * @module domain/models/AdditionalRule
+ * @see {@link docs/domain/effect-model.md}
  */
 
 import type { GameState } from "./GameState";
 import type { RuleContext } from "./RuleContext";
 
-/**
- * RuleCategory - 追加ルールのカテゴリ
- *
- * どの処理に介入するかを定義
- */
+/** 追加ルールのカテゴリ */
 export type RuleCategory =
   // データ書き換え系
   | "NameOverride" // カード名変更（例: ハーピィ・レディ3姉妹）
@@ -29,7 +23,7 @@ export type RuleCategory =
   | "SelfDestruction"; // 維持コスト、自壊（例: ペンデュラム地帯）
 
 /**
- * AdditionalRule インターフェース
+ * 追加ルール
  *
  * 永続効果、ルール効果、効果外テキストを実装するための統一インターフェース。
  * カテゴリに応じて適切なメソッドを実装する。

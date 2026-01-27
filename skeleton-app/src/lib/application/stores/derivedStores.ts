@@ -1,94 +1,58 @@
 /**
- * derivedStores - Derived game state stores
+ * derivedStores - ゲーム状態の派生ストア
  *
- * Computed properties derived from main gameStateStore.
- * These are read-only stores that automatically update when gameState changes.
+ * gameStateStore の変更を監視し、派生したread-only値を提供する。
  *
  * @module application/stores/derivedStores
  */
 
 import { derived } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
-import { hasActivatableSpells } from "$lib/domain/rules/SpellActivationRule";
+import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
-/**
- * Current game phase (read-only)
- *
- * Usage in Svelte:
- * ```svelte
- * <script>
- *   import { currentPhase } from '$lib/application/stores/derivedStores';
- * </script>
- * <div>Current Phase: {$currentPhase}</div>
- * ```
- */
+/** 現在のゲームフェーズ */
 export const currentPhase = derived(gameStateStore, ($state) => $state.phase);
 
-/**
- * Current turn number (read-only)
- */
+/** 現在のターン数 */
 export const currentTurn = derived(gameStateStore, ($state) => $state.turn);
 
-/**
- * Player's life points (read-only)
- */
+/** プレイヤーのライフポイント */
 export const playerLP = derived(gameStateStore, ($state) => $state.lp.player);
 
-/**
- * Opponent's life points (read-only)
- */
+/** 相手のライフポイント */
 export const opponentLP = derived(gameStateStore, ($state) => $state.lp.opponent);
 
-/**
- * Hand card count (read-only)
- */
+/** 手札の枚数 */
 export const handCardCount = derived(gameStateStore, ($state) => $state.zones.hand.length);
 
-/**
- * Deck card count (read-only)
- */
+/** デッキの枚数 */
 export const deckCardCount = derived(gameStateStore, ($state) => $state.zones.deck.length);
 
-/**
- * Graveyard card count (read-only)
- */
+/** 墓地の枚数 */
 export const graveyardCardCount = derived(gameStateStore, ($state) => $state.zones.graveyard.length);
 
-/**
- * Field card count (read-only) - mainMonsterZone + spellTrapZone + fieldZone (T031)
- */
+/** フィールド（メインモンスターゾーン・魔法罠ゾーン・フィールドゾーン）の枚数 */
 export const fieldCardCount = derived(
   gameStateStore,
   ($state) => $state.zones.mainMonsterZone.length + $state.zones.spellTrapZone.length + $state.zones.fieldZone.length,
 );
 
-/**
- * Whether game is over (read-only)
- */
-export const isGameOver = derived(gameStateStore, ($state) => $state.result.isGameOver);
+/** ゲーム結果（自動判定） */
+export const gameResult = derived(gameStateStore, ($state) => {
+  // すでにゲームが終了しているなら結果を返す
+  if ($state.result.isGameOver) {
+    return $state.result;
+  }
 
-/**
- * Game result (read-only)
- */
-export const gameResult = derived(gameStateStore, ($state) => $state.result);
+  // 未判定なら自動的にチェック
+  return checkVictoryConditions($state);
+});
 
-/**
- * Whether any spells can be activated (read-only)
- * Useful for enabling/disabling spell activation UI
- */
-export const canActivateSpells = derived(gameStateStore, ($state) => hasActivatableSpells($state));
-
-/**
- * Whether deck is empty (read-only)
- */
+/** デッキが空かどうか */
 export const isDeckEmpty = derived(gameStateStore, ($state) => $state.zones.deck.length === 0);
 
-/**
- * Whether hand is empty (read-only)
- */
+/** 手札が空かどうか */
 export const isHandEmpty = derived(gameStateStore, ($state) => $state.zones.hand.length === 0);
 
-/**
- * Chain stack size (read-only)
- */
+/** チェーンスタックのサイズ */
 export const chainStackSize = derived(gameStateStore, ($state) => $state.chainStack.length);

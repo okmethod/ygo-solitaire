@@ -1,13 +1,19 @@
 /**
- * Application Layer: Card Data Transfer Objects (DTOs)
+ * card - カードデータの DTO (Data Transfer Object)
  *
- * Application層が定義するカードデータの契約。
- * Port/Adapterパターンにおいて、Application層とInfrastructure層の境界で使用される。
+ * Application 層と Infrastructure 層の境界で使用される。
+ * Port/Adapter パターンにおける契約 (Contract)。
+ *
+ * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
+ * - Application Layer は Domain Layer に依存できる
+ * - Infrastructure Layer は Application Layer に依存できる
+ * - Infrastructure Layer は Domain Layer に直接依存してはいけない
  *
  * @module application/types/card
  */
 
 import type {
+  CardInstance,
   CardType,
   MainMonsterSubType,
   ExtraMonsterSubType,
@@ -16,43 +22,13 @@ import type {
 } from "$lib/domain/models/Card";
 
 /**
- * Domain型の再エクスポート（Clean Architecture準拠）
+ * Domain 型の再エクスポート（Port/Adapter 境界での標準パターン）
  *
- * **なぜ再エクスポートするのか？**
- * - Infrastructure層がDomain層に直接依存するのを防ぐため
- * - Clean Architectureの依存関係ルール: Infrastructure → Application → Domain
- * - Port/Adapter境界でDomain型を使用する場合、Application層で再エクスポートするのが一般的なパターン
- *
- * **依存関係の流れ**:
- * 1. Domain層で型を定義（CardType等）
- * 2. Application層で再エクスポート（このファイル）
- * 3. Infrastructure層はApplication層からimport（Domain層に直接依存しない）
- *
- * @example
- * ```typescript
- * // ❌ Infrastructure層がDomain層に直接依存（Clean Architecture違反）
- * import type { CardType } from "$lib/domain/models/Card";
- *
- * // ✅ Infrastructure層がApplication層を経由（Clean Architecture準拠）
- * import type { CardType } from "$lib/application/types/card";
- * ```
+ * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
  */
-export type { CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
+export type { CardInstance, CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
 
-/**
- * カード画像データ
- * YGOPRODeck APIから取得されるカード画像URL情報
- */
-export interface CardImages {
-  image: string; // メイン画像URL
-  imageSmall: string; // サムネイル画像URL
-  imageCropped: string; // クロップ画像URL
-}
-
-/**
- * モンスターカード属性情報
- * YGOPRODeck APIから取得されるモンスターカード固有のデータ
- */
+/** モンスターカード属性情報 (YGOPRODeck API) */
 export interface MonsterAttributes {
   attack: number;
   defense: number;
@@ -61,35 +37,26 @@ export interface MonsterAttributes {
   race: string; // Spellcaster, Dragon, etc.
 }
 
+/** カード画像 URL 情報 (YGOPRODeck API) */
+export interface CardImages {
+  image: string; // メイン画像URL
+  imageSmall: string; // サムネイル画像URL
+  imageCropped: string; // クロップ画像URL
+}
+
 /**
- * Application層のDTO: UI表示用カードデータ
+ * UI 表示用カードデータ (DTO)
  *
- * YGOPRODeck APIから取得されたカード情報をUIコンポーネントで表示するための型。
- * Application層のPort（ICardDataRepository）がこの型を契約として使用する。
- *
- * **Design Decision**:
- * - この型はApplication層のデータ契約（DTO）であり、Presentation層の型ではない
- * - Infrastructure層（Adapter）がこの型のデータを生成する
- * - Presentation層は型エイリアスを通じてこの型を参照する（後方互換性）
- *
- * **Type Dependencies**:
- * - CardType等のDomain型は、このファイルで再エクスポートされたものを使用してください
- * - Infrastructure層は domain/models/Card から直接 import してはいけません（Clean Architecture違反）
+ * YGOPRODeck API から取得したカード情報を UI で表示するための型。
+ * ICardDataRepository の契約(Contract) として使用される。
  */
 export interface CardDisplayData {
-  // 必須プロパティ
   id: number; // YGOPRODeck API uses numeric IDs
-  name: string;
+  name: string; // 英語版カード名
   type: CardType; // Re-exported from domain/models/Card
   description: string; // カード効果テキスト
-
-  // オプショナルなAPIプロパティ
-  frameType?: string; // "normal", "effect", "xyz", etc.
-  archetype?: string; // アーキタイプ名（例: "Blue-Eyes"）
-
-  // モンスターカード専用プロパティ（存在する場合のみ）
+  frameType?: string; // カードフレーム（色）の種類
+  archetype?: string; // アーキタイプ（テーマ名）
   monsterAttributes?: MonsterAttributes;
-
-  // 画像プロパティ（存在する場合のみ）
   images?: CardImages;
 }

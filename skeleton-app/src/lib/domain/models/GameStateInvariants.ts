@@ -1,100 +1,84 @@
 /**
- * GameStateInvariants - Validation functions for GameState
- *
- * Ensures GameState maintains valid invariants (unchanging truths).
- * These validations catch bugs early and prevent invalid game states.
+ * GameStateInvariants - GameStateの整合性チェック
  *
  * @module domain/models/GameStateInvariants
+ * @see {@link docs/domain/overview.md}
+ * TODO: 現状未使用のため、GameState変更の際にチェックするようにする
  */
 
-import type { GameState } from "./GameState";
-import type { GamePhase } from "./Phase";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { GamePhase } from "$lib/domain/models/Phase";
 
-/**
- * Validation result type
- */
-export interface ValidationResult {
-  readonly isValid: boolean;
+/** 整合性チェック結果 */
+interface ConsistencyAssessment {
+  readonly isConsistent: boolean;
   readonly errors: readonly string[];
+  // 別の評価結果と結合するメソッド
+  and(next: ConsistencyAssessment): ConsistencyAssessment;
 }
 
-/**
- * Helper to create validation result
- */
-function createValidationResult(errors: string[] = []): ValidationResult {
+/** チェック結果を生成するファクトリ */
+function assessment(errors: string[] = []): ConsistencyAssessment {
   return {
-    isValid: errors.length === 0,
+    isConsistent: errors.length === 0,
     errors,
+    and(next: ConsistencyAssessment) {
+      return assessment([...this.errors, ...next.errors]);
+    },
   };
 }
 
-/**
- * Validate entire GameState
- *
- * Checks all invariants and returns aggregated errors.
- *
- * @param state - GameState to validate
- * @returns Validation result with all errors
- *
- * @example
- * ```typescript
- * const result = validateGameState(state);
- * if (!result.isValid) {
- *   console.error('Invalid state:', result.errors);
- * }
- * ```
- */
-export function validateGameState(state: GameState): ValidationResult {
-  const errors: string[] = [];
-
-  // Aggregate all validation errors
-  errors.push(...validateZones(state).errors);
-  errors.push(...validateLifePoints(state).errors);
-  errors.push(...validatePhase(state).errors);
-  errors.push(...validateTurn(state).errors);
-  errors.push(...validateResult(state).errors);
-
-  return createValidationResult(errors);
+/** GameState 全体の整合性をチェックする */
+export function validateGameState(state: GameState): ConsistencyAssessment {
+  return validateZones(state)
+    .and(validateLifePoints(state))
+    .and(validatePhase(state))
+    .and(validateTurn(state))
+    .and(validateResult(state));
 }
 
 /**
- * Validate zones (deck, hand, field, graveyard, banished)
+ * ゲーム状態の整合性をアサートし、エラーがあれば例外をスローする
  *
- * Checks:
- * - No duplicate card instances
- * - All instances have valid IDs
- * - Deck size is reasonable (0-60 cards)
- * - Hand size is reasonable (0-10 cards)
- * - Field size doesn't exceed limits
- *
- * @param state - GameState to validate
- * @returns Validation result
+ * @throws Error if validation fails
  */
-export function validateZones(state: GameState): ValidationResult {
+export function assertValidGameState(state: GameState): void {
+  const result = validateGameState(state);
+  if (!result.isConsistent) {
+    throw new Error(`Invalid GameState:\n${result.errors.join("\n")}`);
+  }
+}
+
+// 数値範囲をチェックするヘルパー
+const checkRange = (val: number, min: number, max: number, label: string): string[] => {
+  const errs: string[] = [];
+  if (!Number.isInteger(val)) {
+    errs.push(`${label} must be an integer: ${val}`);
+  }
+  if (val < min || val > max) {
+    errs.push(`${label} is out of bounds: ${val} (Allowed: ${min} to ${max})`);
+  }
+  return errs;
+};
+
+// ゾーンのlocationプロパティをチェックするヘルパー
+const checkZoneLocation = (cards: readonly { location: string }[], expectedLocation: string): string[] => {
+  const invalid = cards.filter((card) => card.location !== expectedLocation);
+  return invalid.length > 0 ? [`${invalid.length} cards in ${expectedLocation} have incorrect location property`] : [];
+};
+
+/** 各ゾーンの整合性をチェックする */
+export function validateZones(state: GameState): ConsistencyAssessment {
   const errors: string[] = [];
 
-  // Check deck size
-  if (state.zones.deck.length > 60) {
-    errors.push(`Deck has too many cards: ${state.zones.deck.length} (max: 60)`);
-  }
+  // 各ゾーンの枚数チェック
+  errors.push(...checkRange(state.zones.deck.length, 0, 60, "Deck size"));
+  errors.push(...checkRange(state.zones.hand.length, 0, 10, "Hand size"));
+  errors.push(...checkRange(state.zones.mainMonsterZone.length, 0, 5, "Main Monster Zone size"));
+  errors.push(...checkRange(state.zones.spellTrapZone.length, 0, 5, "Spell/Trap Zone size"));
+  errors.push(...checkRange(state.zones.fieldZone.length, 0, 1, "Field Zone size"));
 
-  // Check hand size
-  if (state.zones.hand.length > 10) {
-    errors.push(`Hand has too many cards: ${state.zones.hand.length} (max: 10)`);
-  }
-
-  // Check zone sizes
-  if (state.zones.mainMonsterZone.length > 5) {
-    errors.push(`Main Monster Zone has too many cards: ${state.zones.mainMonsterZone.length} (max: 5)`);
-  }
-  if (state.zones.spellTrapZone.length > 5) {
-    errors.push(`Spell/Trap Zone has too many cards: ${state.zones.spellTrapZone.length} (max: 5)`);
-  }
-  if (state.zones.fieldZone.length > 1) {
-    errors.push(`Field Zone has too many cards: ${state.zones.fieldZone.length} (max: 1)`);
-  }
-
-  // Check for duplicate instance IDs across all zones
+  // 全ゾーンにわたるインスタンスIDの重複チェック
   const allInstances = [
     ...state.zones.deck,
     ...state.zones.hand,
@@ -104,205 +88,91 @@ export function validateZones(state: GameState): ValidationResult {
     ...state.zones.graveyard,
     ...state.zones.banished,
   ];
-
   const instanceIds = allInstances.map((card) => card.instanceId);
   const duplicates = instanceIds.filter((id, index) => instanceIds.indexOf(id) !== index);
-
   if (duplicates.length > 0) {
     errors.push(`Duplicate card instance IDs found: ${duplicates.join(", ")}`);
   }
 
-  // Check all instances have valid IDs
+  // インスタンスIDとカードIDの存在チェック
   const invalidInstances = allInstances.filter((card) => !card.instanceId || !card.id);
   if (invalidInstances.length > 0) {
     errors.push(`Found ${invalidInstances.length} card instances with missing IDs`);
   }
 
-  // Check location matches actual zone
-  const deckInvalid = state.zones.deck.filter((card) => card.location !== "deck");
-  const handInvalid = state.zones.hand.filter((card) => card.location !== "hand");
-  const mainMonsterZoneInvalid = state.zones.mainMonsterZone.filter((card) => card.location !== "mainMonsterZone");
-  const spellTrapZoneInvalid = state.zones.spellTrapZone.filter((card) => card.location !== "spellTrapZone");
-  const fieldZoneInvalid = state.zones.fieldZone.filter((card) => card.location !== "fieldZone");
-  const graveyardInvalid = state.zones.graveyard.filter((card) => card.location !== "graveyard");
-  const banishedInvalid = state.zones.banished.filter((card) => card.location !== "banished");
+  // 各ゾーンのlocationプロパティチェック
+  errors.push(...checkZoneLocation(state.zones.deck, "deck"));
+  errors.push(...checkZoneLocation(state.zones.hand, "hand"));
+  errors.push(...checkZoneLocation(state.zones.mainMonsterZone, "mainMonsterZone"));
+  errors.push(...checkZoneLocation(state.zones.spellTrapZone, "spellTrapZone"));
+  errors.push(...checkZoneLocation(state.zones.fieldZone, "fieldZone"));
+  errors.push(...checkZoneLocation(state.zones.graveyard, "graveyard"));
+  errors.push(...checkZoneLocation(state.zones.banished, "banished"));
 
-  if (deckInvalid.length > 0) {
-    errors.push(`${deckInvalid.length} cards in deck have incorrect location property`);
-  }
-  if (handInvalid.length > 0) {
-    errors.push(`${handInvalid.length} cards in hand have incorrect location property`);
-  }
-  if (mainMonsterZoneInvalid.length > 0) {
-    errors.push(`${mainMonsterZoneInvalid.length} cards in mainMonsterZone have incorrect location property`);
-  }
-  if (spellTrapZoneInvalid.length > 0) {
-    errors.push(`${spellTrapZoneInvalid.length} cards in spellTrapZone have incorrect location property`);
-  }
-  if (fieldZoneInvalid.length > 0) {
-    errors.push(`${fieldZoneInvalid.length} cards in fieldZone have incorrect location property`);
-  }
-  if (graveyardInvalid.length > 0) {
-    errors.push(`${graveyardInvalid.length} cards in graveyard have incorrect location property`);
-  }
-  if (banishedInvalid.length > 0) {
-    errors.push(`${banishedInvalid.length} cards in banished have incorrect location property`);
-  }
-
-  return createValidationResult(errors);
+  return assessment(errors);
 }
 
-/**
- * Validate life points
- *
- * Checks:
- * - LP are non-negative
- * - LP are within reasonable range (0-99999)
- *
- * @param state - GameState to validate
- * @returns Validation result
- */
-export function validateLifePoints(state: GameState): ValidationResult {
+/** ライフポイントの整合性をチェックする */
+export function validateLifePoints(state: GameState): ConsistencyAssessment {
   const errors: string[] = [];
 
-  // Check player LP
-  if (state.lp.player < 0) {
-    errors.push(`Player LP is negative: ${state.lp.player}`);
-  }
-  if (state.lp.player > 99999) {
-    errors.push(`Player LP exceeds maximum: ${state.lp.player} (max: 99999)`);
-  }
+  // ライフポイントチェック
+  errors.push(...checkRange(state.lp.player, 0, 99999, "Player LP"));
+  errors.push(...checkRange(state.lp.opponent, 0, 99999, "Opponent LP"));
 
-  // Check opponent LP
-  if (state.lp.opponent < 0) {
-    errors.push(`Opponent LP is negative: ${state.lp.opponent}`);
-  }
-  if (state.lp.opponent > 99999) {
-    errors.push(`Opponent LP exceeds maximum: ${state.lp.opponent} (max: 99999)`);
-  }
-
-  return createValidationResult(errors);
+  return assessment(errors);
 }
 
-/**
- * Validate phase
- *
- * Checks:
- * - Phase is one of the valid phases
- * - Phase matches the turn progression
- *
- * @param state - GameState to validate
- * @returns Validation result
- */
-export function validatePhase(state: GameState): ValidationResult {
+/** フェーズの整合性をチェックする  */
+export function validatePhase(state: GameState): ConsistencyAssessment {
   const errors: string[] = [];
 
   const validPhases: GamePhase[] = ["Draw", "Standby", "Main1", "End"];
-
   if (!validPhases.includes(state.phase)) {
     errors.push(`Invalid phase: ${state.phase}. Must be one of: ${validPhases.join(", ")}`);
   }
 
-  return createValidationResult(errors);
+  return assessment(errors);
 }
 
-/**
- * Validate turn number
- *
- * Checks:
- * - Turn is positive integer
- * - Turn is reasonable (1-999)
- *
- * @param state - GameState to validate
- * @returns Validation result
- */
-export function validateTurn(state: GameState): ValidationResult {
+/** ターン数の整合性をチェックする */
+export function validateTurn(state: GameState): ConsistencyAssessment {
   const errors: string[] = [];
 
-  if (state.turn < 1) {
-    errors.push(`Turn must be at least 1: ${state.turn}`);
-  }
+  // ターン数チェック（checkRange を活用）
+  errors.push(...checkRange(state.turn, 1, 999, "Turn"));
 
-  if (state.turn > 999) {
-    errors.push(`Turn exceeds maximum: ${state.turn} (max: 999)`);
-  }
-
-  if (!Number.isInteger(state.turn)) {
-    errors.push(`Turn must be an integer: ${state.turn}`);
-  }
-
-  return createValidationResult(errors);
+  return assessment(errors);
 }
 
-/**
- * Validate game result
- *
- * Checks:
- * - If game is over, winner and reason must be set
- * - If game is ongoing, winner and reason must not be set
- *
- * @param state - GameState to validate
- * @returns Validation result
- */
-export function validateResult(state: GameState): ValidationResult {
+/** ゲーム結果の整合性をチェックする */
+export function validateResult(state: GameState): ConsistencyAssessment {
   const errors: string[] = [];
 
   if (state.result.isGameOver) {
-    // Game over - must have winner and reason
+    // 勝者チェック
     if (!state.result.winner) {
       errors.push("Game is over but winner is not set");
     }
-
-    if (!state.result.reason) {
-      errors.push("Game is over but reason is not set");
-    }
-
-    // Winner must be valid
     if (state.result.winner && !["player", "opponent"].includes(state.result.winner)) {
       errors.push(`Invalid winner: ${state.result.winner}. Must be "player" or "opponent"`);
     }
-
-    // Reason must be valid
+    // ゲーム終了理由チェック
+    if (!state.result.reason) {
+      errors.push("Game is over but reason is not set");
+    }
     if (state.result.reason && !["exodia", "lp0", "deckout"].includes(state.result.reason)) {
       errors.push(`Invalid reason: ${state.result.reason}. Must be "exodia", "lp0", or "deckout"`);
     }
   } else {
-    // Game ongoing - must not have winner or reason
+    // ゲーム進行中は、勝者と理由が未設定
     if (state.result.winner) {
       errors.push("Game is ongoing but winner is set");
     }
-
     if (state.result.reason) {
       errors.push("Game is ongoing but reason is set");
     }
   }
 
-  return createValidationResult(errors);
-}
-
-/**
- * Check if GameState has any validation errors
- *
- * Quick boolean check without returning detailed errors.
- *
- * @param state - GameState to check
- * @returns True if valid, false if errors exist
- */
-export function isValidGameState(state: GameState): boolean {
-  return validateGameState(state).isValid;
-}
-
-/**
- * Assert GameState is valid
- *
- * Throws error if validation fails. Useful for debugging.
- *
- * @param state - GameState to validate
- * @throws Error if validation fails
- */
-export function assertValidGameState(state: GameState): void {
-  const result = validateGameState(state);
-  if (!result.isValid) {
-    throw new Error(`Invalid GameState:\n${result.errors.join("\n")}`);
-  }
+  return assessment(errors);
 }

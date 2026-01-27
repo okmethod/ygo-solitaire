@@ -1,25 +1,26 @@
 /**
- * AdvancePhaseCommand - Advance to next game phase
+ * AdvancePhaseCommand - フェイズ遷移コマンド
  *
- * Implements the Command pattern for phase transitions.
- * Validates phase transition rules before advancing.
+ * 現在のフェイズから次のフェイズに遷移する Command パターン実装。
+ * エンドフェイズ遷移時には、ターン1制限のリセットや、保留されたエンドフェイズ時効果の解決を行う。
  *
- * @module application/commands/AdvancePhaseCommand
+ * @module domain/commands/AdvancePhaseCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "./GameCommand";
-import { createSuccessResult, createFailureResult } from "./GameCommand";
+import type { GameCommand } from "$lib/domain/models/GameCommand";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
 import {
-  getNextValidPhase,
-  validatePhaseTransition,
-  canManuallyAdvancePhase,
-  getPhaseDisplayName,
-} from "$lib/domain/rules/PhaseRule";
+  ValidationErrorCode,
+  successValidationResult,
+  failureValidationResult,
+  validationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
-/**
- * Command to advance to next phase
- */
+/** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
   readonly description: string;
 
@@ -28,87 +29,73 @@ export class AdvancePhaseCommand implements GameCommand {
   }
 
   /**
-   * Check if phase advance is allowed
+   * フェイズ遷移可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if can advance to next phase
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. フェイズ遷移が許可されていること
    */
-  canExecute(state: GameState): boolean {
-    // Check if game is already over
+  canExecute(state: GameState): ValidationResult {
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    const nextPhase = getNextValidPhase(state.phase);
+    const nextPhase = getNextPhase(state.phase);
 
-    // Validate transition is allowed
+    // 2. フェイズ遷移が許可されていること
     const validation = validatePhaseTransition(state.phase, nextPhase);
     if (!validation.valid) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.PHASE_TRANSITION_NOT_ALLOWED);
     }
 
-    // Check manual advance is allowed (e.g., not Draw phase with empty deck)
-    const deckIsEmpty = state.zones.deck.length === 0;
-    return canManuallyAdvancePhase(state.phase, deckIsEmpty);
+    return successValidationResult();
   }
 
   /**
-   * Execute phase advance command
+   * フェイズ遷移する
    *
-   * @param state - Current game state
-   * @returns Command result with new state
+   * 処理フロー:
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
+   *
+   * Note: 効果処理は、Application 層に返された後に実行される
    */
-  execute(state: GameState): CommandResult {
-    if (!this.canExecute(state)) {
-      return createFailureResult(state, `Cannot advance from ${state.phase} phase`);
+  execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
+    const validationResult = this.canExecute(state);
+    if (!validationResult.isValid) {
+      return failureUpdateResult(state, validationErrorMessage(validationResult));
     }
 
-    const nextPhase = getNextValidPhase(state.phase);
+    const nextPhase = getNextPhase(state.phase);
+    const hasPendingEffects = isEndPhase(nextPhase) && state.pendingEndPhaseEffects.length > 0;
 
-    // Create new state with advanced phase using spread syntax
-    const newState: GameState = {
+    // 2. 更新後状態の構築
+    const updatedState: GameState = {
       ...state,
       phase: nextPhase,
-      // Clear activatedIgnitionEffectsThisTurn when advancing to End phase
-      // (Reset at end of turn for "once per turn" effects)
-      activatedIgnitionEffectsThisTurn:
-        nextPhase === "End" ? new Set<string>() : state.activatedIgnitionEffectsThisTurn,
-      // Clear activatedOncePerTurnCards when advancing to End phase
-      // (Reset at end of turn for "once per turn" card activation limit)
-      activatedOncePerTurnCards: nextPhase === "End" ? new Set<number>() : state.activatedOncePerTurnCards,
-      // If advancing to End phase and it's end of turn, increment turn counter
-      // (In MVP, End phase loops to itself, so turn doesn't increment automatically)
-      // This will be expanded in future when turn cycling is implemented
+      // ターン終了時に「ターン1制限」「名称ターン1制限」をリセット
+      activatedIgnitionEffectsThisTurn: isEndPhase(nextPhase)
+        ? new Set<string>()
+        : state.activatedIgnitionEffectsThisTurn,
+      activatedOncePerTurnCards: isEndPhase(nextPhase) ? new Set<number>() : state.activatedOncePerTurnCards,
+      // 保留リストは、エンドフェイズに遷移した時点でクリアする
+      pendingEndPhaseEffects: hasPendingEffects ? [] : state.pendingEndPhaseEffects,
     };
 
-    const phaseDisplayName = getPhaseDisplayName(nextPhase);
-
-    // If advancing to End phase and there are pending end phase effects, return them for execution
-    if (nextPhase === "End" && state.pendingEndPhaseEffects.length > 0) {
-      // Return success with effect steps to be executed by Application Layer
-      // After effects are executed, the state will be updated to clear pendingEndPhaseEffects
-      return {
-        success: true,
-        newState: {
-          ...newState,
-          // Clear pending effects after returning them for execution
-          pendingEndPhaseEffects: [],
-        },
-        message: `Advanced to ${phaseDisplayName}. Executing ${state.pendingEndPhaseEffects.length} end phase effect(s).`,
-        effectSteps: [...state.pendingEndPhaseEffects],
-      };
-    }
-
-    return createSuccessResult(newState, `Advanced to ${phaseDisplayName}`);
+    // 3. 戻り値の構築
+    return successUpdateResult(
+      updatedState,
+      `Advanced to ${getPhaseDisplayName(nextPhase)}`,
+      // 効果がある場合のみ、解決ステップを配列として付与する
+      hasPendingEffects ? [...state.pendingEndPhaseEffects] : undefined,
+    );
   }
 
-  /**
-   * Get the phase that would be advanced to
-   *
-   * @param state - Current game state
-   * @returns Next phase
-   */
+  /** 次のフェイズ名を取得する */
   getNextPhase(state: GameState): string {
-    return getNextValidPhase(state.phase);
+    return getNextPhase(state.phase);
   }
 }

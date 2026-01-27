@@ -1,178 +1,162 @@
 /**
- * ActivateSpellCommand - Activate a spell card
+ * ActivateSpellCommand - 魔法カード発動コマンド
  *
- * Implements the Command pattern for spell card activation.
- * Supports activation from:
- * - Hand (all spell types)
- * - spellTrapZone (set spells, with quick-play set-turn restriction)
- * - fieldZone (set field spells)
+ * 手札またはフィールドにセットされた魔法カードを発動する Command パターン実装。
+ * TODO: 効果レジストリに登録されていない場合はエラーにした方が良いが、テストの都合上エラーにしていない
+ * TODO: チェーンシステムに対応する。
  *
- * Flow: source zone → field → effect execution → graveyard
- *
- * MVP Scope:
- * - Main1 phase only
- * - Quick-play spells cannot be activated the turn they're set
- *
- * @module application/commands/ActivateSpellCommand
+ * @module domain/commands/ActivateSpellCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "./GameCommand";
-import { createSuccessResult, createFailureResult } from "./GameCommand";
-import { moveCard, sendToGraveyard } from "$lib/domain/models/Zone";
-import { canActivateSpell } from "$lib/domain/rules/SpellActivationRule";
-import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
+import type { GameCommand } from "$lib/domain/models/GameCommand";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { Zones } from "$lib/domain/models/Zone";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import { findCardInstance } from "$lib/domain/models/Zone";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { isSpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
+import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import {
+  ValidationErrorCode,
+  successValidationResult,
+  failureValidationResult,
+  validationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
-/**
- * Command to activate a spell card
- */
+/** 魔法カード発動コマンドクラス */
 export class ActivateSpellCommand implements GameCommand {
   readonly description: string;
 
-  /**
-   * Create a new ActivateSpellCommand
-   *
-   * @param cardInstanceId - Card instance ID to activate
-   */
   constructor(private readonly cardInstanceId: string) {
     this.description = `Activate spell card ${cardInstanceId}`;
   }
 
   /**
-   * Check if activation is possible
+   * 指定カードインスタンスの魔法カードが発動可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if spell can be activated
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+   * 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+   * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+   *
+   * Note: メインフェイズ判定・速攻魔法のセットターン制限は ChainableAction 側でチェック
    */
-  canExecute(state: GameState): boolean {
-    // Check if game is already over
+  canExecute(state: GameState): ValidationResult {
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    // Check spell activation rules
-    const validation = canActivateSpell(state, this.cardInstanceId);
-    if (!validation.canActivate) {
-      return false;
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
+
+    // 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+    if (!cardInstance) {
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
+    }
+    if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_IN_VALID_LOCATION);
+    }
+    if (!isSpellCard(cardInstance)) {
+      return failureValidationResult(ValidationErrorCode.NOT_SPELL_CARD);
     }
 
-    // Check card-specific effect requirements (if registered)
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (cardInstance) {
-      const cardId = cardInstance.id; // CardInstance extends CardData
-      const chainableAction = ChainableActionRegistry.get(cardId);
+    // 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+    if (!isFieldSpellCard(cardInstance) && state.zones.spellTrapZone.length >= 5) {
+      return failureValidationResult(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
+    }
 
-      if (chainableAction && !chainableAction.canActivate(state)) {
-        return false;
+    // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
+    if (chainableAction) {
+      const activationResult = chainableAction.canActivate(state, cardInstance);
+      if (!activationResult.isValid) {
+        return activationResult;
       }
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**
-   * Execute spell activation command
+   * 魔法カードの効果処理ステップ配列を生成して返す
    *
-   * Flow: hand → field → [effect execution] → graveyard
+   * 処理フロー:
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    *
-   * @param state - Current game state
-   * @returns Command result with new state (effectSteps included if effect exists)
+   * Note: 効果処理は、Application 層に返された後に実行される
    */
-  execute(state: GameState): CommandResult {
-    // Validate activation
-    const validation = canActivateSpell(state, this.cardInstanceId);
-    if (!validation.canActivate) {
-      return createFailureResult(state, validation.reason || "Cannot activate spell card");
+  execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
+    const validationResult = this.canExecute(state);
+    if (!validationResult.isValid) {
+      return failureUpdateResult(state, validationErrorMessage(validationResult));
     }
+    // cardInstance は canExecute で存在が保証されている
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
 
-    // Step 2: Effect execution based on card ID
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (!cardInstance) {
-      return createFailureResult(state, `Card instance ${this.cardInstanceId} not found`);
-    }
-
-    const cardId = cardInstance.id; // CardInstance extends CardData
-
-    // Check card-specific activation conditions (before moving to field)
-    const chainableAction = ChainableActionRegistry.get(cardId);
-    if (chainableAction && !chainableAction.canActivate(state)) {
-      return createFailureResult(state, "発動条件を満たしていません");
-    }
-
-    // Step 1: Determine source and target zones (T030-3)
-    const sourceZone = cardInstance.location; // hand, spellTrapZone, or fieldZone
-
-    // If card is already in a field zone (spellTrapZone/fieldZone), it's being activated from set position
-    // Otherwise, it's being activated from hand
-    let zonesAfterActivation = state.zones;
-
-    if (sourceZone === "hand") {
-      // Activating from hand: move to appropriate zone face-up
-      const targetZone = cardInstance.spellType === "field" ? "fieldZone" : "spellTrapZone";
-      zonesAfterActivation = moveCard(state.zones, this.cardInstanceId, "hand", targetZone, "faceUp");
-    } else if (sourceZone === "spellTrapZone" || sourceZone === "fieldZone") {
-      // Activating from set position: just flip to face-up (stay in same zone)
-      zonesAfterActivation = {
-        ...state.zones,
-        [sourceZone]: state.zones[sourceZone].map((card) =>
-          card.instanceId === this.cardInstanceId ? { ...card, position: "faceUp" as const } : card,
-        ),
-      };
-    } else {
-      return createFailureResult(state, `Cannot activate spell from ${sourceZone}`);
-    }
-
-    // Create intermediate state for effect resolution using spread syntax
-    const stateAfterActivation: GameState = {
+    // 2. 更新後状態の構築
+    const updatedActivatedCards = new Set(state.activatedOncePerTurnCards);
+    updatedActivatedCards.add(cardInstance.id);
+    const updatedState: GameState = {
       ...state,
-      zones: zonesAfterActivation,
+      zones: this.moveActivatedSpellCard(state.zones, cardInstance),
+      activatedOncePerTurnCards: updatedActivatedCards, // 発動済みカードIDを記録
     };
 
-    // Check ChainableActionRegistry for card effect
-    if (chainableAction && chainableAction.canActivate(stateAfterActivation)) {
-      // Get activation and resolution steps
-      const activationSteps = chainableAction.createActivationSteps(stateAfterActivation);
-      const resolutionSteps = chainableAction.createResolutionSteps(stateAfterActivation, this.cardInstanceId);
-
-      // Combine activation and resolution steps into a single sequence
-      const allEffectSteps = [...activationSteps, ...resolutionSteps];
-
-      // Return result with all effect steps (delegate to Application Layer)
-      // Application Layer will execute all steps sequentially with proper notifications
-      return {
-        success: true,
-        newState: stateAfterActivation,
-        message: `Spell card activated: ${this.cardInstanceId}`,
-        effectSteps: allEffectSteps,
-      };
-    }
-
-    // No effect registered - send directly to graveyard
-    const zonesAfterResolution = sendToGraveyard(zonesAfterActivation, this.cardInstanceId);
-
-    // Create new state with updated zones using spread syntax
-    const newState: GameState = {
-      ...state,
-      zones: zonesAfterResolution,
-    };
-
-    // Check victory conditions after activation
-    const victoryResult = checkVictoryConditions(newState);
-
-    // Update game result if victory/defeat occurred using spread syntax
-    const finalState: GameState = {
-      ...newState,
-      result: victoryResult,
-    };
-
-    return createSuccessResult(finalState, `Spell card activated (no effect): ${this.cardInstanceId}`);
+    // 3. 戻り値の構築
+    return successUpdateResult(
+      updatedState,
+      `Spell card activated: ${this.cardInstanceId}`,
+      this.buildEffectSteps(updatedState, cardInstance),
+    );
   }
 
   /**
-   * Get card instance ID being activated
+   * 発動した魔法カードを適切なゾーンに表向きで配置する
+   *
+   * - 手札から発動: 適切なゾーンに表向きで配置
+   *   - 通常魔法/速攻魔法 → 魔法・罠ゾーン
+   *   - フィールド魔法 → フィールドゾーン
+   * - セットから発動: 同じゾーンに表向きで配置
    */
+  private moveActivatedSpellCard(zones: Zones, cardInstance: CardInstance): Zones {
+    const activatedCardState: Partial<CardInstance> = {
+      position: "faceUp",
+      placedThisTurn: true,
+    };
+
+    // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
+    if (cardInstance!.location === "hand") {
+      const targetZone = isFieldSpellCard(cardInstance) ? "fieldZone" : "spellTrapZone";
+      return moveCard(zones, cardInstance, targetZone, activatedCardState);
+    }
+
+    // セットから発動: 同じゾーンに表向きで配置
+    return updateCardInPlace(zones, cardInstance, activatedCardState);
+  }
+
+  // 効果処理ステップ配列を生成する
+  // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
+  // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
+  private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
+    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
+    if (chainableAction) {
+      return [
+        ...chainableAction.createActivationSteps(state, cardInstance),
+        ...chainableAction.createResolutionSteps(state, cardInstance),
+      ];
+    }
+    return [];
+  }
+
+  /** 発動対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
   }

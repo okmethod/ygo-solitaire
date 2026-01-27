@@ -1,28 +1,20 @@
 /**
- * Phase - Game phase type definitions
- *
- * Defines the game phases for Yu-Gi-Oh! turn structure.
- * MVP scope: Draw, Standby, Main1, End only
- * (Battle Phase and Main2 are excluded for first-turn-kill decks)
+ * Phase - フェイズモデル
  *
  * @module domain/models/Phase
+ * @see {@link docs/domain/overview.md}
  */
 
-/**
- * Game phase type
- * MVP scope: Draw, Standby, Main1, End only
- * (Battle Phase and Main2 are excluded for Exodia Draw Deck)
+/** フェイズ
+ *
+ * 先行1ターン目のフェイズ進行のみをスコープとする。
  */
 export type GamePhase = "Draw" | "Standby" | "Main1" | "End";
 
-/**
- * All game phases in order
- */
-export const GAME_PHASES: readonly GamePhase[] = ["Draw", "Standby", "Main1", "End"] as const;
+/** 全フェイズの順序付き配列 */
+const GAME_PHASES: readonly GamePhase[] = ["Draw", "Standby", "Main1", "End"] as const;
 
-/**
- * Phase display names (Japanese)
- */
+/** 各フェイズの日本語名 */
 export const PHASE_NAMES: Record<GamePhase, string> = {
   Draw: "ドローフェイズ",
   Standby: "スタンバイフェイズ",
@@ -30,16 +22,43 @@ export const PHASE_NAMES: Record<GamePhase, string> = {
   End: "エンドフェイズ",
 } as const;
 
-/**
- * Helper to get next phase
- *
- * @param currentPhase - Current game phase
- * @returns Next phase in sequence, or "End" if at end of turn
- */
-export function getNextPhase(currentPhase: GamePhase): GamePhase {
+/** フェイズの日本語表示名 */
+export const getPhaseDisplayName = (phase: GamePhase): string => {
+  return PHASE_NAMES[phase];
+};
+
+/** 次のフェイズ */
+export const getNextPhase = (currentPhase: GamePhase): GamePhase => {
   const currentIndex = GAME_PHASES.indexOf(currentPhase);
   if (currentIndex === -1 || currentIndex === GAME_PHASES.length - 1) {
     return "End";
   }
   return GAME_PHASES[currentIndex + 1];
-}
+};
+
+/** フェイズ遷移が有効か */
+export const validatePhaseTransition = (
+  currentPhase: GamePhase,
+  nextPhase: GamePhase,
+): { valid: boolean; error?: string } => {
+  const expectedNext = getNextPhase(currentPhase);
+
+  if (nextPhase !== expectedNext) {
+    return {
+      valid: false,
+      error: `Invalid phase transition: ${currentPhase} → ${nextPhase}. Expected: ${expectedNext}`,
+    };
+  }
+
+  return { valid: true };
+};
+
+/** メインフェイズかどうか */
+export const isMainPhase = (phase: GamePhase): boolean => {
+  return phase === "Main1";
+};
+
+/** エンドフェイズかどうか */
+export const isEndPhase = (phase: GamePhase): boolean => {
+  return phase === "End";
+};

@@ -1,7 +1,7 @@
 /**
  * cardDisplayStore - CardInstance → CardDisplayData変換ストア
  *
- * gameStateStoreの変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
+ * gameStateStore の変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
  * YGOPRODeck APIからカード詳細情報を取得し、UI表示用のデータを提供する。
  *
  * @module application/stores/cardDisplayStore
@@ -10,151 +10,77 @@
 import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
-import { YGOProDeckCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
 import type { CardDisplayData } from "$lib/application/types/card";
-
-// Dependency Injection: Production実装を注入
-const cardRepository: ICardDataRepository = new YGOProDeckCardRepository();
-
-/**
- * 手札のCardDisplayData配列を提供
- *
- * gameStateStoreの変更を監視し、自動的にYGOPRODeck APIから取得。
- * キャッシュヒット時は即座に返す。
- * エラー時は空配列を返す（placeholder表示）。
- *
- * Usage:
- * ```svelte
- * <script>
- *   import { handCards } from '$lib/application/stores/cardDisplayStore';
- * </script>
- * <div>Hand: {$handCards.length} cards</div>
- * {#each $handCards as card (card.id)}
- *   <Card {card} />
- * {/each}
- * ```
- */
-export const handCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const cardIds = $gameState.zones.hand.map((c) => c.id); // CardInstance extends CardData
-
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
-
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        set(cards);
-      })
-      .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch hand cards:", err);
-        set([]); // エラー時は空配列（placeholder表示）
-      });
-  },
-  [] as CardDisplayData[], // 初期値
-);
+import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 
 /**
- * フィールドのCardDisplayData配列を提供
+ * カードリポジトリのシングルトンインスタンス
  *
- * gameStateStoreのzones.mainMonsterZone + zones.spellTrapZone + zones.fieldZoneを監視。
- * すべてのフィールド上のカードを含む（T031）。
+ * Dependency Injection: Application Layer内の他コンポーネントで使用するため公開。
  */
-export const fieldCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const fieldCardsAll = [
-      ...$gameState.zones.mainMonsterZone,
-      ...$gameState.zones.spellTrapZone,
-      ...$gameState.zones.fieldZone,
-    ];
-    const cardIds = fieldCardsAll.map((c) => c.id); // CardInstance extends CardData
-
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
-
-    // Flag to prevent stale data from being set (Race Condition対策)
-    let isCancelled = false;
-
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        if (!isCancelled) {
-          set(cards);
-        }
-      })
-      .catch((err) => {
-        if (!isCancelled) {
-          console.error("[cardDisplayStore] Failed to fetch field cards:", err);
-          set([]);
-        }
-      });
-
-    // Cleanup function: called when derived re-evaluates or unsubscribes
-    return () => {
-      isCancelled = true;
-    };
-  },
-  [] as CardDisplayData[],
-);
+export const cardRepository: ICardDataRepository = getCardRepository();
 
 /**
- * 墓地のCardDisplayData配列を提供
+ * ゾーン監視用の汎用CardDisplayDataストアを生成
  *
- * gameStateStoreのzones.graveyardを監視。
+ * gameStateStoreの変更を監視し、YGOPRODeck APIから自動取得する。
+ * キャッシュヒット時は即座に返す。エラー時は空配列を返す。
  */
-export const graveyardCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const cardIds = $gameState.zones.graveyard.map((c) => c.id); // CardInstance extends CardData
+function createZoneCardStore(
+  zoneName: string,
+  zoneSelector: (state: GameState) => readonly CardInstance[],
+): Readable<CardDisplayData[]> {
+  return derived(
+    gameStateStore,
+    ($gameState, set) => {
+      const cards = zoneSelector($gameState);
+      const cardIds = cards.map((c) => c.id);
 
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
-
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        set(cards);
-      })
-      .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch graveyard cards:", err);
+      if (cardIds.length === 0) {
         set([]);
-      });
-  },
-  [] as CardDisplayData[],
-);
+        return;
+      }
 
-/**
- * 除外ゾーンのCardDisplayData配列を提供
- *
- * gameStateStoreのzones.banishedを監視。
- */
-export const banishedCards: Readable<CardDisplayData[]> = derived(
-  gameStateStore,
-  ($gameState, set) => {
-    const cardIds = $gameState.zones.banished.map((c) => c.id); // CardInstance extends CardData
+      // Race Condition対策: 非同期処理中にストアが再評価された場合に備える
+      let isCancelled = false;
 
-    if (cardIds.length === 0) {
-      set([]);
-      return;
-    }
+      cardRepository
+        .getCardsByIds(fetch, cardIds)
+        .then((cards) => {
+          if (!isCancelled) {
+            set(cards);
+          }
+        })
+        .catch((err) => {
+          if (!isCancelled) {
+            console.error(`[cardDisplayStore] Failed to fetch ${zoneName} cards:`, err);
+            set([]);
+          }
+        });
 
-    cardRepository
-      .getCardsByIds(cardIds)
-      .then((cards) => {
-        set(cards);
-      })
-      .catch((err) => {
-        console.error("[cardDisplayStore] Failed to fetch banished cards:", err);
-        set([]);
-      });
-  },
-  [] as CardDisplayData[],
-);
+      // クリーンアップ: 非同期処理中にストアが再評価された場合にキャンセルフラグを立てる
+      return () => {
+        isCancelled = true;
+      };
+    },
+    [] as CardDisplayData[],
+  );
+}
+
+/** 手札のCardDisplayData配列 */
+export const handCards = createZoneCardStore("hand", (state) => state.zones.hand);
+
+/** フィールド（メインモンスターゾーン・魔法罠ゾーン・フィールドゾーン）のCardDisplayData配列 */
+export const fieldCards = createZoneCardStore("field", (state) => [
+  ...state.zones.mainMonsterZone,
+  ...state.zones.spellTrapZone,
+  ...state.zones.fieldZone,
+]);
+
+/** 墓地のCardDisplayData配列 */
+export const graveyardCards = createZoneCardStore("graveyard", (state) => state.zones.graveyard);
+
+/** 除外ゾーンのCardDisplayData配列 */
+export const banishedCards = createZoneCardStore("banished", (state) => state.zones.banished);

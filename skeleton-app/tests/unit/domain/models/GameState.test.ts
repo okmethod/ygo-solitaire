@@ -9,14 +9,23 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { createInitialGameState, findCardInstance } from "$lib/domain/models/GameState";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import { createInitialGameState } from "$lib/domain/models/GameState";
+import { findCardInstance } from "$lib/domain/models/Zone";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 describe("GameState", () => {
   describe("createInitialGameState", () => {
     it("should create initial state with given deck (numeric IDs)", () => {
-      const deckCardIds = [1001, 1002, 1003]; // 数値ID
-      const state = createInitialGameState(deckCardIds);
+      const deckCardIds = [1001, 1002, 1003];
+      const state = createInitialGameState(createTestInitialDeck(deckCardIds), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       expect(state.zones.deck.length).toBe(3);
       expect(state.zones.hand.length).toBe(0);
@@ -28,7 +37,10 @@ describe("GameState", () => {
     });
 
     it("should initialize with correct default values", () => {
-      const state = createInitialGameState([1001]); // 数値ID
+      const state = createInitialGameState(createTestInitialDeck([1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       expect(state.lp.player).toBe(8000);
       expect(state.lp.opponent).toBe(8000);
@@ -41,7 +53,10 @@ describe("GameState", () => {
     });
 
     it("should create unique instance IDs for deck cards", () => {
-      const state = createInitialGameState([1001, 1002, 1003]); // 数値ID
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       const instanceIds = state.zones.deck.map((card) => card.instanceId);
       const uniqueIds = new Set(instanceIds);
@@ -51,7 +66,10 @@ describe("GameState", () => {
     });
 
     it("should set correct location for deck cards", () => {
-      const state = createInitialGameState([1001, 1002]); // 数値ID
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       state.zones.deck.forEach((card) => {
         expect(card.location).toBe("deck");
@@ -59,7 +77,10 @@ describe("GameState", () => {
     });
 
     it("should handle empty deck", () => {
-      const state = createInitialGameState([]);
+      const state = createInitialGameState(createTestInitialDeck([]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       expect(state.zones.deck.length).toBe(0);
       expect(state.result.isGameOver).toBe(false);
@@ -68,7 +89,10 @@ describe("GameState", () => {
 
   describe("Immutability with spread syntax", () => {
     it("should create new state instance when updated", () => {
-      const originalState = createInitialGameState([1001, 1002, 1003]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       const newState: GameState = {
         ...originalState,
@@ -81,7 +105,10 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating zones", () => {
-      const originalState = createInitialGameState([1001, 1002, 1003]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const originalDeckLength = originalState.zones.deck.length;
 
       const card = originalState.zones.deck[originalState.zones.deck.length - 1];
@@ -101,7 +128,10 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating life points", () => {
-      const originalState = createInitialGameState([1001]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       const newState: GameState = {
         ...originalState,
@@ -116,7 +146,10 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating phase", () => {
-      const originalState = createInitialGameState([1001]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       const newState: GameState = {
         ...originalState,
@@ -128,7 +161,10 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating chain stack", () => {
-      const originalState = createInitialGameState([1001]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       const newState: GameState = {
         ...originalState,
@@ -146,7 +182,10 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating game result", () => {
-      const originalState = createInitialGameState([1001]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       const newState: GameState = {
         ...originalState,
@@ -165,7 +204,10 @@ describe("GameState", () => {
     });
 
     it("should support nested updates without mutation", () => {
-      const originalState = createInitialGameState([1001, 1002]); // 数値ID
+      const originalState = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Move card from deck to hand
       const card = { ...originalState.zones.deck[originalState.zones.deck.length - 1], location: "hand" as const };
@@ -200,8 +242,11 @@ describe("GameState", () => {
   describe("Helper functions", () => {
     describe("findCardInstance", () => {
       it("should find card in deck", () => {
-        const state = createInitialGameState([1001, 1002, 1003]); // 数値ID
-        const card = findCardInstance(state, "deck-0");
+        const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        });
+        const card = findCardInstance(state.zones, "deck-0");
 
         expect(card).toBeDefined();
         expect(card?.instanceId).toBe("deck-0");
@@ -210,7 +255,10 @@ describe("GameState", () => {
       });
 
       it("should find card in hand", () => {
-        const initialState = createInitialGameState([1001]);
+        const initialState = createInitialGameState(createTestInitialDeck([1001]), {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        });
         const movedCard = { ...initialState.zones.deck[0], location: "hand" as const };
         const state: GameState = {
           ...initialState,
@@ -221,20 +269,26 @@ describe("GameState", () => {
           },
         };
 
-        const card = findCardInstance(state, "deck-0");
+        const card = findCardInstance(state.zones, "deck-0");
         expect(card).toBeDefined();
         expect(card?.location).toBe("hand");
       });
 
       it("should return undefined for non-existent card", () => {
-        const state = createInitialGameState([1001]); // 数値ID
-        const card = findCardInstance(state, "non-existent-id");
+        const state = createInitialGameState(createTestInitialDeck([1001]), {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        });
+        const card = findCardInstance(state.zones, "non-existent-id");
 
         expect(card).toBeUndefined();
       });
 
       it("should search across all zones", () => {
-        const initialState = createInitialGameState([1001, 1002, 1003]);
+        const initialState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        });
         const card1 = { ...initialState.zones.deck[2], location: "hand" as const };
         const card2 = { ...initialState.zones.deck[1], location: "graveyard" as const };
         const state: GameState = {
@@ -247,16 +301,19 @@ describe("GameState", () => {
           },
         };
 
-        expect(findCardInstance(state, "deck-0")).toBeDefined();
-        expect(findCardInstance(state, "deck-1")).toBeDefined();
-        expect(findCardInstance(state, "deck-2")).toBeDefined();
+        expect(findCardInstance(state.zones, "deck-0")).toBeDefined();
+        expect(findCardInstance(state.zones, "deck-1")).toBeDefined();
+        expect(findCardInstance(state.zones, "deck-2")).toBeDefined();
       });
     });
   });
 
   describe("Type safety", () => {
     it("should enforce readonly at compile time", () => {
-      const state = createInitialGameState([1001]); // 数値ID (T023)
+      const state = createInitialGameState(createTestInitialDeck([1001]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // These should cause TypeScript errors if uncommented:
       // state.turn = 2; // Error: Cannot assign to 'turn' because it is a read-only property

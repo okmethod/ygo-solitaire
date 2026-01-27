@@ -8,14 +8,22 @@
  * - canActivate() Field Spell conditions (Main Phase check)
  * - Inherits BaseSpellAction behavior
  *
- * @module tests/unit/domain/effects/base/spell/FieldSpellAction
+ * @module tests/unit/domain/effects/actions/spells/FieldSpellAction
  */
 
 import { describe, it, expect } from "vitest";
-import { FieldSpellAction } from "$lib/domain/effects/base/spell/FieldSpellAction";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellAction";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { successValidationResult } from "$lib/domain/models/ValidationResult";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /**
  * Concrete implementation of FieldSpellAction for testing
@@ -25,14 +33,16 @@ class TestFieldSpell extends FieldSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected additionalActivationConditions(_state: GameState): boolean {
+  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: always true (no additional conditions)
-    return true;
+    return successValidationResult();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     // Field Spells typically have no resolution steps (only continuous effects)
     return [];
   }
@@ -52,86 +62,70 @@ describe("FieldSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met", () => {
-      // Arrange: Game not over, Main Phase 1
-      const state = createInitialGameState([1001, 1002, 1003]);
+    it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
+      // Arrange: Main Phase 1
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
-    });
-
-    it("should return false when game is over", () => {
-      // Arrange: Game is over
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const gameOverState: GameState = {
-        ...state,
-        phase: "Main1",
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(gameOverState)).toBe(false);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw
-      const state = createInitialGameState([1001, 1002, 1003]);
+      // Arrange: Phase is Draw (FieldSpellAction固有のフェーズ制約テスト)
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state)).toBe(false);
+      expect(action.canActivate(state).isValid).toBe(false);
     });
 
-    it("should return false when phase is Standby", () => {
-      // Arrange: Phase is Standby
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const standbyState: GameState = {
-        ...state,
-        phase: "Standby",
-      };
-
-      // Act & Assert
-      expect(action.canActivate(standbyState)).toBe(false);
-    });
-
-    it("should return true even without additional conditions", () => {
-      // Arrange: Main Phase 1, no additional conditions
-      const state = createInitialGameState([]);
+    it("should return true even with empty deck (no additional conditions)", () => {
+      // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
+      const state = createInitialGameState(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
-      // Act & Assert (Field Spells can be activated without additional conditions)
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      // Act & Assert
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
   });
 
   describe("createActivationSteps()", () => {
-    it("should return empty array (field spells have no activation steps)", () => {
+    it("should return only notification step (field spells have no additional activation steps)", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);
 
-      // Assert: Field Spells have no activation steps (placement handled by ActivateSpellCommand)
-      expect(steps).toHaveLength(0);
+      // Assert: Field Spells have only notification step (placement handled by ActivateSpellCommand)
+      expect(steps).toHaveLength(1);
+      expect(steps[0].summary).toBe("カード発動");
     });
   });
 
   describe("createResolutionSteps()", () => {
     it("should return empty array (field spells have no resolution steps)", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createResolutionSteps(state, "test-instance");

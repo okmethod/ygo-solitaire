@@ -1,23 +1,28 @@
 /**
- * SetMonsterCommand - Set a monster card face-down in defense position
+ * SetMonsterCommand - モンスターセットコマンド
  *
- * Sets a monster card from hand to mainMonsterZone in face-down defense position.
- * This consumes one normal summon right (same as summoning).
+ * 手札からモンスターカードをセットする Command パターン実装。
+ * 召喚権を1消費し、モンスターを裏側守備表示でメインモンスターゾーンに配置する。
  *
  * @module domain/commands/SetMonsterCommand
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import { findCardInstance } from "$lib/domain/models/GameState";
-import type { GameCommand, CommandResult } from "./GameCommand";
-import { createSuccessResult, createFailureResult } from "./GameCommand";
-import { moveCard } from "$lib/domain/models/Zone";
-import { canNormalSummon } from "$lib/domain/rules/SummonRule";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameCommand } from "$lib/domain/models/GameCommand";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { findCardInstance } from "$lib/domain/models/Zone";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { isMonsterCard } from "$lib/domain/models/Card";
+import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
+import {
+  ValidationErrorCode,
+  successValidationResult,
+  failureValidationResult,
+  validationErrorMessage,
+} from "$lib/domain/models/ValidationResult";
 
-/**
- * Command to set a monster card face-down
- */
+/** モンスターセットコマンドクラス */
 export class SetMonsterCommand implements GameCommand {
   readonly description: string;
 
@@ -26,88 +31,65 @@ export class SetMonsterCommand implements GameCommand {
   }
 
   /**
-   * Check if monster can be set
+   * 指定カードをセット可能か判定する
    *
-   * @param state - Current game state
-   * @returns True if monster can be set
+   * チェック項目:
+   * 1. ゲーム終了状態でないこと
+   * 2. 通常召喚ルールを満たしていること
+   * 3. 指定カードがモンスターカードであり、手札に存在すること
    */
-  canExecute(state: GameState): boolean {
+  canExecute(state: GameState): ValidationResult {
+    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    // Setting a monster uses the same summon rights as summoning
-    const validation = canNormalSummon(state);
-    if (!validation.canSummon) {
-      return false;
+    // 2. 通常召喚ルールを満たしていること
+    const validationResult = canNormalSummon(state);
+    if (!validationResult.isValid) {
+      return validationResult;
     }
 
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
-    if (!cardInstance || cardInstance.location !== "hand") {
-      return false;
-    }
-
-    if (cardInstance.type !== "monster") {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Execute set monster command
-   *
-   * @param state - Current game state
-   * @returns Command result with new state
-   */
-  execute(state: GameState): CommandResult {
-    // Validate summon rights
-    const validation = canNormalSummon(state);
-    if (!validation.canSummon) {
-      return createFailureResult(state, validation.reason || "Cannot set monster");
-    }
-
-    const cardInstance = findCardInstance(state, this.cardInstanceId);
+    // 3. 指定カードがモンスターカードであり、手札に存在すること
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
-      return createFailureResult(state, `Card ${this.cardInstanceId} not found`);
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
     }
-
+    if (!isMonsterCard(cardInstance)) {
+      return failureValidationResult(ValidationErrorCode.NOT_MONSTER_CARD);
+    }
     if (cardInstance.location !== "hand") {
-      return createFailureResult(state, "Card not in hand");
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_IN_HAND);
     }
 
-    if (cardInstance.type !== "monster") {
-      return createFailureResult(state, "Not a monster card");
-    }
-
-    // Move card to mainMonsterZone with faceDown position
-    const zonesAfterMove = moveCard(state.zones, this.cardInstanceId, "hand", "mainMonsterZone", "faceDown");
-
-    // Update card properties: battlePosition and placedThisTurn
-    // moveCard doesn't handle these new fields, so we need to update them manually
-    const mainMonsterZone = zonesAfterMove.mainMonsterZone.map((card) =>
-      card.instanceId === this.cardInstanceId
-        ? ({ ...card, battlePosition: "defense", placedThisTurn: true } as CardInstance)
-        : card,
-    );
-
-    const newState: GameState = {
-      ...state,
-      zones: {
-        ...zonesAfterMove,
-        mainMonsterZone,
-      },
-      normalSummonUsed: state.normalSummonUsed + 1,
-    };
-
-    return createSuccessResult(newState, `Monster set: ${cardInstance.name}`);
+    return successValidationResult();
   }
 
   /**
-   * Get the card instance ID being set
+   * 指定カードをセットする
    *
-   * @returns Card instance ID
+   * 処理フロー:
+   * 1. 実行可能性判定
+   * 2. 更新後状態の構築
+   * 3. 戻り値の構築
    */
+  execute(state: GameState): GameStateUpdateResult {
+    // 1. 実行可能性判定
+    const validationResult = this.canExecute(state);
+    if (!validationResult.isValid) {
+      return failureUpdateResult(state, validationErrorMessage(validationResult));
+    }
+    // cardInstance は canExecute で存在が保証されている
+    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+
+    // 2. 更新後状態の構築
+    const updatedState: GameState = executeNormalSummon(state, this.cardInstanceId, "defense");
+
+    // 3. 戻り値の構築
+    return successUpdateResult(updatedState, `Monster set: ${cardInstance.jaName}`);
+  }
+
+  /** セット対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
   }

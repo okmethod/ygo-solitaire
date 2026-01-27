@@ -8,6 +8,11 @@
  * - ChainableAction Pattern: ChainableAction interface + ChainableActionRegistry
  * - AdditionalRule Pattern: AdditionalRule interface + AdditionalRuleRegistry
  *
+ * ARCH: Domain Layer - レイヤー依存ルール
+ * - このモジュールは Domain Layer の一部であり、他の層に依存してはいけない
+ * - Application Layer（GameFacade等）と Infrastructure Layer のみが Domain Layer を import できる
+ * - Presentation Layer は Domain Layer に直接依存してはいけない（GameFacade 経由）
+ *
  * Usage:
  * ```typescript
  * import { ChainableActionRegistry } from "$lib/domain/effects";
@@ -30,25 +35,25 @@
 
 // ChainableAction imports
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { PotOfGreedActivation } from "$lib/domain/effects/actions/spell/PotOfGreedActivation";
-import { GracefulCharityActivation } from "$lib/domain/effects/actions/spell/GracefulCharityActivation";
-import { ChickenGameActivation } from "$lib/domain/effects/actions/spell/ChickenGameActivation";
-import { UpstartGoblinActivation } from "$lib/domain/effects/actions/spell/UpstartGoblinActivation";
-import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spell/OneDayOfPeaceActivation";
-import { MagicalMalletActivation } from "$lib/domain/effects/actions/spell/MagicalMalletActivation";
-import { CardDestructionActivation } from "$lib/domain/effects/actions/spell/CardDestructionActivation";
-import { DarkFactoryActivation } from "$lib/domain/effects/actions/spell/DarkFactoryActivation";
-import { TerraformingActivation } from "$lib/domain/effects/actions/spell/TerraformingActivation";
-import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spell/MagicalStoneExcavationActivation";
-import { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
-import { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
-import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
-import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spell/ToonTableOfContentsActivation";
-import { ToonWorldActivation } from "$lib/domain/effects/actions/spell/ToonWorldActivation";
+import { PotOfGreedActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfGreedActivation";
+import { GracefulCharityActivation } from "$lib/domain/effects/actions/spells/individuals/GracefulCharityActivation";
+import { ChickenGameActivation } from "$lib/domain/effects/actions/spells/individuals/ChickenGameActivation";
+import { UpstartGoblinActivation } from "$lib/domain/effects/actions/spells/individuals/UpstartGoblinActivation";
+import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spells/individuals/OneDayOfPeaceActivation";
+import { MagicalMalletActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalMalletActivation";
+import { CardDestructionActivation } from "$lib/domain/effects/actions/spells/individuals/CardDestructionActivation";
+import { DarkFactoryActivation } from "$lib/domain/effects/actions/spells/individuals/DarkFactoryActivation";
+import { TerraformingActivation } from "$lib/domain/effects/actions/spells/individuals/TerraformingActivation";
+import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalStoneExcavationActivation";
+import { IntoTheVoidActivation } from "$lib/domain/effects/actions/spells/individuals/IntoTheVoidActivation";
+import { PotOfDualityActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfDualityActivation";
+import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spells/individuals/CardOfDemiseActivation";
+import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spells/individuals/ToonTableOfContentsActivation";
+import { ToonWorldActivation } from "$lib/domain/effects/actions/spells/individuals/ToonWorldActivation";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
-import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spell/ChickenGameContinuousEffect";
+import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 
 // ===========================
 // Exports
@@ -57,46 +62,35 @@ import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spell/Chi
 // ChainableAction exports (Domain Layer)
 export type { ChainableAction } from "$lib/domain/models/ChainableAction";
 export { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-export { PotOfGreedActivation } from "$lib/domain/effects/actions/spell/PotOfGreedActivation";
-export { GracefulCharityActivation } from "$lib/domain/effects/actions/spell/GracefulCharityActivation";
-export { ChickenGameActivation } from "$lib/domain/effects/actions/spell/ChickenGameActivation";
-export { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spell/ChickenGameIgnitionEffect";
-export { UpstartGoblinActivation } from "$lib/domain/effects/actions/spell/UpstartGoblinActivation";
-export { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spell/OneDayOfPeaceActivation";
-export { MagicalMalletActivation } from "$lib/domain/effects/actions/spell/MagicalMalletActivation";
-export { CardDestructionActivation } from "$lib/domain/effects/actions/spell/CardDestructionActivation";
-export { DarkFactoryActivation } from "$lib/domain/effects/actions/spell/DarkFactoryActivation";
-export { TerraformingActivation } from "$lib/domain/effects/actions/spell/TerraformingActivation";
-export { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spell/MagicalStoneExcavationActivation";
-export { IntoTheVoidActivation } from "$lib/domain/effects/actions/spell/IntoTheVoidActivation";
-export { PotOfDualityActivation } from "$lib/domain/effects/actions/spell/PotOfDualityActivation";
-export { CardOfDemiseActivation } from "$lib/domain/effects/actions/spell/CardOfDemiseActivation";
-export { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spell/ToonTableOfContentsActivation";
-export { ToonWorldActivation } from "$lib/domain/effects/actions/spell/ToonWorldActivation";
+export { PotOfGreedActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfGreedActivation";
+export { GracefulCharityActivation } from "$lib/domain/effects/actions/spells/individuals/GracefulCharityActivation";
+export { ChickenGameActivation } from "$lib/domain/effects/actions/spells/individuals/ChickenGameActivation";
+export { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect";
+export { UpstartGoblinActivation } from "$lib/domain/effects/actions/spells/individuals/UpstartGoblinActivation";
+export { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spells/individuals/OneDayOfPeaceActivation";
+export { MagicalMalletActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalMalletActivation";
+export { CardDestructionActivation } from "$lib/domain/effects/actions/spells/individuals/CardDestructionActivation";
+export { DarkFactoryActivation } from "$lib/domain/effects/actions/spells/individuals/DarkFactoryActivation";
+export { TerraformingActivation } from "$lib/domain/effects/actions/spells/individuals/TerraformingActivation";
+export { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalStoneExcavationActivation";
+export { IntoTheVoidActivation } from "$lib/domain/effects/actions/spells/individuals/IntoTheVoidActivation";
+export { PotOfDualityActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfDualityActivation";
+export { CardOfDemiseActivation } from "$lib/domain/effects/actions/spells/individuals/CardOfDemiseActivation";
+export { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spells/individuals/ToonTableOfContentsActivation";
+export { ToonWorldActivation } from "$lib/domain/effects/actions/spells/individuals/ToonWorldActivation";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 export type { RuleContext } from "$lib/domain/models/RuleContext";
 export { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
-export { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spell/ChickenGameContinuousEffect";
+export { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 
 // Base Classes exports (Abstract classes for spell card implementations)
-export { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
-export { NormalSpellAction } from "$lib/domain/effects/base/spell/NormalSpellAction";
-export { QuickPlaySpellAction } from "$lib/domain/effects/base/spell/QuickPlaySpellAction";
-export { FieldSpellAction } from "$lib/domain/effects/base/spell/FieldSpellAction";
-export { ContinuousSpellAction } from "$lib/domain/effects/base/spell/ContinuousSpellAction";
-
-// Step Builders exports (Helper functions for creating EffectResolutionSteps)
-export {
-  createDrawStep,
-  createSendToGraveyardStep,
-  createCardSelectionStep,
-  createGainLifeStep,
-  createDamageStep,
-  createShuffleStep,
-  createReturnToDeckStep,
-} from "$lib/domain/effects/builders";
+export { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAction";
+export { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+export { QuickPlaySpellAction } from "$lib/domain/effects/actions/spells/QuickPlaySpellAction";
+export { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellAction";
+export { ContinuousSpellAction } from "$lib/domain/effects/actions/spells/ContinuousSpellAction";
 
 // ===========================
 // Registry Initialization

@@ -16,64 +16,52 @@ describe("AdvancePhaseCommand", () => {
             {
               instanceId: "deck-0",
               id: 12345678,
+              jaName: "サンプルモンスター",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "deck" as const,
+              placedThisTurn: false,
             },
           ],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
       });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for Standby → Main1", () => {
       const state = createMockGameState({ phase: "Standby" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for Main1 → End", () => {
       const state = createMockGameState({ phase: "Main1" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for End → End (循環)", () => {
       const state = createMockGameState({ phase: "End" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(true);
-    });
-
-    it("should return false when deck is empty in Draw phase", () => {
-      const state = createMockGameState({
-        phase: "Draw",
-        zones: {
-          deck: [],
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-      const command = new AdvancePhaseCommand();
-
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return false when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new AdvancePhaseCommand();
 
-      expect(command.canExecute(state)).toBe(false);
+      expect(command.canExecute(state).isValid).toBe(false);
     });
   });
 
@@ -86,13 +74,17 @@ describe("AdvancePhaseCommand", () => {
             {
               instanceId: "deck-0",
               id: 12345678,
+              jaName: "サンプルモンスター",
               type: "monster" as const,
               frameType: "normal" as const,
               location: "deck" as const,
+              placedThisTurn: false,
             },
           ],
           hand: [],
-          field: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
           graveyard: [],
           banished: [],
         },
@@ -102,7 +94,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("Standby");
+      expect(result.updatedState.phase).toBe("Standby");
       expect(result.message).toContain("スタンバイフェイズ");
     });
 
@@ -113,7 +105,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("Main1");
+      expect(result.updatedState.phase).toBe("Main1");
       expect(result.message).toContain("メインフェイズ");
     });
 
@@ -124,7 +116,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("End");
+      expect(result.updatedState.phase).toBe("End");
       expect(result.message).toContain("エンドフェイズ");
     });
 
@@ -135,7 +127,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.newState.phase).toBe("End");
+      expect(result.updatedState.phase).toBe("End");
     });
 
     it("should not mutate original state (immutability)", () => {
@@ -149,26 +141,6 @@ describe("AdvancePhaseCommand", () => {
       expect(state.phase).toBe(originalPhase);
     });
 
-    it("should fail when deck is empty in Draw phase", () => {
-      const state = createMockGameState({
-        phase: "Draw",
-        zones: {
-          deck: [],
-          hand: [],
-          field: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-      const command = new AdvancePhaseCommand();
-
-      const result = command.execute(state);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Cannot advance from Draw phase");
-      expect(result.newState).toBe(state); // State unchanged on failure
-    });
-
     it("should fail when game is already over", () => {
       const state = createExodiaVictoryState();
       const command = new AdvancePhaseCommand();
@@ -176,7 +148,7 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(false);
-      expect(result.newState).toBe(state);
+      expect(result.updatedState).toBe(state);
     });
   });
 

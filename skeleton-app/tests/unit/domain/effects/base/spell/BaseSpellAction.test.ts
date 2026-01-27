@@ -5,18 +5,34 @@
  *
  * Test Coverage:
  * - ChainableAction interface properties (isCardActivation, spellSpeed)
- * - canActivate() common conditions (game over check)
+ * - canActivate() Template Method pattern (delegates to subTypeConditions and individualConditions)
  * - createActivationSteps() default implementation
  * - Abstract methods must be implemented by subclasses
  *
- * @module tests/unit/domain/effects/base/spell/BaseSpellAction
+ * TEST STRATEGY: Base Class テストでは Template Method パターンの動作をテスト。
+ * Subclass テストでは、各サブクラス固有の条件（subTypeConditions, individualConditions）をテストする。
+ * ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテストする。
+ *
+ * @module tests/unit/domain/effects/actions/spells/BaseSpellAction
  */
 
 import { describe, it, expect } from "vitest";
-import { BaseSpellAction } from "$lib/domain/effects/base/spell/BaseSpellAction";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAction";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { EffectResolutionStep } from "$lib/domain/models/EffectResolutionStep";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
+
+/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
+function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /**
  * Concrete implementation of BaseSpellAction for testing
@@ -28,13 +44,40 @@ class TestSpellAction extends BaseSpellAction {
     super(12345678); // Test card ID from registry
   }
 
-  protected additionalActivationConditions(state: GameState): boolean {
-    // Test implementation: always true
-    return state.zones.deck.length > 0;
+  protected subTypeConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
+    // Test implementation: no subtype restrictions
+    return successValidationResult();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createResolutionSteps(_state: GameState, _instanceId: string): EffectResolutionStep[] {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+    // Test implementation: check deck has cards
+    if (state.zones.deck.length > 0) {
+      return successValidationResult();
+    }
+    return failureValidationResult(ValidationErrorCode.INSUFFICIENT_DECK);
+  }
+
+  protected subTypePreActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePostActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePreResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected subTypePostResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 }
@@ -53,59 +96,48 @@ describe("BaseSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when game is not over and additional conditions are met", () => {
-      // Arrange: Game not over, deck has cards
-      const state = createInitialGameState([1001, 1002, 1003]);
+    it("should return true when subtype conditions and individual conditions are met", () => {
+      // Arrange: Deck has cards (individualConditions returns true)
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
 
-    it("should return false when game is over", () => {
-      // Arrange: Game is over
-      const state = createInitialGameState([1001, 1002, 1003]);
-      const gameOverState: GameState = {
-        ...state,
-        phase: "Main1",
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-        },
-      };
-
-      // Act & Assert
-      expect(action.canActivate(gameOverState)).toBe(false);
-    });
-
-    it("should return false when additional conditions are not met", () => {
-      // Arrange: Deck is empty (additionalActivationConditions returns false)
-      const state = createInitialGameState([]);
+    it("should return false when individual conditions are not met", () => {
+      // Arrange: Deck is empty (individualConditions returns false)
+      const state = createInitialGameState(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameState = {
         ...state,
         phase: "Main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(false);
+      expect(action.canActivate(stateInMain1).isValid).toBe(false);
     });
   });
 
   describe("createActivationSteps()", () => {
     it("should return default activation step with card info", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createActivationSteps(state);
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("12345678-activation");
+      expect(steps[0].id).toBe("12345678-activation-notification");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します"); // Uses getCardNameWithBrackets from registry
       expect(steps[0].notificationLevel).toBe("info");
@@ -113,7 +145,10 @@ describe("BaseSpellAction", () => {
 
     it("should return step with action that does not modify state", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const steps = action.createActivationSteps(state);
 
       // Act
@@ -121,15 +156,18 @@ describe("BaseSpellAction", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.newState).toBe(state);
-      expect(result.message).toBe("Test Monster A activated"); // Uses jaName from registry
+      expect(result.updatedState).toBe(state);
+      expect(result.message).toBe("《Test Monster A》 activated"); // Uses jaName from registry
     });
   });
 
   describe("Abstract methods", () => {
     it("should implement createResolutionSteps()", () => {
       // Arrange
-      const state = createInitialGameState([1001, 1002, 1003]);
+      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
 
       // Act
       const steps = action.createResolutionSteps(state, "test-instance");
