@@ -1,58 +1,58 @@
 /**
- * Card Selection Store (Svelte 5 Runes)
+ * cardSelectionStore - カード選択ストア (Svelte 5 Runes)
  *
- * Manages card selection state for effects that require player choices.
- * Used by CardSelectionModal to track which cards the player has selected.
+ * プレイヤーによるカード選択状態を管理する。
+ * CardSelectionModal と連携し、カード効果に必要なカード選択を追跡する。
  *
- * Usage:
- * - startSelection(config): Start card selection with specific constraints
- * - toggleCard(instanceId): Toggle a card's selection state
- * - confirmSelection(): Confirm selection and execute callback
- * - cancelSelection(): Cancel selection without executing callback
+ * 主要メソッド:
+ * - startSelection(config): カード選択を開始（選択条件を指定）
+ * - toggleCard(instanceId): カードの選択状態を切り替え
+ * - confirmSelection(): 選択を確定してコールバック実行
+ * - cancelSelection(): 選択をキャンセル（コールバック実行なし）
  *
- * @module stores/cardSelectionStore
+ * @module presentation/stores/cardSelectionStore
  */
 
 import type { CardInstance } from "$lib/application/types/card";
 
 /**
- * Card selection configuration (Presentation Layer)
+ * カード選択設定（Presentation Layer用）
  *
- * Extends Domain Layer's CardSelectionConfig with presentation-specific callbacks.
+ * Domain Layer の CardSelectionConfig に Presentation 固有のコールバックを追加。
  */
 export interface CardSelectionConfig {
-  /** Available cards to choose from */
+  /** 選択対象のカード一覧 */
   availableCards: readonly CardInstance[];
-  /** Minimum number of cards that must be selected */
+  /** 最小選択枚数 */
   minCards: number;
-  /** Maximum number of cards that can be selected */
+  /** 最大選択枚数 */
   maxCards: number;
-  /** Summary shown in selection UI */
+  /** 選択UIに表示するタイトル */
   summary: string;
-  /** Description/instructions shown in selection UI */
+  /** 選択UIに表示する説明文 */
   description: string;
-  /** Whether user can cancel the selection (default: true) */
+  /** キャンセル可能かどうか（デフォルト: true） */
   cancelable?: boolean;
-  /** Callback executed when selection is confirmed */
+  /** 選択確定時に実行されるコールバック */
   onConfirm: (selectedInstanceIds: string[]) => void;
-  /** Optional callback executed when selection is cancelled */
+  /** キャンセル時に実行されるコールバック（オプション） */
   onCancel?: () => void;
 }
 
 /**
- * Card selection state
+ * カード選択状態
  */
 interface CardSelectionState {
-  /** Whether selection is currently active */
+  /** 選択が有効かどうか */
   isActive: boolean;
-  /** Configuration for current selection */
+  /** 現在の選択設定 */
   config: CardSelectionConfig | null;
-  /** Set of selected card instance IDs */
+  /** 選択されたカードインスタンスIDのセット */
   selectedInstanceIds: Set<string>;
 }
 
 /**
- * Create initial state
+ * 初期状態を生成する
  */
 function createInitialState(): CardSelectionState {
   return {
@@ -63,48 +63,48 @@ function createInitialState(): CardSelectionState {
 }
 
 /**
- * Card Selection Store (Svelte 5 Runes API)
+ * カード選択ストアクラス（Svelte 5 Runes API）
  */
 class CardSelectionStore {
   private state = $state<CardSelectionState>(createInitialState());
 
   /**
-   * Check if selection is active
+   * 選択が有効かどうかを取得
    */
   get isActive(): boolean {
     return this.state.isActive;
   }
 
   /**
-   * Get current configuration
+   * 現在の選択設定を取得
    */
   get config(): CardSelectionConfig | null {
     return this.state.config;
   }
 
   /**
-   * Get selected instance IDs as array
+   * 選択されたインスタンスIDを配列で取得
    */
   get selectedInstanceIds(): string[] {
     return Array.from(this.state.selectedInstanceIds);
   }
 
   /**
-   * Get selected cards count
+   * 選択枚数を取得
    */
   get selectedCount(): number {
     return this.state.selectedInstanceIds.size;
   }
 
   /**
-   * Check if a card is selected
+   * カードが選択されているかチェック
    */
   isSelected(instanceId: string): boolean {
     return this.state.selectedInstanceIds.has(instanceId);
   }
 
   /**
-   * Check if selection is valid (meets min/max constraints)
+   * 選択が有効か判定（最小・最大枚数制約を満たすか）
    */
   get isValidSelection(): boolean {
     if (!this.state.config) return false;
@@ -114,22 +114,22 @@ class CardSelectionStore {
   }
 
   /**
-   * Check if a card can be toggled (considering max constraint)
+   * カードの選択状態を切り替え可能かチェック（最大枚数制約を考慮）
    */
   canToggleCard(instanceId: string): boolean {
     if (!this.state.config) return false;
 
-    // If already selected, can always deselect
+    // 既に選択されていれば、常に選択解除可能
     if (this.state.selectedInstanceIds.has(instanceId)) {
       return true;
     }
 
-    // If not selected, check if we've reached max
+    // 未選択の場合、最大枚数に達していないかチェック
     return this.state.selectedInstanceIds.size < this.state.config.maxCards;
   }
 
   /**
-   * Start card selection
+   * カード選択を開始する
    */
   startSelection(config: CardSelectionConfig): void {
     this.state = {
@@ -140,22 +140,22 @@ class CardSelectionStore {
   }
 
   /**
-   * Toggle a card's selection state
+   * カードの選択状態を切り替える
    */
   toggleCard(instanceId: string): void {
     if (!this.state.config) return;
 
-    // Check if card is in available cards
+    // 選択対象のカードかチェック
     const isAvailable = this.state.config.availableCards.some((card) => card.instanceId === instanceId);
     if (!isAvailable) return;
 
     const newSelectedIds = new Set(this.state.selectedInstanceIds);
 
     if (newSelectedIds.has(instanceId)) {
-      // Deselect
+      // 選択解除
       newSelectedIds.delete(instanceId);
     } else {
-      // Select (if not at max)
+      // 選択（最大枚数未満の場合のみ）
       if (newSelectedIds.size < this.state.config.maxCards) {
         newSelectedIds.add(instanceId);
       }
@@ -165,7 +165,7 @@ class CardSelectionStore {
   }
 
   /**
-   * Confirm selection and execute callback
+   * 選択を確定してコールバックを実行する
    */
   confirmSelection(): void {
     if (!this.state.config || !this.isValidSelection) return;
@@ -173,30 +173,30 @@ class CardSelectionStore {
     const selectedIds = Array.from(this.state.selectedInstanceIds);
     const callback = this.state.config.onConfirm;
 
-    // Reset state before executing callback
+    // コールバック実行前に状態をリセット
     this.reset();
 
-    // Execute callback
+    // コールバック実行
     callback(selectedIds);
   }
 
   /**
-   * Cancel selection without executing callback
+   * 選択をキャンセルする（コールバック実行なし）
    */
   cancelSelection(): void {
     const cancelCallback = this.state.config?.onCancel;
 
-    // Reset state before executing callback
+    // コールバック実行前に状態をリセット
     this.reset();
 
-    // Execute cancel callback if provided
+    // キャンセルコールバックが指定されていれば実行
     if (cancelCallback) {
       cancelCallback();
     }
   }
 
   /**
-   * Reset selection state
+   * 選択状態をリセットする
    */
   reset(): void {
     this.state = createInitialState();
@@ -204,6 +204,6 @@ class CardSelectionStore {
 }
 
 /**
- * Export singleton instance
+ * シングルトンインスタンスをエクスポート
  */
 export const cardSelectionStore = new CardSelectionStore();

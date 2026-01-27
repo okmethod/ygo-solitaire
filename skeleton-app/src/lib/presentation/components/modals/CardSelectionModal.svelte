@@ -1,11 +1,19 @@
 <script lang="ts">
+  /**
+   * CardSelectionModal - カード選択モーダルコンポーネント
+   *
+   * カード効果により選択が必要な場面でプレイヤーにカード選択UIを提供する。
+   * cardSelectionStore と連携し、選択状態の管理・確定・キャンセルを処理する。
+   *
+   * @module presentation/components/modals/CardSelectionModal
+   */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
   import type { CardDisplayData } from "$lib/presentation/types/card";
   import { cardRepository } from "$lib/application/stores/cardDisplayStore";
 
-  // cardSelectionStoreの状態を購読
+  // cardSelectionStore の状態を購読
   const isActive = $derived(cardSelectionStore.isActive);
   const config = $derived(cardSelectionStore.config);
   const selectedCount = $derived(cardSelectionStore.selectedCount);
@@ -34,7 +42,7 @@
 
   // Modal の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
-    // Only allow closing if cancelable is true
+    // キャンセル可能な場合のみモーダルを閉じる
     if (!event.open && isActive && cancelable) {
       cardSelectionStore.cancelSelection();
     }
@@ -42,7 +50,7 @@
 
   // カード選択ハンドリング
   function handleCardClick(instanceId: string) {
-    // Check if this card can be toggled (selection limit not reached or already selected)
+    // 選択上限に達していないか、または既に選択済みの場合のみトグル可能
     const canToggle = cardSelectionStore.canToggleCard(instanceId);
     const isSelected = cardSelectionStore.isSelected(instanceId);
 

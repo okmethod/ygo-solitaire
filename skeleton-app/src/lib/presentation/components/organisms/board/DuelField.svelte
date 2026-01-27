@@ -1,11 +1,15 @@
 <script lang="ts">
   /**
-   * DuelField Component - Presentation Layer
+   * DuelField - ゲーム盤面表示コンポーネント
+   *
+   * フィールド魔法ゾーン、モンスターゾーン、魔法罠ゾーン、墓地、デッキを表示・操作する。
    *
    * ARCH: Presentation Layer - レイヤー依存ルール
    * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
    * - Domain Layer（Command、Rule等）を直接 import してはいけない
    * - 全てのゲームロジック呼び出しは GameFacade 経由で行う
+   *
+   * @module presentation/components/organisms/board/DuelField
    */
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
@@ -21,7 +25,9 @@
   const ZONE_COUNT = 5;
   const zones = [...Array(ZONE_COUNT).keys()];
 
-  // カードとposition情報を含む型 (T033-T034)
+  /**
+   * カードと位置・表示状態を含む型
+   */
   interface CardWithPosition {
     card: Card;
     instanceId: string; // カードインスタンスID
@@ -29,6 +35,9 @@
     rotation?: number; // 守備表示時の回転角度
   }
 
+  /**
+   * DuelField コンポーネントのプロパティ
+   */
   interface DuelFieldProps {
     deckCards: number;
     extraDeckCards: Card[];
@@ -36,11 +45,11 @@
     fieldCards: CardWithPosition[];
     monsterCards: (CardWithPosition | null)[];
     spellTrapCards: (CardWithPosition | null)[];
-    selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId (T033-T034)
+    selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId
     onFieldCardClick?: (card: Card, instanceId: string) => void;
-    onActivateSetSpell?: (card: Card, instanceId: string) => void; // セット魔法カード発動 (T033-T034)
-    onActivateIgnitionEffect?: (card: Card, instanceId: string) => void; // 起動効果発動 (T038)
-    onCancelFieldCardSelection?: () => void; // 選択キャンセル (T033-T034)
+    onActivateSetSpell?: (card: Card, instanceId: string) => void; // セット魔法カード発動
+    onActivateIgnitionEffect?: (card: Card, instanceId: string) => void; // 起動効果発動
+    onCancelFieldCardSelection?: () => void; // 選択キャンセル
   }
 
   let {
@@ -121,9 +130,8 @@
     }
   }
 
-  // モンスターカード用のアクション定義 (T038)
+  // モンスターカード用のアクション定義（現時点では起動効果なし）
   function getMonsterActions(): CardActionButton[] {
-    // モンスターには起動効果がないため、キャンセルのみ
     return [];
   }
 </script>
@@ -201,7 +209,7 @@
         <div class="flex justify-center">
           {#if spellTrapCards[i]}
             {#if spellTrapCards[i].faceDown}
-              <!-- セットされた魔法・罠はActivatableCardで選択可能に (T033-T034) -->
+              <!-- セットされた魔法・罠はActivatableCardで選択可能 -->
               <ActivatableCard
                 card={spellTrapCards[i].card}
                 instanceId={spellTrapCards[i].instanceId}
