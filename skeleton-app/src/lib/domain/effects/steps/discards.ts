@@ -16,6 +16,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { moveCard, findCardInstance } from "$lib/domain/models/Zone";
+import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
 /** 指定カードを墓地に送るステップ */
@@ -92,15 +93,11 @@ export const discardAllHandStep = (): AtomicStep => {
 
 /** エンドフェイズに手札を全て捨てるステップ */
 export const discardAllHandEndPhaseStep = (): AtomicStep => {
-  return {
+  return queueEndPhaseEffectStep(discardAllHandStep(), {
     id: "end-phase-discard-all-hand",
     summary: "手札を全て捨てる",
     description: "エンドフェイズに手札を全て捨てます",
-    notificationLevel: "info",
-    action: (state: GameState): GameStateUpdateResult => {
-      return discardAllHandResult(state);
-    },
-  };
+  });
 };
 
 /** 手札から指定枚数のカードを選択して捨てるステップ */
