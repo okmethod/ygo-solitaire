@@ -13,6 +13,7 @@
  */
 
 import type {
+  CardInstance,
   CardType,
   MainMonsterSubType,
   ExtraMonsterSubType,
@@ -25,7 +26,7 @@ import type {
  *
  * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
  */
-export type { CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
+export type { CardInstance, CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
 
 /** モンスターカード属性情報 (YGOPRODeck API) */
 export interface MonsterAttributes {

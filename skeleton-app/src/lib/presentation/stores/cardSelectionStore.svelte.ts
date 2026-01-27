@@ -13,7 +13,7 @@
  * @module stores/cardSelectionStore
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/application/types/card";
 
 /**
  * Card selection configuration (Presentation Layer)
