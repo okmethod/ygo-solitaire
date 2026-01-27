@@ -14,6 +14,12 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 import { ContinuousSpellAction } from "$lib/domain/effects/actions/spells/ContinuousSpellAction";
 import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 
@@ -29,13 +35,13 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    * チェック項目:
    * 1. プレイヤーのLPが1000以上であること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // 1. プレイヤーのLPが1000以上であること
     if (state.lp.player < 1000) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**

@@ -529,8 +529,8 @@ describe("GameFacade", () => {
 
       const result = facade.activateSpell(cardInstanceId);
       expect(result.success).toBe(false);
-      // Note: メインフェイズチェックは ChainableAction 側で行われるため、汎用的なエラーメッセージが返る
-      expect(result.error).toBe("発動条件を満たしていません");
+      // Note: ValidationResult により具体的なエラーメッセージが返されるようになった
+      expect(result.error).toBe("メインフェイズではありません");
     });
 
     it("should fail when card is not in hand", () => {

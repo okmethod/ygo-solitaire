@@ -17,6 +17,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { successValidationResult } from "$lib/domain/models/ValidationResult";
 import { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellAction";
 
 /** 《チキンレース》効果クラス */
@@ -30,8 +32,8 @@ export class ChickenGameActivation extends FieldSpellAction {
    *
    * @protected
    */
-  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): boolean {
-    return true; // 固有条件無し
+  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
+    return successValidationResult(); // 固有条件無し
   }
 
   /**

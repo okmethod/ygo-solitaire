@@ -14,6 +14,12 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { countHandExcludingSelf } from "$lib/domain/models/Zone";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
@@ -32,19 +38,19 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    * 1. このカードを除き、手札が2枚以上であること
    * 2. 墓地に魔法カードが1枚以上あること
    */
-  protected individualConditions(state: GameState, sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. このカードを除き、手札が2枚以上であること
     if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. 墓地に魔法カードが1枚以上あること
     const spellCardsInGraveyard = state.zones.graveyard.filter((card) => card.type === "spell");
     if (spellCardsInGraveyard.length < 1) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**

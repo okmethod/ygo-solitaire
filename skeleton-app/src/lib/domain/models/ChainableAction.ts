@@ -8,6 +8,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 
 /**
  * チェーンブロックを作る処理
@@ -39,7 +40,7 @@ export interface ChainableAction {
    * - コスト支払い可否（LPコスト、手札コスト等）
    * - 1ターンに1度制限（activatedIgnitionEffectsThisTurnで判定）
    */
-  canActivate(state: GameState, sourceInstance: CardInstance): boolean;
+  canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動時の処理

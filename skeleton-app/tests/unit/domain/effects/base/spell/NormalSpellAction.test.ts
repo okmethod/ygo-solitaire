@@ -16,6 +16,13 @@ import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpel
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -30,16 +37,19 @@ class TestNormalSpell extends NormalSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check deck size
-    return state.zones.deck.length >= 2;
+    if (state.zones.deck.length >= 2) {
+      return successValidationResult();
+    }
+    return failureValidationResult(ValidationErrorCode.INSUFFICIENT_DECK);
   }
 
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 }
@@ -70,7 +80,7 @@ describe("NormalSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
@@ -82,7 +92,7 @@ describe("NormalSpellAction", () => {
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state)).toBe(false);
+      expect(action.canActivate(state).isValid).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {
@@ -94,7 +104,7 @@ describe("NormalSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(false);
+      expect(action.canActivate(stateInMain1).isValid).toBe(false);
     });
   });
 

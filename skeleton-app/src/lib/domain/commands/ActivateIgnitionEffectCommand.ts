@@ -74,8 +74,9 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.NO_IGNITION_EFFECT);
     }
     const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
-    if (!ignitionEffect.canActivate(state)) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+    const activationResult = ignitionEffect.canActivate(state);
+    if (!activationResult.isValid) {
+      return activationResult;
     }
 
     return successValidationResult();

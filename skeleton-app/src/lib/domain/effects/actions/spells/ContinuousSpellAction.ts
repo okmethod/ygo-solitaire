@@ -14,8 +14,14 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAction";
 import { isMainPhase } from "$lib/domain/models/Phase";
+import {
+  ValidationErrorCode,
+  successValidationResult,
+  failureValidationResult,
+} from "$lib/domain/models/ValidationResult";
 
 /**
  * ContinuousSpellAction - 永続魔法カードの抽象基底クラス
@@ -35,13 +41,13 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypeConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected subTypeConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // 1. メインフェイズであること
     if (!isMainPhase(state.phase)) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**
@@ -50,7 +56,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @abstract
    */
-  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): boolean;
+  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動前処理（永続魔法共通）

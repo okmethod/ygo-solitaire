@@ -14,6 +14,12 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { fillHandsStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
@@ -30,13 +36,13 @@ export class CardOfDemiseActivation extends NormalSpellAction {
    * チェック項目:
    * 1. 1ターンに1度制限をクリアしていること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // 1. 1ターンに1度制限: 既にこのターン発動済みでないかチェック
     if (state.activatedOncePerTurnCards.has(this.cardId)) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**

@@ -16,7 +16,13 @@
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { drawStep } from "$lib/domain/effects/steps/draws";
+import {
+  ValidationErrorCode,
+  successValidationResult,
+  failureValidationResult,
+} from "$lib/domain/models/ValidationResult";
 
 /** ChickenGameIgnitionEffect */
 export class ChickenGameIgnitionEffect implements ChainableAction {
@@ -40,26 +46,26 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
    * - 1ターンに1度制限（activatedIgnitionEffectsThisTurnにこの効果がない）
    * - Chicken GameがフィールドにfaceUpで存在する
    */
-  canActivate(state: GameState): boolean {
+  canActivate(state: GameState): ValidationResult {
     // Game must not be over
     if (state.result.isGameOver) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
     // Must be Main Phase 1
     if (state.phase !== "Main1") {
-      return false;
+      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
     // Player must have at least 1000 LP to pay cost
     if (state.lp.player < 1000) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 1ターンに1度制限チェック
     const effectKey = `${this.cardInstanceId}:${this.effectId}`;
     if (state.activatedIgnitionEffectsThisTurn.has(effectKey)) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // Chicken GameがフィールドにfaceUpで存在するか
@@ -68,10 +74,10 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
     );
 
     if (!chickenGameOnField) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.CARD_NOT_ON_FIELD);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**

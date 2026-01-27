@@ -14,6 +14,12 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
@@ -29,15 +35,15 @@ export class DarkFactoryActivation extends NormalSpellAction {
    * チェック項目:
    * 1. 墓地に通常モンスターが2枚以上いること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     const normalMonsters = state.zones.graveyard.filter(
       (card) => card.type === "monster" && card.frameType === "normal",
     );
     if (normalMonsters.length < 2) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**

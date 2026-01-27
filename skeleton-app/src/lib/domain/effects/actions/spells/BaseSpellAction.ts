@@ -20,6 +20,8 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { successValidationResult } from "$lib/domain/models/ValidationResult";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
@@ -61,21 +63,23 @@ export abstract class BaseSpellAction implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  canActivate(state: GameState, sourceInstance: CardInstance): boolean {
+  canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. 魔法カード共通の発動条件チェック
     // 特になし
 
     // 2. 魔法カードサブタイプ共通の発動条件チェック
-    if (!this.subTypeConditions(state, sourceInstance)) {
-      return false;
+    const subTypeResult = this.subTypeConditions(state, sourceInstance);
+    if (!subTypeResult.isValid) {
+      return subTypeResult;
     }
 
     // 3. カード固有の発動条件チェック
-    if (!this.individualConditions(state, sourceInstance)) {
-      return false;
+    const individualResult = this.individualConditions(state, sourceInstance);
+    if (!individualResult.isValid) {
+      return individualResult;
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**
@@ -84,7 +88,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract subTypeConditions(state: GameState, sourceInstance: CardInstance): boolean;
+  protected abstract subTypeConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
@@ -92,7 +96,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): boolean;
+  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動時の処理

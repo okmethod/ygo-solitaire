@@ -14,6 +14,12 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
@@ -31,9 +37,12 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
-    return fieldSpells.length >= 1;
+    if (fieldSpells.length < 1) {
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+    return successValidationResult();
   }
 
   /**

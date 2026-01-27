@@ -14,6 +14,12 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
@@ -32,18 +38,18 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    * 2. デッキに1枚以上あること
    *
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // 1. 自分の手札が3枚以上であること
     if (state.zones.hand.length < 3) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. デッキに1枚以上あること
     if (state.zones.deck.length < 1) {
-      return false;
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return true;
+    return successValidationResult();
   }
 
   /**

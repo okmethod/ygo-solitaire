@@ -173,7 +173,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const canActivate = ignitionEffect.canActivate(state);
 
       // Assert: Cannot activate
-      expect(canActivate).toBe(false);
+      expect(canActivate.isValid).toBe(false);
     });
 
     it("Scenario: Cannot activate when LP is less than 1000", () => {
@@ -198,7 +198,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const canActivate = ignitionEffect.canActivate(state);
 
       // Assert: Cannot activate
-      expect(canActivate).toBe(false);
+      expect(canActivate.isValid).toBe(false);
     });
 
     it("Scenario: Once per turn restriction resets at End phase", () => {
@@ -290,7 +290,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const fieldCardInstanceId = stateAfterActivation.zones.fieldZone[0].instanceId;
       const ignitionEffect = new ChickenGameIgnitionEffect(fieldCardInstanceId);
 
-      expect(ignitionEffect.canActivate(stateAfterActivation)).toBe(true);
+      expect(ignitionEffect.canActivate(stateAfterActivation).isValid).toBe(true);
 
       const activationSteps = ignitionEffect.createActivationSteps(stateAfterActivation);
       const resolutionSteps = ignitionEffect.createResolutionSteps(stateAfterActivation, fieldCardInstanceId);
@@ -319,7 +319,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
       // Step 3: Try to activate again (should fail)
       const ignitionEffect2 = new ChickenGameIgnitionEffect(fieldCardInstanceId);
-      expect(ignitionEffect2.canActivate(finalState)).toBe(false);
+      expect(ignitionEffect2.canActivate(finalState).isValid).toBe(false);
     });
   });
 });

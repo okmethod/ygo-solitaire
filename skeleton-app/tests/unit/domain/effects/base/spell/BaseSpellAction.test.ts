@@ -21,6 +21,13 @@ import { BaseSpellAction } from "$lib/domain/effects/actions/spells/BaseSpellAct
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -37,37 +44,40 @@ class TestSpellAction extends BaseSpellAction {
     super(12345678); // Test card ID from registry
   }
 
-  protected subTypeConditions(_state: GameState): boolean {
+  protected subTypeConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: no subtype restrictions
-    return true;
+    return successValidationResult();
   }
 
-  protected individualConditions(state: GameState): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check deck has cards
-    return state.zones.deck.length > 0;
+    if (state.zones.deck.length > 0) {
+      return successValidationResult();
+    }
+    return failureValidationResult(ValidationErrorCode.INSUFFICIENT_DECK);
   }
 
-  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+  protected subTypePreActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
+  protected subTypePostActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected subTypePreResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected subTypePostResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
+  protected subTypePostResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 }
@@ -98,7 +108,7 @@ describe("BaseSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
 
     it("should return false when individual conditions are not met", () => {
@@ -110,7 +120,7 @@ describe("BaseSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(false);
+      expect(action.canActivate(stateInMain1).isValid).toBe(false);
     });
   });
 

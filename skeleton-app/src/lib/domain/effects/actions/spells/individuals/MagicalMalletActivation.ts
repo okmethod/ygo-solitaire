@@ -14,6 +14,8 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { successValidationResult } from "$lib/domain/models/ValidationResult";
 import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
 import { selectReturnShuffleDrawStep } from "$lib/domain/effects/steps/compositeOperations";
 
@@ -28,8 +30,8 @@ export class MagicalMalletActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): boolean {
-    return true; // 固有条件無し
+  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
+    return successValidationResult(); // 固有条件無し
   }
 
   /**

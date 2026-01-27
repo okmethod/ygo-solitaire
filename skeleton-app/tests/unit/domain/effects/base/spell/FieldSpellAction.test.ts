@@ -16,6 +16,9 @@ import { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellA
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import { successValidationResult } from "$lib/domain/models/ValidationResult";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -30,33 +33,17 @@ class TestFieldSpell extends FieldSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(_state: GameState): boolean {
+  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: always true (no additional conditions)
-    return true;
+    return successValidationResult();
   }
 
-  protected subTypePreActivationSteps(_state: GameState): AtomicStep[] {
+  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualActivationSteps(_state: GameState): AtomicStep[] {
-    return [];
-  }
-
-  protected subTypePostActivationSteps(_state: GameState): AtomicStep[] {
-    return [];
-  }
-
-  protected subTypePreResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
-    return [];
-  }
-
-  protected individualResolutionSteps(_state: GameState, _instanceId: string): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     // Field Spells typically have no resolution steps (only continuous effects)
-    return [];
-  }
-
-  protected subTypePostResolutionSteps(_state: GameState, _activatedCardInstanceId: string): AtomicStep[] {
     return [];
   }
 }
@@ -87,7 +74,7 @@ describe("FieldSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
@@ -99,7 +86,7 @@ describe("FieldSpellAction", () => {
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state)).toBe(false);
+      expect(action.canActivate(state).isValid).toBe(false);
     });
 
     it("should return true even with empty deck (no additional conditions)", () => {
@@ -111,7 +98,7 @@ describe("FieldSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1)).toBe(true);
+      expect(action.canActivate(stateInMain1).isValid).toBe(true);
     });
   });
 

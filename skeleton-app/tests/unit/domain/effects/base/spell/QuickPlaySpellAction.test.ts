@@ -17,6 +17,12 @@ import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/mod
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -31,9 +37,12 @@ class TestQuickPlaySpell extends QuickPlaySpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): boolean {
+  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check hand size
-    return state.zones.hand.length > 0;
+    if (state.zones.hand.length > 0) {
+      return successValidationResult();
+    }
+    return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
   }
 
   protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
@@ -98,7 +107,7 @@ describe("QuickPlaySpellAction", () => {
       const sourceInstance = createDummyCardInstance({ location: "hand" });
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, sourceInstance)).toBe(true);
+      expect(action.canActivate(stateInMain1, sourceInstance).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
@@ -111,7 +120,7 @@ describe("QuickPlaySpellAction", () => {
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state, sourceInstance)).toBe(false);
+      expect(action.canActivate(state, sourceInstance).isValid).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {
@@ -131,7 +140,7 @@ describe("QuickPlaySpellAction", () => {
       const sourceInstance = createDummyCardInstance({ location: "hand" });
 
       // Act & Assert
-      expect(action.canActivate(emptyHandState, sourceInstance)).toBe(false);
+      expect(action.canActivate(emptyHandState, sourceInstance).isValid).toBe(false);
     });
   });
 

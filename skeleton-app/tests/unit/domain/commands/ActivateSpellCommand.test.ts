@@ -209,8 +209,8 @@ describe("ActivateSpellCommand", () => {
       const result = command.execute(drawPhaseState);
 
       expect(result.success).toBe(false);
-      // Note: メインフェイズチェックは ChainableAction 側で行われるため、汎用的なエラーメッセージが返る
-      expect(result.error).toBe("発動条件を満たしていません");
+      // Note: メインフェイズチェックは ChainableAction 側で行われ、詳細なエラーメッセージが返る
+      expect(result.error).toBe("メインフェイズではありません");
 
       // State should remain unchanged
       expect(result.updatedState).toEqual(drawPhaseState);
@@ -528,8 +528,8 @@ describe("ActivateSpellCommand", () => {
 
       // Assert
       expect(result.success).toBe(false);
-      // Note: 速攻魔法のセットターン制限は ChainableAction 側で行われるため、汎用的なエラーメッセージが返る
-      expect(result.error).toBe("発動条件を満たしていません");
+      // Note: 速攻魔法のセットターン制限は ChainableAction 側で行われ、詳細なエラーメッセージが返る
+      expect(result.error).toBe("速攻魔法はセットしたターンに発動できません");
     });
 
     it("should allow activating quick-play spell NOT set this turn", () => {
