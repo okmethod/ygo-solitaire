@@ -2,28 +2,28 @@
   "folders": [
     {
       "name": "root",
-      "path": "."
-    },
-    {
-      "name": "design-docs",
-      "path": "docs"
-    },
-    {
-      "name": "speckit-specs",
-      "path": "specs"
+      "path": ".",
     },
     {
       "name": "skeleton-app-settings",
-      "path": "skeleton-app"
+      "path": "skeleton-app",
     },
     {
       "name": "skeleton-app-src",
-      "path": "skeleton-app/src"
+      "path": "skeleton-app/src",
     },
     {
       "name": "skeleton-app-tests",
-      "path": "skeleton-app/tests"
-    }
+      "path": "skeleton-app/tests",
+    },
+    {
+      "name": "design-docs",
+      "path": "docs",
+    },
+    {
+      "name": "speckit-specs",
+      "path": "specs",
+    },
   ],
   "settings": {
     "editor.tabSize": 2,
@@ -32,13 +32,13 @@
     "editor.formatOnSave": true,
     "prettier.requireConfig": true,
     "[markdown]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[json]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "[dockerfile]": {
-      "editor.tabSize": 4
-    }
-  }
+      "editor.tabSize": 4,
+    },
+  },
 }
