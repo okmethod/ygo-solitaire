@@ -71,9 +71,9 @@ export class ActivateSpellCommand implements GameCommand {
     }
 
     // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
-    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
-    if (chainableAction) {
-      const activationResult = chainableAction.canActivate(state, cardInstance);
+    const activation = ChainableActionRegistry.getActivation(cardInstance.id);
+    if (activation) {
+      const activationResult = activation.canActivate(state, cardInstance);
       if (!activationResult.isValid) {
         return activationResult;
       }
@@ -146,11 +146,11 @@ export class ActivateSpellCommand implements GameCommand {
   // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
   // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
-    const chainableAction = ChainableActionRegistry.get(cardInstance.id);
-    if (chainableAction) {
+    const activation = ChainableActionRegistry.getActivation(cardInstance.id);
+    if (activation) {
       return [
-        ...chainableAction.createActivationSteps(state, cardInstance),
-        ...chainableAction.createResolutionSteps(state, cardInstance),
+        ...activation.createActivationSteps(state, cardInstance),
+        ...activation.createResolutionSteps(state, cardInstance),
       ];
     }
     return [];

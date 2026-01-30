@@ -25,9 +25,9 @@
 
 **Purpose**: 型定義とインターフェースの基盤整備
 
-- [ ] T001 [P] Create EffectCategory type in skeleton-app/src/lib/domain/models/EffectCategory.ts
-- [ ] T002 [P] Add effectCategory and effectId properties to ChainableAction interface in skeleton-app/src/lib/domain/models/ChainableAction.ts
-- [ ] T003 [P] Create CardEffectEntry interface in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T001 [P] Create EffectCategory type in skeleton-app/src/lib/domain/models/EffectCategory.ts
+- [x] T002 [P] Add effectCategory and effectId properties to ChainableAction interface in skeleton-app/src/lib/domain/models/ChainableAction.ts
+- [x] T003 [P] Create CardEffectEntry interface in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
 
 ---
 
@@ -37,12 +37,12 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement registerActivation() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T005 Implement registerIgnition() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T006 Implement getActivation() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T007 Implement getIgnitionEffects() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T008 Implement hasIgnitionEffects() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
-- [ ] T009 Remove deprecated get() method from skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T004 Implement registerActivation() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T005 Implement registerIgnition() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T006 Implement getActivation() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T007 Implement getIgnitionEffects() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T008 Implement hasIgnitionEffects() method in skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
+- [x] T009 Remove deprecated get() method from skeleton-app/src/lib/domain/registries/ChainableActionRegistry.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -56,12 +56,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Add effectCategory and effectId to ChickenGameActivation in skeleton-app/src/lib/domain/effects/actions/spells/individuals/ChickenGameActivation.ts
-- [ ] T011 [P] [US1] Add effectCategory and effectId to ChickenGameIgnitionEffect in skeleton-app/src/lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect.ts
-- [ ] T012 [P] [US1] Add effectCategory and effectId to all existing ChainableAction implementations in skeleton-app/src/lib/domain/effects/actions/
-- [ ] T013 [US1] Refactor ActivateIgnitionEffectCommand to use getIgnitionEffects() API in skeleton-app/src/lib/domain/commands/ActivateIgnitionEffectCommand.ts
-- [ ] T014 [US1] Remove ChickenGame-specific hardcoded logic from ActivateIgnitionEffectCommand in skeleton-app/src/lib/domain/commands/ActivateIgnitionEffectCommand.ts
-- [ ] T015 [US1] Update ActivateIgnitionEffectCommand tests in skeleton-app/src/tests/unit/domain/commands/ActivateIgnitionEffectCommand.test.ts
+- [x] T010 [P] [US1] Add effectCategory and effectId to ChickenGameActivation in skeleton-app/src/lib/domain/effects/actions/spells/individuals/ChickenGameActivation.ts
+- [x] T011 [P] [US1] Add effectCategory and effectId to ChickenGameIgnitionEffect in skeleton-app/src/lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect.ts
+- [x] T012 [P] [US1] Add effectCategory and effectId to all existing ChainableAction implementations in skeleton-app/src/lib/domain/effects/actions/
+- [x] T013 [US1] Refactor ActivateIgnitionEffectCommand to use getIgnitionEffects() API in skeleton-app/src/lib/domain/commands/ActivateIgnitionEffectCommand.ts
+- [x] T014 [US1] Remove ChickenGame-specific hardcoded logic from ActivateIgnitionEffectCommand in skeleton-app/src/lib/domain/commands/ActivateIgnitionEffectCommand.ts
+- [x] T015 [US1] Update ActivateIgnitionEffectCommand tests in skeleton-app/src/tests/unit/domain/commands/ActivateIgnitionEffectCommand.test.ts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - any card with registered ignition effects can be activated via ActivateIgnitionEffectCommand
 
@@ -75,10 +75,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Update effect registration to use registerActivation/registerIgnition in skeleton-app/src/lib/domain/effects/index.ts
-- [ ] T017 [US2] Migrate ActivateSpellCommand to use getActivation() API in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
-- [ ] T018 [US2] Update ChainableActionRegistry tests for new API in skeleton-app/src/tests/unit/domain/registries/ChainableActionRegistry.test.ts
-- [ ] T019 [US2] Add integration test for ChickenGame activation and ignition coexistence in skeleton-app/src/tests/unit/domain/registries/ChainableActionRegistry.test.ts
+- [x] T016 [US2] Update effect registration to use registerActivation/registerIgnition in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T017 [US2] Migrate ActivateSpellCommand to use getActivation() API in skeleton-app/src/lib/domain/commands/ActivateSpellCommand.ts
+- [x] T018 [US2] Update ChainableActionRegistry tests for new API in skeleton-app/src/tests/unit/domain/registries/ChainableActionRegistry.test.ts
+- [x] T019 [US2] Add integration test for ChickenGame activation and ignition coexistence in skeleton-app/src/tests/unit/domain/registries/ChainableActionRegistry.test.ts
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - cards can have both activation and ignition effects registered
 
@@ -92,11 +92,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T020 [P] [US3] Create RoyalMagicalLibraryIgnitionEffect class in skeleton-app/src/lib/domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect.ts
-- [ ] T021 [P] [US3] Register RoyalMagicalLibrary card data (if not exists) in skeleton-app/src/lib/domain/data/
-- [ ] T022 [US3] Register RoyalMagicalLibraryIgnitionEffect in skeleton-app/src/lib/domain/effects/index.ts
-- [ ] T023 [US3] Add unit test for RoyalMagicalLibraryIgnitionEffect in skeleton-app/src/tests/unit/domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect.test.ts
-- [ ] T024 [US3] Add integration test verifying RoyalMagicalLibrary ignition via ActivateIgnitionEffectCommand in skeleton-app/src/tests/unit/domain/commands/ActivateIgnitionEffectCommand.test.ts
+- [x] T020 [P] [US3] Create RoyalMagicalLibraryIgnitionEffect class in skeleton-app/src/lib/domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect.ts
+- [x] T021 [P] [US3] Register RoyalMagicalLibrary card data (if not exists) in skeleton-app/src/lib/domain/data/
+- [x] T022 [US3] Register RoyalMagicalLibraryIgnitionEffect in skeleton-app/src/lib/domain/effects/index.ts
+- [x] T023 [US3] Add unit test for RoyalMagicalLibraryIgnitionEffect in skeleton-app/tests/unit/domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect.test.ts
+- [x] T024 [US3] Add integration test verifying RoyalMagicalLibrary ignition via ActivateIgnitionEffectCommand in skeleton-app/tests/unit/domain/commands/ActivateIgnitionEffectCommand.test.ts
 
 **Checkpoint**: All user stories should now be independently functional - both ChickenGame and RoyalMagicalLibrary ignition effects work
 
@@ -106,10 +106,10 @@
 
 **Purpose**: クリーンアップと品質確認
 
-- [ ] T025 [P] Remove any unused code or deprecated methods
-- [ ] T026 [P] Verify all existing tests pass with npm run test:run
-- [ ] T027 Run npm run lint && npm run format to ensure code quality
-- [ ] T028 Update docs if needed (only if architectural changes require documentation)
+- [x] T025 [P] Remove any unused code or deprecated methods
+- [x] T026 [P] Verify all existing tests pass with npm run test:run
+- [x] T027 Run npm run lint && npm run format to ensure code quality
+- [x] T028 Update docs if needed (only if architectural changes require documentation)
 
 ---
 

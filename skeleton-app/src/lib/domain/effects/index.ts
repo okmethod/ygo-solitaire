@@ -17,13 +17,16 @@
  * ```typescript
  * import { ChainableActionRegistry } from "$lib/domain/effects";
  *
- * // In ActivateSpellCommand
- * const cardId = parseInt(cardInstance.cardId, 10);
- * const action = ChainableActionRegistry.get(cardId);
- * if (action && action.canActivate(state)) {
- *   const activationSteps = action.createActivationSteps(state);
- *   const resolutionSteps = action.createResolutionSteps(state, instanceId);
+ * // In ActivateSpellCommand (for card activation effects)
+ * const activation = ChainableActionRegistry.getActivation(cardInstance.id);
+ * if (activation && activation.canActivate(state, cardInstance).isValid) {
+ *   const activationSteps = activation.createActivationSteps(state, cardInstance);
+ *   const resolutionSteps = activation.createResolutionSteps(state, cardInstance);
  * }
+ *
+ * // In ActivateIgnitionEffectCommand (for ignition effects)
+ * const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
+ * const activatableEffect = ignitionEffects.find(e => e.canActivate(state, cardInstance).isValid);
  * ```
  *
  * @module domain/effects
@@ -38,6 +41,7 @@ import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionR
 import { PotOfGreedActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfGreedActivation";
 import { GracefulCharityActivation } from "$lib/domain/effects/actions/spells/individuals/GracefulCharityActivation";
 import { ChickenGameActivation } from "$lib/domain/effects/actions/spells/individuals/ChickenGameActivation";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect";
 import { UpstartGoblinActivation } from "$lib/domain/effects/actions/spells/individuals/UpstartGoblinActivation";
 import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spells/individuals/OneDayOfPeaceActivation";
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalMalletActivation";
@@ -50,6 +54,9 @@ import { PotOfDualityActivation } from "$lib/domain/effects/actions/spells/indiv
 import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spells/individuals/CardOfDemiseActivation";
 import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spells/individuals/ToonTableOfContentsActivation";
 import { ToonWorldActivation } from "$lib/domain/effects/actions/spells/individuals/ToonWorldActivation";
+
+// Monster ChainableAction imports
+import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect";
 
 // AdditionalRule imports
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
@@ -78,6 +85,9 @@ export { PotOfDualityActivation } from "$lib/domain/effects/actions/spells/indiv
 export { CardOfDemiseActivation } from "$lib/domain/effects/actions/spells/individuals/CardOfDemiseActivation";
 export { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spells/individuals/ToonTableOfContentsActivation";
 export { ToonWorldActivation } from "$lib/domain/effects/actions/spells/individuals/ToonWorldActivation";
+
+// Monster ChainableAction exports
+export { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect";
 
 // AdditionalRule exports (Domain Layer)
 export type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
@@ -127,27 +137,34 @@ export { ContinuousSpellAction } from "$lib/domain/effects/actions/spells/Contin
  * ```
  */
 function initializeChainableActionRegistry(): void {
-  ChainableActionRegistry.register(55144522, new PotOfGreedActivation());
-  ChainableActionRegistry.register(79571449, new GracefulCharityActivation());
-  ChainableActionRegistry.register(67616300, new ChickenGameActivation());
-  ChainableActionRegistry.register(70368879, new UpstartGoblinActivation());
-  ChainableActionRegistry.register(33782437, new OneDayOfPeaceActivation());
-  ChainableActionRegistry.register(85852291, new MagicalMalletActivation());
-  ChainableActionRegistry.register(74519184, new CardDestructionActivation());
-  ChainableActionRegistry.register(90928333, new DarkFactoryActivation());
-  ChainableActionRegistry.register(73628505, new TerraformingActivation());
-  ChainableActionRegistry.register(98494543, new MagicalStoneExcavationActivation());
-  ChainableActionRegistry.register(93946239, new IntoTheVoidActivation());
-  ChainableActionRegistry.register(98645731, new PotOfDualityActivation());
-  ChainableActionRegistry.register(59750328, new CardOfDemiseActivation());
-  ChainableActionRegistry.register(89997728, new ToonTableOfContentsActivation());
-  ChainableActionRegistry.register(15259703, new ToonWorldActivation());
+  // ===========================
+  // Activation Effects (カードの発動時効果)
+  // ===========================
+  ChainableActionRegistry.registerActivation(55144522, new PotOfGreedActivation());
+  ChainableActionRegistry.registerActivation(79571449, new GracefulCharityActivation());
+  ChainableActionRegistry.registerActivation(67616300, new ChickenGameActivation());
+  ChainableActionRegistry.registerActivation(70368879, new UpstartGoblinActivation());
+  ChainableActionRegistry.registerActivation(33782437, new OneDayOfPeaceActivation());
+  ChainableActionRegistry.registerActivation(85852291, new MagicalMalletActivation());
+  ChainableActionRegistry.registerActivation(74519184, new CardDestructionActivation());
+  ChainableActionRegistry.registerActivation(90928333, new DarkFactoryActivation());
+  ChainableActionRegistry.registerActivation(73628505, new TerraformingActivation());
+  ChainableActionRegistry.registerActivation(98494543, new MagicalStoneExcavationActivation());
+  ChainableActionRegistry.registerActivation(93946239, new IntoTheVoidActivation());
+  ChainableActionRegistry.registerActivation(98645731, new PotOfDualityActivation());
+  ChainableActionRegistry.registerActivation(59750328, new CardOfDemiseActivation());
+  ChainableActionRegistry.registerActivation(89997728, new ToonTableOfContentsActivation());
+  ChainableActionRegistry.registerActivation(15259703, new ToonWorldActivation());
 
-  // Note: IgnitionEffect is not registered here because it requires
-  // a cardInstanceId parameter. It will be instantiated dynamically when needed.
+  // ===========================
+  // Ignition Effects (起動効果)
+  // ===========================
+  ChainableActionRegistry.registerIgnition(67616300, new ChickenGameIgnitionEffect());
+  ChainableActionRegistry.registerIgnition(70791313, new RoyalMagicalLibraryIgnitionEffect());
 
   // Future cards:
-  // ChainableActionRegistry.register(12345678, new AnotherCardAction());
+  // ChainableActionRegistry.registerActivation(12345678, new AnotherCardActivation());
+  // ChainableActionRegistry.registerIgnition(12345678, new AnotherCardIgnitionEffect(""));
 }
 
 /**

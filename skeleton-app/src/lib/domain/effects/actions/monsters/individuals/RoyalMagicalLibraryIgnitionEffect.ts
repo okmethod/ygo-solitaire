@@ -1,16 +1,18 @@
 /**
- * ChickenGameIgnitionEffect - 《チキンレース》(Chicken Game) 起動効果
+ * RoyalMagicalLibraryIgnitionEffect - 《王立魔法図書館》(Royal Magical Library) 起動効果
  *
- * Card ID: 67616300 | Type: Spell | Subtype: Field
+ * Card ID: 70791313 | Type: Monster | Subtype: Effect
  *
- * Implementation using ChainableAction model:
- * - CONDITIONS: ゲーム続行中、メインフェイズ、LP>=1000、1ターンに1度制限、フィールド上に存在
- * - ACTIVATION: 1000LP支払い、発動記録
+ * Implementation using ChainableAction model (簡略版):
+ * - CONDITIONS: ゲーム続行中、メインフェイズ、モンスターゾーンに表側表示で存在、1ターンに1度制限
+ * - ACTIVATION: 発動記録（1ターンに1度制限用）
  * - RESOLUTION: デッキから1枚ドロー
  *
- * 実装簡略化のため選択肢1（ドロー）のみ実装。本来は3つの選択肢がある
+ * Note: 本来は魔力カウンター3つを取り除くコストが必要だが、
+ * 本実装では簡略化のためコスト条件なしで実装する。
+ * 魔力カウンターシステムは次のSpecで実装予定。
  *
- * @module domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect
+ * @module domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect
  */
 
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
@@ -26,8 +28,11 @@ import {
   failureValidationResult,
 } from "$lib/domain/models/ValidationResult";
 
-/** ChickenGameIgnitionEffect */
-export class ChickenGameIgnitionEffect implements ChainableAction {
+/** 王立魔法図書館 カードID */
+const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
+
+/** RoyalMagicalLibraryIgnitionEffect */
+export class RoyalMagicalLibraryIgnitionEffect implements ChainableAction {
   /** 効果の発動（カードの発動ではない） */
   readonly isCardActivation = false;
 
@@ -38,16 +43,17 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
   readonly effectCategory: EffectCategory = "ignition";
 
   /** 起動効果のID（1ターンに1度制限用）*/
-  readonly effectId = "chicken-game-ignition";
+  readonly effectId = "royal-magical-library-ignition";
 
   /**
    * CONDITIONS: 発動条件チェック
    *
    * - Game is not over
-   * - Current phase is Main Phase 1
-   * - Player LP >= 1000 (コスト支払い可能)
+   * - Current phase is Main Phase
+   * - 王立魔法図書館がモンスターゾーンに表側表示で存在する
    * - 1ターンに1度制限（activatedIgnitionEffectsThisTurnにこの効果がない）
-   * - Chicken GameがフィールドにfaceUpで存在する（sourceInstanceで判定）
+   *
+   * Note: 本来は魔力カウンター3つが必要だが、簡略版のため省略
    */
   canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult {
     // Game must not be over
@@ -55,14 +61,9 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
       return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    // Must be Main Phase 1
+    // Must be Main Phase
     if (state.phase !== "Main1") {
       return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
-    }
-
-    // Player must have at least 1000 LP to pay cost
-    if (state.lp.player < 1000) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 1ターンに1度制限チェック
@@ -71,12 +72,15 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    // Chicken GameがフィールドにfaceUpで存在するか（sourceInstanceで検証）
-    const chickenGameOnField = state.zones.fieldZone.some(
-      (card) => card.instanceId === sourceInstance.instanceId && card.id === 67616300 && card.position === "faceUp",
+    // 王立魔法図書館がモンスターゾーンに表側表示で存在するか
+    const libraryOnField = state.zones.mainMonsterZone.some(
+      (card) =>
+        card.instanceId === sourceInstance.instanceId &&
+        card.id === ROYAL_MAGICAL_LIBRARY_ID &&
+        card.position === "faceUp",
     );
 
-    if (!chickenGameOnField) {
+    if (!libraryOnField) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_ON_FIELD);
     }
 
@@ -86,48 +90,17 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
   /**
    * ACTIVATION: 発動時の処理
    *
-   * 1. 1000LP支払い
-   * 2. 発動記録（1ターンに1度制限用）
+   * 1. 発動記録（1ターンに1度制限用）
+   *
+   * Note: 本来は魔力カウンター3つを取り除くコストがあるが、簡略版のため省略
    */
   createActivationSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     const effectKey = `${sourceInstance.instanceId}:${this.effectId}`;
 
     return [
-      // Step 1: Pay 1000 LP cost
+      // Record activation (1ターンに1度制限)
       {
-        id: "chicken-game-pay-lp",
-        summary: "コスト支払い",
-        description: "1000LPを支払います",
-        action: (currentState: GameState) => {
-          // Validate LP is still sufficient
-          if (currentState.lp.player < 1000) {
-            return {
-              success: false,
-              updatedState: currentState,
-              error: "Cannot pay 1000 LP. Not enough Life Points.",
-            };
-          }
-
-          // Pay 1000 LP
-          const updatedState: GameState = {
-            ...currentState,
-            lp: {
-              ...currentState.lp,
-              player: currentState.lp.player - 1000,
-            },
-          };
-
-          return {
-            success: true,
-            updatedState,
-            message: "Paid 1000 LP",
-          };
-        },
-      },
-
-      // Step 2: Record activation (1ターンに1度制限)
-      {
-        id: "chicken-game-record-activation",
+        id: "royal-magical-library-record-activation",
         summary: "効果発動を記録",
         description: "1ターンに1度の制限を記録します",
         action: (currentState: GameState) => {
@@ -153,12 +126,11 @@ export class ChickenGameIgnitionEffect implements ChainableAction {
   /**
    * RESOLUTION: 効果解決時の処理
    *
-   * 実装簡略化のため、選択肢1（デッキから1枚ドロー）のみ実装。
-   * 本来は3つの選択肢から1つを選択する。
+   * デッキから1枚ドロー
    */
   createResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [
-      // Option 1: Draw 1 card (簡略化のためドローの選択肢のみ実装)
+      // Draw 1 card
       drawStep(1),
     ];
   }

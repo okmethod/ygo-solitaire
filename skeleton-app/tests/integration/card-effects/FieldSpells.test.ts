@@ -42,10 +42,16 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
   // Debug: Check if Chicken Game is registered
   it("Debug: Chicken Game should be registered in ChainableActionRegistry", () => {
-    const action = ChainableActionRegistry.get(chickenGameCardId);
-    expect(action).toBeDefined();
-    expect(action?.isCardActivation).toBe(true);
-    expect(action?.spellSpeed).toBe(1);
+    const activation = ChainableActionRegistry.getActivation(chickenGameCardId);
+    expect(activation).toBeDefined();
+    expect(activation?.isCardActivation).toBe(true);
+    expect(activation?.spellSpeed).toBe(1);
+    expect(activation?.effectCategory).toBe("activation");
+
+    // Also check ignition effect is registered
+    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);
+    expect(ignitionEffects.length).toBeGreaterThan(0);
+    expect(ignitionEffects[0].effectCategory).toBe("ignition");
   });
 
   describe("Card Activation (Field Spell)", () => {
@@ -123,9 +129,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       });
 
       // Act: Activate ignition effect
-      const ignitionEffect = new ChickenGameIgnitionEffect("field-0");
-      const activationSteps = ignitionEffect.createActivationSteps(state);
-      const resolutionSteps = ignitionEffect.createResolutionSteps(state, "field-0");
+      const ignitionEffect = new ChickenGameIgnitionEffect();
+      const activationSteps = ignitionEffect.createActivationSteps(state, chickenGameOnField);
+      const resolutionSteps = ignitionEffect.createResolutionSteps(state, chickenGameOnField);
 
       // Execute activation steps
       let currentState = state;
@@ -169,8 +175,8 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       });
 
       // Act: Try to activate ignition effect again
-      const ignitionEffect = new ChickenGameIgnitionEffect("field-0");
-      const canActivate = ignitionEffect.canActivate(state);
+      const ignitionEffect = new ChickenGameIgnitionEffect();
+      const canActivate = ignitionEffect.canActivate(state, chickenGameOnField);
 
       // Assert: Cannot activate
       expect(canActivate.isValid).toBe(false);
@@ -194,8 +200,8 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       });
 
       // Act: Try to activate ignition effect
-      const ignitionEffect = new ChickenGameIgnitionEffect("field-0");
-      const canActivate = ignitionEffect.canActivate(state);
+      const ignitionEffect = new ChickenGameIgnitionEffect();
+      const canActivate = ignitionEffect.canActivate(state, chickenGameOnField);
 
       // Assert: Cannot activate
       expect(canActivate.isValid).toBe(false);
@@ -287,13 +293,13 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(stateAfterActivation.zones.fieldZone[0].id).toBe(chickenGameCardId);
 
       // Step 2: Use ignition effect
-      const fieldCardInstanceId = stateAfterActivation.zones.fieldZone[0].instanceId;
-      const ignitionEffect = new ChickenGameIgnitionEffect(fieldCardInstanceId);
+      const fieldCard = stateAfterActivation.zones.fieldZone[0];
+      const ignitionEffect = new ChickenGameIgnitionEffect();
 
-      expect(ignitionEffect.canActivate(stateAfterActivation).isValid).toBe(true);
+      expect(ignitionEffect.canActivate(stateAfterActivation, fieldCard).isValid).toBe(true);
 
-      const activationSteps = ignitionEffect.createActivationSteps(stateAfterActivation);
-      const resolutionSteps = ignitionEffect.createResolutionSteps(stateAfterActivation, fieldCardInstanceId);
+      const activationSteps = ignitionEffect.createActivationSteps(stateAfterActivation, fieldCard);
+      const resolutionSteps = ignitionEffect.createResolutionSteps(stateAfterActivation, fieldCard);
 
       let currentState: GameState = stateAfterActivation;
       for (const step of activationSteps) {
@@ -318,8 +324,8 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(finalState.activatedIgnitionEffectsThisTurn.size).toBe(1);
 
       // Step 3: Try to activate again (should fail)
-      const ignitionEffect2 = new ChickenGameIgnitionEffect(fieldCardInstanceId);
-      expect(ignitionEffect2.canActivate(finalState).isValid).toBe(false);
+      const ignitionEffect2 = new ChickenGameIgnitionEffect();
+      expect(ignitionEffect2.canActivate(finalState, fieldCard).isValid).toBe(false);
     });
   });
 });

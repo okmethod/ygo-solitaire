@@ -9,6 +9,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { EffectCategory } from "$lib/domain/models/EffectCategory";
 
 /**
  * チェーンブロックを作る処理
@@ -31,6 +32,20 @@ export interface ChainableAction {
    * - 3: Counter Trap (カウンター罠)
    */
   readonly spellSpeed: 1 | 2 | 3;
+
+  /**
+   * 効果カテゴリ
+   * - activation: カードの発動時効果
+   * - ignition: 起動効果
+   */
+  readonly effectCategory: EffectCategory;
+
+  /**
+   * 効果の一意識別子
+   * 1ターンに1度制限等で使用。形式: "{カード名}-{効果種別}"
+   * 例: "chicken-game-activation", "chicken-game-ignition"
+   */
+  readonly effectId: string;
 
   /**
    * CONDITIONS: 発動条件チェック

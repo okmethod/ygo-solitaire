@@ -2,7 +2,8 @@
  * ActivateIgnitionEffectCommand - 起動効果発動コマンド
  *
  * フィールドに表側表示で存在するカードの起動効果を発動する Command パターン実装。
- * TODO: 現状「チキンレース」のハードコードとなっている。別の起動効果も扱えるように汎用化する。
+ * ChainableActionRegistry から起動効果を取得し、汎用的に発動する。
+ *
  * TODO: チェーンシステムに対応する。
  *
  * @module domain/commands/ActivateIgnitionEffectCommand
@@ -14,11 +15,12 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
 import { isMainPhase } from "$lib/domain/models/Phase";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
   ValidationErrorCode,
   successValidationResult,
@@ -41,7 +43,8 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    * 1. ゲーム終了状態でないこと
    * 2. メインフェイズであること
    * 3. 指定カードがフィールドに存在し、表側表示であること
-   * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+   * 4. 起動効果がレジストリに登録されていること
+   * 5. カード固有の発動条件を満たしていること
    */
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
@@ -67,19 +70,31 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FACE_UP);
     }
 
-    // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
-    // 現在はチキンレース固定
-    const cardId = cardInstance.id;
-    if (cardId !== 67616300) {
+    // 4. 起動効果がレジストリに登録されていること
+    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
+    if (ignitionEffects.length === 0) {
       return failureValidationResult(ValidationErrorCode.NO_IGNITION_EFFECT);
     }
-    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
-    const activationResult = ignitionEffect.canActivate(state);
-    if (!activationResult.isValid) {
-      return activationResult;
+
+    // 5. 発動可能な起動効果が存在すること
+    const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance);
+    if (!activatableEffect) {
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     return successValidationResult();
+  }
+
+  /**
+   * 発動可能な起動効果を探す
+   * 複数の起動効果がある場合、最初に発動可能なものを返す
+   */
+  private findActivatableEffect(
+    effects: ChainableAction[],
+    state: GameState,
+    cardInstance: CardInstance,
+  ): ChainableAction | undefined {
+    return effects.find((effect) => effect.canActivate(state, cardInstance).isValid);
   }
 
   /**
@@ -114,13 +129,21 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     );
   }
 
-  // 効果処理ステップ配列を生成する
+  /**
+   * 効果処理ステップ配列を生成する
+   * レジストリから発動可能な起動効果を取得し、そのステップを返す
+   */
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
-    const ignitionEffect = new ChickenGameIgnitionEffect(cardInstance.instanceId);
-    const activationSteps = ignitionEffect.createActivationSteps(state);
-    const resolutionSteps = ignitionEffect.createResolutionSteps(state, this.cardInstanceId);
-    const allEffectSteps = [...activationSteps, ...resolutionSteps];
-    return allEffectSteps;
+    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
+    const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance);
+
+    if (!activatableEffect) {
+      return [];
+    }
+
+    const activationSteps = activatableEffect.createActivationSteps(state, cardInstance);
+    const resolutionSteps = activatableEffect.createResolutionSteps(state, cardInstance);
+    return [...activationSteps, ...resolutionSteps];
   }
 
   /** 発動対象のカードインスタンスIDを取得する */
