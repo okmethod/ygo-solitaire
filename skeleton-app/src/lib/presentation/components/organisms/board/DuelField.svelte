@@ -18,7 +18,7 @@
   import Graveyard from "$lib/presentation/components/organisms/board/Graveyard.svelte";
   import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
   import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
-  import type { Card } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
   import { gameFacade } from "$lib/application/GameFacade";
 
   // ゾーン数の定数
@@ -29,7 +29,7 @@
    * カードと位置・表示状態を含む型
    */
   interface CardWithPosition {
-    card: Card;
+    card: CardDisplayData;
     instanceId: string; // カードインスタンスID
     faceDown: boolean;
     rotation?: number; // 守備表示時の回転角度

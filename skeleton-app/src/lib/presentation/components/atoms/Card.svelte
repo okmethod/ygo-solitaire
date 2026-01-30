@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Card } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import { getCardTypeBackgroundClass } from "$lib/presentation/constants/cardTypes";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
@@ -9,7 +9,7 @@
    * Card型はCardDisplayDataのエイリアスです
    */
   interface CardComponentProps {
-    card?: Card;
+    card?: CardDisplayData;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
@@ -20,8 +20,8 @@
     animate?: boolean;
     showDetailOnClick?: boolean;
     faceDown?: boolean; // 裏側表示フラグ (T033-T034)
-    onClick?: (card: Card) => void;
-    onHover?: (card: Card | null) => void;
+    onClick?: (card: CardDisplayData) => void;
+    onHover?: (card: CardDisplayData | null) => void;
   }
 
   let {
