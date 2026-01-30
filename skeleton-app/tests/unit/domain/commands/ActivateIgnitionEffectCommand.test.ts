@@ -378,7 +378,9 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(command.canExecute(defenseState).isValid).toBe(true);
       });
 
-      it("should return false when Royal Magical Library already activated this turn", () => {
+      it("should return true even after previous activation (no once-per-turn restriction)", () => {
+        // Royal Magical Library has no once-per-turn restriction
+        // In the real game, the cost (3 Spell Counters) limits activations
         const effectKey = `${royalLibraryInstanceId}:royal-magical-library-ignition`;
         const activatedState = createMockGameState({
           phase: "Main1",
@@ -389,7 +391,8 @@ describe("ActivateIgnitionEffectCommand", () => {
 
         const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
 
-        expect(command.canExecute(activatedState).isValid).toBe(false);
+        // Should still be able to activate
+        expect(command.canExecute(activatedState).isValid).toBe(true);
       });
     });
 
@@ -406,15 +409,15 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.message).toContain("Ignition effect activated");
       });
 
-      it("should include activation and resolution steps (record + draw)", () => {
+      it("should include only resolution steps (simplified version has no cost)", () => {
         const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
 
         const result = command.execute(libraryState);
 
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
-        // Royal Magical Library: 1 activation step (record) + 1 resolution step (draw)
-        expect(result.effectSteps!.length).toBe(2);
+        // Royal Magical Library simplified: 0 activation steps + 1 resolution step (draw)
+        expect(result.effectSteps!.length).toBe(1);
       });
 
       it("should draw 1 card after executing all steps", () => {

@@ -26,6 +26,7 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   70903634: { id: 70903634, jaName: "封印されし者の左腕", type: "monster", frameType: "normal" },
   44519536: { id: 44519536, jaName: "封印されし者の左足", type: "monster", frameType: "normal" },
   8124921: { id: 8124921, jaName: "封印されし者の右足", type: "monster", frameType: "normal" },
+  70791313: { id: 70791313, jaName: "王立魔法図書館", type: "monster", frameType: "effect" },
 
   // 通常魔法
   55144522: { id: 55144522, jaName: "強欲な壺", type: "spell", frameType: "spell", spellType: "normal" },
@@ -44,9 +45,11 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   // 速攻魔法
   74519184: { id: 74519184, jaName: "手札断札", type: "spell", frameType: "spell", spellType: "quick-play" },
 
+  // 永続魔法
+  15259703: { id: 15259703, jaName: "トゥーン・ワールド", type: "spell", frameType: "spell", spellType: "continuous" },
+
   // フィールド魔法
   67616300: { id: 67616300, jaName: "チキンレース", type: "spell", frameType: "spell", spellType: "field" },
-  15259703: { id: 15259703, jaName: "トゥーン・ワールド", type: "spell", frameType: "spell", spellType: "continuous" },
 
   // トラップカード
   83968380: { id: 83968380, jaName: "強欲な瓶", type: "trap", frameType: "trap", trapType: "normal" },

@@ -66,11 +66,9 @@ export class RoyalMagicalLibraryIgnitionEffect implements ChainableAction {
       return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
     }
 
-    // 1ターンに1度制限チェック
-    const effectKey = `${sourceInstance.instanceId}:${this.effectId}`;
-    if (state.activatedIgnitionEffectsThisTurn.has(effectKey)) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
-    }
+    // Note: 王立魔法図書館には1ターンに1度の制限がない
+    // 本来は魔力カウンター3つを取り除くコストで回数が制限される
+    // 簡略版では回数制限なし（無限ドロー可能）
 
     // 王立魔法図書館がモンスターゾーンに表側表示で存在するか
     const libraryOnField = state.zones.mainMonsterZone.some(
@@ -90,37 +88,12 @@ export class RoyalMagicalLibraryIgnitionEffect implements ChainableAction {
   /**
    * ACTIVATION: 発動時の処理
    *
-   * 1. 発動記録（1ターンに1度制限用）
-   *
    * Note: 本来は魔力カウンター3つを取り除くコストがあるが、簡略版のため省略
+   * 1ターンに1度の制限がないため、発動記録も不要
    */
-  createActivationSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
-    const effectKey = `${sourceInstance.instanceId}:${this.effectId}`;
-
-    return [
-      // Record activation (1ターンに1度制限)
-      {
-        id: "royal-magical-library-record-activation",
-        summary: "効果発動を記録",
-        description: "1ターンに1度の制限を記録します",
-        action: (currentState: GameState) => {
-          // Add to activated effects set
-          const newActivatedEffects = new Set(currentState.activatedIgnitionEffectsThisTurn);
-          newActivatedEffects.add(effectKey);
-
-          const updatedState: GameState = {
-            ...currentState,
-            activatedIgnitionEffectsThisTurn: newActivatedEffects,
-          };
-
-          return {
-            success: true,
-            updatedState,
-            message: "Recorded ignition effect activation",
-          };
-        },
-      },
-    ];
+  createActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+    // 簡略版: コストなし、発動記録なし
+    return [];
   }
 
   /**

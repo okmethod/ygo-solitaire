@@ -130,9 +130,19 @@
     }
   }
 
-  // モンスターカード用のアクション定義（現時点では起動効果なし）
-  function getMonsterActions(): CardActionButton[] {
-    return [];
+  // モンスターカード用のアクション定義（起動効果）
+  function getMonsterActions(instanceId: string): CardActionButton[] {
+    if (!canActivateIgnitionEffect(instanceId)) {
+      return [];
+    }
+    return [
+      {
+        label: "効果発動",
+        style: "filled",
+        color: "primary",
+        onClick: onActivateIgnitionEffect || (() => {}),
+      },
+    ];
   }
 </script>
 
@@ -174,9 +184,9 @@
               faceDown={monsterCards[i].faceDown}
               rotation={monsterCards[i].rotation || 0}
               isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
-              isActivatable={true}
+              isActivatable={getMonsterActions(monsterCards[i].instanceId).length > 0}
               onSelect={handleCardClick}
-              actionButtons={getMonsterActions()}
+              actionButtons={getMonsterActions(monsterCards[i].instanceId)}
               onCancel={onCancelFieldCardSelection || (() => {})}
               size="medium"
               showDetailOnClick={true}

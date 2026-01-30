@@ -127,7 +127,10 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       expect(result.errorCode).toBe("NOT_MAIN_PHASE");
     });
 
-    it("should return invalid when effect already activated this turn", () => {
+    it("should have no once-per-turn restriction (can activate multiple times)", () => {
+      // Note: Royal Magical Library has no once-per-turn restriction
+      // The cost (removing 3 Spell Counters) limits activations in the real game
+      // In this simplified version without Spell Counters, it can be activated unlimited times
       const effectKey = `${libraryInstanceId}:${effect.effectId}`;
       const activatedState = createMockGameState({
         ...initialState,
@@ -137,8 +140,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       const result = effect.canActivate(activatedState, sourceInstance);
 
-      expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe("ACTIVATION_CONDITIONS_NOT_MET");
+      // Should still be valid even after previous activation
+      expect(result.isValid).toBe(true);
     });
 
     it("should return invalid when card is not on monster zone", () => {
@@ -188,22 +191,11 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
   });
 
   describe("createActivationSteps", () => {
-    it("should return activation steps with once-per-turn recording", () => {
+    it("should return empty array (no activation cost in simplified version)", () => {
       const steps = effect.createActivationSteps(initialState, sourceInstance);
 
-      expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("royal-magical-library-record-activation");
-    });
-
-    it("should record effect activation in state", () => {
-      const steps = effect.createActivationSteps(initialState, sourceInstance);
-      const recordStep = steps[0];
-
-      const result = recordStep.action(initialState);
-
-      expect(result.success).toBe(true);
-      const effectKey = `${libraryInstanceId}:${effect.effectId}`;
-      expect(result.updatedState.activatedIgnitionEffectsThisTurn.has(effectKey)).toBe(true);
+      // Simplified version has no cost, so no activation steps
+      expect(steps).toHaveLength(0);
     });
   });
 
@@ -233,21 +225,12 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const canActivate = effect.canActivate(initialState, sourceInstance);
       expect(canActivate.isValid).toBe(true);
 
-      // Execute activation steps
+      // Execute activation steps (empty in simplified version)
       const activationSteps = effect.createActivationSteps(initialState, sourceInstance);
-      let currentState = initialState;
-
-      for (const step of activationSteps) {
-        const result = step.action(currentState);
-        expect(result.success).toBe(true);
-        currentState = result.updatedState;
-      }
-
-      // Verify activation recorded
-      const effectKey = `${libraryInstanceId}:${effect.effectId}`;
-      expect(currentState.activatedIgnitionEffectsThisTurn.has(effectKey)).toBe(true);
+      expect(activationSteps).toHaveLength(0);
 
       // Execute resolution steps
+      let currentState = initialState;
       const resolutionSteps = effect.createResolutionSteps(currentState, sourceInstance);
 
       for (const step of resolutionSteps) {
@@ -261,23 +244,15 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       expect(currentState.zones.deck).toHaveLength(1);
     });
 
-    it("should not be able to activate twice in the same turn", () => {
+    it("should be able to activate multiple times in the same turn (no once-per-turn restriction)", () => {
       // First activation
       const canActivateFirst = effect.canActivate(initialState, sourceInstance);
       expect(canActivateFirst.isValid).toBe(true);
 
-      // Simulate activation
-      const effectKey = `${libraryInstanceId}:${effect.effectId}`;
-      const afterActivation = createMockGameState({
-        ...initialState,
-        activatedIgnitionEffectsThisTurn: new Set([effectKey]),
-        zones: initialState.zones,
-      });
-
-      // Second activation should fail
-      const canActivateSecond = effect.canActivate(afterActivation, sourceInstance);
-      expect(canActivateSecond.isValid).toBe(false);
-      expect(canActivateSecond.errorCode).toBe("ACTIVATION_CONDITIONS_NOT_MET");
+      // After first activation, should still be able to activate again
+      // (Royal Magical Library has no once-per-turn restriction)
+      const canActivateSecond = effect.canActivate(initialState, sourceInstance);
+      expect(canActivateSecond.isValid).toBe(true);
     });
   });
 });
