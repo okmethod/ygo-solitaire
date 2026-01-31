@@ -268,8 +268,20 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      // Chicken Game has: 2 activation steps (LP payment, once-per-turn) + 1 resolution step (draw)
+      // Chicken Game has: 2 activation steps (発動通知 + LP payment) + 1 resolution step (draw)
+      // Note: 発動記録（1ターンに1度制限用）はコマンド側で行う
       expect(result.effectSteps!.length).toBe(3);
+    });
+
+    it("should record activation in activatedIgnitionEffectsThisTurn", () => {
+      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+
+      const result = command.execute(initialState);
+
+      expect(result.success).toBe(true);
+      // コマンド実行時に発動記録が行われる
+      const effectKey = `${chickenGameInstanceId}:ignition-67616300-1`;
+      expect(result.updatedState.activatedIgnitionEffectsThisTurn.has(effectKey)).toBe(true);
     });
   });
 
@@ -409,15 +421,15 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.message).toContain("Ignition effect activated");
       });
 
-      it("should include only resolution steps (simplified version has no cost)", () => {
+      it("should include notify and resolution steps (simplified version has no cost)", () => {
         const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
 
         const result = command.execute(libraryState);
 
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
-        // Royal Magical Library simplified: 0 activation steps + 1 resolution step (draw)
-        expect(result.effectSteps!.length).toBe(1);
+        // Royal Magical Library simplified: 1 activation step (発動通知) + 1 resolution step (draw)
+        expect(result.effectSteps!.length).toBe(2);
       });
 
       it("should draw 1 card after executing all steps", () => {

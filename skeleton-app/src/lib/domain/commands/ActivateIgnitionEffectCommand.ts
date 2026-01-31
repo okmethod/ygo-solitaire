@@ -19,7 +19,6 @@ import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
-import { isMainPhase } from "$lib/domain/models/Phase";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
   ValidationErrorCode,
@@ -41,10 +40,11 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. メインフェイズであること
-   * 3. 指定カードがフィールドに存在し、表側表示であること
-   * 4. 起動効果がレジストリに登録されていること
-   * 5. カード固有の発動条件を満たしていること
+   * 2. 指定カードがフィールドに存在し、表側表示であること
+   * 3. 起動効果がレジストリに登録されていること
+   * 4. カード固有の発動条件を満たし発動可能な起動効果が存在すること
+   *
+   * Note: フェイズ判定は ChainableAction 側でチェック
    */
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
@@ -52,12 +52,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    // 2. メインフェイズであること
-    if (!isMainPhase(state.phase)) {
-      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
-    }
-
-    // 3. 指定カードがフィールドに存在し、表側表示であること
+    // 2. 指定カードがフィールドに存在し、表側表示であること
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
@@ -76,7 +71,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.NO_IGNITION_EFFECT);
     }
 
-    // 5. 発動可能な起動効果が存在すること
+    // 5. カード固有の発動条件を満たし発動可能な起動効果が存在すること
     const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance);
     if (!activatableEffect) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
@@ -88,6 +83,8 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
   /**
    * 発動可能な起動効果を探す
    * 複数の起動効果がある場合、最初に発動可能なものを返す
+   *
+   * TODO: 複数の起動効果を選択できるようにする
    */
   private findActivatableEffect(
     effects: ChainableAction[],
@@ -102,7 +99,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * 処理フロー:
    * 1. 実行可能性判定
-   * 2. 更新後状態の構築
+   * 2. 更新後状態の構築（発動記録を含む）
    * 3. 戻り値の構築
    *
    * Note: 効果処理は、Application 層に返された後に実行される
@@ -115,34 +112,34 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+    // activatableEffect は canExecute で存在が保証されている
+    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
+    const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance)!;
 
     // 2. 更新後状態の構築
+    const updatedActivatedEffects = new Set(state.activatedIgnitionEffectsThisTurn);
+    updatedActivatedEffects.add(`${cardInstance.instanceId}:${activatableEffect.effectId}`);
+    // FIXME: 発動済み効果の記録先と、効果IDの管理方法を見直す
     const updatedState: GameState = {
-      ...state, // 起動効果発動に伴う状態変化は特に無し
+      ...state,
+      activatedIgnitionEffectsThisTurn: updatedActivatedEffects, // 発動済み起動効果IDを記録
     };
 
     // 3. 戻り値の構築
     return successUpdateResult(
       updatedState,
       `Ignition effect activated: ${this.cardInstanceId}`,
-      this.buildEffectSteps(updatedState, cardInstance),
+      this.buildEffectSteps(updatedState, cardInstance, activatableEffect),
     );
   }
 
   /**
    * 効果処理ステップ配列を生成する
-   * レジストリから発動可能な起動効果を取得し、そのステップを返す
+   * Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
    */
-  private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
-    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
-    const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance);
-
-    if (!activatableEffect) {
-      return [];
-    }
-
-    const activationSteps = activatableEffect.createActivationSteps(state, cardInstance);
-    const resolutionSteps = activatableEffect.createResolutionSteps(state, cardInstance);
+  private buildEffectSteps(state: GameState, cardInstance: CardInstance, effect: ChainableAction): AtomicStep[] {
+    const activationSteps = effect.createActivationSteps(state, cardInstance);
+    const resolutionSteps = effect.createResolutionSteps(state, cardInstance);
     return [...activationSteps, ...resolutionSteps];
   }
 

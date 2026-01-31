@@ -44,7 +44,9 @@ export class ActivateSpellCommand implements GameCommand {
    * 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
    * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
    *
-   * Note: メインフェイズ判定・速攻魔法のセットターン制限は ChainableAction 側でチェック
+   * TODO: フィールドにある場合は、裏側状態チェックも必要
+   *
+   * Note: フェイズ判定・速攻魔法のセットターン制限は ChainableAction 側でチェック
    */
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと

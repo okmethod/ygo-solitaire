@@ -19,6 +19,18 @@ import type { EffectCategory } from "$lib/domain/models/EffectCategory";
  */
 export interface ChainableAction {
   /**
+   * カードID（数値）
+   */
+  readonly cardId: number;
+
+  /**
+   * 効果の一意識別子
+   * 1ターンに1度制限等で使用。形式: "{カード名}-{効果種別}"
+   * 例: "chicken-game-activation", "chicken-game-ignition"
+   */
+  readonly effectId: string;
+
+  /**
    * カードの発動 or 効果の発動
    * - true: カードの発動（手札→フィールドへの配置を伴う）
    * - false: 効果の発動（既にフィールドに存在するカードの効果）
@@ -39,13 +51,6 @@ export interface ChainableAction {
    * - ignition: 起動効果
    */
   readonly effectCategory: EffectCategory;
-
-  /**
-   * 効果の一意識別子
-   * 1ターンに1度制限等で使用。形式: "{カード名}-{効果種別}"
-   * 例: "chicken-game-activation", "chicken-game-ignition"
-   */
-  readonly effectId: string;
 
   /**
    * CONDITIONS: 発動条件チェック

@@ -34,7 +34,10 @@ import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions
  */
 export abstract class BaseSpellAction implements ChainableAction {
   /** カードID（数値） */
-  protected readonly cardId: number;
+  readonly cardId: number;
+
+  /** 効果の一意識別子 */
+  readonly effectId: string;
 
   /** カードの発動（手札→フィールド） */
   readonly isCardActivation = true;
@@ -44,9 +47,6 @@ export abstract class BaseSpellAction implements ChainableAction {
 
   /** 効果カテゴリ: 発動時効果 */
   readonly effectCategory: EffectCategory = "activation";
-
-  /** 効果の一意識別子 */
-  readonly effectId: string;
 
   /**
    * コンストラクタ

@@ -111,7 +111,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       placedThisTurn: false,
     };
 
-    it("Scenario: Activate ignition effect → Pay 1000 LP → Draw 1 card", () => {
+    it("Scenario: Activate ignition effect → Pay 1000 LP → Draw 1 card", async () => {
       // Arrange: Chicken Game on field, 8000 LP, 2 cards in deck
       const state = createMockGameState({
         phase: "Main1",
@@ -128,21 +128,18 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         activatedIgnitionEffectsThisTurn: new Set<string>(),
       });
 
-      // Act: Activate ignition effect
-      const ignitionEffect = new ChickenGameIgnitionEffect();
-      const activationSteps = ignitionEffect.createActivationSteps(state, chickenGameOnField);
-      const resolutionSteps = ignitionEffect.createResolutionSteps(state, chickenGameOnField);
+      // Act: Activate ignition effect via ActivateIgnitionEffectCommand
+      const { ActivateIgnitionEffectCommand } = await import("$lib/domain/commands/ActivateIgnitionEffectCommand");
+      const command = new ActivateIgnitionEffectCommand("field-0");
+      const commandResult = command.execute(state);
+      expect(commandResult.success).toBe(true);
 
-      // Execute activation steps
-      let currentState = state;
-      for (const step of activationSteps) {
-        const stepResult = step.action(currentState);
-        expect(stepResult.success).toBe(true);
-        currentState = stepResult.updatedState;
-      }
+      // コマンド実行時に発動記録が行われる
+      expect(commandResult.updatedState.activatedIgnitionEffectsThisTurn.has("field-0:ignition-67616300-1")).toBe(true);
 
-      // Execute resolution steps
-      for (const step of resolutionSteps) {
+      // Execute effect steps
+      let currentState = commandResult.updatedState;
+      for (const step of commandResult.effectSteps!) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
         currentState = stepResult.updatedState;
@@ -152,9 +149,6 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(currentState.lp.player).toBe(7000); // 8000 - 1000
       expect(currentState.zones.hand.length).toBe(1);
       expect(currentState.zones.deck.length).toBe(1);
-
-      // Assert: Effect recorded
-      expect(currentState.activatedIgnitionEffectsThisTurn.has("field-0:chicken-game-ignition")).toBe(true);
     });
 
     it("Scenario: Cannot activate twice in same turn (once per turn restriction)", () => {
@@ -171,7 +165,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
           graveyard: [],
           banished: [],
         },
-        activatedIgnitionEffectsThisTurn: new Set<string>(["field-0:chicken-game-ignition"]),
+        activatedIgnitionEffectsThisTurn: new Set<string>(["field-0:ignition-67616300-1"]),
       });
 
       // Act: Try to activate ignition effect again
@@ -256,7 +250,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
   });
 
   describe("Full Gameplay Scenario", () => {
-    it("Scenario: Activate card → Use ignition effect → Verify full state", () => {
+    it("Scenario: Activate card → Use ignition effect → Verify full state", async () => {
       // Arrange: Initial state - Chicken Game in hand
       const initialState = createMockGameState({
         phase: "Main1",
@@ -292,23 +286,22 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(stateAfterActivation.zones.fieldZone.length).toBe(1);
       expect(stateAfterActivation.zones.fieldZone[0].id).toBe(chickenGameCardId);
 
-      // Step 2: Use ignition effect
+      // Step 2: Use ignition effect via ActivateIgnitionEffectCommand
       const fieldCard = stateAfterActivation.zones.fieldZone[0];
       const ignitionEffect = new ChickenGameIgnitionEffect();
 
       expect(ignitionEffect.canActivate(stateAfterActivation, fieldCard).isValid).toBe(true);
 
-      const activationSteps = ignitionEffect.createActivationSteps(stateAfterActivation, fieldCard);
-      const resolutionSteps = ignitionEffect.createResolutionSteps(stateAfterActivation, fieldCard);
+      const { ActivateIgnitionEffectCommand } = await import("$lib/domain/commands/ActivateIgnitionEffectCommand");
+      const ignitionCommand = new ActivateIgnitionEffectCommand(fieldCard.instanceId);
+      const ignitionResult = ignitionCommand.execute(stateAfterActivation);
+      expect(ignitionResult.success).toBe(true);
 
-      let currentState: GameState = stateAfterActivation;
-      for (const step of activationSteps) {
-        const stepResult = step.action(currentState);
-        expect(stepResult.success).toBe(true);
-        currentState = stepResult.updatedState;
-      }
+      // コマンド実行時に発動記録が行われる
+      expect(ignitionResult.updatedState.activatedIgnitionEffectsThisTurn.size).toBe(1);
 
-      for (const step of resolutionSteps) {
+      let currentState: GameState = ignitionResult.updatedState;
+      for (const step of ignitionResult.effectSteps!) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
         currentState = stepResult.updatedState;

@@ -86,7 +86,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
     });
 
     it("should have correct effectId for once-per-turn tracking", () => {
-      expect(effect.effectId).toBe("royal-magical-library-ignition");
+      expect(effect.effectId).toBe("ignition-70791313-1");
     });
   });
 
@@ -97,22 +97,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should return invalid when game is over", () => {
-      const gameOverState = createMockGameState({
-        ...initialState,
-        result: {
-          isGameOver: true,
-          winner: "player" as const,
-          reason: "exodia" as const,
-        },
-        zones: initialState.zones,
-      });
-
-      const result = effect.canActivate(gameOverState, sourceInstance);
-
-      expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe("GAME_OVER");
-    });
+    // Note: ゲーム終了チェックは ActivateIgnitionEffectCommand 側で行う
+    // BaseSpellAction / ActivateSpellCommand の責務分担と一貫性を保つ
 
     it("should return invalid when not in Main Phase", () => {
       const drawPhaseState = createMockGameState({
@@ -144,25 +130,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should return invalid when card is not on monster zone", () => {
-      const notOnFieldState = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: initialState.zones.deck,
-          hand: [sourceInstance],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-      });
-
-      const result = effect.canActivate(notOnFieldState, sourceInstance);
-
-      expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe("CARD_NOT_ON_FIELD");
-    });
+    // Note: フィールド存在・表側表示チェックは ActivateIgnitionEffectCommand 側で実施
 
     it("should return valid when card is in defense position (ignition effects work in any battle position)", () => {
       const defenseInstance: CardInstance = {
@@ -191,11 +159,12 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
   });
 
   describe("createActivationSteps", () => {
-    it("should return empty array (no activation cost in simplified version)", () => {
+    it("should return activation steps with notify step (no cost in simplified version)", () => {
       const steps = effect.createActivationSteps(initialState, sourceInstance);
 
-      // Simplified version has no cost, so no activation steps
-      expect(steps).toHaveLength(0);
+      // Simplified version has only notify step (no cost)
+      expect(steps).toHaveLength(1);
+      expect(steps[0].summary).toBe("カード発動");
     });
   });
 
@@ -225,12 +194,18 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const canActivate = effect.canActivate(initialState, sourceInstance);
       expect(canActivate.isValid).toBe(true);
 
-      // Execute activation steps (empty in simplified version)
+      // Execute activation steps (only notify step in simplified version)
       const activationSteps = effect.createActivationSteps(initialState, sourceInstance);
-      expect(activationSteps).toHaveLength(0);
+      expect(activationSteps).toHaveLength(1);
+
+      let currentState = initialState;
+      for (const step of activationSteps) {
+        const result = step.action(currentState);
+        expect(result.success).toBe(true);
+        currentState = result.updatedState;
+      }
 
       // Execute resolution steps
-      let currentState = initialState;
       const resolutionSteps = effect.createResolutionSteps(currentState, sourceInstance);
 
       for (const step of resolutionSteps) {
