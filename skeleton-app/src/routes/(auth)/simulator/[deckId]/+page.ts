@@ -6,7 +6,7 @@ export const load: PageLoad = ({ params }) => {
   const { deckId } = params;
 
   // デッキデータを読み込む
-  const { deckRecipe, deckData } = loadDeck(deckId);
+  const { deckRecipe, deckData, uniqueCardIds } = loadDeck(deckId);
   console.log(`[PageLoad] Initializing game with deck: ${deckRecipe.name}`);
 
   // ゲーム状態を初期化する（デッキシャッフルと初期手札ドローを含む）
@@ -16,5 +16,6 @@ export const load: PageLoad = ({ params }) => {
   return {
     deckId,
     deckName: deckData.name,
+    uniqueCardIds,
   };
 };

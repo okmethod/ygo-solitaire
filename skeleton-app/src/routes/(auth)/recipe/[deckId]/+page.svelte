@@ -1,11 +1,18 @@
 <script lang="ts">
-  import { navigateTo } from "$lib/presentation/utils/navigation";
-  import CardList from "$lib/presentation/components/organisms/CardList.svelte";
+  import { onMount } from "svelte";
   import type { PageData } from "./$types";
+  import { navigateTo } from "$lib/presentation/utils/navigation";
+  import { initializeCache } from "$lib/presentation/services/cardDisplayDataCache";
+  import CardList from "$lib/presentation/components/organisms/CardList.svelte";
 
   let { data }: { data: PageData } = $props();
   const { monsters, spells, traps } = data.deckData.mainDeck;
-  const { fusion, synchro, xyz } = data.deckData.extraDeck;
+  const { fusion, synchro, xyz, link } = data.deckData.extraDeck;
+
+  onMount(async () => {
+    // CardDisplayData キャッシュを初期化
+    await initializeCache(data.uniqueCardIds);
+  });
 
   function navigateToSimulator() {
     navigateTo(`/simulator/${data.deckId}`);
@@ -57,7 +64,8 @@
       <span class="badge preset-tonal-surface text-sm shadow-md"
         >{fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
           synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
-          xyz.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
+          xyz.reduce((sum, entry) => sum + entry.quantity, 0) +
+          link.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
       >
     </div>
 
@@ -74,6 +82,11 @@
     <!-- エクシーズモンスター -->
     {#if xyz.length > 0}
       <CardList title="エクシーズ" cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)} cards={xyz} />
+    {/if}
+
+    <!-- リンクモンスター -->
+    {#if link.length > 0}
+      <CardList title="リンク" cardCount={link.reduce((sum, entry) => sum + entry.quantity, 0)} cards={link} />
     {/if}
     <hr class="my-8 border-t border-gray-300" />
   </div>

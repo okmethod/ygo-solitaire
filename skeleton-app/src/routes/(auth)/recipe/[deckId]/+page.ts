@@ -5,10 +5,11 @@ export const load: PageLoad = ({ params }) => {
   const { deckId } = params;
 
   // デッキデータを読み込む
-  const { deckData } = loadDeck(deckId);
+  const { deckData, uniqueCardIds } = loadDeck(deckId);
 
   return {
     deckId,
     deckData,
+    uniqueCardIds,
   };
 };

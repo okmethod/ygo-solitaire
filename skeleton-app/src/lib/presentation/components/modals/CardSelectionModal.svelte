@@ -4,14 +4,15 @@
    *
    * カード効果により選択が必要な場面でプレイヤーにカード選択UIを提供する。
    * cardSelectionStore と連携し、選択状態の管理・確定・キャンセルを処理する。
+   * CardDisplayData は cardDisplayDataCache から同期的に取得する。
    *
    * @module presentation/components/modals/CardSelectionModal
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import type { CardDisplayData } from "$lib/presentation/types";
-  import { cardRepository } from "$lib/presentation/stores/zonesDisplayStore";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
 
   // cardSelectionStore の状態を購読
   const isActive = $derived(cardSelectionStore.isActive);
@@ -19,26 +20,6 @@
   const selectedCount = $derived(cardSelectionStore.selectedCount);
   const isValidSelection = $derived(cardSelectionStore.isValidSelection);
   const cancelable = $derived(config?.cancelable ?? false); // Default: false
-
-  // availableCardsのCardDisplayDataをフェッチ
-  let availableCardDisplays = $state<CardDisplayData[]>([]);
-
-  $effect(() => {
-    if (config?.availableCards && config.availableCards.length > 0) {
-      const cardIds = config.availableCards.map((c) => c.id);
-      cardRepository
-        .getCardsByIds(window.fetch, cardIds)
-        .then((cards) => {
-          availableCardDisplays = cards;
-        })
-        .catch((err) => {
-          console.error("[CardSelectionModal] Failed to fetch card display data:", err);
-          availableCardDisplays = [];
-        });
-    } else {
-      availableCardDisplays = [];
-    }
-  });
 
   // Modal の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
@@ -82,8 +63,8 @@
     const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);
     if (!cardInstance) return undefined;
 
-    // availableCardDisplaysから対応するCardDisplayDataを取得
-    return availableCardDisplays.find((card) => card.id === cardInstance.id);
+    // キャッシュから対応するCardDisplayDataを取得
+    return getCardDisplayData(cardInstance.id);
   }
 </script>
 

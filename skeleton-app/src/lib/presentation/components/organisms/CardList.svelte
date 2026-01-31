@@ -2,16 +2,15 @@
   /**
    * CardList - カードリスト表示コンポーネント
    *
-   * LoadedCardEntry[]（CardData + quantity）を受け取り、
-   * 内部で API から CardDisplayData を取得して表示する。
+   * LoadedCardEntry配列を受け取り、
+   * cardDisplayDataCache から CardDisplayData を取得して表示する。
    *
    * @module presentation/components/organisms/CardList
    */
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import type { LoadedCardEntry, CardDisplayData } from "$lib/presentation/types";
-  import { cardRepository } from "$lib/presentation/stores/zonesDisplayStore";
-  import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
+  import { getCardDisplayData, cardDisplayDataCacheStore } from "$lib/presentation/services/cardDisplayDataCache";
 
   interface CardListProps {
     title?: string;
@@ -22,33 +21,16 @@
 
   let { title, cardCount, cards, borderColor = "border-gray-400" }: CardListProps = $props();
 
-  // 表示用データを保持
-  let displayDataMap = $state<Map<number, CardDisplayData>>(new Map());
-
-  // cards が変更されたら API から CardDisplayData を取得
-  $effect(() => {
-    if (cards.length === 0) {
-      displayDataMap = new Map();
-      return;
-    }
-
-    const cardIds = cards.map((c) => c.cardData.id);
-
-    cardRepository
-      .getCardsByIds(window.fetch, cardIds)
-      .then((apiDataList) => {
-        const displayDataList = createCardDisplayDataList(apiDataList);
-        displayDataMap = new Map(displayDataList.map((card) => [card.id, card]));
-      })
-      .catch((err) => {
-        console.error("[CardList] Failed to fetch card display data:", err);
-        displayDataMap = new Map();
-      });
+  // キャッシュの状態を購読してリアクティブに更新
+  let cacheState = $state<{ isInitialized: boolean }>({ isInitialized: false });
+  cardDisplayDataCacheStore.subscribe((state) => {
+    cacheState = { isInitialized: state.isInitialized };
   });
 
   // CardData.id から CardDisplayData を取得
   function getDisplayData(cardId: number): CardDisplayData | undefined {
-    return displayDataMap.get(cardId);
+    if (!cacheState.isInitialized) return undefined;
+    return getCardDisplayData(cardId);
   }
 
   // titleまたはcardCountが指定されているか確認

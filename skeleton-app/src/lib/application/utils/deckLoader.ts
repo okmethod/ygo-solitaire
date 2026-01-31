@@ -141,10 +141,14 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
  * CardDataRegistry から CardData を取得し、カードタイプ別に分類する。
  *
  * @param deckId - プリセットデッキのID
- * @returns デッキレシピとデッキデータ
+ * @returns デッキレシピ、デッキデータ、ユニークカードIDリスト
  * @throws Error デッキが見つからない場合、またはカードがレジストリにない場合
  */
-export function loadDeck(deckId: string): { deckRecipe: DeckRecipe; deckData: DeckData } {
+export function loadDeck(deckId: string): {
+  deckRecipe: DeckRecipe;
+  deckData: DeckData;
+  uniqueCardIds: number[];
+} {
   const deckRecipe = presetDeckRecipes[deckId];
   if (!deckRecipe) {
     throw new Error(`Deck not found: ${deckId}`);
@@ -185,5 +189,5 @@ export function loadDeck(deckId: string): { deckRecipe: DeckRecipe; deckData: De
     stats,
   };
 
-  return { deckRecipe, deckData };
+  return { deckRecipe, deckData, uniqueCardIds };
 }

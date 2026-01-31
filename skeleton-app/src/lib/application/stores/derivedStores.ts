@@ -56,3 +56,19 @@ export const isHandEmpty = derived(gameStateStore, ($state) => $state.zones.hand
 
 /** チェーンスタックのサイズ */
 export const chainStackSize = derived(gameStateStore, ($state) => $state.chainStack.length);
+
+/** 手札の CardInstance 配列 */
+export const handCardInstances = derived(gameStateStore, ($state) => $state.zones.hand);
+
+/** フィールドの CardInstance 配列 */
+export const fieldCardInstances = derived(gameStateStore, ($state) => [
+  ...$state.zones.mainMonsterZone,
+  ...$state.zones.spellTrapZone,
+  ...$state.zones.fieldZone,
+]);
+
+/** 墓地の CardInstance 配列 */
+export const graveyardCardInstances = derived(gameStateStore, ($state) => $state.zones.graveyard);
+
+/** 除外ゾーンの CardInstance 配列 */
+export const banishedCardInstances = derived(gameStateStore, ($state) => $state.zones.banished);

@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import type { PageData } from "./$types";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
   import { gameFacade } from "$lib/application/GameFacade";
   import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
@@ -10,18 +12,24 @@
     handCardCount,
     deckCardCount,
     gameResult,
+    handCardInstances,
+    graveyardCardInstances,
   } from "$lib/application/stores/derivedStores";
-  import { handCards, fieldCards, graveyardCards } from "$lib/presentation/stores/zonesDisplayStore";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
+  import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
   import Hands from "$lib/presentation/components/organisms/board/Hands.svelte";
   import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
   import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
   import GameOverModal from "$lib/presentation/components/modals/GameOverModal.svelte";
-  import type { Card as CardDisplayData } from "$lib/presentation/types/card";
 
   const { data } = $props<{ data: PageData }>();
+
+  onMount(async () => {
+    // CardDisplayData キャッシュを初期化
+    await initializeCache(data.uniqueCardIds);
+  });
 
   // 自動フェイズ進行 - Draw → Standby → Main1 まで自動進行
   async function autoAdvanceToMainPhase() {
@@ -179,21 +187,28 @@
   // 効果処理キューストアの状態を購読
   const effectQueueState = effectQueueStore;
 
-  // 手札カードとinstanceIdのマッピング
+  // 手札カードとinstanceIdのマッピング（cache経由でCardDisplayDataを取得）
   const handCardsWithInstanceId = $derived(
-    $gameStateStore.zones.hand.map((instance, index) => ({
-      card: $handCards[index],
+    $handCardInstances.map((instance) => ({
+      card: getCardDisplayData(instance.id),
       instanceId: instance.instanceId,
     })),
   );
 
-  // DuelField用のゾーンデータ抽出（CardInstanceとCardDisplayDataをマージ） (T033-T034)
+  // 墓地カード（cache経由でCardDisplayDataを取得）
+  const graveyardDisplayCards = $derived(
+    $graveyardCardInstances
+      .map((instance) => getCardDisplayData(instance.id))
+      .filter((card): card is CardDisplayData => card !== undefined),
+  );
+
+  // DuelField用のゾーンデータ抽出（CardInstanceとCardDisplayDataをマージ）
   // フィールド魔法ゾーン用カード（frameType === "field"）
   const fieldMagicCards = $derived.by(() => {
     const fieldInstances = $gameStateStore.zones.fieldZone;
     return fieldInstances
       .map((instance) => {
-        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        const displayData = getCardDisplayData(instance.id);
         if (!displayData) return null;
         return {
           card: displayData,
@@ -211,7 +226,7 @@
       Array(5).fill(null);
     monsterInstances.forEach((instance, i) => {
       if (i < 5) {
-        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        const displayData = getCardDisplayData(instance.id);
         if (displayData) {
           zone[i] = {
             card: displayData,
@@ -231,7 +246,7 @@
     const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
     spellTrapInstances.forEach((instance, i) => {
       if (i < 5) {
-        const displayData = $fieldCards.find((card) => card.id === instance.id);
+        const displayData = getCardDisplayData(instance.id);
         if (displayData) {
           zone[i] = {
             card: displayData,
@@ -276,7 +291,7 @@
     <DuelField
       deckCards={$deckCardCount}
       extraDeckCards={[]}
-      graveyardCards={$graveyardCards}
+      graveyardCards={graveyardDisplayCards}
       fieldCards={fieldMagicCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
