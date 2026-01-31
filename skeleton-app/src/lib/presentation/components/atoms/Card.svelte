@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CardDisplayData } from "$lib/presentation/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
-  import { getCardTypeBackgroundClass } from "$lib/presentation/constants/cardTypes";
+  import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
@@ -106,9 +106,9 @@
   // 回転スタイル
   const rotationStyle = $derived(rotation !== 0 ? `transform: rotate(${rotation}deg);` : "");
 
-  // カードタイプ別の背景色
+  // フレームタイプ別の背景色
   const typeClasses = $derived(() => {
-    return getCardTypeBackgroundClass(card?.type);
+    return getFrameBackgroundClass(card?.frameType);
   });
 
   // 共通クラス

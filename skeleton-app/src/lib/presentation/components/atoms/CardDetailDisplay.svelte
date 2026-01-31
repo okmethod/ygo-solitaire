@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
-  import { getCardTypeBackgroundClass } from "$lib/presentation/constants/cardTypes";
+  import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
   import type { MonsterAttributes } from "$lib/presentation/types/card";
 
   const isVisible = $derived(!!$selectedCardForDisplay);
@@ -24,10 +24,10 @@
     };
   });
 
-  // カードタイプに応じた背景色
+  // フレームタイプに応じた背景色
   const backgroundClass = $derived(() => {
     if (!$selectedCardForDisplay) return "bg-gray-100 dark:bg-gray-800";
-    const typeClass = getCardTypeBackgroundClass($selectedCardForDisplay.type, "bg-gray-100 dark:bg-gray-800");
+    const typeClass = getFrameBackgroundClass($selectedCardForDisplay.frameType, "bg-gray-100 dark:bg-gray-800");
     return typeClass;
   });
 </script>

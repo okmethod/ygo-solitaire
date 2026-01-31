@@ -12,6 +12,7 @@
 // Application層のDTOを再エクスポート
 export type {
   CardType,
+  FrameSubType,
   MainMonsterSubType,
   ExtraMonsterSubType,
   SpellSubType,
