@@ -23,7 +23,7 @@ import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { EffectCategory } from "$lib/domain/models/EffectCategory";
+import type { ActionEffectCategory } from "$lib/domain/models/EffectCategory";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { successValidationResult } from "$lib/domain/models/ValidationResult";
 
@@ -36,7 +36,7 @@ class MockChainableAction implements ChainableAction {
   constructor(
     private cardName: string,
     public readonly spellSpeed: 1 | 2 | 3 = 1,
-    public readonly effectCategory: EffectCategory = "activation",
+    public readonly effectCategory: ActionEffectCategory = "activation",
     public readonly effectId: string = "mock-effect",
   ) {}
 

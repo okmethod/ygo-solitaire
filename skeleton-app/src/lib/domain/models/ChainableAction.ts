@@ -9,7 +9,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import type { EffectCategory } from "$lib/domain/models/EffectCategory";
+import type { ActionEffectCategory } from "$lib/domain/models/EffectCategory";
 
 /**
  * チェーンブロックを作る処理
@@ -35,7 +35,7 @@ export interface ChainableAction {
    * - activation: カードの発動時効果
    * - ignition: 起動効果
    */
-  readonly effectCategory: EffectCategory;
+  readonly effectCategory: ActionEffectCategory;
 
   /**
    * スペルスピード

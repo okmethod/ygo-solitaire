@@ -20,7 +20,6 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import type { EffectCategory } from "$lib/domain/models/EffectCategory";
 import {
   successValidationResult,
   failureValidationResult,
@@ -44,7 +43,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   readonly effectId: string;
 
   /** 効果カテゴリ: 起動効果 */
-  readonly effectCategory: EffectCategory = "ignition" as const;
+  readonly effectCategory = "ignition" as const;
 
   /** スペルスピード1（起動効果は常にスペルスピード1） */
   readonly spellSpeed = 1 as const;

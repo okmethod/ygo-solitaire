@@ -1,17 +1,25 @@
 /**
- * EffectCategory - 効果カテゴリ型
+ * EffectCategory - 効果カテゴリ
  *
- * ChainableActionの効果カテゴリを識別するための型。
- * activation（発動時効果）とignition（起動効果）を区別する。
+ * ChainableAction と AdditionalRule の効果カテゴリを識別する。
  *
  * @module domain/models/EffectCategory
+ * @see {@link docs/domain/effect-model.md}
  */
 
 /**
- * 効果カテゴリ
- * - activation: カードの発動時効果（手札/セット状態から発動する際の効果）
- * - ignition: 起動効果（フィールド上のカードの効果をプレイヤーが任意に発動）
- *
- * 将来拡張: | "trigger" | "quick"
+ * ChainableAction の効果カテゴリ
+ * - activation: カードの発動
+ * - ignition: 起動効果
+ * - trigger: 誘発効果 TODO: 将来追加
+ * - quick: 誘発即時効果 TODO: 将来追加
  */
-export type EffectCategory = "activation" | "ignition";
+export type ActionEffectCategory = "activation" | "ignition";
+
+/**
+ * AdditionalRule の効果カテゴリ
+ * - continuous: 永続効果
+ * - unclassified: 分類されない効果（別名ルール効果） TODO: 将来追加
+ * - nonEffect: 効果外テキスト TODO: 将来追加
+ */
+export type RuleEffectCategory = "continuous";
