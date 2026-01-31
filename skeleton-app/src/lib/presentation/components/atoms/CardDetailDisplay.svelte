@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
   import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
-  import { getCardTypeBackgroundClass } from "$lib/presentation/constants/cardTypes";
+  import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
   import type { MonsterAttributes } from "$lib/presentation/types/card";
 
   const isVisible = $derived(!!$selectedCardForDisplay);
@@ -24,10 +24,10 @@
     };
   });
 
-  // カードタイプに応じた背景色
+  // フレームタイプに応じた背景色
   const backgroundClass = $derived(() => {
     if (!$selectedCardForDisplay) return "bg-gray-100 dark:bg-gray-800";
-    const typeClass = getCardTypeBackgroundClass($selectedCardForDisplay.type, "bg-gray-100 dark:bg-gray-800");
+    const typeClass = getFrameBackgroundClass($selectedCardForDisplay.frameType, "bg-gray-100 dark:bg-gray-800");
     return typeClass;
   });
 </script>
@@ -47,7 +47,7 @@
   >
     <div class="flex justify-between items-center mb-3">
       <h3 id="card-image-title" class="text-lg font-semibold truncate">
-        {$selectedCardForDisplay.name}
+        《{$selectedCardForDisplay.jaName}》
       </h3>
       <button
         onclick={handleClose}
@@ -61,7 +61,7 @@
     <div class="mb-3">
       <img
         src={$selectedCardForDisplay.images?.imageCropped || "/CardBack.jpg"}
-        alt={$selectedCardForDisplay.name}
+        alt={$selectedCardForDisplay.jaName}
         class="w-full h-auto rounded-md shadow-sm"
         loading="lazy"
       />

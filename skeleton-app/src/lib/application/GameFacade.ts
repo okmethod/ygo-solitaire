@@ -1,10 +1,10 @@
 /**
  * GameFacade - 全てのゲーム操作コマンドの唯一の入り口（Single Entry Point）
  *
- * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
- * - Application Layer は Domain Layer に依存できる
- * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
- * - Presentation Layer は Domain Layer に直接依存してはいけない
+ * @architecture レイヤー間依存ルール - Application Layer (Facade)
+ * - ROLE: ゲーム進行制御、Presentation Layer へのゲーム操作手段の提供
+ * - ALLOWED: Domain Layer への依存
+ * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
  *
  * @module application/GameFacade
  */

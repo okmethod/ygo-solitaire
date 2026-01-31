@@ -21,6 +21,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { EffectCategory } from "$lib/domain/models/EffectCategory";
 import { successValidationResult } from "$lib/domain/models/ValidationResult";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
@@ -33,10 +34,13 @@ import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions
  */
 export abstract class BaseSpellAction implements ChainableAction {
   /** カードID（数値） */
-  protected readonly cardId: number;
+  readonly cardId: number;
 
-  /** カードの発動（手札→フィールド） */
-  readonly isCardActivation = true;
+  /** 効果の一意識別子 */
+  readonly effectId: string;
+
+  /** 効果カテゴリ: 発動時効果 */
+  readonly effectCategory: EffectCategory = "activation" as const;
 
   /** スペルスピード（サブクラスで定義） */
   abstract readonly spellSpeed: 1 | 2;
@@ -47,6 +51,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    */
   constructor(cardId: number) {
     this.cardId = cardId;
+    this.effectId = `activation-${cardId}`;
   }
 
   /**

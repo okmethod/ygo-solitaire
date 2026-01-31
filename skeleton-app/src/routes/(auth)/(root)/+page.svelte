@@ -22,7 +22,7 @@
     </header>
 
     <div class="mx-auto w-96 rounded-lg shadow-lg">
-      <label for="deck-select"></label>
+      <label for="deck-select">▼デッキを選択</label>
       <select
         id="deck-select"
         bind:value={selectedRecipeId}

@@ -18,7 +18,7 @@
   import Graveyard from "$lib/presentation/components/organisms/board/Graveyard.svelte";
   import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
   import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
-  import type { Card } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
   import { gameFacade } from "$lib/application/GameFacade";
 
   // ゾーン数の定数
@@ -29,7 +29,7 @@
    * カードと位置・表示状態を含む型
    */
   interface CardWithPosition {
-    card: Card;
+    card: CardDisplayData;
     instanceId: string; // カードインスタンスID
     faceDown: boolean;
     rotation?: number; // 守備表示時の回転角度
@@ -130,9 +130,19 @@
     }
   }
 
-  // モンスターカード用のアクション定義（現時点では起動効果なし）
-  function getMonsterActions(): CardActionButton[] {
-    return [];
+  // モンスターカード用のアクション定義（起動効果）
+  function getMonsterActions(instanceId: string): CardActionButton[] {
+    if (!canActivateIgnitionEffect(instanceId)) {
+      return [];
+    }
+    return [
+      {
+        label: "効果発動",
+        style: "filled",
+        color: "primary",
+        onClick: onActivateIgnitionEffect || (() => {}),
+      },
+    ];
   }
 </script>
 
@@ -174,9 +184,9 @@
               faceDown={monsterCards[i].faceDown}
               rotation={monsterCards[i].rotation || 0}
               isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
-              isActivatable={true}
+              isActivatable={getMonsterActions(monsterCards[i].instanceId).length > 0}
               onSelect={handleCardClick}
-              actionButtons={getMonsterActions()}
+              actionButtons={getMonsterActions(monsterCards[i].instanceId)}
               onCancel={onCancelFieldCardSelection || (() => {})}
               size="medium"
               showDetailOnClick={true}

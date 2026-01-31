@@ -1,17 +1,18 @@
 /**
- * YGOPRODeck API unit tests (T011, T012)
+ * YGOPRODeck API unit tests
  *
  * Tests for cache hit/miss behavior and API integration
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getCardsByIds, clearCache } from "$lib/infrastructure/api/ygoprodeck";
-import type { YGOProDeckCard } from "$lib/infrastructure/types/ygoprodeck";
+import type { YGOProDeckCardInfo } from "$lib/application/ports/ICardDataRepository";
 
 // モックフィクスチャ（実際のYGOPRODeck APIレスポンス形式）
-const mockExodia: YGOProDeckCard = {
+const mockExodia: YGOProDeckCardInfo = {
   id: 33396948,
   name: "Exodia the Forbidden One",
   type: "Effect Monster",
+  humanReadableCardType: "Effect Monster",
   frameType: "effect",
   desc: 'If you have "Right Leg of the Forbidden One", "Left Leg of the Forbidden One", "Right Arm of the Forbidden One" and "Left Arm of the Forbidden One" in addition to this card in your hand, you win the Duel.',
   atk: 1000,
@@ -30,12 +31,14 @@ const mockExodia: YGOProDeckCard = {
   ],
 };
 
-const mockPotOfGreed: YGOProDeckCard = {
+const mockPotOfGreed: YGOProDeckCardInfo = {
   id: 55144522,
   name: "Pot of Greed",
   type: "Spell Card",
+  humanReadableCardType: "Normal Spell",
   frameType: "spell",
   desc: "Draw 2 cards.",
+  race: "Normal",
   ygoprodeck_url: "https://ygoprodeck.com/card/pot-of-greed-5645",
   card_images: [
     {
@@ -47,7 +50,7 @@ const mockPotOfGreed: YGOProDeckCard = {
   ],
 };
 
-describe("getCardsByIds - with mock (T011, T012)", () => {
+describe("getCardsByIds - with mock", () => {
   beforeEach(() => {
     clearCache(); // テスト前にキャッシュクリア
   });
@@ -71,7 +74,7 @@ describe("getCardsByIds - with mock (T011, T012)", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("should use cache for duplicate requests (T012: cache hit/miss test)", async () => {
+  it("should use cache for duplicate requests", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [mockExodia] }),
@@ -140,7 +143,7 @@ describe("getCardsByIds - with mock (T011, T012)", () => {
   });
 });
 
-describe("clearCache - test utility (T009)", () => {
+describe("clearCache - test utility", () => {
   it("should clear the cache", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -160,7 +163,7 @@ describe("clearCache - test utility (T009)", () => {
   });
 });
 
-describe("Card ID Resolution Integration Test (T034)", () => {
+describe("Card ID Resolution Integration Test", () => {
   beforeEach(() => {
     clearCache();
   });

@@ -12,6 +12,7 @@
 // Application層のDTOを再エクスポート
 export type {
   CardType,
+  FrameSubType,
   MainMonsterSubType,
   ExtraMonsterSubType,
   SpellSubType,
@@ -20,13 +21,3 @@ export type {
   MonsterAttributes,
   CardDisplayData,
 } from "$lib/application/types/card";
-
-/**
- * Card type alias for CardDisplayData
- *
- * CardDisplayDataのエイリアス。既存コードとの互換性のために提供。
- *
- * Note: 旧Card型が持っていたUI状態（instanceId, isSelected, position）は
- * コンポーネントのローカルstateで管理してください。
- */
-export type { CardDisplayData as Card } from "$lib/application/types/card";

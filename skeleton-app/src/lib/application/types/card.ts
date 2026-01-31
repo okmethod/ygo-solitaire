@@ -1,13 +1,15 @@
 /**
  * card - カードデータの DTO (Data Transfer Object)
  *
- * Application 層と Infrastructure 層の境界で使用される。
- * Port/Adapter パターンにおける契約 (Contract)。
+ * @architecture レイヤー間依存ルール - Application Layer (全般)
+ * - ROLE: ユースケースの実現、ドメインオブジェクトを組み合わせたゲーム進行の制御
+ * - ALLOWED: Domain Layer
+ * - FORBIDDEN: Infrastructure Layer, Presentation Layer
  *
- * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
- * - Application Layer は Domain Layer に依存できる
- * - Infrastructure Layer は Application Layer に依存できる
- * - Infrastructure Layer は Domain Layer に直接依存してはいけない
+ * @architecture レイヤー間依存ルール - Application Layer (DTO)
+ * - ROLE: Application Layer や Presentation Layer が消費するデータ形式の定義
+ * - ALLOWED: Domain Layer のモデルへの依存
+ * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
  *
  * @module application/types/card
  */
@@ -15,6 +17,7 @@
 import type {
   CardInstance,
   CardType,
+  FrameSubType,
   MainMonsterSubType,
   ExtraMonsterSubType,
   SpellSubType,
@@ -26,9 +29,17 @@ import type {
  *
  * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
  */
-export type { CardInstance, CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
+export type {
+  CardInstance,
+  CardType,
+  FrameSubType,
+  MainMonsterSubType,
+  ExtraMonsterSubType,
+  SpellSubType,
+  TrapSubType,
+};
 
-/** モンスターカード属性情報 (YGOPRODeck API) */
+/** モンスターカード属性情報 */
 export interface MonsterAttributes {
   attack: number;
   defense: number;
@@ -37,7 +48,7 @@ export interface MonsterAttributes {
   race: string; // Spellcaster, Dragon, etc.
 }
 
-/** カード画像 URL 情報 (YGOPRODeck API) */
+/** カード画像 URL 情報 */
 export interface CardImages {
   image: string; // メイン画像URL
   imageSmall: string; // サムネイル画像URL
@@ -47,15 +58,19 @@ export interface CardImages {
 /**
  * UI 表示用カードデータ (DTO)
  *
- * YGOPRODeck API から取得したカード情報を UI で表示するための型。
- * ICardDataRepository の契約(Contract) として使用される。
+ * CardDisplayDataFactory によって生成される。
+ * - CardData (Domain層): ゲームロジックの根拠
+ * - ExternalCardData (API経由): 表示用および検証用
+ *
+ * @see CardDisplayDataFactory
  */
 export interface CardDisplayData {
-  id: number; // YGOPRODeck API uses numeric IDs
+  id: number;
   name: string; // 英語版カード名
-  type: CardType; // Re-exported from domain/models/Card
-  description: string; // カード効果テキスト
-  frameType?: string; // カードフレーム（色）の種類
+  jaName: string; // 日本語版カード名
+  type: CardType;
+  frameType: FrameSubType;
+  description: string; // カードテキスト
   archetype?: string; // アーキタイプ（テーマ名）
   monsterAttributes?: MonsterAttributes;
   images?: CardImages;

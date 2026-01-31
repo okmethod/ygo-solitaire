@@ -15,7 +15,7 @@
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
-  import type { Card as CardDisplayData } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
   import { gameFacade } from "$lib/application/GameFacade";
 
   /**

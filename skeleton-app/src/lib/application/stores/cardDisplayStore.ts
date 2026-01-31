@@ -4,13 +4,21 @@
  * gameStateStore の変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
  * YGOPRODeck APIからカード詳細情報を取得し、UI表示用のデータを提供する。
  *
+ * @architecture レイヤー間依存ルール - Application Layer (Store)
+ * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
+ * - ALLOWED: Domain Layer への依存
+ * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ *
+ * FIXME: インフラ層への依存が発生しているため、レイヤー間依存ルール違反となっている。
+ *
  * @module application/stores/cardDisplayStore
  */
 
 import { derived, type Readable } from "svelte/store";
-import { gameStateStore } from "./gameStateStore";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
-import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { getCardDataRepository } from "$lib/infrastructure/adapters/YGOProDeckCardDataRepository";
+import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
 import type { CardDisplayData } from "$lib/application/types/card";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -20,7 +28,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
  *
  * Dependency Injection: Application Layer内の他コンポーネントで使用するため公開。
  */
-export const cardRepository: ICardDataRepository = getCardRepository();
+export const cardRepository: ICardDataRepository = getCardDataRepository();
 
 /**
  * ゾーン監視用の汎用CardDisplayDataストアを生成
@@ -48,9 +56,10 @@ function createZoneCardStore(
 
       cardRepository
         .getCardsByIds(fetch, cardIds)
-        .then((cards) => {
+        .then((apiDataList) => {
           if (!isCancelled) {
-            set(cards);
+            const displayDataList = createCardDisplayDataList(apiDataList);
+            set(displayDataList);
           }
         })
         .catch((err) => {

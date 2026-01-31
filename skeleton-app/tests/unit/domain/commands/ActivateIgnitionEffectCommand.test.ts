@@ -194,10 +194,6 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       expect(command.canExecute(noEffectState).isValid).toBe(false);
     });
-
-    // TODO: Add more detailed tests when ChainableActionRegistry is extended
-    // to support multiple actions per card. Current implementation is hardcoded
-    // for Chicken Game only.
   });
 
   describe("execute", () => {
@@ -256,10 +252,6 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(result.error).toBe("このカードには起動効果がありません");
     });
 
-    // TODO: Add more detailed tests when ChainableActionRegistry is extended
-    // to support multiple actions per card. Current implementation is hardcoded
-    // for Chicken Game only, so card-specific tests belong in ChickenGameIgnitionEffect.test.ts
-
     it("should preserve immutability (original state unchanged)", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
@@ -276,8 +268,20 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      // Chicken Game has: 2 activation steps (LP payment, once-per-turn) + 1 resolution step (draw)
+      // Chicken Game has: 2 activation steps (発動通知 + LP payment) + 1 resolution step (draw)
+      // Note: 発動記録（1ターンに1度制限用）はコマンド側で行う
       expect(result.effectSteps!.length).toBe(3);
+    });
+
+    it("should record activation in activatedIgnitionEffectsThisTurn", () => {
+      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+
+      const result = command.execute(initialState);
+
+      expect(result.success).toBe(true);
+      // コマンド実行時に発動記録が行われる
+      const effectKey = `${chickenGameInstanceId}:ignition-67616300-1`;
+      expect(result.updatedState.activatedIgnitionEffectsThisTurn.has(effectKey)).toBe(true);
     });
   });
 
@@ -286,6 +290,249 @@ describe("ActivateIgnitionEffectCommand", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
       expect(command.getCardInstanceId()).toBe(chickenGameInstanceId);
+    });
+  });
+
+  // ===========================
+  // Integration: Royal Magical Library (王立魔法図書館)
+  // ===========================
+  describe("Royal Magical Library integration", () => {
+    const royalLibraryInstanceId = "monster-royal-library-1";
+    const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
+
+    let libraryState: GameState;
+
+    beforeEach(() => {
+      // Create state with Royal Magical Library face-up attack on monster zone
+      libraryState = createMockGameState({
+        phase: "Main1",
+        lp: { player: 8000, opponent: 8000 },
+        zones: {
+          deck: [
+            {
+              instanceId: "deck-0",
+              id: 1001,
+              jaName: "サンプルカード",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+            {
+              instanceId: "deck-1",
+              id: 1002,
+              jaName: "サンプルカード2",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+          ],
+          hand: [],
+          mainMonsterZone: [
+            {
+              instanceId: royalLibraryInstanceId,
+              id: ROYAL_MAGICAL_LIBRARY_ID,
+              jaName: "王立魔法図書館",
+              type: "monster" as const,
+              frameType: "effect" as const,
+              location: "mainMonsterZone" as const,
+              position: "faceUp" as const,
+              battlePosition: "attack" as const,
+              placedThisTurn: false,
+            },
+          ],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+    });
+
+    describe("canExecute", () => {
+      it("should return true when Royal Magical Library can activate its ignition effect", () => {
+        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+
+        expect(command.canExecute(libraryState).isValid).toBe(true);
+      });
+
+      it("should return true when Royal Magical Library is in defense position (ignition effects work in any battle position)", () => {
+        const defenseState = createMockGameState({
+          phase: "Main1",
+          lp: { player: 8000, opponent: 8000 },
+          zones: {
+            deck: libraryState.zones.deck,
+            hand: [],
+            mainMonsterZone: [
+              {
+                instanceId: royalLibraryInstanceId,
+                id: ROYAL_MAGICAL_LIBRARY_ID,
+                jaName: "王立魔法図書館",
+                type: "monster" as const,
+                frameType: "effect" as const,
+                location: "mainMonsterZone" as const,
+                position: "faceUp" as const,
+                battlePosition: "defense" as const,
+                placedThisTurn: false,
+              },
+            ],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+
+        // Ignition effects can be activated in any battle position as long as the card is face-up
+        expect(command.canExecute(defenseState).isValid).toBe(true);
+      });
+
+      it("should return true even after previous activation (no once-per-turn restriction)", () => {
+        // Royal Magical Library has no once-per-turn restriction
+        // In the real game, the cost (3 Spell Counters) limits activations
+        const effectKey = `${royalLibraryInstanceId}:royal-magical-library-ignition`;
+        const activatedState = createMockGameState({
+          phase: "Main1",
+          lp: { player: 8000, opponent: 8000 },
+          activatedIgnitionEffectsThisTurn: new Set([effectKey]),
+          zones: libraryState.zones,
+        });
+
+        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+
+        // Should still be able to activate
+        expect(command.canExecute(activatedState).isValid).toBe(true);
+      });
+    });
+
+    describe("execute", () => {
+      it("should successfully activate Royal Magical Library ignition effect and return effectSteps", () => {
+        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+
+        const result = command.execute(libraryState);
+
+        expect(result.success).toBe(true);
+        expect(result.updatedState).toBeDefined();
+        expect(result.effectSteps).toBeDefined();
+        expect(result.effectSteps!.length).toBeGreaterThan(0);
+        expect(result.message).toContain("Ignition effect activated");
+      });
+
+      it("should include notify and resolution steps (simplified version has no cost)", () => {
+        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+
+        const result = command.execute(libraryState);
+
+        expect(result.success).toBe(true);
+        expect(result.effectSteps).toBeDefined();
+        // Royal Magical Library simplified: 1 activation step (発動通知) + 1 resolution step (draw)
+        expect(result.effectSteps!.length).toBe(2);
+      });
+
+      it("should draw 1 card after executing all steps", () => {
+        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+
+        const result = command.execute(libraryState);
+
+        expect(result.success).toBe(true);
+        expect(result.effectSteps).toBeDefined();
+
+        // Execute all effect steps
+        let currentState = result.updatedState;
+        for (const step of result.effectSteps!) {
+          const stepResult = step.action(currentState);
+          expect(stepResult.success).toBe(true);
+          currentState = stepResult.updatedState;
+        }
+
+        // Verify draw occurred
+        expect(currentState.zones.hand).toHaveLength(1);
+        expect(currentState.zones.deck).toHaveLength(1); // Started with 2
+      });
+    });
+  });
+
+  // ===========================
+  // Integration: Multiple Cards with Ignition Effects
+  // ===========================
+  describe("generic ignition effect handling", () => {
+    it("should handle both Chicken Game and Royal Magical Library independently", () => {
+      const chickenGameId = "field-chickengame-1";
+      const royalLibraryId = "monster-royal-library-1";
+
+      const mixedState = createMockGameState({
+        phase: "Main1",
+        lp: { player: 5000, opponent: 5000 },
+        zones: {
+          deck: [
+            {
+              instanceId: "deck-0",
+              id: 1001,
+              jaName: "サンプルカード",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              location: "deck" as const,
+              placedThisTurn: false,
+            },
+          ],
+          hand: [],
+          mainMonsterZone: [
+            {
+              instanceId: royalLibraryId,
+              id: 70791313,
+              jaName: "王立魔法図書館",
+              type: "monster" as const,
+              frameType: "effect" as const,
+              location: "mainMonsterZone" as const,
+              position: "faceUp" as const,
+              battlePosition: "attack" as const,
+              placedThisTurn: false,
+            },
+          ],
+          spellTrapZone: [],
+          fieldZone: [
+            {
+              instanceId: chickenGameId,
+              id: 67616300,
+              jaName: "チキンゲーム",
+              type: "spell" as const,
+              frameType: "spell" as const,
+              spellType: "field" as const,
+              location: "fieldZone" as const,
+              position: "faceUp" as const,
+              placedThisTurn: false,
+            },
+          ],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Both cards should be able to activate their ignition effects
+      const chickenCommand = new ActivateIgnitionEffectCommand(chickenGameId);
+      const libraryCommand = new ActivateIgnitionEffectCommand(royalLibraryId);
+
+      expect(chickenCommand.canExecute(mixedState).isValid).toBe(true);
+      expect(libraryCommand.canExecute(mixedState).isValid).toBe(true);
+
+      // Activating one should not affect the other's ability to activate
+      const chickenResult = chickenCommand.execute(mixedState);
+      expect(chickenResult.success).toBe(true);
+
+      // Execute Chicken Game's activation steps to record it
+      let stateAfterChicken = chickenResult.updatedState;
+      for (const step of chickenResult.effectSteps!) {
+        const stepResult = step.action(stateAfterChicken);
+        if (stepResult.success) {
+          stateAfterChicken = stepResult.updatedState;
+        }
+      }
+
+      // Royal Magical Library should still be able to activate
+      expect(libraryCommand.canExecute(stateAfterChicken).isValid).toBe(true);
     });
   });
 });

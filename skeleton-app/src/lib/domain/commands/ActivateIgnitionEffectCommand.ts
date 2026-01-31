@@ -2,7 +2,8 @@
  * ActivateIgnitionEffectCommand - 起動効果発動コマンド
  *
  * フィールドに表側表示で存在するカードの起動効果を発動する Command パターン実装。
- * TODO: 現状「チキンレース」のハードコードとなっている。別の起動効果も扱えるように汎用化する。
+ * ChainableActionRegistry から起動効果を取得し、汎用的に発動する。
+ *
  * TODO: チェーンシステムに対応する。
  *
  * @module domain/commands/ActivateIgnitionEffectCommand
@@ -14,11 +15,11 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
-import { isMainPhase } from "$lib/domain/models/Phase";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/spells/individuals/ChickenGameIgnitionEffect";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
   ValidationErrorCode,
   successValidationResult,
@@ -39,9 +40,11 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. メインフェイズであること
-   * 3. 指定カードがフィールドに存在し、表側表示であること
-   * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+   * 2. 指定カードがフィールドに存在し、表側表示であること
+   * 3. 起動効果がレジストリに登録されていること
+   * 4. カード固有の発動条件を満たし発動可能な起動効果が存在すること
+   *
+   * Note: フェイズ判定は ChainableAction 側でチェック
    */
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
@@ -49,12 +52,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.GAME_OVER);
     }
 
-    // 2. メインフェイズであること
-    if (!isMainPhase(state.phase)) {
-      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
-    }
-
-    // 3. 指定カードがフィールドに存在し、表側表示であること
+    // 2. 指定カードがフィールドに存在し、表側表示であること
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
@@ -67,19 +65,33 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       return failureValidationResult(ValidationErrorCode.CARD_NOT_FACE_UP);
     }
 
-    // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
-    // 現在はチキンレース固定
-    const cardId = cardInstance.id;
-    if (cardId !== 67616300) {
+    // 4. 起動効果がレジストリに登録されていること
+    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
+    if (ignitionEffects.length === 0) {
       return failureValidationResult(ValidationErrorCode.NO_IGNITION_EFFECT);
     }
-    const ignitionEffect = new ChickenGameIgnitionEffect(this.cardInstanceId);
-    const activationResult = ignitionEffect.canActivate(state);
-    if (!activationResult.isValid) {
-      return activationResult;
+
+    // 5. カード固有の発動条件を満たし発動可能な起動効果が存在すること
+    const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance);
+    if (!activatableEffect) {
+      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     return successValidationResult();
+  }
+
+  /**
+   * 発動可能な起動効果を探す
+   * 複数の起動効果がある場合、最初に発動可能なものを返す
+   *
+   * TODO: 複数の起動効果を選択できるようにする
+   */
+  private findActivatableEffect(
+    effects: ChainableAction[],
+    state: GameState,
+    cardInstance: CardInstance,
+  ): ChainableAction | undefined {
+    return effects.find((effect) => effect.canActivate(state, cardInstance).isValid);
   }
 
   /**
@@ -87,7 +99,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * 処理フロー:
    * 1. 実行可能性判定
-   * 2. 更新後状態の構築
+   * 2. 更新後状態の構築（発動記録を含む）
    * 3. 戻り値の構築
    *
    * Note: 効果処理は、Application 層に返された後に実行される
@@ -100,27 +112,35 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+    // activatableEffect は canExecute で存在が保証されている
+    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
+    const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance)!;
 
     // 2. 更新後状態の構築
+    const updatedActivatedEffects = new Set(state.activatedIgnitionEffectsThisTurn);
+    updatedActivatedEffects.add(`${cardInstance.instanceId}:${activatableEffect.effectId}`);
+    // FIXME: 発動済み効果の記録先と、効果IDの管理方法を見直す
     const updatedState: GameState = {
-      ...state, // 起動効果発動に伴う状態変化は特に無し
+      ...state,
+      activatedIgnitionEffectsThisTurn: updatedActivatedEffects, // 発動済み起動効果IDを記録
     };
 
     // 3. 戻り値の構築
     return successUpdateResult(
       updatedState,
       `Ignition effect activated: ${this.cardInstanceId}`,
-      this.buildEffectSteps(updatedState, cardInstance),
+      this.buildEffectSteps(updatedState, cardInstance, activatableEffect),
     );
   }
 
-  // 効果処理ステップ配列を生成する
-  private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
-    const ignitionEffect = new ChickenGameIgnitionEffect(cardInstance.instanceId);
-    const activationSteps = ignitionEffect.createActivationSteps(state);
-    const resolutionSteps = ignitionEffect.createResolutionSteps(state, this.cardInstanceId);
-    const allEffectSteps = [...activationSteps, ...resolutionSteps];
-    return allEffectSteps;
+  /**
+   * 効果処理ステップ配列を生成する
+   * Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
+   */
+  private buildEffectSteps(state: GameState, cardInstance: CardInstance, effect: ChainableAction): AtomicStep[] {
+    const activationSteps = effect.createActivationSteps(state, cardInstance);
+    const resolutionSteps = effect.createResolutionSteps(state, cardInstance);
+    return [...activationSteps, ...resolutionSteps];
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

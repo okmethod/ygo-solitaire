@@ -23,6 +23,13 @@
     </div>
   </header>
 
+  <!-- デッキ説明 -->
+  {#if data.deckData.description}
+    <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
+      <p class="text-sm opacity-75">{data.deckData.description}</p>
+    </div>
+  {/if}
+
   <!-- カード一覧 -->
   <div class="space-y-6">
     <hr class="my-8 border-t border-gray-300" />
@@ -70,11 +77,4 @@
     {/if}
     <hr class="my-8 border-t border-gray-300" />
   </div>
-
-  <!-- デッキ説明 -->
-  {#if data.deckData.description}
-    <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
-      <p class="text-sm opacity-75">{data.deckData.description}</p>
-    </div>
-  {/if}
 </div>

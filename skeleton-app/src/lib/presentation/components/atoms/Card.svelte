@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Card } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types/card";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
-  import { getCardTypeBackgroundClass } from "$lib/presentation/constants/cardTypes";
+  import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
@@ -9,7 +9,7 @@
    * Card型はCardDisplayDataのエイリアスです
    */
   interface CardComponentProps {
-    card?: Card;
+    card?: CardDisplayData;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
@@ -20,8 +20,8 @@
     animate?: boolean;
     showDetailOnClick?: boolean;
     faceDown?: boolean; // 裏側表示フラグ (T033-T034)
-    onClick?: (card: Card) => void;
-    onHover?: (card: Card | null) => void;
+    onClick?: (card: CardDisplayData) => void;
+    onHover?: (card: CardDisplayData | null) => void;
   }
 
   let {
@@ -56,10 +56,10 @@
 
   // カードクリック処理
   function handleClick() {
-    console.log(`[Card] クリックイベント発生: clickable=${clickable}, card=${card?.name}, hasOnClick=${!!onClick}`);
+    console.log(`[Card] クリックイベント発生: clickable=${clickable}, card=${card?.jaName}, hasOnClick=${!!onClick}`);
 
     if (clickable && card && onClick) {
-      console.log(`[Card] onClickコールバックを実行します: ${card.name}`);
+      console.log(`[Card] onClickコールバックを実行します: ${card.jaName}`);
       onClick(card);
     }
     if (selectable) {
@@ -106,9 +106,9 @@
   // 回転スタイル
   const rotationStyle = $derived(rotation !== 0 ? `transform: rotate(${rotation}deg);` : "");
 
-  // カードタイプ別の背景色
+  // フレームタイプ別の背景色
   const typeClasses = $derived(() => {
-    return getCardTypeBackgroundClass(card?.type);
+    return getFrameBackgroundClass(card?.frameType);
   });
 
   // 共通クラス
@@ -144,7 +144,11 @@
     <!-- カード画像エリア -->
     <div class="flex-1 flex items-center justify-center p-1">
       {#if card?.images?.imageCropped}
-        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+        <img
+          src={card.images.imageCropped}
+          alt={card.jaName || "カード"}
+          class="w-full h-full object-cover rounded-sm"
+        />
       {:else if isPlaceholder}
         <div
           class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
@@ -170,7 +174,7 @@
     <!-- カード情報エリア -->
     {#if card && !isPlaceholder}
       <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
-        <div class="text-xs font-medium truncate">{card.name}</div>
+        <div class="text-xs font-medium truncate">{card.jaName}</div>
       </div>
     {/if}
   {/if}

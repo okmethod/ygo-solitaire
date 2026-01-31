@@ -86,8 +86,8 @@ describe("BaseSpellAction", () => {
   const action = new TestSpellAction();
 
   describe("ChainableAction interface properties", () => {
-    it("should be a card activation", () => {
-      expect(action.isCardActivation).toBe(true);
+    it("should have effect category = 'activation'", () => {
+      expect(action.effectCategory).toBe("activation");
     });
 
     it("should have spell speed defined by subclass", () => {

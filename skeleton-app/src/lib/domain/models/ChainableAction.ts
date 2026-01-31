@@ -9,6 +9,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { EffectCategory } from "$lib/domain/models/EffectCategory";
 
 /**
  * チェーンブロックを作る処理
@@ -18,11 +19,23 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
  */
 export interface ChainableAction {
   /**
-   * カードの発動 or 効果の発動
-   * - true: カードの発動（手札→フィールドへの配置を伴う）
-   * - false: 効果の発動（既にフィールドに存在するカードの効果）
+   * カードID（数値）
    */
-  readonly isCardActivation: boolean;
+  readonly cardId: number;
+
+  /**
+   * 効果の一意識別子
+   * 1ターンに1度制限等で使用。形式: "{カード名}-{効果種別}"
+   * 例: "chicken-game-activation", "chicken-game-ignition"
+   */
+  readonly effectId: string;
+
+  /**
+   * 効果カテゴリ
+   * - activation: カードの発動時効果
+   * - ignition: 起動効果
+   */
+  readonly effectCategory: EffectCategory;
 
   /**
    * スペルスピード

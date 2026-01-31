@@ -10,7 +10,7 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/application/stores/cardDisplayStore";
 import { createMockGameState, createCardInstances } from "../../../__testUtils__/gameStateFactory";
 import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
-import type { YGOProDeckCard } from "$lib/infrastructure/types/ygoprodeck";
+import type { YGOProDeckCardInfo } from "$lib/application/ports/ICardDataRepository";
 import type { CardDisplayData } from "$lib/application/types/card";
 import potOfGreedFixture from "../../../fixtures/ygoprodeck/pot-of-greed.json";
 import gracefulCharityFixture from "../../../fixtures/ygoprodeck/graceful-charity.json";
@@ -73,7 +73,7 @@ describe("cardDisplayStore", () => {
     it("should fetch CardDisplayData when hand has cards", async () => {
       // Mock API response
       const mockGetCardsByIds = vi.mocked(ygoprodeckApi.getCardsByIds);
-      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCard]);
+      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCardInfo]);
 
       // Create state with Pot of Greed in hand
       const stateWithHand = createMockGameState({
@@ -166,7 +166,7 @@ describe("cardDisplayStore", () => {
 
     it("should fetch CardDisplayData when field has cards", async () => {
       const mockGetCardsByIds = vi.mocked(ygoprodeckApi.getCardsByIds);
-      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCard]);
+      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCardInfo]);
 
       const receivedCards: CardDisplayData[][] = [];
       const unsubscribe = fieldCards.subscribe((cards) => {
@@ -218,7 +218,7 @@ describe("cardDisplayStore", () => {
 
     it("should fetch CardDisplayData when graveyard has cards", async () => {
       const mockGetCardsByIds = vi.mocked(ygoprodeckApi.getCardsByIds);
-      mockGetCardsByIds.mockResolvedValueOnce([gracefulCharityFixture as YGOProDeckCard]);
+      mockGetCardsByIds.mockResolvedValueOnce([gracefulCharityFixture as YGOProDeckCardInfo]);
 
       const receivedCards: CardDisplayData[][] = [];
       const unsubscribe = graveyardCards.subscribe((cards) => {
@@ -270,7 +270,7 @@ describe("cardDisplayStore", () => {
 
     it("should fetch CardDisplayData when banished zone has cards", async () => {
       const mockGetCardsByIds = vi.mocked(ygoprodeckApi.getCardsByIds);
-      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCard]);
+      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCardInfo]);
 
       const receivedCards: CardDisplayData[][] = [];
       const unsubscribe = banishedCards.subscribe((cards) => {
@@ -325,7 +325,7 @@ describe("cardDisplayStore", () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Update state: add card to hand
-      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCard]);
+      mockGetCardsByIds.mockResolvedValueOnce([potOfGreedFixture as YGOProDeckCardInfo]);
       const updatedState = createMockGameState({
         zones: {
           deck: [],
