@@ -15,6 +15,7 @@
 import type {
   CardInstance,
   CardType,
+  FrameSubType,
   MainMonsterSubType,
   ExtraMonsterSubType,
   SpellSubType,
@@ -26,7 +27,15 @@ import type {
  *
  * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
  */
-export type { CardInstance, CardType, MainMonsterSubType, ExtraMonsterSubType, SpellSubType, TrapSubType };
+export type {
+  CardInstance,
+  CardType,
+  FrameSubType,
+  MainMonsterSubType,
+  ExtraMonsterSubType,
+  SpellSubType,
+  TrapSubType,
+};
 
 /** モンスターカード属性情報 (YGOPRODeck API) */
 export interface MonsterAttributes {
@@ -48,18 +57,18 @@ export interface CardImages {
  * UI 表示用カードデータ (DTO)
  *
  * CardDisplayDataFactory によって生成される。
- * - YGOProDeckCardInfo (API経由): 画像、効果テキスト、ステータスなど
- * - CardData (Domain層): 日本語名 (jaName)
+ * - CardData (Domain層): ゲームロジックの根拠
+ * - ExternalCardData (API経由): 表示用および検証用
  *
  * @see CardDisplayDataFactory
  */
 export interface CardDisplayData {
-  id: number; // YGOPRODeck API uses numeric IDs
+  id: number;
   name: string; // 英語版カード名
   jaName: string; // 日本語版カード名
-  type: CardType; // Re-exported from domain/models/Card
-  description: string; // カード効果テキスト
-  frameType?: string; // カードフレーム（色）の種類
+  type: CardType;
+  frameType: FrameSubType;
+  description: string; // カードテキスト
   archetype?: string; // アーキタイプ（テーマ名）
   monsterAttributes?: MonsterAttributes;
   images?: CardImages;
