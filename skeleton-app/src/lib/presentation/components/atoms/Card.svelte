@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardDisplayData } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";

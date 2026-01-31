@@ -7,7 +7,7 @@
  */
 
 import { writable } from "svelte/store";
-import type { CardDisplayData } from "$lib/presentation/types/card";
+import type { CardDisplayData } from "$lib/presentation/types";
 
 /** カード詳細表示用のストア */
 export const selectedCardForDisplay = writable<CardDisplayData | null>(null);

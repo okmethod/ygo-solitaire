@@ -1,7 +1,7 @@
 <script lang="ts">
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
-  import type { LoadedCardEntry } from "$lib/presentation/types/deck";
+  import type { LoadedCardEntry } from "$lib/presentation/types";
 
   interface CardListProps {
     title?: string;

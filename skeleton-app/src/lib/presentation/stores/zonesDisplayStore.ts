@@ -13,7 +13,7 @@
  */
 
 import { derived, type Readable } from "svelte/store";
-import type { CardInstance, CardDisplayData } from "$lib/presentation/types/card";
+import type { CardInstance, CardDisplayData } from "$lib/presentation/types";
 import type { GameState } from "$lib/presentation/types";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { getCardDataRepository } from "$lib/infrastructure/adapters/YGOProDeckCardDataRepository";

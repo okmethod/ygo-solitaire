@@ -11,6 +11,8 @@
    *
    * @module presentation/components/organisms/board/DuelField
    */
+  import type { CardDisplayData } from "$lib/presentation/types/card";
+  import { gameFacade } from "$lib/application/GameFacade";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
@@ -18,8 +20,6 @@
   import Graveyard from "$lib/presentation/components/organisms/board/Graveyard.svelte";
   import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
   import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
-  import type { CardDisplayData } from "$lib/presentation/types/card";
-  import { gameFacade } from "$lib/application/GameFacade";
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;

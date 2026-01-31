@@ -1,4 +1,4 @@
-import type { FrameSubType } from "$lib/presentation/types/card";
+import type { FrameSubType } from "$lib/presentation/types";
 
 /**
  * フレームタイプ別の背景色クラス

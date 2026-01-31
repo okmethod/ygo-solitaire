@@ -13,7 +13,7 @@
  * @module presentation/stores/cardSelectionStore
  */
 
-import type { CardInstance } from "$lib/application/types/card";
+import type { CardInstance } from "$lib/presentation/types";
 
 /**
  * カード選択設定（Presentation Layer用）

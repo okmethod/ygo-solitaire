@@ -11,12 +11,12 @@
    *
    * @module presentation/components/organisms/board/Hands
    */
+  import type { CardDisplayData } from "$lib/presentation/types";
+  import { gameFacade } from "$lib/application/GameFacade";
   import Card from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
-  import type { CardDisplayData } from "$lib/presentation/types/card";
-  import { gameFacade } from "$lib/application/GameFacade";
 
   /**
    * Hands コンポーネントのプロパティ

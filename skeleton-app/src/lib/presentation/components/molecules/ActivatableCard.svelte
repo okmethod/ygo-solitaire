@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Card from "$lib/presentation/components/atoms/Card.svelte";
-  import type { Card as CardDisplayData } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
+  import Card from "$lib/presentation/components/atoms/Card.svelte";
 
   /**
    * カードアクションボタン定義

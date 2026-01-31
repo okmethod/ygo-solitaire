@@ -1,9 +1,9 @@
 <script lang="ts">
+  import type { CardDisplayData } from "$lib/presentation/types";
+  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import CardListModal from "$lib/presentation/components/modals/CardListModal.svelte";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
-  import CardListModal from "$lib/presentation/components/modals/CardListModal.svelte";
-  import type { CardDisplayData } from "$lib/presentation/types/card";
-  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
   interface GraveyardProps {
