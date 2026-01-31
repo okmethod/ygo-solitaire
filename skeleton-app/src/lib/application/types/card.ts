@@ -1,11 +1,6 @@
 /**
  * card - カードデータの DTO (Data Transfer Object)
  *
- * @architecture レイヤー間依存ルール - Application Layer (全般)
- * - ROLE: ユースケースの実現、ドメインオブジェクトを組み合わせたゲーム進行の制御
- * - ALLOWED: Domain Layer
- * - FORBIDDEN: Infrastructure Layer, Presentation Layer
- *
  * @architecture レイヤー間依存ルール - Application Layer (DTO)
  * - ROLE: Application Layer や Presentation Layer が消費するデータ形式の定義
  * - ALLOWED: Domain Layer のモデルへの依存
