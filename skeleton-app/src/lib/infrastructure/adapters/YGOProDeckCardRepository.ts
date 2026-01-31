@@ -13,18 +13,18 @@
  * @module infrastructure/adapters/YGOProDeckCardRepository
  */
 
-import type { ICardDataRepository, YGOProDeckCardInfo } from "$lib/application/ports/ICardDataRepository";
+import type { ICardDataRepository, ExternalCardData } from "$lib/application/ports/ICardDataRepository";
 import { getCardsByIds as apiGetCardsByIds, getCardById as apiGetCardById } from "$lib/infrastructure/api/ygoprodeck";
 
 /** カード情報取得の具象実装 (YGOProDeck API) */
 class YGOProDeckCardRepository implements ICardDataRepository {
   /** カードIDリストから複数のカードデータを取得 */
-  async getCardsByIds(fetchFunction: typeof fetch, cardIds: number[]): Promise<YGOProDeckCardInfo[]> {
+  async getCardsByIds(fetchFunction: typeof fetch, cardIds: number[]): Promise<ExternalCardData[]> {
     return apiGetCardsByIds(fetchFunction, cardIds);
   }
 
   /** 単一のカードデータを取得 */
-  async getCardById(fetchFunction: typeof fetch, cardId: number): Promise<YGOProDeckCardInfo> {
+  async getCardById(fetchFunction: typeof fetch, cardId: number): Promise<ExternalCardData> {
     const card = await apiGetCardById(fetchFunction, cardId);
     if (!card) {
       throw new Error(`Card not found: ID ${cardId}`);

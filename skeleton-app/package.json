@@ -64,5 +64,8 @@
   },
   "overrides": {
     "cookie": "^1.0.2"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
   }
 }
