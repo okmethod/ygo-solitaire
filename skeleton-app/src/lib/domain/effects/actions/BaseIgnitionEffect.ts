@@ -46,11 +46,11 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   /** 効果の発動（カードの発動ではない） */
   readonly isCardActivation = false;
 
+  /** 効果カテゴリ: 起動効果 */
+  readonly effectCategory: EffectCategory = "ignition" as const;
+
   /** スペルスピード1（起動効果は常にスペルスピード1） */
   readonly spellSpeed = 1 as const;
-
-  /** 効果カテゴリ: 起動効果 */
-  readonly effectCategory: EffectCategory = "ignition";
 
   /**
    * コンストラクタ

@@ -42,11 +42,11 @@ export abstract class BaseSpellAction implements ChainableAction {
   /** カードの発動（手札→フィールド） */
   readonly isCardActivation = true;
 
+  /** 効果カテゴリ: 発動時効果 */
+  readonly effectCategory: EffectCategory = "activation" as const;
+
   /** スペルスピード（サブクラスで定義） */
   abstract readonly spellSpeed: 1 | 2;
-
-  /** 効果カテゴリ: 発動時効果 */
-  readonly effectCategory: EffectCategory = "activation";
 
   /**
    * コンストラクタ

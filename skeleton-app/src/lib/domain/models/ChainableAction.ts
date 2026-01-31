@@ -38,19 +38,19 @@ export interface ChainableAction {
   readonly isCardActivation: boolean;
 
   /**
+   * 効果カテゴリ
+   * - activation: カードの発動時効果
+   * - ignition: 起動効果
+   */
+  readonly effectCategory: EffectCategory;
+
+  /**
    * スペルスピード
    * - 1: Normal Spell/Effect (通常魔法、起動効果)
    * - 2: Quick-Play Spell/Effect (速攻魔法、誘発効果、クイックエフェクト)
    * - 3: Counter Trap (カウンター罠)
    */
   readonly spellSpeed: 1 | 2 | 3;
-
-  /**
-   * 効果カテゴリ
-   * - activation: カードの発動時効果
-   * - ignition: 起動効果
-   */
-  readonly effectCategory: EffectCategory;
 
   /**
    * CONDITIONS: 発動条件チェック
