@@ -31,13 +31,6 @@ export interface ChainableAction {
   readonly effectId: string;
 
   /**
-   * カードの発動 or 効果の発動
-   * - true: カードの発動（手札→フィールドへの配置を伴う）
-   * - false: 効果の発動（既にフィールドに存在するカードの効果）
-   */
-  readonly isCardActivation: boolean;
-
-  /**
    * 効果カテゴリ
    * - activation: カードの発動時効果
    * - ignition: 起動効果

@@ -73,16 +73,12 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
   });
 
   describe("static properties", () => {
-    it("should have isCardActivation = false (effect activation, not card activation)", () => {
-      expect(effect.isCardActivation).toBe(false);
+    it("should have effectCategory = ignition", () => {
+      expect(effect.effectCategory).toBe("ignition");
     });
 
     it("should have spellSpeed = 1 (ignition effect)", () => {
       expect(effect.spellSpeed).toBe(1);
-    });
-
-    it("should have effectCategory = ignition", () => {
-      expect(effect.effectCategory).toBe("ignition");
     });
 
     it("should have correct effectId for once-per-turn tracking", () => {

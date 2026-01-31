@@ -39,9 +39,6 @@ export abstract class BaseSpellAction implements ChainableAction {
   /** 効果の一意識別子 */
   readonly effectId: string;
 
-  /** カードの発動（手札→フィールド） */
-  readonly isCardActivation = true;
-
   /** 効果カテゴリ: 発動時効果 */
   readonly effectCategory: EffectCategory = "activation" as const;
 

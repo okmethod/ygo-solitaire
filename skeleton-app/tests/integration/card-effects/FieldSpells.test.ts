@@ -44,9 +44,8 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
   it("Debug: Chicken Game should be registered in ChainableActionRegistry", () => {
     const activation = ChainableActionRegistry.getActivation(chickenGameCardId);
     expect(activation).toBeDefined();
-    expect(activation?.isCardActivation).toBe(true);
-    expect(activation?.spellSpeed).toBe(1);
     expect(activation?.effectCategory).toBe("activation");
+    expect(activation?.spellSpeed).toBe(1);
 
     // Also check ignition effect is registered
     const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);

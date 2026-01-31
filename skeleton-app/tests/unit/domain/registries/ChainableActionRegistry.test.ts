@@ -35,7 +35,6 @@ import { successValidationResult } from "$lib/domain/models/ValidationResult";
 class MockChainableAction implements ChainableAction {
   constructor(
     private cardName: string,
-    public readonly isCardActivation: boolean = true,
     public readonly spellSpeed: 1 | 2 | 3 = 1,
     public readonly effectCategory: EffectCategory = "activation",
     public readonly effectId: string = "mock-effect",
