@@ -9,30 +9,7 @@
  * @module application/types/card
  */
 
-import type {
-  CardInstance,
-  CardType,
-  FrameSubType,
-  MainMonsterSubType,
-  ExtraMonsterSubType,
-  SpellSubType,
-  TrapSubType,
-} from "$lib/domain/models/Card";
-
-/**
- * Domain 型の再エクスポート（Port/Adapter 境界での標準パターン）
- *
- * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
- */
-export type {
-  CardInstance,
-  CardType,
-  FrameSubType,
-  MainMonsterSubType,
-  ExtraMonsterSubType,
-  SpellSubType,
-  TrapSubType,
-};
+import type { CardType, FrameSubType } from "$lib/domain/models/Card";
 
 /** モンスターカード属性情報 */
 export interface MonsterAttributes {
@@ -70,3 +47,18 @@ export interface CardDisplayData {
   monsterAttributes?: MonsterAttributes;
   images?: CardImages;
 }
+
+/**
+ * Domain 型の再エクスポート（Port/Adapter 境界での標準パターン）
+ *
+ * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
+ */
+export type {
+  CardInstance,
+  CardType,
+  FrameSubType,
+  MainMonsterSubType,
+  ExtraMonsterSubType,
+  SpellSubType,
+  TrapSubType,
+} from "$lib/domain/models/Card";

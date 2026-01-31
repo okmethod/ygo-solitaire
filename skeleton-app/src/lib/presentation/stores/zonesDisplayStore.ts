@@ -1,32 +1,29 @@
 /**
- * cardDisplayStore - CardInstance → CardDisplayData変換ストア
+ * zonesDisplayStore - 各ゾーンのUI表示用カードデータストア
  *
  * gameStateStore の変更を監視し、各ゾーンのCardInstanceをCardDisplayDataに変換する。
  * YGOPRODeck APIからカード詳細情報を取得し、UI表示用のデータを提供する。
  *
- * @architecture レイヤー間依存ルール - Application Layer (Store)
- * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
- * - ALLOWED: Domain Layer への依存
- * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ * @architecture レイヤー間依存ルール - Presentation Layer
+ * - ROLE: ゲーム状態からUI表示用データへの変換、API連携
+ * - ALLOWED: Application Layer への依存、Infrastructure Layer への依存
+ * - FORBIDDEN: Domain Layer への直接依存
  *
- * FIXME: インフラ層への依存が発生しているため、レイヤー間依存ルール違反となっている。
- *
- * @module application/stores/cardDisplayStore
+ * @module presentation/stores/zonesDisplayStore
  */
 
 import { derived, type Readable } from "svelte/store";
-import { gameStateStore } from "$lib/application/stores/gameStateStore";
+import type { CardInstance, CardDisplayData } from "$lib/presentation/types/card";
+import type { GameState } from "$lib/presentation/types";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { getCardDataRepository } from "$lib/infrastructure/adapters/YGOProDeckCardDataRepository";
 import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
-import type { CardDisplayData } from "$lib/application/types/card";
-import type { GameState } from "$lib/domain/models/GameState";
-import type { CardInstance } from "$lib/domain/models/Card";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
 
 /**
  * カードリポジトリのシングルトンインスタンス
  *
- * Dependency Injection: Application Layer内の他コンポーネントで使用するため公開。
+ * Presentation Layer内の他コンポーネントで使用するため公開。
  */
 export const cardRepository: ICardDataRepository = getCardDataRepository();
 
@@ -64,7 +61,7 @@ function createZoneCardStore(
         })
         .catch((err) => {
           if (!isCancelled) {
-            console.error(`[cardDisplayStore] Failed to fetch ${zoneName} cards:`, err);
+            console.error(`[zonesDisplayStore] Failed to fetch ${zoneName} cards:`, err);
             set([]);
           }
         });

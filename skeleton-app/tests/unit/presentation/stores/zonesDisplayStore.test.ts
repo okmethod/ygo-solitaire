@@ -1,5 +1,5 @@
 /**
- * Unit tests for cardDisplayStore
+ * Unit tests for zonesDisplayStore
  *
  * Tests CardInstance → CardDisplayData transformation via YGOPRODeck API
  */
@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { get } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/application/stores/cardDisplayStore";
+import { handCards, fieldCards, graveyardCards, banishedCards } from "$lib/presentation/stores/zonesDisplayStore";
 import { createMockGameState, createCardInstances } from "../../../__testUtils__/gameStateFactory";
 import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
 import type { YGOProDeckCardInfo } from "$lib/application/ports/ICardDataRepository";
@@ -25,7 +25,7 @@ vi.mock("$lib/infrastructure/api/ygoprodeck", async (importOriginal) => {
   };
 });
 
-describe("cardDisplayStore", () => {
+describe("zonesDisplayStore", () => {
   let unsubscribers: Array<() => void> = [];
 
   beforeEach(() => {

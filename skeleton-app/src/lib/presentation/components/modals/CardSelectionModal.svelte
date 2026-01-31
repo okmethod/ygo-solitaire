@@ -11,7 +11,7 @@
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
   import type { CardDisplayData } from "$lib/presentation/types/card";
-  import { cardRepository } from "$lib/application/stores/cardDisplayStore";
+  import { cardRepository } from "$lib/presentation/stores/zonesDisplayStore";
 
   // cardSelectionStore の状態を購読
   const isActive = $derived(cardSelectionStore.isActive);

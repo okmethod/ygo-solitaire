@@ -11,7 +11,7 @@
     deckCardCount,
     gameResult,
   } from "$lib/application/stores/derivedStores";
-  import { handCards, fieldCards, graveyardCards } from "$lib/application/stores/cardDisplayStore";
+  import { handCards, fieldCards, graveyardCards } from "$lib/presentation/stores/zonesDisplayStore";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";

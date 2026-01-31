@@ -1,0 +1,1 @@
+export type { GameState } from "$lib/application/types/game";
