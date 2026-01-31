@@ -1,14 +1,14 @@
 /**
- * PotOfGreedActivation - 《強欲な壺》(Pot of Greed)
+ * GracefulCharityActivation - 《天使の施し》(Graceful Charity)
  *
- * Card ID: 55144522 | Type: Spell | Subtype: Normal
+ * Card ID: 79571449 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: デッキに2枚以上
+ * - CONDITIONS: デッキに3枚以上
  * - ACTIVATION: 無し
- * - RESOLUTION: 2枚ドロー
+ * - RESOLUTION: 3枚ドロー、手札を2枚捨てる
  *
- * @module domain/effects/actions/spells/individuals/PotOfGreedActivation
+ * @module domain/effects/actions/spells/individuals/GracefulCharityActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,24 +20,24 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
+import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
-/** 《強欲な壺》効果クラス */
-export class PotOfGreedActivation extends NormalSpellAction {
+/** 《天使の施し》効果クラス */
+export class GracefulCharityActivation extends NormalSpellAction {
   constructor() {
-    super(55144522);
+    super(79571449);
   }
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. デッキに2枚以上あること
+   * 1. デッキに3枚以上あること
    */
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    // 1. デッキに2枚以上あること
-    if (state.zones.deck.length < 2) {
+    if (state.zones.deck.length < 3) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -57,11 +57,12 @@ export class PotOfGreedActivation extends NormalSpellAction {
    * RESOLUTION: 効果解決処理（カード固有）
    *
    * 効果:
-   * 1. 2枚ドロー
+   * 1. 3枚ドロー
+   * 2. 手札を2枚捨てる
    *
    * @protected
    */
   protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return [drawStep(2)];
+    return [drawStep(3), selectAndDiscardStep(2)];
   }
 }

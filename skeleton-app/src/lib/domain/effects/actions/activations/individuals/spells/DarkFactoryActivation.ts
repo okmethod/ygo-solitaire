@@ -1,14 +1,14 @@
 /**
- * TerraformingActivation - 《テラ・フォーミング》(Terraforming)
+ * DarkFactoryActivation - 《闇の量産工場》(Dark Factory of Mass Production)
  *
- * Card ID: 73628505 | Type: Spell | Subtype: Normal
+ * Card ID: 90928333 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: デッキにフィールド魔法が1枚以上
+ * - CONDITIONS: 墓地に通常モンスターが2枚以上
  * - ACTIVATION: 無し
- * - RESOLUTION: フィールド魔法1枚をサーチ
+ * - RESOLUTION: 通常モンスター2枚をサルベージ
  *
- * @module domain/effects/actions/spells/individuals/TerraformingActivation
+ * @module domain/effects/actions/spells/individuals/DarkFactoryActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,28 +20,29 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
-import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
-/** 《テラ・フォーミング》効果クラス */
-export class TerraformingActivation extends NormalSpellAction {
+/** 《闇の量産工場》効果クラス */
+export class DarkFactoryActivation extends NormalSpellAction {
   constructor() {
-    super(73628505);
+    super(90928333);
   }
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. デッキにフィールド魔法が1枚以上あること
-   *
-   * @protected
+   * 1. 墓地に通常モンスターが2枚以上いること
    */
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
-    if (fieldSpells.length < 1) {
+    const normalMonsters = state.zones.graveyard.filter(
+      (card) => card.type === "monster" && card.frameType === "normal",
+    );
+    if (normalMonsters.length < 2) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
+
     return successValidationResult();
   }
 
@@ -58,19 +59,19 @@ export class TerraformingActivation extends NormalSpellAction {
    * RESOLUTION: 効果解決処理（カード固有）
    *
    * 効果:
-   * 1. デッキからフィールド魔法1枚を手札に加える
+   * 1. 通常モンスター2枚をサルベージ
    *
    * @protected
    */
   protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
-      searchFromDeckByConditionStep({
-        id: `terraforming-search-${sourceInstance.instanceId}`,
-        summary: "フィールド魔法1枚をサーチ",
-        description: "デッキからフィールド魔法1枚を選択し、手札に加えます",
-        filter: (card) => card.type === "spell" && card.spellType === "field",
-        minCards: 1,
-        maxCards: 1,
+      salvageFromGraveyardStep({
+        id: `dark-factory-search-${sourceInstance.instanceId}`,
+        summary: "通常モンスター2枚をサルベージ",
+        description: "墓地から通常モンスター2枚を選択し、手札に加えます",
+        filter: (card) => card.type === "monster" && card.frameType === "normal",
+        minCards: 2,
+        maxCards: 2,
         cancelable: false,
       }),
     ];

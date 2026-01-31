@@ -1,14 +1,16 @@
 /**
- * IntoTheVoidActivation - 《無の煉獄》(Into the Void)
+ * CardDestructionActivation - 《手札断札》(Card Destruction)
  *
- * Card ID: 93946239 | Type: Spell | Subtype: Normal
+ * Card ID: 74519184 | Type: Spell | Subtype: Quick-Play
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: 手札が3枚以上、デッキに1枚以上
+ * - CONDITIONS: 捨てられる手札が2枚以上、デッキに2枚以上
  * - ACTIVATION: 無し
- * - RESOLUTION: 1枚ドロー、エンドフェイズに手札を全て捨てる
+ * - RESOLUTION: 手札を2枚捨てる、2枚ドロー
  *
- * @module domain/effects/actions/spells/individuals/IntoTheVoidActivation
+ * Note: 相手の捨てる処理・ドロー処理は未実装
+ *
+ * @module domain/effects/actions/spells/individuals/CardDestructionActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,32 +22,32 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
+import { countHandExcludingSelf } from "$lib/domain/models/Zone";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
+import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
-/** 《無の煉獄》効果クラス */
-export class IntoTheVoidActivation extends NormalSpellAction {
+/** 《手札断札》効果クラス */
+export class CardDestructionActivation extends QuickPlaySpellAction {
   constructor() {
-    super(93946239);
+    super(74519184);
   }
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. 自分の手札が3枚以上であること
-   * 2. デッキに1枚以上あること
-   *
+   * 1. このカードを除き、手札が2枚以上であること
+   * 2. デッキに2枚以上あること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    // 1. 自分の手札が3枚以上であること
-    if (state.zones.hand.length < 3) {
+  protected individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult {
+    // 1. このカードを除き、手札が2枚以上であること
+    if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    // 2. デッキに1枚以上あること
-    if (state.zones.deck.length < 1) {
+    // 2. デッキに2枚以上あること
+    if (state.zones.deck.length < 2) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -65,12 +67,12 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    * RESOLUTION: 効果解決処理（カード固有）
    *
    * 効果:
-   * 1. 1枚ドロー
-   * 2. エンドフェイズに手札を全て捨てる効果を登録
+   * 1. 手札を2枚捨てる
+   * 2. 2枚ドロー
    *
    * @protected
    */
   protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return [drawStep(1), discardAllHandEndPhaseStep()];
+    return [selectAndDiscardStep(2), drawStep(2)];
   }
 }

@@ -1,14 +1,14 @@
 /**
- * ToonWorldActivation - 《トゥーン・ワールド》(Toon World)
+ * UpstartGoblinActivation - 《成金ゴブリン》(Upstart Goblin)
  *
- * Card ID: 15259703 | Type: Spell | Subtype: Continuous
+ * Card ID: 70368879 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: LP>1000
- * - ACTIVATION: 1000LP支払い
- * - RESOLUTION: 無し
+ * - CONDITIONS: デッキに1枚以上
+ * - ACTIVATION: 無し
+ * - RESOLUTION: 1枚ドロー、相手が1000LP回復
  *
- * @module domain/effects/actions/spells/individuals/ToonWorldActivation
+ * @module domain/effects/actions/spells/individuals/UpstartGoblinActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,24 +20,26 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { ContinuousSpellAction } from "$lib/domain/effects/actions/spells/ContinuousSpellAction";
-import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { drawStep } from "$lib/domain/effects/steps/draws";
+import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 
-/** 《トゥーン・ワールド》効果クラス */
-export class ToonWorldActivation extends ContinuousSpellAction {
+/** 《成金ゴブリン》効果クラス */
+export class UpstartGoblinActivation extends NormalSpellAction {
   constructor() {
-    super(15259703);
+    super(70368879);
   }
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. プレイヤーのLPが1000以上であること
+   * 1. デッキに1枚以上あること
+   *
+   * @protected
    */
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    // 1. プレイヤーのLPが1000以上であること
-    if (state.lp.player < 1000) {
+    if (state.zones.deck.length < 1) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -47,20 +49,22 @@ export class ToonWorldActivation extends ContinuousSpellAction {
   /**
    * ACTIVATION: 発動処理（カード固有）
    *
-   * コスト: 1000LP支払う
-   *
    * @protected
    */
   protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return [payLpStep(1000, "player")];
+    return []; // 固有ステップ無し
   }
 
   /**
    * RESOLUTION: 効果解決処理（カード固有）
    *
+   * 効果:
+   * 1. 1枚ドロー
+   * 2. 相手が1000LP回復
+   *
    * @protected
    */
   protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return []; // 固有ステップ無し
+    return [drawStep(1), gainLpStep(1000, "opponent")];
   }
 }

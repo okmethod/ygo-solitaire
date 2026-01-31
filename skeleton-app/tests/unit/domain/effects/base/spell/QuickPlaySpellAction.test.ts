@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { QuickPlaySpellAction } from "$lib/domain/effects/actions/spells/QuickPlaySpellAction";
+import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";

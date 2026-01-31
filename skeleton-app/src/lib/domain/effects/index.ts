@@ -25,21 +25,21 @@ import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionR
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 
 // Individual ChainableAction : カードの発動
-import { PotOfGreedActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfGreedActivation";
-import { GracefulCharityActivation } from "$lib/domain/effects/actions/spells/individuals/GracefulCharityActivation";
-import { ChickenGameActivation } from "$lib/domain/effects/actions/spells/individuals/ChickenGameActivation";
-import { UpstartGoblinActivation } from "$lib/domain/effects/actions/spells/individuals/UpstartGoblinActivation";
-import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/spells/individuals/OneDayOfPeaceActivation";
-import { MagicalMalletActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalMalletActivation";
-import { CardDestructionActivation } from "$lib/domain/effects/actions/spells/individuals/CardDestructionActivation";
-import { DarkFactoryActivation } from "$lib/domain/effects/actions/spells/individuals/DarkFactoryActivation";
-import { TerraformingActivation } from "$lib/domain/effects/actions/spells/individuals/TerraformingActivation";
-import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/spells/individuals/MagicalStoneExcavationActivation";
-import { IntoTheVoidActivation } from "$lib/domain/effects/actions/spells/individuals/IntoTheVoidActivation";
-import { PotOfDualityActivation } from "$lib/domain/effects/actions/spells/individuals/PotOfDualityActivation";
-import { CardOfDemiseActivation } from "$lib/domain/effects/actions/spells/individuals/CardOfDemiseActivation";
-import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/spells/individuals/ToonTableOfContentsActivation";
-import { ToonWorldActivation } from "$lib/domain/effects/actions/spells/individuals/ToonWorldActivation";
+import { PotOfGreedActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfGreedActivation";
+import { GracefulCharityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/GracefulCharityActivation";
+import { ChickenGameActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ChickenGameActivation";
+import { UpstartGoblinActivation } from "$lib/domain/effects/actions/activations/individuals/spells/UpstartGoblinActivation";
+import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/activations/individuals/spells/OneDayOfPeaceActivation";
+import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
+import { CardDestructionActivation } from "$lib/domain/effects/actions/activations/individuals/spells/CardDestructionActivation";
+import { DarkFactoryActivation } from "$lib/domain/effects/actions/activations/individuals/spells/DarkFactoryActivation";
+import { TerraformingActivation } from "$lib/domain/effects/actions/activations/individuals/spells/TerraformingActivation";
+import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalStoneExcavationActivation";
+import { IntoTheVoidActivation } from "$lib/domain/effects/actions/activations/individuals/spells/IntoTheVoidActivation";
+import { PotOfDualityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfDualityActivation";
+import { CardOfDemiseActivation } from "$lib/domain/effects/actions/activations/individuals/spells/CardOfDemiseActivation";
+import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonTableOfContentsActivation";
+import { ToonWorldActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonWorldActivation";
 
 // Individual ChainableAction : 起動効果
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";

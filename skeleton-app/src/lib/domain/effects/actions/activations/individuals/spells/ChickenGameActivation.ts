@@ -19,7 +19,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { successValidationResult } from "$lib/domain/models/ValidationResult";
-import { FieldSpellAction } from "$lib/domain/effects/actions/spells/FieldSpellAction";
+import { FieldSpellAction } from "$lib/domain/effects/actions/activations/FieldSpellAction";
 
 /** 《チキンレース》効果クラス */
 export class ChickenGameActivation extends FieldSpellAction {

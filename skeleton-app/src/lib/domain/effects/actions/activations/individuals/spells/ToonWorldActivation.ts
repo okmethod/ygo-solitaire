@@ -1,14 +1,14 @@
 /**
- * GracefulCharityActivation - 《天使の施し》(Graceful Charity)
+ * ToonWorldActivation - 《トゥーン・ワールド》(Toon World)
  *
- * Card ID: 79571449 | Type: Spell | Subtype: Normal
+ * Card ID: 15259703 | Type: Spell | Subtype: Continuous
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: デッキに3枚以上
- * - ACTIVATION: 無し
- * - RESOLUTION: 3枚ドロー、手札を2枚捨てる
+ * - CONDITIONS: LP>1000
+ * - ACTIVATION: 1000LP支払い
+ * - RESOLUTION: 無し
  *
- * @module domain/effects/actions/spells/individuals/GracefulCharityActivation
+ * @module domain/effects/actions/spells/individuals/ToonWorldActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,24 +20,24 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
-import { drawStep } from "$lib/domain/effects/steps/draws";
-import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
+import { ContinuousSpellAction } from "$lib/domain/effects/actions/activations/ContinuousSpellAction";
+import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 
-/** 《天使の施し》効果クラス */
-export class GracefulCharityActivation extends NormalSpellAction {
+/** 《トゥーン・ワールド》効果クラス */
+export class ToonWorldActivation extends ContinuousSpellAction {
   constructor() {
-    super(79571449);
+    super(15259703);
   }
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. デッキに3枚以上あること
+   * 1. プレイヤーのLPが1000以上であること
    */
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    if (state.zones.deck.length < 3) {
+    // 1. プレイヤーのLPが1000以上であること
+    if (state.lp.player < 1000) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -47,22 +47,20 @@ export class GracefulCharityActivation extends NormalSpellAction {
   /**
    * ACTIVATION: 発動処理（カード固有）
    *
+   * コスト: 1000LP支払う
+   *
    * @protected
    */
   protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return []; // 固有ステップ無し
+    return [payLpStep(1000, "player")];
   }
 
   /**
    * RESOLUTION: 効果解決処理（カード固有）
    *
-   * 効果:
-   * 1. 3枚ドロー
-   * 2. 手札を2枚捨てる
-   *
    * @protected
    */
   protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return [drawStep(3), selectAndDiscardStep(2)];
+    return []; // 固有ステップ無し
   }
 }

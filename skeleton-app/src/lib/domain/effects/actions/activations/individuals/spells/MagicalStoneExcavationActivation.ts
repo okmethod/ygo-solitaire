@@ -20,7 +20,7 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { countHandExcludingSelf } from "$lib/domain/models/Zone";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";

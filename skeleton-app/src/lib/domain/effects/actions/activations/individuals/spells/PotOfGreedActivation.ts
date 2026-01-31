@@ -1,14 +1,14 @@
 /**
- * UpstartGoblinActivation - 《成金ゴブリン》(Upstart Goblin)
+ * PotOfGreedActivation - 《強欲な壺》(Pot of Greed)
  *
- * Card ID: 70368879 | Type: Spell | Subtype: Normal
+ * Card ID: 55144522 | Type: Spell | Subtype: Normal
  *
  * Implementation using ChainableAction model:
- * - CONDITIONS: デッキに1枚以上
+ * - CONDITIONS: デッキに2枚以上
  * - ACTIVATION: 無し
- * - RESOLUTION: 1枚ドロー、相手が1000LP回復
+ * - RESOLUTION: 2枚ドロー
  *
- * @module domain/effects/actions/spells/individuals/UpstartGoblinActivation
+ * @module domain/effects/actions/spells/individuals/PotOfGreedActivation
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
@@ -20,26 +20,24 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 
-/** 《成金ゴブリン》効果クラス */
-export class UpstartGoblinActivation extends NormalSpellAction {
+/** 《強欲な壺》効果クラス */
+export class PotOfGreedActivation extends NormalSpellAction {
   constructor() {
-    super(70368879);
+    super(55144522);
   }
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
    * チェック項目:
-   * 1. デッキに1枚以上あること
-   *
-   * @protected
+   * 1. デッキに2枚以上あること
    */
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    if (state.zones.deck.length < 1) {
+    // 1. デッキに2枚以上あること
+    if (state.zones.deck.length < 2) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -59,12 +57,11 @@ export class UpstartGoblinActivation extends NormalSpellAction {
    * RESOLUTION: 効果解決処理（カード固有）
    *
    * 効果:
-   * 1. 1枚ドロー
-   * 2. 相手が1000LP回復
+   * 1. 2枚ドロー
    *
    * @protected
    */
   protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return [drawStep(1), gainLpStep(1000, "opponent")];
+    return [drawStep(2)];
   }
 }

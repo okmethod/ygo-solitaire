@@ -22,7 +22,7 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 
 /** 《一時休戦》効果クラス */

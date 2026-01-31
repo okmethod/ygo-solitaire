@@ -20,7 +20,7 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
 /** 《トゥーンのもくじ》効果クラス */

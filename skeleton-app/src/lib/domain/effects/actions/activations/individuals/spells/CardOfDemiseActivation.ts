@@ -20,7 +20,7 @@ import {
   failureValidationResult,
   ValidationErrorCode,
 } from "$lib/domain/models/ValidationResult";
-import { NormalSpellAction } from "$lib/domain/effects/actions/spells/NormalSpellAction";
+import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { fillHandsStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 
