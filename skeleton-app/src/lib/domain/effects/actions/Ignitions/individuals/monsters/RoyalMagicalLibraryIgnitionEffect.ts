@@ -19,7 +19,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import { BaseIgnitionEffect } from "$lib/domain/effects/actions/BaseIgnitionEffect";
+import { BaseIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/BaseIgnitionEffect";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { successValidationResult } from "$lib/domain/models/ValidationResult";
 
