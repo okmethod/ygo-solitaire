@@ -6,7 +6,9 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameState } from "$lib/domain/models/GameState";
-import "$lib/domain/effects"; // Initialize ChainableActionRegistry
+import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
+
+initializeChainableActionRegistry();
 
 describe("ActivateSpellCommand", () => {
   let initialState: GameState;

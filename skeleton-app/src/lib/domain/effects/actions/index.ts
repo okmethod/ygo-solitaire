@@ -1,30 +1,14 @@
 /**
- * Card Effect Library - カード効果ライブラリ
- *
- * すべてのカード効果関連クラスをインポートし、効果レジストリを初期化するモジュール。
+ * ChainableAction Effect Library - 発動する効果ライブラリ
  *
  * TODO: 選んだデッキレシピに含まれるカードの効果のみ登録するように最適化したい
  *
- * @remarks
- * - ChainableAction Pattern:
- *   - 発動する効果: チェーンブロックを作る処理
- *   - ChainableAction interface + ChainableActionRegistry により管理
- * - AdditionalRule Pattern:
- *   - 適用する効果: 追加適用されるルール
- *   - AdditionalRule interface + AdditionalRuleRegistry により管理
- *
- * @architecture  レイヤー間依存ルール - Domain Layer
- * - ROLE: 純粋なドメインロジック（カードゲームの基本ルール、モデル定義）
- * - ALLOWED: Domain Layer 内部での依存のみ
- * - FORBIDDEN: Domain Layer 以外への依存
- *
- * @module domain/effects
+ * @module domain/effects/actions
  */
 
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 
-// Individual ChainableAction : カードの発動
+// カードの発動
 import { PotOfGreedActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfGreedActivation";
 import { GracefulCharityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/GracefulCharityActivation";
 import { ChickenGameActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ChickenGameActivation";
@@ -41,15 +25,12 @@ import { CardOfDemiseActivation } from "$lib/domain/effects/actions/activations/
 import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonTableOfContentsActivation";
 import { ToonWorldActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonWorldActivation";
 
-// Individual ChainableAction : 起動効果
+// 起動効果
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 
-// Individual AdditionalRule : 永続効果
-import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
-
-/** 発動する効果:チェーンブロックを作る処理 のレジストリ */
-function initializeChainableActionRegistry(): void {
+/** 発動する効果:チェーンブロックを作る処理 のレジストリを初期化する */
+export function initializeChainableActionRegistry(): void {
   // カードの発動
   ChainableActionRegistry.registerActivation(55144522, new PotOfGreedActivation());
   ChainableActionRegistry.registerActivation(79571449, new GracefulCharityActivation());
@@ -71,15 +52,3 @@ function initializeChainableActionRegistry(): void {
   ChainableActionRegistry.registerIgnition(67616300, new ChickenGameIgnitionEffect());
   ChainableActionRegistry.registerIgnition(70791313, new RoyalMagicalLibraryIgnitionEffect());
 }
-
-/** 適用する効果:追加適用されるルール のレジストリ */
-function initializeAdditionalRuleRegistry(): void {
-  // 永続効果
-  AdditionalRuleRegistry.register(67616300, new ChickenGameContinuousEffect());
-
-  // 分類されない効果（ルール効果）
-}
-
-// Auto-initialize registries on module import
-initializeChainableActionRegistry();
-initializeAdditionalRuleRegistry();

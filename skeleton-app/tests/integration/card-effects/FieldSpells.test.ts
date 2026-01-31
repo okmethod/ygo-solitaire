@@ -33,25 +33,12 @@ import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameState } from "$lib/domain/models/GameState";
 
-// Import effects/index.ts to ensure ChainableActionRegistry is initialized
-import "$lib/domain/effects";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
+
+initializeChainableActionRegistry();
 
 describe("Chicken Game (67616300) - Integration Tests", () => {
   const chickenGameCardId = 67616300;
-
-  // Debug: Check if Chicken Game is registered
-  it("Debug: Chicken Game should be registered in ChainableActionRegistry", () => {
-    const activation = ChainableActionRegistry.getActivation(chickenGameCardId);
-    expect(activation).toBeDefined();
-    expect(activation?.effectCategory).toBe("activation");
-    expect(activation?.spellSpeed).toBe(1);
-
-    // Also check ignition effect is registered
-    const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);
-    expect(ignitionEffects.length).toBeGreaterThan(0);
-    expect(ignitionEffects[0].effectCategory).toBe("ignition");
-  });
 
   describe("Card Activation (Field Spell)", () => {
     it("Scenario: Activate Chicken Game → Placed on field as field spell", () => {

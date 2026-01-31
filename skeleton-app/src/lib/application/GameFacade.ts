@@ -20,7 +20,12 @@ import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import "$lib/domain/effects"; // Initialize ChainableActionRegistry and AdditionalRuleRegistry
+import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
+import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules/index";
+
+// インポート時、各種効果レジストリを初期化する
+initializeChainableActionRegistry();
+initializeAdditionalRuleRegistry();
 
 /**
  * GameFacadeのメソッドが返す結果型（Presentation Layerへの公開用）
