@@ -1,34 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { loadDeck } from "$lib/application/utils/deckLoader";
-import * as ygoprodeckApi from "$lib/infrastructure/api/ygoprodeck";
-import exodiaFixture from "../../../fixtures/ygoprodeck/exodia.json";
-import potOfGreedFixture from "../../../fixtures/ygoprodeck/pot-of-greed.json";
-import gracefulCharityFixture from "../../../fixtures/ygoprodeck/graceful-charity.json";
 
-// YGOPRODeck APIをモック
-vi.mock("$lib/infrastructure/api/ygoprodeck", () => ({
-  getCardsByIds: vi.fn(),
-  clearCache: vi.fn(),
-}));
-
-describe("loadDeck - Deck Recipe Loading Integration Test (T033)", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("should load deck recipe with YGOPRODeck API compatible card IDs", async () => {
-    // モックfetch関数
-    const mockFetch = vi.fn();
-
-    // getCardsByIds をモック（フィクスチャを返す）
-    vi.mocked(ygoprodeckApi.getCardsByIds).mockResolvedValue([
-      exodiaFixture,
-      potOfGreedFixture,
-      gracefulCharityFixture,
-    ]);
-
-    // デッキレシピをロード
-    const { deckRecipe, deckData } = await loadDeck("greedy-exodia-deck", mockFetch);
+describe("loadDeck - Deck Recipe Loading Test", () => {
+  it("should load deck recipe from CardDataRegistry", () => {
+    // デッキレシピをロード（純粋関数、API呼び出しなし）
+    const { deckRecipe, deckData } = loadDeck("greedy-exodia-deck");
 
     // 基本検証
     expect(deckRecipe).toBeDefined();
@@ -36,62 +12,32 @@ describe("loadDeck - Deck Recipe Loading Integration Test (T033)", () => {
     expect(deckData.name).toBeDefined();
     expect(deckData.mainDeck).toBeDefined();
     expect(deckData.stats).toBeDefined();
-
-    // YGOPRODeck API互換のカードIDが正しく解決されたことを確認
-    // Note: Repository経由で呼ばれるため、直接的なfetch引数はない
-    expect(ygoprodeckApi.getCardsByIds).toHaveBeenCalledOnce();
-    expect(ygoprodeckApi.getCardsByIds).toHaveBeenCalledWith(
-      expect.any(Function), // global fetch function
-      expect.arrayContaining([
-        expect.any(Number), // カードIDは数値であること
-      ]),
-    );
   });
 
-  it("should validate RecipeCardEntry card IDs (T032)", async () => {
-    const mockFetch = vi.fn();
+  it("should return CardData in LoadedCardEntry", () => {
+    const { deckData } = loadDeck("greedy-exodia-deck");
 
-    // Note: 実際のpresetDeckRecipesは常に有効なので
-    // このテストは型エラーを防ぐための概念的な検証
-    vi.mocked(ygoprodeckApi.getCardsByIds).mockResolvedValue([
-      exodiaFixture,
-      potOfGreedFixture,
-      gracefulCharityFixture,
-    ]);
+    // メインデッキのカードを確認
+    const allCards = [...deckData.mainDeck.monsters, ...deckData.mainDeck.spells, ...deckData.mainDeck.traps];
 
-    // 有効なデッキをロード（エラーが発生しないことを確認）
-    await expect(loadDeck("greedy-exodia-deck", mockFetch)).resolves.toBeDefined();
+    // LoadedCardEntry が CardData を持っていることを確認
+    for (const entry of allCards) {
+      expect(entry.cardData).toBeDefined();
+      expect(entry.cardData.id).toBeDefined();
+      expect(entry.cardData.jaName).toBeDefined();
+      expect(entry.cardData.type).toBeDefined();
+      expect(entry.cardData.frameType).toBeDefined();
+      expect(entry.quantity).toBeGreaterThan(0);
+    }
   });
 
-  it("should handle API errors gracefully", async () => {
-    const mockFetch = vi.fn();
-
-    // API エラーをモック
-    vi.mocked(ygoprodeckApi.getCardsByIds).mockRejectedValue(new Error("Network error"));
-
-    // エラーがスローされることを確認
-    await expect(loadDeck("greedy-exodia-deck", mockFetch)).rejects.toThrow();
+  it("should handle missing deck ID", () => {
+    // 存在しないデッキIDを指定するとエラーをスロー
+    expect(() => loadDeck("non-existent-deck")).toThrow("Deck not found: non-existent-deck");
   });
 
-  it("should handle missing deck ID", async () => {
-    const mockFetch = vi.fn();
-
-    // 存在しないデッキIDを指定
-    // Note: SvelteKit error() 関数の動作により、エラーオブジェクトの形式が異なる
-    await expect(loadDeck("non-existent-deck", mockFetch)).rejects.toThrow();
-  });
-
-  it("should calculate deck stats correctly", async () => {
-    const mockFetch = vi.fn();
-
-    // モックデータを返す
-    vi.mocked(ygoprodeckApi.getCardsByIds).mockResolvedValue([
-      exodiaFixture,
-      potOfGreedFixture,
-      gracefulCharityFixture,
-    ]);
-
-    const { deckData } = await loadDeck("greedy-exodia-deck", mockFetch);
+  it("should calculate deck stats correctly", () => {
+    const { deckData } = loadDeck("greedy-exodia-deck");
 
     // 統計情報が計算されていることを確認
     expect(deckData.stats).toBeDefined();
@@ -100,5 +46,33 @@ describe("loadDeck - Deck Recipe Loading Integration Test (T033)", () => {
     expect(typeof deckData.stats.monsterCount).toBe("number");
     expect(typeof deckData.stats.spellCount).toBe("number");
     expect(typeof deckData.stats.trapCount).toBe("number");
+
+    // 統計情報の整合性チェック
+    const calculatedMonsterCount = deckData.mainDeck.monsters.reduce((sum, e) => sum + e.quantity, 0);
+    const calculatedSpellCount = deckData.mainDeck.spells.reduce((sum, e) => sum + e.quantity, 0);
+    const calculatedTrapCount = deckData.mainDeck.traps.reduce((sum, e) => sum + e.quantity, 0);
+
+    expect(deckData.stats.monsterCount).toBe(calculatedMonsterCount);
+    expect(deckData.stats.spellCount).toBe(calculatedSpellCount);
+    expect(deckData.stats.trapCount).toBe(calculatedTrapCount);
+  });
+
+  it("should classify cards by type correctly", () => {
+    const { deckData } = loadDeck("greedy-exodia-deck");
+
+    // モンスターカードの検証
+    for (const entry of deckData.mainDeck.monsters) {
+      expect(entry.cardData.type).toBe("monster");
+    }
+
+    // 魔法カードの検証
+    for (const entry of deckData.mainDeck.spells) {
+      expect(entry.cardData.type).toBe("spell");
+    }
+
+    // 罠カードの検証
+    for (const entry of deckData.mainDeck.traps) {
+      expect(entry.cardData.type).toBe("trap");
+    }
   });
 });

@@ -1,6 +1,14 @@
 /**
  * deckLoader - 指定したデッキIDから、デッキレシピとデッキデータを読み込むユーティリティ
  *
+ * DeckRecipe をベースに、CardDataRegistry から CardData を取得し、デッキデータを構築する。
+ * 表示用データ（CardDisplayData）への変換は Presentation Layer で行う。
+ *
+ * @architecture レイヤー間依存ルール - Application Layer (Store)
+ * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
+ * - ALLOWED: Domain Layer への依存
+ * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ *
  * @module application/utils/deckLoader
  */
 
@@ -13,73 +21,63 @@ import type {
   MainDeckData,
   ExtraDeckData,
 } from "$lib/application/types/deck";
-import type { CardDisplayData } from "$lib/application/types/card";
-import { getCardDataRepository } from "$lib/infrastructure/adapters/YGOProDeckCardDataRepository";
-import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
+import type { CardData, ExtraMonsterSubType } from "$lib/application/types/card";
 import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
+import { getCardData } from "$lib/domain/registries/CardDataRegistry";
 
-// デッキエントリーからカードタイプ別に分類した MainDeckData を作成する
-function buildMainDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): MainDeckData {
-  const monsters: LoadedCardEntry[] = [];
-  const spells: LoadedCardEntry[] = [];
-  const traps: LoadedCardEntry[] = [];
+/**
+ * カードエントリーを指定したキーで分類する汎用ヘルパー
+ *
+ * @param cardDataMap - カードID → CardData のマップ
+ * @param entries - レシピのカードエントリー
+ * @param getKey - CardData から分類キーを取得する関数（null を返すと無視）
+ * @returns キー → LoadedCardEntry[] のマップ
+ */
+function classifyEntries<K extends string>(
+  cardDataMap: Map<number, CardData>,
+  entries: RecipeCardEntry[],
+  getKey: (cardData: CardData) => K | null,
+): Map<K, LoadedCardEntry[]> {
+  const result = new Map<K, LoadedCardEntry[]>();
 
-  // 各エントリーをカードデータと紐付けて分類
   for (const entry of entries) {
     const cardData = cardDataMap.get(entry.id);
-    if (cardData) {
-      const loadedEntry: LoadedCardEntry = {
-        cardData: cardData,
-        quantity: entry.quantity,
-      };
+    if (!cardData) continue;
 
-      // カードタイプ（monster/spell/trap）に応じて配列に振り分け
-      switch (cardData.type) {
-        case "monster":
-          monsters.push(loadedEntry);
-          break;
-        case "spell":
-          spells.push(loadedEntry);
-          break;
-        case "trap":
-          traps.push(loadedEntry);
-          break;
-      }
-    }
+    const key = getKey(cardData);
+    if (!key) continue;
+
+    const list = result.get(key) ?? [];
+    list.push({ cardData, quantity: entry.quantity });
+    result.set(key, list);
   }
 
-  return { monsters, spells, traps };
+  return result;
+}
+
+// デッキをカードタイプ別に分類した MainDeckData を作成する
+function buildMainDeckData(cardDataMap: Map<number, CardData>, entries: RecipeCardEntry[]): MainDeckData {
+  const classified = classifyEntries(cardDataMap, entries, (card) => card.type);
+  return {
+    monsters: classified.get("monster") ?? [],
+    spells: classified.get("spell") ?? [],
+    traps: classified.get("trap") ?? [],
+  };
 }
 
 // エクストラデッキをモンスタータイプ別に分類した ExtraDeckData を作成する
-function buildExtraDeckData(cardDataMap: Map<number, CardDisplayData>, entries: RecipeCardEntry[]): ExtraDeckData {
-  const fusion: LoadedCardEntry[] = [];
-  const synchro: LoadedCardEntry[] = [];
-  const xyz: LoadedCardEntry[] = [];
+function buildExtraDeckData(cardDataMap: Map<number, CardData>, entries: RecipeCardEntry[]): ExtraDeckData {
+  const extraFrameTypes: ExtraMonsterSubType[] = ["fusion", "synchro", "xyz", "link"];
+  const classified = classifyEntries(cardDataMap, entries, (card) =>
+    extraFrameTypes.includes(card.frameType as ExtraMonsterSubType) ? (card.frameType as ExtraMonsterSubType) : null,
+  );
 
-  // 各エントリーをカードデータと紐付けて分類
-  for (const entry of entries) {
-    const cardData = cardDataMap.get(entry.id);
-    if (cardData) {
-      const loadedEntry: LoadedCardEntry = {
-        cardData: cardData,
-        quantity: entry.quantity,
-      };
-
-      // frameTypeの文字列を小文字化して部分一致判定（例: "fusion" → 融合モンスター）
-      const frameType = cardData.frameType?.toLowerCase() || "";
-      if (frameType.includes("fusion")) {
-        fusion.push(loadedEntry);
-      } else if (frameType.includes("synchro")) {
-        synchro.push(loadedEntry);
-      } else if (frameType.includes("xyz")) {
-        xyz.push(loadedEntry);
-      }
-      // その他のエクストラデッキモンスター（リンク、ペンデュラムなど）は無視
-    }
-  }
-
-  return { fusion, synchro, xyz };
+  return {
+    fusion: classified.get("fusion") ?? [],
+    synchro: classified.get("synchro") ?? [],
+    xyz: classified.get("xyz") ?? [],
+    link: classified.get("link") ?? [],
+  };
 }
 
 // デッキ統計情報を計算する
@@ -93,7 +91,8 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
   const extraCount =
     extraDeck.fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
     extraDeck.synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
-    extraDeck.xyz.reduce((sum, entry) => sum + entry.quantity, 0);
+    extraDeck.xyz.reduce((sum, entry) => sum + entry.quantity, 0) +
+    extraDeck.link.reduce((sum, entry) => sum + entry.quantity, 0);
 
   // デッキ全体の総枚数
   const totalCards = monsterCount + spellCount + trapCount + extraCount;
@@ -105,7 +104,8 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
     mainDeck.traps.length +
     extraDeck.fusion.length +
     extraDeck.synchro.length +
-    extraDeck.xyz.length;
+    extraDeck.xyz.length +
+    extraDeck.link.length;
 
   return {
     totalCards,
@@ -120,16 +120,12 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
  * RecipeCardEntry のバリデーション
  *
  * カードIDが有効な数値であることを確認。
- * YGOPRODeck API互換性を保証する。
  *
  * @throws Error カードIDが無効な場合
  */
 function validateRecipeCardEntry(entry: RecipeCardEntry): void {
   if (typeof entry.id !== "number" || !Number.isInteger(entry.id) || entry.id <= 0) {
-    throw new Error(
-      `Invalid card ID: ${entry.id}. ` +
-        `RecipeCardEntry must have a valid positive integer ID (YGOPRODeck API compatible).`,
-    );
+    throw new Error(`Invalid card ID: ${entry.id}. ` + `RecipeCardEntry must have a valid positive integer ID.`);
   }
 
   if (typeof entry.quantity !== "number" || !Number.isInteger(entry.quantity) || entry.quantity <= 0) {
@@ -139,11 +135,16 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
   }
 }
 
-/** デッキレシピからデッキデータを生成する */
-export async function loadDeck(
-  deckId: string,
-  fetchFunction: typeof fetch,
-): Promise<{ deckRecipe: DeckRecipe; deckData: DeckData }> {
+/**
+ * デッキレシピからデッキデータを生成する
+ *
+ * CardDataRegistry から CardData を取得し、カードタイプ別に分類する。
+ *
+ * @param deckId - プリセットデッキのID
+ * @returns デッキレシピとデッキデータ
+ * @throws Error デッキが見つからない場合、またはカードがレジストリにない場合
+ */
+export function loadDeck(deckId: string): { deckRecipe: DeckRecipe; deckData: DeckData } {
   const deckRecipe = presetDeckRecipes[deckId];
   if (!deckRecipe) {
     throw new Error(`Deck not found: ${deckId}`);
@@ -160,18 +161,10 @@ export async function loadDeck(
   // 重複を除いたユニークなカードIDリストを作成
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
-  // Singleton Repository経由でAPI情報を取得し、CardDisplayDataに変換
-  const repository = getCardDataRepository();
-  let cardDataList: CardDisplayData[];
-  try {
-    const apiDataList = await repository.getCardsByIds(fetchFunction, uniqueCardIds);
-    cardDataList = createCardDisplayDataList(apiDataList);
-  } catch (err) {
-    console.error("カード情報のAPI取得に失敗しました:", err);
-    throw new Error(`Failed to fetch card data: ${err instanceof Error ? err.message : String(err)}`);
-  }
+  // CardDataRegistry から CardData を取得
+  const cardDataList: CardData[] = uniqueCardIds.map((id) => getCardData(id));
 
-  // カード情報をID→CardDisplayDataのマップに変換（高速検索用）
+  // カード情報をID→CardDataのマップに変換（高速検索用）
   const cardDataMap = new Map(cardDataList.map((card) => [card.id, card]));
 
   // メインデッキをカードタイプ別に分類

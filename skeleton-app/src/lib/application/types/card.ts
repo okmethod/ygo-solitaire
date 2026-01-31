@@ -54,6 +54,7 @@ export interface CardDisplayData {
  * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
  */
 export type {
+  CardData,
   CardInstance,
   CardType,
   FrameSubType,

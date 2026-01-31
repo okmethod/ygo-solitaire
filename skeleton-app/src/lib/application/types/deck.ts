@@ -6,7 +6,7 @@
  * @module application/types/deck
  */
 
-import type { CardDisplayData } from "$lib/application/types/card";
+import type { CardData } from "$lib/application/types/card";
 
 /** レシピ保存用カードエントリー (ID + 枚数) */
 export interface RecipeCardEntry {
@@ -14,9 +14,9 @@ export interface RecipeCardEntry {
   quantity: number;
 }
 
-/** ロード済みカードエントリー (CardDisplayData + 枚数) */
+/** ロード済みカードエントリー (CardData + 枚数) */
 export interface LoadedCardEntry {
-  cardData: CardDisplayData;
+  cardData: CardData;
   quantity: number;
 }
 
@@ -54,6 +54,7 @@ export interface ExtraDeckData {
   fusion: LoadedCardEntry[];
   synchro: LoadedCardEntry[];
   xyz: LoadedCardEntry[];
+  link: LoadedCardEntry[];
 }
 
 /**

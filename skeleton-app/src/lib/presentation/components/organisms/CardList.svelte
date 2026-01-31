@@ -1,7 +1,17 @@
 <script lang="ts">
+  /**
+   * CardList - カードリスト表示コンポーネント
+   *
+   * LoadedCardEntry[]（CardData + quantity）を受け取り、
+   * 内部で API から CardDisplayData を取得して表示する。
+   *
+   * @module presentation/components/organisms/CardList
+   */
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
-  import type { LoadedCardEntry } from "$lib/presentation/types";
+  import type { LoadedCardEntry, CardDisplayData } from "$lib/presentation/types";
+  import { cardRepository } from "$lib/presentation/stores/zonesDisplayStore";
+  import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
 
   interface CardListProps {
     title?: string;
@@ -11,6 +21,35 @@
   }
 
   let { title, cardCount, cards, borderColor = "border-gray-400" }: CardListProps = $props();
+
+  // 表示用データを保持
+  let displayDataMap = $state<Map<number, CardDisplayData>>(new Map());
+
+  // cards が変更されたら API から CardDisplayData を取得
+  $effect(() => {
+    if (cards.length === 0) {
+      displayDataMap = new Map();
+      return;
+    }
+
+    const cardIds = cards.map((c) => c.cardData.id);
+
+    cardRepository
+      .getCardsByIds(window.fetch, cardIds)
+      .then((apiDataList) => {
+        const displayDataList = createCardDisplayDataList(apiDataList);
+        displayDataMap = new Map(displayDataList.map((card) => [card.id, card]));
+      })
+      .catch((err) => {
+        console.error("[CardList] Failed to fetch card display data:", err);
+        displayDataMap = new Map();
+      });
+  });
+
+  // CardData.id から CardDisplayData を取得
+  function getDisplayData(cardId: number): CardDisplayData | undefined {
+    return displayDataMap.get(cardId);
+  }
 
   // titleまたはcardCountが指定されているか確認
   const showHeader = $derived(title || cardCount !== undefined);
@@ -35,14 +74,17 @@
     {#if cards.length > 0}
       <div class="{showHeader ? 'md:col-span-10' : ''} flex-1 flex gap-2 flex-wrap">
         {#each cards as cardEntry (cardEntry.cardData.id)}
-          <div class="relative">
-            <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-              <CardComponent card={cardEntry.cardData} size="medium" showDetailOnClick={true} />
+          {@const displayData = getDisplayData(cardEntry.cardData.id)}
+          {#if displayData}
+            <div class="relative">
+              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
+                <CardComponent card={displayData} size="medium" showDetailOnClick={true} />
+              </div>
+              {#if cardEntry.quantity > 1}
+                <CountBadge count={cardEntry.quantity} colorClasses="bg-primary-200 text-primary-900" />
+              {/if}
             </div>
-            {#if cardEntry.quantity > 1}
-              <CountBadge count={cardEntry.quantity} colorClasses="bg-primary-200 text-primary-900" />
-            {/if}
-          </div>
+          {/if}
         {/each}
       </div>
     {/if}

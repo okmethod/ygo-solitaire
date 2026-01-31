@@ -1,10 +1,11 @@
 import type { PageLoad } from "./$types";
 import { loadDeck } from "$lib/application/utils/deckLoader";
 
-export const load: PageLoad = async ({ params, fetch }) => {
+export const load: PageLoad = ({ params }) => {
   const { deckId } = params;
 
-  const { deckData } = await loadDeck(deckId, fetch);
+  // デッキデータを読み込む
+  const { deckData } = loadDeck(deckId);
 
   return {
     deckId,
