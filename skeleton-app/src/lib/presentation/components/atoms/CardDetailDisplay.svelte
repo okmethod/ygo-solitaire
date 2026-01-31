@@ -47,7 +47,7 @@
   >
     <div class="flex justify-between items-center mb-3">
       <h3 id="card-image-title" class="text-lg font-semibold truncate">
-        {$selectedCardForDisplay.name}
+        《{$selectedCardForDisplay.jaName}》
       </h3>
       <button
         onclick={handleClose}
@@ -61,7 +61,7 @@
     <div class="mb-3">
       <img
         src={$selectedCardForDisplay.images?.imageCropped || "/CardBack.jpg"}
-        alt={$selectedCardForDisplay.name}
+        alt={$selectedCardForDisplay.jaName}
         class="w-full h-auto rounded-md shadow-sm"
         loading="lazy"
       />

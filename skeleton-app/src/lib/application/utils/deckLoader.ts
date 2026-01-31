@@ -15,6 +15,7 @@ import type {
 } from "$lib/application/types/deck";
 import type { CardDisplayData } from "$lib/application/types/card";
 import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
 import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
 
 // デッキエントリーからカードタイプ別に分類した MainDeckData を作成する
@@ -159,11 +160,12 @@ export async function loadDeck(
   // 重複を除いたユニークなカードIDリストを作成
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
-  // Singleton Repository経由でカード情報を取得（変換済みのCardDisplayData）
+  // Singleton Repository経由でAPI情報を取得し、CardDisplayDataに変換
   const repository = getCardRepository();
   let cardDataList: CardDisplayData[];
   try {
-    cardDataList = await repository.getCardsByIds(fetchFunction, uniqueCardIds);
+    const apiDataList = await repository.getCardsByIds(fetchFunction, uniqueCardIds);
+    cardDataList = createCardDisplayDataList(apiDataList);
   } catch (err) {
     console.error("カード情報のAPI取得に失敗しました:", err);
     throw new Error(`Failed to fetch card data: ${err instanceof Error ? err.message : String(err)}`);

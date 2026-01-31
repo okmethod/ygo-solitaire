@@ -11,6 +11,7 @@ import { derived, type Readable } from "svelte/store";
 import { gameStateStore } from "./gameStateStore";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
 import type { CardDisplayData } from "$lib/application/types/card";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -48,9 +49,10 @@ function createZoneCardStore(
 
       cardRepository
         .getCardsByIds(fetch, cardIds)
-        .then((cards) => {
+        .then((apiDataList) => {
           if (!isCancelled) {
-            set(cards);
+            const displayDataList = createCardDisplayDataList(apiDataList);
+            set(displayDataList);
           }
         })
         .catch((err) => {

@@ -1,8 +1,8 @@
 import { constructRequestInit, fetchApi } from "$lib/infrastructure/utils/request";
-import type { YGOProDeckCard } from "$lib/infrastructure/types/ygoprodeck";
+import type { YGOProDeckCardInfo } from "$lib/application/ports/ICardDataRepository";
 
 interface YGOProDeckResponseJson {
-  data: YGOProDeckCard[];
+  data: YGOProDeckCardInfo[];
 }
 
 const API_BASE_URL = "https://db.ygoprodeck.com/api/v7";
@@ -13,7 +13,7 @@ const API_BASE_URL = "https://db.ygoprodeck.com/api/v7";
  * セッション単位でカードデータをキャッシュし、重複リクエストを防ぐ。
  * ライフサイクル: ページリロードまで（メモリ上のみ）
  */
-const cardCache = new Map<number, YGOProDeckCard>();
+const cardCache = new Map<number, YGOProDeckCardInfo>();
 
 /**
  * キャッシュをクリアする（テスト用）
@@ -62,7 +62,7 @@ async function fetchYGOProDeckAPI(fetchFunction: typeof fetch, path: string): Pr
   }
 }
 
-export async function getCardById(fetchFunction: typeof fetch, id: number): Promise<YGOProDeckCard | null> {
+export async function getCardById(fetchFunction: typeof fetch, id: number): Promise<YGOProDeckCardInfo | null> {
   const path = `cardinfo.php?id=${id}`;
   const data = await fetchYGOProDeckAPI(fetchFunction, path);
   return data?.data[0] || null;
@@ -75,17 +75,17 @@ export async function getCardById(fetchFunction: typeof fetch, id: number): Prom
  *
  * @param {typeof fetch} fetchFunction - fetchインスタンス
  * @param {number[]} ids - カードIDのリスト
- * @returns {Promise<YGOProDeckCard[]>} カードデータのリスト
+ * @returns {Promise<YGOProDeckCardInfo[]>} カードデータのリスト
  *
  * @example
  * // キャッシュヒット率の向上（バッチリクエスト）
  * const cards = await getCardsByIds(fetch, [33396948, 70903634, 7902349]);
  */
-export async function getCardsByIds(fetchFunction: typeof fetch, ids: number[]): Promise<YGOProDeckCard[]> {
+export async function getCardsByIds(fetchFunction: typeof fetch, ids: number[]): Promise<YGOProDeckCardInfo[]> {
   if (ids.length === 0) return [];
 
   // キャッシュヒット/ミスを分離
-  const cachedCards: YGOProDeckCard[] = [];
+  const cachedCards: YGOProDeckCardInfo[] = [];
   const uncachedIds: number[] = [];
 
   for (const id of ids) {
@@ -98,7 +98,7 @@ export async function getCardsByIds(fetchFunction: typeof fetch, ids: number[]):
   }
 
   // 未キャッシュのカードのみAPIリクエスト
-  let fetchedCards: YGOProDeckCard[] = [];
+  let fetchedCards: YGOProDeckCardInfo[] = [];
   if (uncachedIds.length > 0) {
     const idsString = uncachedIds.join(",");
     const path = `cardinfo.php?id=${idsString}`;
@@ -118,7 +118,7 @@ export async function getCardsByIds(fetchFunction: typeof fetch, ids: number[]):
   return [...cachedCards, ...fetchedCards];
 }
 
-export async function searchCardsByName(fetchFunction: typeof fetch, name: string): Promise<YGOProDeckCard[]> {
+export async function searchCardsByName(fetchFunction: typeof fetch, name: string): Promise<YGOProDeckCardInfo[]> {
   const encodedName = encodeURIComponent(name);
   const path = `cardinfo.php?fname=${encodedName}`;
   const data = await fetchYGOProDeckAPI(fetchFunction, path);

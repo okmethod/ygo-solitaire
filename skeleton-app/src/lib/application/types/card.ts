@@ -47,12 +47,16 @@ export interface CardImages {
 /**
  * UI 表示用カードデータ (DTO)
  *
- * YGOPRODeck API から取得したカード情報を UI で表示するための型。
- * ICardDataRepository の契約(Contract) として使用される。
+ * CardDisplayDataFactory によって生成される。
+ * - YGOProDeckCardInfo (API経由): 画像、効果テキスト、ステータスなど
+ * - CardData (Domain層): 日本語名 (jaName)
+ *
+ * @see CardDisplayDataFactory
  */
 export interface CardDisplayData {
   id: number; // YGOPRODeck API uses numeric IDs
   name: string; // 英語版カード名
+  jaName: string; // 日本語版カード名
   type: CardType; // Re-exported from domain/models/Card
   description: string; // カード効果テキスト
   frameType?: string; // カードフレーム（色）の種類

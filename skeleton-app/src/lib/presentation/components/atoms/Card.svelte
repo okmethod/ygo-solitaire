@@ -56,10 +56,10 @@
 
   // カードクリック処理
   function handleClick() {
-    console.log(`[Card] クリックイベント発生: clickable=${clickable}, card=${card?.name}, hasOnClick=${!!onClick}`);
+    console.log(`[Card] クリックイベント発生: clickable=${clickable}, card=${card?.jaName}, hasOnClick=${!!onClick}`);
 
     if (clickable && card && onClick) {
-      console.log(`[Card] onClickコールバックを実行します: ${card.name}`);
+      console.log(`[Card] onClickコールバックを実行します: ${card.jaName}`);
       onClick(card);
     }
     if (selectable) {
@@ -144,7 +144,11 @@
     <!-- カード画像エリア -->
     <div class="flex-1 flex items-center justify-center p-1">
       {#if card?.images?.imageCropped}
-        <img src={card.images.imageCropped} alt={card.name || "カード"} class="w-full h-full object-cover rounded-sm" />
+        <img
+          src={card.images.imageCropped}
+          alt={card.jaName || "カード"}
+          class="w-full h-full object-cover rounded-sm"
+        />
       {:else if isPlaceholder}
         <div
           class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
@@ -170,7 +174,7 @@
     <!-- カード情報エリア -->
     {#if card && !isPlaceholder}
       <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
-        <div class="text-xs font-medium truncate">{card.name}</div>
+        <div class="text-xs font-medium truncate">{card.jaName}</div>
       </div>
     {/if}
   {/if}
