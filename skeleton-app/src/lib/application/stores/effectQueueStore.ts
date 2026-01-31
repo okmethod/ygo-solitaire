@@ -4,10 +4,10 @@
  * 効果処理ステップキューの Single Source of Truth (SSOT)。
  * 蓄積された AtomicStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
  *
- * IMPORTANT REMINDER: Application Layer - レイヤー間依存ルール
- * - Application Layer は Domain Layer に依存できる
- * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
- * - Presentation Layer は Domain Layer に直接依存してはいけない
+ * @architecture レイヤー間依存ルール - Application Layer (Store)
+ * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
+ * - ALLOWED: Domain Layer への依存
+ * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
  *
  * @module application/stores/effectQueueStore
  */
