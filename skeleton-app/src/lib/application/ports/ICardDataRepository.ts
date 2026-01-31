@@ -1,13 +1,15 @@
 /**
- * Port: カードデータ取得の抽象インターフェース
- *
- * Application Layer が依存する契約を定義。
- * Infrastructure Layer が具象実装を提供。
+ * ICardDataRepository - Port/Adapter パターンの Port (抽象/契約定義)
  *
  * @remarks
  * - テスト時にモック実装を注入可能
  * - 将来的に別のカードAPI（ローカルストレージ、FastAPI等）への切り替えが容易
  * - 外部APIの実装詳細から完全に分離
+ *
+ * @architecture レイヤー間依存ルール - Application Layer (Port)
+ * - ROLE: Infrastructure Layer が実装すべき抽象インターフェース（契約）の定義
+ * - ALLOWED: Application Layer 内の DTO 定義への依存
+ * - FORBIDDEN: Infrastructure Layer への依存
  *
  * @module application/ports/ICardDataRepository
  */

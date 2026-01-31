@@ -14,7 +14,7 @@ import type {
   ExtraDeckData,
 } from "$lib/application/types/deck";
 import type { CardDisplayData } from "$lib/application/types/card";
-import { getCardRepository } from "$lib/infrastructure/adapters/YGOProDeckCardRepository";
+import { getCardDataRepository } from "$lib/infrastructure/adapters/YGOProDeckCardDataRepository";
 import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
 import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
 
@@ -161,7 +161,7 @@ export async function loadDeck(
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
   // Singleton Repository経由でAPI情報を取得し、CardDisplayDataに変換
-  const repository = getCardRepository();
+  const repository = getCardDataRepository();
   let cardDataList: CardDisplayData[];
   try {
     const apiDataList = await repository.getCardsByIds(fetchFunction, uniqueCardIds);

@@ -68,21 +68,18 @@ skeleton-app/src/lib/domain/
 **主要コンポーネント**:
 
 - **GameState**: イミュータブルなゲーム状態モデル
-
   - すべてのゾーン（デッキ、手札、フィールド、墓地）を保持
   - ターン数、現在のフェーズ、ゲーム結果を管理
   - `readonly` 修飾子で不変性を保証
   - オブジェクトの一部を書き換えるのではなく、変更があった部分をコピーして新しいオブジェクトを作る
 
 - **CardDataRegistry**: カードデータのレジストリ（Registry Pattern）
-
   - カードの静的データ（type, frameType 等）を管理
   - Card ID → CardData のマッピング
   - 関数ベースの実装（getCardData, hasCardData 等）
   - O(1) 高速ルックアップ
 
 - **ChainableActionRegistry**: チェーンブロックを作る処理のレジストリ（Registry Pattern + Strategy Pattern）
-
   - 「カードの発動」と「効果の発動」の処理を管理
   - Card ID → ChainableAction のマッピング
   - クラスベースの実装（register, get, clear 等）
@@ -90,7 +87,6 @@ skeleton-app/src/lib/domain/
   - CONDITIONS（発動条件）、ACTIVATION（発動時の処理）、RESOLUTION（効果の解決）の 3 ステップ構成
 
 - **AdditionalRuleRegistry**: 追加ルールのレジストリ（Registry Pattern）
-
   - 永続効果、ルール効果、効果外テキストを管理
   - Card ID → AdditionalRule[] のマッピング（1 枚のカードに複数のルールが存在可能）
   - カテゴリ別フィルタ機能（getByCategory）
@@ -98,7 +94,6 @@ skeleton-app/src/lib/domain/
   - データ書き換え（apply）、判定追加（checkPermission）、処理置換（replace）の 3 つの介入方式
 
 - **GameCommand**: ゲーム操作の具象実装（Command Pattern）
-
   - 統一された`canExecute()` / `execute()`インターフェース
   - 具象実装: DrawCardCommand, ActivateSpellCommand, AdvancePhaseCommand 等
   - spread 構文によるゲーム状態の不変更新を保証
@@ -129,21 +124,18 @@ skeleton-app/src/lib/application/
 **主要コンポーネント**:
 
 - **GameFacade**: UI からの単一窓口（Facade Pattern）
-
   - Presentation Layer と Domain Layer の橋渡し
   - Domain 層の Commands を呼び出し、結果を Store に反映
   - すべてのゲーム操作コマンドのエンドポイントをシンプルなメソッドで提供
   - Store 更新の責任を一元管理
 
 - **Stores**: 状態管理（Observer Pattern）
-
   - Svelte Store（`writable`, `derived`）による実装
   - 状態の変化を UI に通知
   - Derived Stores で計算コストの高い派生値をキャッシュ
   - 不変オブジェクト（spread 構文）による更新検知で Svelte の再描画を最適化
 
 - **Ports**: 抽象インターフェース（Port/Adapter Pattern）
-
   - Infrastructure 層への依存を抽象化
   - 例: `ICardDataRepository`（カードデータ取得の抽象）
 
@@ -164,7 +156,7 @@ skeleton-app/src/lib/application/
 
 ```
 skeleton-app/src/lib/infrastructure/
-├── adapters/  # Port/Adapter実装（YGOProDeckCardRepository等）
+├── adapters/  # Port/Adapter実装（YGOProDeckCardDataRepository等）
 ├── api/       # 外部API統合（YGOPRODeck API v7、死活監視）
 ├── types/     # 外部API型定義（YGOProDeckCard等）
 └── utils/     # HTTP通信ヘルパー（fetch wrapper）
@@ -173,17 +165,14 @@ skeleton-app/src/lib/infrastructure/
 **主要コンポーネント**:
 
 - **Adapters**: Port/Adapter Pattern 実装
-
   - Application Layer 定義の Port を実装
-  - 例: `YGOProDeckCardRepository`（ICardDataRepository 実装）
+  - 例: `YGOProDeckCardDataRepository`（ICardDataRepository 実装）
 
 - **API Clients**: 外部 API 統合
-
   - YGOPRODeck API v7 統合（バッチリクエスト、メモリキャッシュ）
   - API 死活監視
 
 - **Types**: 外部 API 型定義
-
   - YGOProDeckCard 型（外部 API レスポンス構造）
 
 - **Utils**: HTTP 通信ヘルパー
@@ -192,7 +181,7 @@ skeleton-app/src/lib/infrastructure/
 **依存性逆転（Port/Adapter Pattern）**:
 
 - Application Layer は抽象 Port（`ICardDataRepository`）に依存
-- Infrastructure Layer が具象 Adapter（`YGOProDeckCardRepository`）を提供
+- Infrastructure Layer が具象 Adapter（`YGOProDeckCardDataRepository`）を提供
 - → Application Layer は API 実装詳細から完全に分離
 
 **キャッシング戦略**:
