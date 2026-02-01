@@ -18,8 +18,8 @@
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
-  import DuelField from "$lib/presentation/components/organisms/board/DuelField.svelte";
-  import Hands from "$lib/presentation/components/organisms/board/Hands.svelte";
+  import DuelField from "./_components/DuelField.svelte";
+  import Hands from "./_components/Hands.svelte";
   import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
   import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
   import GameOverModal from "$lib/presentation/components/modals/GameOverModal.svelte";

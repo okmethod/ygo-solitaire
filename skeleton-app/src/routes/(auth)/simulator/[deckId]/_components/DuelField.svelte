@@ -17,9 +17,9 @@
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
-  import Graveyard from "$lib/presentation/components/organisms/board/Graveyard.svelte";
-  import ExtraDeck from "$lib/presentation/components/organisms/board/ExtraDeck.svelte";
-  import MainDeck from "$lib/presentation/components/organisms/board/MainDeck.svelte";
+  import Graveyard from "./zones/Graveyard.svelte";
+  import ExtraDeck from "./zones/ExtraDeck.svelte";
+  import MainDeck from "./zones/MainDeck.svelte";
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;
