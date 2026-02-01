@@ -18,25 +18,30 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 
-/** カード選択モーダル用の解決済み設定（Presentation Layer向け） */
-export interface ResolvedCardSelectionConfig {
-  availableCards: readonly CardInstance[];
-  minCards: number;
-  maxCards: number;
-  summary: string;
-  description: string;
-  cancelable?: boolean;
-  onConfirm: (selectedInstanceIds: string[]) => void;
-  onCancel?: () => void;
-}
+/**
+ * モーダル向け設定のインターフェース定義
+ *
+ * 実際の型定義は Presentation Layer（presentation/types/interaction.ts）に存在。
+ * Application Layer では具体的な型に依存せず、ジェネリックに扱う。
+ *
+ * @remark 効果処理モーダル群の設計思想
+ * - effectQueueStore が効果処理の状態を一元管理（SSOT）
+ * - モーダルは状態を直接参照し、コールバックで操作を委譲
+ * - config オブジェクトに summary, description, コールバックをまとめて渡す
+ * - 型の詳細は Presentation Layer が所有するが、effectQueueStoreはそれに依存しない
+ *
+ * TODO: 型の定義をここに書いていないだけで、実質プレゼンテーション層の型を知っている状態になっているのでは？
+ * ユーザー操作自体は Presentation 層で実装されるが、
+ * ユーザーの意思決定を要するということ自体はゲームのルールに関わるため、
+ * Domain 層の lib/domain/models/AtomicStep.ts で設定を定義している。
+ * このストアでも Domain 層の型を参照する形にし、プレゼンテーション層はそれを継承して細かい型を定義する形にしたい。
+ */
+type EffectResolutionConfig = unknown;
+type CardSelectionConfig = unknown;
 
 /** 通知ハンドラのインターフェース */
-export interface NotificationHandler {
-  /** info通知を表示（トースト） */
+interface NotificationHandler {
   showInfo(summary: string, description: string): void;
-
-  /** interactive通知を表示（モーダル） */
-  showInteractive(step: AtomicStep, onConfirm: () => void, onCancel?: () => void): void;
 }
 
 // 効果処理ステップキューストアの状態インターフェース
@@ -45,9 +50,11 @@ interface EffectQueueState {
   currentStep: AtomicStep | null;
   steps: AtomicStep[];
   currentIndex: number;
-  /** カード選択モーダル用の解決済み設定（null = モーダル非表示） */
-  resolvedCardSelectionConfig: ResolvedCardSelectionConfig | null;
   notificationHandler: NotificationHandler | null;
+  // 効果確認モーダル用の設定（null = モーダル非表示）
+  effectResolutionConfig: EffectResolutionConfig | null;
+  // カード選択モーダル用の設定（null = モーダル非表示）
+  cardSelectionConfig: CardSelectionConfig | null;
 }
 
 // ステップ実行の共通結果
@@ -146,7 +153,7 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
   await new Promise<void>((resolve) => {
     updateState((s) => ({
       ...s,
-      resolvedCardSelectionConfig: {
+      cardSelectionConfig: {
         availableCards,
         minCards: config.minCards,
         maxCards: config.maxCards,
@@ -155,11 +162,11 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
         cancelable: config.cancelable,
         onConfirm: (selectedInstanceIds: string[]) => {
           executeStepAction(step, gameState, selectedInstanceIds);
-          updateState((s) => ({ ...s, resolvedCardSelectionConfig: null }));
+          updateState((s) => ({ ...s, cardSelectionConfig: null }));
           resolve();
         },
         onCancel: () => {
-          updateState((s) => ({ ...s, resolvedCardSelectionConfig: null }));
+          updateState((s) => ({ ...s, cardSelectionConfig: null }));
           resolve();
         },
       },
@@ -170,8 +177,23 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
 };
 
 // Strategy: "interactive"レベル（カード選択なし） - モーダル表示、ユーザー入力待ち
-const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, gameState) => {
-  executeStepAction(step, gameState);
+const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, gameState, _handlers, updateState) => {
+  // 効果確認モーダル（Promise化）- 状態を更新してモーダルを表示
+  await new Promise<void>((resolve) => {
+    updateState((s) => ({
+      ...s,
+      effectResolutionConfig: {
+        summary: step.summary,
+        description: step.description,
+        onConfirm: () => {
+          executeStepAction(step, gameState);
+          updateState((s) => ({ ...s, effectResolutionConfig: null }));
+          resolve();
+        },
+      },
+    }));
+  });
+
   return { shouldContinue: true };
 };
 
@@ -212,8 +234,9 @@ function createEffectQueueStore(): EffectQueueStore {
     currentStep: null,
     steps: [],
     currentIndex: -1,
-    resolvedCardSelectionConfig: null,
     notificationHandler: null,
+    effectResolutionConfig: null,
+    cardSelectionConfig: null,
   });
 
   return {

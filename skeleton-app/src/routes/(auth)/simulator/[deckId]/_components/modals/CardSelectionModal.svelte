@@ -1,21 +1,20 @@
 <script lang="ts">
   /**
-   * CardSelectionModal - カード選択モーダルコンポーネント
+   * CardSelectionModal - カード選択モーダル
    *
-   * カード効果により選択が必要な場面でプレイヤーにカード選択UIを提供する。
-   * propsでisOpenとconfigを受け取り、選択状態は内部で管理する。
-   * 確定/キャンセル時はconfig内のコールバックを実行する。
-   *
-   * @module presentation/components/modals/CardSelectionModal
+   * カード選択を伴う interactive ステップで、ユーザーにカード選択UIを提供するモーダル。
+   * effectQueueStore の cardSelectionConfig から情報を取得し、
+   * ユーザーによる操作確定時に config 内のコールバックを実行する。
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import type { CardDisplayData, ResolvedCardSelectionConfig } from "$lib/presentation/types";
+  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
 
   interface CardSelectionModalProps {
     isOpen: boolean;
-    config: ResolvedCardSelectionConfig | null;
+    config: CardSelectionModalConfig | null;
   }
 
   let { isOpen, config }: CardSelectionModalProps = $props();

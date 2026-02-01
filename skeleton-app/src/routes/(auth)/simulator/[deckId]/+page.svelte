@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { CardDisplayData } from "$lib/presentation/types";
+  import type { EffectResolutionModalConfig, CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
   import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
@@ -342,18 +343,14 @@
 
 <!-- 効果処理モーダル: カード選択を伴わない interactive ステップ向け -->
 <EffectResolutionModal
-  isOpen={$effectQueueState.isActive &&
-    $effectQueueState.currentStep?.notificationLevel === "interactive" &&
-    !$effectQueueState.currentStep?.cardSelectionConfig}
-  summary={$effectQueueState.currentStep?.summary || ""}
-  description={$effectQueueState.currentStep?.description || ""}
-  onConfirm={effectQueueStore.confirmCurrentStep}
+  isOpen={$effectQueueState.effectResolutionConfig !== null}
+  config={$effectQueueState.effectResolutionConfig as EffectResolutionModalConfig | null}
 />
 
 <!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
 <CardSelectionModal
-  isOpen={$effectQueueState.resolvedCardSelectionConfig !== null}
-  config={$effectQueueState.resolvedCardSelectionConfig}
+  isOpen={$effectQueueState.cardSelectionConfig !== null}
+  config={$effectQueueState.cardSelectionConfig as CardSelectionModalConfig | null}
 />
 
 <!-- ゲーム終了モーダル -->

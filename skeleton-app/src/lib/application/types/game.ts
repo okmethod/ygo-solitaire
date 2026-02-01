@@ -11,4 +11,4 @@
 
 /** Domain 型の再エクスポート */
 export type { GameState } from "$lib/domain/models/GameState";
-export type { CardSelectionConfig } from "$lib/domain/models/AtomicStep";
+export type { InteractionConfig } from "$lib/domain/models/AtomicStep";

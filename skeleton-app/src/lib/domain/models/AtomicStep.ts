@@ -26,20 +26,31 @@ import type { ZoneName } from "$lib/domain/models/Zone";
 export type NotificationLevel = "silent" | "info" | "interactive";
 
 /**
+ * ユーザーインタラクション設定の基底クラス
+ *
+ * ユーザー操作自体は Presentation 層で実装されるが、
+ * ユーザーの意思決定を要するということ自体はゲームのルールに関わるため、
+ * Domain 層で設定を定義している。
+ *
+ */
+export interface InteractionConfig {
+  summary: string; // UIに表示される要約
+  description: string; // UIに表示される詳細説明
+  cancelable?: boolean; // キャンセル可能かどうか（デフォルト: false）
+}
+
+/**
  * カード選択設定
  *
  * ユーザーにカード選択を要求するための設定。
  * ドメイン層向けで、Svelte の store に依存しない。
  */
-export interface CardSelectionConfig {
+export interface CardSelectionConfig extends InteractionConfig {
   availableCards: readonly CardInstance[] | null; // 配列: 直接指定, null: 動的指定(_sourceZoneから取得)
   _sourceZone?: ZoneName;
   _filter?: (card: CardInstance, index?: number) => boolean;
   minCards: number;
   maxCards: number;
-  summary: string; // 選択UIに表示される要約
-  description: string; // 選択UIに表示される詳細説明
-  cancelable?: boolean; // キャンセル可能かどうか（デフォルト: false）
 }
 
 /**

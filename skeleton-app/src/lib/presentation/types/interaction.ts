@@ -1,16 +1,32 @@
-import type { CardInstance, CardSelectionConfig as DomainCardSelectionConfig } from "$lib/presentation/types";
+/**
+ * 効果処理のユーザーインタラクション関連の型定義
+ *
+ * Domain 層の AtomicStep が前提としている型を基に、
+ * 効果処理モーダル群の実装に関連する設定インターフェースを追加定義する。
+ *
+ * @module presentation/types/interaction
+ */
+
+import type { CardInstance, InteractionConfig } from "$lib/presentation/types";
 
 /**
- * カード選択モーダル設定（Presentation Layer用）
+ * 効果確認モーダル用の設定（カード選択なし）
  *
- * Domain層の CardSelectionConfig を拡張し、UIコールバックを追加。
+ * @see EffectResolutionModal
  */
-export interface CardSelectionModalConfig
-  extends Omit<DomainCardSelectionConfig, "availableCards" | "_sourceZone" | "_filter"> {
-  /** 選択対象のカード一覧（Application層で解決済み） */
+export interface EffectResolutionModalConfig extends InteractionConfig {
+  onConfirm: () => void;
+}
+
+/**
+ * カード選択モーダル用の設定
+ *
+ * @see CardSelectionModal
+ */
+export interface CardSelectionModalConfig extends InteractionConfig {
   availableCards: readonly CardInstance[];
-  /** 選択確定時に実行されるコールバック */
+  minCards: number;
+  maxCards: number;
   onConfirm: (selectedInstanceIds: string[]) => void;
-  /** キャンセル時に実行されるコールバック（オプション） */
   onCancel?: () => void;
 }

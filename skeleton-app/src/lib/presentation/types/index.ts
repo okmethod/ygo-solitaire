@@ -7,7 +7,7 @@
  * @module presentation/types
  */
 
-export type { GameState, CardSelectionConfig } from "$lib/application/types/game";
+export type { GameState, InteractionConfig } from "$lib/application/types/game";
 
 export type {
   CardInstance,
@@ -31,5 +31,3 @@ export type {
   ExtraDeckData,
   DeckData,
 } from "$lib/application/types/deck";
-
-export type { ResolvedCardSelectionConfig } from "$lib/application/stores/effectQueueStore";

@@ -1,17 +1,23 @@
 <script lang="ts">
+  /**
+   * EffectResolutionModal - 効果処理確認モーダル
+   *
+   * カード選択を伴わない interactive ステップで、ユーザーに確認を求めるモーダル。
+   * effectQueueStore の effectResolutionConfig から情報を取得し、
+   * ユーザーによる操作確定時に config 内のコールバックを実行する。
+   */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
+  import type { EffectResolutionModalConfig } from "$lib/presentation/types/interaction";
 
   interface EffectResolutionModalProps {
     isOpen: boolean;
-    summary: string;
-    description: string;
-    onConfirm: () => void;
+    config: EffectResolutionModalConfig | null;
   }
 
-  let { isOpen, summary, description, onConfirm }: EffectResolutionModalProps = $props();
+  let { isOpen, config }: EffectResolutionModalProps = $props();
 
   function handleConfirm() {
-    onConfirm();
+    config?.onConfirm();
   }
 </script>
 
@@ -25,16 +31,18 @@
   preventScroll={true}
 >
   {#snippet content()}
-    <header class="text-center">
-      <h2 class="h3 font-bold text-primary-600-300-token">{summary}</h2>
-    </header>
+    {#if config}
+      <header class="text-center">
+        <h2 class="h3 font-bold text-primary-600-300-token">{config.summary}</h2>
+      </header>
 
-    <article class="text-center">
-      <p class="text-lg">{description}</p>
-    </article>
+      <article class="text-center">
+        <p class="text-lg">{config.description}</p>
+      </article>
 
-    <footer class="flex justify-center">
-      <button class="btn variant-filled-primary" onclick={handleConfirm}> OK </button>
-    </footer>
+      <footer class="flex justify-center">
+        <button class="btn variant-filled-primary" onclick={handleConfirm}> OK </button>
+      </footer>
+    {/if}
   {/snippet}
 </Modal>
