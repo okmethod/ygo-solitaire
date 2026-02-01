@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CardDisplayData } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
-  import Card from "$lib/presentation/components/atoms/Card.svelte";
+  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
 
   /**
    * カードアクションボタン定義
@@ -90,7 +90,7 @@
 <div class="relative">
   <!-- Card コンポーネントをラップ（選択状態も Card で管理） -->
   <!-- カードは常にクリック可能にして、ユーザーが選択できるようにする -->
-  <Card {card} {size} {faceDown} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} />
+  <CardComponent {card} {size} {faceDown} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} />
 
   {#if isSelected}
     <!-- アクションボタン -->

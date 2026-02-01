@@ -13,7 +13,7 @@
    */
   import type { CardDisplayData } from "$lib/presentation/types";
   import { gameFacade } from "$lib/application/GameFacade";
-  import Card from "$lib/presentation/components/atoms/Card.svelte";
+  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
@@ -203,7 +203,7 @@
       />
     {:else}
       <!-- ローディング中のplaceholder -->
-      <Card placeholder={true} placeholderText="..." size="medium" />
+      <CardComponent placeholder={true} placeholderText="..." size="medium" />
     {/if}
   {:else}
     <div class="text-center text-sm opacity-50">No cards in hand</div>
