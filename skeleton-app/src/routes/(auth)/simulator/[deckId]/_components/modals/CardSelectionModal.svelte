@@ -5,6 +5,8 @@
    * カード選択を伴う interactive ステップで、ユーザーにカード選択UIを提供するモーダル。
    * effectQueueStore の cardSelectionConfig から情報を取得し、
    * ユーザーによる操作確定時に config 内のコールバックを実行する。
+   *
+   * cancelable=true の場合はキャンセルボタンも表示する。
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import type { CardDisplayData } from "$lib/presentation/types";

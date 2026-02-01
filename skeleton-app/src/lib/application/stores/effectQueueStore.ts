@@ -9,6 +9,17 @@
  * - ALLOWED: Domain Layer への依存
  * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
  *
+ * @remark ユーザーインタラクティブ操作のレイヤー間役割分担
+ * - Domain層: ゲームルールとしての設定（ユーザーが何を決める必要があるか）
+ * - Application層: ユーザの操作制御の設定（ユーザーの選択をどう扱うか）
+ * - Presentation層: ユーザ操作のUI実装（ユーザーにどう見せるか）
+ *
+ * @remark 効果処理の設計思想
+ * - 効果処理は複数の AtomicStep から構成されるシーケンス
+ * - effectQueueStore が効果処理の状態を一元管理（SSOT）
+ * - Presentation層は状態を監視し、configがnullでなければUIを表示
+ * - ユーザー操作時にconfig内のコールバックを実行
+ *
  * @module application/stores/effectQueueStore
  */
 
@@ -17,29 +28,9 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/Card";
+import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
 
-/**
- * モーダル向け設定のインターフェース定義
- *
- * 実際の型定義は Presentation Layer（presentation/types/interaction.ts）に存在。
- * Application Layer では具体的な型に依存せず、ジェネリックに扱う。
- *
- * @remark 効果処理モーダル群の設計思想
- * - effectQueueStore が効果処理の状態を一元管理（SSOT）
- * - モーダルは状態を直接参照し、コールバックで操作を委譲
- * - config オブジェクトに summary, description, コールバックをまとめて渡す
- * - 型の詳細は Presentation Layer が所有するが、effectQueueStoreはそれに依存しない
- *
- * TODO: 型の定義をここに書いていないだけで、実質プレゼンテーション層の型を知っている状態になっているのでは？
- * ユーザー操作自体は Presentation 層で実装されるが、
- * ユーザーの意思決定を要するということ自体はゲームのルールに関わるため、
- * Domain 層の lib/domain/models/AtomicStep.ts で設定を定義している。
- * このストアでも Domain 層の型を参照する形にし、プレゼンテーション層はそれを継承して細かい型を定義する形にしたい。
- */
-type EffectResolutionConfig = unknown;
-type CardSelectionConfig = unknown;
-
-/** 通知ハンドラのインターフェース */
+// 通知ハンドラのインターフェース
 interface NotificationHandler {
   showInfo(summary: string, description: string): void;
 }
@@ -51,10 +42,10 @@ interface EffectQueueState {
   steps: AtomicStep[];
   currentIndex: number;
   notificationHandler: NotificationHandler | null;
-  // 効果確認モーダル用の設定（null = モーダル非表示）
-  effectResolutionConfig: EffectResolutionConfig | null;
-  // カード選択モーダル用の設定（null = モーダル非表示）
-  cardSelectionConfig: CardSelectionConfig | null;
+  // ユーザー確認用の設定（null = 非表示）
+  confirmationConfig: ConfirmationConfig | null;
+  // カード選択用の設定（null = 非表示）
+  cardSelectionConfig: ResolvedCardSelectionConfig | null;
 }
 
 // ステップ実行の共通結果
@@ -182,12 +173,12 @@ const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, g
   await new Promise<void>((resolve) => {
     updateState((s) => ({
       ...s,
-      effectResolutionConfig: {
+      confirmationConfig: {
         summary: step.summary,
         description: step.description,
         onConfirm: () => {
           executeStepAction(step, gameState);
-          updateState((s) => ({ ...s, effectResolutionConfig: null }));
+          updateState((s) => ({ ...s, confirmationConfig: null }));
           resolve();
         },
       },
@@ -235,7 +226,7 @@ function createEffectQueueStore(): EffectQueueStore {
     steps: [],
     currentIndex: -1,
     notificationHandler: null,
-    effectResolutionConfig: null,
+    confirmationConfig: null,
     cardSelectionConfig: null,
   });
 

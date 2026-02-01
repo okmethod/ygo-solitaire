@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { CardDisplayData } from "$lib/presentation/types";
-  import type { EffectResolutionModalConfig, CardSelectionModalConfig } from "$lib/presentation/types/interaction";
+  import type { ConfirmationModalConfig, CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
   import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
@@ -21,7 +21,7 @@
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
-  import EffectResolutionModal from "./_components/modals/EffectResolutionModal.svelte";
+  import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
   import CardSelectionModal from "./_components/modals/CardSelectionModal.svelte";
   import GameOverModal from "./_components/modals/GameOverModal.svelte";
 
@@ -341,10 +341,10 @@
   </main>
 </div>
 
-<!-- 効果処理モーダル: カード選択を伴わない interactive ステップ向け -->
-<EffectResolutionModal
-  isOpen={$effectQueueState.effectResolutionConfig !== null}
-  config={$effectQueueState.effectResolutionConfig as EffectResolutionModalConfig | null}
+<!-- ユーザー確認モーダル: カード選択を伴わない interactive ステップ向け -->
+<ConfirmationModal
+  isOpen={$effectQueueState.confirmationConfig !== null}
+  config={$effectQueueState.confirmationConfig as ConfirmationModalConfig | null}
 />
 
 <!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
