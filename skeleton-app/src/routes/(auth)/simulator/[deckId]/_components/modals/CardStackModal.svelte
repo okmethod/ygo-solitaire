@@ -43,7 +43,7 @@
   }
 
   // 集約表示用データを生成
-  const aggregatedCards = (cards: CardDisplayData[]) => {
+  const aggregatedCards = () => {
     const cardMap = new Map<number, AggregatedCard>();
 
     reverseCards.forEach((card) => {
@@ -107,7 +107,7 @@
       <div class="flex gap-2 flex-wrap">
         {#if isAggregated}
           <!-- 集約表示モード -->
-          {#each aggregatedCards(reverseCards) as { card, quantity } (card.id)}
+          {#each aggregatedCards() as { card, quantity } (card.id)}
             <div class="relative">
               <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
                 <CardComponent {card} size="medium" showDetailOnClick={true} />
