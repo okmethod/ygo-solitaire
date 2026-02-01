@@ -18,18 +18,16 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 
-/** カード選択ハンドラのインターフェース（コールバック関数） */
-export interface CardSelectionHandler {
-  (config: {
-    availableCards: readonly CardInstance[];
-    minCards: number;
-    maxCards: number;
-    summary: string;
-    description: string;
-    cancelable?: boolean;
-    onConfirm: (selectedInstanceIds: string[]) => void;
-    onCancel?: () => void;
-  }): void;
+/** カード選択モーダル用の解決済み設定（Presentation Layer向け） */
+export interface ResolvedCardSelectionConfig {
+  availableCards: readonly CardInstance[];
+  minCards: number;
+  maxCards: number;
+  summary: string;
+  description: string;
+  cancelable?: boolean;
+  onConfirm: (selectedInstanceIds: string[]) => void;
+  onCancel?: () => void;
 }
 
 /** 通知ハンドラのインターフェース */
@@ -47,7 +45,8 @@ interface EffectQueueState {
   currentStep: AtomicStep | null;
   steps: AtomicStep[];
   currentIndex: number;
-  cardSelectionHandler: CardSelectionHandler | null;
+  /** カード選択モーダル用の解決済み設定（null = モーダル非表示） */
+  resolvedCardSelectionConfig: ResolvedCardSelectionConfig | null;
   notificationHandler: NotificationHandler | null;
 }
 
@@ -63,8 +62,8 @@ type NotificationStrategy = (
   gameState: GameState,
   handlers: {
     notification: NotificationHandler | null;
-    cardSelection: CardSelectionHandler | null;
   },
+  updateState: (updater: (state: EffectQueueState) => EffectQueueState) => void,
 ) => Promise<StepExecutionResult>;
 
 // 1ステップ分のアクションを実行する（共通処理）
@@ -125,12 +124,7 @@ const infoStrategy: NotificationStrategy = async (step, gameState, handlers) => 
 };
 
 // Strategy: "interactive"レベル（カード選択あり） - モーダル表示、ユーザー入力待ち
-const interactiveWithSelectionStrategy: NotificationStrategy = async (step, gameState, handlers) => {
-  if (!handlers.cardSelection) {
-    console.error("Card selection handler not registered");
-    return { shouldContinue: false };
-  }
-
+const interactiveWithSelectionStrategy: NotificationStrategy = async (step, gameState, _handlers, updateState) => {
   const config = step.cardSelectionConfig!;
 
   // availableCardsの取得: 配列=直接指定, null=動的指定
@@ -148,19 +142,28 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
     availableCards = config._filter ? sourceZone.filter((card, index) => config._filter!(card, index)) : sourceZone;
   }
 
-  // カード選択モーダル（Promise化）
+  // カード選択モーダル（Promise化）- 状態を更新してモーダルを表示
   await new Promise<void>((resolve) => {
-    handlers.cardSelection!({
-      ...config,
-      availableCards,
-      onConfirm: (selectedInstanceIds: string[]) => {
-        executeStepAction(step, gameState, selectedInstanceIds);
-        resolve();
+    updateState((s) => ({
+      ...s,
+      resolvedCardSelectionConfig: {
+        availableCards,
+        minCards: config.minCards,
+        maxCards: config.maxCards,
+        summary: config.summary,
+        description: config.description,
+        cancelable: config.cancelable,
+        onConfirm: (selectedInstanceIds: string[]) => {
+          executeStepAction(step, gameState, selectedInstanceIds);
+          updateState((s) => ({ ...s, resolvedCardSelectionConfig: null }));
+          resolve();
+        },
+        onCancel: () => {
+          updateState((s) => ({ ...s, resolvedCardSelectionConfig: null }));
+          resolve();
+        },
       },
-      onCancel: () => {
-        resolve();
-      },
-    });
+    }));
   });
 
   return { shouldContinue: true };
@@ -186,9 +189,6 @@ function selectStrategy(step: AtomicStep): NotificationStrategy {
 export interface EffectQueueStore {
   subscribe: (run: (value: EffectQueueState) => void) => () => void;
 
-  /** カード選択ハンドラを登録する（Dependency Injection） */
-  registerCardSelectionHandler: (handler: CardSelectionHandler) => void;
-
   /** 通知ハンドラを登録する（Dependency Injection） */
   registerNotificationHandler: (handler: NotificationHandler) => void;
 
@@ -212,16 +212,12 @@ function createEffectQueueStore(): EffectQueueStore {
     currentStep: null,
     steps: [],
     currentIndex: -1,
-    cardSelectionHandler: null,
+    resolvedCardSelectionConfig: null,
     notificationHandler: null,
   });
 
   return {
     subscribe,
-
-    registerCardSelectionHandler: (handler: CardSelectionHandler) => {
-      update((state) => ({ ...state, cardSelectionHandler: handler }));
-    },
 
     registerNotificationHandler: (handler: NotificationHandler) => {
       update((state) => ({ ...state, notificationHandler: handler }));
@@ -253,10 +249,12 @@ function createEffectQueueStore(): EffectQueueStore {
       const strategy = selectStrategy(state.currentStep);
 
       // Strategy実行
-      const result = await strategy(state.currentStep, currentGameState, {
-        notification: state.notificationHandler,
-        cardSelection: state.cardSelectionHandler,
-      });
+      const result = await strategy(
+        state.currentStep,
+        currentGameState,
+        { notification: state.notificationHandler },
+        update,
+      );
 
       // 遅延が必要なら待機
       if (result.delay) {

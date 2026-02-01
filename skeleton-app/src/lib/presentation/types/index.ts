@@ -31,3 +31,5 @@ export type {
   ExtraDeckData,
   DeckData,
 } from "$lib/application/types/deck";
+
+export type { ResolvedCardSelectionConfig } from "$lib/application/stores/effectQueueStore";

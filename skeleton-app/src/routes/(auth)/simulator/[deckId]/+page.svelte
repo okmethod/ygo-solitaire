@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { CardDisplayData } from "$lib/presentation/types";
-  import type { CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
   import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
@@ -27,25 +26,18 @@
 
   const { data } = $props<{ data: PageData }>();
 
-  // カード選択モーダル用のローカル状態
-  let cardSelectionConfig = $state<CardSelectionModalConfig | null>(null);
-  const isCardSelectionOpen = $derived(cardSelectionConfig !== null);
-
   onMount(async () => {
     // CardDisplayData キャッシュを初期化
     await initializeCache(data.uniqueCardIds);
 
-    // effectQueueStore にハンドラを登録（DI）
+    // effectQueueStore に通知ハンドラを登録（DI）
     effectQueueStore.registerNotificationHandler({
       showInfo: (_summary, description) => {
         showSuccessToast(description);
       },
       showInteractive: () => {
-        // Interactive level uses modal logic (handled by cardSelectionConfig)
+        // Interactive level uses modal logic
       },
-    });
-    effectQueueStore.registerCardSelectionHandler((config) => {
-      cardSelectionConfig = config;
     });
   });
 
@@ -108,7 +100,7 @@
     if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }
 
-  // モンスター召喚ハンドラー (T032)
+  // モンスター召喚ハンドラー
   function handleSummonMonster(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.summonMonster(instanceId);
     if (result.success) {
@@ -118,7 +110,7 @@
     }
   }
 
-  // モンスターセットハンドラー (T032, T033-T034)
+  // モンスターセットハンドラー
   function handleSetMonster(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.setMonster(instanceId);
     if (result.success) {
@@ -129,7 +121,7 @@
     }
   }
 
-  // 魔法・罠セットハンドラー (T032, T033-T034)
+  // 魔法・罠セットハンドラー
   function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.setSpellTrap(instanceId);
     if (result.success) {
@@ -140,17 +132,17 @@
     }
   }
 
-  // カード選択状態管理 - 一元管理 (T038)
+  // カード選択状態管理 - 一元管理
   let selectedHandCardInstanceId = $state<string | null>(null); // 手札カード選択
   let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択（セット魔法・罠・モンスター）
 
-  // 手札カード選択変更ハンドラー - フィールドカード選択をクリア (T038)
+  // 手札カード選択変更ハンドラー - フィールドカード選択をクリア
   function handleHandCardSelect(instanceId: string | null) {
     selectedHandCardInstanceId = instanceId;
     selectedFieldCardInstanceId = null; // フィールドカード選択をクリア
   }
 
-  // フィールドカードクリックで効果発動 - 手札選択をクリア (T038)
+  // フィールドカードクリックで効果発動 - 手札選択をクリア
   function handleFieldCardClick(card: CardDisplayData, instanceId: string) {
     // Find the card instance from field cards
     const currentState = gameFacade.getGameState();
@@ -165,17 +157,17 @@
       return;
     }
 
-    // 手札選択をクリア (T038)
+    // 手札選択をクリア
     selectedHandCardInstanceId = null;
 
-    // フィールドカードは選択状態をトグル (T038)
+    // フィールドカードは選択状態をトグル
     // - セット魔法・罠: 発動メニュー表示用
     // - モンスター: 選択表示用
     // - フィールド魔法: 選択表示用（起動効果がある場合も同様）
     selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
   }
 
-  // セット魔法カードの発動ハンドラー (T033-T034)
+  // セット魔法カードの発動ハンドラー
   function handleActivateSetSpell(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.activateSpell(instanceId);
     if (result.success) {
@@ -186,7 +178,7 @@
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
-  // 起動効果発動ハンドラー (T038)
+  // 起動効果発動ハンドラー
   function handleActivateIgnitionEffect(card: CardDisplayData, instanceId: string) {
     const result = gameFacade.activateIgnitionEffect(instanceId);
     if (result.success) {
@@ -197,7 +189,7 @@
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
-  // フィールドカード選択キャンセル (T033-T034)
+  // フィールドカード選択キャンセル
   function handleCancelFieldCardSelection() {
     selectedFieldCardInstanceId = null;
   }
@@ -360,11 +352,8 @@
 
 <!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
 <CardSelectionModal
-  isOpen={isCardSelectionOpen}
-  config={cardSelectionConfig}
-  onClose={() => {
-    cardSelectionConfig = null;
-  }}
+  isOpen={$effectQueueState.resolvedCardSelectionConfig !== null}
+  config={$effectQueueState.resolvedCardSelectionConfig}
 />
 
 <!-- ゲーム終了モーダル -->

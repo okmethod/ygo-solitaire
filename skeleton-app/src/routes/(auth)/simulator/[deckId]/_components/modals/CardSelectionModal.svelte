@@ -9,17 +9,16 @@
    * @module presentation/components/modals/CardSelectionModal
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import type { CardDisplayData, CardSelectionModalConfig } from "$lib/presentation/types";
+  import type { CardDisplayData, ResolvedCardSelectionConfig } from "$lib/presentation/types";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
 
   interface CardSelectionModalProps {
     isOpen: boolean;
-    config: CardSelectionModalConfig | null;
-    onClose?: () => void;
+    config: ResolvedCardSelectionConfig | null;
   }
 
-  let { isOpen, config, onClose }: CardSelectionModalProps = $props();
+  let { isOpen, config }: CardSelectionModalProps = $props();
 
   // 選択状態を内部で管理
   let selectedIds = $state<Set<string>>(new Set());
@@ -85,13 +84,11 @@
   function handleConfirm() {
     if (!config || !isValidSelection()) return;
     config.onConfirm(Array.from(selectedIds));
-    onClose?.();
   }
 
   // キャンセルボタン
   function handleCancel() {
     config?.onCancel?.();
-    onClose?.();
   }
 
   // instanceIdからCardDisplayDataを取得
