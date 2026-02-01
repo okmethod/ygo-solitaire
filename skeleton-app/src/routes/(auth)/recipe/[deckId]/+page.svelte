@@ -3,7 +3,7 @@
   import type { PageData } from "./$types";
   import { navigateTo } from "$lib/presentation/utils/navigation";
   import { initializeCache } from "$lib/presentation/services/cardDisplayDataCache";
-  import CardList from "$lib/presentation/components/organisms/CardList.svelte";
+  import CardList from "./_componets/CardList.svelte";
 
   let { data }: { data: PageData } = $props();
   const { monsters, spells, traps } = data.deckData.mainDeck;
