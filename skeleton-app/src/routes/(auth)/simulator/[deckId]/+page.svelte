@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
-  import type { CardDisplayData } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
   import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
@@ -26,9 +27,26 @@
 
   const { data } = $props<{ data: PageData }>();
 
+  // カード選択モーダル用のローカル状態
+  let cardSelectionConfig = $state<CardSelectionModalConfig | null>(null);
+  const isCardSelectionOpen = $derived(cardSelectionConfig !== null);
+
   onMount(async () => {
     // CardDisplayData キャッシュを初期化
     await initializeCache(data.uniqueCardIds);
+
+    // effectQueueStore にハンドラを登録（DI）
+    effectQueueStore.registerNotificationHandler({
+      showInfo: (_summary, description) => {
+        showSuccessToast(description);
+      },
+      showInteractive: () => {
+        // Interactive level uses modal logic (handled by cardSelectionConfig)
+      },
+    });
+    effectQueueStore.registerCardSelectionHandler((config) => {
+      cardSelectionConfig = config;
+    });
   });
 
   // 自動フェイズ進行 - Draw → Standby → Main1 まで自動進行
@@ -341,7 +359,13 @@
 />
 
 <!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
-<CardSelectionModal />
+<CardSelectionModal
+  isOpen={isCardSelectionOpen}
+  config={cardSelectionConfig}
+  onClose={() => {
+    cardSelectionConfig = null;
+  }}
+/>
 
 <!-- ゲーム終了モーダル -->
 <GameOverModal
@@ -350,7 +374,6 @@
   reason={$gameResult.reason}
   message={$gameResult.message}
   onClose={() => {
-    console.log("[Simulator] Game result modal closed");
     isGameOverModalOpen = false;
   }}
 />

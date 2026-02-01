@@ -3,73 +3,107 @@
    * CardSelectionModal - カード選択モーダルコンポーネント
    *
    * カード効果により選択が必要な場面でプレイヤーにカード選択UIを提供する。
-   * cardSelectionStore と連携し、選択状態の管理・確定・キャンセルを処理する。
-   * CardDisplayData は cardDisplayDataCache から同期的に取得する。
+   * propsでisOpenとconfigを受け取り、選択状態は内部で管理する。
+   * 確定/キャンセル時はconfig内のコールバックを実行する。
    *
    * @module presentation/components/modals/CardSelectionModal
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import type { CardDisplayData } from "$lib/presentation/types";
-  import { cardSelectionStore } from "$lib/presentation/stores/cardSelectionStore.svelte";
+  import type { CardDisplayData, CardSelectionModalConfig } from "$lib/presentation/types";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
 
-  // cardSelectionStore の状態を購読
-  const isActive = $derived(cardSelectionStore.isActive);
-  const config = $derived(cardSelectionStore.config);
-  const selectedCount = $derived(cardSelectionStore.selectedCount);
-  const isValidSelection = $derived(cardSelectionStore.isValidSelection);
-  const cancelable = $derived(config?.cancelable ?? false); // Default: false
+  interface CardSelectionModalProps {
+    isOpen: boolean;
+    config: CardSelectionModalConfig | null;
+    onClose?: () => void;
+  }
+
+  let { isOpen, config, onClose }: CardSelectionModalProps = $props();
+
+  // 選択状態を内部で管理
+  let selectedIds = $state<Set<string>>(new Set());
+
+  // isOpenがtrueになったら選択状態をリセット
+  $effect(() => {
+    if (isOpen) {
+      selectedIds = new Set();
+    }
+  });
+
+  // 派生状態
+  const selectedCount = $derived(selectedIds.size);
+  const cancelable = $derived(config?.cancelable ?? false);
+
+  const isValidSelection = $derived(() => {
+    if (!config) return false;
+    return selectedCount >= config.minCards && selectedCount <= config.maxCards;
+  });
+
+  // カードが選択されているかチェック
+  function isSelected(instanceId: string): boolean {
+    return selectedIds.has(instanceId);
+  }
+
+  // カードの選択状態を切り替え可能かチェック
+  function canToggleCard(instanceId: string): boolean {
+    if (!config) return false;
+    if (selectedIds.has(instanceId)) return true;
+    return selectedIds.size < config.maxCards;
+  }
 
   // Modal の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
-    // キャンセル可能な場合のみモーダルを閉じる
-    if (!event.open && isActive && cancelable) {
-      cardSelectionStore.cancelSelection();
+    if (!event.open && isOpen && cancelable) {
+      handleCancel();
     }
   }
 
   // カード選択ハンドリング
   function handleCardClick(instanceId: string) {
-    // 選択上限に達していないか、または既に選択済みの場合のみトグル可能
-    const canToggle = cardSelectionStore.canToggleCard(instanceId);
-    const isSelected = cardSelectionStore.isSelected(instanceId);
+    if (!config) return;
 
-    if (canToggle || isSelected) {
-      cardSelectionStore.toggleCard(instanceId);
+    // 選択対象のカードかチェック
+    const isAvailable = config.availableCards.some((card) => card.instanceId === instanceId);
+    if (!isAvailable) return;
+
+    const canToggle = canToggleCard(instanceId);
+    const alreadySelected = isSelected(instanceId);
+
+    if (canToggle || alreadySelected) {
+      const newSelectedIds = new Set(selectedIds);
+      if (alreadySelected) {
+        newSelectedIds.delete(instanceId);
+      } else {
+        newSelectedIds.add(instanceId);
+      }
+      selectedIds = newSelectedIds;
     }
   }
 
   // 確定ボタン
   function handleConfirm() {
-    if (isValidSelection) {
-      cardSelectionStore.confirmSelection();
-    }
+    if (!config || !isValidSelection()) return;
+    config.onConfirm(Array.from(selectedIds));
+    onClose?.();
   }
 
   // キャンセルボタン
   function handleCancel() {
-    cardSelectionStore.cancelSelection();
-  }
-
-  // カードが選択されているかチェック
-  function isCardSelected(instanceId: string): boolean {
-    return cardSelectionStore.isSelected(instanceId);
+    config?.onCancel?.();
+    onClose?.();
   }
 
   // instanceIdからCardDisplayDataを取得
   function getCardDisplay(instanceId: string): CardDisplayData | undefined {
-    // availableCardsからinstanceIdに対応するCardInstanceを取得
     const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);
     if (!cardInstance) return undefined;
-
-    // キャッシュから対応するCardDisplayDataを取得
     return getCardDisplayData(cardInstance.id);
   }
 </script>
 
 <Modal
-  open={isActive}
+  open={isOpen}
   onOpenChange={handleOpenChange}
   contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
   backdropClasses="!bg-black/80 backdrop-blur-md"
@@ -104,17 +138,17 @@
       <div class="min-h-[200px] max-h-[400px] overflow-y-auto mb-6">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {#each config.availableCards as cardInstance (cardInstance.instanceId)}
-            {@const isSelected = isCardSelected(cardInstance.instanceId)}
-            {@const canToggle = cardSelectionStore.canToggleCard(cardInstance.instanceId)}
+            {@const selected = isSelected(cardInstance.instanceId)}
+            {@const canToggle = canToggleCard(cardInstance.instanceId)}
             {@const cardDisplay = getCardDisplay(cardInstance.instanceId)}
             {#if cardDisplay}
-              <div class:opacity-50={!canToggle && !isSelected}>
+              <div class:opacity-50={!canToggle && !selected}>
                 <CardComponent
                   card={cardDisplay}
                   size="small"
                   clickable={true}
                   selectable={false}
-                  {isSelected}
+                  isSelected={selected}
                   animate={true}
                   onClick={() => handleCardClick(cardInstance.instanceId)}
                 />
@@ -129,7 +163,7 @@
         {#if cancelable}
           <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
         {/if}
-        <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection}> 確定 </button>
+        <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection()}> 確定 </button>
       </div>
     {/if}
   {/snippet}
