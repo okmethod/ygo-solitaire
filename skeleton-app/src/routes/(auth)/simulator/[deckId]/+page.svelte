@@ -20,9 +20,9 @@
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
-  import EffectResolutionModal from "$lib/presentation/components/modals/EffectResolutionModal.svelte";
-  import CardSelectionModal from "$lib/presentation/components/modals/CardSelectionModal.svelte";
-  import GameOverModal from "$lib/presentation/components/modals/GameOverModal.svelte";
+  import EffectResolutionModal from "./_components/modals/EffectResolutionModal.svelte";
+  import CardSelectionModal from "./_components/modals/CardSelectionModal.svelte";
+  import GameOverModal from "./_components/modals/GameOverModal.svelte";
 
   const { data } = $props<{ data: PageData }>();
 
@@ -330,9 +330,7 @@
   </main>
 </div>
 
-<!-- 効果処理モーダル (interactive level without card selection only) -->
-<!-- Note: Only show modal for interactive level steps that don't have cardSelectionConfig -->
-<!-- info/silent levels are handled by effectQueueStore (toast/no-ui) -->
+<!-- 効果処理モーダル: カード選択を伴わない interactive ステップ向け -->
 <EffectResolutionModal
   isOpen={$effectQueueState.isActive &&
     $effectQueueState.currentStep?.notificationLevel === "interactive" &&
@@ -342,7 +340,7 @@
   onConfirm={effectQueueStore.confirmCurrentStep}
 />
 
-<!-- カード選択モーダル -->
+<!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
 <CardSelectionModal />
 
 <!-- ゲーム終了モーダル -->
