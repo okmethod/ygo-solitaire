@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { CardDisplayData } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
-  import CardListModal from "$lib/presentation/components/modals/CardListModal.svelte";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
+  import CardStackModal from "../modals/CardStackModal.svelte";
 
   interface GraveyardProps {
     cards: CardDisplayData[];
@@ -82,4 +82,4 @@
 </div>
 
 <!-- 墓地モーダル -->
-<CardListModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="墓地" borderColor="border-gray-400" />
+<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="墓地" borderColor="border-gray-400" />

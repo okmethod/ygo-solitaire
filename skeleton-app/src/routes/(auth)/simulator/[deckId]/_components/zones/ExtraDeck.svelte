@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { CardDisplayData } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
-  import CardListModal from "$lib/presentation/components/modals/CardListModal.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
+  import CardStackModal from "../modals/CardStackModal.svelte";
 
   interface ExtraDeckProps {
     cards: CardDisplayData[];
@@ -57,7 +57,7 @@
 >
   <!-- エクストラデッキは常に裏向き表示 -->
   <div class="h-full flex items-center justify-center p-1 relative">
-    <img src={cardBackImage} alt="エクストラデッキ" class="w-full h-full object-cover rounded-sm" />
+    <img src={cardBackImage} alt="EXデッキ" class="w-full h-full object-cover rounded-sm" />
     <div class="absolute inset-0 flex items-center justify-center">
       <span class="text-xs text-white font-bold text-center select-none drop-shadow-lg"> EX </span>
     </div>
@@ -66,10 +66,10 @@
 </div>
 
 <!-- エクストラデッキモーダル -->
-<CardListModal
+<CardStackModal
   {cards}
   open={modalOpen}
   onOpenChange={handleModalChange}
-  title="エクストラデッキ"
+  title="EXデッキ"
   borderColor="border-purple-400"
 />
