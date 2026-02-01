@@ -11,7 +11,7 @@
    *
    * @module presentation/components/organisms/board/DuelField
    */
-  import type { CardDisplayData } from "$lib/presentation/types/card";
+  import type { CardDisplayData } from "$lib/presentation/types";
   import { gameFacade } from "$lib/application/GameFacade";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
@@ -40,15 +40,15 @@
    */
   interface DuelFieldProps {
     deckCards: number;
-    extraDeckCards: Card[];
-    graveyardCards: Card[];
+    extraDeckCards: CardDisplayData[];
+    graveyardCards: CardDisplayData[];
     fieldCards: CardWithPosition[];
     monsterCards: (CardWithPosition | null)[];
     spellTrapCards: (CardWithPosition | null)[];
     selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId
-    onFieldCardClick?: (card: Card, instanceId: string) => void;
-    onActivateSetSpell?: (card: Card, instanceId: string) => void; // セット魔法カード発動
-    onActivateIgnitionEffect?: (card: Card, instanceId: string) => void; // 起動効果発動
+    onFieldCardClick?: (card: CardDisplayData, instanceId: string) => void;
+    onActivateSetSpell?: (card: CardDisplayData, instanceId: string) => void; // セット魔法カード発動
+    onActivateIgnitionEffect?: (card: CardDisplayData, instanceId: string) => void; // 起動効果発動
     onCancelFieldCardSelection?: () => void; // 選択キャンセル
   }
 
@@ -67,7 +67,7 @@
   }: DuelFieldProps = $props();
 
   // カードクリック処理
-  function handleCardClick(card: Card, instanceId: string) {
+  function handleCardClick(card: CardDisplayData, instanceId: string) {
     if (onFieldCardClick) {
       onFieldCardClick(card, instanceId);
     }
