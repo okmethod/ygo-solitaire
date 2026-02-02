@@ -1,5 +1,5 @@
 /**
- * AdditionalRule - 追加ルールのモデル
+ * AdditionalRule - 追加適用するルールのモデル
  *
  * @module domain/models/AdditionalRule
  * @see {@link docs/domain/effect-model.md}
@@ -8,7 +8,7 @@
 import type { GameState } from "./GameState";
 import type { RuleContext } from "./RuleContext";
 
-/** 追加ルールのカテゴリ */
+/** 追加適用するルールのカテゴリ */
 export type RuleCategory =
   // データ書き換え系
   | "NameOverride" // カード名変更（例: ハーピィ・レディ3姉妹）
@@ -23,7 +23,7 @@ export type RuleCategory =
   | "SelfDestruction"; // 維持コスト、自壊（例: ペンデュラム地帯）
 
 /**
- * 追加ルール
+ * 追加適用するルール
  *
  * 永続効果、ルール効果、効果外テキストを実装するための統一インターフェース。
  * カテゴリに応じて適切なメソッドを実装する。

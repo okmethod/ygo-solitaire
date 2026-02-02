@@ -1,5 +1,5 @@
 /**
- * AdditionalRuleRegistry - 追加ルールのレジストリ
+ * AdditionalRuleRegistry - 追加適用するルールのレジストリ
  *
  * Card ID → AdditionalRule[] のマッピングを管理
  *
@@ -16,22 +16,22 @@ import type { GameState } from "$lib/domain/models/GameState";
 import { isFaceUp } from "$lib/domain/models/Card";
 
 /**
- * 追加ルールのレジストリ（クラス）
+ * 追加適用するルールのレジストリ（クラス）
  *
  * カードIDをキーとして AdditionalRule[] を管理する。
  * 1枚のカードに複数のルールを登録可能。
  */
 export class AdditionalRuleRegistry {
-  /** 追加ルールのマップ (Card ID → AdditionalRule[]) */
+  /** 追加適用するルールのマップ (Card ID → AdditionalRule[]) */
   private static rules = new Map<number, AdditionalRule[]>();
 
-  /** 追加ルールを登録する */
+  /** 追加適用するルールを登録する */
   static register(cardId: number, rule: AdditionalRule): void {
     const existing = this.rules.get(cardId) || [];
     this.rules.set(cardId, [...existing, rule]);
   }
 
-  /** カードIDから追加ルールを取得する */
+  /** カードIDから追加適用するルールを取得する */
   static get(cardId: number): AdditionalRule[] {
     return this.rules.get(cardId) || [];
   }
