@@ -1,0 +1,60 @@
+/**
+ * counters.ts - カウンター操作系ステップビルダー
+ *
+ * 公開関数:
+ * - removeCounterStep: 指定カードから指定タイプのカウンターを取り除く
+ *
+ * @module domain/effects/steps/counters
+ */
+
+import type { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { CounterType } from "$lib/domain/models/Counter";
+import { removeCounter, getCounterCount } from "$lib/domain/models/Counter";
+import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
+
+/**
+ * 指定カードからカウンターを取り除くステップ
+ *
+ * @param targetInstanceId - 対象カードのインスタンスID
+ * @param counterType - 取り除くカウンターのタイプ
+ * @param amount - 取り除く数
+ * @returns AtomicStep
+ */
+export const removeCounterStep = (
+  targetInstanceId: string,
+  counterType: CounterType,
+  amount: number,
+): AtomicStep => ({
+  id: `remove-counter-${counterType}-${amount}-${targetInstanceId}`,
+  summary: "カウンターを取り除く",
+  description: `${counterType === "spell" ? "魔力" : counterType}カウンターを${amount}つ取り除きます`,
+  notificationLevel: "info",
+  action: (state: GameState) => {
+    // フィールド上のカードを検索
+    const targetCard = findCardInstance(state.zones, targetInstanceId);
+
+    if (!targetCard) {
+      return failureUpdateResult(state, `Target card not found: ${targetInstanceId}`);
+    }
+
+    // カウンター数チェック
+    const currentCount = getCounterCount(targetCard.counters, counterType);
+    if (currentCount < amount) {
+      return failureUpdateResult(
+        state,
+        `Insufficient counters: needed ${amount}, but only ${currentCount} available.`,
+      );
+    }
+
+    // カウンターを取り除く
+    const updatedCounters = removeCounter(targetCard.counters, counterType, amount);
+    const updatedZones = updateCardInPlace(state.zones, targetCard, { counters: updatedCounters });
+
+    return successUpdateResult(
+      { ...state, zones: updatedZones },
+      `Removed ${amount} ${counterType} counter(s) from card.`,
+    );
+  },
+});
