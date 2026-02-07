@@ -23,6 +23,7 @@ import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { successValidationResult } from "$lib/domain/models/ValidationResult";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
+import { emitSpellActivatedEventStep } from "$lib/domain/effects/steps/eventEmitters";
 
 /**
  * BaseSpellAction - 魔法カードアクションの抽象基底クラス
@@ -120,6 +121,7 @@ export abstract class BaseSpellAction implements ChainableAction {
   createActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     return [
       notifyActivationStep(this.cardId), // 発動通知ステップ
+      emitSpellActivatedEventStep(sourceInstance), // イベント発行ステップ
       ...this.subTypePreActivationSteps(state, sourceInstance),
       ...this.individualActivationSteps(state, sourceInstance),
       ...this.subTypePostActivationSteps(state, sourceInstance),

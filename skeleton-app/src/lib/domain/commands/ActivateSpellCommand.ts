@@ -20,7 +20,6 @@ import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/Gam
 import { isSpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 import {
   ValidationErrorCode,
   successValidationResult,
@@ -148,19 +147,11 @@ export class ActivateSpellCommand implements GameCommand {
   // 効果処理ステップ配列を生成する
   // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
   // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
+  // Note: トリガールール（魔力カウンター等）は effectQueueStore がイベントを検出して自動挿入
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
     const steps: AtomicStep[] = [];
 
-    // 魔法発動トリガーの追加ルールステップ（各ルールが自身のステップを生成）
-    const triggerContext = {
-      triggerEvent: "spellActivated" as const,
-      triggerSourceCardId: cardInstance.id,
-      triggerSourceInstanceId: cardInstance.instanceId,
-    };
-    const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(state, "spellActivated", triggerContext);
-    steps.push(...triggerSteps);
-
-    // カード固有の効果ステップ
+    // カード固有の効果ステップ（イベント発行は BaseSpellAction 内で行われる）
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
     if (activation) {
       steps.push(...activation.createActivationSteps(state, cardInstance));

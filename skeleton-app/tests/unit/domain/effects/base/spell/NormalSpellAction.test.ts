@@ -109,21 +109,37 @@ describe("NormalSpellAction", () => {
   });
 
   describe("createActivationSteps()", () => {
+    // テスト用の sourceInstance を作成するヘルパー
+    const createTestSourceInstance = (): CardInstance => ({
+      id: 12345678,
+      instanceId: "test-normal-spell-1",
+      jaName: "Test Monster A",
+      type: "spell",
+      frameType: "spell",
+      spellType: "normal",
+      location: "hand",
+      position: "faceDown",
+      placedThisTurn: false,
+      counters: [],
+    });
+
     it("should return default activation step", () => {
       // Arrange
       const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
+      const sourceInstance = createTestSourceInstance();
 
       // Act
-      const steps = action.createActivationSteps(state);
+      const steps = action.createActivationSteps(state, sourceInstance);
 
       // Assert
-      expect(steps).toHaveLength(1);
+      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
       expect(steps[0].id).toBe("12345678-activation-notification");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します");
+      expect(steps[1].id).toBe("emit-spell-activated-test-normal-spell-1");
     });
   });
 });

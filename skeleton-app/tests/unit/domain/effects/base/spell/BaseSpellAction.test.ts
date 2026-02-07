@@ -125,22 +125,39 @@ describe("BaseSpellAction", () => {
   });
 
   describe("createActivationSteps()", () => {
+    // テスト用の sourceInstance を作成するヘルパー
+    const createTestSourceInstance = (): CardInstance => ({
+      id: 12345678,
+      instanceId: "test-instance-1",
+      jaName: "Test Monster A",
+      type: "spell",
+      frameType: "spell",
+      location: "hand",
+      position: "faceDown",
+      placedThisTurn: false,
+      counters: [],
+    });
+
     it("should return default activation step with card info", () => {
       // Arrange
       const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
+      const sourceInstance = createTestSourceInstance();
 
       // Act
-      const steps = action.createActivationSteps(state);
+      const steps = action.createActivationSteps(state, sourceInstance);
 
       // Assert
-      expect(steps).toHaveLength(1);
+      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
       expect(steps[0].id).toBe("12345678-activation-notification");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します"); // Uses getCardNameWithBrackets from registry
       expect(steps[0].notificationLevel).toBe("info");
+      // イベント発行ステップの検証
+      expect(steps[1].id).toBe("emit-spell-activated-test-instance-1");
+      expect(steps[1].notificationLevel).toBe("silent");
     });
 
     it("should return step with action that does not modify state", () => {
@@ -149,7 +166,8 @@ describe("BaseSpellAction", () => {
         skipShuffle: true,
         skipInitialDraw: true,
       });
-      const steps = action.createActivationSteps(state);
+      const sourceInstance = createTestSourceInstance();
+      const steps = action.createActivationSteps(state, sourceInstance);
 
       // Act
       const result = steps[0].action(state);

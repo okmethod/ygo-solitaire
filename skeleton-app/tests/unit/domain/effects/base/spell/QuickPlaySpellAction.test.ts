@@ -157,10 +157,11 @@ describe("QuickPlaySpellAction", () => {
       const steps = action.createActivationSteps(state, sourceInstance);
 
       // Assert
-      expect(steps).toHaveLength(1);
+      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
       expect(steps[0].id).toBe("12345678-activation-notification");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します");
+      expect(steps[1].id).toContain("emit-spell-activated-");
     });
   });
 });

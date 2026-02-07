@@ -7,6 +7,7 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { GameEvent } from "$lib/domain/models/EventTimeline";
 
 /**
  * ゲーム状態更新結果の共通インターフェース
@@ -29,6 +30,14 @@ export interface GameStateUpdateResult {
    * これにより、Domain層がApplication層の制御フローに依存しない設計を実現。
    */
   readonly effectSteps?: AtomicStep[];
+
+  /**
+   * 発行されたドメインイベント（オプショナル）
+   *
+   * AtomicStep.action() が発行したイベントを返す。
+   * effectQueueStore がイベントを検出し、トリガールールを自動挿入する。
+   */
+  readonly emittedEvents?: GameEvent[];
 }
 
 /** 成功した GameStateUpdateResult */
@@ -36,12 +45,14 @@ export const successUpdateResult = (
   updatedState: GameState,
   message?: string,
   effectSteps?: AtomicStep[],
+  emittedEvents?: GameEvent[],
 ): GameStateUpdateResult => {
   return {
     success: true,
     updatedState,
     message,
     effectSteps,
+    emittedEvents,
   };
 };
 

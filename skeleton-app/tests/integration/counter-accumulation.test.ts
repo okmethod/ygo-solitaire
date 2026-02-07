@@ -10,6 +10,10 @@
  * - Multiple spell activations accumulate counters correctly
  * - Multiple Royal Magical Libraries each receive counters independently
  *
+ * Note: 新しいイベントトリガーシステムでは、トリガーステップは effectQueueStore の処理中に
+ * 動的に挿入されます。このテストでは AdditionalRuleRegistry.collectTriggerSteps() を直接呼び出して
+ * トリガーステップを取得し、カウンター蓄積ロジックをテストしています。
+ *
  * @module tests/integration/counter-accumulation
  */
 
@@ -21,6 +25,7 @@ import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules/inde
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 import { getCounterCount } from "$lib/domain/models/Counter";
 import type { CardInstance } from "$lib/domain/models/Card";
+import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 
 // Initialize registries
 initializeChainableActionRegistry();
@@ -106,13 +111,18 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
 
-      // Verify trigger execution step is included (new pattern: royal-magical-library-counter-${instanceId})
-      const triggerStep = result.effectSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
-      expect(triggerStep).toBeDefined();
-      expect(triggerStep!.summary).toBe("魔力カウンター蓄積");
+      // 新しい設計: トリガーステップは effectQueueStore で動的に挿入される
+      // ここでは AdditionalRuleRegistry.collectTriggerSteps() を直接呼び出してテスト
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
+        result.updatedState,
+        "spellActivated" as TriggerEvent,
+      );
+      expect(triggerSteps).toHaveLength(1);
+      expect(triggerSteps[0].id).toContain("royal-magical-library-counter-");
+      expect(triggerSteps[0].summary).toBe("魔力カウンター蓄積");
 
       // Execute the trigger step to verify counter is placed
-      const stateAfterTrigger = triggerStep!.action(result.updatedState);
+      const stateAfterTrigger = triggerSteps[0].action(result.updatedState);
       expect(stateAfterTrigger.success).toBe(true);
 
       // Verify counter was placed on Royal Magical Library
@@ -148,11 +158,14 @@ describe("Counter Accumulation - Royal Magical Library", () => {
         const result = command.execute(currentState);
         expect(result.success).toBe(true);
 
-        // Find and execute trigger step (new pattern)
-        const triggerStep = result.effectSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
-        expect(triggerStep).toBeDefined();
+        // 新しい設計: トリガーステップを直接収集して実行
+        const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
+          result.updatedState,
+          "spellActivated" as TriggerEvent,
+        );
+        expect(triggerSteps).toHaveLength(1);
 
-        const triggerResult = triggerStep!.action(result.updatedState);
+        const triggerResult = triggerSteps[0].action(result.updatedState);
         currentState = triggerResult.updatedState;
       }
 
@@ -185,9 +198,13 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const command = new ActivateSpellCommand("pot-0");
       const result = command.execute(state);
 
-      // Execute trigger step (new pattern)
-      const triggerStep = result.effectSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
-      const triggerResult = triggerStep!.action(result.updatedState);
+      // 新しい設計: トリガーステップを直接収集して実行
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
+        result.updatedState,
+        "spellActivated" as TriggerEvent,
+      );
+      expect(triggerSteps).toHaveLength(1);
+      const triggerResult = triggerSteps[0].action(result.updatedState);
 
       // Assert: Counter should still be 3 (not exceed max)
       const updatedLibrary = triggerResult.updatedState.zones.mainMonsterZone[0];
@@ -282,8 +299,11 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const command = new ActivateSpellCommand("pot-0");
       const result = command.execute(state);
 
-      // Execute all trigger steps (each library creates its own step)
-      const triggerSteps = result.effectSteps!.filter((step) => step.id.startsWith("royal-magical-library-counter-"));
+      // 新しい設計: トリガーステップを直接収集して実行
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
+        result.updatedState,
+        "spellActivated" as TriggerEvent,
+      );
       expect(triggerSteps).toHaveLength(2);
 
       let currentState = result.updatedState;
@@ -325,8 +345,11 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const command = new ActivateSpellCommand("pot-0");
       const result = command.execute(state);
 
-      // Execute all trigger steps (each library creates its own step)
-      const triggerSteps = result.effectSteps!.filter((step) => step.id.startsWith("royal-magical-library-counter-"));
+      // 新しい設計: トリガーステップを直接収集して実行
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
+        result.updatedState,
+        "spellActivated" as TriggerEvent,
+      );
       expect(triggerSteps).toHaveLength(2);
 
       let currentState = result.updatedState;

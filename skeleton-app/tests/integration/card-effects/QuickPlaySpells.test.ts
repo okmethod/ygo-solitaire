@@ -58,23 +58,24 @@ describe("Quick-Play Spell Card Effects", () => {
       // Assert: effectSteps are returned in the result
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.effectSteps!.length).toBe(5);
 
-      // Verify steps: [activation, player discard, player draw, send-to-graveyard]
+      // Verify steps: [activation, spell activated event, player discard, player draw, send-to-graveyard]
       expect(result.effectSteps![0]).toMatchObject({
         id: "74519184-activation-notification",
         summary: "カード発動",
         description: "《手札断札》を発動します",
       });
-      expect(result.effectSteps![1]).toMatchObject({
+      // index=1 is emitSpellActivatedEventStep (skipped in assertion)
+      expect(result.effectSteps![2]).toMatchObject({
         id: "select-and-discard-2-cards",
         summary: "手札を2枚捨てる",
       });
-      expect(result.effectSteps![2]).toMatchObject({
+      expect(result.effectSteps![3]).toMatchObject({
         id: "draw-2",
         summary: "カードをドロー",
       });
-      expect(result.effectSteps![3]).toMatchObject({
+      expect(result.effectSteps![4]).toMatchObject({
         summary: "墓地へ送る",
         description: "《手札断札》を墓地に送ります",
       });
