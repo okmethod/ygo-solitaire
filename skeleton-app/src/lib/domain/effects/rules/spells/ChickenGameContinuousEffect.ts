@@ -12,7 +12,6 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { RuleContext } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 
 /**
@@ -35,33 +34,17 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
   /**
    * 適用条件チェック
    *
-   * 1. チキンレースがフィールドに存在するか (id: 67616300, position: "faceUp")
-   * 2. ダメージ対象のLPが相手より少ないか
+   * チキンレースがフィールドに存在するかをチェック。
+   *
+   * @deprecated 現在未使用。将来的に ActionPermission カテゴリでダメージ無効化を
+   * 実装する際に、ダメージ対象・ダメージ量などの引数設計を再検討する。
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState, context: RuleContext): boolean {
-    // 1. チキンレースがフィールドに存在するか
-    const chickenGameOnField = state.zones.fieldZone.some((card) => card.id === 67616300 && card.position === "faceUp");
-
-    if (!chickenGameOnField) {
-      return false;
-    }
-
-    // 2. ダメージ対象のLPが相手より少ないか
-    const damageTarget = context.damageTarget || "player";
-
-    if (damageTarget === "player") {
-      // プレイヤーがダメージを受ける場合、プレイヤーのLPが相手より少なければ適用
-      return state.lp.player < state.lp.opponent;
-    } else if (damageTarget === "opponent") {
-      // 相手がダメージを受ける場合、相手のLPがプレイヤーより少なければ適用
-      return state.lp.opponent < state.lp.player;
-    }
-
-    return false;
+  canApply(state: GameState): boolean {
+    // チキンレースがフィールドに存在するか
+    return state.zones.fieldZone.some((card) => card.id === 67616300 && card.position === "faceUp");
   }
 
   /**
@@ -70,10 +53,9 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
    * canApply()がtrueの場合、このメソッドが呼ばれてダメージを禁止する。
    *
    * @param _state - 現在のゲーム状態（未使用）
-   * @param _context - ルール適用コンテキスト（未使用）
    * @returns ダメージ禁止（常にfalse）
    */
-  checkPermission(_state: GameState, _context: RuleContext): boolean {
+  checkPermission(_state: GameState): boolean {
     // ダメージ禁止（false を返す）
     return false;
   }

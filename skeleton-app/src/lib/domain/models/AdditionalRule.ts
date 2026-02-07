@@ -6,7 +6,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { RuleContext, TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
@@ -62,10 +62,9 @@ export interface AdditionalRule {
    * - 特定の条件を満たしているか（LP差分等）
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState, context: RuleContext): boolean;
+  canApply(state: GameState): boolean;
 
   /**
    * データ書き換え系（NameOverride, StatusModifier）
@@ -73,10 +72,9 @@ export interface AdditionalRule {
    * カード名、攻撃力/守備力などのデータを直接書き換える。
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 新しいゲーム状態
    */
-  apply?(state: GameState, context: RuleContext): GameState;
+  apply?(state: GameState): GameState;
 
   /**
    * 判定追加・制限系（SummonCondition, Permission, VictoryCondition）
@@ -88,10 +86,9 @@ export interface AdditionalRule {
    * - 勝利条件を満たしたか
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 許可ならtrue、禁止ならfalse
    */
-  checkPermission?(state: GameState, context: RuleContext): boolean;
+  checkPermission?(state: GameState): boolean;
 
   /**
    * 処理置換・フック系（ActionReplacement, SelfDestruction）
@@ -102,10 +99,9 @@ export interface AdditionalRule {
    * - 維持コスト未払い → 自壊
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 置換後のゲーム状態
    */
-  replace?(state: GameState, context: RuleContext): GameState;
+  replace?(state: GameState): GameState;
 
   /**
    * トリガーイベント（TriggerRule用）
@@ -122,9 +118,8 @@ export interface AdditionalRule {
    * ChainableActionと同様に、各ルールが自身の処理ステップを生成する責務を持つ。
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @param sourceInstance - このルールの発生源となるカードインスタンス
    * @returns 実行するAtomicStep配列
    */
-  createTriggerSteps?(state: GameState, context: RuleContext, sourceInstance: CardInstance): AtomicStep[];
+  createTriggerSteps?(state: GameState, sourceInstance: CardInstance): AtomicStep[];
 }

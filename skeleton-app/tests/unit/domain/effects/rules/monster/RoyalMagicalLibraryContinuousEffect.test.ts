@@ -14,7 +14,6 @@
 import { describe, it, expect } from "vitest";
 import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { RuleContext } from "$lib/domain/models/RuleContext";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { getCounterCount } from "$lib/domain/models/Counter";
 
@@ -24,10 +23,9 @@ import { getCounterCount } from "$lib/domain/models/Counter";
 function executeTriggerSteps(
   rule: RoyalMagicalLibraryContinuousEffect,
   state: GameState,
-  context: RuleContext,
   sourceInstance: CardInstance,
 ): GameState {
-  const steps = rule.createTriggerSteps!(state, context, sourceInstance);
+  const steps = rule.createTriggerSteps!(state, sourceInstance);
   let currentState = state;
   for (const step of steps) {
     const result = step.action(currentState);
@@ -97,12 +95,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     it("should return false when Royal Magical Library is not on field", () => {
       // Arrange
       const state = createBaseGameState();
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      const result = rule.canApply(state, context);
+      const result = rule.canApply(state);
 
       // Assert
       expect(result).toBe(false);
@@ -122,12 +117,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      const result = rule.canApply(state, context);
+      const result = rule.canApply(state);
 
       // Assert
       expect(result).toBe(false);
@@ -147,12 +139,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      const result = rule.canApply(state, context);
+      const result = rule.canApply(state);
 
       // Assert
       expect(result).toBe(true);
@@ -174,13 +163,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-        triggerSourceCardId: 12345, // Some spell card ID
-      };
 
       // Act
-      const newState = executeTriggerSteps(rule, state, context, libraryCard);
+      const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
       const updatedLibrary = newState.zones.mainMonsterZone[0];
@@ -203,12 +188,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      const newState = executeTriggerSteps(rule, state, context, libraryCard);
+      const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
       const updatedLibrary = newState.zones.mainMonsterZone[0];
@@ -231,12 +213,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      const newState = executeTriggerSteps(rule, state, context, libraryCard);
+      const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
       const updatedLibrary = newState.zones.mainMonsterZone[0];
@@ -268,12 +247,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      const newState = executeTriggerSteps(rule, state, context, libraryCard);
+      const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
       const updatedOther = newState.zones.mainMonsterZone[1];
@@ -294,12 +270,9 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act
-      executeTriggerSteps(rule, state, context, libraryCard);
+      executeTriggerSteps(rule, state, libraryCard);
 
       // Assert - original state should be unchanged
       expect(getCounterCount(state.zones.mainMonsterZone[0].counters, "spell")).toBe(0);
@@ -321,14 +294,11 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
           banished: [],
         },
       });
-      const context: RuleContext = {
-        triggerEvent: "spellActivated",
-      };
 
       // Act - Simulate 4 spell activations
       for (let i = 0; i < 4; i++) {
         const currentLibrary = state.zones.mainMonsterZone[0];
-        state = executeTriggerSteps(rule, state, context, currentLibrary);
+        state = executeTriggerSteps(rule, state, currentLibrary);
       }
 
       // Assert - Should cap at 3

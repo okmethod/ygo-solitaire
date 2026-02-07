@@ -9,7 +9,6 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { RuleContext } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 
 /**
@@ -21,7 +20,7 @@ import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Additional
  * @example
  * ```typescript
  * const exodiaRule = new ExodiaNonEffect();
- * if (exodiaRule.canApply(state, {}) && exodiaRule.checkPermission(state, {})) {
+ * if (exodiaRule.canApply(state) && exodiaRule.checkPermission(state)) {
  *   // Exodia victory!
  * }
  * ```
@@ -58,10 +57,9 @@ export class ExodiaNonEffect implements AdditionalRule {
    * 手札にエクゾディア5パーツが揃っているかを判定する。
    *
    * @param state - 現在のゲーム状態
-   * @param _context - ルール適用コンテキスト（未使用）
    * @returns 5パーツが揃っている場合true
    */
-  canApply(state: GameState, _context: RuleContext): boolean {
+  canApply(state: GameState): boolean {
     const handCardIds = state.zones.hand.map((card) => card.id);
     return ExodiaNonEffect.EXODIA_PIECE_IDS.every((pieceId) => handCardIds.includes(pieceId));
   }
@@ -73,10 +71,9 @@ export class ExodiaNonEffect implements AdditionalRule {
    * エクゾディアの場合、5パーツが揃っていれば必ず勝利。
    *
    * @param _state - 現在のゲーム状態（未使用）
-   * @param _context - ルール適用コンテキスト（未使用）
    * @returns 勝利条件を満たしている（常にtrue）
    */
-  checkPermission(_state: GameState, _context: RuleContext): boolean {
+  checkPermission(_state: GameState): boolean {
     return true;
   }
 

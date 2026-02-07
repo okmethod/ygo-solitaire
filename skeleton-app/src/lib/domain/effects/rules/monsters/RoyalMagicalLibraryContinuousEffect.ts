@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameState";
-import type { RuleContext, TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
@@ -55,11 +55,9 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
    * 魔力カウンターが3個未満の場合に適用可能。
    *
    * @param state - 現在のゲーム状態
-   * @param _context - ルール適用コンテキスト
-   * TODO: context が現状 TooMuchなので、削除検討
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState, _context: RuleContext): boolean {
+  canApply(state: GameState): boolean {
     // モンスターゾーンに王立魔法図書館が表側表示で存在するか
     const libraryOnField = state.zones.mainMonsterZone.some(
       (card) => card.id === ROYAL_MAGICAL_LIBRARY_ID && card.position === "faceUp",
@@ -75,11 +73,10 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
    * ChainableActionと同様に、このルールが自身の処理ステップを生成する責務を持つ。
    *
    * @param _state - 現在のゲーム状態
-   * @param _context - ルール適用コンテキスト
    * @param sourceInstance - このルールの発生源となるカードインスタンス（王立魔法図書館）
    * @returns 実行するAtomicStep配列
    */
-  createTriggerSteps(_state: GameState, _context: RuleContext, sourceInstance: CardInstance): AtomicStep[] {
+  createTriggerSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
     // sourceInstanceのinstanceIdをキャプチャ（ステップ実行時に最新の状態を取得するため）
     const instanceId = sourceInstance.instanceId;
 

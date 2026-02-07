@@ -19,7 +19,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
-import type { RuleContext, TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
@@ -38,19 +38,16 @@ class MockAdditionalRule implements AdditionalRule {
     private applyCondition: boolean = true,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  canApply(state: GameState, context: RuleContext): boolean {
+  canApply(_state: GameState): boolean {
     return this.applyCondition;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  checkPermission(state: GameState, context: RuleContext): boolean {
+  checkPermission(_state: GameState): boolean {
     return false; // Mock: deny permission
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  apply(state: GameState, context: RuleContext): GameState {
-    return state; // Mock: no state change
+  apply(_state: GameState): GameState {
+    return _state; // Mock: no state change
   }
 }
 
@@ -258,7 +255,7 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission", {});
+      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
       // Assert
       expect(activeRules).toHaveLength(1);
@@ -309,7 +306,7 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission", {});
+      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
       // Assert
       expect(activeRules).toHaveLength(0);
@@ -364,7 +361,7 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission", {});
+      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
       // Assert
       expect(activeRules).toHaveLength(0);
@@ -416,8 +413,8 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission", {});
-      const modifierRules = AdditionalRuleRegistry.collectActiveRules(state, "StatusModifier", {});
+      const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
+      const modifierRules = AdditionalRuleRegistry.collectActiveRules(state, "StatusModifier");
 
       // Assert
       expect(permissionRules).toHaveLength(1);
@@ -485,7 +482,7 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission", {});
+      const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
       // Assert
       expect(activeRules).toHaveLength(2);
@@ -598,11 +595,11 @@ describe("AdditionalRuleRegistry", () => {
       readonly isEffect = true;
       readonly category: RuleCategory = "TriggerRule";
 
-      canApply(_state: GameState, _context: RuleContext): boolean {
+      canApply(_state: GameState): boolean {
         return this.applyCondition;
       }
 
-      createTriggerSteps(_state: GameState, _context: RuleContext, _sourceInstance: CardInstance): AtomicStep[] {
+      createTriggerSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
         return [];
       }
     }
@@ -835,11 +832,11 @@ describe("AdditionalRuleRegistry", () => {
       readonly isEffect = true;
       readonly category: RuleCategory = "TriggerRule";
 
-      canApply(_state: GameState, _context: RuleContext): boolean {
+      canApply(_state: GameState): boolean {
         return this.applyCondition;
       }
 
-      createTriggerSteps(_state: GameState, _context: RuleContext, sourceInstance: CardInstance): AtomicStep[] {
+      createTriggerSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
         // Capture execution count increment in closure
         const incrementExecution = () => {
           this.executionCount++;

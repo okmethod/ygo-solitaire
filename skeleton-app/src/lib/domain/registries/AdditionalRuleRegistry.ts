@@ -11,7 +11,7 @@
  */
 
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
-import type { RuleContext, TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
@@ -49,7 +49,7 @@ export class AdditionalRuleRegistry {
    * フィールド上のすべてのカードをチェックし、
    * 指定カテゴリのルールで canApply() が true のものを収集する。
    */
-  static collectActiveRules(state: GameState, category: RuleCategory, context: RuleContext = {}): AdditionalRule[] {
+  static collectActiveRules(state: GameState, category: RuleCategory): AdditionalRule[] {
     const activeRules: AdditionalRule[] = [];
 
     // フィールド上のすべてのカードをチェック（魔法・罠ゾーンとフィールド魔法ゾーン）
@@ -60,7 +60,7 @@ export class AdditionalRuleRegistry {
 
       const cardRules = this.getByCategory(card.id, category);
       for (const rule of cardRules) {
-        if (rule.canApply(state, context)) {
+        if (rule.canApply(state)) {
           activeRules.push(rule);
         }
       }
@@ -108,15 +108,15 @@ export class AdditionalRuleRegistry {
    * 各ルールの canApply() が true の場合のみ createTriggerSteps() を呼び出す。
    * 各ステップは実行時に最新のカードインスタンスを取得して処理を行う。
    */
-  static collectTriggerSteps(state: GameState, event: TriggerEvent, context: RuleContext = {}): AtomicStep[] {
+  static collectTriggerSteps(state: GameState, event: TriggerEvent): AtomicStep[] {
     const triggerRules = this.collectTriggerRules(state, event);
     const steps: AtomicStep[] = [];
 
     for (const { rule, sourceInstance } of triggerRules) {
       // canApply で適用可能かチェック
-      if (rule.canApply(state, context) && rule.createTriggerSteps) {
+      if (rule.canApply(state) && rule.createTriggerSteps) {
         // 各ルールにステップ生成を委譲
-        const ruleSteps = rule.createTriggerSteps(state, context, sourceInstance);
+        const ruleSteps = rule.createTriggerSteps(state, sourceInstance);
         steps.push(...ruleSteps);
       }
     }
