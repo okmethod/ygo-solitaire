@@ -113,6 +113,7 @@ export function createCardInstances(
       jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
       location,
       placedThisTurn: false,
+      counters: [],
     };
   });
 }

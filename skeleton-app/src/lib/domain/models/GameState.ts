@@ -115,6 +115,7 @@ export function createInitialGameState(
       instanceId: `deck-${index}`,
       location: "deck" as const,
       placedThisTurn: false,
+      counters: [],
     };
   });
 

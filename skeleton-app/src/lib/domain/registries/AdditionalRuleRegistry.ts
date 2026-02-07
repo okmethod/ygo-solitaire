@@ -11,8 +11,10 @@
  */
 
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
-import type { RuleContext } from "$lib/domain/models/RuleContext";
+import type { RuleContext, TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { GameState } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { isFaceUp } from "$lib/domain/models/Card";
 
 /**
@@ -65,6 +67,61 @@ export class AdditionalRuleRegistry {
     }
 
     return activeRules;
+  }
+
+  /**
+   * 指定イベントに反応するトリガールールを収集する
+   *
+   * フィールド上のすべてのカードをチェックし、
+   * 指定イベントに反応するTriggerRuleを収集する。
+   * 各ルールには発生源のカードインスタンスを紐付ける。
+   */
+  static collectTriggerRules(
+    state: GameState,
+    event: TriggerEvent,
+  ): Array<{ rule: AdditionalRule; sourceInstance: CardInstance }> {
+    const results: Array<{ rule: AdditionalRule; sourceInstance: CardInstance }> = [];
+
+    // フィールド上のすべてのカードをチェック（モンスターゾーン、魔法・罠ゾーン、フィールド魔法ゾーン）
+    const fieldCards = [...state.zones.mainMonsterZone, ...state.zones.spellTrapZone, ...state.zones.fieldZone];
+
+    for (const card of fieldCards) {
+      // 表側表示のカードのみチェック
+      if (!isFaceUp(card)) continue;
+
+      const cardRules = this.getByCategory(card.id, "TriggerRule");
+      for (const rule of cardRules) {
+        // このイベントに反応するルールかチェック
+        if (rule.triggers?.includes(event)) {
+          results.push({ rule, sourceInstance: card });
+        }
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * 指定イベントに対するトリガールールのステップを収集する
+   *
+   * 収集したトリガールールから AtomicStep[] を生成する。
+   * 各ルールの canApply() が true の場合のみ createTriggerSteps() を呼び出す。
+   * 各ステップは実行時に最新のカードインスタンスを取得して処理を行う。
+   */
+  static collectTriggerSteps(state: GameState, event: TriggerEvent, context: RuleContext = {}): AtomicStep[] {
+    const triggerRules = this.collectTriggerRules(state, event);
+    const steps: AtomicStep[] = [];
+
+    for (const { rule, sourceInstance } of triggerRules) {
+      // canApply で適用可能かチェック
+      if (rule.canApply(state, context) && rule.createTriggerSteps) {
+        // 各ルールにステップ生成を委譲
+        const ruleSteps = rule.createTriggerSteps(state, context, sourceInstance);
+        steps.push(...ruleSteps);
+      }
+    }
+
+    return steps;
   }
 
   /** レジストリをクリアする（テスト用） */

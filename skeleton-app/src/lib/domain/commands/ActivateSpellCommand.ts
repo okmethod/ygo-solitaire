@@ -20,6 +20,7 @@ import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/Gam
 import { isSpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 import {
   ValidationErrorCode,
   successValidationResult,
@@ -148,14 +149,25 @@ export class ActivateSpellCommand implements GameCommand {
   // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
   // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
+    const steps: AtomicStep[] = [];
+
+    // 魔法発動トリガーの追加ルールステップ（各ルールが自身のステップを生成）
+    const triggerContext = {
+      triggerEvent: "spellActivated" as const,
+      triggerSourceCardId: cardInstance.id,
+      triggerSourceInstanceId: cardInstance.instanceId,
+    };
+    const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(state, "spellActivated", triggerContext);
+    steps.push(...triggerSteps);
+
+    // カード固有の効果ステップ
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
     if (activation) {
-      return [
-        ...activation.createActivationSteps(state, cardInstance),
-        ...activation.createResolutionSteps(state, cardInstance),
-      ];
+      steps.push(...activation.createActivationSteps(state, cardInstance));
+      steps.push(...activation.createResolutionSteps(state, cardInstance));
     }
-    return [];
+
+    return steps;
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

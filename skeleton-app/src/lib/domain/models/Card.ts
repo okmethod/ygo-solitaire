@@ -10,6 +10,7 @@
  */
 
 import type { ZoneName } from "$lib/domain/models/Zone";
+import type { CounterState } from "$lib/domain/models/Counter";
 
 /** カードタイプ */
 export type CardType = "monster" | "spell" | "trap";
@@ -62,6 +63,7 @@ export interface CardInstance extends CardData {
   readonly position?: Position;
   readonly battlePosition?: BattlePosition;
   readonly placedThisTurn: boolean; // Default: false
+  readonly counters: readonly CounterState[]; // カウンター情報
 }
 
 /** カードインスタンスの状態を更新する */

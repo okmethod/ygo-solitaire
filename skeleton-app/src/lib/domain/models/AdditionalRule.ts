@@ -5,8 +5,10 @@
  * @see {@link docs/domain/effect-model.md}
  */
 
-import type { GameState } from "./GameState";
-import type { RuleContext } from "./RuleContext";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { RuleContext, TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
 /** 追加適用するルールのカテゴリ */
 export type RuleCategory =
@@ -20,7 +22,9 @@ export type RuleCategory =
   | "VictoryCondition" // 特殊勝利判定（例: エクゾディア）
   // 処理置換・処理フック系
   | "ActionReplacement" // 破壊耐性、身代わり効果（例: スターダスト・ドラゴン）
-  | "SelfDestruction"; // 維持コスト、自壊（例: ペンデュラム地帯）
+  | "SelfDestruction" // 維持コスト、自壊（例: ペンデュラム地帯）
+  // イベント駆動系
+  | "TriggerRule"; // イベント発生時に自動実行（例: 王立魔法図書館）
 
 /**
  * 追加適用するルール
@@ -102,4 +106,25 @@ export interface AdditionalRule {
    * @returns 置換後のゲーム状態
    */
   replace?(state: GameState, context: RuleContext): GameState;
+
+  /**
+   * トリガーイベント（TriggerRule用）
+   *
+   * このルールが反応するイベントの種類を定義する。
+   * TriggerRuleカテゴリのルールで使用する。
+   */
+  readonly triggers?: readonly TriggerEvent[];
+
+  /**
+   * トリガー発動時のステップ生成（TriggerRule用）
+   *
+   * 指定したトリガーイベントが発生した際に実行されるステップを生成する。
+   * ChainableActionと同様に、各ルールが自身の処理ステップを生成する責務を持つ。
+   *
+   * @param state - 現在のゲーム状態
+   * @param context - ルール適用コンテキスト
+   * @param sourceInstance - このルールの発生源となるカードインスタンス
+   * @returns 実行するAtomicStep配列
+   */
+  createTriggerSteps?(state: GameState, context: RuleContext, sourceInstance: CardInstance): AtomicStep[];
 }
