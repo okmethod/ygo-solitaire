@@ -66,7 +66,6 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     lp: { player: 8000, opponent: 8000 },
     phase: "Main1",
     turn: 1,
-    chainStack: [],
     result: { isGameOver: false },
     normalSummonLimit: 1,
     normalSummonUsed: 0,

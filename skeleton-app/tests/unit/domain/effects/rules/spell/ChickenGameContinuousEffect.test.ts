@@ -17,7 +17,7 @@
 import { describe, it, expect } from "vitest";
 import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { CardInstance } from "$lib/domain/models/Zone";
+import type { CardInstance } from "$lib/domain/models/Card";
 
 describe("ChickenGameContinuousEffect", () => {
   const chickenGameId = 67616300;
@@ -49,7 +49,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 7000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -70,15 +69,14 @@ describe("ChickenGameContinuousEffect", () => {
       // Arrange
       const faceDownCard: CardInstance = {
         id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
+        jaName: "Chicken Game",
+        type: "spell",
         frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
         instanceId: "field-0",
         location: "fieldZone",
         position: "faceDown",
         placedThisTurn: false,
+        counters: [],
       };
 
       const state: GameState = {
@@ -94,7 +92,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 7000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -115,15 +112,14 @@ describe("ChickenGameContinuousEffect", () => {
       // Arrange
       const chickenGameCard: CardInstance = {
         id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
+        jaName: "Chicken Game",
+        type: "spell",
         frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
         instanceId: "field-0",
         location: "fieldZone",
         position: "faceUp",
         placedThisTurn: false,
+        counters: [],
       };
 
       const state: GameState = {
@@ -139,7 +135,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 8000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -173,7 +168,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 8000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
