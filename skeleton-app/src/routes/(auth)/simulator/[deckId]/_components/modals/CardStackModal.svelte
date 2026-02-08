@@ -31,7 +31,7 @@
   }: CardStackModalProps = $props();
 
   // 直近に捨てたカードが先頭に来るよう反転したリスト
-  const reverseCards = cards.slice().reverse();
+  const reverseCards = $derived(cards.slice().reverse());
 
   // 集約表示モードの状態
   let isAggregated = $state(false);
@@ -43,7 +43,7 @@
   }
 
   // 集約表示用データを生成
-  const aggregatedCards = () => {
+  const aggregatedCards = $derived.by(() => {
     const cardMap = new Map<number, AggregatedCard>();
 
     reverseCards.forEach((card) => {
@@ -56,7 +56,7 @@
     });
 
     return Array.from(cardMap.values());
-  };
+  });
 
   function handleOpenChange(details: { open: boolean }) {
     onOpenChange(details.open);
@@ -107,7 +107,7 @@
       <div class="flex gap-2 flex-wrap">
         {#if isAggregated}
           <!-- 集約表示モード -->
-          {#each aggregatedCards() as { card, quantity } (card.id)}
+          {#each aggregatedCards as { card, quantity } (card.id)}
             <div class="relative">
               <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
                 <CardComponent {card} size="medium" showDetailOnClick={true} />
