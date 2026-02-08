@@ -27,8 +27,11 @@
   const ZONE_COUNT = 5;
   const zones = [...Array(ZONE_COUNT).keys()];
 
+  // スマホ判定
+  const mobile = isMobile();
+
   // スマホではカードサイズを小さく
-  const cardSize: ComponentSize = isMobile() ? "small" : "medium";
+  const cardSize: ComponentSize = mobile ? "small" : "medium";
 
   /**
    * カードと位置・表示状態を含む型
@@ -154,118 +157,228 @@
 
 <div class="card p-2 max-w-6xl mx-auto">
   <div class="transition-all duration-300">
-    <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
-      <!-- フィールド魔法ゾーン -->
-      <div class="flex justify-center">
-        {#if fieldCards.length > 0}
-          <ActivatableCard
-            card={fieldCards[0].card}
-            instanceId={fieldCards[0].instanceId}
-            faceDown={fieldCards[0].faceDown}
-            isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
-            isActivatable={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown).length > 0}
-            onSelect={handleCardClick}
-            actionButtons={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown)}
-            onCancel={onCancelFieldCardSelection || (() => {})}
-            size={cardSize}
-            showDetailOnClick={true}
-          />
-        {:else}
-          <div class="relative">
-            <!-- プレースホルダー色調：緑 -->
-            <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
-              <CardComponent placeholder={true} placeholderText="フィールド" size={cardSize} />
-            </div>
-          </div>
-        {/if}
-      </div>
-
-      <!-- モンスターゾーン (5つ) -->
-      {#each zones as i (i)}
+    {#if mobile}
+      <!-- スマホレイアウト: 3行構成 -->
+      <!-- 1行目: フィールドゾーン / EXデッキ / デッキ / 墓地 -->
+      <div class="grid grid-cols-4 gap-1 mb-2">
+        <!-- フィールド魔法ゾーン -->
         <div class="flex justify-center">
-          {#if monsterCards[i]}
+          {#if fieldCards.length > 0}
             <ActivatableCard
-              card={monsterCards[i].card}
-              instanceId={monsterCards[i].instanceId}
-              faceDown={monsterCards[i].faceDown}
-              rotation={monsterCards[i].rotation || 0}
-              isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
-              isActivatable={getMonsterActions(monsterCards[i].instanceId).length > 0}
+              card={fieldCards[0].card}
+              instanceId={fieldCards[0].instanceId}
+              faceDown={fieldCards[0].faceDown}
+              isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
+              isActivatable={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown).length > 0}
               onSelect={handleCardClick}
-              actionButtons={getMonsterActions(monsterCards[i].instanceId)}
+              actionButtons={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown)}
               onCancel={onCancelFieldCardSelection || (() => {})}
               size={cardSize}
               showDetailOnClick={true}
-              spellCounterCount={monsterCards[i].spellCounterCount || 0}
             />
           {:else}
             <div class="relative">
-              <!-- プレースホルダー色調：橙 -->
-              <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
-                <CardComponent placeholder={true} placeholderText="M{i + 1}" size={cardSize} />
+              <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
+                <CardComponent placeholder={true} placeholderText="F" size={cardSize} />
               </div>
             </div>
           {/if}
         </div>
-      {/each}
-
-      <!-- 墓地 -->
-      <div class="flex justify-center">
-        <Graveyard cards={graveyardCards} size={cardSize} />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
-      <!-- エクストラデッキ -->
-      <div class="flex justify-center">
-        <ExtraDeck cards={extraDeckCards} size={cardSize} />
-      </div>
-
-      <!-- 魔法・罠ゾーン (5つ) -->
-      {#each zones as i (i)}
+        <!-- エクストラデッキ -->
         <div class="flex justify-center">
-          {#if spellTrapCards[i]}
-            {#if spellTrapCards[i].faceDown}
-              <!-- セットされた魔法・罠はActivatableCardで選択可能 -->
+          <ExtraDeck cards={extraDeckCards} size={cardSize} />
+        </div>
+        <!-- メインデッキ -->
+        <div class="flex justify-center">
+          <MainDeck cardCount={deckCards} size={cardSize} />
+        </div>
+        <!-- 墓地 -->
+        <div class="flex justify-center">
+          <Graveyard cards={graveyardCards} size={cardSize} />
+        </div>
+      </div>
+
+      <!-- 2行目: モンスターゾーン (5枚) -->
+      <div class="grid grid-cols-5 gap-1 mb-2">
+        {#each zones as i (i)}
+          <div class="flex justify-center">
+            {#if monsterCards[i]}
               <ActivatableCard
-                card={spellTrapCards[i].card}
-                instanceId={spellTrapCards[i].instanceId}
-                faceDown={true}
-                isSelected={selectedFieldCardInstanceId === spellTrapCards[i].instanceId}
-                isActivatable={getSetSpellActions(spellTrapCards[i].instanceId).length > 0}
+                card={monsterCards[i].card}
+                instanceId={monsterCards[i].instanceId}
+                faceDown={monsterCards[i].faceDown}
+                rotation={monsterCards[i].rotation || 0}
+                isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
+                isActivatable={getMonsterActions(monsterCards[i].instanceId).length > 0}
                 onSelect={handleCardClick}
-                actionButtons={getSetSpellActions(spellTrapCards[i].instanceId)}
+                actionButtons={getMonsterActions(monsterCards[i].instanceId)}
                 onCancel={onCancelFieldCardSelection || (() => {})}
                 size={cardSize}
                 showDetailOnClick={true}
+                spellCounterCount={monsterCards[i].spellCounterCount || 0}
               />
             {:else}
-              <!-- 表側表示の魔法・罠は通常のCardComponent -->
-              <CardComponent
-                card={spellTrapCards[i].card}
-                faceDown={false}
-                size={cardSize}
-                clickable={true}
-                showDetailOnClick={true}
-                onClick={() =>
-                  spellTrapCards[i] && handleCardClick(spellTrapCards[i].card, spellTrapCards[i].instanceId)}
-              />
+              <div class="relative">
+                <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
+                  <CardComponent placeholder={true} placeholderText="M{i + 1}" size={cardSize} />
+                </div>
+              </div>
             {/if}
+          </div>
+        {/each}
+      </div>
+
+      <!-- 3行目: 魔法罠ゾーン (5枚) -->
+      <div class="grid grid-cols-5 gap-1 mb-2">
+        {#each zones as i (i)}
+          <div class="flex justify-center">
+            {#if spellTrapCards[i]}
+              {#if spellTrapCards[i].faceDown}
+                <ActivatableCard
+                  card={spellTrapCards[i].card}
+                  instanceId={spellTrapCards[i].instanceId}
+                  faceDown={true}
+                  isSelected={selectedFieldCardInstanceId === spellTrapCards[i].instanceId}
+                  isActivatable={getSetSpellActions(spellTrapCards[i].instanceId).length > 0}
+                  onSelect={handleCardClick}
+                  actionButtons={getSetSpellActions(spellTrapCards[i].instanceId)}
+                  onCancel={onCancelFieldCardSelection || (() => {})}
+                  size={cardSize}
+                  showDetailOnClick={true}
+                />
+              {:else}
+                <CardComponent
+                  card={spellTrapCards[i].card}
+                  faceDown={false}
+                  size={cardSize}
+                  clickable={true}
+                  showDetailOnClick={true}
+                  onClick={() =>
+                    spellTrapCards[i] && handleCardClick(spellTrapCards[i].card, spellTrapCards[i].instanceId)}
+                />
+              {/if}
+            {:else}
+              <div class="relative">
+                <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
+                  <CardComponent placeholder={true} placeholderText="S{i + 1}" size={cardSize} />
+                </div>
+              </div>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {:else}
+      <!-- PCレイアウト: 2行構成 -->
+      <!-- 1行目: フィールドゾーン / モンスターゾーン(5枚) / 墓地 -->
+      <div class="grid grid-cols-7 gap-2 mb-4">
+        <!-- フィールド魔法ゾーン -->
+        <div class="flex justify-center">
+          {#if fieldCards.length > 0}
+            <ActivatableCard
+              card={fieldCards[0].card}
+              instanceId={fieldCards[0].instanceId}
+              faceDown={fieldCards[0].faceDown}
+              isSelected={selectedFieldCardInstanceId === fieldCards[0].instanceId}
+              isActivatable={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown).length > 0}
+              onSelect={handleCardClick}
+              actionButtons={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown)}
+              onCancel={onCancelFieldCardSelection || (() => {})}
+              size={cardSize}
+              showDetailOnClick={true}
+            />
           {:else}
             <div class="relative">
-              <!-- プレースホルダー色調：青 -->
-              <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
-                <CardComponent placeholder={true} placeholderText="S{i + 1}" size={cardSize} />
+              <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
+                <CardComponent placeholder={true} placeholderText="フィールド" size={cardSize} />
               </div>
             </div>
           {/if}
         </div>
-      {/each}
 
-      <!-- メインデッキ -->
-      <div class="flex justify-center">
-        <MainDeck cardCount={deckCards} size={cardSize} />
+        <!-- モンスターゾーン (5つ) -->
+        {#each zones as i (i)}
+          <div class="flex justify-center">
+            {#if monsterCards[i]}
+              <ActivatableCard
+                card={monsterCards[i].card}
+                instanceId={monsterCards[i].instanceId}
+                faceDown={monsterCards[i].faceDown}
+                rotation={monsterCards[i].rotation || 0}
+                isSelected={selectedFieldCardInstanceId === monsterCards[i].instanceId}
+                isActivatable={getMonsterActions(monsterCards[i].instanceId).length > 0}
+                onSelect={handleCardClick}
+                actionButtons={getMonsterActions(monsterCards[i].instanceId)}
+                onCancel={onCancelFieldCardSelection || (() => {})}
+                size={cardSize}
+                showDetailOnClick={true}
+                spellCounterCount={monsterCards[i].spellCounterCount || 0}
+              />
+            {:else}
+              <div class="relative">
+                <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
+                  <CardComponent placeholder={true} placeholderText="M{i + 1}" size={cardSize} />
+                </div>
+              </div>
+            {/if}
+          </div>
+        {/each}
+
+        <!-- 墓地 -->
+        <div class="flex justify-center">
+          <Graveyard cards={graveyardCards} size={cardSize} />
+        </div>
       </div>
-    </div>
+
+      <!-- 2行目: EXデッキ / 魔法罠ゾーン(5枚) / デッキ -->
+      <div class="grid grid-cols-7 gap-2 mb-4">
+        <!-- エクストラデッキ -->
+        <div class="flex justify-center">
+          <ExtraDeck cards={extraDeckCards} size={cardSize} />
+        </div>
+
+        <!-- 魔法・罠ゾーン (5つ) -->
+        {#each zones as i (i)}
+          <div class="flex justify-center">
+            {#if spellTrapCards[i]}
+              {#if spellTrapCards[i].faceDown}
+                <ActivatableCard
+                  card={spellTrapCards[i].card}
+                  instanceId={spellTrapCards[i].instanceId}
+                  faceDown={true}
+                  isSelected={selectedFieldCardInstanceId === spellTrapCards[i].instanceId}
+                  isActivatable={getSetSpellActions(spellTrapCards[i].instanceId).length > 0}
+                  onSelect={handleCardClick}
+                  actionButtons={getSetSpellActions(spellTrapCards[i].instanceId)}
+                  onCancel={onCancelFieldCardSelection || (() => {})}
+                  size={cardSize}
+                  showDetailOnClick={true}
+                />
+              {:else}
+                <CardComponent
+                  card={spellTrapCards[i].card}
+                  faceDown={false}
+                  size={cardSize}
+                  clickable={true}
+                  showDetailOnClick={true}
+                  onClick={() =>
+                    spellTrapCards[i] && handleCardClick(spellTrapCards[i].card, spellTrapCards[i].instanceId)}
+                />
+              {/if}
+            {:else}
+              <div class="relative">
+                <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
+                  <CardComponent placeholder={true} placeholderText="S{i + 1}" size={cardSize} />
+                </div>
+              </div>
+            {/if}
+          </div>
+        {/each}
+
+        <!-- メインデッキ -->
+        <div class="flex justify-center">
+          <MainDeck cardCount={deckCards} size={cardSize} />
+        </div>
+      </div>
+    {/if}
   </div>
 </div>

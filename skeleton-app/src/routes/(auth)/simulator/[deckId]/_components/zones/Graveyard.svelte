@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { CardDisplayData } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import { isMobile } from "$lib/presentation/utils/mobile";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
@@ -10,6 +11,9 @@
     cards: CardDisplayData[];
     size?: ComponentSize;
   }
+
+  // スマホ判定
+  const mobile = isMobile();
 
   let { cards, size = "medium" }: GraveyardProps = $props();
 
@@ -74,7 +78,7 @@
     >
       <img src={cardBackImage} alt="墓地" class="w-full h-full object-cover opacity-30 rounded-sm" />
       <div class="absolute inset-0 flex items-center justify-center">
-        <span class="text-xs text-surface-600-300-token text-center select-none drop-shadow-lg"> 墓地 </span>
+        <span class="text-xs text-surface-600-300-token text-center select-none drop-shadow-lg"> {mobile ? "GY" : "墓地"} </span>
       </div>
     </div>
     <CountBadge count={cards.length} />
