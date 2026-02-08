@@ -46,7 +46,6 @@ describe("GameState", () => {
       expect(state.lp.opponent).toBe(8000);
       expect(state.phase).toBe("Draw");
       expect(state.turn).toBe(1);
-      expect(state.chainStack.length).toBe(0);
       expect(state.result.isGameOver).toBe(false);
       expect(state.normalSummonLimit).toBe(1);
       expect(state.normalSummonUsed).toBe(0);
@@ -158,27 +157,6 @@ describe("GameState", () => {
 
       expect(originalState.phase).toBe("Draw");
       expect(newState.phase).toBe("Main1");
-    });
-
-    it("should not mutate original state when updating chain stack", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
-
-      const newState: GameState = {
-        ...originalState,
-        chainStack: [
-          ...originalState.chainStack,
-          {
-            cardInstanceId: "test-card",
-            effectDescription: "Test effect",
-          },
-        ],
-      };
-
-      expect(originalState.chainStack.length).toBe(0);
-      expect(newState.chainStack.length).toBe(1);
     });
 
     it("should not mutate original state when updating game result", () => {

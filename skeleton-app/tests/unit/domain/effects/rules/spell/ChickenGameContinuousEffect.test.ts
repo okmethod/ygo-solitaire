@@ -3,9 +3,11 @@
  *
  * Tests for Chicken Game continuous effect (damage prevention).
  *
+ * @deprecated 現在未使用。ActionPermission カテゴリの実装時に
+ * ダメージ対象・ダメージ量などの引数設計を再検討し、テストも更新する。
+ *
  * Test Responsibility:
  * - canApply() - Field existence check
- * - canApply() - LP difference check (player vs opponent)
  * - checkPermission() - Damage denial
  * - Category validation
  *
@@ -15,8 +17,7 @@
 import { describe, it, expect } from "vitest";
 import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { RuleContext } from "$lib/domain/models/RuleContext";
-import type { CardInstance } from "$lib/domain/models/Zone";
+import type { CardInstance } from "$lib/domain/models/Card";
 
 describe("ChickenGameContinuousEffect", () => {
   const chickenGameId = 67616300;
@@ -48,7 +49,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 7000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -57,13 +57,9 @@ describe("ChickenGameContinuousEffect", () => {
         pendingEndPhaseEffects: [],
         damageNegation: false,
       };
-      const context: RuleContext = {
-        damageTarget: "player",
-        damageAmount: 1000,
-      };
 
       // Act
-      const result = rule.canApply(state, context);
+      const result = rule.canApply(state);
 
       // Assert
       expect(result).toBe(false);
@@ -73,15 +69,14 @@ describe("ChickenGameContinuousEffect", () => {
       // Arrange
       const faceDownCard: CardInstance = {
         id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
+        jaName: "Chicken Game",
+        type: "spell",
         frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
         instanceId: "field-0",
         location: "fieldZone",
         position: "faceDown",
         placedThisTurn: false,
+        counters: [],
       };
 
       const state: GameState = {
@@ -97,7 +92,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 7000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -106,31 +100,26 @@ describe("ChickenGameContinuousEffect", () => {
         pendingEndPhaseEffects: [],
         damageNegation: false,
       };
-      const context: RuleContext = {
-        damageTarget: "player",
-        damageAmount: 1000,
-      };
 
       // Act
-      const result = rule.canApply(state, context);
+      const result = rule.canApply(state);
 
       // Assert
       expect(result).toBe(false);
     });
 
-    it("should return false when player LP >= opponent LP (damage to player)", () => {
+    it("should return true when Chicken Game is face-up on field", () => {
       // Arrange
       const chickenGameCard: CardInstance = {
         id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
+        jaName: "Chicken Game",
+        type: "spell",
         frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
         instanceId: "field-0",
         location: "fieldZone",
         position: "faceUp",
         placedThisTurn: false,
+        counters: [],
       };
 
       const state: GameState = {
@@ -143,13 +132,9 @@ describe("ChickenGameContinuousEffect", () => {
           graveyard: [],
           banished: [],
         },
-        lp: {
-          player: 8000,
-          opponent: 8000, // Equal LP
-        },
+        lp: { player: 8000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -158,224 +143,12 @@ describe("ChickenGameContinuousEffect", () => {
         pendingEndPhaseEffects: [],
         damageNegation: false,
       };
-      const context: RuleContext = {
-        damageTarget: "player",
-        damageAmount: 1000,
-      };
 
       // Act
-      const result = rule.canApply(state, context);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it("should return true when player LP < opponent LP (damage to player)", () => {
-      // Arrange
-      const chickenGameCard: CardInstance = {
-        id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
-        frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
-        instanceId: "field-0",
-        location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-      };
-
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [chickenGameCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: {
-          player: 7000, // Player has less LP
-          opponent: 8000,
-        },
-        phase: "Main1",
-        turn: 1,
-        chainStack: [],
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
-      const context: RuleContext = {
-        damageTarget: "player",
-        damageAmount: 1000,
-      };
-
-      // Act
-      const result = rule.canApply(state, context);
+      const result = rule.canApply(state);
 
       // Assert
       expect(result).toBe(true);
-    });
-
-    it("should return false when opponent LP >= player LP (damage to opponent)", () => {
-      // Arrange
-      const chickenGameCard: CardInstance = {
-        id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
-        frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
-        instanceId: "field-0",
-        location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-      };
-
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [chickenGameCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: {
-          player: 8000,
-          opponent: 8000, // Equal LP
-        },
-        phase: "Main1",
-        turn: 1,
-        chainStack: [],
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
-      const context: RuleContext = {
-        damageTarget: "opponent",
-        damageAmount: 1000,
-      };
-
-      // Act
-      const result = rule.canApply(state, context);
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it("should return true when opponent LP < player LP (damage to opponent)", () => {
-      // Arrange
-      const chickenGameCard: CardInstance = {
-        id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
-        frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
-        instanceId: "field-0",
-        location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-      };
-
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [chickenGameCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: {
-          player: 8000,
-          opponent: 7000, // Opponent has less LP
-        },
-        phase: "Main1",
-        turn: 1,
-        chainStack: [],
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
-      const context: RuleContext = {
-        damageTarget: "opponent",
-        damageAmount: 1000,
-      };
-
-      // Act
-      const result = rule.canApply(state, context);
-
-      // Assert
-      expect(result).toBe(true);
-    });
-
-    it("should default to 'player' when damageTarget is not specified", () => {
-      // Arrange
-      const chickenGameCard: CardInstance = {
-        id: chickenGameId,
-        name: "Chicken Game",
-        type: "Spell",
-        frameType: "spell",
-        desc: "Mock card",
-        race: "Field",
-        instanceId: "field-0",
-        location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-      };
-
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [chickenGameCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: {
-          player: 7000, // Player has less LP
-          opponent: 8000,
-        },
-        phase: "Main1",
-        turn: 1,
-        chainStack: [],
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
-      const context: RuleContext = {
-        damageAmount: 1000,
-        // damageTarget not specified
-      };
-
-      // Act
-      const result = rule.canApply(state, context);
-
-      // Assert
-      expect(result).toBe(true); // Should apply (player LP < opponent LP)
     });
   });
 
@@ -395,7 +168,6 @@ describe("ChickenGameContinuousEffect", () => {
         lp: { player: 8000, opponent: 8000 },
         phase: "Main1",
         turn: 1,
-        chainStack: [],
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
@@ -403,54 +175,13 @@ describe("ChickenGameContinuousEffect", () => {
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
-      };
-      const context: RuleContext = {
-        damageTarget: "player",
-        damageAmount: 1000,
       };
 
       // Act
-      const result = rule.checkPermission(state, context);
+      const result = rule.checkPermission(state);
 
       // Assert
       expect(result).toBe(false); // Damage denied
-    });
-
-    it("should deny damage regardless of context", () => {
-      // Arrange
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
-        turn: 1,
-        chainStack: [],
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
-      const contexts: RuleContext[] = [
-        { damageTarget: "player", damageAmount: 1000 },
-        { damageTarget: "opponent", damageAmount: 2000 },
-        { damageAmount: 500 },
-        {},
-      ];
-
-      // Act & Assert
-      contexts.forEach((context) => {
-        expect(rule.checkPermission(state, context)).toBe(false);
-      });
     });
   });
 });

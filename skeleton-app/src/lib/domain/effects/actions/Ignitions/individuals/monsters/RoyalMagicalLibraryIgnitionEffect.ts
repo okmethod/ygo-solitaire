@@ -8,9 +8,7 @@
  * - ACTIVATION: 魔力カウンターを3つ取り除く
  * - RESOLUTION: 1枚ドロー
  *
- * Note: 魔力カウンターを置く効果は永続効果（TODO）
- *
- * TODO: 魔力カウンターシステムの実装
+ * Note: 魔力カウンターを置く効果は永続効果（RoyalMagicalLibraryContinuousEffect）
  *
  * @module domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect
  */
@@ -21,7 +19,16 @@ import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { BaseIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/BaseIgnitionEffect";
 import { drawStep } from "$lib/domain/effects/steps/draws";
-import { successValidationResult } from "$lib/domain/models/ValidationResult";
+import { removeCounterStep } from "$lib/domain/effects/steps/counters";
+import { getCounterCount } from "$lib/domain/models/Counter";
+import {
+  successValidationResult,
+  failureValidationResult,
+  ValidationErrorCode,
+} from "$lib/domain/models/ValidationResult";
+
+/** 必要な魔力カウンター数 */
+const REQUIRED_SPELL_COUNTERS = 3;
 
 /** 《王立魔法図書館》効果クラス */
 export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
@@ -35,9 +42,12 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
    * チェック項目:
    * 1. 魔力カウンターが3つ以上であること
    */
-  protected individualConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(_state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. 魔力カウンターが3つ以上であること
-    // TODO: チェックを実装
+    const spellCounterCount = getCounterCount(sourceInstance.counters, "spell");
+    if (spellCounterCount < REQUIRED_SPELL_COUNTERS) {
+      return failureValidationResult(ValidationErrorCode.INSUFFICIENT_COUNTERS);
+    }
 
     return successValidationResult();
   }
@@ -50,8 +60,8 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
-    return []; // TODO: 魔力カウンターを3つ取り除くステップを実装
+  protected individualActivationSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+    return [removeCounterStep(sourceInstance.instanceId, "spell", REQUIRED_SPELL_COUNTERS)];
   }
 
   /**

@@ -74,7 +74,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       // Assert: Card moved to field (no graveyard step for field spell)
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(1); // Field spell has only notification step (no resolution steps)
+      expect(result.effectSteps!.length).toBe(2); // Field spell has notification step + spell activated event step (no resolution steps)
 
       // Verify card moved to field
       expect(result.updatedState.zones.hand.length).toBe(0);
@@ -339,11 +339,12 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     // Assert: Activation successful
     expect(result.success).toBe(true);
     expect(result.effectSteps).toBeDefined();
-    expect(result.effectSteps!.length).toBe(2); // Notification step + LP payment step
+    expect(result.effectSteps!.length).toBe(3); // Notification step + spell activated event + LP payment step
 
     // Verify notification step and LP payment step
     expect(result.effectSteps![0].summary).toBe("カード発動");
-    expect(result.effectSteps![1].id).toContain("pay-lp-player-1000");
+    // index=1 is emitSpellActivatedEventStep (skipped in assertion)
+    expect(result.effectSteps![2].id).toContain("pay-lp-player-1000");
 
     // Note: Card stays on field (not sent to graveyard)
     // Field spell placement is handled by ActivateSpellCommand

@@ -26,8 +26,7 @@ function createMockGameState(overrides: Partial<GameState> = {}): GameState {
     lp: { player: 8000, opponent: 8000 },
     phase: "Main1",
     turn: 1,
-    chainStack: [],
-    result: { isGameOver: false, winner: null, reason: null },
+    result: { isGameOver: false },
     activatedIgnitionEffectsThisTurn: new Set<string>(),
     activatedOncePerTurnCards: new Set<number>(),
     pendingEndPhaseEffects: [],
@@ -44,13 +43,14 @@ function createNormalSpellCard(instanceId: string): CardInstance {
   return {
     instanceId,
     id: 67616300,
-    name: "Upstart Goblin",
+    jaName: "Upstart Goblin",
     type: "spell" as const,
     frameType: "spell",
     spellType: "normal",
     location: "hand" as const,
     position: undefined,
     placedThisTurn: false,
+    counters: [],
   };
 }
 
@@ -59,13 +59,14 @@ function createQuickPlaySpellCard(instanceId: string): CardInstance {
   return {
     instanceId,
     id: 12580477,
-    name: "Raigeki Break",
+    jaName: "Raigeki Break",
     type: "spell" as const,
     frameType: "spell",
     spellType: "quick-play",
     location: "hand" as const,
     position: undefined,
     placedThisTurn: false,
+    counters: [],
   };
 }
 
@@ -74,13 +75,14 @@ function createFieldSpellCard(instanceId: string): CardInstance {
   return {
     instanceId,
     id: 67616301,
-    name: "Chicken Game",
+    jaName: "Chicken Game",
     type: "spell" as const,
     frameType: "spell",
     spellType: "field",
     location: "hand" as const,
     position: undefined,
     placedThisTurn: false,
+    counters: [],
   };
 }
 
@@ -89,13 +91,14 @@ function createContinuousSpellCard(instanceId: string): CardInstance {
   return {
     instanceId,
     id: 67616302,
-    name: "Test Continuous",
+    jaName: "Test Continuous",
     type: "spell" as const,
     frameType: "spell",
     spellType: "continuous",
     location: "hand" as const,
     position: undefined,
     placedThisTurn: false,
+    counters: [],
   };
 }
 
@@ -248,15 +251,14 @@ describe("SetSpellTrapCommand", () => {
       const monsterCard: CardInstance = {
         instanceId: "monster-1",
         id: 33396948,
-        name: "Exodia the Forbidden One",
+        jaName: "Exodia the Forbidden One",
         type: "monster" as const,
-        subtype: "Effect",
+        frameType: "effect",
         location: "hand" as const,
         position: undefined,
         battlePosition: undefined,
         placedThisTurn: false,
-        attack: 1000,
-        defense: 1000,
+        counters: [],
       };
       const state = createMockGameState({
         phase: "Main1",
@@ -294,7 +296,7 @@ describe("SetSpellTrapCommand", () => {
           graveyard: [],
           banished: [],
         },
-        result: { isGameOver: true, winner: "player", reason: "Exodia" },
+        result: { isGameOver: true, winner: "player", reason: "exodia" },
       });
 
       const command = new SetSpellTrapCommand("spell-1");

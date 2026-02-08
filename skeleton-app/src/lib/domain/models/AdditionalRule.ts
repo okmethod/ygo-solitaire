@@ -1,14 +1,16 @@
 /**
- * AdditionalRule - 追加ルールのモデル
+ * AdditionalRule - 追加適用するルールのモデル
  *
  * @module domain/models/AdditionalRule
  * @see {@link docs/domain/effect-model.md}
  */
 
-import type { GameState } from "./GameState";
-import type { RuleContext } from "./RuleContext";
+import type { GameState } from "$lib/domain/models/GameState";
+import type { TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
-/** 追加ルールのカテゴリ */
+/** 追加適用するルールのカテゴリ */
 export type RuleCategory =
   // データ書き換え系
   | "NameOverride" // カード名変更（例: ハーピィ・レディ3姉妹）
@@ -20,10 +22,12 @@ export type RuleCategory =
   | "VictoryCondition" // 特殊勝利判定（例: エクゾディア）
   // 処理置換・処理フック系
   | "ActionReplacement" // 破壊耐性、身代わり効果（例: スターダスト・ドラゴン）
-  | "SelfDestruction"; // 維持コスト、自壊（例: ペンデュラム地帯）
+  | "SelfDestruction" // 維持コスト、自壊（例: ペンデュラム地帯）
+  // イベント駆動系
+  | "TriggerRule"; // イベント発生時に自動実行（例: 王立魔法図書館）
 
 /**
- * 追加ルール
+ * 追加適用するルール
  *
  * 永続効果、ルール効果、効果外テキストを実装するための統一インターフェース。
  * カテゴリに応じて適切なメソッドを実装する。
@@ -58,10 +62,9 @@ export interface AdditionalRule {
    * - 特定の条件を満たしているか（LP差分等）
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState, context: RuleContext): boolean;
+  canApply(state: GameState): boolean;
 
   /**
    * データ書き換え系（NameOverride, StatusModifier）
@@ -69,10 +72,9 @@ export interface AdditionalRule {
    * カード名、攻撃力/守備力などのデータを直接書き換える。
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 新しいゲーム状態
    */
-  apply?(state: GameState, context: RuleContext): GameState;
+  apply?(state: GameState): GameState;
 
   /**
    * 判定追加・制限系（SummonCondition, Permission, VictoryCondition）
@@ -84,10 +86,9 @@ export interface AdditionalRule {
    * - 勝利条件を満たしたか
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 許可ならtrue、禁止ならfalse
    */
-  checkPermission?(state: GameState, context: RuleContext): boolean;
+  checkPermission?(state: GameState): boolean;
 
   /**
    * 処理置換・フック系（ActionReplacement, SelfDestruction）
@@ -98,8 +99,27 @@ export interface AdditionalRule {
    * - 維持コスト未払い → 自壊
    *
    * @param state - 現在のゲーム状態
-   * @param context - ルール適用コンテキスト
    * @returns 置換後のゲーム状態
    */
-  replace?(state: GameState, context: RuleContext): GameState;
+  replace?(state: GameState): GameState;
+
+  /**
+   * トリガーイベント（TriggerRule用）
+   *
+   * このルールが反応するイベントの種類を定義する。
+   * TriggerRuleカテゴリのルールで使用する。
+   */
+  readonly triggers?: readonly TriggerEvent[];
+
+  /**
+   * トリガー発動時のステップ生成（TriggerRule用）
+   *
+   * 指定したトリガーイベントが発生した際に実行されるステップを生成する。
+   * ChainableActionと同様に、各ルールが自身の処理ステップを生成する責務を持つ。
+   *
+   * @param state - 現在のゲーム状態
+   * @param sourceInstance - このルールの発生源となるカードインスタンス
+   * @returns 実行するAtomicStep配列
+   */
+  createTriggerSteps?(state: GameState, sourceInstance: CardInstance): AtomicStep[];
 }

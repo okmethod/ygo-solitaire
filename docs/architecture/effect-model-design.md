@@ -24,7 +24,7 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 
 ## Domain Layer
 
-### Chainable Action :チェーンブロックを作る処理
+### Chainable Action :チェーンブロックを作る処理（発動する効果）
 
 発動宣言から解決までのフローを管理する。  
 カードの発動も、「チェーンブロックを作る処理」のため、同一クラスで管理する。
@@ -78,14 +78,14 @@ domain/
 - `createSendToGraveyardStep(target)`: 墓地送り処理の生成
 - `createSearchStep(filter)`: デッキからのサーチ処理の生成
 
-### Additional Rule :追加ルール・常時適用効果
+### Additional Rule :追加適用するルール（適用する効果）
 
 #### クラス階層 (抽象化構造)
 
 ```
 domain/
 ├── models/
-│   ├── AdditionalRule.ts           # 追加ルールのインターフェース
+│   ├── AdditionalRule.ts           # 追加適用するルールのインターフェース
 │   └── RuleContext.ts              # 各ルールのコンテキストパラメータのインターフェース
 │
 ├── effects/
@@ -101,7 +101,7 @@ domain/
 │           └── (etc)
 │
 └── registries/
-    └── AdditionalRuleRegistry.ts   # 追加ルールの定義レジストリ
+    └── AdditionalRuleRegistry.ts   # 追加適用するルールの定義レジストリ
 ```
 
 #### 主要フラグ

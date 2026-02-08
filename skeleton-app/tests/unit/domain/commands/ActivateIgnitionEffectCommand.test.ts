@@ -305,7 +305,7 @@ describe("ActivateIgnitionEffectCommand", () => {
     let libraryState: GameState;
 
     beforeEach(() => {
-      // Create state with Royal Magical Library face-up attack on monster zone
+      // Create state with Royal Magical Library face-up attack on monster zone with 3 spell counters
       libraryState = createMockGameState({
         phase: "Main1",
         lp: { player: 8000, opponent: 8000 },
@@ -319,6 +319,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               location: "deck" as const,
               placedThisTurn: false,
+              counters: [],
             },
             {
               instanceId: "deck-1",
@@ -328,6 +329,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               location: "deck" as const,
               placedThisTurn: false,
+              counters: [],
             },
           ],
           hand: [],
@@ -342,6 +344,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               position: "faceUp" as const,
               battlePosition: "attack" as const,
               placedThisTurn: false,
+              counters: [{ type: "spell", count: 3 }],
             },
           ],
           spellTrapZone: [],
@@ -377,6 +380,7 @@ describe("ActivateIgnitionEffectCommand", () => {
                 position: "faceUp" as const,
                 battlePosition: "defense" as const,
                 placedThisTurn: false,
+                counters: [{ type: "spell", count: 3 }],
               },
             ],
             spellTrapZone: [],
@@ -423,15 +427,15 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.message).toContain("Ignition effect activated");
       });
 
-      it("should include notify and resolution steps (simplified version has no cost)", () => {
+      it("should include notify, counter removal, and resolution steps", () => {
         const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
 
         const result = command.execute(libraryState);
 
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
-        // Royal Magical Library simplified: 1 activation step (発動通知) + 1 resolution step (draw)
-        expect(result.effectSteps!.length).toBe(2);
+        // Royal Magical Library: 2 activation steps (発動通知 + カウンター消費) + 1 resolution step (draw)
+        expect(result.effectSteps!.length).toBe(3);
       });
 
       it("should draw 1 card after executing all steps", () => {
@@ -478,6 +482,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               location: "deck" as const,
               placedThisTurn: false,
+              counters: [],
             },
           ],
           hand: [],
@@ -492,6 +497,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               position: "faceUp" as const,
               battlePosition: "attack" as const,
               placedThisTurn: false,
+              counters: [{ type: "spell", count: 3 }],
             },
           ],
           spellTrapZone: [],
@@ -506,6 +512,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               location: "fieldZone" as const,
               position: "faceUp" as const,
               placedThisTurn: false,
+              counters: [],
             },
           ],
           graveyard: [],

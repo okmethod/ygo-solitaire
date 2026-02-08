@@ -26,8 +26,7 @@ function createMockGameState(overrides: Partial<GameState> = {}): GameState {
     lp: { player: 8000, opponent: 8000 },
     phase: "Main1",
     turn: 1,
-    chainStack: [],
-    result: { isGameOver: false, winner: null, reason: null },
+    result: { isGameOver: false },
     activatedIgnitionEffectsThisTurn: new Set<string>(),
     activatedOncePerTurnCards: new Set<number>(),
     pendingEndPhaseEffects: [],
@@ -45,15 +44,14 @@ function createMonsterCard(instanceId: string): CardInstance {
   return {
     instanceId,
     id: exodiaIds[0],
-    name: "Test Monster",
+    jaName: "Test Monster",
     type: "monster" as const,
-    subtype: "Effect",
+    frameType: "effect",
     location: "hand" as const,
     position: undefined,
     battlePosition: undefined,
     placedThisTurn: false,
-    attack: 1000,
-    defense: 1000,
+    counters: [],
   };
 }
 
@@ -217,12 +215,13 @@ describe("SetMonsterCommand", () => {
       const spellCard: CardInstance = {
         instanceId: "spell-1",
         id: 67616300,
-        name: "Test Spell",
+        jaName: "Test Spell",
         type: "spell" as const,
-        subtype: "Normal",
+        frameType: "normal",
         location: "hand" as const,
         position: undefined,
         placedThisTurn: false,
+        counters: [],
       };
       const state = createMockGameState({
         phase: "Main1",
@@ -264,7 +263,7 @@ describe("SetMonsterCommand", () => {
           graveyard: [],
           banished: [],
         },
-        result: { isGameOver: true, winner: "player", reason: "Exodia" },
+        result: { isGameOver: true, winner: "player", reason: "exodia" },
       });
 
       const command = new SetMonsterCommand("monster-1");
@@ -449,12 +448,13 @@ describe("SetMonsterCommand", () => {
       const spellCard: CardInstance = {
         instanceId: "spell-1",
         id: 67616300,
-        name: "Test Spell",
+        jaName: "Test Spell",
         type: "spell" as const,
-        subtype: "Normal",
+        frameType: "normal",
         location: "hand" as const,
         position: undefined,
         placedThisTurn: false,
+        counters: [],
       };
       const state = createMockGameState({
         phase: "Main1",

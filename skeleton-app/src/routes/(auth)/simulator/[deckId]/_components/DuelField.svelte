@@ -17,7 +17,7 @@
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
-  import Graveyard from "./zones/Graveyard.svelte";
+    import Graveyard from "./zones/Graveyard.svelte";
   import ExtraDeck from "./zones/ExtraDeck.svelte";
   import MainDeck from "./zones/MainDeck.svelte";
 
@@ -33,6 +33,7 @@
     instanceId: string; // カードインスタンスID
     faceDown: boolean;
     rotation?: number; // 守備表示時の回転角度
+    spellCounterCount?: number; // 魔力カウンター数
   }
 
   /**
@@ -190,6 +191,7 @@
               onCancel={onCancelFieldCardSelection || (() => {})}
               size="medium"
               showDetailOnClick={true}
+              spellCounterCount={monsterCards[i].spellCounterCount || 0}
             />
           {:else}
             <div class="relative">

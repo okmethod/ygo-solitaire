@@ -103,19 +103,35 @@ describe("FieldSpellAction", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return only notification step (field spells have no additional activation steps)", () => {
+    // テスト用の sourceInstance を作成するヘルパー
+    const createTestSourceInstance = (): CardInstance => ({
+      id: 67616300,
+      instanceId: "test-field-spell-1",
+      jaName: "Test Field Spell",
+      type: "spell",
+      frameType: "spell",
+      spellType: "field",
+      location: "hand",
+      position: "faceDown",
+      placedThisTurn: false,
+      counters: [],
+    });
+
+    it("should return notification and event steps (field spells have no additional activation steps)", () => {
       // Arrange
       const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
+      const sourceInstance = createTestSourceInstance();
 
       // Act
-      const steps = action.createActivationSteps(state);
+      const steps = action.createActivationSteps(state, sourceInstance);
 
-      // Assert: Field Spells have only notification step (placement handled by ActivateSpellCommand)
-      expect(steps).toHaveLength(1);
+      // Assert: Field Spells have notification + event step (placement handled by ActivateSpellCommand)
+      expect(steps).toHaveLength(2);
       expect(steps[0].summary).toBe("カード発動");
+      expect(steps[1].id).toBe("emit-spell-activated-test-field-spell-1");
     });
   });
 

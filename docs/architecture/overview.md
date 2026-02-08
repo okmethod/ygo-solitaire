@@ -55,7 +55,7 @@ skeleton-app/src/lib/domain/
 ├── registries/  # 各種レジストリ（Registry Pattern）
 ├── effects/     # 効果処理
 │   ├── actions/ # チェーンブロックを作る処理の具象実装
-│   └── rules/   # 追加ルールの具象実装
+│   └── rules/   # 追加適用するルールの具象実装
 └── commands/    # ゲーム操作の具象実装（Command Pattern）
 ```
 
@@ -86,7 +86,7 @@ skeleton-app/src/lib/domain/
   - 各カード固有の効果処理を交換可能に（Strategy Pattern）
   - CONDITIONS（発動条件）、ACTIVATION（発動時の処理）、RESOLUTION（効果の解決）の 3 ステップ構成
 
-- **AdditionalRuleRegistry**: 追加ルールのレジストリ（Registry Pattern）
+- **AdditionalRuleRegistry**: 追加適用するルールのレジストリ（Registry Pattern）
   - 永続効果、ルール効果、効果外テキストを管理
   - Card ID → AdditionalRule[] のマッピング（1 枚のカードに複数のルールが存在可能）
   - カテゴリ別フィルタ機能（getByCategory）

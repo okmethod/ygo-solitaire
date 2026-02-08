@@ -31,6 +31,9 @@ export const ValidationErrorCode = {
   // デッキ関連
   INSUFFICIENT_DECK: "INSUFFICIENT_DECK",
 
+  // カウンター関連
+  INSUFFICIENT_COUNTERS: "INSUFFICIENT_COUNTERS",
+
   // 召喚・発動制限
   SUMMON_LIMIT_REACHED: "SUMMON_LIMIT_REACHED",
   QUICK_PLAY_RESTRICTION: "QUICK_PLAY_RESTRICTION",
@@ -72,6 +75,9 @@ export const ValidationErrorMessages: Record<ValidationErrorCode, string> = {
 
   // デッキ関連
   INSUFFICIENT_DECK: "デッキのカードが不足しています",
+
+  // カウンター関連
+  INSUFFICIENT_COUNTERS: "カウンターが不足しています",
 
   // 召喚・発動制限
   SUMMON_LIMIT_REACHED: "召喚権がありません",

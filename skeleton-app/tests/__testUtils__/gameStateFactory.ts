@@ -53,7 +53,6 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
     },
     phase: "Main1",
     turn: 1,
-    chainStack: [],
     result: {
       isGameOver: false,
     },
@@ -113,6 +112,7 @@ export function createCardInstances(
       jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
       location,
       placedThisTurn: false,
+      counters: [],
     };
   });
 }

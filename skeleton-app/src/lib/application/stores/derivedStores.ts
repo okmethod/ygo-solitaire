@@ -54,9 +54,6 @@ export const isDeckEmpty = derived(gameStateStore, ($state) => $state.zones.deck
 /** 手札が空かどうか */
 export const isHandEmpty = derived(gameStateStore, ($state) => $state.zones.hand.length === 0);
 
-/** チェーンスタックのサイズ */
-export const chainStackSize = derived(gameStateStore, ($state) => $state.chainStack.length);
-
 /** 手札の CardInstance 配列 */
 export const handCardInstances = derived(gameStateStore, ($state) => $state.zones.hand);
 

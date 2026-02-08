@@ -10,6 +10,7 @@
  */
 
 import type { ZoneName } from "$lib/domain/models/Zone";
+import type { CounterState } from "$lib/domain/models/Counter";
 
 /** カードタイプ */
 export type CardType = "monster" | "spell" | "trap";
@@ -55,6 +56,8 @@ export type BattlePosition = "attack" | "defense";
  *
  * カードデータを継承し、全プロパティに加えて1枚ごとのカードを区別するためのユニークIDを持つ。
  * 同じカードを複数枚デッキに入れた場合、 id は同一で、instanceId は異なる。
+ * 
+ * TODO: フィールドから離れた場合に揮発する一時的なプロパティをひとまとめにし、リフレッシュする仕組みを入れたい
  */
 export interface CardInstance extends CardData {
   readonly instanceId: string; // Unique instance ID
@@ -62,6 +65,7 @@ export interface CardInstance extends CardData {
   readonly position?: Position;
   readonly battlePosition?: BattlePosition;
   readonly placedThisTurn: boolean; // Default: false
+  readonly counters: readonly CounterState[]; // カウンター情報
 }
 
 /** カードインスタンスの状態を更新する */

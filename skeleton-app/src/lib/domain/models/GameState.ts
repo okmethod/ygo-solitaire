@@ -24,12 +24,6 @@ export interface LifePoints {
   readonly opponent: number;
 }
 
-/** チェーンブロック TODO: 詳細設計 */
-export interface ChainBlock {
-  readonly cardInstanceId: string;
-  readonly effectDescription: string;
-}
-
 /** プレイヤー種別 */
 export type PlayerType = "player" | "opponent";
 
@@ -47,7 +41,6 @@ export interface GameState {
   readonly lp: LifePoints;
   readonly phase: GamePhase;
   readonly turn: number;
-  readonly chainStack: readonly ChainBlock[];
   readonly result: GameResult;
 
   /** 通常召喚権の数（デフォルト1、カード効果で増減可） */
@@ -115,6 +108,7 @@ export function createInitialGameState(
       instanceId: `deck-${index}`,
       location: "deck" as const,
       placedThisTurn: false,
+      counters: [],
     };
   });
 
@@ -146,7 +140,6 @@ export function createInitialGameState(
     },
     phase: "Draw",
     turn: 1,
-    chainStack: [],
     result: {
       isGameOver: false,
     },

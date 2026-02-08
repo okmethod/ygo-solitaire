@@ -147,15 +147,18 @@ export class ActivateSpellCommand implements GameCommand {
   // 効果処理ステップ配列を生成する
   // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
   // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
+  // Note: トリガールール（魔力カウンター等）は effectQueueStore がイベントを検出して自動挿入
   private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
+    const steps: AtomicStep[] = [];
+
+    // カード固有の効果ステップ（イベント発行は BaseSpellAction 内で行われる）
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
     if (activation) {
-      return [
-        ...activation.createActivationSteps(state, cardInstance),
-        ...activation.createResolutionSteps(state, cardInstance),
-      ];
+      steps.push(...activation.createActivationSteps(state, cardInstance));
+      steps.push(...activation.createResolutionSteps(state, cardInstance));
     }
-    return [];
+
+    return steps;
   }
 
   /** 発動対象のカードインスタンスIDを取得する */
