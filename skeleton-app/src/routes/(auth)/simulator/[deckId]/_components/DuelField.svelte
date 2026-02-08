@@ -60,7 +60,7 @@
     onCancelFieldCardSelection,
   }: DuelFieldProps = $props();
 
-    // ゾーン数の定数
+  // ゾーン数の定数
   const ZONE_COUNT = 5;
   const zones = [...Array(ZONE_COUNT).keys()];
 
