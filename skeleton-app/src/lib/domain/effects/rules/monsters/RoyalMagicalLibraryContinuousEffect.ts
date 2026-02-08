@@ -16,15 +16,13 @@ import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { addCounter, getCounterCount } from "$lib/domain/models/Counter";
-import { findCardInstance } from "$lib/domain/models/Zone";
-import { successUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import { addCounterStep } from "$lib/domain/effects/steps/counters";
 
 /** 王立魔法図書館のカードID */
 const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
 
 /** 魔力カウンターの最大数 */
-const MAX_SPELL_COUNTERS = 3;
+const LIMIT_SPELL_COUNTERS = 3;
 
 /**
  * RoyalMagicalLibraryContinuousEffect クラス
@@ -77,59 +75,6 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
    * @returns 実行するAtomicStep配列
    */
   createTriggerSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
-    // sourceInstanceのinstanceIdをキャプチャ（ステップ実行時に最新の状態を取得するため）
-    const instanceId = sourceInstance.instanceId;
-
-    return [
-      {
-        id: `royal-magical-library-counter-${instanceId}`,
-        summary: "魔力カウンター蓄積",
-        description: "王立魔法図書館に魔力カウンターを1つ置く",
-        notificationLevel: "silent",
-        action: (currentState: GameState) => {
-          // 実行時に最新のカードインスタンスを取得
-          const latestInstance = findCardInstance(currentState.zones, instanceId);
-          if (!latestInstance) {
-            return successUpdateResult(currentState, "カードが見つかりません");
-          }
-
-          // 既に3個以上ある場合は何もしない
-          const currentCount = getCounterCount(latestInstance.counters, "spell");
-          if (currentCount >= MAX_SPELL_COUNTERS) {
-            return successUpdateResult(currentState, "魔力カウンターは既に最大数です");
-          }
-
-          // 魔力カウンターを1つ追加
-          const newCounters = addCounter(latestInstance.counters, "spell", 1, MAX_SPELL_COUNTERS);
-
-          // mainMonsterZone内の該当インスタンスを更新（手動の不変更新）
-          const index = currentState.zones.mainMonsterZone.findIndex((card) => card.instanceId === instanceId);
-          if (index < 0) {
-            return successUpdateResult(currentState, "カードが見つかりません");
-          }
-
-          const updatedCard: CardInstance = {
-            ...currentState.zones.mainMonsterZone[index],
-            counters: newCounters,
-          };
-
-          const updatedMainMonsterZone = [
-            ...currentState.zones.mainMonsterZone.slice(0, index),
-            updatedCard,
-            ...currentState.zones.mainMonsterZone.slice(index + 1),
-          ];
-
-          const updatedState: GameState = {
-            ...currentState,
-            zones: {
-              ...currentState.zones,
-              mainMonsterZone: updatedMainMonsterZone,
-            },
-          };
-
-          return successUpdateResult(updatedState, "魔力カウンターを1つ置きました");
-        },
-      },
-    ];
+    return [addCounterStep(sourceInstance.instanceId, "spell", 1, LIMIT_SPELL_COUNTERS)];
   }
 }

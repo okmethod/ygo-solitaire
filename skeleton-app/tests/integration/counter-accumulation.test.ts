@@ -118,8 +118,8 @@ describe("Counter Accumulation - Royal Magical Library", () => {
         "spellActivated" as TriggerEvent,
       );
       expect(triggerSteps).toHaveLength(1);
-      expect(triggerSteps[0].id).toContain("royal-magical-library-counter-");
-      expect(triggerSteps[0].summary).toBe("魔力カウンター蓄積");
+      expect(triggerSteps[0].id).toContain("add-counter-spell");
+      expect(triggerSteps[0].summary).toBe("カウンターを置く");
 
       // Execute the trigger step to verify counter is placed
       const stateAfterTrigger = triggerSteps[0].action(result.updatedState);
