@@ -23,19 +23,7 @@
   import ExtraDeck from "./zones/ExtraDeck.svelte";
   import MainDeck from "./zones/MainDeck.svelte";
 
-  // ゾーン数の定数
-  const ZONE_COUNT = 5;
-  const zones = [...Array(ZONE_COUNT).keys()];
-
-  // スマホ判定
-  const mobile = isMobile();
-
-  // スマホではカードサイズを小さく
-  const cardSize: ComponentSize = mobile ? "small" : "medium";
-
-  /**
-   * カードと位置・表示状態を含む型
-   */
+  /** カードと位置・表示状態を含む型 */
   interface CardWithPosition {
     card: CardDisplayData;
     instanceId: string; // カードインスタンスID
@@ -44,9 +32,6 @@
     spellCounterCount?: number; // 魔力カウンター数
   }
 
-  /**
-   * DuelField コンポーネントのプロパティ
-   */
   interface DuelFieldProps {
     deckCards: number;
     extraDeckCards: CardDisplayData[];
@@ -74,6 +59,14 @@
     onActivateIgnitionEffect,
     onCancelFieldCardSelection,
   }: DuelFieldProps = $props();
+
+    // ゾーン数の定数
+  const ZONE_COUNT = 5;
+  const zones = [...Array(ZONE_COUNT).keys()];
+
+  // スマホではカードサイズを小さく
+  const _isMobile = isMobile();
+  const cardSize: ComponentSize = _isMobile ? "small" : "medium";
 
   // カードクリック処理
   function handleCardClick(card: CardDisplayData, instanceId: string) {
@@ -265,7 +258,7 @@
 <!-- レイアウト -->
 <div class="card p-2 max-w-6xl mx-auto">
   <div class="transition-all duration-300">
-    {#if mobile}
+    {#if _isMobile}
       <!-- スマホレイアウト: 3行構成 -->
       <div class="grid grid-cols-4 gap-1 mb-2">
         {@render fieldZone("F")}

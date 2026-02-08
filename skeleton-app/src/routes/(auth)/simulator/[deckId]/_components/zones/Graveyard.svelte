@@ -12,10 +12,9 @@
     size?: ComponentSize;
   }
 
-  // スマホ判定
-  const mobile = isMobile();
-
   let { cards, size = "medium" }: GraveyardProps = $props();
+
+  const _isMobile = isMobile();
 
   // モーダル状態管理
   let modalOpen = $state(false);
@@ -78,7 +77,9 @@
     >
       <img src={cardBackImage} alt="墓地" class="w-full h-full object-cover opacity-30 rounded-sm" />
       <div class="absolute inset-0 flex items-center justify-center">
-        <span class="text-xs text-surface-600-300-token text-center select-none drop-shadow-lg"> {mobile ? "GY" : "墓地"} </span>
+        <span class="text-xs text-surface-600-300-token text-center select-none drop-shadow-lg">
+          {_isMobile ? "GY" : "墓地"}
+        </span>
       </div>
     </div>
     <CountBadge count={cards.length} />

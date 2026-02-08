@@ -50,7 +50,8 @@
   }: HandZoneProps = $props();
 
   // スマホではカードサイズを小さく
-  const cardSize: ComponentSize = isMobile() ? "small" : "medium";
+  const _isMobile = isMobile();
+  const cardSize: ComponentSize = _isMobile ? "small" : "medium";
 
   // カードごとの発動可能性をチェック
   function isActivatable(instanceId: string): boolean {
@@ -102,7 +103,7 @@
     };
 
     if (handCount <= 0) return "grid-cols-1";
-    if (isMobile()) {
+    if (_isMobile) {
       // スマホでは最大5列
       if (handCount >= 5) return "grid-cols-5";
     } else {

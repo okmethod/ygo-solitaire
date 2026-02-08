@@ -12,6 +12,8 @@ import { isMobile } from "$lib/presentation/utils/mobile";
 
 const STORAGE_KEY = "cardDetailDisplayEnabled";
 
+const _isMobile = isMobile();
+
 /** カード詳細表示機能の有効/無効状態 */
 export const cardDetailDisplayEnabled = writable<boolean>(loadEnabledState());
 
@@ -26,7 +28,7 @@ function loadEnabledState(): boolean {
     return stored === "true";
   }
   // 初回アクセス時: スマホはデフォルトOFF
-  return !isMobile();
+  return !_isMobile;
 }
 
 /** カード詳細表示機能の有効/無効を取得 */
