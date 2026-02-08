@@ -103,7 +103,7 @@
 <Modal
   open={isOpen}
   onOpenChange={handleOpenChange}
-  contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+  contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
   backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}

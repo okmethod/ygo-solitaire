@@ -74,7 +74,7 @@
 <Modal
   {open}
   onOpenChange={handleOpenChange}
-  contentBase="card bg-surface-100-900 p-6 mx-auto space-y-4 shadow-xl max-w-4xl max-h-[90vh] overflow-auto"
+  contentBase="card bg-surface-100-900 p-6 mx-auto space-y-4 shadow-xl w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
   backdropClasses="backdrop-blur-sm"
 >
   {#snippet content()}
