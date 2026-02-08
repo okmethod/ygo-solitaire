@@ -8,6 +8,7 @@
 
 import { writable, get } from "svelte/store";
 import type { CardDisplayData } from "$lib/presentation/types";
+import { isMobile } from "$lib/presentation/utils/mobile";
 
 const STORAGE_KEY = "cardDetailDisplayEnabled";
 
@@ -21,7 +22,11 @@ export const selectedCardForDisplay = writable<CardDisplayData | null>(null);
 function loadEnabledState(): boolean {
   if (typeof window === "undefined") return true;
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored === null ? true : stored === "true";
+  if (stored !== null) {
+    return stored === "true";
+  }
+  // 初回アクセス時: スマホはデフォルトOFF
+  return !isMobile();
 }
 
 /** カード詳細表示機能の有効/無効を取得 */

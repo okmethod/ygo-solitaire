@@ -1,9 +1,12 @@
 import { createToaster } from "@skeletonlabs/skeleton-svelte";
+import { isMobile } from "$lib/presentation/utils/mobile";
+
+const mobile = isMobile();
 
 export const toaster = createToaster({
   placement: "top-end",
-  duration: 5000,
-  max: 10,
+  duration: mobile ? 1000 : 5000,
+  max: mobile ? 3 : 10,
 });
 
 export function showSuccessToast(title: string) {
