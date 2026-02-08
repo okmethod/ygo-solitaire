@@ -56,6 +56,8 @@ export type BattlePosition = "attack" | "defense";
  *
  * カードデータを継承し、全プロパティに加えて1枚ごとのカードを区別するためのユニークIDを持つ。
  * 同じカードを複数枚デッキに入れた場合、 id は同一で、instanceId は異なる。
+ * 
+ * TODO: フィールドから離れた場合に揮発する一時的なプロパティをひとまとめにし、リフレッシュする仕組みを入れたい
  */
 export interface CardInstance extends CardData {
   readonly instanceId: string; // Unique instance ID
