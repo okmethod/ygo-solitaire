@@ -96,8 +96,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] 複数体の王立魔法図書館が存在する場合のユニットテストを作成 in skeleton-app/src/tests/unit/domain/effects/rules/RoyalMagicalLibraryContinuousEffect.test.ts
-- [ ] T022 [US3] 各インスタンスの独立性を検証する統合テストを作成 in skeleton-app/src/tests/integration/multiple-library-instances.test.ts
+- [x] T021 [P] [US3] 複数体の王立魔法図書館が存在する場合のユニットテストを作成 in skeleton-app/src/tests/unit/domain/effects/rules/RoyalMagicalLibraryContinuousEffect.test.ts
+- [x] T022 [US3] 各インスタンスの独立性を検証する統合テストを作成 in skeleton-app/src/tests/integration/multiple-library-instances.test.ts
 
 **Checkpoint**: 複数体の王立魔法図書館が各自独立してカウンターを管理できる
 
@@ -111,11 +111,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T023 [P] [US4] removeCounterStepをcounters.tsに新規実装 in skeleton-app/src/lib/domain/effects/steps/counters.ts
-- [ ] T024 [US4] RoyalMagicalLibraryIgnitionEffectにカウンター消費ロジックを追加（individualConditions）in skeleton-app/src/lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect.ts
-- [ ] T025 [US4] RoyalMagicalLibraryIgnitionEffectにカウンター消費ステップを追加（individualActivationSteps）in skeleton-app/src/lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect.ts
-- [ ] T026 [P] [US4] 起動効果のユニットテストを更新 in skeleton-app/src/tests/unit/domain/effects/actions/RoyalMagicalLibraryIgnitionEffect.test.ts
-- [ ] T027 [US4] カウンター消費→ドローの統合テストを作成 in skeleton-app/src/tests/integration/counter-consumption-draw.test.ts
+- [x] T023 [P] [US4] removeCounterStepをcounters.tsに新規実装 in skeleton-app/src/lib/domain/effects/steps/counters.ts
+- [x] T024 [US4] RoyalMagicalLibraryIgnitionEffectにカウンター消費ロジックを追加（individualConditions）in skeleton-app/src/lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect.ts
+- [x] T025 [US4] RoyalMagicalLibraryIgnitionEffectにカウンター消費ステップを追加（individualActivationSteps）in skeleton-app/src/lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect.ts
+- [x] T026 [P] [US4] 起動効果のユニットテストを更新 in skeleton-app/src/tests/unit/domain/effects/actions/RoyalMagicalLibraryIgnitionEffect.test.ts
+- [x] T027 [US4] カウンター消費→ドローの統合テストを作成 in skeleton-app/src/tests/integration/counter-consumption-draw.test.ts
 
 **Checkpoint**: カウンター3個消費でドロー効果が発動する
 
