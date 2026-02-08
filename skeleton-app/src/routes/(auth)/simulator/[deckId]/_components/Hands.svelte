@@ -12,7 +12,9 @@
    * @module presentation/components/organisms/board/Hands
    */
   import type { CardDisplayData } from "$lib/presentation/types";
+  import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
+  import { isMobile } from "$lib/presentation/utils/mobile";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
@@ -46,6 +48,9 @@
     onSetSpellTrap,
     onHandCardSelect,
   }: HandZoneProps = $props();
+
+  // スマホではカードサイズを小さく
+  const cardSize: ComponentSize = isMobile() ? "small" : "medium";
 
   // カードごとの発動可能性をチェック
   function isActivatable(instanceId: string): boolean {
@@ -97,7 +102,13 @@
     };
 
     if (handCount <= 0) return "grid-cols-1";
-    if (handCount >= 10) return "grid-cols-10";
+    if (isMobile()) {
+      // スマホでは最大5列
+      if (handCount >= 5) return "grid-cols-5";
+    } else {
+      // PCでは最大10列
+      if (handCount >= 10) return "grid-cols-10";
+    }
     return gridClassMap[handCount];
   }
 
@@ -199,11 +210,11 @@
         onSelect={handleSelect}
         actionButtons={getActionsForCard(card, instanceId)}
         onCancel={handleCancel}
-        size="medium"
+        size={cardSize}
       />
     {:else}
       <!-- ローディング中のplaceholder -->
-      <CardComponent placeholder={true} placeholderText="..." size="medium" />
+      <CardComponent placeholder={true} placeholderText="..." size={cardSize} />
     {/if}
   {:else}
     <div class="text-center text-sm opacity-50">No cards in hand</div>

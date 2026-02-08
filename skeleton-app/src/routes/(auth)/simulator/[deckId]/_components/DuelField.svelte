@@ -12,18 +12,23 @@
    * @module presentation/components/organisms/board/DuelField
    */
   import type { CardDisplayData } from "$lib/presentation/types";
+  import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
+  import { isMobile } from "$lib/presentation/utils/mobile";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
-    import Graveyard from "./zones/Graveyard.svelte";
+  import Graveyard from "./zones/Graveyard.svelte";
   import ExtraDeck from "./zones/ExtraDeck.svelte";
   import MainDeck from "./zones/MainDeck.svelte";
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;
   const zones = [...Array(ZONE_COUNT).keys()];
+
+  // スマホではカードサイズを小さく
+  const cardSize: ComponentSize = isMobile() ? "small" : "medium";
 
   /**
    * カードと位置・表示状態を含む型
@@ -162,14 +167,14 @@
             onSelect={handleCardClick}
             actionButtons={getFieldSpellActions(fieldCards[0].instanceId, fieldCards[0].faceDown)}
             onCancel={onCancelFieldCardSelection || (() => {})}
-            size="medium"
+            size={cardSize}
             showDetailOnClick={true}
           />
         {:else}
           <div class="relative">
             <!-- プレースホルダー色調：緑 -->
             <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
-              <CardComponent placeholder={true} placeholderText="フィールド" size="medium" />
+              <CardComponent placeholder={true} placeholderText="フィールド" size={cardSize} />
             </div>
           </div>
         {/if}
@@ -189,7 +194,7 @@
               onSelect={handleCardClick}
               actionButtons={getMonsterActions(monsterCards[i].instanceId)}
               onCancel={onCancelFieldCardSelection || (() => {})}
-              size="medium"
+              size={cardSize}
               showDetailOnClick={true}
               spellCounterCount={monsterCards[i].spellCounterCount || 0}
             />
@@ -197,7 +202,7 @@
             <div class="relative">
               <!-- プレースホルダー色調：橙 -->
               <div style="filter: sepia(0.5) hue-rotate(30deg) saturate(1.8) brightness(0.85);">
-                <CardComponent placeholder={true} placeholderText="M{i + 1}" size="medium" />
+                <CardComponent placeholder={true} placeholderText="M{i + 1}" size={cardSize} />
               </div>
             </div>
           {/if}
@@ -206,14 +211,14 @@
 
       <!-- 墓地 -->
       <div class="flex justify-center">
-        <Graveyard cards={graveyardCards} size="medium" />
+        <Graveyard cards={graveyardCards} size={cardSize} />
       </div>
     </div>
 
     <div class="grid grid-cols-7 gap-2 md:gap-2 sm:gap-1 mb-4">
       <!-- エクストラデッキ -->
       <div class="flex justify-center">
-        <ExtraDeck cards={extraDeckCards} size="medium" />
+        <ExtraDeck cards={extraDeckCards} size={cardSize} />
       </div>
 
       <!-- 魔法・罠ゾーン (5つ) -->
@@ -231,7 +236,7 @@
                 onSelect={handleCardClick}
                 actionButtons={getSetSpellActions(spellTrapCards[i].instanceId)}
                 onCancel={onCancelFieldCardSelection || (() => {})}
-                size="medium"
+                size={cardSize}
                 showDetailOnClick={true}
               />
             {:else}
@@ -239,7 +244,7 @@
               <CardComponent
                 card={spellTrapCards[i].card}
                 faceDown={false}
-                size="medium"
+                size={cardSize}
                 clickable={true}
                 showDetailOnClick={true}
                 onClick={() =>
@@ -250,7 +255,7 @@
             <div class="relative">
               <!-- プレースホルダー色調：青 -->
               <div style="filter: sepia(0.4) hue-rotate(200deg) saturate(2) brightness(0.8);">
-                <CardComponent placeholder={true} placeholderText="S{i + 1}" size="medium" />
+                <CardComponent placeholder={true} placeholderText="S{i + 1}" size={cardSize} />
               </div>
             </div>
           {/if}
@@ -259,7 +264,7 @@
 
       <!-- メインデッキ -->
       <div class="flex justify-center">
-        <MainDeck cardCount={deckCards} size="medium" />
+        <MainDeck cardCount={deckCards} size={cardSize} />
       </div>
     </div>
   </div>
