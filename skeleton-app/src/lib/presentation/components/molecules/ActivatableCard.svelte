@@ -97,7 +97,17 @@
   <div class="transition-transform duration-300 hover:scale-105">
     <!-- Card コンポーネントをラップ（選択状態も Card で管理） -->
     <!-- カードは常にクリック可能にして、ユーザーが選択できるようにする -->
-    <CardComponent {card} {size} {faceDown} {rotation} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} animate={false} />
+    <CardComponent
+      {card}
+      {size}
+      {faceDown}
+      {rotation}
+      clickable={true}
+      {isSelected}
+      onClick={handleSelect}
+      {showDetailOnClick}
+      animate={false}
+    />
 
     <!-- 魔力カウンター表示 -->
     {#if spellCounterCount > 0}
@@ -107,13 +117,16 @@
 
   {#if isSelected}
     <!-- アクションボタン -->
-    <div class="absolute -bottom-14 left-0 right-0 flex justify-center gap-2 z-10">
+    <div
+      class="absolute -bottom-10 md:-bottom-14 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1 md:gap-2 z-10 max-w-[200px]"
+    >
       {#each actionButtons as actionButton (actionButton.label)}
         <!-- disabledではなくopacity+cursor-not-allowedで視覚的に無効化し、クリックは可能にする -->
         <button
-          class="btn btn-sm {getButtonClass(actionButton.style, actionButton.color)} {!isActivatable
-            ? 'opacity-50 cursor-not-allowed'
-            : ''}"
+          class="btn btn-sm w-full border-2 border-gray-200 {getButtonClass(
+            actionButton.style,
+            actionButton.color,
+          )} {!isActivatable ? 'opacity-50 cursor-not-allowed' : ''}"
           onclick={() => handleAction(actionButton)}
         >
           {actionButton.label}
