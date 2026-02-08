@@ -2,6 +2,7 @@
   import type { CardDisplayData } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import SpellCounterBadge from "$lib/presentation/components/atoms/SpellCounterBadge.svelte";
 
   /**
    * カードアクションボタン定義
@@ -26,6 +27,8 @@
     size?: ComponentSize;
     showDetailOnClick?: boolean;
     faceDown?: boolean; // 裏側表示フラグ (T033-T034)
+    rotation?: number; // 回転角度（守備表示用）
+    spellCounterCount?: number; // 魔力カウンター数
   }
 
   let {
@@ -39,6 +42,8 @@
     size = "medium",
     showDetailOnClick = true,
     faceDown = false,
+    rotation = 0,
+    spellCounterCount = 0,
   }: ActivatableCardProps = $props();
 
   function handleSelect() {
@@ -88,9 +93,17 @@
 </script>
 
 <div class="relative">
-  <!-- Card コンポーネントをラップ（選択状態も Card で管理） -->
-  <!-- カードは常にクリック可能にして、ユーザーが選択できるようにする -->
-  <CardComponent {card} {size} {faceDown} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} />
+  <!-- カードとバッジのみスケールアニメーション適用 -->
+  <div class="transition-transform duration-300 hover:scale-105">
+    <!-- Card コンポーネントをラップ（選択状態も Card で管理） -->
+    <!-- カードは常にクリック可能にして、ユーザーが選択できるようにする -->
+    <CardComponent {card} {size} {faceDown} {rotation} clickable={true} {isSelected} onClick={handleSelect} {showDetailOnClick} animate={false} />
+
+    <!-- 魔力カウンター表示 -->
+    {#if spellCounterCount > 0}
+      <SpellCounterBadge count={spellCounterCount} />
+    {/if}
+  </div>
 
   {#if isSelected}
     <!-- アクションボタン -->

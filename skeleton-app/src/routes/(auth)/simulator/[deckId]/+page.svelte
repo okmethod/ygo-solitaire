@@ -19,6 +19,7 @@
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
+  import { getCounterCount } from "$lib/domain/models/Counter";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -233,8 +234,13 @@
   // モンスターゾーン用カード配列（5枚固定、null埋め）
   const monsterZoneCards = $derived.by(() => {
     const monsterInstances = $gameStateStore.zones.mainMonsterZone;
-    const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean; rotation?: number } | null)[] =
-      Array(5).fill(null);
+    const zone: ({
+      card: CardDisplayData;
+      instanceId: string;
+      faceDown: boolean;
+      rotation?: number;
+      spellCounterCount?: number;
+    } | null)[] = Array(5).fill(null);
     monsterInstances.forEach((instance, i) => {
       if (i < 5) {
         const displayData = getCardDisplayData(instance.id);
@@ -244,6 +250,7 @@
             instanceId: instance.instanceId,
             faceDown: instance.position === "faceDown",
             rotation: instance.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
+            spellCounterCount: getCounterCount(instance.counters, "spell"), // 魔力カウンター数
           };
         }
       }

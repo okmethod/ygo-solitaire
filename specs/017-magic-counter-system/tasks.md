@@ -80,8 +80,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] SpellCounterBadge.svelteを新規作成 in skeleton-app/src/lib/presentation/components/atoms/SpellCounterBadge.svelte
-- [ ] T019 [US2] DuelField.svelteにカウンター表示を統合 in skeleton-app/src/routes/(auth)/simulator/[deckId]/\_components/DuelField.svelte
+- [x] T018 [P] [US2] SpellCounterBadge.svelteを新規作成 in skeleton-app/src/lib/presentation/components/atoms/SpellCounterBadge.svelte
+- [x] T019 [US2] DuelField.svelteにカウンター表示を統合 in skeleton-app/src/routes/(auth)/simulator/[deckId]/\_components/DuelField.svelte
 - [x] T020 [P] [US2] カウンター表示のE2Eテストを作成 - スキップ（ランダム性のため自動E2Eテストが困難）
 
 **Checkpoint**: フィールド上のカードに魔力カウンター数が視覚的に表示される
