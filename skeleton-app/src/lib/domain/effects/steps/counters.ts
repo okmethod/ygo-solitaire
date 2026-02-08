@@ -11,7 +11,7 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CounterType } from "$lib/domain/models/Counter";
-import { addCounter, removeCounter, getCounterCount } from "$lib/domain/models/Counter";
+import { updateCounters, getCounterCount } from "$lib/domain/models/Counter";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
 
@@ -33,21 +33,22 @@ export const addCounterStep = (
       return successUpdateResult(state, "カードが見つかりません");
     }
 
+    const currentCount = getCounterCount(targetCard.counters, counterType);
+
     // 最大数チェック
-    if (limit !== undefined) {
-      const currentCount = getCounterCount(targetCard.counters, counterType);
-      if (currentCount >= limit) {
-        return successUpdateResult(state, "カウンターは既に最大数です");
-      }
+    if (limit !== undefined && currentCount >= limit) {
+      return successUpdateResult(state, "カウンターは既に最大数です");
     }
 
-    // カウンターを追加
-    const updatedCounters = addCounter(targetCard.counters, counterType, amount, limit);
+    // 上限を超えないように調整
+    const actualAmount = limit !== undefined ? Math.min(amount, limit - currentCount) : amount;
+
+    const updatedCounters = updateCounters(targetCard.counters, counterType, actualAmount);
     const updatedZones = updateCardInPlace(state.zones, targetCard, { counters: updatedCounters });
 
     return successUpdateResult(
       { ...state, zones: updatedZones },
-      `${counterType === "spell" ? "魔力" : counterType}カウンターを${amount}つ置きました`,
+      `${counterType === "spell" ? "魔力" : counterType}カウンターを${actualAmount}つ置きました`,
     );
   },
 });
@@ -59,7 +60,6 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
   description: `${counterType === "spell" ? "魔力" : counterType}カウンターを${amount}つ取り除きます`,
   notificationLevel: "info",
   action: (state: GameState) => {
-    // フィールド上のカードを検索
     const targetCard = findCardInstance(state.zones, targetInstanceId);
 
     if (!targetCard) {
@@ -72,8 +72,8 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
       return failureUpdateResult(state, `Insufficient counters: needed ${amount}, but only ${currentCount} available.`);
     }
 
-    // カウンターを取り除く
-    const updatedCounters = removeCounter(targetCard.counters, counterType, amount);
+    // 負のdeltaで削除
+    const updatedCounters = updateCounters(targetCard.counters, counterType, -amount);
     const updatedZones = updateCardInPlace(state.zones, targetCard, { counters: updatedCounters });
 
     return successUpdateResult(

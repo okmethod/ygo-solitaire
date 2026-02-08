@@ -20,69 +20,38 @@ export interface CounterState {
 /** カウンター数を取得する */
 export function getCounterCount(counters: readonly CounterState[], type: CounterType): number {
   const counter = counters.find((c) => c.type === type);
-  return counter?.count ?? 0; // 存在しない場合は0を返す
+  return counter?.count ?? 0;
 }
 
-/** カウンターを追加する */
-export function addCounter(
-  curentCounters: readonly CounterState[],
+/**
+ * カウンターを増減する（純粋なデータ変換）
+ *
+ * - delta > 0: カウンターを追加
+ * - delta < 0: カウンターを削除
+ * - 結果が0以下になった場合は配列から削除
+ */
+export function updateCounters(
+  counters: readonly CounterState[],
   type: CounterType,
-  amount: number,
-  limit?: number,
+  delta: number,
 ): readonly CounterState[] {
-  const existingIndex = curentCounters.findIndex((c) => c.type === type);
+  const existingIndex = counters.findIndex((c) => c.type === type);
 
   if (existingIndex >= 0) {
-    // 既存のカウンターを更新
-    const existing = curentCounters[existingIndex];
-    let updatedCounters = existing.count + amount;
+    const existing = counters[existingIndex];
+    const newCount = Math.max(0, existing.count + delta);
 
-    // 上限チェック
-    if (limit !== undefined && updatedCounters > limit) {
-      updatedCounters = limit;
+    if (newCount === 0) {
+      // カウンターが0になった場合は配列から削除
+      return [...counters.slice(0, existingIndex), ...counters.slice(existingIndex + 1)];
     }
 
-    return [
-      ...curentCounters.slice(0, existingIndex),
-      { type, count: updatedCounters },
-      ...curentCounters.slice(existingIndex + 1),
-    ];
-  } else {
-    // 新しいカウンターを追加
-    let updatedCounters = amount;
-
-    // 上限チェック
-    if (limit !== undefined && updatedCounters > limit) {
-      updatedCounters = limit;
-    }
-
-    return [...curentCounters, { type, count: updatedCounters }];
-  }
-}
-
-/** カウンターを取り除く */
-export function removeCounter(
-  curentCounters: readonly CounterState[],
-  type: CounterType,
-  amount: number,
-): readonly CounterState[] {
-  const existingIndex = curentCounters.findIndex((c) => c.type === type);
-  if (existingIndex < 0) {
-    // カウンターが存在しない場合は何もしない
-    return curentCounters;
+    return [...counters.slice(0, existingIndex), { type, count: newCount }, ...counters.slice(existingIndex + 1)];
+  } else if (delta > 0) {
+    // 新しいカウンターを追加（delta > 0 の場合のみ）
+    return [...counters, { type, count: delta }];
   }
 
-  const existing = curentCounters[existingIndex];
-  const updatedCounters = Math.max(0, existing.count - amount);
-
-  if (updatedCounters === 0) {
-    // カウンターが0になった場合は配列から削除
-    return [...curentCounters.slice(0, existingIndex), ...curentCounters.slice(existingIndex + 1)];
-  }
-
-  return [
-    ...curentCounters.slice(0, existingIndex),
-    { type, count: updatedCounters },
-    ...curentCounters.slice(existingIndex + 1),
-  ];
+  // 存在しないカウンターを削除しようとした場合は何もしない
+  return counters;
 }
