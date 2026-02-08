@@ -281,14 +281,14 @@
 <div class="container mx-auto p-4">
   <main class="max-w-4xl mx-auto space-y-2">
     <!-- Header -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Left Column: Deck Title -->
-      <div class="card p-4">
+      <div class="card px-4">
         <h1 class="text-2xl font-bold">Deck: {data.deckName}</h1>
       </div>
 
       <!-- Right Column: Game Info -->
-      <div class="card p-4 space-y-4">
+      <div class="card px-4 space-y-4">
         <div class="space-y-2">
           <div class="flex justify-start space-x-4">
             <span>Now:</span>
