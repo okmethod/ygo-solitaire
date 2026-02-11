@@ -44,7 +44,7 @@ export abstract class QuickPlaySpellAction extends BaseSpellAction {
    */
   protected subTypeConditions(_state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. セットしたターンではないこと
-    if (isFaceDown(sourceInstance) && sourceInstance.placedThisTurn) {
+    if (isFaceDown(sourceInstance) && sourceInstance.stateOnField?.placedThisTurn) {
       return failureValidationResult(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
     }
 

@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
-import { createMockGameState } from "../../../../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createFieldCardInstance } from "../../../../../../__testUtils__/gameStateFactory";
 import { getCounterCount } from "$lib/domain/models/Counter";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -25,18 +25,18 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
   beforeEach(() => {
     effect = new RoyalMagicalLibraryIgnitionEffect();
 
-    sourceInstance = {
+    sourceInstance = createFieldCardInstance({
       instanceId: libraryInstanceId,
       id: ROYAL_MAGICAL_LIBRARY_ID,
       jaName: "王立魔法図書館",
-      type: "monster" as const,
-      frameType: "effect" as const,
-      location: "mainMonsterZone" as const,
-      position: "faceUp" as const,
-      battlePosition: "attack" as const,
+      type: "monster",
+      frameType: "effect",
+      location: "mainMonsterZone",
+      position: "faceUp",
+      battlePosition: "attack",
       placedThisTurn: false,
       counters: [{ type: "spell", count: 3 }], // 魔力カウンター3つ
-    };
+    });
 
     // Create state with Royal Magical Library face-up attack on monster zone
     initialState = createMockGameState({
@@ -51,8 +51,6 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
-            placedThisTurn: false,
-            counters: [],
           },
           {
             instanceId: "deck-1",
@@ -61,8 +59,6 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
-            placedThisTurn: false,
-            counters: [],
           },
         ],
         hand: [],
@@ -97,10 +93,16 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
     });
 
     it("should return invalid when spell counters < 3", () => {
-      const insufficientCounterInstance: CardInstance = {
-        ...sourceInstance,
+      const insufficientCounterInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
         counters: [{ type: "spell", count: 2 }],
-      };
+      });
 
       const result = effect.canActivate(initialState, insufficientCounterInstance);
 
@@ -109,10 +111,16 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
     });
 
     it("should return invalid when no counters", () => {
-      const noCounterInstance: CardInstance = {
-        ...sourceInstance,
+      const noCounterInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
         counters: [],
-      };
+      });
 
       const result = effect.canActivate(initialState, noCounterInstance);
 
@@ -134,24 +142,43 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
     });
 
     it("should have no once-per-turn restriction (can activate multiple times if counters available)", () => {
-      const effectKey = `${libraryInstanceId}:${effect.effectId}`;
-      const activatedState = createMockGameState({
-        ...initialState,
-        activatedIgnitionEffectsThisTurn: new Set([effectKey]),
-        zones: initialState.zones,
+      // 王立魔法図書館は1ターンに1度制限がないので、activatedEffects に記録があっても発動可能
+      const instanceWithActivatedEffect = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
+        counters: [{ type: "spell", count: 3 }],
       });
+      // stateOnField.activatedEffects に既に効果が記録されている状態をシミュレート
+      const modifiedInstance: CardInstance = {
+        ...instanceWithActivatedEffect,
+        stateOnField: {
+          ...instanceWithActivatedEffect.stateOnField!,
+          activatedEffects: new Set([effect.effectId]),
+        },
+      };
 
-      const result = effect.canActivate(activatedState, sourceInstance);
+      const result = effect.canActivate(initialState, modifiedInstance);
 
       expect(result.isValid).toBe(true);
     });
 
     it("should return valid when card is in defense position", () => {
-      const defenseInstance: CardInstance = {
-        ...sourceInstance,
-        position: "faceUp" as const,
-        battlePosition: "defense" as const,
-      };
+      const defenseInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
+        battlePosition: "defense",
+        counters: [{ type: "spell", count: 3 }],
+      });
       const defenseState = createMockGameState({
         phase: "Main1",
         zones: {
@@ -188,7 +215,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(0);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
   });
 
@@ -231,7 +258,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       // Verify counters removed after activation
       const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(getCounterCount(libraryAfterActivation.counters, "spell")).toBe(0);
+      expect(getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
 
       // Execute resolution steps
       const resolutionSteps = effect.createResolutionSteps(currentState, sourceInstance);
@@ -249,27 +276,45 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
     it("should be able to activate again after accumulating 3 more counters", () => {
       // After first activation (counters = 0), cannot activate
-      const noCounterInstance: CardInstance = {
-        ...sourceInstance,
+      const noCounterInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
         counters: [],
-      };
+      });
       const canActivateWithoutCounters = effect.canActivate(initialState, noCounterInstance);
       expect(canActivateWithoutCounters.isValid).toBe(false);
 
       // After accumulating 3 counters again, can activate
-      const threeCounterInstance: CardInstance = {
-        ...sourceInstance,
+      const threeCounterInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
         counters: [{ type: "spell", count: 3 }],
-      };
+      });
       const canActivateWithCounters = effect.canActivate(initialState, threeCounterInstance);
       expect(canActivateWithCounters.isValid).toBe(true);
     });
 
     it("should work with exactly 3 counters (edge case)", () => {
-      const exactlyThreeInstance: CardInstance = {
-        ...sourceInstance,
+      const exactlyThreeInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
         counters: [{ type: "spell", count: 3 }],
-      };
+      });
 
       const canActivate = effect.canActivate(initialState, exactlyThreeInstance);
       expect(canActivate.isValid).toBe(true);
@@ -288,14 +333,20 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(0);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("should work with more than 3 counters", () => {
-      const fiveCounterInstance: CardInstance = {
-        ...sourceInstance,
+      const fiveCounterInstance = createFieldCardInstance({
+        instanceId: libraryInstanceId,
+        id: ROYAL_MAGICAL_LIBRARY_ID,
+        jaName: "王立魔法図書館",
+        type: "monster",
+        frameType: "effect",
+        location: "mainMonsterZone",
+        position: "faceUp",
         counters: [{ type: "spell", count: 5 }],
-      };
+      });
 
       const canActivate = effect.canActivate(initialState, fiveCounterInstance);
       expect(canActivate.isValid).toBe(true);
@@ -314,7 +365,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(2); // 5 - 3 = 2
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(2); // 5 - 3 = 2
     });
   });
 });

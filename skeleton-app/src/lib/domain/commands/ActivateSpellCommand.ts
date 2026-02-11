@@ -12,12 +12,12 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
 import type { Zones } from "$lib/domain/models/Zone";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isSpellCard, isFieldSpellCard } from "$lib/domain/models/Card";
+import { isSpellCard, isFieldSpellCard, createInitialStateOnField } from "$lib/domain/models/Card";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
@@ -129,19 +129,25 @@ export class ActivateSpellCommand implements GameCommand {
    * - セットから発動: 同じゾーンに表向きで配置
    */
   private moveActivatedSpellCard(zones: Zones, cardInstance: CardInstance): Zones {
-    const activatedCardState: Partial<CardInstance> = {
+    // 発動状態: 表側表示, このターンに置いた
+    const activatedStateOnField: StateOnField = createInitialStateOnField({
       position: "faceUp",
       placedThisTurn: true,
-    };
+    });
 
     // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
     if (cardInstance!.location === "hand") {
       const targetZone = isFieldSpellCard(cardInstance) ? "fieldZone" : "spellTrapZone";
-      return moveCard(zones, cardInstance, targetZone, activatedCardState);
+      return moveCard(zones, cardInstance, targetZone, { stateOnField: activatedStateOnField });
     }
 
-    // セットから発動: 同じゾーンに表向きで配置
-    return updateCardInPlace(zones, cardInstance, activatedCardState);
+    // セットから発動: 同じゾーンに表向きで配置（既存の stateOnField があれば position を更新）
+    const existingStateOnField = cardInstance.stateOnField ?? createInitialStateOnField();
+    const updatedStateOnField: StateOnField = {
+      ...existingStateOnField,
+      position: "faceUp",
+    };
+    return updateCardInPlace(zones, cardInstance, { stateOnField: updatedStateOnField });
   }
 
   // 効果処理ステップ配列を生成する

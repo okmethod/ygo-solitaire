@@ -13,6 +13,9 @@
 import type { GameState } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState";
 import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/Card";
+import type { CounterState } from "$lib/domain/models/Counter";
+import { createInitialStateOnField } from "$lib/domain/models/Card";
+import { isFieldZone } from "$lib/domain/models/Zone";
 import type { GamePhase } from "$lib/domain/models/Phase";
 import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";
 
@@ -58,7 +61,6 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
     },
     normalSummonLimit: 1,
     normalSummonUsed: 0,
-    activatedIgnitionEffectsThisTurn: new Set<string>(),
     damageNegation: false,
     pendingEndPhaseEffects: [],
     activatedOncePerTurnCards: new Set<number>(),
@@ -103,7 +105,7 @@ export function createCardInstances(
     const registeredCard = getCardDataSafe(numericId);
     const frameType: FrameSubType = registeredCard?.frameType ?? (type === "monster" ? "normal" : type);
     const spellType = registeredCard?.spellType;
-    return {
+    const baseInstance = {
       instanceId: `${instancePrefix}-${index}`,
       id: numericId,
       type: registeredCard?.type ?? type,
@@ -111,10 +113,54 @@ export function createCardInstances(
       spellType,
       jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
       location,
-      placedThisTurn: false,
-      counters: [],
     };
+    // フィールドゾーンの場合は stateOnField を設定
+    if (isFieldZone(location)) {
+      return {
+        ...baseInstance,
+        stateOnField: createInitialStateOnField(),
+      };
+    }
+    return baseInstance;
   });
+}
+
+/**
+ * Create a field card instance for testing
+ * フィールド上のカードインスタンスを作成するヘルパー関数
+ *
+ * @param options - カードインスタンスの設定
+ * @returns CardInstance with stateOnField
+ */
+export function createFieldCardInstance(options: {
+  instanceId: string;
+  id: number;
+  jaName: string;
+  type: "monster" | "spell" | "trap";
+  frameType: FrameSubType;
+  location: "mainMonsterZone" | "spellTrapZone" | "fieldZone";
+  position?: "faceUp" | "faceDown";
+  battlePosition?: "attack" | "defense";
+  placedThisTurn?: boolean;
+  counters?: readonly CounterState[];
+  spellType?: string;
+}): CardInstance {
+  return {
+    instanceId: options.instanceId,
+    id: options.id,
+    jaName: options.jaName,
+    type: options.type,
+    frameType: options.frameType,
+    location: options.location,
+    spellType: options.spellType as CardInstance["spellType"],
+    stateOnField: {
+      position: options.position ?? "faceUp",
+      battlePosition: options.battlePosition,
+      placedThisTurn: options.placedThisTurn ?? false,
+      counters: options.counters ?? [],
+      activatedEffects: new Set(),
+    },
+  };
 }
 
 /**

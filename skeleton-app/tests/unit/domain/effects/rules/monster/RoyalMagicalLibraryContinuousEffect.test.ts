@@ -15,7 +15,8 @@ import { describe, it, expect } from "vitest";
 import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { getCounterCount } from "$lib/domain/models/Counter";
+import { getCounterCount, type CounterState } from "$lib/domain/models/Counter";
+import { createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
 
 /**
  * Helper function to execute trigger steps and return the final state
@@ -39,18 +40,23 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
   const rule = new RoyalMagicalLibraryContinuousEffect();
 
   // Helper function to create a Royal Magical Library card instance
-  const createLibraryCard = (options: Partial<CardInstance> = {}): CardInstance => ({
-    id: royalMagicalLibraryId,
-    jaName: "王立魔法図書館",
-    type: "monster",
-    frameType: "effect",
-    instanceId: "monster-0",
-    location: "mainMonsterZone",
-    position: "faceUp",
-    placedThisTurn: false,
-    counters: [],
-    ...options,
-  });
+  const createLibraryCard = (
+    options: {
+      position?: "faceUp" | "faceDown";
+      counters?: readonly CounterState[];
+    } = {},
+  ): CardInstance =>
+    createFieldCardInstance({
+      id: royalMagicalLibraryId,
+      jaName: "王立魔法図書館",
+      type: "monster",
+      frameType: "effect",
+      instanceId: "monster-0",
+      location: "mainMonsterZone",
+      position: options.position ?? "faceUp",
+      placedThisTurn: false,
+      counters: options.counters ?? [],
+    });
 
   // Helper function to create a base game state
   const createBaseGameState = (overrides: Partial<GameState> = {}): GameState => ({
@@ -69,7 +75,6 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     result: { isGameOver: false },
     normalSummonLimit: 1,
     normalSummonUsed: 0,
-    activatedIgnitionEffectsThisTurn: new Set(),
     activatedOncePerTurnCards: new Set(),
     pendingEndPhaseEffects: [],
     damageNegation: false,
@@ -168,7 +173,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
 
       // Assert
       const updatedLibrary = newState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(1);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
     it("should accumulate spell counters up to 3", () => {
@@ -193,7 +198,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
 
       // Assert
       const updatedLibrary = newState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(3);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("should not exceed max spell counters (3)", () => {
@@ -218,7 +223,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
 
       // Assert
       const updatedLibrary = newState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(3);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("should not modify other cards in the zone", () => {
@@ -252,7 +257,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
 
       // Assert
       const updatedOther = newState.zones.mainMonsterZone[1];
-      expect(getCounterCount(updatedOther.counters, "spell")).toBe(0);
+      expect(getCounterCount(updatedOther.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("should maintain immutability (not modify original state)", () => {
@@ -274,7 +279,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       executeTriggerSteps(rule, state, libraryCard);
 
       // Assert - original state should be unchanged
-      expect(getCounterCount(state.zones.mainMonsterZone[0].counters, "spell")).toBe(0);
+      expect(getCounterCount(state.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(0);
     });
   });
 
@@ -302,7 +307,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
 
       // Assert - Should cap at 3
       const finalLibrary = state.zones.mainMonsterZone[0];
-      expect(getCounterCount(finalLibrary.counters, "spell")).toBe(3);
+      expect(getCounterCount(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
   });
 });

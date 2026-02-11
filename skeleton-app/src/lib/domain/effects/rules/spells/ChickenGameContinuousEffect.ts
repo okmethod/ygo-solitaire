@@ -13,6 +13,7 @@
 
 import type { GameState } from "$lib/domain/models/GameState";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
+import { isFaceUp } from "$lib/domain/models/Card";
 
 /**
  * ChickenGameContinuousEffect クラス
@@ -44,7 +45,7 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
    */
   canApply(state: GameState): boolean {
     // チキンレースがフィールドに存在するか
-    return state.zones.fieldZone.some((card) => card.id === 67616300 && card.position === "faceUp");
+    return state.zones.fieldZone.some((card) => card.id === 67616300 && isFaceUp(card));
   }
 
   /**

@@ -36,17 +36,22 @@ describe("Counter Accumulation - Royal Magical Library", () => {
   const potOfGreedCardId = 55144522;
 
   // Helper function to create Royal Magical Library card instance
-  const createLibraryCard = (instanceId: string, overrides: Partial<CardInstance> = {}): CardInstance => ({
+  const createLibraryCard = (
+    instanceId: string,
+    overrides: { position?: "faceUp" | "faceDown"; counters?: { type: "spell"; count: number }[] } = {},
+  ): CardInstance => ({
     id: royalMagicalLibraryId,
     jaName: "王立魔法図書館",
     type: "monster",
     frameType: "effect",
     instanceId,
     location: "mainMonsterZone",
-    position: "faceUp",
-    placedThisTurn: false,
-    counters: [],
-    ...overrides,
+    stateOnField: {
+      position: overrides.position ?? "faceUp",
+      placedThisTurn: false,
+      counters: overrides.counters ?? [],
+      activatedEffects: new Set(),
+    },
   });
 
   // Helper function to create Pot of Greed card instance
@@ -58,9 +63,6 @@ describe("Counter Accumulation - Royal Magical Library", () => {
     spellType: "normal",
     instanceId,
     location: "hand",
-    position: "faceDown",
-    placedThisTurn: false,
-    counters: [],
   });
 
   // Helper function to create deck cards
@@ -73,9 +75,6 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       desc: "テスト用カード",
       instanceId: `deck-${i}`,
       location: "deck" as const,
-      position: "faceDown" as const,
-      placedThisTurn: false,
-      counters: [],
     }));
 
   beforeEach(() => {
@@ -127,7 +126,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
 
       // Verify counter was placed on Royal Magical Library
       const updatedLibrary = stateAfterTrigger.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(1);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
     it("Scenario: 魔法を3回発動 → カウンターが3つ置かれる（上限）", () => {
@@ -171,7 +170,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
 
       // Assert: Counter should be at max (3)
       const finalLibrary = currentState.zones.mainMonsterZone[0];
-      expect(getCounterCount(finalLibrary.counters, "spell")).toBe(3);
+      expect(getCounterCount(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("Scenario: カウンターが3つある状態で魔法発動 → カウンターは3つのまま（上限超えない）", () => {
@@ -208,7 +207,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
 
       // Assert: Counter should still be 3 (not exceed max)
       const updatedLibrary = triggerResult.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(3);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("Scenario: 王立魔法図書館が裏側表示の場合 → トリガーステップは追加されない（カウンターは置かれない）", () => {
@@ -242,7 +241,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       // Verify activation succeeds and library remains unchanged
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.counters, "spell")).toBe(0);
+      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("Scenario: 王立魔法図書館がフィールドにいない場合 → トリガーステップは追加されない", () => {
@@ -316,8 +315,8 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const updatedLibrary1 = currentState.zones.mainMonsterZone[0];
       const updatedLibrary2 = currentState.zones.mainMonsterZone[1];
 
-      expect(getCounterCount(updatedLibrary1.counters, "spell")).toBe(1);
-      expect(getCounterCount(updatedLibrary2.counters, "spell")).toBe(1);
+      expect(getCounterCount(updatedLibrary1.stateOnField?.counters ?? [], "spell")).toBe(1);
+      expect(getCounterCount(updatedLibrary2.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
     it("Scenario: 1体がカウンター3つ、もう1体が0個の状態で魔法発動 → 0個の方だけ増える", () => {
@@ -362,8 +361,8 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const updatedLibrary1 = currentState.zones.mainMonsterZone[0];
       const updatedLibrary2 = currentState.zones.mainMonsterZone[1];
 
-      expect(getCounterCount(updatedLibrary1.counters, "spell")).toBe(3);
-      expect(getCounterCount(updatedLibrary2.counters, "spell")).toBe(1);
+      expect(getCounterCount(updatedLibrary1.stateOnField?.counters ?? [], "spell")).toBe(3);
+      expect(getCounterCount(updatedLibrary2.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
   });
 });

@@ -29,11 +29,12 @@ export const addCounterStep = (
   action: (state: GameState) => {
     const targetCard = findCardInstance(state.zones, targetInstanceId);
 
-    if (!targetCard) {
+    if (!targetCard || !targetCard.stateOnField) {
       return successUpdateResult(state, "カードが見つかりません");
     }
 
-    const currentCount = getCounterCount(targetCard.counters, counterType);
+    const currentCounters = targetCard.stateOnField.counters;
+    const currentCount = getCounterCount(currentCounters, counterType);
 
     // 最大数チェック
     if (limit !== undefined && currentCount >= limit) {
@@ -43,8 +44,9 @@ export const addCounterStep = (
     // 上限を超えないように調整
     const actualAmount = limit !== undefined ? Math.min(amount, limit - currentCount) : amount;
 
-    const updatedCounters = updateCounters(targetCard.counters, counterType, actualAmount);
-    const updatedZones = updateCardInPlace(state.zones, targetCard, { counters: updatedCounters });
+    const updatedCounters = updateCounters(currentCounters, counterType, actualAmount);
+    const updatedStateOnField = { ...targetCard.stateOnField, counters: updatedCounters };
+    const updatedZones = updateCardInPlace(state.zones, targetCard, { stateOnField: updatedStateOnField });
 
     return successUpdateResult(
       { ...state, zones: updatedZones },
@@ -62,19 +64,22 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
   action: (state: GameState) => {
     const targetCard = findCardInstance(state.zones, targetInstanceId);
 
-    if (!targetCard) {
+    if (!targetCard || !targetCard.stateOnField) {
       return failureUpdateResult(state, `Target card not found: ${targetInstanceId}`);
     }
 
+    const currentCounters = targetCard.stateOnField.counters;
+    const currentCount = getCounterCount(currentCounters, counterType);
+
     // カウンター数チェック
-    const currentCount = getCounterCount(targetCard.counters, counterType);
     if (currentCount < amount) {
       return failureUpdateResult(state, `Insufficient counters: needed ${amount}, but only ${currentCount} available.`);
     }
 
     // 負のdeltaで削除
-    const updatedCounters = updateCounters(targetCard.counters, counterType, -amount);
-    const updatedZones = updateCardInPlace(state.zones, targetCard, { counters: updatedCounters });
+    const updatedCounters = updateCounters(currentCounters, counterType, -amount);
+    const updatedStateOnField = { ...targetCard.stateOnField, counters: updatedCounters };
+    const updatedZones = updateCardInPlace(state.zones, targetCard, { stateOnField: updatedStateOnField });
 
     return successUpdateResult(
       { ...state, zones: updatedZones },

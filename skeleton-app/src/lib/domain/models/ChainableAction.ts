@@ -51,7 +51,7 @@ export interface ChainableAction {
    * 発動できるかどうかを判定する。
    * - フェイズチェック（メインフェイズのみ等）
    * - コスト支払い可否（LPコスト、手札コスト等）
-   * - 1ターンに1度制限（activatedIgnitionEffectsThisTurnで判定）
+   * - 1ターンに1度制限（sourceInstance.stateOnField.activatedEffectsで判定）
    */
   canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult;
 

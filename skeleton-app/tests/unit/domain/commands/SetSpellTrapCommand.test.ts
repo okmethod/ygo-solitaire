@@ -27,7 +27,6 @@ function createMockGameState(overrides: Partial<GameState> = {}): GameState {
     phase: "Main1",
     turn: 1,
     result: { isGameOver: false },
-    activatedIgnitionEffectsThisTurn: new Set<string>(),
     activatedOncePerTurnCards: new Set<number>(),
     pendingEndPhaseEffects: [],
     damageNegation: false,

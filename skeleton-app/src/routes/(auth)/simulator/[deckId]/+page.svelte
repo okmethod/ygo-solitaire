@@ -20,6 +20,7 @@
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import { getCounterCount } from "$lib/domain/models/Counter";
+  import { isFaceDown } from "$lib/domain/models/Card"; // FIXME: レイヤー間依存違反
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -225,7 +226,7 @@
         return {
           card: displayData,
           instanceId: instance.instanceId,
-          faceDown: instance.position === "faceDown",
+          faceDown: isFaceDown(instance),
         };
       })
       .filter((item) => item !== null);
@@ -248,9 +249,9 @@
           zone[i] = {
             card: displayData,
             instanceId: instance.instanceId,
-            faceDown: instance.position === "faceDown",
-            rotation: instance.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
-            spellCounterCount: getCounterCount(instance.counters, "spell"), // 魔力カウンター数
+            faceDown: isFaceDown(instance),
+            rotation: instance.stateOnField?.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
+            spellCounterCount: getCounterCount(instance.stateOnField?.counters ?? [], "spell"), // 魔力カウンター数
           };
         }
       }
@@ -269,7 +270,7 @@
           zone[i] = {
             card: displayData,
             instanceId: instance.instanceId,
-            faceDown: instance.position === "faceDown",
+            faceDown: isFaceDown(instance),
           };
         }
       }

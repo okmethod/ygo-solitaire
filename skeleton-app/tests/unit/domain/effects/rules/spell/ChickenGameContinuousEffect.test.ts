@@ -17,7 +17,7 @@
 import { describe, it, expect } from "vitest";
 import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameState";
-import type { CardInstance } from "$lib/domain/models/Card";
+import { createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
 
 describe("ChickenGameContinuousEffect", () => {
   const chickenGameId = 67616300;
@@ -52,7 +52,6 @@ describe("ChickenGameContinuousEffect", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -67,7 +66,7 @@ describe("ChickenGameContinuousEffect", () => {
 
     it("should return false when Chicken Game is face-down", () => {
       // Arrange
-      const faceDownCard: CardInstance = {
+      const faceDownCard = createFieldCardInstance({
         id: chickenGameId,
         jaName: "Chicken Game",
         type: "spell",
@@ -75,9 +74,7 @@ describe("ChickenGameContinuousEffect", () => {
         instanceId: "field-0",
         location: "fieldZone",
         position: "faceDown",
-        placedThisTurn: false,
-        counters: [],
-      };
+      });
 
       const state: GameState = {
         zones: {
@@ -95,7 +92,6 @@ describe("ChickenGameContinuousEffect", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -110,7 +106,7 @@ describe("ChickenGameContinuousEffect", () => {
 
     it("should return true when Chicken Game is face-up on field", () => {
       // Arrange
-      const chickenGameCard: CardInstance = {
+      const chickenGameCard = createFieldCardInstance({
         id: chickenGameId,
         jaName: "Chicken Game",
         type: "spell",
@@ -118,9 +114,7 @@ describe("ChickenGameContinuousEffect", () => {
         instanceId: "field-0",
         location: "fieldZone",
         position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
-      };
+      });
 
       const state: GameState = {
         zones: {
@@ -138,7 +132,6 @@ describe("ChickenGameContinuousEffect", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -171,7 +164,6 @@ describe("ChickenGameContinuousEffect", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,

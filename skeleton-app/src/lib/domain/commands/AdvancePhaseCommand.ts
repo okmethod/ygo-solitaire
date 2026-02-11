@@ -11,6 +11,8 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
+import type { Zones } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
 import {
@@ -72,14 +74,15 @@ export class AdvancePhaseCommand implements GameCommand {
     const nextPhase = getNextPhase(state.phase);
     const hasPendingEffects = isEndPhase(nextPhase) && state.pendingEndPhaseEffects.length > 0;
 
+    // エンドフェイズ移行時にフィールドカードの activatedEffects をリセット
+    const updatedZones: Zones = isEndPhase(nextPhase) ? this.resetFieldCardActivatedEffects(state.zones) : state.zones;
+
     // 2. 更新後状態の構築
     const updatedState: GameState = {
       ...state,
+      zones: updatedZones,
       phase: nextPhase,
-      // ターン終了時に「ターン1制限」「名称ターン1制限」をリセット
-      activatedIgnitionEffectsThisTurn: isEndPhase(nextPhase)
-        ? new Set<string>()
-        : state.activatedIgnitionEffectsThisTurn,
+      // ターン終了時に「名称ターン1制限」をリセット
       activatedOncePerTurnCards: isEndPhase(nextPhase) ? new Set<number>() : state.activatedOncePerTurnCards,
       // 保留リストは、エンドフェイズに遷移した時点でクリアする
       pendingEndPhaseEffects: hasPendingEffects ? [] : state.pendingEndPhaseEffects,
@@ -97,5 +100,29 @@ export class AdvancePhaseCommand implements GameCommand {
   /** 次のフェイズ名を取得する */
   getNextPhase(state: GameState): string {
     return getNextPhase(state.phase);
+  }
+
+  /**
+   * フィールドカードの activatedEffects をリセットする
+   * エンドフェイズ移行時に呼び出され、1ターンに1度制限をリセットする
+   */
+  private resetFieldCardActivatedEffects(zones: Zones): Zones {
+    const resetCard = (card: CardInstance): CardInstance => {
+      if (!card.stateOnField) return card;
+      if (card.stateOnField.activatedEffects.size === 0) return card;
+
+      const resetStateOnField: StateOnField = {
+        ...card.stateOnField,
+        activatedEffects: new Set(),
+      };
+      return { ...card, stateOnField: resetStateOnField };
+    };
+
+    return {
+      ...zones,
+      mainMonsterZone: zones.mainMonsterZone.map(resetCard),
+      spellTrapZone: zones.spellTrapZone.map(resetCard),
+      fieldZone: zones.fieldZone.map(resetCard),
+    };
   }
 }

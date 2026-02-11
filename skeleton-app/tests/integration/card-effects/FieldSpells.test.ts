@@ -80,7 +80,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(result.updatedState.zones.hand.length).toBe(0);
       expect(result.updatedState.zones.fieldZone.length).toBe(1);
       expect(result.updatedState.zones.fieldZone[0].id).toBe(chickenGameCardId);
-      expect(result.updatedState.zones.fieldZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.fieldZone[0].stateOnField?.position).toBe("faceUp");
     });
   });
 
@@ -93,8 +93,12 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       frameType: "spell",
       spellType: "field",
       location: "fieldZone",
-      position: "faceUp",
-      placedThisTurn: false,
+      stateOnField: {
+        position: "faceUp",
+        placedThisTurn: false,
+        counters: [],
+        activatedEffects: new Set(),
+      },
     };
 
     it("Scenario: Activate ignition effect → Pay 1000 LP → Draw 1 card", async () => {
@@ -111,7 +115,6 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
           graveyard: [],
           banished: [],
         },
-        activatedIgnitionEffectsThisTurn: new Set<string>(),
       });
 
       // Act: Activate ignition effect via ActivateIgnitionEffectCommand
@@ -120,8 +123,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const commandResult = command.execute(state);
       expect(commandResult.success).toBe(true);
 
-      // コマンド実行時に発動記録が行われる
-      expect(commandResult.updatedState.activatedIgnitionEffectsThisTurn.has("field-0:ignition-67616300-1")).toBe(true);
+      // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
+      const fieldCard = commandResult.updatedState.zones.fieldZone[0];
+      expect(fieldCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
 
       // Execute effect steps
       let currentState = commandResult.updatedState;
@@ -139,6 +143,22 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
     it("Scenario: Cannot activate twice in same turn (once per turn restriction)", () => {
       // Arrange: Effect already activated this turn
+      const chickenGameAlreadyActivated: CardInstance = {
+        instanceId: "field-0",
+        id: chickenGameCardId,
+        jaName: "チキンゲーム",
+        type: "spell",
+        frameType: "spell",
+        spellType: "field",
+        location: "fieldZone",
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(["ignition-67616300-1"]), // Already activated
+        },
+      };
+
       const state = createMockGameState({
         phase: "Main1",
         lp: { player: 8000, opponent: 8000 },
@@ -147,16 +167,15 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [chickenGameOnField],
+          fieldZone: [chickenGameAlreadyActivated],
           graveyard: [],
           banished: [],
         },
-        activatedIgnitionEffectsThisTurn: new Set<string>(["field-0:ignition-67616300-1"]),
       });
 
       // Act: Try to activate ignition effect again
       const ignitionEffect = new ChickenGameIgnitionEffect();
-      const canActivate = ignitionEffect.canActivate(state, chickenGameOnField);
+      const canActivate = ignitionEffect.canActivate(state, chickenGameAlreadyActivated);
 
       // Assert: Cannot activate
       expect(canActivate.isValid).toBe(false);
@@ -176,7 +195,6 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
           graveyard: [],
           banished: [],
         },
-        activatedIgnitionEffectsThisTurn: new Set<string>(),
       });
 
       // Act: Try to activate ignition effect
@@ -189,6 +207,22 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
     it("Scenario: Once per turn restriction resets at End phase", () => {
       // Arrange: Effect activated in Main1, advance to End phase
+      const chickenGameAlreadyActivated: CardInstance = {
+        instanceId: "field-0",
+        id: chickenGameCardId,
+        jaName: "チキンゲーム",
+        type: "spell",
+        frameType: "spell",
+        spellType: "field",
+        location: "fieldZone",
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(["ignition-67616300-1"]), // Already activated
+        },
+      };
+
       const stateAfterActivation = createMockGameState({
         phase: "Main1",
         lp: { player: 7000, opponent: 8000 },
@@ -202,16 +236,14 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
               type: "spell",
               frameType: "spell",
               location: "hand",
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [chickenGameOnField],
+          fieldZone: [chickenGameAlreadyActivated],
           graveyard: [],
           banished: [],
         },
-        activatedIgnitionEffectsThisTurn: new Set<string>(["field-0:chicken-game-ignition"]),
       });
 
       // Act: Advance from Main1 to End phase (MVP scope: no Battle Phase)
@@ -220,8 +252,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(endPhaseResult.success).toBe(true);
       expect(endPhaseResult.updatedState.phase).toBe("End");
 
-      // Assert: activatedIgnitionEffectsThisTurn is cleared
-      expect(endPhaseResult.updatedState.activatedIgnitionEffectsThisTurn.size).toBe(0);
+      // Assert: stateOnField.activatedEffects is cleared at end phase
+      const fieldCard = endPhaseResult.updatedState.zones.fieldZone[0];
+      expect(fieldCard.stateOnField?.activatedEffects.size).toBe(0);
     });
   });
 
@@ -283,8 +316,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const ignitionResult = ignitionCommand.execute(stateAfterActivation);
       expect(ignitionResult.success).toBe(true);
 
-      // コマンド実行時に発動記録が行われる
-      expect(ignitionResult.updatedState.activatedIgnitionEffectsThisTurn.size).toBe(1);
+      // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
+      const fieldCardAfterIgnition = ignitionResult.updatedState.zones.fieldZone[0];
+      expect(fieldCardAfterIgnition.stateOnField?.activatedEffects.size).toBe(1);
 
       let currentState: GameState = ignitionResult.updatedState;
       for (const step of ignitionResult.effectSteps!) {
@@ -300,11 +334,12 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(finalState.zones.fieldZone.length).toBe(1); // Chicken Game still on field
       expect(finalState.zones.hand.length).toBe(1); // Draw 1 card
       expect(finalState.zones.deck.length).toBe(2); // 3 - 1 = 2
-      expect(finalState.activatedIgnitionEffectsThisTurn.size).toBe(1);
+      const finalFieldCard = finalState.zones.fieldZone[0];
+      expect(finalFieldCard.stateOnField?.activatedEffects.size).toBe(1);
 
       // Step 3: Try to activate again (should fail)
       const ignitionEffect2 = new ChickenGameIgnitionEffect();
-      expect(ignitionEffect2.canActivate(finalState, fieldCard).isValid).toBe(false);
+      expect(ignitionEffect2.canActivate(finalState, finalFieldCard).isValid).toBe(false);
     });
   });
 });

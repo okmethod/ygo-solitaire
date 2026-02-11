@@ -64,17 +64,6 @@ export interface GameState {
   readonly activatedOncePerTurnCards: ReadonlySet<number>;
 
   /**
-   * カード名指定のない「1 ターンに 1 度」制限の発動管理
-   * - `${cardInstanceId}:${effectId}` をキーとして管理
-   * FIXME: これだと、一度引っ込んだ後再度フィールドに出た場合にリセットされない。インスタンス側が持つべきステートな気がする。
-   * - いずれか1つしか発動できない系は、発動できなくなった効果を管理する
-   * - 例: チキンレースの起動効果、等
-   * NOTE: フラグ名変更は将来検討（現状は互換性優先で維持）
-   * 参考: https://yugioh.fandom.com/wiki/Once_per_turn#Only_once_per_turn
-   */
-  readonly activatedIgnitionEffectsThisTurn: ReadonlySet<string>;
-
-  /**
    * エンドフェイズに実行される遅延効果
    * 例: 無の煉獄、命削りの宝札、等
    */
@@ -145,7 +134,6 @@ export function createInitialGameState(
     },
     normalSummonLimit: 1,
     normalSummonUsed: 0,
-    activatedIgnitionEffectsThisTurn: new Set<string>(),
     activatedOncePerTurnCards: new Set<number>(),
     pendingEndPhaseEffects: [],
     damageNegation: false,

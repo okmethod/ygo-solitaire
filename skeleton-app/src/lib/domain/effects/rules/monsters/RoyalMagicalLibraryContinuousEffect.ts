@@ -15,6 +15,7 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 import type { CardInstance } from "$lib/domain/models/Card";
+import { isFaceUp } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { addCounterStep } from "$lib/domain/effects/steps/counters";
 
@@ -58,7 +59,7 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
   canApply(state: GameState): boolean {
     // モンスターゾーンに王立魔法図書館が表側表示で存在するか
     const libraryOnField = state.zones.mainMonsterZone.some(
-      (card) => card.id === ROYAL_MAGICAL_LIBRARY_ID && card.position === "faceUp",
+      (card) => card.id === ROYAL_MAGICAL_LIBRARY_ID && isFaceUp(card),
     );
 
     return libraryOnField;

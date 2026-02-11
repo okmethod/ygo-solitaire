@@ -13,10 +13,10 @@ import type { GameState } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
-import { findCardInstance } from "$lib/domain/models/Zone";
+import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/Card";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
@@ -117,12 +117,21 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance)!;
 
     // 2. 更新後状態の構築
-    const updatedActivatedEffects = new Set(state.activatedIgnitionEffectsThisTurn);
-    updatedActivatedEffects.add(`${cardInstance.instanceId}:${activatableEffect.effectId}`);
-    // FIXME: 発動済み効果の記録先と、効果IDの管理方法を見直す
+    const currentStateOnField = cardInstance.stateOnField!;
+    const updatedActivatedEffects = new Set(currentStateOnField.activatedEffects);
+    updatedActivatedEffects.add(activatableEffect.effectId);
+    const updatedStateOnField: StateOnField = {
+      ...currentStateOnField,
+      activatedEffects: updatedActivatedEffects, // 発動済み効果IDを記録
+    };
+
+    const updatedZones = updateCardInPlace(state.zones, cardInstance, {
+      stateOnField: updatedStateOnField,
+    });
+
     const updatedState: GameState = {
       ...state,
-      activatedIgnitionEffectsThisTurn: updatedActivatedEffects, // 発動済み起動効果IDを記録
+      zones: updatedZones,
     };
 
     // 3. 戻り値の構築

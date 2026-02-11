@@ -28,7 +28,6 @@ describe("ActivateIgnitionEffectCommand", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
-            placedThisTurn: false,
           },
         ],
         hand: [],
@@ -43,8 +42,12 @@ describe("ActivateIgnitionEffectCommand", () => {
             frameType: "spell" as const,
             spellType: "field" as const,
             location: "fieldZone" as const,
-            position: "faceUp" as const,
-            placedThisTurn: false,
+            stateOnField: {
+              position: "faceUp" as const,
+              placedThisTurn: false,
+              counters: [],
+              activatedEffects: new Set(),
+            },
           },
         ],
         graveyard: [],
@@ -84,8 +87,12 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
-              position: "faceDown" as const,
-              placedThisTurn: false,
+              stateOnField: {
+                position: "faceDown" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           graveyard: [],
@@ -113,7 +120,6 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -152,8 +158,12 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
-              position: "faceUp" as const,
-              placedThisTurn: false,
+              stateOnField: {
+                position: "faceUp" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           graveyard: [],
@@ -183,8 +193,12 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
-              position: "faceUp" as const,
-              placedThisTurn: false,
+              stateOnField: {
+                position: "faceUp" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           graveyard: [],
@@ -237,8 +251,12 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
-              position: "faceUp" as const,
-              placedThisTurn: false,
+              stateOnField: {
+                position: "faceUp" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           graveyard: [],
@@ -275,15 +293,15 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(result.effectSteps!.length).toBe(3);
     });
 
-    it("should record activation in activatedIgnitionEffectsThisTurn", () => {
+    it("should record activation in stateOnField.activatedEffects", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
-      // コマンド実行時に発動記録が行われる
-      const effectKey = `${chickenGameInstanceId}:ignition-67616300-1`;
-      expect(result.updatedState.activatedIgnitionEffectsThisTurn.has(effectKey)).toBe(true);
+      // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
+      const chickenGameCard = result.updatedState.zones.fieldZone[0];
+      expect(chickenGameCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
     });
   });
 
@@ -318,8 +336,6 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
-              counters: [],
             },
             {
               instanceId: "deck-1",
@@ -328,8 +344,6 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
-              counters: [],
             },
           ],
           hand: [],
@@ -341,10 +355,13 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "monster" as const,
               frameType: "effect" as const,
               location: "mainMonsterZone" as const,
-              position: "faceUp" as const,
-              battlePosition: "attack" as const,
-              placedThisTurn: false,
-              counters: [{ type: "spell", count: 3 }],
+              stateOnField: {
+                position: "faceUp" as const,
+                battlePosition: "attack" as const,
+                placedThisTurn: false,
+                counters: [{ type: "spell", count: 3 }],
+                activatedEffects: new Set(),
+              },
             },
           ],
           spellTrapZone: [],
@@ -377,10 +394,13 @@ describe("ActivateIgnitionEffectCommand", () => {
                 type: "monster" as const,
                 frameType: "effect" as const,
                 location: "mainMonsterZone" as const,
-                position: "faceUp" as const,
-                battlePosition: "defense" as const,
-                placedThisTurn: false,
-                counters: [{ type: "spell", count: 3 }],
+                stateOnField: {
+                  position: "faceUp" as const,
+                  battlePosition: "defense" as const,
+                  placedThisTurn: false,
+                  counters: [{ type: "spell", count: 3 }],
+                  activatedEffects: new Set(),
+                },
               },
             ],
             spellTrapZone: [],
@@ -399,11 +419,9 @@ describe("ActivateIgnitionEffectCommand", () => {
       it("should return true even after previous activation (no once-per-turn restriction)", () => {
         // Royal Magical Library has no once-per-turn restriction
         // In the real game, the cost (3 Spell Counters) limits activations
-        const effectKey = `${royalLibraryInstanceId}:royal-magical-library-ignition`;
         const activatedState = createMockGameState({
           phase: "Main1",
           lp: { player: 8000, opponent: 8000 },
-          activatedIgnitionEffectsThisTurn: new Set([effectKey]),
           zones: libraryState.zones,
         });
 
@@ -481,8 +499,6 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
-              counters: [],
             },
           ],
           hand: [],
@@ -494,10 +510,13 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "monster" as const,
               frameType: "effect" as const,
               location: "mainMonsterZone" as const,
-              position: "faceUp" as const,
-              battlePosition: "attack" as const,
-              placedThisTurn: false,
-              counters: [{ type: "spell", count: 3 }],
+              stateOnField: {
+                position: "faceUp" as const,
+                battlePosition: "attack" as const,
+                placedThisTurn: false,
+                counters: [{ type: "spell", count: 3 }],
+                activatedEffects: new Set(),
+              },
             },
           ],
           spellTrapZone: [],
@@ -510,9 +529,12 @@ describe("ActivateIgnitionEffectCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
-              position: "faceUp" as const,
-              placedThisTurn: false,
-              counters: [],
+              stateOnField: {
+                position: "faceUp" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           graveyard: [],

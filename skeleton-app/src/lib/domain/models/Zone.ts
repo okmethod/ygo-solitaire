@@ -11,9 +11,17 @@
  * @see {@link docs/domain/overview.md}
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
-import { updatedCardInstance } from "$lib/domain/models/Card";
+import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
+import { updatedCardInstance, createInitialStateOnField } from "$lib/domain/models/Card";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
+
+/** フィールドゾーン名の配列 */
+const FIELD_ZONES: readonly ZoneName[] = ["mainMonsterZone", "spellTrapZone", "fieldZone"] as const;
+
+/** 指定ゾーンがフィールドかどうか */
+export const isFieldZone = (zoneName: ZoneName): boolean => {
+  return FIELD_ZONES.includes(zoneName);
+};
 
 /** カードが配置される全ての領域 */
 export interface Zones {
@@ -47,21 +55,38 @@ export function findCardInstance(zones: Zones, instanceId: string) {
   return allZones.find((card) => card.instanceId === instanceId);
 }
 
-/** カードの移動および表示形式を変更を行う（汎用）*/
+/**
+ * カードの移動および表示形式を変更を行う（汎用）
+ *
+ * フィールドへの移動時: stateOnField が未設定なら初期化
+ * フィールドから離脱時: stateOnField をクリア
+ */
 export function moveCard(
   currentZones: Zones,
   card: CardInstance,
-  to: keyof Zones,
-  updates?: Partial<CardInstance>,
+  to: ZoneName,
+  updates?: Partial<CardInstance> & { stateOnField?: StateOnField },
 ): Zones {
   const from = card.location;
   const sourceZone = currentZones[from];
   const cardIndex = sourceZone.findIndex((c) => c.instanceId === card.instanceId);
 
+  // stateOnField の処理
+  let stateOnField: StateOnField | undefined = updates?.stateOnField ?? card.stateOnField;
+
+  if (isFieldZone(to) && !isFieldZone(from)) {
+    // フィールドへ移動: stateOnField を初期化（updates で指定されていなければ）
+    stateOnField = stateOnField ?? createInitialStateOnField();
+  } else if (!isFieldZone(to) && isFieldZone(from)) {
+    // フィールドから離脱: stateOnField をクリア
+    stateOnField = undefined;
+  }
+
   const updatedCard: CardInstance = {
     ...card,
     ...updates,
-    location: to, // location は常に上書き
+    location: to,
+    stateOnField,
   };
 
   return {

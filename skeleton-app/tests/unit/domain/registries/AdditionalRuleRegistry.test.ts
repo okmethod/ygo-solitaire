@@ -226,9 +226,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         instanceId: "fieldZone-0",
         location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -247,7 +250,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -276,9 +278,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         instanceId: "fieldZone-0",
         location: "fieldZone",
-        position: "faceDown",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceDown",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -297,7 +302,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -330,9 +334,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         instanceId: "fieldZone-0",
         location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -351,7 +358,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -381,9 +387,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         instanceId: "fieldZone-0",
         location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -403,7 +412,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -438,9 +446,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         instanceId: "fieldZone-0",
         location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const card2: CardInstance = {
@@ -450,9 +461,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "spell",
         instanceId: "fieldZone-1",
         location: "fieldZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -472,7 +486,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -615,9 +628,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -637,7 +653,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -666,9 +681,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -688,7 +706,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -715,9 +732,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceDown",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceDown",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -737,7 +757,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -764,9 +783,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const monsterCard2: CardInstance = {
@@ -776,9 +798,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-1",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -798,7 +823,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -889,9 +913,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -911,7 +938,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -941,9 +967,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -963,7 +992,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,
@@ -993,9 +1021,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const monsterCard2: CardInstance = {
@@ -1005,9 +1036,12 @@ describe("AdditionalRuleRegistry", () => {
         frameType: "effect",
         instanceId: "mainMonsterZone-1",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
+        stateOnField: {
+          position: "faceUp",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
 
       const state: GameState = {
@@ -1027,7 +1061,6 @@ describe("AdditionalRuleRegistry", () => {
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedIgnitionEffectsThisTurn: new Set(),
         activatedOncePerTurnCards: new Set(),
         pendingEndPhaseEffects: [],
         damageNegation: false,

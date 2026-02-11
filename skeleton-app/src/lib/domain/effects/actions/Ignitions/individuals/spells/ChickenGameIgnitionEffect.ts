@@ -46,8 +46,7 @@ export class ChickenGameIgnitionEffect extends BaseIgnitionEffect {
     }
 
     // 2. このターンにこの効果を発動していないこと（1ターンに1度制限）
-    const effectKey = `${sourceInstance.instanceId}:${this.effectId}`;
-    if (state.activatedIgnitionEffectsThisTurn.has(effectKey)) {
+    if (sourceInstance.stateOnField?.activatedEffects?.has(this.effectId)) {
       return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
     }
 

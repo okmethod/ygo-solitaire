@@ -395,7 +395,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
       expect(result.updatedState.zones.graveyard.length).toBe(0);
-      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
     });
   });
 
@@ -414,7 +414,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             },
             {
               instanceId: "deck-1",
@@ -423,7 +422,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             },
           ],
           hand: [],
@@ -437,8 +435,12 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "normal" as const,
               location: "spellTrapZone" as const,
-              position: "faceDown" as const,
-              placedThisTurn: false,
+              stateOnField: {
+                position: "faceDown" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           fieldZone: [],
@@ -454,7 +456,7 @@ describe("ActivateSpellCommand", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
-      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
     });
 
     it("should allow activating field spell from fieldZone", () => {
@@ -475,8 +477,12 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "fieldZone" as const,
-              position: "faceDown" as const,
-              placedThisTurn: false,
+              stateOnField: {
+                position: "faceDown" as const,
+                placedThisTurn: false,
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           graveyard: [],
@@ -491,7 +497,7 @@ describe("ActivateSpellCommand", () => {
       // Assert: Field spell should be flipped face-up and stay in fieldZone
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.fieldZone.length).toBe(1);
-      expect(result.updatedState.zones.fieldZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.fieldZone[0].stateOnField?.position).toBe("faceUp");
       expect(result.updatedState.zones.fieldZone[0].instanceId).toBe("set-field-spell-1");
       // Chicken Game has ignition effect, so effectSteps may be empty if no choice is made
       expect(result.effectSteps).toBeDefined();
@@ -514,8 +520,12 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "quick-play" as const,
               location: "spellTrapZone" as const,
-              position: "faceDown" as const,
-              placedThisTurn: true, // Set this turn - should be blocked
+              stateOnField: {
+                position: "faceDown" as const,
+                placedThisTurn: true, // Set this turn - should be blocked
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           fieldZone: [],
@@ -551,8 +561,12 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "quick-play" as const,
               location: "spellTrapZone" as const,
-              position: "faceDown" as const,
-              placedThisTurn: false, // NOT set this turn - should be allowed
+              stateOnField: {
+                position: "faceDown" as const,
+                placedThisTurn: false, // NOT set this turn - should be allowed
+                counters: [],
+                activatedEffects: new Set(),
+              },
             },
           ],
           fieldZone: [],
@@ -571,7 +585,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.effectSteps).toHaveLength(0);
       // Game state: card moved to face-up position
       expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
-      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceUp");
+      expect(result.updatedState.zones.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
     });
   });
 });
