@@ -102,8 +102,12 @@ export class SetSpellTrapCommand implements GameCommand {
   // セットする魔法・罠カードを適切なゾーンに裏向きで配置する
   private moveSetSpellTrapCard(zones: Zones, cardInstance: CardInstance): Zones {
     const setCardState: Partial<CardInstance> = {
-      position: "faceDown",
-      placedThisTurn: true,
+      stateOnField: {
+        position: "faceDown",
+        placedThisTurn: true,
+        counters: [],
+        activatedEffects: new Set<string>(),
+      },
     };
 
     // フィールド魔法カードの場合
