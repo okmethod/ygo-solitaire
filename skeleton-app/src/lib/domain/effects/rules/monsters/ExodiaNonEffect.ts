@@ -9,7 +9,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
+import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 
 /**
  * ExodiaNonEffect - エクゾディアの特殊勝利条件

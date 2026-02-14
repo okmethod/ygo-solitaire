@@ -18,7 +18,7 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ChainableAction } from "$lib/domain/models/ChainableAction";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import {
   successValidationResult,

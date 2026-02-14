@@ -9,7 +9,7 @@
  * - Map による O(1) 高速ルックアップ
  */
 
-import type { ChainableAction } from "$lib/domain/models/ChainableAction";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 
 /**
  * 1つのカードが持つ効果群を表現するインターフェース

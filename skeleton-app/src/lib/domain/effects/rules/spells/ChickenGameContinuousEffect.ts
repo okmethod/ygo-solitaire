@@ -12,7 +12,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
+import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 import { isFaceUp } from "$lib/domain/models/CardOld";
 
 /**

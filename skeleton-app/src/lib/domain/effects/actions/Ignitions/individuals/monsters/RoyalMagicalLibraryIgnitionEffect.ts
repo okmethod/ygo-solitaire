@@ -20,7 +20,7 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { BaseIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/BaseIgnitionEffect";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { removeCounterStep } from "$lib/domain/effects/steps/counters";
-import { getCounterCount } from "$lib/domain/models/Counter";
+import { Card } from "$lib/domain/models/Card";
 import {
   successValidationResult,
   failureValidationResult,
@@ -45,7 +45,7 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
   protected individualConditions(_state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. 魔力カウンターが3つ以上であること
     const counters = sourceInstance.stateOnField?.counters ?? [];
-    const spellCounterCount = getCounterCount(counters, "spell");
+    const spellCounterCount = Card.Counter.getCounterCount(counters, "spell");
     if (spellCounterCount < REQUIRED_SPELL_COUNTERS) {
       return failureValidationResult(ValidationErrorCode.INSUFFICIENT_COUNTERS);
     }

@@ -18,8 +18,8 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
-import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
-import type { TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
+import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";

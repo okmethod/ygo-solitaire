@@ -5,7 +5,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { TriggerEvent } from "$lib/domain/models/RuleContext";
+import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 

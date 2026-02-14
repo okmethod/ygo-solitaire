@@ -8,10 +8,22 @@
  * @see {@link docs/domain/overview.md}
  */
 
-export type { EventType, EventContext, GameEvent } from "./GameEvent";
+export type { EventType, EventContext, GameEvent, TriggerEvent } from "./GameEvent";
+export type { TimeSnapshot, EventTimeline } from "./EventTimeline";
 export type { ValidationErrorCode, ValidationResult } from "./UpdateValidation";
 export type { GameStateUpdateResult } from "./GameStateUpdate";
 export type { NotificationLevel, InteractionConfig, CardSelectionConfig, AtomicStep } from "./AtomicStep";
+
+export {
+  createEmptyTimeline,
+  createEmptySnapshot,
+  recordEvent,
+  advanceTime,
+  hasCurrentEvents,
+  getCurrentEvents,
+  hasEventOfType,
+  clearHistory,
+} from "./EventTimeline";
 
 import * as ValidationResultFuncs from "./UpdateValidation";
 import * as GameStateUpdateFuncs from "./GameStateUpdate";

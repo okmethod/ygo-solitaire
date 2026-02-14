@@ -10,8 +10,8 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { CounterType } from "$lib/domain/models/Counter";
-import { updateCounters, getCounterCount } from "$lib/domain/models/Counter";
+import type { CounterType } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
 
@@ -34,7 +34,7 @@ export const addCounterStep = (
     }
 
     const currentCounters = targetCard.stateOnField.counters;
-    const currentCount = getCounterCount(currentCounters, counterType);
+    const currentCount = Card.Counter.getCounterCount(currentCounters, counterType);
 
     // 最大数チェック
     if (limit !== undefined && currentCount >= limit) {
@@ -44,7 +44,7 @@ export const addCounterStep = (
     // 上限を超えないように調整
     const actualAmount = limit !== undefined ? Math.min(amount, limit - currentCount) : amount;
 
-    const updatedCounters = updateCounters(currentCounters, counterType, actualAmount);
+    const updatedCounters = Card.Counter.updatedCounters(currentCounters, counterType, actualAmount);
     const updatedStateOnField = { ...targetCard.stateOnField, counters: updatedCounters };
     const updatedZones = updateCardInPlace(state.zones, targetCard, { stateOnField: updatedStateOnField });
 
@@ -69,7 +69,7 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
     }
 
     const currentCounters = targetCard.stateOnField.counters;
-    const currentCount = getCounterCount(currentCounters, counterType);
+    const currentCount = Card.Counter.getCounterCount(currentCounters, counterType);
 
     // カウンター数チェック
     if (currentCount < amount) {
@@ -77,7 +77,7 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
     }
 
     // 負のdeltaで削除
-    const updatedCounters = updateCounters(currentCounters, counterType, -amount);
+    const updatedCounters = Card.Counter.updatedCounters(currentCounters, counterType, -amount);
     const updatedStateOnField = { ...targetCard.stateOnField, counters: updatedCounters };
     const updatedZones = updateCardInPlace(state.zones, targetCard, { stateOnField: updatedStateOnField });
 

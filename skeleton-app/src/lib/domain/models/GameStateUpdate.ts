@@ -7,7 +7,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameEvent } from "$lib/domain/models/EventTimeline";
+import type { GameEvent } from "$lib/domain/models/GameProcessing";
 
 /**
  * ゲーム状態更新結果の共通インターフェース

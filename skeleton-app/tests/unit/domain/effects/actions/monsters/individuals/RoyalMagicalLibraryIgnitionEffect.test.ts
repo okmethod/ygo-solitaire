@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState, createFieldCardInstance } from "../../../../../../__testUtils__/gameStateFactory";
-import { getCounterCount } from "$lib/domain/models/Counter";
+import { Card } from "$lib/domain/models/Card";
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 
@@ -215,7 +215,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
   });
 
@@ -258,7 +258,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       // Verify counters removed after activation
       const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(Card.Counter.getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
 
       // Execute resolution steps
       const resolutionSteps = effect.createResolutionSteps(currentState, sourceInstance);
@@ -333,7 +333,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("should work with more than 3 counters", () => {
@@ -365,7 +365,7 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
       expect(result.success).toBe(true);
       const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(2); // 5 - 3 = 2
+      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(2); // 5 - 3 = 2
     });
   });
 });

@@ -10,7 +10,7 @@
  */
 
 import type { ZoneName } from "$lib/domain/models/Zone";
-import type { CounterState } from "$lib/domain/models/Counter";
+import type { CounterState } from "$lib/domain/models/Card";
 
 /** カードタイプ */
 export type CardType = "monster" | "spell" | "trap";

@@ -138,8 +138,8 @@ import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
-import type { GameEvent, EventTimeline } from "$lib/domain/models/EventTimeline";
-import { createEmptyTimeline, recordEvent } from "$lib/domain/models/EventTimeline";
+import type { GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
+import { createEmptyTimeline, recordEvent } from "$lib/domain/models/GameProcessing";
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 
 // 通知ハンドラのインターフェース

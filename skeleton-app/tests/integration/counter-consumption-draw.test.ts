@@ -15,7 +15,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
-import { getCounterCount } from "$lib/domain/models/Counter";
+import { Card } from "$lib/domain/models/Card";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { GameState } from "$lib/domain/models/GameStateOld";
 
@@ -89,7 +89,7 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
 
       // Assert: Counters removed
       const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(Card.Counter.getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
 
       // Act: Execute resolution steps (draw)
       const resolutionSteps = effect.createResolutionSteps(currentState, libraryCard);
@@ -178,7 +178,7 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
 
       // Assert: 5 - 3 = 2 counters remaining
       const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(2);
+      expect(Card.Counter.getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(2);
     });
 
     it("Scenario: 起動効果は1ターンに複数回発動可能（カウンターがあれば）", () => {
@@ -217,7 +217,9 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // After first activation: 6 - 3 = 3 counters, 1 card drawn
-      expect(getCounterCount(currentState.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(3);
+      expect(
+        Card.Counter.getCounterCount(currentState.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell"),
+      ).toBe(3);
       expect(currentState.zones.hand).toHaveLength(1);
 
       // Second activation should be possible
@@ -239,7 +241,9 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // After second activation: 3 - 3 = 0 counters, 2 cards drawn
-      expect(getCounterCount(currentState.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(
+        Card.Counter.getCounterCount(currentState.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell"),
+      ).toBe(0);
       expect(currentState.zones.hand).toHaveLength(2);
 
       // Third activation should NOT be possible (no counters left)
