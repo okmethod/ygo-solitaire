@@ -134,7 +134,7 @@
 
 import { writable, get as getStoreValue } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";

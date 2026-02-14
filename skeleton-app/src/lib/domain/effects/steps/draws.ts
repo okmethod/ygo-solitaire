@@ -8,7 +8,7 @@
  * @module domain/effects/steps/draws
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { drawCards } from "$lib/domain/models/Zone";

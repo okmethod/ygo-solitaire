@@ -8,7 +8,7 @@
  * @module domain/effects/rules/monsters/ExodiaNonEffect
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 
 /**

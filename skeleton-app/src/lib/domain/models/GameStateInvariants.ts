@@ -6,7 +6,7 @@
  * TODO: 現状未使用のため、GameState変更の際にチェックするようにする
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GamePhase } from "$lib/domain/models/Phase";
 
 /** 整合性チェック結果 */

@@ -13,8 +13,8 @@
 
 import { describe, it, expect } from "vitest";
 import { FieldSpellAction } from "$lib/domain/effects/actions/activations/FieldSpellAction";
-import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
-import type { GameState } from "$lib/domain/models/GameState";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";

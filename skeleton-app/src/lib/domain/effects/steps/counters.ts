@@ -8,7 +8,7 @@
  * @module domain/effects/steps/counters
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CounterType } from "$lib/domain/models/Counter";
 import { updateCounters, getCounterCount } from "$lib/domain/models/Counter";

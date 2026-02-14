@@ -13,7 +13,7 @@ import type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/
 import type { CardInstance } from "$lib/domain/models/Card";
 
 /** Domain 型の再エクスポート */
-export type { GameState } from "$lib/domain/models/GameState";
+export type { GameState } from "$lib/domain/models/GameStateOld";
 export type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
 
 /**

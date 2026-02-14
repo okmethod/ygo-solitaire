@@ -17,7 +17,7 @@ import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/I
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
 import { getCounterCount } from "$lib/domain/models/Counter";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 
 describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () => {
   const royalMagicalLibraryId = 70791313;

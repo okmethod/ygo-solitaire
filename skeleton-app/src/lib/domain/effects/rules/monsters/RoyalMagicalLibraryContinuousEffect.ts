@@ -11,7 +11,7 @@
  * @module domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 import type { CardInstance } from "$lib/domain/models/Card";

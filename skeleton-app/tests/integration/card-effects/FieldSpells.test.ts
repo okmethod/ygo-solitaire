@@ -31,7 +31,7 @@ import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
 

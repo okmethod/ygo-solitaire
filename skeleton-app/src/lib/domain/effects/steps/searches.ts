@@ -9,7 +9,7 @@
  * @module domain/effects/steps/searches
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";

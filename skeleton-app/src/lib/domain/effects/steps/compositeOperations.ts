@@ -7,7 +7,7 @@
  * @module domain/effects/steps/compositeOperations
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { shuffleDeck, moveCard, drawCards, findCardInstance } from "$lib/domain/models/Zone";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";

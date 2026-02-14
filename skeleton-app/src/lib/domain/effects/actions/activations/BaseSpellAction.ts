@@ -16,7 +16,7 @@
  * @module domain/effects/actions/spells/BaseSpellAction
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";

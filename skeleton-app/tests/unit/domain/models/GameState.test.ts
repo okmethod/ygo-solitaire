@@ -9,8 +9,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameState";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
+import { createInitialGameState } from "$lib/domain/models/GameStateOld";
 import { findCardInstance } from "$lib/domain/models/Zone";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */

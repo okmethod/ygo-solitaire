@@ -4,7 +4,7 @@
  * @module domain/rules/SummonRule
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { BattlePosition } from "$lib/domain/models/Card";
 import {

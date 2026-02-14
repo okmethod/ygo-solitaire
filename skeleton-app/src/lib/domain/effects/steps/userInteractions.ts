@@ -8,7 +8,7 @@
  * @module domain/effects/steps/interaction
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance } from "$lib/domain/models/Card";

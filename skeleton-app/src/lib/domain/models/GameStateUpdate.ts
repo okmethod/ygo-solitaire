@@ -5,7 +5,7 @@
  * @see {@link docs/domain/overview.md}
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameEvent } from "$lib/domain/models/EventTimeline";
 

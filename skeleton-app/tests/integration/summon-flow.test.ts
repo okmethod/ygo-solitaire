@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import type { GameState } from "$lib/domain/models/GameState";
-import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
+import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";

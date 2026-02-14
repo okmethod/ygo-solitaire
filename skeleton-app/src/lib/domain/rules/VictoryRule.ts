@@ -6,7 +6,7 @@
  * @see {@link docs/domain/rules/victory-conditions.md}
  */
 
-import type { GameState, GameResult } from "../models/GameState";
+import type { GameState, GameResult } from "../models/GameStateOld";
 import { ExodiaNonEffect } from "../effects/rules/monsters/ExodiaNonEffect";
 
 /**

@@ -12,7 +12,7 @@
 
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
 import type { TriggerEvent } from "$lib/domain/models/RuleContext";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { isFaceUp } from "$lib/domain/models/Card";

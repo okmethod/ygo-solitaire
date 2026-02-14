@@ -9,7 +9,7 @@
  * @module application/GameFacade
  */
 
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";

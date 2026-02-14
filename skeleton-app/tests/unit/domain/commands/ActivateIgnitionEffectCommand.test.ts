@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
 
 initializeChainableActionRegistry();

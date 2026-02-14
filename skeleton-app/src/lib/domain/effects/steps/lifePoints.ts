@@ -10,7 +10,7 @@
  * @module domain/effects/steps/lifePoints
  */
 
-import type { GameState, PlayerType } from "$lib/domain/models/GameState";
+import type { GameState, PlayerType } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 

@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState, createFieldCardInstance } from "../../../../../../__testUtils__/gameStateFactory";
 import { getCounterCount } from "$lib/domain/models/Counter";
-import type { GameState } from "$lib/domain/models/GameState";
+import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/Card";
 
 describe("RoyalMagicalLibraryIgnitionEffect", () => {

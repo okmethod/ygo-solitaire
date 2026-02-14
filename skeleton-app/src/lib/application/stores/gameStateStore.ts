@@ -13,9 +13,9 @@
  */
 
 import { writable } from "svelte/store";
-import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
 import type { DeckRecipe } from "$lib/application/types/deck";
-import { createInitialGameState } from "$lib/domain/models/GameState";
+import { createInitialGameState } from "$lib/domain/models/GameStateOld";
 import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
 
 // 空の初期GameStateを生成する
