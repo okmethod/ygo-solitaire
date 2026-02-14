@@ -46,9 +46,12 @@ export const successUpdateResult = (
     GameState.assert(updatedState);
   }
 
+  // 勝利条件判定
+  const checkedState = GameState.checkVictory(updatedState);
+
   return {
     success: true,
-    updatedState,
+    updatedState: checkedState,
     message,
     emittedEvents,
   };

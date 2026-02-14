@@ -16,8 +16,9 @@ export type { GamePhase } from "./Phase";
 export type { GameResult } from "./GameResult";
 export type { CardSpace } from "./CardSpace";
 
-import * as GameStateFuncs from "./GameSnapshot";
+import * as GameSnapshotFuncs from "./GameSnapshot";
 import * as GameStateConsistencyFuncs from "./GameStateConsistency";
+import * as GameStateVictoryFuncs from "./VictoryCondition";
 import * as PhaseFuncs from "./Phase";
 import * as CardSpaceFuncs from "./CardSpace";
 
@@ -26,8 +27,9 @@ import * as CardSpaceFuncs from "./CardSpace";
  * ゲーム状態に関する純粋関数（ロジック）を階層的に集約する。
  */
 export const GameState = {
-  initialize: GameStateFuncs.createInitialGameSnapshot,
+  initialize: GameSnapshotFuncs.createInitialGameSnapshot,
   assert: GameStateConsistencyFuncs.assertValidGameState,
+  checkVictory: GameStateVictoryFuncs.checkedVictoryState,
 
   Phase: {
     displayName: PhaseFuncs.getPhaseDisplayName,
