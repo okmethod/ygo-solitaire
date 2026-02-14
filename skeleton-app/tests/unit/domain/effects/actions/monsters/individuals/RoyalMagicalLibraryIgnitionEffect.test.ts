@@ -12,7 +12,7 @@ import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/I
 import { createMockGameState, createFieldCardInstance } from "../../../../../../__testUtils__/gameStateFactory";
 import { getCounterCount } from "$lib/domain/models/Counter";
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 
 describe("RoyalMagicalLibraryIgnitionEffect", () => {
   let effect: RoyalMagicalLibraryIgnitionEffect;

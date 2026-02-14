@@ -16,7 +16,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
 import { getCounterCount } from "$lib/domain/models/Counter";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { GameState } from "$lib/domain/models/GameStateOld";
 
 describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () => {

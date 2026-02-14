@@ -14,7 +14,7 @@
 import { describe, it, expect } from "vitest";
 import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import { getCounterCount, type CounterState } from "$lib/domain/models/Counter";
 import { createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
 

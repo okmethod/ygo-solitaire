@@ -12,11 +12,11 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
-import { isFaceDown } from "$lib/domain/models/Card";
+import { isFaceDown } from "$lib/domain/models/CardOld";
 import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
 import {
   ValidationErrorCode,

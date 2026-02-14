@@ -10,7 +10,7 @@
  */
 
 import type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 
 /** Domain 型の再エクスポート */
 export type { GameState } from "$lib/domain/models/GameStateOld";

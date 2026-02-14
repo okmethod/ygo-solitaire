@@ -12,9 +12,9 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import { INITIAL_LP } from "$lib/domain/models/GameStateOld";
-import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/Card";
+import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/CardOld";
 import type { CounterState } from "$lib/domain/models/Counter";
-import { createInitialStateOnField } from "$lib/domain/models/Card";
+import { createInitialStateOnField } from "$lib/domain/models/CardOld";
 import { isFieldZone } from "$lib/domain/models/Zone";
 import type { GamePhase } from "$lib/domain/models/Phase";
 import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";

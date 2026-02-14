@@ -7,7 +7,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { TriggerEvent } from "$lib/domain/models/RuleContext";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 
 /** 追加適用するルールのカテゴリ */

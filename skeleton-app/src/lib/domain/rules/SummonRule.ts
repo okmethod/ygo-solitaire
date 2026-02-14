@@ -6,7 +6,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import type { BattlePosition } from "$lib/domain/models/Card";
+import type { BattlePosition } from "$lib/domain/models/CardOld";
 import {
   ValidationErrorCode,
   successValidationResult,

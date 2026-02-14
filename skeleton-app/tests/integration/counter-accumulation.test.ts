@@ -24,7 +24,7 @@ import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/i
 import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules/index";
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 import { getCounterCount } from "$lib/domain/models/Counter";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 
 // Initialize registries

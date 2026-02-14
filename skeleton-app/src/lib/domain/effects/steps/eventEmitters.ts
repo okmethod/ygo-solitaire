@@ -8,7 +8,7 @@
  */
 
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import { successUpdateResult } from "$lib/domain/models/GameStateUpdate";
 
 /**

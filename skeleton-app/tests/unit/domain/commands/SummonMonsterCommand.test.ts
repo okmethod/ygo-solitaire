@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 
 describe("SummonMonsterCommand", () => {
   const createMonsterCard = (instanceId: string): CardInstance => ({

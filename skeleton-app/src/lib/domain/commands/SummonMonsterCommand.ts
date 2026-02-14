@@ -13,7 +13,7 @@ import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { findCardInstance } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isMonsterCard } from "$lib/domain/models/Card";
+import { isMonsterCard } from "$lib/domain/models/CardOld";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import {
   ValidationErrorCode,

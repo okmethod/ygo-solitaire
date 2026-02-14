@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { isMonsterCard, isSpellCard, isTrapCard } from "$lib/domain/models/Card";
-import type { CardData } from "$lib/domain/models/Card";
+import { isMonsterCard, isSpellCard, isTrapCard } from "$lib/domain/models/CardOld";
+import type { CardData } from "$lib/domain/models/CardOld";
 
 /**
  * Card Type Guard Tests

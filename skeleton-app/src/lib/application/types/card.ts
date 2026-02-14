@@ -9,7 +9,7 @@
  * @module application/types/card
  */
 
-import type { CardType, FrameSubType } from "$lib/domain/models/Card";
+import type { CardType, FrameSubType } from "$lib/domain/models/CardOld";
 
 /** モンスターカード属性情報 */
 export interface MonsterAttributes {
@@ -62,4 +62,4 @@ export type {
   ExtraMonsterSubType,
   SpellSubType,
   TrapSubType,
-} from "$lib/domain/models/Card";
+} from "$lib/domain/models/CardOld";

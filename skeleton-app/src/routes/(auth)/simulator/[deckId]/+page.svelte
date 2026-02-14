@@ -20,7 +20,7 @@
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import { getCounterCount } from "$lib/domain/models/Counter";
-  import { isFaceDown } from "$lib/domain/models/Card"; // FIXME: レイヤー間依存違反
+  import { isFaceDown } from "$lib/domain/models/CardOld"; // FIXME: レイヤー間依存違反
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";

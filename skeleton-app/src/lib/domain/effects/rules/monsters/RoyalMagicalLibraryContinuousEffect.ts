@@ -14,8 +14,8 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { TriggerEvent } from "$lib/domain/models/RuleContext";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
-import type { CardInstance } from "$lib/domain/models/Card";
-import { isFaceUp } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
+import { isFaceUp } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { addCounterStep } from "$lib/domain/effects/steps/counters";
 

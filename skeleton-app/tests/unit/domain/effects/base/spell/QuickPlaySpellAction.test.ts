@@ -15,7 +15,7 @@ import { describe, it, expect } from "vitest";
 import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
 import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import {

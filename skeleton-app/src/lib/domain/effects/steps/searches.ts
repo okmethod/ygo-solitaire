@@ -12,7 +12,7 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import { moveCard, shuffleDeck, findCardInstance } from "$lib/domain/models/Zone";
 
 // カードを検索して手札に加える処理の共通ステップ

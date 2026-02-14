@@ -13,12 +13,12 @@ import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
 import type { ValidationResult } from "$lib/domain/models/ValidationResult";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
+import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/ChainableAction";
 import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isFaceUp } from "$lib/domain/models/Card";
+import { isFaceUp } from "$lib/domain/models/CardOld";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 import {
   ValidationErrorCode,

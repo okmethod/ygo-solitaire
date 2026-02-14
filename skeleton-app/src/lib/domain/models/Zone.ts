@@ -11,8 +11,8 @@
  * @see {@link docs/domain/overview.md}
  */
 
-import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
-import { updatedCardInstance, createInitialStateOnField } from "$lib/domain/models/Card";
+import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
+import { updatedCardInstance, createInitialStateOnField } from "$lib/domain/models/CardOld";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
 /** フィールドゾーン名の配列 */

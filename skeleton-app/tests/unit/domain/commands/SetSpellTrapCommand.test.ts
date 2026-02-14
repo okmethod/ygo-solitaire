@@ -9,7 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 
 // Helper to create a mock GameState
 function createMockGameState(overrides: Partial<GameState> = {}): GameState {

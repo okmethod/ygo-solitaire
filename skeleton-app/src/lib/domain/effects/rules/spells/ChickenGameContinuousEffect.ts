@@ -13,7 +13,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/AdditionalRule";
-import { isFaceUp } from "$lib/domain/models/Card";
+import { isFaceUp } from "$lib/domain/models/CardOld";
 
 /**
  * ChickenGameContinuousEffect クラス

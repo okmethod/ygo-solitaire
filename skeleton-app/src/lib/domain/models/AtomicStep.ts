@@ -12,7 +12,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { ZoneName } from "$lib/domain/models/Zone";
 
 /**
