@@ -14,15 +14,11 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
-import {
-  ValidationErrorCode,
-  successValidationResult,
-  failureValidationResult,
-} from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /**
  * NormalSpellAction - 通常魔法カードの抽象基底クラス
@@ -45,10 +41,10 @@ export abstract class NormalSpellAction extends BaseSpellAction {
   protected subTypeConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // 1. メインフェイズであること
     if (!isMainPhase(state.phase)) {
-      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**

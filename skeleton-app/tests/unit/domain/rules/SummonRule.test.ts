@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
-import { ValidationErrorCode } from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
   describe("canNormalSummon", () => {
@@ -43,7 +43,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe(ValidationErrorCode.NOT_MAIN_PHASE);
+      expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     });
 
     it("should fail if summon limit reached", () => {
@@ -59,7 +59,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
+      expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.SUMMON_LIMIT_REACHED);
     });
 
     it("should fail if mainMonsterZone is full (5 cards)", () => {
@@ -103,7 +103,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe(ValidationErrorCode.MONSTER_ZONE_FULL);
+      expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.MONSTER_ZONE_FULL);
     });
 
     it("should allow summon if normalSummonLimit is 2 and used is 0", () => {
@@ -149,7 +149,7 @@ describe("SummonRule", () => {
 
       // Assert
       expect(result.isValid).toBe(false);
-      expect(result.errorCode).toBe(ValidationErrorCode.SUMMON_LIMIT_REACHED);
+      expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.SUMMON_LIMIT_REACHED);
     });
 
     it("should allow summon when mainMonsterZone has 4 cards", () => {

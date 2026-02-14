@@ -11,7 +11,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
@@ -20,12 +20,7 @@ import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { isFaceUp } from "$lib/domain/models/CardOld";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import {
-  ValidationErrorCode,
-  successValidationResult,
-  failureValidationResult,
-  validationErrorMessage,
-} from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 起動効果発動コマンドクラス */
 export class ActivateIgnitionEffectCommand implements GameCommand {
@@ -49,35 +44,35 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return failureValidationResult(ValidationErrorCode.GAME_OVER);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
     // 2. 指定カードがフィールドに存在し、表側表示であること
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
     if (!cardInstance) {
-      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
     }
     const validLocations = ["fieldZone", "spellTrapZone", "mainMonsterZone"];
     if (!validLocations.includes(cardInstance.location)) {
-      return failureValidationResult(ValidationErrorCode.CARD_NOT_ON_FIELD);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_ON_FIELD);
     }
     if (!isFaceUp(cardInstance)) {
-      return failureValidationResult(ValidationErrorCode.CARD_NOT_FACE_UP);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FACE_UP);
     }
 
     // 4. 起動効果がレジストリに登録されていること
     const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
     if (ignitionEffects.length === 0) {
-      return failureValidationResult(ValidationErrorCode.NO_IGNITION_EFFECT);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NO_IGNITION_EFFECT);
     }
 
     // 5. カード固有の発動条件を満たし発動可能な起動効果が存在すること
     const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance);
     if (!activatableEffect) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**
@@ -108,7 +103,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, validationErrorMessage(validationResult));
+      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;

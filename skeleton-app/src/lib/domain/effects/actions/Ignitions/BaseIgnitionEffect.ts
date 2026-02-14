@@ -19,12 +19,8 @@ import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/Effect";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import {
-  successValidationResult,
-  failureValidationResult,
-  ValidationErrorCode,
-} from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { isMainPhase } from "$lib/domain/models/Phase";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
@@ -74,7 +70,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. 起動効果共通の発動条件チェック（メインフェイズであること）
     if (!isMainPhase(state.phase)) {
-      return failureValidationResult(ValidationErrorCode.NOT_MAIN_PHASE);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 
     // 2. カード固有の発動条件チェック
@@ -83,7 +79,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
       return individualResult;
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**

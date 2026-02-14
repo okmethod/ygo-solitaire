@@ -10,7 +10,7 @@
 
 export type { EventType, EventContext, GameEvent, TriggerEvent } from "./GameEvent";
 export type { TimeSnapshot, EventTimeline } from "./EventTimeline";
-export type { ValidationErrorCode, ValidationResult } from "./UpdateValidation";
+export type { ValidationResult, ValidationErrorCode } from "./UpdateValidation";
 export type { GameStateUpdateResult } from "./GameStateUpdate";
 export type { NotificationLevel, InteractionConfig, CardSelectionConfig, AtomicStep } from "./AtomicStep";
 

@@ -22,12 +22,8 @@ import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/mod
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import {
-  successValidationResult,
-  failureValidationResult,
-  ValidationErrorCode,
-} from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -46,15 +42,15 @@ class TestSpellAction extends BaseSpellAction {
 
   protected subTypeConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: no subtype restrictions
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check deck has cards
     if (state.zones.deck.length > 0) {
-      return successValidationResult();
+      return GameProcessing.Validation.success();
     }
-    return failureValidationResult(ValidationErrorCode.INSUFFICIENT_DECK);
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_DECK);
   }
 
   protected subTypePreActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {

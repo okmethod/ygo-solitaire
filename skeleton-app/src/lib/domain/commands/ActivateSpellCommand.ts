@@ -10,7 +10,7 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
 import type { Zones } from "$lib/domain/models/Zone";
@@ -20,12 +20,7 @@ import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/Gam
 import { isSpellCard, isFieldSpellCard, createInitialStateOnField } from "$lib/domain/models/CardOld";
 import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import {
-  ValidationErrorCode,
-  successValidationResult,
-  failureValidationResult,
-  validationErrorMessage,
-} from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 魔法カード発動コマンドクラス */
 export class ActivateSpellCommand implements GameCommand {
@@ -51,25 +46,25 @@ export class ActivateSpellCommand implements GameCommand {
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return failureValidationResult(ValidationErrorCode.GAME_OVER);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
 
     // 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
     if (!cardInstance) {
-      return failureValidationResult(ValidationErrorCode.CARD_NOT_FOUND);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
     }
     if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
-      return failureValidationResult(ValidationErrorCode.CARD_NOT_IN_VALID_LOCATION);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_VALID_LOCATION);
     }
     if (!isSpellCard(cardInstance)) {
-      return failureValidationResult(ValidationErrorCode.NOT_SPELL_CARD);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_SPELL_CARD);
     }
 
     // 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (!isFieldSpellCard(cardInstance) && state.zones.spellTrapZone.length >= 5) {
-      return failureValidationResult(ValidationErrorCode.SPELL_TRAP_ZONE_FULL);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.SPELL_TRAP_ZONE_FULL);
     }
 
     // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
@@ -81,7 +76,7 @@ export class ActivateSpellCommand implements GameCommand {
       }
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**
@@ -98,7 +93,7 @@ export class ActivateSpellCommand implements GameCommand {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, validationErrorMessage(validationResult));
+      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
     const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;

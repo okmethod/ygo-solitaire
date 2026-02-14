@@ -14,15 +14,11 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
 import { isFaceDown } from "$lib/domain/models/CardOld";
 import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
-import {
-  ValidationErrorCode,
-  successValidationResult,
-  failureValidationResult,
-} from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /**
  * QuickPlaySpellAction - 速攻魔法カードの抽象基底クラス
@@ -45,10 +41,10 @@ export abstract class QuickPlaySpellAction extends BaseSpellAction {
   protected subTypeConditions(_state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. セットしたターンではないこと
     if (isFaceDown(sourceInstance) && sourceInstance.stateOnField?.placedThisTurn) {
-      return failureValidationResult(ValidationErrorCode.QUICK_PLAY_RESTRICTION);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.QUICK_PLAY_RESTRICTION);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**

@@ -14,12 +14,8 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import {
-  successValidationResult,
-  failureValidationResult,
-  ValidationErrorCode,
-} from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
@@ -40,10 +36,10 @@ export class ToonTableOfContentsActivation extends NormalSpellAction {
   protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
     const toonCardsInDeck = state.zones.deck.filter((card) => card.jaName.includes("トゥーン"));
     if (toonCardsInDeck.length < 1) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**

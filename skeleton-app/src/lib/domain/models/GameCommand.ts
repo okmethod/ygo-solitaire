@@ -6,7 +6,7 @@
  */
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 
 /**

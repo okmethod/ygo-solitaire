@@ -20,8 +20,8 @@ import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/Effect";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import { successValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 import { emitSpellActivatedEventStep } from "$lib/domain/effects/steps/eventEmitters";
 
@@ -84,7 +84,7 @@ export abstract class BaseSpellAction implements ChainableAction {
       return individualResult;
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**

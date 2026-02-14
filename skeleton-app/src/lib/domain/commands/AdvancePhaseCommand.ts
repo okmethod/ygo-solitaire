@@ -9,18 +9,13 @@
 
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { GameCommand } from "$lib/domain/models/GameCommand";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
 import type { Zones } from "$lib/domain/models/Zone";
 import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
 import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
-import {
-  ValidationErrorCode,
-  successValidationResult,
-  failureValidationResult,
-  validationErrorMessage,
-} from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
@@ -40,7 +35,7 @@ export class AdvancePhaseCommand implements GameCommand {
   canExecute(state: GameState): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
-      return failureValidationResult(ValidationErrorCode.GAME_OVER);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
     const nextPhase = getNextPhase(state.phase);
@@ -48,10 +43,10 @@ export class AdvancePhaseCommand implements GameCommand {
     // 2. フェイズ遷移が許可されていること
     const validation = validatePhaseTransition(state.phase, nextPhase);
     if (!validation.valid) {
-      return failureValidationResult(ValidationErrorCode.PHASE_TRANSITION_NOT_ALLOWED);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.PHASE_TRANSITION_NOT_ALLOWED);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**
@@ -68,7 +63,7 @@ export class AdvancePhaseCommand implements GameCommand {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, validationErrorMessage(validationResult));
+      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
     }
 
     const nextPhase = getNextPhase(state.phase);

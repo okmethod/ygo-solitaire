@@ -23,8 +23,8 @@ import type { ChainableAction, ActionEffectCategory } from "$lib/domain/models/E
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import { successValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /**
  * Mock ChainableAction for testing
@@ -42,7 +42,7 @@ class MockChainableAction implements ChainableAction {
 
   canActivate(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
     // Mock: always return valid
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   createActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {

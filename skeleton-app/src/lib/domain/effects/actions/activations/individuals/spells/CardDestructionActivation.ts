@@ -16,12 +16,8 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import {
-  successValidationResult,
-  failureValidationResult,
-  ValidationErrorCode,
-} from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
 import { countHandExcludingSelf } from "$lib/domain/models/Zone";
 import { drawStep } from "$lib/domain/effects/steps/draws";
@@ -43,15 +39,15 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
   protected individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult {
     // 1. このカードを除き、手札が2枚以上であること
     if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. デッキに2枚以上あること
     if (state.zones.deck.length < 2) {
-      return failureValidationResult(ValidationErrorCode.ACTIVATION_CONDITIONS_NOT_MET);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**

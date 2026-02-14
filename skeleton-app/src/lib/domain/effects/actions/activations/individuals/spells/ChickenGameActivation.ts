@@ -17,8 +17,8 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
-import { successValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { FieldSpellAction } from "$lib/domain/effects/actions/activations/FieldSpellAction";
 
 /** 《チキンレース》効果クラス */
@@ -33,7 +33,7 @@ export class ChickenGameActivation extends FieldSpellAction {
    * @protected
    */
   protected individualConditions(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    return successValidationResult(); // 固有条件無し
+    return GameProcessing.Validation.success(); // 固有条件無し
   }
 
   /**

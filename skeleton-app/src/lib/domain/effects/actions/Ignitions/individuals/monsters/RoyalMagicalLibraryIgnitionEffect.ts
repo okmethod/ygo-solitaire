@@ -16,16 +16,12 @@
 import type { GameState } from "$lib/domain/models/GameStateOld";
 import type { CardInstance } from "$lib/domain/models/CardOld";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/ValidationResult";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { BaseIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/BaseIgnitionEffect";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { removeCounterStep } from "$lib/domain/effects/steps/counters";
 import { Card } from "$lib/domain/models/Card";
-import {
-  successValidationResult,
-  failureValidationResult,
-  ValidationErrorCode,
-} from "$lib/domain/models/ValidationResult";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 必要な魔力カウンター数 */
 const REQUIRED_SPELL_COUNTERS = 3;
@@ -47,10 +43,10 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
     const counters = sourceInstance.stateOnField?.counters ?? [];
     const spellCounterCount = Card.Counter.getCounterCount(counters, "spell");
     if (spellCounterCount < REQUIRED_SPELL_COUNTERS) {
-      return failureValidationResult(ValidationErrorCode.INSUFFICIENT_COUNTERS);
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_COUNTERS);
     }
 
-    return successValidationResult();
+    return GameProcessing.Validation.success();
   }
 
   /**
