@@ -34,7 +34,8 @@ import { successValidationResult } from "$lib/domain/models/ValidationResult";
  */
 class MockChainableAction implements ChainableAction {
   constructor(
-    private cardName: string,
+    public readonly cardId: number,
+    public readonly cardName: string,
     public readonly spellSpeed: 1 | 2 | 3 = 1,
     public readonly effectCategory: ActionEffectCategory = "activation",
     public readonly effectId: string = "mock-effect",
@@ -48,9 +49,9 @@ class MockChainableAction implements ChainableAction {
   createActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       {
-        id: `${this.cardName}-activation`,
-        summary: `${this.cardName} Activation`,
-        description: `${this.cardName} activation step`,
+        id: `${this.cardId}-activation`,
+        summary: `${this.cardId} Activation`,
+        description: `${this.cardId} activation step`,
         action: (state: GameState) => {
           return { success: true, updatedState: state };
         },
@@ -61,9 +62,9 @@ class MockChainableAction implements ChainableAction {
   createResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       {
-        id: `${this.cardName}-resolution`,
-        summary: `${this.cardName} Resolution`,
-        description: `${this.cardName} resolution step`,
+        id: `${this.cardId}-resolution`,
+        summary: `${this.cardId} Resolution`,
+        description: `${this.cardId} resolution step`,
         action: (state: GameState) => {
           return { success: true, updatedState: state };
         },
@@ -82,7 +83,7 @@ describe("ChainableActionRegistry", () => {
     it("should register an activation effect", () => {
       // Arrange
       const cardId = 55144522; // Pot of Greed
-      const action = new MockChainableAction("Pot of Greed");
+      const action = new MockChainableAction(cardId, "Pot of Greed");
 
       // Act
       ChainableActionRegistry.registerActivation(cardId, action);
@@ -96,8 +97,8 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const potOfGreedId = 55144522;
       const gracefulCharityId = 79571449;
-      const potOfGreedAction = new MockChainableAction("Pot of Greed");
-      const gracefulCharityAction = new MockChainableAction("Graceful Charity");
+      const potOfGreedAction = new MockChainableAction(potOfGreedId, "Pot of Greed");
+      const gracefulCharityAction = new MockChainableAction(gracefulCharityId, "Graceful Charity");
 
       // Act
       ChainableActionRegistry.registerActivation(potOfGreedId, potOfGreedAction);
@@ -112,8 +113,8 @@ describe("ChainableActionRegistry", () => {
     it("should overwrite existing activation when registering same card ID", () => {
       // Arrange
       const cardId = 55144522;
-      const firstAction = new MockChainableAction("First Action");
-      const secondAction = new MockChainableAction("Second Action");
+      const firstAction = new MockChainableAction(cardId, "First Action");
+      const secondAction = new MockChainableAction(cardId, "Second Action");
 
       // Act
       ChainableActionRegistry.registerActivation(cardId, firstAction);
@@ -131,7 +132,7 @@ describe("ChainableActionRegistry", () => {
     it("should register an ignition effect", () => {
       // Arrange
       const cardId = 67616300; // Chicken Game
-      const action = new MockChainableAction("Chicken Game Ignition", false, 1, "ignition", "chicken-game-ignition");
+      const action = new MockChainableAction(cardId, "Chicken Game Ignition", 1, "ignition", "chicken-game-ignition");
 
       // Act
       ChainableActionRegistry.registerIgnition(cardId, action);
@@ -145,8 +146,8 @@ describe("ChainableActionRegistry", () => {
     it("should register multiple ignition effects for same card", () => {
       // Arrange
       const cardId = 67616300;
-      const effect1 = new MockChainableAction("Effect 1", false, 1, "ignition", "effect-1");
-      const effect2 = new MockChainableAction("Effect 2", false, 1, "ignition", "effect-2");
+      const effect1 = new MockChainableAction(cardId, "Effect 1", 1, "ignition", "effect-1");
+      const effect2 = new MockChainableAction(cardId, "Effect 2", 1, "ignition", "effect-2");
 
       // Act
       ChainableActionRegistry.registerIgnition(cardId, effect1);
@@ -164,7 +165,7 @@ describe("ChainableActionRegistry", () => {
     it("should return registered activation effect", () => {
       // Arrange
       const cardId = 55144522;
-      const action = new MockChainableAction("Pot of Greed");
+      const action = new MockChainableAction(cardId, "Pot of Greed");
       ChainableActionRegistry.registerActivation(cardId, action);
 
       // Act
@@ -190,7 +191,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const potOfGreedId = 55144522;
       const gracefulCharityId = 79571449;
-      const potOfGreedAction = new MockChainableAction("Pot of Greed");
+      const potOfGreedAction = new MockChainableAction(potOfGreedId, "Pot of Greed");
 
       ChainableActionRegistry.registerActivation(potOfGreedId, potOfGreedAction);
 
@@ -217,8 +218,8 @@ describe("ChainableActionRegistry", () => {
     it("should return all registered ignition effects", () => {
       // Arrange
       const cardId = 67616300;
-      const effect1 = new MockChainableAction("Effect 1", false, 1, "ignition");
-      const effect2 = new MockChainableAction("Effect 2", false, 1, "ignition");
+      const effect1 = new MockChainableAction(cardId, "Effect 1", 1, "ignition", "effect-1");
+      const effect2 = new MockChainableAction(cardId, "Effect 2", 1, "ignition", "effect-2");
       ChainableActionRegistry.registerIgnition(cardId, effect1);
       ChainableActionRegistry.registerIgnition(cardId, effect2);
 
@@ -242,7 +243,10 @@ describe("ChainableActionRegistry", () => {
     it("should return true for card with ignition effects", () => {
       // Arrange
       const cardId = 67616300;
-      ChainableActionRegistry.registerIgnition(cardId, new MockChainableAction("Ignition", false, 1, "ignition"));
+      ChainableActionRegistry.registerIgnition(
+        cardId,
+        new MockChainableAction(cardId, "Ignition", 1, "ignition", "ignition"),
+      );
 
       // Assert
       expect(ChainableActionRegistry.hasIgnitionEffects(cardId)).toBe(true);
@@ -253,8 +257,14 @@ describe("ChainableActionRegistry", () => {
     it("should allow both activation and ignition for same card", () => {
       // Arrange
       const cardId = 67616300; // Chicken Game
-      const activation = new MockChainableAction("Chicken Game Activation", true, 1, "activation");
-      const ignition = new MockChainableAction("Chicken Game Ignition", false, 1, "ignition");
+      const activation = new MockChainableAction(
+        cardId,
+        "Chicken Game Activation",
+        1,
+        "activation",
+        "chicken-game-activation",
+      );
+      const ignition = new MockChainableAction(cardId, "Chicken Game Ignition", 1, "ignition", "chicken-game-ignition");
 
       // Act
       ChainableActionRegistry.registerActivation(cardId, activation);
@@ -272,11 +282,17 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const potOfGreedId = 55144522;
       const chickenGameId = 67616300;
-      ChainableActionRegistry.registerActivation(potOfGreedId, new MockChainableAction("Pot of Greed"));
-      ChainableActionRegistry.registerActivation(chickenGameId, new MockChainableAction("Chicken Game"));
+      ChainableActionRegistry.registerActivation(
+        potOfGreedId,
+        new MockChainableAction(potOfGreedId, "Pot of Greed", 1, "activation", "pot-of-greed"),
+      );
+      ChainableActionRegistry.registerActivation(
+        chickenGameId,
+        new MockChainableAction(chickenGameId, "Chicken Game", 1, "activation", "chicken-game"),
+      );
       ChainableActionRegistry.registerIgnition(
         chickenGameId,
-        new MockChainableAction("Ignition", false, 1, "ignition"),
+        new MockChainableAction(chickenGameId, "Ignition", 1, "ignition", "ignition"),
       );
 
       expect(ChainableActionRegistry.getRegisteredCardIds()).toHaveLength(2);
@@ -294,8 +310,8 @@ describe("ChainableActionRegistry", () => {
     it("should allow re-registration after clear", () => {
       // Arrange
       const cardId = 55144522;
-      const firstAction = new MockChainableAction("First Action");
-      const secondAction = new MockChainableAction("Second Action");
+      const firstAction = new MockChainableAction(cardId, "First Action", 1, "activation", "first-action");
+      const secondAction = new MockChainableAction(cardId, "Second Action", 1, "activation", "second-action");
 
       ChainableActionRegistry.registerActivation(cardId, firstAction);
       ChainableActionRegistry.clear();
@@ -322,8 +338,14 @@ describe("ChainableActionRegistry", () => {
       const gracefulCharityId = 79571449;
 
       // Act
-      ChainableActionRegistry.registerActivation(potOfGreedId, new MockChainableAction("Pot of Greed"));
-      ChainableActionRegistry.registerActivation(gracefulCharityId, new MockChainableAction("Graceful Charity"));
+      ChainableActionRegistry.registerActivation(
+        potOfGreedId,
+        new MockChainableAction(potOfGreedId, "Pot of Greed", 1, "activation", "pot-of-greed"),
+      );
+      ChainableActionRegistry.registerActivation(
+        gracefulCharityId,
+        new MockChainableAction(gracefulCharityId, "Graceful Charity", 1, "activation", "graceful-charity"),
+      );
 
       // Assert
       const registeredIds = ChainableActionRegistry.getRegisteredCardIds();
@@ -334,8 +356,14 @@ describe("ChainableActionRegistry", () => {
 
     it("should return correct card IDs after clear", () => {
       // Arrange
-      ChainableActionRegistry.registerActivation(55144522, new MockChainableAction("Pot of Greed"));
-      ChainableActionRegistry.registerActivation(79571449, new MockChainableAction("Graceful Charity"));
+      ChainableActionRegistry.registerActivation(
+        55144522,
+        new MockChainableAction(55144522, "Pot of Greed", 1, "activation", "pot-of-greed"),
+      );
+      ChainableActionRegistry.registerActivation(
+        79571449,
+        new MockChainableAction(79571449, "Graceful Charity", 1, "activation", "graceful-charity"),
+      );
 
       // Act
       ChainableActionRegistry.clear();

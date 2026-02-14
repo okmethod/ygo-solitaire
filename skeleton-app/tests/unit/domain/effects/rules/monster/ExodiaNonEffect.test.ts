@@ -18,19 +18,29 @@ describe("ExodiaNonEffect", () => {
   describe("canApply()", () => {
     it("should return true when all 5 Exodia pieces are in hand", () => {
       const state = createExodiaVictoryState();
-      expect(rule.canApply(state, {})).toBe(true);
+      expect(rule.canApply(state)).toBe(true);
     });
 
     it("should return false when Exodia is incomplete", () => {
-      const state = createMockGameState({ zones: { hand: [] } });
-      expect(rule.canApply(state, {})).toBe(false);
+      const state = createMockGameState({
+        zones: {
+          hand: [],
+          deck: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+      expect(rule.canApply(state)).toBe(false);
     });
   });
 
   describe("checkPermission()", () => {
     it("should return true when canApply() is true", () => {
       const state = createExodiaVictoryState();
-      expect(rule.checkPermission(state, {})).toBe(true);
+      expect(rule.checkPermission(state)).toBe(true);
     });
   });
 });
