@@ -5,10 +5,9 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getCardsByIds, clearCache } from "$lib/infrastructure/api/ygoprodeck";
-import type { YGOProDeckCardInfo } from "$lib/application/ports/ICardDataRepository";
 
 // モックフィクスチャ（実際のYGOPRODeck APIレスポンス形式）
-const mockExodia: YGOProDeckCardInfo = {
+const mockExodia = {
   id: 33396948,
   name: "Exodia the Forbidden One",
   type: "Effect Monster",
@@ -31,7 +30,7 @@ const mockExodia: YGOProDeckCardInfo = {
   ],
 };
 
-const mockPotOfGreed: YGOProDeckCardInfo = {
+const mockPotOfGreed = {
   id: 55144522,
   name: "Pot of Greed",
   type: "Spell Card",
