@@ -59,7 +59,7 @@ export function executeNormalSummon(
       counters: [],
       activatedEffects: new Set<string>(),
       placedThisTurn: true,
-    }
+    },
   });
 
   return {
