@@ -397,7 +397,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
-              placedThisTurn: false,
             },
             {
               id: 87654321,
@@ -406,7 +405,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster B",
               location: "graveyard",
-              placedThisTurn: false,
             },
             {
               id: 12345678,
@@ -415,7 +413,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
-              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -460,7 +457,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
-              placedThisTurn: false,
             },
           ],
           banished: [],
@@ -492,7 +488,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "モンスター1",
               location: "deck",
-              placedThisTurn: false,
             },
             {
               id: 67616300,
@@ -502,7 +497,6 @@ describe("Normal Spell Card Effects", () => {
               jaName: "チキンレース",
               spellType: "field",
               location: "deck",
-              placedThisTurn: false,
             },
             {
               id: 1002,
@@ -511,7 +505,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "モンスター2",
               location: "deck",
-              placedThisTurn: false,
             },
           ],
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
@@ -640,7 +633,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster A",
               location: "graveyard",
-              placedThisTurn: false,
             },
             {
               id: 87654321,
@@ -649,7 +641,6 @@ describe("Normal Spell Card Effects", () => {
               frameType: "normal",
               jaName: "Test Monster B",
               location: "graveyard",
-              placedThisTurn: false,
             },
           ],
           banished: [],

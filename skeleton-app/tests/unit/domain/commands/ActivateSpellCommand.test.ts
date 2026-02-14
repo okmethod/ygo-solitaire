@@ -27,7 +27,6 @@ describe("ActivateSpellCommand", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
-            placedThisTurn: false,
           },
           {
             instanceId: "deck-1",
@@ -36,7 +35,6 @@ describe("ActivateSpellCommand", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "deck" as const,
-            placedThisTurn: false,
           },
         ],
         hand: [
@@ -47,7 +45,6 @@ describe("ActivateSpellCommand", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "hand" as const,
-            placedThisTurn: false,
           }, // Pot of Greed
           {
             instanceId: "hand-2",
@@ -56,7 +53,6 @@ describe("ActivateSpellCommand", () => {
             type: "spell" as const,
             frameType: "spell" as const,
             location: "hand" as const,
-            placedThisTurn: false,
           },
         ],
         mainMonsterZone: [],
@@ -94,7 +90,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -123,7 +118,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -195,7 +189,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -282,7 +275,6 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "field" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -317,7 +309,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             },
             {
               instanceId: "deck-1",
@@ -326,7 +317,6 @@ describe("ActivateSpellCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             },
           ],
           hand: [
@@ -338,7 +328,6 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "normal" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -376,7 +365,6 @@ describe("ActivateSpellCommand", () => {
               frameType: "spell" as const,
               spellType: "continuous" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             },
           ],
           mainMonsterZone: [],
@@ -399,7 +387,7 @@ describe("ActivateSpellCommand", () => {
     });
   });
 
-  describe("Set Card Activation (T030-4)", () => {
+  describe("Set Card Activation", () => {
     it("should allow activating normal spell from spellTrapZone", () => {
       // Arrange: Normal spell set in spellTrapZone
       const setSpellState = createMockGameState({

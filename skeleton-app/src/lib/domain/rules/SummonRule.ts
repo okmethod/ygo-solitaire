@@ -53,9 +53,13 @@ export function executeNormalSummon(
   // モンスターカードを、メインモンスターゾーンに表側攻撃表示 or 裏側守備表示で配置する
   const card = findCardInstance(state.zones, cardInstanceId)!;
   const updatedZones = moveCard(state.zones, card, "mainMonsterZone", {
-    position: battlePosition === "attack" ? "faceUp" : "faceDown",
-    battlePosition: battlePosition,
-    placedThisTurn: true,
+    stateOnField: {
+      position: battlePosition === "attack" ? "faceUp" : "faceDown",
+      battlePosition: battlePosition,
+      counters: [],
+      activatedEffects: new Set<string>(),
+      placedThisTurn: true,
+    }
   });
 
   return {

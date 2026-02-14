@@ -170,7 +170,6 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             },
             {
               instanceId: "duplicate",
@@ -179,7 +178,6 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             },
           ],
           hand: [],
@@ -207,7 +205,6 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "deck" as const,
-              placedThisTurn: false,
             }, // Missing instanceId
           ],
           hand: [],
@@ -235,7 +232,6 @@ describe("GameStateInvariants", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
-              placedThisTurn: false,
             }, // Wrong location
           ],
           hand: [],

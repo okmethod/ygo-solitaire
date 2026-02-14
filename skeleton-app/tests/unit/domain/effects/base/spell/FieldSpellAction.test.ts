@@ -74,7 +74,7 @@ describe("FieldSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
@@ -86,7 +86,7 @@ describe("FieldSpellAction", () => {
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state).isValid).toBe(false);
+      expect(action.canActivate(state, state.zones.hand[0]).isValid).toBe(false);
     });
 
     it("should return true even with empty deck (no additional conditions)", () => {
@@ -98,7 +98,7 @@ describe("FieldSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(true);
     });
   });
 
@@ -112,9 +112,6 @@ describe("FieldSpellAction", () => {
       frameType: "spell",
       spellType: "field",
       location: "hand",
-      position: "faceDown",
-      placedThisTurn: false,
-      counters: [],
     });
 
     it("should return notification and event steps (field spells have no additional activation steps)", () => {
@@ -144,7 +141,7 @@ describe("FieldSpellAction", () => {
       });
 
       // Act
-      const steps = action.createResolutionSteps(state, "test-instance");
+      const steps = action.createResolutionSteps(state, state.zones.hand[0]);
 
       // Assert
       expect(steps).toEqual([]);

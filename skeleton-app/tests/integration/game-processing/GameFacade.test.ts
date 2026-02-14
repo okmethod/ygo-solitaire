@@ -179,9 +179,9 @@ describe("GameFacade", () => {
 
       const summonedCard = updatedState.zones.mainMonsterZone[0];
       expect(summonedCard.instanceId).toBe(monsterInstanceId);
-      expect(summonedCard.position).toBe("faceUp");
-      expect(summonedCard.battlePosition).toBe("attack");
-      expect(summonedCard.placedThisTurn).toBe(true);
+      expect(summonedCard.stateOnField?.position).toBe("faceUp");
+      expect(summonedCard.stateOnField?.battlePosition).toBe("attack");
+      expect(summonedCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should increment normalSummonUsed", () => {
@@ -293,9 +293,9 @@ describe("GameFacade", () => {
 
       const setCard = updatedState.zones.mainMonsterZone[0];
       expect(setCard.instanceId).toBe(monsterInstanceId);
-      expect(setCard.position).toBe("faceDown");
-      expect(setCard.battlePosition).toBe("defense");
-      expect(setCard.placedThisTurn).toBe(true);
+      expect(setCard.stateOnField?.position).toBe("faceDown");
+      expect(setCard.stateOnField?.battlePosition).toBe("defense");
+      expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should increment normalSummonUsed when setting a monster", () => {
@@ -370,8 +370,8 @@ describe("GameFacade", () => {
 
       const setCard = updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe(spellInstanceId);
-      expect(setCard.position).toBe("faceDown");
-      expect(setCard.placedThisTurn).toBe(true);
+      expect(setCard.stateOnField?.position).toBe("faceDown");
+      expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should set field spell to fieldZone", () => {

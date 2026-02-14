@@ -80,7 +80,7 @@ describe("NormalSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
@@ -92,7 +92,7 @@ describe("NormalSpellAction", () => {
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state).isValid).toBe(false);
+      expect(action.canActivate(state, state.zones.hand[0]).isValid).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {
@@ -104,7 +104,7 @@ describe("NormalSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1).isValid).toBe(false);
+      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(false);
     });
   });
 
@@ -118,9 +118,6 @@ describe("NormalSpellAction", () => {
       frameType: "spell",
       spellType: "normal",
       location: "hand",
-      position: "faceDown",
-      placedThisTurn: false,
-      counters: [],
     });
 
     it("should return default activation step", () => {

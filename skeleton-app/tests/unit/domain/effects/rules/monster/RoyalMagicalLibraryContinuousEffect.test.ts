@@ -236,9 +236,6 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
         frameType: "normal",
         instanceId: "monster-1",
         location: "mainMonsterZone",
-        position: "faceUp",
-        placedThisTurn: false,
-        counters: [],
       };
       const state = createBaseGameState({
         zones: {

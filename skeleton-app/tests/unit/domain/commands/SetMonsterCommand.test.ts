@@ -47,10 +47,6 @@ function createMonsterCard(instanceId: string): CardInstance {
     type: "monster" as const,
     frameType: "effect",
     location: "hand" as const,
-    position: undefined,
-    battlePosition: undefined,
-    placedThisTurn: false,
-    counters: [],
   };
 }
 
@@ -218,9 +214,6 @@ describe("SetMonsterCommand", () => {
         type: "spell" as const,
         frameType: "normal",
         location: "hand" as const,
-        position: undefined,
-        placedThisTurn: false,
-        counters: [],
       };
       const state = createMockGameState({
         phase: "Main1",
@@ -307,9 +300,9 @@ describe("SetMonsterCommand", () => {
       const setCard = result.updatedState.zones.mainMonsterZone[0];
       expect(setCard.instanceId).toBe("monster-1");
       expect(setCard.location).toBe("mainMonsterZone");
-      expect(setCard.position).toBe("faceDown");
-      expect(setCard.battlePosition).toBe("defense");
-      expect(setCard.placedThisTurn).toBe(true);
+      expect(setCard.stateOnField?.position).toBe("faceDown");
+      expect(setCard.stateOnField?.battlePosition).toBe("defense");
+      expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should increment normalSummonUsed when setting a monster", () => {
@@ -451,9 +444,6 @@ describe("SetMonsterCommand", () => {
         type: "spell" as const,
         frameType: "normal",
         location: "hand" as const,
-        position: undefined,
-        placedThisTurn: false,
-        counters: [],
       };
       const state = createMockGameState({
         phase: "Main1",

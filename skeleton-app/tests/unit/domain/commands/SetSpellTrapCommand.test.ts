@@ -47,9 +47,6 @@ function createNormalSpellCard(instanceId: string): CardInstance {
     frameType: "spell",
     spellType: "normal",
     location: "hand" as const,
-    position: undefined,
-    placedThisTurn: false,
-    counters: [],
   };
 }
 
@@ -63,9 +60,6 @@ function createQuickPlaySpellCard(instanceId: string): CardInstance {
     frameType: "spell",
     spellType: "quick-play",
     location: "hand" as const,
-    position: undefined,
-    placedThisTurn: false,
-    counters: [],
   };
 }
 
@@ -79,9 +73,6 @@ function createFieldSpellCard(instanceId: string): CardInstance {
     frameType: "spell",
     spellType: "field",
     location: "hand" as const,
-    position: undefined,
-    placedThisTurn: false,
-    counters: [],
   };
 }
 
@@ -95,9 +86,6 @@ function createContinuousSpellCard(instanceId: string): CardInstance {
     frameType: "spell",
     spellType: "continuous",
     location: "hand" as const,
-    position: undefined,
-    placedThisTurn: false,
-    counters: [],
   };
 }
 
@@ -254,10 +242,6 @@ describe("SetSpellTrapCommand", () => {
         type: "monster" as const,
         frameType: "effect",
         location: "hand" as const,
-        position: undefined,
-        battlePosition: undefined,
-        placedThisTurn: false,
-        counters: [],
       };
       const state = createMockGameState({
         phase: "Main1",
@@ -338,8 +322,8 @@ describe("SetSpellTrapCommand", () => {
       const setCard = result.updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe("spell-1");
       expect(setCard.location).toBe("spellTrapZone");
-      expect(setCard.position).toBe("faceDown");
-      expect(setCard.placedThisTurn).toBe(true);
+      expect(setCard.stateOnField?.position).toBe("faceDown");
+      expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should successfully set quick-play spell to spellTrapZone face-down", () => {
@@ -369,8 +353,8 @@ describe("SetSpellTrapCommand", () => {
 
       const setCard = result.updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe("quick-1");
-      expect(setCard.position).toBe("faceDown");
-      expect(setCard.placedThisTurn).toBe(true);
+      expect(setCard.stateOnField?.position).toBe("faceDown");
+      expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should successfully set continuous spell to spellTrapZone face-down", () => {
@@ -400,7 +384,7 @@ describe("SetSpellTrapCommand", () => {
 
       const setCard = result.updatedState.zones.spellTrapZone[0];
       expect(setCard.instanceId).toBe("continuous-1");
-      expect(setCard.position).toBe("faceDown");
+      expect(setCard.stateOnField?.position).toBe("faceDown");
     });
 
     it("should successfully set field spell to fieldZone face-down", () => {
@@ -432,8 +416,8 @@ describe("SetSpellTrapCommand", () => {
       const setCard = result.updatedState.zones.fieldZone[0];
       expect(setCard.instanceId).toBe("field-1");
       expect(setCard.location).toBe("fieldZone");
-      expect(setCard.position).toBe("faceDown");
-      expect(setCard.placedThisTurn).toBe(true);
+      expect(setCard.stateOnField?.position).toBe("faceDown");
+      expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should replace existing field spell when setting a new field spell", () => {
@@ -441,8 +425,12 @@ describe("SetSpellTrapCommand", () => {
       const oldFieldSpell = {
         ...createFieldSpellCard("field-old"),
         location: "fieldZone" as const,
-        position: "faceUp" as const,
-        placedThisTurn: false,
+        stateOnField: {
+          position: "faceUp" as const,
+          counters: [],
+          activatedEffects: new Set<string>(),
+          placedThisTurn: false,
+        },
       };
       const newFieldSpell = createFieldSpellCard("field-new");
       const state = createMockGameState({

@@ -108,7 +108,7 @@ describe("BaseSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(true);
     });
 
     it("should return false when individual conditions are not met", () => {
@@ -120,7 +120,7 @@ describe("BaseSpellAction", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1).isValid).toBe(false);
+      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(false);
     });
   });
 
@@ -133,9 +133,6 @@ describe("BaseSpellAction", () => {
       type: "spell",
       frameType: "spell",
       location: "hand",
-      position: "faceDown",
-      placedThisTurn: false,
-      counters: [],
     });
 
     it("should return default activation step with card info", () => {
@@ -188,7 +185,7 @@ describe("BaseSpellAction", () => {
       });
 
       // Act
-      const steps = action.createResolutionSteps(state, "test-instance");
+      const steps = action.createResolutionSteps(state, state.zones.hand[0]);
 
       // Assert
       expect(steps).toBeDefined();

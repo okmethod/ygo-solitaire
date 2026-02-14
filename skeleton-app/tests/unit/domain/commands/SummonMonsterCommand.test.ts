@@ -7,17 +7,10 @@ describe("SummonMonsterCommand", () => {
   const createMonsterCard = (instanceId: string): CardInstance => ({
     instanceId,
     id: 12345678,
-    name: "Test Monster",
+    jaName: "Test Monster",
     type: "monster",
     frameType: "normal",
-    desc: "A test monster",
-    atk: 1500,
-    def: 1000,
-    level: 4,
-    race: "Warrior",
-    attribute: "LIGHT",
     location: "hand",
-    placedThisTurn: false,
   });
 
   describe("canExecute", () => {
@@ -188,13 +181,10 @@ describe("SummonMonsterCommand", () => {
       const spellCard: CardInstance = {
         instanceId: "spell-1",
         id: 67616300,
-        name: "Test Spell",
+        jaName: "Test Spell",
         type: "spell",
         frameType: "spell",
-        desc: "A test spell",
-        race: "Normal",
         location: "hand",
-        placedThisTurn: false,
       };
 
       const state = createMockGameState({
@@ -288,9 +278,9 @@ describe("SummonMonsterCommand", () => {
       const summonedCard = result.updatedState.zones.mainMonsterZone[0];
       expect(summonedCard.instanceId).toBe("monster-1");
       expect(summonedCard.location).toBe("mainMonsterZone");
-      expect(summonedCard.position).toBe("faceUp");
-      expect(summonedCard.battlePosition).toBe("attack");
-      expect(summonedCard.placedThisTurn).toBe(true);
+      expect(summonedCard.stateOnField?.position).toBe("faceUp");
+      expect(summonedCard.stateOnField?.battlePosition).toBe("attack");
+      expect(summonedCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
     it("should increment normalSummonUsed", () => {
@@ -437,13 +427,10 @@ describe("SummonMonsterCommand", () => {
       const spellCard: CardInstance = {
         instanceId: "spell-1",
         id: 67616300,
-        name: "Test Spell",
+        jaName: "Test Spell",
         type: "spell",
         frameType: "spell",
-        desc: "A test spell",
-        race: "Normal",
         location: "hand",
-        placedThisTurn: false,
       };
 
       const state = createMockGameState({

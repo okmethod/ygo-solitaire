@@ -76,8 +76,8 @@ describe("Summon Flow Integration", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.mainMonsterZone.length).toBe(1);
-      expect(result.updatedState.zones.mainMonsterZone[0].position).toBe("faceUp");
-      expect(result.updatedState.zones.mainMonsterZone[0].battlePosition).toBe("attack");
+      expect(result.updatedState.zones.mainMonsterZone[0].stateOnField?.position).toBe("faceUp");
+      expect(result.updatedState.zones.mainMonsterZone[0].stateOnField?.battlePosition).toBe("attack");
       expect(result.updatedState.normalSummonUsed).toBe(1);
     });
 
@@ -100,8 +100,8 @@ describe("Summon Flow Integration", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.mainMonsterZone.length).toBe(1);
-      expect(result.updatedState.zones.mainMonsterZone[0].position).toBe("faceDown");
-      expect(result.updatedState.zones.mainMonsterZone[0].battlePosition).toBe("defense");
+      expect(result.updatedState.zones.mainMonsterZone[0].stateOnField?.position).toBe("faceDown");
+      expect(result.updatedState.zones.mainMonsterZone[0].stateOnField?.battlePosition).toBe("defense");
       expect(result.updatedState.normalSummonUsed).toBe(1);
     });
   });
@@ -187,7 +187,7 @@ describe("Summon Flow Integration", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
-      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceDown");
+      expect(result.updatedState.zones.spellTrapZone[0].stateOnField?.position).toBe("faceDown");
       expect(result.updatedState.normalSummonUsed).toBe(0); // Should NOT consume summon rights
     });
 
@@ -244,7 +244,7 @@ describe("Summon Flow Integration", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.fieldZone.length).toBe(1);
-      expect(result.updatedState.zones.fieldZone[0].position).toBe("faceDown");
+      expect(result.updatedState.zones.fieldZone[0].stateOnField?.position).toBe("faceDown");
       expect(result.updatedState.zones.spellTrapZone.length).toBe(0); // Should NOT go to spellTrapZone
     });
 
@@ -323,7 +323,7 @@ describe("Summon Flow Integration", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
-      expect(result.updatedState.zones.spellTrapZone[0].position).toBe("faceDown");
+      expect(result.updatedState.zones.spellTrapZone[0].stateOnField?.position).toBe("faceDown");
       expect(result.updatedState.zones.hand.length).toBe(1); // 1 monster left in hand
       expect(result.updatedState.normalSummonUsed).toBe(1); // Setting spell doesn't consume summon rights
     });
