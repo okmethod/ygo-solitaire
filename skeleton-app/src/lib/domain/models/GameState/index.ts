@@ -17,6 +17,7 @@ export type { GameResult } from "./GameResult";
 export type { CardSpace } from "./CardSpace";
 
 import * as GameStateFuncs from "./GameSnapshot";
+import * as GameStateConsistencyFuncs from "./GameStateConsistency";
 import * as PhaseFuncs from "./Phase";
 import * as CardSpaceFuncs from "./CardSpace";
 
@@ -26,6 +27,7 @@ import * as CardSpaceFuncs from "./CardSpace";
  */
 export const GameState = {
   initialize: GameStateFuncs.createInitialGameSnapshot,
+  assert: GameStateConsistencyFuncs.assertValidGameState,
 
   Phase: {
     displayName: PhaseFuncs.getPhaseDisplayName,

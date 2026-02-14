@@ -3,6 +3,7 @@
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { GameEvent } from "./GameEvent";
 
 /**
@@ -40,6 +41,11 @@ export const successUpdateResult = (
   message?: string,
   emittedEvents?: GameEvent[],
 ): GameStateUpdateResult => {
+  // 開発時のみ
+  if (import.meta.env.DEV) {
+    GameState.assert(updatedState);
+  }
+
   return {
     success: true,
     updatedState,

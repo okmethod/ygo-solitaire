@@ -1,7 +1,5 @@
 /**
  * GameStateConsistency - ゲーム状態の整合性チェック
- *
- * TODO: 現状未使用のため、ゲーム状態変更の際にチェックするようにする
  */
 
 import type { GameSnapshot } from "./GameSnapshot";
@@ -28,27 +26,6 @@ function assessment(errors: string[] = []): ConsistencyAssessment {
   };
 }
 
-/** GameState 全体の整合性をチェックする */
-export function validateGameState(state: GameSnapshot): ConsistencyAssessment {
-  return validateSpace(state)
-    .and(validateLifePoints(state))
-    .and(validatePhase(state))
-    .and(validateTurn(state))
-    .and(validateResult(state));
-}
-
-/**
- * ゲーム状態の整合性をアサートし、エラーがあれば例外をスローする
- *
- * @throws Error if validation fails
- */
-export function assertValidGameState(state: GameSnapshot): void {
-  const result = validateGameState(state);
-  if (!result.isConsistent) {
-    throw new Error(`Invalid GameState:\n${result.errors.join("\n")}`);
-  }
-}
-
 // 数値範囲をチェックするヘルパー
 const checkRange = (val: number, min: number, max: number, label: string): string[] => {
   const errs: string[] = [];
@@ -68,7 +45,7 @@ const checkZoneLocation = (cards: readonly { location: string }[], expectedLocat
 };
 
 /** 各ゾーンの整合性をチェックする */
-export function validateSpace(state: GameSnapshot): ConsistencyAssessment {
+function validateSpace(state: GameSnapshot): ConsistencyAssessment {
   const errors: string[] = [];
 
   // 各ゾーンの枚数チェック
@@ -116,7 +93,7 @@ export function validateSpace(state: GameSnapshot): ConsistencyAssessment {
 }
 
 /** ライフポイントの整合性をチェックする */
-export function validateLifePoints(state: GameSnapshot): ConsistencyAssessment {
+function validateLifePoints(state: GameSnapshot): ConsistencyAssessment {
   const errors: string[] = [];
 
   // ライフポイントチェック
@@ -127,7 +104,7 @@ export function validateLifePoints(state: GameSnapshot): ConsistencyAssessment {
 }
 
 /** フェーズの整合性をチェックする  */
-export function validatePhase(state: GameSnapshot): ConsistencyAssessment {
+function validatePhase(state: GameSnapshot): ConsistencyAssessment {
   const errors: string[] = [];
 
   if (!GAME_PHASES.includes(state.phase)) {
@@ -138,7 +115,7 @@ export function validatePhase(state: GameSnapshot): ConsistencyAssessment {
 }
 
 /** ターン数の整合性をチェックする */
-export function validateTurn(state: GameSnapshot): ConsistencyAssessment {
+function validateTurn(state: GameSnapshot): ConsistencyAssessment {
   const errors: string[] = [];
 
   // ターン数チェック（checkRange を活用）
@@ -148,7 +125,7 @@ export function validateTurn(state: GameSnapshot): ConsistencyAssessment {
 }
 
 /** ゲーム結果の整合性をチェックする */
-export function validateResult(state: GameSnapshot): ConsistencyAssessment {
+function validateResult(state: GameSnapshot): ConsistencyAssessment {
   const errors: string[] = [];
 
   if (state.result.isGameOver) {
@@ -177,4 +154,25 @@ export function validateResult(state: GameSnapshot): ConsistencyAssessment {
   }
 
   return assessment(errors);
+}
+
+/** GameState 全体の整合性をチェックする */
+function validateGameState(state: GameSnapshot): ConsistencyAssessment {
+  return validateSpace(state)
+    .and(validateLifePoints(state))
+    .and(validatePhase(state))
+    .and(validateTurn(state))
+    .and(validateResult(state));
+}
+
+/**
+ * ゲーム状態の整合性をアサートし、エラーがあれば例外をスローする
+ *
+ * @throws Error if validation fails
+ */
+export function assertValidGameState(state: GameSnapshot): void {
+  const result = validateGameState(state);
+  if (!result.isConsistent) {
+    throw new Error(`Invalid GameState:\n${result.errors.join("\n")}`);
+  }
 }
