@@ -129,12 +129,8 @@ export class ActivateSpellCommand implements GameCommand {
     if (cardInstance.location === "hand") {
       // フィールド魔法の場合
       if (Card.isFieldSpell(cardInstance)) {
-        // 既存フィールド魔法カードが存在する場合、先に墓地へ送る
-        let updatedSpace = space;
-        if (GameState.Space.isFieldZoneFull(space)) {
-          updatedSpace = GameState.Space.moveCard(space, space.fieldZone[0], "graveyard");
-        }
-        return GameState.Space.moveCard(updatedSpace, cardInstance, "fieldZone", {
+        const sweepedFieldSpellSpace = GameState.Space.sendExistingFieldSpellToGraveyard(space);
+        return GameState.Space.moveCard(sweepedFieldSpellSpace, cardInstance, "fieldZone", {
           position: "faceUp",
         });
       }

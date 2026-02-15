@@ -50,5 +50,6 @@ export const GameState = {
     updateCardStateInPlace: CardSpaceFuncs.updateCardStateInPlace,
     drawCards: CardSpaceFuncs.drawCards,
     shuffleMainDeck: CardSpaceFuncs.shuffleMainDeck,
+    sendExistingFieldSpellToGraveyard: CardSpaceFuncs.sendExistingFieldSpellToGraveyard,
   },
 };

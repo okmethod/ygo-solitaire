@@ -165,3 +165,9 @@ export function shuffleMainDeck(space: CardSpace): CardSpace {
     mainDeck: shuffleArray(space.mainDeck),
   };
 }
+
+/** 既存のフィールド魔法を墓地へ送る（存在する場合） */
+export function sendExistingFieldSpellToGraveyard(space: CardSpace): CardSpace {
+  if (!isFieldZoneFull(space)) return space;
+  return moveCardInstance(space, space.fieldZone[0], "graveyard");
+}
