@@ -31,11 +31,10 @@ export class ActivateSpellCommand implements GameCommand {
    *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
-   * 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
-   * 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
-   *
-   * TODO: フィールドにある場合は、裏側状態チェックも必要
+   * 2. 指定カードが魔法カードであること
+   * 3. 手札にある、またはフィールドにセットされていること
+   * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+   * 5. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
    *
    * Note: フェイズ判定・速攻魔法のセットターン制限は ChainableAction 側でチェック
    */
@@ -47,23 +46,28 @@ export class ActivateSpellCommand implements GameCommand {
 
     const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
 
-    // 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
+    // 2. 指定カードが魔法カードであること
     if (!cardInstance) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
-    }
-    if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
-      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_VALID_LOCATION);
     }
     if (!Card.isSpell(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_SPELL_CARD);
     }
 
-    // 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+    // 3. 手札にある、またはフィールドにセットされていること
+    if (
+      !Card.Instance.inHand(cardInstance) &&
+      !(Card.Instance.onField(cardInstance) && Card.Instance.isFaceDown(cardInstance))
+    ) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_VALID_LOCATION);
+    }
+
+    // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (!Card.isFieldSpell(cardInstance) && GameState.Space.isSpellTrapZoneFull(state.space)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.SPELL_TRAP_ZONE_FULL);
     }
 
-    // 4. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+    // 5. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
     if (activation) {
       const activationResult = activation.canActivate(state, cardInstance);
