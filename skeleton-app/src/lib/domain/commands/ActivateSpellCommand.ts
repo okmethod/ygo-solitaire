@@ -44,9 +44,8 @@ export class ActivateSpellCommand implements GameCommand {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
-    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
-
     // 2. 指定カードが魔法カードであること
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
     if (!cardInstance) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
     }

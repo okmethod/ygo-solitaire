@@ -29,8 +29,9 @@ export class SetSpellTrapCommand implements GameCommand {
    * チェック項目:
    * 1. ゲーム終了状態でないこと
    * 2. メインフェイズであること
-   * 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
-   * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+   * 3. 指定カードが魔法カードまたは罠カードであること
+   * 4. 手札に存在すること
+   * 5. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
    */
   canExecute(state: GameSnapshot): ValidationResult {
     // 1. ゲーム終了状態でないこと
@@ -43,19 +44,21 @@ export class SetSpellTrapCommand implements GameCommand {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 
-    // 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
+    // 3. 指定カードが魔法カードまたは罠カードであること
     const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
     if (!cardInstance) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
-    }
-    if (cardInstance.location !== "hand") {
-      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
     }
     if (!Card.isSpell(cardInstance) && !Card.isTrap(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_SPELL_OR_TRAP_CARD);
     }
 
-    // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
+    // 4. 手札に存在すること
+    if (!Card.Instance.inHand(cardInstance)) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
+    }
+
+    // 5. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
     if (!Card.isFieldSpell(cardInstance) && GameState.Space.isSpellTrapZoneFull(state.space)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.SPELL_TRAP_ZONE_FULL);
     }

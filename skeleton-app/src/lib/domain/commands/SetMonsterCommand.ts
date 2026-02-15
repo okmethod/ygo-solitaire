@@ -52,7 +52,7 @@ export class SetMonsterCommand implements GameCommand {
     if (!Card.isMonster(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MONSTER_CARD);
     }
-    if (cardInstance.location !== "hand") {
+    if (!Card.Instance.inHand(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
     }
 
