@@ -39,8 +39,6 @@
   let {
     cards,
     handCardCount,
-    currentPhase,
-    isGameOver,
     selectedHandCardInstanceId,
     onCardClick,
     onSummonMonster,
@@ -53,36 +51,23 @@
   const _isMobile = isMobile();
   const cardSize: ComponentSize = _isMobile ? "small" : "medium";
 
-  // カードごとの発動可能性をチェック
+  // カードを発動可能か
   function isActivatable(instanceId: string): boolean {
-    if (isGameOver) return false;
-    if (currentPhase !== "Main1") return false;
-
-    // GameFacade経由でカード固有の発動条件をチェック
     return gameFacade.canActivateSpell(instanceId);
   }
 
-  // モンスター召喚可能性をチェック
+  // モンスターを召喚可能か
   function canSummonMonster(instanceId: string): boolean {
-    if (isGameOver) return false;
-    if (currentPhase !== "Main1") return false;
-
     return gameFacade.canSummonMonster(instanceId);
   }
 
-  // モンスターセット可能性をチェック
+  // モンスターをセット可能か
   function canSetMonster(instanceId: string): boolean {
-    if (isGameOver) return false;
-    if (currentPhase !== "Main1") return false;
-
     return gameFacade.canSetMonster(instanceId);
   }
 
-  // 魔法・罠セット可能性をチェック
+  // 魔法・罠をセット可能か
   function canSetSpellTrap(instanceId: string): boolean {
-    if (isGameOver) return false;
-    if (currentPhase !== "Main1") return false;
-
     return gameFacade.canSetSpellTrap(instanceId);
   }
 

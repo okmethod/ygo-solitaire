@@ -84,10 +84,10 @@
 
     function _getPhaseDisplay(phase: string): string {
       const phaseMap: Record<string, string> = {
-        Draw: "ドローフェイズ",
-        Standby: "スタンバイフェイズ",
-        Main1: "メインフェイズ1",
-        End: "エンドフェイズ",
+        draw: "ドローフェイズ",
+        standby: "スタンバイフェイズ",
+        main1: "メインフェイズ1",
+        end: "エンドフェイズ",
       };
       return phaseMap[phase] || phase;
     }
