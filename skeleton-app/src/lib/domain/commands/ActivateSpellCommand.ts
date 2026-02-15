@@ -117,14 +117,26 @@ export class ActivateSpellCommand implements GameCommand {
    *
    * - 手札から発動: 適切なゾーンに表向きで配置
    *   - 通常魔法/速攻魔法 → 魔法・罠ゾーン
-   *   - フィールド魔法 → フィールドゾーン
+   *   - フィールド魔法 → フィールドゾーン（既存のフィールド魔法は墓地へ）
    * - セットから発動: 同じゾーンに表向きで配置
    */
   private moveActivatedSpellCard(space: CardSpace, cardInstance: CardInstance): CardSpace {
     // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
     if (cardInstance.location === "hand") {
-      const targetZone = Card.isFieldSpell(cardInstance) ? "fieldZone" : "spellTrapZone";
-      return GameState.Space.moveCard(space, cardInstance, targetZone, {
+      // フィールド魔法の場合
+      if (Card.isFieldSpell(cardInstance)) {
+        // 既存フィールド魔法カードが存在する場合、先に墓地へ送る
+        let updatedSpace = space;
+        if (GameState.Space.isFieldZoneFull(space)) {
+          updatedSpace = GameState.Space.moveCard(space, space.fieldZone[0], "graveyard");
+        }
+        return GameState.Space.moveCard(updatedSpace, cardInstance, "fieldZone", {
+          position: "faceUp",
+        });
+      }
+
+      // 通常魔法/速攻魔法の場合
+      return GameState.Space.moveCard(space, cardInstance, "spellTrapZone", {
         position: "faceUp",
       });
     }
