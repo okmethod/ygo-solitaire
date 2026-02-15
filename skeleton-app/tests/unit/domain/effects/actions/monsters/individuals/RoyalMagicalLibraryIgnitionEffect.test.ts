@@ -10,13 +10,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState, createFieldCardInstance } from "../../../../../../__testUtils__/gameStateFactory";
+import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 
 describe("RoyalMagicalLibraryIgnitionEffect", () => {
   let effect: RoyalMagicalLibraryIgnitionEffect;
-  let initialState: GameState;
+  let initialState: GameSnapshot;
   let sourceInstance: CardInstance;
 
   const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
@@ -40,17 +40,17 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
 
     // Create state with Royal Magical Library face-up attack on monster zone
     initialState = createMockGameState({
-      phase: "Main1",
+      phase: "main1",
       lp: { player: 8000, opponent: 8000 },
-      zones: {
-        deck: [
+      space: {
+        mainDeck: [
           {
-            instanceId: "deck-0",
+            instanceId: "main-0",
             id: 1001,
             jaName: "サンプルカード",
             type: "spell" as const,
             frameType: "spell" as const,
-            location: "deck" as const,
+            location: "mainDeck" as const,
           },
           {
             instanceId: "deck-1",
@@ -58,9 +58,10 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
             jaName: "サンプルカード2",
             type: "spell" as const,
             frameType: "spell" as const,
-            location: "deck" as const,
+            location: "mainDeck" as const,
           },
         ],
+        extraDeck: [],
         hand: [],
         mainMonsterZone: [sourceInstance],
         spellTrapZone: [],
@@ -131,8 +132,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
     it("should return invalid when not in Main Phase", () => {
       const drawPhaseState = createMockGameState({
         ...initialState,
-        phase: "Draw",
-        zones: initialState.zones,
+        phase: "draw",
+        space: initialState.space,
       });
 
       const result = effect.canActivate(drawPhaseState, sourceInstance);
@@ -180,9 +181,10 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
         counters: [{ type: "spell", count: 3 }],
       });
       const defenseState = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: initialState.zones.deck,
+        phase: "main1",
+        space: {
+          mainDeck: initialState.space.mainDeck,
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [defenseInstance],
           spellTrapZone: [],
@@ -214,8 +216,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const result = removeCounterStep.action(initialState);
 
       expect(result.success).toBe(true);
-      const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
+      const updatedLibrary = result.updatedState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
   });
 
@@ -234,8 +236,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const result = drawStep.action(initialState);
 
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.deck).toHaveLength(1); // Started with 2
-      expect(result.updatedState.zones.hand).toHaveLength(1); // Started with 0
+      expect(result.updatedState.space.mainDeck).toHaveLength(1); // Started with 2
+      expect(result.updatedState.space.hand).toHaveLength(1); // Started with 0
     });
   });
 
@@ -257,8 +259,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       }
 
       // Verify counters removed after activation
-      const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
+      const libraryAfterActivation = currentState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
 
       // Execute resolution steps
       const resolutionSteps = effect.createResolutionSteps(currentState, sourceInstance);
@@ -270,8 +272,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       }
 
       // Verify draw occurred
-      expect(currentState.zones.hand).toHaveLength(1);
-      expect(currentState.zones.deck).toHaveLength(1);
+      expect(currentState.space.hand).toHaveLength(1);
+      expect(currentState.space.mainDeck).toHaveLength(1);
     });
 
     it("should be able to activate again after accumulating 3 more counters", () => {
@@ -322,8 +324,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const activationSteps = effect.createActivationSteps(initialState, exactlyThreeInstance);
       const stateWithExactly3 = {
         ...initialState,
-        zones: {
-          ...initialState.zones,
+        space: {
+          ...initialState.space,
           mainMonsterZone: [exactlyThreeInstance],
         },
       };
@@ -332,8 +334,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const result = removeStep.action(stateWithExactly3);
 
       expect(result.success).toBe(true);
-      const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
+      const updatedLibrary = result.updatedState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("should work with more than 3 counters", () => {
@@ -354,8 +356,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const activationSteps = effect.createActivationSteps(initialState, fiveCounterInstance);
       const stateWith5 = {
         ...initialState,
-        zones: {
-          ...initialState.zones,
+        space: {
+          ...initialState.space,
           mainMonsterZone: [fiveCounterInstance],
         },
       };
@@ -364,8 +366,8 @@ describe("RoyalMagicalLibraryIgnitionEffect", () => {
       const result = removeStep.action(stateWith5);
 
       expect(result.success).toBe(true);
-      const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(2); // 5 - 3 = 2
+      const updatedLibrary = result.updatedState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(2); // 5 - 3 = 2
     });
   });
 });

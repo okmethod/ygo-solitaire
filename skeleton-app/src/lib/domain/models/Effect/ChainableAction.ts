@@ -5,8 +5,8 @@
  * @see {@link docs/domain/effect-model.md}
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 
@@ -61,7 +61,7 @@ export interface ChainableAction {
    * - コスト支払い可否（LPコスト、手札コスト等）
    * - 1ターンに1度制限（sourceInstance.stateOnField.activatedEffectsで判定）
    */
-  canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult;
+  canActivate(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動時の処理
@@ -71,7 +71,7 @@ export interface ChainableAction {
    * - 対象指定（対象を取る効果の場合）
    * - カード配置（カードの発動の場合）
    */
-  createActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  createActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決時の処理
@@ -83,5 +83,5 @@ export interface ChainableAction {
    * - ステータス変更
    * - 特殊召喚
    */
-  createResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  createResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 }

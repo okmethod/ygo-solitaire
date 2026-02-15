@@ -11,8 +11,8 @@
  * @module domain/effects/actions/spells/individuals/GracefulCharityActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -32,8 +32,8 @@ export class GracefulCharityActivation extends NormalSpellAction {
    * チェック項目:
    * 1. デッキに3枚以上あること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    if (state.zones.deck.length < 3) {
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+    if (state.space.mainDeck.length < 3) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -45,7 +45,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -58,7 +58,7 @@ export class GracefulCharityActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [drawStep(3), selectAndDiscardStep(2)];
   }
 }

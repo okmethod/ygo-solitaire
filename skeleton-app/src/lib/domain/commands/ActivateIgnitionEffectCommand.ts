@@ -9,18 +9,16 @@
  * @module domain/commands/ActivateIgnitionEffectCommand
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { GameCommand } from "$lib/domain/models/GameCommand";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ChainableAction } from "$lib/domain/models/Effect";
-import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
-import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isFaceUp } from "$lib/domain/models/CardOld";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
+import { Command } from "$lib/domain/models/Command";
+import type { ChainableAction } from "$lib/domain/models/Effect";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 
 /** 起動効果発動コマンドクラス */
 export class ActivateIgnitionEffectCommand implements GameCommand {
@@ -41,14 +39,14 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * Note: フェイズ判定は ChainableAction 側でチェック
    */
-  canExecute(state: GameState): ValidationResult {
+  canExecute(state: GameSnapshot): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
     // 2. 指定カードがフィールドに存在し、表側表示であること
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
     if (!cardInstance) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
     }
@@ -56,7 +54,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     if (!validLocations.includes(cardInstance.location)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_ON_FIELD);
     }
-    if (!isFaceUp(cardInstance)) {
+    if (!Card.Instance.isFaceUp(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FACE_UP);
     }
 
@@ -83,7 +81,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    */
   private findActivatableEffect(
     effects: ChainableAction[],
-    state: GameState,
+    state: GameSnapshot,
     cardInstance: CardInstance,
   ): ChainableAction | undefined {
     return effects.find((effect) => effect.canActivate(state, cardInstance).isValid);
@@ -99,14 +97,14 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    *
    * Note: 効果処理は、Application 層に返された後に実行される
    */
-  execute(state: GameState): GameStateUpdateResult {
+  execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
+      return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId)!;
     // activatableEffect は canExecute で存在が保証されている
     const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(cardInstance.id);
     const activatableEffect = this.findActivatableEffect(ignitionEffects, state, cardInstance)!;
@@ -115,24 +113,19 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     const currentStateOnField = cardInstance.stateOnField!;
     const updatedActivatedEffects = new Set(currentStateOnField.activatedEffects);
     updatedActivatedEffects.add(activatableEffect.effectId);
-    const updatedStateOnField: StateOnField = {
-      ...currentStateOnField,
-      activatedEffects: updatedActivatedEffects, // 発動済み効果IDを記録
-    };
 
-    const updatedZones = updateCardInPlace(state.zones, cardInstance, {
-      stateOnField: updatedStateOnField,
-    });
-
-    const updatedState: GameState = {
+    const updatedState: GameSnapshot = {
       ...state,
-      zones: updatedZones,
+      space: GameState.Space.updateCardStateInPlace(state.space, cardInstance, {
+        activatedEffects: updatedActivatedEffects, // 発動記録の更新
+      }),
     };
 
     // 3. 戻り値の構築
-    return successUpdateResult(
+    return Command.Result.success(
       updatedState,
       `Ignition effect activated: ${this.cardInstanceId}`,
+      [],
       this.buildEffectSteps(updatedState, cardInstance, activatableEffect),
     );
   }
@@ -141,7 +134,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
    * 効果処理ステップ配列を生成する
    * Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
    */
-  private buildEffectSteps(state: GameState, cardInstance: CardInstance, effect: ChainableAction): AtomicStep[] {
+  private buildEffectSteps(state: GameSnapshot, cardInstance: CardInstance, effect: ChainableAction): AtomicStep[] {
     const activationSteps = effect.createActivationSteps(state, cardInstance);
     const resolutionSteps = effect.createResolutionSteps(state, cardInstance);
     return [...activationSteps, ...resolutionSteps];

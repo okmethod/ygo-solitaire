@@ -11,12 +11,11 @@
  * @module domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import { isFaceUp } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import { addCounterStep } from "$lib/domain/effects/steps/counters";
 
 /** 王立魔法図書館のカードID */
@@ -45,7 +44,7 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
   /**
    * トリガーイベント: 魔法カード発動時
    */
-  readonly triggers: readonly TriggerEvent[] = ["spellActivated"];
+  readonly triggers: readonly EventType[] = ["spellActivated"];
 
   /**
    * 適用条件チェック
@@ -56,10 +55,10 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
    * @param state - 現在のゲーム状態
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState): boolean {
+  canApply(state: GameSnapshot): boolean {
     // モンスターゾーンに王立魔法図書館が表側表示で存在するか
-    const libraryOnField = state.zones.mainMonsterZone.some(
-      (card) => card.id === ROYAL_MAGICAL_LIBRARY_ID && isFaceUp(card),
+    const libraryOnField = state.space.mainMonsterZone.some(
+      (card) => card.id === ROYAL_MAGICAL_LIBRARY_ID && Card.Instance.isFaceUp(card),
     );
 
     return libraryOnField;
@@ -75,7 +74,7 @@ export class RoyalMagicalLibraryContinuousEffect implements AdditionalRule {
    * @param sourceInstance - このルールの発生源となるカードインスタンス（王立魔法図書館）
    * @returns 実行するAtomicStep配列
    */
-  createTriggerSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  createTriggerSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [addCounterStep(sourceInstance.instanceId, "spell", 1, LIMIT_SPELL_COUNTERS)];
   }
 }

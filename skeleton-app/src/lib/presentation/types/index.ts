@@ -7,7 +7,7 @@
  * @module presentation/types
  */
 
-export type { GameState, InteractionConfig } from "$lib/application/types/game";
+export type { GameSnapshot, InteractionConfig } from "$lib/application/types/game";
 
 export type {
   CardInstance,

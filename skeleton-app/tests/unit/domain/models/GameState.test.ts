@@ -9,9 +9,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
-import { createInitialGameState } from "$lib/domain/models/GameStateOld";
-import { findCardInstance } from "$lib/domain/models/Zone";
+import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -22,29 +21,29 @@ describe("GameState", () => {
   describe("createInitialGameState", () => {
     it("should create initial state with given deck (numeric IDs)", () => {
       const deckCardIds = [1001, 1002, 1003];
-      const state = createInitialGameState(createTestInitialDeck(deckCardIds), {
+      const state = GameState.initialize(createTestInitialDeck(deckCardIds), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      expect(state.zones.deck.length).toBe(3);
-      expect(state.zones.hand.length).toBe(0);
-      expect(state.zones.mainMonsterZone.length).toBe(0);
-      expect(state.zones.spellTrapZone.length).toBe(0);
-      expect(state.zones.fieldZone.length).toBe(0);
-      expect(state.zones.graveyard.length).toBe(0);
-      expect(state.zones.banished.length).toBe(0);
+      expect(state.space.mainDeck.length).toBe(3);
+      expect(state.space.hand.length).toBe(0);
+      expect(state.space.mainMonsterZone.length).toBe(0);
+      expect(state.space.spellTrapZone.length).toBe(0);
+      expect(state.space.fieldZone.length).toBe(0);
+      expect(state.space.graveyard.length).toBe(0);
+      expect(state.space.banished.length).toBe(0);
     });
 
     it("should initialize with correct default values", () => {
-      const state = createInitialGameState(createTestInitialDeck([1001]), {
+      const state = GameState.initialize(createTestInitialDeck([1001]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
       expect(state.lp.player).toBe(8000);
       expect(state.lp.opponent).toBe(8000);
-      expect(state.phase).toBe("Draw");
+      expect(state.phase).toBe("draw");
       expect(state.turn).toBe(1);
       expect(state.result.isGameOver).toBe(false);
       expect(state.normalSummonLimit).toBe(1);
@@ -52,48 +51,48 @@ describe("GameState", () => {
     });
 
     it("should create unique instance IDs for deck cards", () => {
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      const instanceIds = state.zones.deck.map((card) => card.instanceId);
+      const instanceIds = state.space.mainDeck.map((card) => card.instanceId);
       const uniqueIds = new Set(instanceIds);
 
       expect(uniqueIds.size).toBe(3);
-      expect(instanceIds).toEqual(["deck-0", "deck-1", "deck-2"]);
+      expect(instanceIds).toEqual(["main-0", "main-1", "main-2"]);
     });
 
     it("should set correct location for deck cards", () => {
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      state.zones.deck.forEach((card) => {
-        expect(card.location).toBe("deck");
+      state.space.mainDeck.forEach((card) => {
+        expect(card.location).toBe("mainDeck");
       });
     });
 
     it("should handle empty deck", () => {
-      const state = createInitialGameState(createTestInitialDeck([]), {
+      const state = GameState.initialize(createTestInitialDeck([]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      expect(state.zones.deck.length).toBe(0);
+      expect(state.space.mainDeck.length).toBe(0);
       expect(state.result.isGameOver).toBe(false);
     });
   });
 
   describe("Immutability with spread syntax", () => {
     it("should create new state instance when updated", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      const newState: GameState = {
+      const newState: GameSnapshot = {
         ...originalState,
         turn: 2,
       };
@@ -104,35 +103,35 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating zones", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
-      const originalDeckLength = originalState.zones.deck.length;
+      const originalDeckLength = originalState.space.mainDeck.length;
 
-      const card = originalState.zones.deck[originalState.zones.deck.length - 1];
-      const newState: GameState = {
+      const card = originalState.space.mainDeck[originalState.space.mainDeck.length - 1];
+      const newState: GameSnapshot = {
         ...originalState,
-        zones: {
-          ...originalState.zones,
-          deck: originalState.zones.deck.slice(0, -1),
-          hand: [...originalState.zones.hand, card],
+        space: {
+          ...originalState.space,
+          mainDeck: originalState.space.mainDeck.slice(0, -1),
+          hand: [...originalState.space.hand, card],
         },
       };
 
-      expect(originalState.zones.deck.length).toBe(originalDeckLength);
-      expect(originalState.zones.hand.length).toBe(0);
-      expect(newState.zones.deck.length).toBe(originalDeckLength - 1);
-      expect(newState.zones.hand.length).toBe(1);
+      expect(originalState.space.mainDeck.length).toBe(originalDeckLength);
+      expect(originalState.space.hand.length).toBe(0);
+      expect(newState.space.mainDeck.length).toBe(originalDeckLength - 1);
+      expect(newState.space.hand.length).toBe(1);
     });
 
     it("should not mutate original state when updating life points", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      const newState: GameState = {
+      const newState: GameSnapshot = {
         ...originalState,
         lp: {
           ...originalState.lp,
@@ -145,27 +144,27 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating phase", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      const newState: GameState = {
+      const newState: GameSnapshot = {
         ...originalState,
-        phase: "Main1",
+        phase: "main1",
       };
 
-      expect(originalState.phase).toBe("Draw");
-      expect(newState.phase).toBe("Main1");
+      expect(originalState.phase).toBe("draw");
+      expect(newState.phase).toBe("main1");
     });
 
     it("should not mutate original state when updating game result", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
-      const newState: GameState = {
+      const newState: GameSnapshot = {
         ...originalState,
         result: {
           ...originalState.result,
@@ -182,124 +181,126 @@ describe("GameState", () => {
     });
 
     it("should support nested updates without mutation", () => {
-      const originalState = createInitialGameState(createTestInitialDeck([1001, 1002]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
       // Move card from deck to hand
-      const card = { ...originalState.zones.deck[originalState.zones.deck.length - 1], location: "hand" as const };
-      const newState: GameState = {
+      const card = {
+        ...originalState.space.mainDeck[originalState.space.mainDeck.length - 1],
+        location: "hand" as const,
+      };
+      const newState: GameSnapshot = {
         ...originalState,
-        zones: {
-          ...originalState.zones,
-          deck: originalState.zones.deck.slice(0, -1),
-          hand: [...originalState.zones.hand, card],
+        space: {
+          ...originalState.space,
+          mainDeck: originalState.space.mainDeck.slice(0, -1),
+          hand: [...originalState.space.hand, card],
         },
         lp: {
           ...originalState.lp,
           player: 7500,
         },
-        phase: "Standby",
+        phase: "standby",
       };
 
       // Original state unchanged
-      expect(originalState.zones.deck.length).toBe(2);
-      expect(originalState.zones.hand.length).toBe(0);
+      expect(originalState.space.mainDeck.length).toBe(2);
+      expect(originalState.space.hand.length).toBe(0);
       expect(originalState.lp.player).toBe(8000);
-      expect(originalState.phase).toBe("Draw");
+      expect(originalState.phase).toBe("draw");
 
       // New state updated
-      expect(newState.zones.deck.length).toBe(1);
-      expect(newState.zones.hand.length).toBe(1);
+      expect(newState.space.mainDeck.length).toBe(1);
+      expect(newState.space.hand.length).toBe(1);
       expect(newState.lp.player).toBe(7500);
-      expect(newState.phase).toBe("Standby");
+      expect(newState.phase).toBe("standby");
     });
   });
 
   describe("Helper functions", () => {
     describe("findCardInstance", () => {
       it("should find card in deck", () => {
-        const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
           skipShuffle: true,
           skipInitialDraw: true,
         });
-        const card = findCardInstance(state.zones, "deck-0");
+        const card = GameState.Space.findCard(state.space, "main-0");
 
         expect(card).toBeDefined();
-        expect(card?.instanceId).toBe("deck-0");
+        expect(card?.instanceId).toBe("main-0");
         expect(card?.id).toBe(1001); // CardInstance extends CardData
-        expect(card?.location).toBe("deck");
+        expect(card?.location).toBe("mainDeck");
       });
 
       it("should find card in hand", () => {
-        const initialState = createInitialGameState(createTestInitialDeck([1001]), {
+        const initialState = GameState.initialize(createTestInitialDeck([1001]), {
           skipShuffle: true,
           skipInitialDraw: true,
         });
-        const movedCard = { ...initialState.zones.deck[0], location: "hand" as const };
-        const state: GameState = {
+        const movedCard = { ...initialState.space.mainDeck[0], location: "hand" as const };
+        const state: GameSnapshot = {
           ...initialState,
-          zones: {
-            ...initialState.zones,
-            deck: [],
+          space: {
+            ...initialState.space,
+            mainDeck: [],
             hand: [movedCard],
           },
         };
 
-        const card = findCardInstance(state.zones, "deck-0");
+        const card = GameState.Space.findCard(state.space, "main-0");
         expect(card).toBeDefined();
         expect(card?.location).toBe("hand");
       });
 
       it("should return undefined for non-existent card", () => {
-        const state = createInitialGameState(createTestInitialDeck([1001]), {
+        const state = GameState.initialize(createTestInitialDeck([1001]), {
           skipShuffle: true,
           skipInitialDraw: true,
         });
-        const card = findCardInstance(state.zones, "non-existent-id");
-
+        const card = GameState.Space.findCard(state.space, "non-existent-id");
         expect(card).toBeUndefined();
       });
 
       it("should search across all zones", () => {
-        const initialState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+        const initialState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
           skipShuffle: true,
           skipInitialDraw: true,
         });
-        const card1 = { ...initialState.zones.deck[2], location: "hand" as const };
-        const card2 = { ...initialState.zones.deck[1], location: "graveyard" as const };
-        const state: GameState = {
+        const card1 = { ...initialState.space.mainDeck[2], location: "hand" as const };
+        const card2 = { ...initialState.space.mainDeck[1], location: "graveyard" as const };
+        const state: GameSnapshot = {
           ...initialState,
-          zones: {
-            ...initialState.zones,
-            deck: [initialState.zones.deck[0]],
+          space: {
+            ...initialState.space,
+            mainDeck: [initialState.space.mainDeck[0]],
             hand: [card1],
             graveyard: [card2],
           },
         };
 
-        expect(findCardInstance(state.zones, "deck-0")).toBeDefined();
-        expect(findCardInstance(state.zones, "deck-1")).toBeDefined();
-        expect(findCardInstance(state.zones, "deck-2")).toBeDefined();
+        expect(GameState.Space.findCard(state.space, "main-0")).toBeDefined();
+        expect(GameState.Space.findCard(state.space, "main-1")).toBeDefined();
+        expect(GameState.Space.findCard(state.space, "main-2")).toBeDefined();
       });
     });
   });
 
   describe("Type safety", () => {
     it("should enforce readonly at compile time", () => {
-      const state = createInitialGameState(createTestInitialDeck([1001]), {
+      const state = GameState.initialize(createTestInitialDeck([1001]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
 
       // These should cause TypeScript errors if uncommented:
       // state.turn = 2; // Error: Cannot assign to 'turn' because it is a read-only property
-      // state.zones.deck = []; // Error: Cannot assign to 'deck' because it is a read-only property
+      // state.space.mainDeck = []; // Error: Cannot assign to 'deck' because it is a read-only property
       // state.lp.player = 7000; // Error: Cannot assign to 'player' because it is a read-only property
 
       // Instead, we must use spread syntax
-      const newState: GameState = {
+      const newState: GameSnapshot = {
         ...state,
         turn: 2,
       };

@@ -11,13 +11,12 @@
  * @module domain/effects/actions/spells/ContinuousSpellAction
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
-import { isMainPhase } from "$lib/domain/models/Phase";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
 
 /**
  * ContinuousSpellAction - 永続魔法カードの抽象基底クラス
@@ -37,9 +36,9 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypeConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected subTypeConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // 1. メインフェイズであること
-    if (!isMainPhase(state.phase)) {
+    if (!GameState.Phase.isMain(state.phase)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 
@@ -52,7 +51,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @abstract
    */
-  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
+  protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動前処理（永続魔法共通）
@@ -60,7 +59,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePreActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected subTypePreActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 永続魔法は発動前処理なし
   }
 
@@ -70,7 +69,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @abstract
    */
-  protected abstract individualActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * ACTIVATION: 発動後処理（永続魔法共通）
@@ -78,7 +77,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePostActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected subTypePostActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 永続魔法は発動後処理なし
   }
 
@@ -88,7 +87,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePreResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected subTypePreResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 永続魔法は効果解決前処理なし
   }
 
@@ -98,7 +97,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @abstract
    */
-  protected abstract individualResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決後処理（永続魔法共通）
@@ -106,7 +105,7 @@ export abstract class ContinuousSpellAction extends BaseSpellAction {
    * @protected
    * @final このメソッドはオーバーライドしない
    */
-  protected subTypePostResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected subTypePostResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 永続魔法は効果解決後処理なし（フィールドに残る）
   }
 }

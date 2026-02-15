@@ -11,8 +11,8 @@
  * @module domain/effects/actions/spells/individuals/IntoTheVoidActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -34,14 +34,14 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    * 2. デッキに1枚以上あること
    *
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // 1. 自分の手札が3枚以上であること
-    if (state.zones.hand.length < 3) {
+    if (state.space.hand.length < 3) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. デッキに1枚以上あること
-    if (state.zones.deck.length < 1) {
+    if (state.space.mainDeck.length < 1) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -53,7 +53,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -66,7 +66,7 @@ export class IntoTheVoidActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [drawStep(1), discardAllHandEndPhaseStep()];
   }
 }

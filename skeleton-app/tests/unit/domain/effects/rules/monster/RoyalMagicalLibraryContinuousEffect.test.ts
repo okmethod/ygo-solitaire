@@ -13,9 +13,9 @@
 
 import { describe, it, expect } from "vitest";
 import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import { getCounterCount, type CounterState } from "$lib/domain/models/Card/Counter";
+import type { CardInstance, CounterState } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
 
 /**
@@ -23,9 +23,9 @@ import { createFieldCardInstance } from "../../../../../__testUtils__/gameStateF
  */
 function executeTriggerSteps(
   rule: RoyalMagicalLibraryContinuousEffect,
-  state: GameState,
+  state: GameSnapshot,
   sourceInstance: CardInstance,
-): GameState {
+): GameSnapshot {
   const steps = rule.createTriggerSteps!(state, sourceInstance);
   let currentState = state;
   for (const step of steps) {
@@ -59,9 +59,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     });
 
   // Helper function to create a base game state
-  const createBaseGameState = (overrides: Partial<GameState> = {}): GameState => ({
-    zones: {
-      deck: [],
+  const createBaseGameSnapshot = (overrides: Partial<GameSnapshot> = {}): GameSnapshot => ({
+    space: {
+      mainDeck: [],
+      extraDeck: [],
       hand: [],
       mainMonsterZone: [],
       spellTrapZone: [],
@@ -70,14 +71,13 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       banished: [],
     },
     lp: { player: 8000, opponent: 8000 },
-    phase: "Main1",
+    phase: "main1",
     turn: 1,
     result: { isGameOver: false },
     normalSummonLimit: 1,
     normalSummonUsed: 0,
-    activatedOncePerTurnCards: new Set(),
-    pendingEndPhaseEffects: [],
-    damageNegation: false,
+    activatedCardIds: new Set(),
+    queuedEndPhaseEffectIds: [],
     ...overrides,
   });
 
@@ -98,7 +98,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
   describe("canApply()", () => {
     it("should return false when Royal Magical Library is not on field", () => {
       // Arrange
-      const state = createBaseGameState();
+      const state = createBaseGameSnapshot();
 
       // Act
       const result = rule.canApply(state);
@@ -110,9 +110,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     it("should return false when Royal Magical Library is face-down", () => {
       // Arrange
       const libraryCard = createLibraryCard({ position: "faceDown" });
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -132,9 +133,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     it("should return true when Royal Magical Library is face-up on field", () => {
       // Arrange
       const libraryCard = createLibraryCard();
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -156,9 +158,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     it("should add one spell counter to the source instance", () => {
       // Arrange
       const libraryCard = createLibraryCard();
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -172,8 +175,8 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
-      const updatedLibrary = newState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(1);
+      const updatedLibrary = newState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
     it("should accumulate spell counters up to 3", () => {
@@ -181,9 +184,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       const libraryCard = createLibraryCard({
         counters: [{ type: "spell", count: 2 }],
       });
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -197,8 +201,8 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
-      const updatedLibrary = newState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
+      const updatedLibrary = newState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("should not exceed max spell counters (3)", () => {
@@ -206,9 +210,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       const libraryCard = createLibraryCard({
         counters: [{ type: "spell", count: 3 }],
       });
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -222,8 +227,8 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
-      const updatedLibrary = newState.zones.mainMonsterZone[0];
-      expect(getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
+      const updatedLibrary = newState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("should not modify other cards in the zone", () => {
@@ -237,9 +242,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
         instanceId: "monster-1",
         location: "mainMonsterZone",
       };
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard, otherMonster],
           spellTrapZone: [],
@@ -253,16 +259,17 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       const newState = executeTriggerSteps(rule, state, libraryCard);
 
       // Assert
-      const updatedOther = newState.zones.mainMonsterZone[1];
-      expect(getCounterCount(updatedOther.stateOnField?.counters ?? [], "spell")).toBe(0);
+      const updatedOther = newState.space.mainMonsterZone[1];
+      expect(Card.Counter.get(updatedOther.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("should maintain immutability (not modify original state)", () => {
       // Arrange
       const libraryCard = createLibraryCard();
-      const state = createBaseGameState({
-        zones: {
-          deck: [],
+      const state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -276,7 +283,7 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
       executeTriggerSteps(rule, state, libraryCard);
 
       // Assert - original state should be unchanged
-      expect(getCounterCount(state.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(Card.Counter.get(state.space.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(0);
     });
   });
 
@@ -284,9 +291,10 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
     it("should accumulate counters through multiple spell activations", () => {
       // Arrange
       const libraryCard = createLibraryCard();
-      let state = createBaseGameState({
-        zones: {
-          deck: [],
+      let state = createBaseGameSnapshot({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -298,13 +306,13 @@ describe("RoyalMagicalLibraryContinuousEffect", () => {
 
       // Act - Simulate 4 spell activations
       for (let i = 0; i < 4; i++) {
-        const currentLibrary = state.zones.mainMonsterZone[0];
+        const currentLibrary = state.space.mainMonsterZone[0];
         state = executeTriggerSteps(rule, state, currentLibrary);
       }
 
       // Assert - Should cap at 3
-      const finalLibrary = state.zones.mainMonsterZone[0];
-      expect(getCounterCount(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
+      const finalLibrary = state.space.mainMonsterZone[0];
+      expect(Card.Counter.get(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
   });
 });

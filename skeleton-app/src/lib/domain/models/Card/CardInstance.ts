@@ -96,12 +96,8 @@ export const leavedFromFieldInstance = (card: CardInstance, location: LocationNa
   return updatedCardInstance(card, location, undefined);
 };
 
-/** 指定カードの表示形式を変更する（カードの位置は変わらない）*/
-export function updateCardStateInPlace(
-  card: CardInstance,
-  position: Position,
-  battlePosition?: BattlePosition,
-): CardInstance {
+/** 指定カードのフィールド状態を更新する（カードの位置は変わらない）*/
+export function updateCardStateInPlace(card: CardInstance, updates: Partial<StateOnField>): CardInstance {
   if (!Location.isField(card.location)) {
     throw new Error(`Card must be on the field to update state: currently in ${card.location}`);
   }
@@ -110,8 +106,7 @@ export function updateCardStateInPlace(
   }
   const updatedState: StateOnField = {
     ...card.stateOnField,
-    position,
-    battlePosition,
+    ...updates,
   };
   return updatedCardInstance(card, card.location, updatedState);
 }

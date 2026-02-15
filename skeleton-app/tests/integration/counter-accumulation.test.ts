@@ -18,14 +18,14 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
-import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
-import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules/index";
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
+import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
+import type { EventType } from "$lib/domain/models/GameProcessing";
+import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
+import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
+import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
+import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 
 // Initialize registries
 initializeChainableActionRegistry();
@@ -74,7 +74,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       frameType: "normal" as const,
       desc: "テスト用カード",
       instanceId: `deck-${i}`,
-      location: "deck" as const,
+      location: "mainDeck" as const,
     }));
 
   beforeEach(() => {
@@ -90,9 +90,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const potOfGreed = createPotOfGreed("pot-0");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [potOfGreed],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -114,7 +115,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       // ここでは AdditionalRuleRegistry.collectTriggerSteps() を直接呼び出してテスト
       const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
         result.updatedState,
-        "spellActivated" as TriggerEvent,
+        "spellActivated" as EventType,
       );
       expect(triggerSteps).toHaveLength(1);
       expect(triggerSteps[0].id).toContain("add-counter-spell");
@@ -125,8 +126,8 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       expect(stateAfterTrigger.success).toBe(true);
 
       // Verify counter was placed on Royal Magical Library
-      const updatedLibrary = stateAfterTrigger.updatedState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(1);
+      const updatedLibrary = stateAfterTrigger.updatedState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
     it("Scenario: 魔法を3回発動 → カウンターが3つ置かれる（上限）", () => {
@@ -139,9 +140,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       ];
 
       let currentState = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(10),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(10),
+          extraDeck: [],
           hand: spellCards,
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -160,7 +162,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
         // 新しい設計: トリガーステップを直接収集して実行
         const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
           result.updatedState,
-          "spellActivated" as TriggerEvent,
+          "spellActivated" as EventType,
         );
         expect(triggerSteps).toHaveLength(1);
 
@@ -169,8 +171,8 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       }
 
       // Assert: Counter should be at max (3)
-      const finalLibrary = currentState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
+      const finalLibrary = currentState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("Scenario: カウンターが3つある状態で魔法発動 → カウンターは3つのまま（上限超えない）", () => {
@@ -181,9 +183,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const potOfGreed = createPotOfGreed("pot-0");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [potOfGreed],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -200,14 +203,14 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       // 新しい設計: トリガーステップを直接収集して実行
       const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
         result.updatedState,
-        "spellActivated" as TriggerEvent,
+        "spellActivated" as EventType,
       );
       expect(triggerSteps).toHaveLength(1);
       const triggerResult = triggerSteps[0].action(result.updatedState);
 
       // Assert: Counter should still be 3 (not exceed max)
-      const updatedLibrary = triggerResult.updatedState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
+      const updatedLibrary = triggerResult.updatedState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(3);
     });
 
     it("Scenario: 王立魔法図書館が裏側表示の場合 → トリガーステップは追加されない（カウンターは置かれない）", () => {
@@ -218,9 +221,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const potOfGreed = createPotOfGreed("pot-0");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [potOfGreed],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -240,8 +244,8 @@ describe("Counter Accumulation - Royal Magical Library", () => {
 
       // Verify activation succeeds and library remains unchanged
       expect(result.success).toBe(true);
-      const updatedLibrary = result.updatedState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
+      const updatedLibrary = result.updatedState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(updatedLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
     });
 
     it("Scenario: 王立魔法図書館がフィールドにいない場合 → トリガーステップは追加されない", () => {
@@ -249,9 +253,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const potOfGreed = createPotOfGreed("pot-0");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [potOfGreed],
           mainMonsterZone: [], // No monsters
           spellTrapZone: [],
@@ -282,9 +287,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const potOfGreed = createPotOfGreed("pot-0");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [potOfGreed],
           mainMonsterZone: [library1, library2],
           spellTrapZone: [],
@@ -301,7 +307,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       // 新しい設計: トリガーステップを直接収集して実行
       const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
         result.updatedState,
-        "spellActivated" as TriggerEvent,
+        "spellActivated" as EventType,
       );
       expect(triggerSteps).toHaveLength(2);
 
@@ -312,11 +318,11 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       }
 
       // Assert: Both libraries should have 1 counter each
-      const updatedLibrary1 = currentState.zones.mainMonsterZone[0];
-      const updatedLibrary2 = currentState.zones.mainMonsterZone[1];
+      const updatedLibrary1 = currentState.space.mainMonsterZone[0];
+      const updatedLibrary2 = currentState.space.mainMonsterZone[1];
 
-      expect(Card.Counter.getCounterCount(updatedLibrary1.stateOnField?.counters ?? [], "spell")).toBe(1);
-      expect(Card.Counter.getCounterCount(updatedLibrary2.stateOnField?.counters ?? [], "spell")).toBe(1);
+      expect(Card.Counter.get(updatedLibrary1.stateOnField?.counters ?? [], "spell")).toBe(1);
+      expect(Card.Counter.get(updatedLibrary2.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
     it("Scenario: 1体がカウンター3つ、もう1体が0個の状態で魔法発動 → 0個の方だけ増える", () => {
@@ -328,9 +334,10 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const potOfGreed = createPotOfGreed("pot-0");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [potOfGreed],
           mainMonsterZone: [library1, library2],
           spellTrapZone: [],
@@ -347,7 +354,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       // 新しい設計: トリガーステップを直接収集して実行
       const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
         result.updatedState,
-        "spellActivated" as TriggerEvent,
+        "spellActivated" as EventType,
       );
       expect(triggerSteps).toHaveLength(2);
 
@@ -358,11 +365,11 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       }
 
       // Assert: First library stays at 3, second library gets 1
-      const updatedLibrary1 = currentState.zones.mainMonsterZone[0];
-      const updatedLibrary2 = currentState.zones.mainMonsterZone[1];
+      const updatedLibrary1 = currentState.space.mainMonsterZone[0];
+      const updatedLibrary2 = currentState.space.mainMonsterZone[1];
 
-      expect(Card.Counter.getCounterCount(updatedLibrary1.stateOnField?.counters ?? [], "spell")).toBe(3);
-      expect(Card.Counter.getCounterCount(updatedLibrary2.stateOnField?.counters ?? [], "spell")).toBe(1);
+      expect(Card.Counter.get(updatedLibrary1.stateOnField?.counters ?? [], "spell")).toBe(3);
+      expect(Card.Counter.get(updatedLibrary2.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
   });
 });

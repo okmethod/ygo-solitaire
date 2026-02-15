@@ -10,3 +10,12 @@
  */
 
 export type { GameCommand, GameCommandResult } from "./GameCommand";
+
+import * as GameCommandFuncs from "./GameCommand";
+
+export const Command = {
+  Result: {
+    success: GameCommandFuncs.successCommandResult,
+    failure: GameCommandFuncs.failureCommandResult,
+  },
+};

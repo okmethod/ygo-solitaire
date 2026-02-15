@@ -11,7 +11,7 @@
  * @module domain/registries/CardDataRegistry
  */
 
-import type { CardData } from "$lib/domain/models/CardOld";
+import type { CardData } from "$lib/domain/models/Card";
 
 /**
  * カードデータレジストリ（辞書）

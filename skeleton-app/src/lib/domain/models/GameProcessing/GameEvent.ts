@@ -10,9 +10,6 @@ export type EventType =
   | "monsterSummoned" // モンスター召喚時
   | "cardDestroyed"; // カード破壊時
 
-/** @deprecated Use EventType instead */
-export type TriggerEvent = EventType;
-
 /**
  * イベントのコンテキスト情報
  *

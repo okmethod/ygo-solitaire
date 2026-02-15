@@ -93,20 +93,40 @@ export function moveCardInstance(
   const movingFromField = Location.isField(from);
   const placingOnField = movingToField && !movingFromField;
   const leavingFromField = !movingToField && movingFromField;
-  if (placingOnField ?? updates?.position === undefined) {
-    throw new Error("Position must be specified when placing a card on the field.");
-  }
 
   // カードインスタンスを更新
-  const updatedCard: CardInstance = placingOnField
-    ? Card.Instance.placedOnField(card, to, updates?.position, updates?.battlePosition)
-    : leavingFromField
-      ? Card.Instance.leavedFromField(card, to)
-      : Card.Instance.moved(card, to);
-  // CardSpace を更新して返却
+  let updatedCard: CardInstance;
+  if (placingOnField) {
+    if (updates?.position === undefined) {
+      throw new Error("Position must be specified when placing a card on the field.");
+    }
+    // フィールドに出される移動
+    updatedCard = Card.Instance.placedOnField(card, to, updates?.position, updates?.battlePosition);
+  } else if (leavingFromField) {
+    // フィールドから離れる移動
+    updatedCard = Card.Instance.leavedFromField(card, to);
+  } else if (movingToField && movingFromField && updates !== undefined) {
+    // フィールド内での状態更新（セットカードの発動、カウンター操作など）
+    updatedCard = Card.Instance.updatedState(card, updates);
+  } else {
+    // フィールド内での移動や、フィールド外での移動（状態変更なし）
+    updatedCard = Card.Instance.moved(card, to);
+  }
+
+  // 同じゾーン内での更新の場合は、配列の位置を維持する
+  if (from === to) {
+    const updatedList = sourceList.map((c) => (c.instanceId === card.instanceId ? updatedCard : c));
+    return {
+      ...currentSpace,
+      [from]: updatedList,
+    };
+  }
+
+  // 異なるゾーンへの移動
+  const filteredSource = sourceList.filter((c) => c.instanceId !== card.instanceId);
   return {
     ...currentSpace,
-    [from]: sourceList.filter((c) => c.instanceId !== card.instanceId),
+    [from]: filteredSource,
     [to]: [...currentSpace[to], updatedCard],
   };
 }

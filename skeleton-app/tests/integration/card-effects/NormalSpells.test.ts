@@ -40,9 +40,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Pot of Greed → Draw 2 cards → Hand increases by 2", () => {
       // Arrange: Initial state - 3 cards in deck, 1 card in hand (Pot of Greed)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -82,9 +83,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck has only 1 card", () => {
       // Arrange: Deck with only 1 card (insufficient)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([potOfGreedCardId], "hand", "pot"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -109,9 +111,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Graceful Charity → Draw 3 → Discard 2 → Hand increases by 1", () => {
       // Arrange: Initial state - 5 cards in deck, 1 card in hand (Graceful Charity)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -156,9 +159,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck has only 2 cards", () => {
       // Arrange: Deck with only 2 cards (insufficient)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([gracefulCharityCardId], "hand", "charity"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -183,9 +187,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Magical Mallet → Return 2 cards to deck → Shuffle → Draw 2", () => {
       // Arrange: 5 cards in deck, 3 cards in hand (Magical Mallet + 2 others)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["deck1", "deck2", "deck3", "deck4", "deck5"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["deck1", "deck2", "deck3", "deck4", "deck5"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([magicalMalletCardId, "hand1", "hand2"], "hand", "mallet"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -222,9 +227,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Can activate with empty hand (no cards to return)", () => {
       // Arrange: Only Magical Mallet in hand
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["deck1", "deck2"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["deck1", "deck2"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([magicalMalletCardId], "hand", "mallet"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -249,9 +255,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate One Day of Peace → Draw 1 card → Damage negation activated", () => {
       // Arrange: 3 cards in deck, 1 in hand
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -259,7 +266,6 @@ describe("Normal Spell Card Effects", () => {
           graveyard: [],
           banished: [],
         },
-        damageNegation: false,
       });
 
       // Act: Activate One Day of Peace
@@ -289,9 +295,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck is empty", () => {
       // Arrange: Empty deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: createCardInstances([oneDayOfPeaceCardId], "hand", "peace"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -316,10 +323,11 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Upstart Goblin → Draw 1 card → Opponent gains 1000 LP", () => {
       // Arrange: 3 cards in deck, 1 in hand
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 8000, opponent: 8000 },
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -355,9 +363,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck is empty", () => {
       // Arrange: Empty deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: createCardInstances([upstartGoblinCardId], "hand", "goblin"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -382,9 +391,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Dark Factory → Select 2 monsters from graveyard → Add to hand", () => {
       // Arrange: 2+ monsters in graveyard
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["deck1"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["deck1"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -442,9 +452,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when graveyard has only 1 monster", () => {
       // Arrange: Only 1 monster in graveyard
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["deck1"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["deck1"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([darkFactoryCardId], "hand", "factory"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -478,35 +489,36 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Terraforming → Select Field Spell from deck → Add to hand", () => {
       // Arrange: Field Spell in deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [
+        phase: "main1",
+        space: {
+          mainDeck: [
             {
               id: 1001,
-              instanceId: "deck-0",
+              instanceId: "main-0",
               type: "monster",
               frameType: "normal",
               jaName: "モンスター1",
-              location: "deck",
+              location: "mainDeck",
             },
             {
               id: 67616300,
-              instanceId: "deck-1",
+              instanceId: "main-1",
               type: "spell",
               frameType: "spell",
               jaName: "チキンレース",
               spellType: "field",
-              location: "deck",
+              location: "mainDeck",
             },
             {
               id: 1002,
-              instanceId: "deck-2",
+              instanceId: "main-2",
               type: "monster",
               frameType: "normal",
               jaName: "モンスター2",
-              location: "deck",
+              location: "mainDeck",
             },
           ],
+          extraDeck: [],
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -539,9 +551,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when no Field Spell in deck", () => {
       // Arrange: No Field Spell in deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["monster1", "monster2"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["monster1", "monster2"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([terraformingCardId], "hand", "terra"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -566,9 +579,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Magical Stone Excavation → Discard 2 → Select spell from graveyard → Add to hand", () => {
       // Arrange: 3 cards in hand (this card + 2 others), 2 spells in graveyard
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances(
             [magicalStoneExcavationCardId, "33782437", "70368879"], // This card + One Day of Peace + Upstart Goblin
             "hand",
@@ -617,9 +631,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when no spell cards in graveyard", () => {
       // Arrange: 3 cards in hand but no spell cards in graveyard
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([magicalStoneExcavationCardId, "33782437", "70368879"], "hand", "excavation"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -662,9 +677,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate Into the Void → Draw 1 → Register end phase effect", () => {
       // Arrange: 3 cards in hand (this card + 2 others), 2 cards in deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -707,9 +723,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck is empty", () => {
       // Arrange: 3 cards in hand but empty deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [], // Empty deck
+        phase: "main1",
+        space: {
+          mainDeck: [], // Empty deck
+          extraDeck: [],
           hand: createCardInstances([intoTheVoidCardId, "33782437", "70368879"], "hand", "void"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -737,9 +754,9 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate with deck = 10 → select 1 from top 3 → deck = 9, hand = 1", () => {
       // Arrange: Card in hand, deck with 10 cards
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(
             [
               "12345678",
               "87654321",
@@ -752,8 +769,9 @@ describe("Normal Spell Card Effects", () => {
               "55667788",
               "99001122",
             ],
-            "deck",
+            "mainDeck",
           ),
+          extraDeck: [],
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -796,9 +814,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate 1st card → success, activate 2nd card same turn → fail (once-per-turn constraint)", () => {
       // Arrange: Already activated once (card ID in activatedOncePerTurnCards)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321", "11112222"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -806,7 +825,7 @@ describe("Normal Spell Card Effects", () => {
           graveyard: [],
           banished: [],
         },
-        activatedOncePerTurnCards: new Set([98645731]), // Already activated
+        activatedCardIds: new Set([98645731]), // Already activated
       });
 
       // Act
@@ -820,9 +839,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck has less than 3 cards", () => {
       // Arrange: Only 2 cards in deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321"], "deck"), // Only 2 cards
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321"], "mainDeck"), // Only 2 cards
+          extraDeck: [],
           hand: createCardInstances([potOfDualityCardId], "hand", "duality"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -850,9 +870,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate with hand = 0 → draw 3 cards → end phase → hand = 0 (all discarded)", () => {
       // Arrange: No other cards in hand, sufficient deck
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321", "11112222"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -892,9 +913,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Activate with hand = 1 → draw 2 cards → end phase → hand = 0", () => {
       // Arrange: 1 other card in hand
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([cardOfDemiseCardId, "33782437"], "hand", "demise"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -928,9 +950,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Once-per-turn constraint test", () => {
       // Arrange: Already activated once (card ID in activatedOncePerTurnCards)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321", "11112222"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([cardOfDemiseCardId], "hand", "demise"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -938,7 +961,7 @@ describe("Normal Spell Card Effects", () => {
           graveyard: [],
           banished: [],
         },
-        activatedOncePerTurnCards: new Set([59750328]), // Already activated
+        activatedCardIds: new Set([59750328]), // Already activated
       });
 
       // Act
@@ -961,18 +984,19 @@ describe("Normal Spell Card Effects", () => {
       // Arrange: Deck with Toon World card (manually create with proper jaName)
       const toonWorldCard = {
         id: 15259703,
-        instanceId: "deck-0",
+        instanceId: "main-0",
         type: "spell" as const,
         frameType: "spell" as const,
         jaName: "トゥーン・ワールド",
-        location: "deck" as const,
+        location: "mainDeck" as const,
         placedThisTurn: false,
       };
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [toonWorldCard, ...createCardInstances(["12345678", "87654321"], "deck")],
+        phase: "main1",
+        space: {
+          mainDeck: [toonWorldCard, ...createCardInstances(["12345678", "87654321"], "mainDeck")],
+          extraDeck: [],
           hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -1009,9 +1033,10 @@ describe("Normal Spell Card Effects", () => {
     it("Scenario: Cannot activate when deck has no Toon cards", () => {
       // Arrange: Deck with no Toon cards
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["12345678", "87654321", "11112222"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["12345678", "87654321", "11112222"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([toonTableCardId], "hand", "toon-table"),
           mainMonsterZone: [],
           spellTrapZone: [],

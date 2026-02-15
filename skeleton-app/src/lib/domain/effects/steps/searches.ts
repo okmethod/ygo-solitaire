@@ -9,11 +9,10 @@
  * @module domain/effects/steps/searches
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import { moveCard, shuffleDeck, findCardInstance } from "$lib/domain/models/Zone";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 
 // カードを検索して手札に加える処理の共通ステップ
 const internalSearchStep = (
@@ -26,7 +25,7 @@ const internalSearchStep = (
     maxCards: number;
     cancelable?: boolean;
   },
-  sourceZone: "graveyard" | "deck",
+  sourceZone: "graveyard" | "mainDeck",
   shouldShuffle: boolean,
 ): AtomicStep => {
   return {
@@ -44,12 +43,12 @@ const internalSearchStep = (
       _sourceZone: sourceZone,
       _filter: config.filter,
     },
-    action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // ソースゾーンのカードをフィルタリング
       const availableCards =
         sourceZone === "graveyard"
-          ? currentState.zones.graveyard.filter(config.filter)
-          : currentState.zones.deck.filter((card, index) => config.filter(card, index));
+          ? currentState.space.graveyard.filter(config.filter)
+          : currentState.space.mainDeck.filter((card, index) => config.filter(card, index));
 
       // 条件に合うカードが存在しない場合はエラー
       if (availableCards.length === 0) {
@@ -70,20 +69,20 @@ const internalSearchStep = (
       }
 
       // 選択されたカードをソースゾーンから手札に移動
-      let updatedZones = currentState.zones;
+      let updatedSpace = currentState.space;
       for (const instanceId of selectedInstanceIds) {
-        const card = findCardInstance(updatedZones, instanceId)!;
-        updatedZones = moveCard(updatedZones, card, "hand");
+        const card = GameState.Space.findCard(updatedSpace, instanceId)!;
+        updatedSpace = GameState.Space.moveCard(updatedSpace, card, "hand");
       }
 
       // フラグで指示されている場合はシャッフル
       if (shouldShuffle) {
-        updatedZones = shuffleDeck(updatedZones);
+        updatedSpace = GameState.Space.shuffleMainDeck(updatedSpace);
       }
 
-      const updatedState: GameState = {
+      const updatedState: GameSnapshot = {
         ...currentState,
-        zones: updatedZones,
+        space: updatedSpace,
       };
 
       const shuffleMessage = shouldShuffle ? " and shuffled" : "";
@@ -119,7 +118,7 @@ export const searchFromDeckByConditionStep = (config: {
   maxCards: number;
   cancelable?: boolean;
 }): AtomicStep => {
-  return internalSearchStep(config, "deck", true);
+  return internalSearchStep(config, "mainDeck", true);
 };
 
 /** デッキの上から指定枚数を確認し、1枚を選んで手札に加えるステップ */
@@ -144,12 +143,12 @@ export const searchFromDeckTopStep = (config: {
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
-      _sourceZone: "deck",
+      _sourceZone: "mainDeck",
       _filter: (_card, index) => index !== undefined && index < config.count,
     },
-    action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // デッキの上からN枚を取得
-      const topCards = currentState.zones.deck.slice(0, config.count);
+      const topCards = currentState.space.mainDeck.slice(0, config.count);
 
       // デッキに十分なカード枚数がない場合はエラー
       if (topCards.length < config.count) {
@@ -170,16 +169,16 @@ export const searchFromDeckTopStep = (config: {
       }
 
       // 選択されたカードを手札に移動
-      let updatedZones = currentState.zones;
+      let updatedSpace = currentState.space;
       for (const instanceId of selectedInstanceIds) {
-        const card = findCardInstance(updatedZones, instanceId)!;
-        updatedZones = moveCard(updatedZones, card, "hand");
+        const card = GameState.Space.findCard(updatedSpace, instanceId)!;
+        updatedSpace = GameState.Space.moveCard(updatedSpace, card, "hand");
       }
 
       // 残りのカードはデッキに残る（シャッフルなし - 元の位置に戻る）
-      const updatedState: GameState = {
+      const updatedState: GameSnapshot = {
         ...currentState,
-        zones: updatedZones,
+        space: updatedSpace,
       };
 
       return {

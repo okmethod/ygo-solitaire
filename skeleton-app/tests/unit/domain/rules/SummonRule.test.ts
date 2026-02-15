@@ -8,11 +8,12 @@ describe("SummonRule", () => {
     it("should allow summon when conditions are met", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -33,7 +34,7 @@ describe("SummonRule", () => {
     it("should fail if not in Main1 phase", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Draw",
+        phase: "draw",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
       });
@@ -49,7 +50,7 @@ describe("SummonRule", () => {
     it("should fail if summon limit reached", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 1,
       });
@@ -84,11 +85,12 @@ describe("SummonRule", () => {
       }));
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: fullMonsterZone,
           spellTrapZone: [],
@@ -109,7 +111,7 @@ describe("SummonRule", () => {
     it("should allow summon if normalSummonLimit is 2 and used is 0", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 2,
         normalSummonUsed: 0,
       });
@@ -124,7 +126,7 @@ describe("SummonRule", () => {
     it("should allow summon if normalSummonLimit is 2 and used is 1", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 2,
         normalSummonUsed: 1,
       });
@@ -139,7 +141,7 @@ describe("SummonRule", () => {
     it("should fail if normalSummonLimit is 2 and used is 2", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 2,
         normalSummonUsed: 2,
       });
@@ -174,11 +176,12 @@ describe("SummonRule", () => {
       }));
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: monsterZone,
           spellTrapZone: [],

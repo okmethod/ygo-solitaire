@@ -16,8 +16,7 @@
 
 import { describe, it, expect } from "vitest";
 import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import { createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
 
 describe("ChickenGameContinuousEffect", () => {
   const chickenGameId = 67616300;
@@ -36,26 +35,9 @@ describe("ChickenGameContinuousEffect", () => {
   describe("canApply()", () => {
     it("should return false when Chicken Game is not on field", () => {
       // Arrange
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [], // No cards on field
-          graveyard: [],
-          banished: [],
-        },
+      const state = createMockGameState({
         lp: { player: 7000, opponent: 8000 },
-        phase: "Main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
+      });
 
       // Act
       const result = rule.canApply(state);
@@ -76,9 +58,10 @@ describe("ChickenGameContinuousEffect", () => {
         position: "faceDown",
       });
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state = createMockGameState({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -87,15 +70,7 @@ describe("ChickenGameContinuousEffect", () => {
           banished: [],
         },
         lp: { player: 7000, opponent: 8000 },
-        phase: "Main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
+      });
 
       // Act
       const result = rule.canApply(state);
@@ -116,9 +91,10 @@ describe("ChickenGameContinuousEffect", () => {
         position: "faceUp",
       });
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state = createMockGameState({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -126,16 +102,7 @@ describe("ChickenGameContinuousEffect", () => {
           graveyard: [],
           banished: [],
         },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
+      });
 
       // Act
       const result = rule.canApply(state);
@@ -148,26 +115,7 @@ describe("ChickenGameContinuousEffect", () => {
   describe("checkPermission()", () => {
     it("should always return false (deny damage)", () => {
       // Arrange
-      const state: GameState = {
-        zones: {
-          deck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
-      };
+      const state = createMockGameState();
 
       // Act
       const result = rule.checkPermission(state);

@@ -39,9 +39,10 @@ describe("Quick-Play Spell Card Effects", () => {
     it("Scenario: Activate Card Destruction → Both players discard all → Both draw same amount", () => {
       // Arrange: Initial state - 5 cards in deck, 4 cards in hand (Card Destruction + 3 others)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([cardDestructionCardId, "hand1", "hand2", "hand3"], "hand", "destruction"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -84,9 +85,10 @@ describe("Quick-Play Spell Card Effects", () => {
     it("Scenario: Cannot activate when hand has only 2 cards (insufficient)", () => {
       // Arrange: Hand with only 2 cards (Card Destruction + 1 other)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([cardDestructionCardId, "hand1"], "hand", "destruction"),
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -107,9 +109,10 @@ describe("Quick-Play Spell Card Effects", () => {
     it("Scenario: Can activate when hand has exactly 3 cards", () => {
       // Arrange: Hand with exactly 3 cards (Card Destruction + 2 others)
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances(["card1", "card2", "card3"], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
+          extraDeck: [],
           hand: createCardInstances([cardDestructionCardId, "hand1", "hand2"], "hand", "destruction"),
           mainMonsterZone: [],
           spellTrapZone: [],

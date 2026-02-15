@@ -8,12 +8,12 @@
  * @module domain/effects/steps/counters
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { CounterType } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { Card } from "$lib/domain/models/Card";
-import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { findCardInstance, updateCardInPlace } from "$lib/domain/models/Zone";
+import { GameState } from "$lib/domain/models/GameState";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 指定カードにカウンターを置くステップ */
 export const addCounterStep = (
@@ -26,30 +26,30 @@ export const addCounterStep = (
   summary: "カウンターを置く",
   description: `${counterType === "spell" ? "魔力" : counterType}カウンターを${amount}つ置きます`,
   notificationLevel: "silent",
-  action: (state: GameState) => {
-    const targetCard = findCardInstance(state.zones, targetInstanceId);
+  action: (state: GameSnapshot) => {
+    const targetCard = GameState.Space.findCard(state.space, targetInstanceId);
 
     if (!targetCard || !targetCard.stateOnField) {
-      return successUpdateResult(state, "カードが見つかりません");
+      return GameProcessing.Result.success(state, "カードが見つかりません");
     }
 
     const currentCounters = targetCard.stateOnField.counters;
-    const currentCount = Card.Counter.getCounterCount(currentCounters, counterType);
+    const currentCount = Card.Counter.get(currentCounters, counterType);
 
     // 最大数チェック
     if (limit !== undefined && currentCount >= limit) {
-      return successUpdateResult(state, "カウンターは既に最大数です");
+      return GameProcessing.Result.success(state, "カウンターは既に最大数です");
     }
 
     // 上限を超えないように調整
     const actualAmount = limit !== undefined ? Math.min(amount, limit - currentCount) : amount;
 
-    const updatedCounters = Card.Counter.updatedCounters(currentCounters, counterType, actualAmount);
+    const updatedCounters = Card.Counter.update(currentCounters, counterType, actualAmount);
     const updatedStateOnField = { ...targetCard.stateOnField, counters: updatedCounters };
-    const updatedZones = updateCardInPlace(state.zones, targetCard, { stateOnField: updatedStateOnField });
+    const updatedSpace = GameState.Space.updateCardStateInPlace(state.space, targetCard, updatedStateOnField);
 
-    return successUpdateResult(
-      { ...state, zones: updatedZones },
+    return GameProcessing.Result.success(
+      { ...state, space: updatedSpace },
       `${counterType === "spell" ? "魔力" : counterType}カウンターを${actualAmount}つ置きました`,
     );
   },
@@ -61,28 +61,31 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
   summary: "カウンターを取り除く",
   description: `${counterType === "spell" ? "魔力" : counterType}カウンターを${amount}つ取り除きます`,
   notificationLevel: "info",
-  action: (state: GameState) => {
-    const targetCard = findCardInstance(state.zones, targetInstanceId);
+  action: (state: GameSnapshot) => {
+    const targetCard = GameState.Space.findCard(state.space, targetInstanceId);
 
     if (!targetCard || !targetCard.stateOnField) {
-      return failureUpdateResult(state, `Target card not found: ${targetInstanceId}`);
+      return GameProcessing.Result.failure(state, `Target card not found: ${targetInstanceId}`);
     }
 
     const currentCounters = targetCard.stateOnField.counters;
-    const currentCount = Card.Counter.getCounterCount(currentCounters, counterType);
+    const currentCount = Card.Counter.get(currentCounters, counterType);
 
     // カウンター数チェック
     if (currentCount < amount) {
-      return failureUpdateResult(state, `Insufficient counters: needed ${amount}, but only ${currentCount} available.`);
+      return GameProcessing.Result.failure(
+        state,
+        `Insufficient counters: needed ${amount}, but only ${currentCount} available.`,
+      );
     }
 
     // 負のdeltaで削除
-    const updatedCounters = Card.Counter.updatedCounters(currentCounters, counterType, -amount);
+    const updatedCounters = Card.Counter.update(currentCounters, counterType, -amount);
     const updatedStateOnField = { ...targetCard.stateOnField, counters: updatedCounters };
-    const updatedZones = updateCardInPlace(state.zones, targetCard, { stateOnField: updatedStateOnField });
+    const updatedSpace = GameState.Space.updateCardStateInPlace(state.space, targetCard, updatedStateOnField);
 
-    return successUpdateResult(
-      { ...state, zones: updatedZones },
+    return GameProcessing.Result.success(
+      { ...state, space: updatedSpace },
       `Removed ${amount} ${counterType} counter(s) from card.`,
     );
   },

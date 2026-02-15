@@ -19,12 +19,11 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import type { ChainableAction, ActionEffectCategory } from "$lib/domain/models/Effect";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { ChainableAction, ActionEffectCategory } from "$lib/domain/models/Effect";
 
 /**
  * Mock ChainableAction for testing
@@ -40,31 +39,31 @@ class MockChainableAction implements ChainableAction {
     public readonly effectId: string = "mock-effect",
   ) {}
 
-  canActivate(_state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  canActivate(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // Mock: always return valid
     return GameProcessing.Validation.success();
   }
 
-  createActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  createActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       {
         id: `${this.cardId}-activation`,
         summary: `${this.cardId} Activation`,
         description: `${this.cardId} activation step`,
-        action: (state: GameState) => {
+        action: (state: GameSnapshot) => {
           return { success: true, updatedState: state };
         },
       },
     ];
   }
 
-  createResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  createResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       {
         id: `${this.cardId}-resolution`,
         summary: `${this.cardId} Resolution`,
         description: `${this.cardId} resolution step`,
-        action: (state: GameState) => {
+        action: (state: GameSnapshot) => {
           return { success: true, updatedState: state };
         },
       },

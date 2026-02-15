@@ -9,8 +9,8 @@
  * @module application/GameFacade
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { GameCommand } from "$lib/domain/models/GameCommand";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { GameCommand } from "$lib/domain/models/Command";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
@@ -98,7 +98,7 @@ export class GameFacade {
    *
    * Note: 個別の各種情報は、derivedStores から取得する。
    */
-  getGameState(): GameState {
+  getGameState(): GameSnapshot {
     return getCurrentGameState();
   }
 

@@ -13,14 +13,13 @@
  */
 
 import { writable } from "svelte/store";
-import type { GameState, InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
+import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { DeckRecipe } from "$lib/application/types/deck";
-import { createInitialGameState } from "$lib/domain/models/GameStateOld";
-import { checkVictoryConditions } from "$lib/domain/rules/VictoryRule";
+import { GameState } from "$lib/domain/models/GameState";
 
 // 空の初期GameStateを生成する
-function createEmptyGameState(): GameState {
-  return createInitialGameState(
+function createEmptyGameState(): GameSnapshot {
+  return GameState.initialize(
     { mainDeckCardIds: [], extraDeckCardIds: [] },
     { skipShuffle: true, skipInitialDraw: true },
   );
@@ -28,47 +27,36 @@ function createEmptyGameState(): GameState {
 
 /** ゲーム状態ストアのインターフェース */
 export interface GameStateStore {
-  subscribe: (run: (value: GameState) => void) => () => void;
+  subscribe: (run: (value: GameSnapshot) => void) => () => void;
 
   /** 状態を設定する（勝利判定付き） */
-  set: (state: GameState) => void;
+  set: (state: GameSnapshot) => void;
 
   /** 状態を更新する（勝利判定付き） */
-  update: (updater: (state: GameState) => GameState) => void;
+  update: (updater: (state: GameSnapshot) => GameSnapshot) => void;
 }
 
 // 状態に勝利判定を適用する（共通処理）
-function applyVictoryCheck(state: GameState): GameState {
+function applyVictoryCheck(state: GameSnapshot): GameSnapshot {
   // すでに勝敗が決まっている場合はそのまま返す
   if (state.result.isGameOver) {
     return state;
-  }
-
-  // ゲーム開始前（turn = 0, phase = "Draw"）は勝利判定をスキップ
-  if (state.turn === 0 && state.phase === "Draw") {
-    return state;
-  }
-
-  // 未判定なら自動的に勝利条件をチェック
-  const victoryResult = checkVictoryConditions(state);
-  if (victoryResult.isGameOver) {
-    return { ...state, result: victoryResult };
   }
   return state;
 }
 
 // カスタムストアを作成し、set/update時に自動的に勝利判定を行う
 function createGameStateStore(): GameStateStore {
-  const { subscribe, set, update } = writable<GameState>(createEmptyGameState());
+  const { subscribe, set, update } = writable<GameSnapshot>(createEmptyGameState());
 
   return {
     subscribe,
 
-    set: (state: GameState) => {
+    set: (state: GameSnapshot) => {
       set(applyVictoryCheck(state));
     },
 
-    update: (updater: (state: GameState) => GameState) => {
+    update: (updater: (state: GameSnapshot) => GameSnapshot) => {
       update((currentState) => applyVictoryCheck(updater(currentState)));
     },
   };
@@ -99,12 +87,12 @@ function convertDeckRecipeToInitialDeck(deckRecipe: DeckRecipe): InitialDeckCard
 /** ストアを初期状態にリセットする */
 export function resetGameState(deckRecipe: DeckRecipe): void {
   const initialDeck = convertDeckRecipeToInitialDeck(deckRecipe);
-  gameStateStore.set(createInitialGameState(initialDeck));
+  gameStateStore.set(GameState.initialize(initialDeck));
 }
 
 /** 現在の状態スナップショットを取得する（非リアクティブ） */
-export function getCurrentGameState(): GameState {
-  let currentState: GameState = createEmptyGameState();
+export function getCurrentGameState(): GameSnapshot {
+  let currentState: GameSnapshot = createEmptyGameState();
   const unsubscribe = gameStateStore.subscribe((state) => {
     currentState = state;
   });

@@ -20,7 +20,7 @@ export type {
   TrapSubType,
 } from "./CardData";
 export type { CardInstance } from "./CardInstance";
-export type { StateOnField } from "./StateOnField";
+export type { StateOnField, Position, BattlePosition } from "./StateOnField";
 export type { CounterType, CounterState } from "./Counter";
 
 import * as CardDataFuncs from "./CardData";
@@ -55,7 +55,7 @@ export const Card = {
   },
 
   Counter: {
-    updatedCounters: CounterFuncs.updateCounters,
-    getCounterCount: CounterFuncs.getCounterCount,
+    get: CounterFuncs.getCounterCount,
+    update: CounterFuncs.updateCounters,
   },
 } as const;

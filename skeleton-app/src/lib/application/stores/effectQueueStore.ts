@@ -134,12 +134,11 @@
 
 import { writable, get as getStoreValue } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
-import type { GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
-import { createEmptyTimeline, recordEvent } from "$lib/domain/models/GameProcessing";
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
 
 // 通知ハンドラのインターフェース
@@ -172,7 +171,7 @@ type StepExecutionResult = {
 // 通知レベル別の実行戦略（Strategy Pattern で分離）
 type NotificationStrategy = (
   step: AtomicStep,
-  gameState: GameState,
+  gameState: GameSnapshot,
   handlers: {
     notification: NotificationHandler | null;
   },
@@ -181,12 +180,12 @@ type NotificationStrategy = (
 
 // ステップ実行結果（イベント情報を含む）
 interface StepActionResult {
-  updatedState: GameState;
+  updatedState: GameSnapshot;
   emittedEvents: GameEvent[];
 }
 
 // 1ステップ分のアクションを実行する（共通処理）
-function executeStepAction(step: AtomicStep, gameState: GameState, selectedIds?: string[]): StepActionResult {
+function executeStepAction(step: AtomicStep, gameState: GameSnapshot, selectedIds?: string[]): StepActionResult {
   const result = step.action(gameState, selectedIds);
   if (result.success) {
     gameStateStore.set(result.updatedState);
@@ -201,7 +200,7 @@ function executeStepAction(step: AtomicStep, gameState: GameState, selectedIds?:
 // イベントに対するトリガールールを収集してステップキューに挿入する
 function processTriggerEvents(
   events: GameEvent[],
-  currentState: GameState,
+  currentState: GameSnapshot,
   currentSteps: AtomicStep[],
   currentIndex: number,
 ): AtomicStep[] {
@@ -285,7 +284,7 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
       console.error("_sourceZone must be specified when availableCards is null");
       return { shouldContinue: false };
     }
-    const sourceZone = gameState.zones[config._sourceZone];
+    const sourceZone = gameState.space[config._sourceZone];
     availableCards = config._filter ? sourceZone.filter((card, index) => config._filter!(card, index)) : sourceZone;
   }
 
@@ -385,7 +384,7 @@ function createEffectQueueStore(): EffectQueueStore {
     notificationHandler: null,
     confirmationConfig: null,
     cardSelectionConfig: null,
-    eventTimeline: createEmptyTimeline(),
+    eventTimeline: GameProcessing.TimeLine.createEmptyTimeline(),
   });
 
   return {
@@ -433,7 +432,7 @@ function createEffectQueueStore(): EffectQueueStore {
         // EventTimeline に記録（将来の拡張用）
         let updatedTimeline = state.eventTimeline;
         for (const event of result.emittedEvents) {
-          updatedTimeline = recordEvent(updatedTimeline, event);
+          updatedTimeline = GameProcessing.TimeLine.recordEvent(updatedTimeline, event);
         }
 
         // 最新の GameState を取得してトリガールールを収集

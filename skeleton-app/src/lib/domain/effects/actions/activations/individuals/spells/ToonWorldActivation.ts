@@ -11,8 +11,8 @@
  * @module domain/effects/actions/spells/individuals/ToonWorldActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -31,7 +31,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    * チェック項目:
    * 1. プレイヤーのLPが1000以上であること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // 1. プレイヤーのLPが1000以上であること
     if (state.lp.player < 1000) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
@@ -47,7 +47,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [payLpStep(1000, "player")];
   }
 
@@ -56,7 +56,7 @@ export class ToonWorldActivation extends ContinuousSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 }

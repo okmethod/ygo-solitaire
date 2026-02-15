@@ -7,9 +7,9 @@
  * @module domain/effects/steps/compositeOperations
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { shuffleDeck, moveCard, drawCards, findCardInstance } from "$lib/domain/models/Zone";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/GameProcessing";
+import { GameState } from "$lib/domain/models/GameState";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
@@ -30,7 +30,7 @@ export const selectReturnShuffleDrawStep = (options: { min: number; max?: number
     minCards: options.min,
     maxCards: options.max ?? 100,
     cancelable: false,
-    onSelect: (currentState: GameState, selectedInstanceIds: string[]) => {
+    onSelect: (currentState: GameSnapshot, selectedInstanceIds: string[]) => {
       // 0枚選択の場合は何もしない
       if (selectedInstanceIds.length === 0) {
         return {
@@ -40,25 +40,25 @@ export const selectReturnShuffleDrawStep = (options: { min: number; max?: number
         };
       }
 
-      let updatedZones = currentState.zones;
+      let updatedSpace = currentState.space;
 
       // 選択したカードをデッキに戻す
       for (const instanceId of selectedInstanceIds) {
-        const card = findCardInstance(updatedZones, instanceId)!;
-        updatedZones = moveCard(updatedZones, card, "deck");
+        const card = GameState.Space.findCard(updatedSpace, instanceId)!;
+        updatedSpace = GameState.Space.moveCard(updatedSpace, card, "mainDeck");
       }
 
       // デッキをシャッフル
-      updatedZones = shuffleDeck(updatedZones);
+      updatedSpace = GameState.Space.shuffleMainDeck(updatedSpace);
 
       // 同じ枚数ドロー
-      updatedZones = drawCards(updatedZones, selectedInstanceIds.length);
+      updatedSpace = GameState.Space.drawCards(updatedSpace, selectedInstanceIds.length);
 
       return {
         success: true,
         updatedState: {
           ...currentState,
-          zones: updatedZones,
+          space: updatedSpace,
         },
         message: `${selectedInstanceIds.length}枚をデッキに戻し、シャッフルして${selectedInstanceIds.length}枚ドローしました`,
       };

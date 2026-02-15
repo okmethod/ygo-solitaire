@@ -11,9 +11,9 @@
  * @module domain/effects/rules/spells/ChickenGameContinuousEffect
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
-import { isFaceUp } from "$lib/domain/models/CardOld";
+import { Card } from "$lib/domain/models/Card";
 
 /**
  * ChickenGameContinuousEffect クラス
@@ -43,9 +43,9 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
    * @param state - 現在のゲーム状態
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState): boolean {
+  canApply(state: GameSnapshot): boolean {
     // チキンレースがフィールドに存在するか
-    return state.zones.fieldZone.some((card) => card.id === 67616300 && isFaceUp(card));
+    return state.space.fieldZone.some((card) => card.id === 67616300 && Card.Instance.isFaceUp(card));
   }
 
   /**
@@ -56,7 +56,7 @@ export class ChickenGameContinuousEffect implements AdditionalRule {
    * @param _state - 現在のゲーム状態（未使用）
    * @returns ダメージ禁止（常にfalse）
    */
-  checkPermission(_state: GameState): boolean {
+  checkPermission(_state: GameSnapshot): boolean {
     // ダメージ禁止（false を返す）
     return false;
   }

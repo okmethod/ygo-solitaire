@@ -7,13 +7,12 @@
  * @module domain/commands/SummonMonsterCommand
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { GameCommand } from "$lib/domain/models/GameCommand";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { findCardInstance } from "$lib/domain/models/Zone";
-import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isMonsterCard } from "$lib/domain/models/CardOld";
+import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
+import { Command } from "$lib/domain/models/Command";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
@@ -33,7 +32,7 @@ export class SummonMonsterCommand implements GameCommand {
    * 2. 通常召喚ルールを満たしていること
    * 3. 指定カードがモンスターカードであり、手札に存在すること
    */
-  canExecute(state: GameState): ValidationResult {
+  canExecute(state: GameSnapshot): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
@@ -46,11 +45,11 @@ export class SummonMonsterCommand implements GameCommand {
     }
 
     // 3. 指定カードがモンスターカードであり、手札に存在すること
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
     if (!cardInstance) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
     }
-    if (!isMonsterCard(cardInstance)) {
+    if (!Card.isMonster(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MONSTER_CARD);
     }
     if (cardInstance.location !== "hand") {
@@ -68,20 +67,20 @@ export class SummonMonsterCommand implements GameCommand {
    * 2. 更新後状態の構築
    * 3. 戻り値の構築
    */
-  execute(state: GameState): GameStateUpdateResult {
+  execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
+      return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
-    const updatedState: GameState = executeNormalSummon(state, this.cardInstanceId, "attack");
+    const updatedState: GameSnapshot = executeNormalSummon(state, this.cardInstanceId, "attack");
 
     // 3. 戻り値の構築
-    return successUpdateResult(
+    return Command.Result.success(
       updatedState,
       `Monster summoned: ${cardInstance.jaName}`,
       // TODO: 召喚成功時に誘発する効果があればここに追加

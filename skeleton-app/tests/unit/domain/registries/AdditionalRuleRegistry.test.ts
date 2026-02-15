@@ -18,12 +18,11 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
-import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { successUpdateResult } from "$lib/domain/models/GameStateUpdate";
 
 /**
  * Mock AdditionalRule for testing
@@ -38,15 +37,15 @@ class MockAdditionalRule implements AdditionalRule {
     private applyCondition: boolean = true,
   ) {}
 
-  canApply(_state: GameState): boolean {
+  canApply(_state: GameSnapshot): boolean {
     return this.applyCondition;
   }
 
-  checkPermission(_state: GameState): boolean {
+  checkPermission(_state: GameSnapshot): boolean {
     return false; // Mock: deny permission
   }
 
-  apply(_state: GameState): GameState {
+  apply(_state: GameSnapshot): GameSnapshot {
     return _state; // Mock: no state change
   }
 }
@@ -234,9 +233,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -245,14 +245,13 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -286,9 +285,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -297,14 +297,13 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -342,9 +341,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -353,14 +353,13 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -395,9 +394,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -406,15 +406,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -469,9 +468,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -480,15 +480,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -598,18 +597,18 @@ describe("AdditionalRuleRegistry", () => {
      */
     class MockTriggerRule implements AdditionalRule {
       constructor(
-        public readonly triggers: readonly TriggerEvent[] = ["spellActivated"],
+        public readonly triggers: readonly EventType[] = ["spellActivated"],
         private applyCondition: boolean = true,
       ) {}
 
       readonly isEffect = true;
       readonly category: RuleCategory = "TriggerRule";
 
-      canApply(_state: GameState): boolean {
+      canApply(_state: GameSnapshot): boolean {
         return this.applyCondition;
       }
 
-      createTriggerSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+      createTriggerSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
         return [];
       }
     }
@@ -636,9 +635,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard],
           spellTrapZone: [],
@@ -647,15 +647,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -689,9 +688,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard],
           spellTrapZone: [],
@@ -700,15 +700,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -740,9 +739,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard],
           spellTrapZone: [],
@@ -751,15 +751,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -806,9 +805,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard1, monsterCard2],
           spellTrapZone: [],
@@ -817,15 +817,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -846,18 +845,18 @@ describe("AdditionalRuleRegistry", () => {
       public executionCount = 0;
 
       constructor(
-        public readonly triggers: readonly TriggerEvent[] = ["spellActivated"],
+        public readonly triggers: readonly EventType[] = ["spellActivated"],
         private applyCondition: boolean = true,
       ) {}
 
       readonly isEffect = true;
       readonly category: RuleCategory = "TriggerRule";
 
-      canApply(_state: GameState): boolean {
+      canApply(_state: GameSnapshot): boolean {
         return this.applyCondition;
       }
 
-      createTriggerSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+      createTriggerSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
         // Capture execution count increment in closure
         const incrementExecution = () => {
           this.executionCount++;
@@ -868,10 +867,10 @@ describe("AdditionalRuleRegistry", () => {
             summary: "Mock trigger effect",
             description: "Test effect",
             notificationLevel: "silent",
-            action: (currentState: GameState) => {
+            action: (currentState: GameSnapshot) => {
               incrementExecution();
               // Return state with modified LP as a marker
-              return successUpdateResult(
+              return GameProcessing.Result.success(
                 {
                   ...currentState,
                   lp: {
@@ -890,7 +889,7 @@ describe("AdditionalRuleRegistry", () => {
     /**
      * Helper to execute collected steps
      */
-    function executeSteps(steps: AtomicStep[], state: GameState): GameState {
+    function executeSteps(steps: AtomicStep[], state: GameSnapshot): GameSnapshot {
       let currentState = state;
       for (const step of steps) {
         const result = step.action(currentState);
@@ -921,9 +920,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard],
           spellTrapZone: [],
@@ -932,15 +932,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -975,9 +974,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard],
           spellTrapZone: [],
@@ -986,15 +986,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act
@@ -1044,9 +1043,10 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameState = {
-        zones: {
-          deck: [],
+      const state: GameSnapshot = {
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [monsterCard1, monsterCard2],
           spellTrapZone: [],
@@ -1055,15 +1055,14 @@ describe("AdditionalRuleRegistry", () => {
           banished: [],
         },
         lp: { player: 8000, opponent: 8000 },
-        phase: "Main1",
+        phase: "main1",
         turn: 1,
 
         result: { isGameOver: false },
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        activatedOncePerTurnCards: new Set(),
-        pendingEndPhaseEffects: [],
-        damageNegation: false,
+        activatedCardIds: new Set(),
+        queuedEndPhaseEffectIds: [],
       };
 
       // Act

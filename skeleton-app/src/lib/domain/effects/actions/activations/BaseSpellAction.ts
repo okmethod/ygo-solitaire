@@ -16,12 +16,11 @@
  * @module domain/effects/actions/spells/BaseSpellAction
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ChainableAction } from "$lib/domain/models/Effect";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 import { emitSpellActivatedEventStep } from "$lib/domain/effects/steps/eventEmitters";
 
@@ -68,7 +67,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult {
+  canActivate(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. 魔法カード共通の発動条件チェック
     // 特になし
 
@@ -93,7 +92,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract subTypeConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
+  protected abstract subTypeConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
@@ -101,7 +100,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
+  protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動時の処理
@@ -118,7 +117,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  createActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  createActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       notifyActivationStep(this.cardId), // 発動通知ステップ
       emitSpellActivatedEventStep(sourceInstance), // イベント発行ステップ
@@ -133,21 +132,21 @@ export abstract class BaseSpellAction implements ChainableAction {
    *
    * @protected
    */
-  protected abstract subTypePreActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract subTypePreActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * ACTIVATION: 発動処理（カード固有）
    *
    * @protected
    */
-  protected abstract individualActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * ACTIVATION: 発動後処理（魔法カードサブタイプ共通）
    *
    * @protected
    */
-  protected abstract subTypePostActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract subTypePostActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決時の処理
@@ -163,7 +162,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  createResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  createResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       ...this.subTypePreResolutionSteps(state, sourceInstance),
       ...this.individualResolutionSteps(state, sourceInstance),
@@ -177,7 +176,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract subTypePreResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract subTypePreResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決処理（カード固有）
@@ -185,7 +184,7 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract individualResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決後処理（魔法カードサブタイプ共通）
@@ -193,5 +192,5 @@ export abstract class BaseSpellAction implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract subTypePostResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract subTypePostResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 }

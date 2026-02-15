@@ -13,13 +13,13 @@
  * @module domain/effects/actions/spells/individuals/CardDestructionActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
-import { countHandExcludingSelf } from "$lib/domain/models/Zone";
+import { countHandExcludingSelf } from "$lib/domain/models/GameState/CardSpace";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
@@ -36,14 +36,14 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    * 1. このカードを除き、手札が2枚以上であること
    * 2. デッキに2枚以上あること
    */
-  protected individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. このカードを除き、手札が2枚以上であること
-    if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
+    if (countHandExcludingSelf(state.space, sourceInstance) < 2) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. デッキに2枚以上あること
-    if (state.zones.deck.length < 2) {
+    if (state.space.mainDeck.length < 2) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -55,7 +55,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -68,7 +68,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [selectAndDiscardStep(2), drawStep(2)];
   }
 }

@@ -15,13 +15,13 @@
  * @module domain/effects/actions/BaseIgnitionEffect
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ChainableAction } from "$lib/domain/models/Effect";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { isMainPhase } from "$lib/domain/models/Phase";
+import { isMainPhase } from "$lib/domain/models/GameState/Phase";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
@@ -67,7 +67,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  canActivate(state: GameState, sourceInstance: CardInstance): ValidationResult {
+  canActivate(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. 起動効果共通の発動条件チェック（メインフェイズであること）
     if (!isMainPhase(state.phase)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
@@ -88,7 +88,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult;
+  protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
    * ACTIVATION: 発動時の処理
@@ -103,7 +103,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  createActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  createActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       notifyActivationStep(sourceInstance.id), // 発動通知ステップ
       ...this.individualActivationSteps(state, sourceInstance),
@@ -116,7 +116,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract individualActivationSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
    * RESOLUTION: 効果解決時の処理
@@ -130,7 +130,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    *
    * @final このメソッドはオーバーライドしない
    */
-  createResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  createResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [...this.individualResolutionSteps(state, sourceInstance)];
   }
 
@@ -140,5 +140,5 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    * @protected
    * @abstract
    */
-  protected abstract individualResolutionSteps(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 }

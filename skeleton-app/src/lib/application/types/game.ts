@@ -9,12 +9,12 @@
  * @module application/types/game
  */
 
-import type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
 
 /** Domain 型の再エクスポート */
-export type { GameState } from "$lib/domain/models/GameStateOld";
-export type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
+export type { GameSnapshot } from "$lib/domain/models/GameState";
+export type { InteractionConfig, CardSelectionConfig };
 
 /**
  * ユーザー確認設定（コールバック付き）

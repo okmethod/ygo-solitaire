@@ -11,8 +11,8 @@
  * @module domain/effects/actions/spells/individuals/DarkFactoryActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -31,8 +31,8 @@ export class DarkFactoryActivation extends NormalSpellAction {
    * チェック項目:
    * 1. 墓地に通常モンスターが2枚以上いること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    const normalMonsters = state.zones.graveyard.filter(
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+    const normalMonsters = state.space.graveyard.filter(
       (card) => card.type === "monster" && card.frameType === "normal",
     );
     if (normalMonsters.length < 2) {
@@ -47,7 +47,7 @@ export class DarkFactoryActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -59,7 +59,7 @@ export class DarkFactoryActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       salvageFromGraveyardStep({
         id: `dark-factory-search-${sourceInstance.instanceId}`,

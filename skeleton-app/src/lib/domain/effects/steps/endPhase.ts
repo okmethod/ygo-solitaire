@@ -7,9 +7,8 @@
  * @module domain/effects/steps/endPhase
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 
 /** エンドフェイズに処理される効果を登録するステップ */
 export function queueEndPhaseEffectStep(
@@ -25,10 +24,10 @@ export function queueEndPhaseEffectStep(
     summary: options?.summary ?? "エンドフェイズ効果を登録",
     description: options?.description ?? "エンドフェイズに処理される効果を登録します",
     notificationLevel: "silent",
-    action: (currentState: GameState): GameStateUpdateResult => {
-      const updatedState: GameState = {
+    action: (currentState: GameSnapshot): GameStateUpdateResult => {
+      const updatedState: GameSnapshot = {
         ...currentState,
-        pendingEndPhaseEffects: [...currentState.pendingEndPhaseEffects, effectStep],
+        queuedEndPhaseEffectIds: [...currentState.queuedEndPhaseEffectIds, effectStep.id],
       };
 
       return {

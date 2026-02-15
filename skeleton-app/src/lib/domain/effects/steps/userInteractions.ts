@@ -8,11 +8,10 @@
  * @module domain/effects/steps/interaction
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep, CardSelectionConfig } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { ZoneName } from "$lib/domain/models/Zone";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { LocationName } from "$lib/domain/models/Location";
 import { getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
 
 /** 発動を通知するステップ */
@@ -22,7 +21,7 @@ export const notifyActivationStep = (cardId: number): AtomicStep => {
     summary: "カード発動",
     description: `${getCardNameWithBrackets(cardId)}を発動します`,
     notificationLevel: "info",
-    action: (currentState: GameState): GameStateUpdateResult => {
+    action: (currentState: GameSnapshot): GameStateUpdateResult => {
       return {
         success: true,
         updatedState: currentState,
@@ -38,12 +37,12 @@ export const selectCardsStep = (config: {
   summary: string;
   description: string;
   availableCards: readonly CardInstance[] | null;
-  _sourceZone?: ZoneName;
+  _sourceZone?: LocationName;
   _filter?: (card: CardInstance, index?: number) => boolean;
   minCards: number;
   maxCards: number;
   cancelable?: boolean;
-  onSelect: (state: GameState, selectedIds: string[]) => GameStateUpdateResult;
+  onSelect: (state: GameSnapshot, selectedIds: string[]) => GameStateUpdateResult;
 }): AtomicStep => {
   return {
     id: config.id,
@@ -60,7 +59,7 @@ export const selectCardsStep = (config: {
       description: config.description,
       cancelable: config.cancelable ?? false,
     } satisfies CardSelectionConfig,
-    action: (currentState: GameState, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // カードが選択されていない場合（minCards = 0の場合に発生しうる）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return config.onSelect(currentState, []);

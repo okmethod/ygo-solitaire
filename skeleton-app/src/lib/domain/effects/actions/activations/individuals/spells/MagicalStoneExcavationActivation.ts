@@ -11,13 +11,13 @@
  * @module domain/effects/actions/spells/individuals/MagicalStoneExcavationActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
-import { countHandExcludingSelf } from "$lib/domain/models/Zone";
+import { countHandExcludingSelf } from "$lib/domain/models/GameState/CardSpace";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
@@ -34,14 +34,14 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    * 1. このカードを除き、手札が2枚以上であること
    * 2. 墓地に魔法カードが1枚以上あること
    */
-  protected individualConditions(state: GameState, sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. このカードを除き、手札が2枚以上であること
-    if (countHandExcludingSelf(state.zones, sourceInstance) < 2) {
+    if (countHandExcludingSelf(state.space, sourceInstance) < 2) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. 墓地に魔法カードが1枚以上あること
-    const spellCardsInGraveyard = state.zones.graveyard.filter((card) => card.type === "spell");
+    const spellCardsInGraveyard = state.space.graveyard.filter((card) => card.type === "spell");
     if (spellCardsInGraveyard.length < 1) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
@@ -57,7 +57,7 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. 手札から2枚を選んで捨てる
       selectAndDiscardStep(2),
@@ -72,7 +72,7 @@ export class MagicalStoneExcavationActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. 魔法カード1枚をサルベージ
       salvageFromGraveyardStep({

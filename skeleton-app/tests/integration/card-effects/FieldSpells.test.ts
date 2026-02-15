@@ -30,8 +30,8 @@ import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand"
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { GameState } from "$lib/domain/models/GameStateOld";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
 
@@ -44,9 +44,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     it("Scenario: Activate Chicken Game → Placed on field as field spell", () => {
       // Arrange: Chicken Game in hand, no field spell on field
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createCardInstances([1001, 1002], "deck"),
+        phase: "main1",
+        space: {
+          mainDeck: createCardInstances([1001, 1002], "mainDeck"),
+          extraDeck: [],
           hand: [
             {
               instanceId: "hand-0",
@@ -76,10 +77,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(result.effectSteps!.length).toBe(2); // Field spell has notification step + spell activated event step (no resolution steps)
 
       // Verify card moved to field
-      expect(result.updatedState.zones.hand.length).toBe(0);
-      expect(result.updatedState.zones.fieldZone.length).toBe(1);
-      expect(result.updatedState.zones.fieldZone[0].id).toBe(chickenGameCardId);
-      expect(result.updatedState.zones.fieldZone[0].stateOnField?.position).toBe("faceUp");
+      expect(result.updatedState.space.hand.length).toBe(0);
+      expect(result.updatedState.space.fieldZone.length).toBe(1);
+      expect(result.updatedState.space.fieldZone[0].id).toBe(chickenGameCardId);
+      expect(result.updatedState.space.fieldZone[0].stateOnField?.position).toBe("faceUp");
     });
   });
 
@@ -103,10 +104,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     it("Scenario: Activate ignition effect → Pay 1000 LP → Draw 1 card", async () => {
       // Arrange: Chicken Game on field, 8000 LP, 2 cards in deck
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 8000, opponent: 8000 },
-        zones: {
-          deck: createCardInstances([1001, 1002], "deck"),
+        space: {
+          mainDeck: createCardInstances([1001, 1002], "mainDeck"),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -123,7 +125,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(commandResult.success).toBe(true);
 
       // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
-      const fieldCard = commandResult.updatedState.zones.fieldZone[0];
+      const fieldCard = commandResult.updatedState.space.fieldZone[0];
       expect(fieldCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
 
       // Execute effect steps
@@ -136,8 +138,8 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
       // Assert: LP decreased by 1000, hand increased by 1
       expect(currentState.lp.player).toBe(7000); // 8000 - 1000
-      expect(currentState.zones.hand.length).toBe(1);
-      expect(currentState.zones.deck.length).toBe(1);
+      expect(currentState.space.hand.length).toBe(1);
+      expect(currentState.space.mainDeck.length).toBe(1);
     });
 
     it("Scenario: Cannot activate twice in same turn (once per turn restriction)", () => {
@@ -159,10 +161,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       };
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 8000, opponent: 8000 },
-        zones: {
-          deck: createCardInstances([1001, 1002], "deck"),
+        space: {
+          mainDeck: createCardInstances([1001, 1002], "mainDeck"),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -183,10 +186,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     it("Scenario: Cannot activate when LP is less than 1000", () => {
       // Arrange: Player has only 500 LP
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 500, opponent: 8000 },
-        zones: {
-          deck: createCardInstances([1001, 1002], "deck"),
+        space: {
+          mainDeck: createCardInstances([1001, 1002], "mainDeck"),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -223,10 +227,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       };
 
       const stateAfterActivation = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 7000, opponent: 8000 },
-        zones: {
-          deck: createCardInstances([1001, 1002], "deck"),
+        space: {
+          mainDeck: createCardInstances([1001, 1002], "mainDeck"),
+          extraDeck: [],
           hand: [
             {
               instanceId: "hand-0",
@@ -249,10 +254,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const advanceToEnd = new AdvancePhaseCommand();
       const endPhaseResult = advanceToEnd.execute(stateAfterActivation);
       expect(endPhaseResult.success).toBe(true);
-      expect(endPhaseResult.updatedState.phase).toBe("End");
+      expect(endPhaseResult.updatedState.phase).toBe("end");
 
       // Assert: stateOnField.activatedEffects is cleared at end phase
-      const fieldCard = endPhaseResult.updatedState.zones.fieldZone[0];
+      const fieldCard = endPhaseResult.updatedState.space.fieldZone[0];
       expect(fieldCard.stateOnField?.activatedEffects.size).toBe(0);
     });
   });
@@ -271,10 +276,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
     it("Scenario: Activate card → Use ignition effect → Verify full state", async () => {
       // Arrange: Initial state - Chicken Game in hand
       const initialState = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 8000, opponent: 8000 },
-        zones: {
-          deck: createCardInstances([1001, 1002, 1003], "deck"),
+        space: {
+          mainDeck: createCardInstances([1001, 1002, 1003], "mainDeck"),
+          extraDeck: [],
           hand: [
             {
               instanceId: "hand-0",
@@ -300,11 +306,11 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(activateResult.success).toBe(true);
 
       const stateAfterActivation = activateResult.updatedState;
-      expect(stateAfterActivation.zones.fieldZone.length).toBe(1);
-      expect(stateAfterActivation.zones.fieldZone[0].id).toBe(chickenGameCardId);
+      expect(stateAfterActivation.space.fieldZone.length).toBe(1);
+      expect(stateAfterActivation.space.fieldZone[0].id).toBe(chickenGameCardId);
 
       // Step 2: Use ignition effect via ActivateIgnitionEffectCommand
-      const fieldCard = stateAfterActivation.zones.fieldZone[0];
+      const fieldCard = stateAfterActivation.space.fieldZone[0];
       const ignitionEffect = new ChickenGameIgnitionEffect();
 
       expect(ignitionEffect.canActivate(stateAfterActivation, fieldCard).isValid).toBe(true);
@@ -315,10 +321,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       expect(ignitionResult.success).toBe(true);
 
       // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
-      const fieldCardAfterIgnition = ignitionResult.updatedState.zones.fieldZone[0];
+      const fieldCardAfterIgnition = ignitionResult.updatedState.space.fieldZone[0];
       expect(fieldCardAfterIgnition.stateOnField?.activatedEffects.size).toBe(1);
 
-      let currentState: GameState = ignitionResult.updatedState;
+      let currentState: GameSnapshot = ignitionResult.updatedState;
       for (const step of ignitionResult.effectSteps!) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
@@ -329,10 +335,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
       // Assert final state
       expect(finalState.lp.player).toBe(7000); // 8000 - 1000
-      expect(finalState.zones.fieldZone.length).toBe(1); // Chicken Game still on field
-      expect(finalState.zones.hand.length).toBe(1); // Draw 1 card
-      expect(finalState.zones.deck.length).toBe(2); // 3 - 1 = 2
-      const finalFieldCard = finalState.zones.fieldZone[0];
+      expect(finalState.space.fieldZone.length).toBe(1); // Chicken Game still on field
+      expect(finalState.space.hand.length).toBe(1); // Draw 1 card
+      expect(finalState.space.mainDeck.length).toBe(2); // 3 - 1 = 2
+      const finalFieldCard = finalState.space.fieldZone[0];
       expect(finalFieldCard.stateOnField?.activatedEffects.size).toBe(1);
 
       // Step 3: Try to activate again (should fail)
@@ -352,10 +358,11 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
   it("Scenario: Activate with LP = 8000 → pay 1000 LP → LP = 7000, field = 1 (Toon World)", () => {
     // Arrange
     const state = createMockGameState({
-      phase: "Main1",
+      phase: "main1",
       lp: { player: 8000, opponent: 8000 },
-      zones: {
-        deck: createCardInstances(["12345678"], "deck"),
+      space: {
+        mainDeck: createCardInstances(["12345678"], "mainDeck"),
+        extraDeck: [],
         hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
         mainMonsterZone: [],
         spellTrapZone: [],
@@ -386,10 +393,11 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
   it("Scenario: Cannot activate when LP < 1000", () => {
     // Arrange: Player LP too low
     const state = createMockGameState({
-      phase: "Main1",
+      phase: "main1",
       lp: { player: 500, opponent: 8000 },
-      zones: {
-        deck: createCardInstances(["12345678"], "deck"),
+      space: {
+        mainDeck: createCardInstances(["12345678"], "mainDeck"),
+        extraDeck: [],
         hand: createCardInstances([toonWorldCardId], "hand", "toon-world"),
         mainMonsterZone: [],
         spellTrapZone: [],

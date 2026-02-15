@@ -11,10 +11,9 @@
  * @module domain/effects/actions/spells/individuals/PotOfDualityActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
 import { searchFromDeckTopStep } from "$lib/domain/effects/steps/searches";
@@ -33,14 +32,14 @@ export class PotOfDualityActivation extends NormalSpellAction {
    * 1. 1ターンに1度制限をクリアしていること
    * 2. デッキに3枚以上あること
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // 1. 1ターンに1度制限: 既にこのターン発動済みでないかチェック
-    if (state.activatedOncePerTurnCards.has(this.cardId)) {
+    if (state.activatedCardIds.has(this.cardId)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
     // 2. デッキに3枚以上あること
-    if (state.zones.deck.length < 3) {
+    if (state.space.mainDeck.length < 3) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 
@@ -52,7 +51,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -65,7 +64,7 @@ export class PotOfDualityActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       // 1. デッキトップ3枚を確認し、1枚を手札に加える
       searchFromDeckTopStep({

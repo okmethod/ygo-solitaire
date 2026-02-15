@@ -11,8 +11,8 @@
  * @module domain/effects/actions/spells/individuals/TerraformingActivation
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/AtomicStep";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -33,8 +33,8 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
-    const fieldSpells = state.zones.deck.filter((card) => card.type === "spell" && card.spellType === "field");
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+    const fieldSpells = state.space.mainDeck.filter((card) => card.type === "spell" && card.spellType === "field");
     if (fieldSpells.length < 1) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
@@ -46,7 +46,7 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // 固有ステップ無し
   }
 
@@ -58,7 +58,7 @@ export class TerraformingActivation extends NormalSpellAction {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [
       searchFromDeckByConditionStep({
         id: `terraforming-search-${sourceInstance.instanceId}`,

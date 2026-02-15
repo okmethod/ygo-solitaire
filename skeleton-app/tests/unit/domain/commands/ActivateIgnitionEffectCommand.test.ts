@@ -5,31 +5,32 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
-import type { GameState } from "$lib/domain/models/GameStateOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
 
 initializeChainableActionRegistry();
 
 describe("ActivateIgnitionEffectCommand", () => {
-  let initialState: GameState;
+  let initialState: GameSnapshot;
   const chickenGameInstanceId = "field-chickengame-1";
 
   beforeEach(() => {
     // Create state with Chicken Game face-up on field during Main1 phase
     initialState = createMockGameState({
-      phase: "Main1",
+      phase: "main1",
       lp: { player: 5000, opponent: 5000 },
-      zones: {
-        deck: [
+      space: {
+        mainDeck: [
           {
-            instanceId: "deck-0",
+            instanceId: "main-0",
             id: 1001,
             jaName: "サンプルカード",
             type: "spell" as const,
             frameType: "spell" as const,
-            location: "deck" as const,
+            location: "mainDeck" as const,
           },
         ],
+        extraDeck: [],
         hand: [],
         mainMonsterZone: [],
         spellTrapZone: [],
@@ -71,10 +72,11 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("should return false when card is face-down", () => {
       const faceDownState = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 5000, opponent: 5000 },
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -107,10 +109,11 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("should return false when card is not on field", () => {
       const handState = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 5000, opponent: 5000 },
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [
             {
               instanceId: chickenGameInstanceId,
@@ -137,15 +140,16 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("should return false when game is over", () => {
       const gameOverState = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 5000, opponent: 5000 },
         result: {
           isGameOver: true,
           winner: "player" as const,
           reason: "exodia" as const,
         },
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -178,9 +182,10 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("should return false when card has no registered ignition effect", () => {
       const noEffectState = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -236,9 +241,10 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("should return failure when card has no ignition effect", () => {
       const noEffectState = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -300,7 +306,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       expect(result.success).toBe(true);
       // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
-      const chickenGameCard = result.updatedState.zones.fieldZone[0];
+      const chickenGameCard = result.updatedState.space.fieldZone[0];
       expect(chickenGameCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
     });
   });
@@ -320,22 +326,22 @@ describe("ActivateIgnitionEffectCommand", () => {
     const royalLibraryInstanceId = "monster-royal-library-1";
     const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
 
-    let libraryState: GameState;
+    let libraryState: GameSnapshot;
 
     beforeEach(() => {
       // Create state with Royal Magical Library face-up attack on monster zone with 3 spell counters
       libraryState = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 8000, opponent: 8000 },
-        zones: {
-          deck: [
+        space: {
+          mainDeck: [
             {
-              instanceId: "deck-0",
+              instanceId: "main-0",
               id: 1001,
               jaName: "サンプルカード",
               type: "spell" as const,
               frameType: "spell" as const,
-              location: "deck" as const,
+              location: "mainDeck" as const,
             },
             {
               instanceId: "deck-1",
@@ -343,9 +349,10 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "サンプルカード2",
               type: "spell" as const,
               frameType: "spell" as const,
-              location: "deck" as const,
+              location: "mainDeck" as const,
             },
           ],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [
             {
@@ -381,10 +388,11 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       it("should return true when Royal Magical Library is in defense position (ignition effects work in any battle position)", () => {
         const defenseState = createMockGameState({
-          phase: "Main1",
+          phase: "main1",
           lp: { player: 8000, opponent: 8000 },
-          zones: {
-            deck: libraryState.zones.deck,
+          space: {
+            mainDeck: libraryState.space.mainDeck,
+            extraDeck: [],
             hand: [],
             mainMonsterZone: [
               {
@@ -420,9 +428,9 @@ describe("ActivateIgnitionEffectCommand", () => {
         // Royal Magical Library has no once-per-turn restriction
         // In the real game, the cost (3 Spell Counters) limits activations
         const activatedState = createMockGameState({
-          phase: "Main1",
+          phase: "main1",
           lp: { player: 8000, opponent: 8000 },
-          zones: libraryState.zones,
+          space: libraryState.space,
         });
 
         const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
@@ -473,8 +481,8 @@ describe("ActivateIgnitionEffectCommand", () => {
         }
 
         // Verify draw occurred
-        expect(currentState.zones.hand).toHaveLength(1);
-        expect(currentState.zones.deck).toHaveLength(1); // Started with 2
+        expect(currentState.space.hand).toHaveLength(1);
+        expect(currentState.space.mainDeck).toHaveLength(1); // Started with 2
       });
     });
   });
@@ -488,19 +496,20 @@ describe("ActivateIgnitionEffectCommand", () => {
       const royalLibraryId = "monster-royal-library-1";
 
       const mixedState = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         lp: { player: 5000, opponent: 5000 },
-        zones: {
-          deck: [
+        space: {
+          mainDeck: [
             {
-              instanceId: "deck-0",
+              instanceId: "main-0",
               id: 1001,
               jaName: "サンプルカード",
               type: "spell" as const,
               frameType: "spell" as const,
-              location: "deck" as const,
+              location: "mainDeck" as const,
             },
           ],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [
             {

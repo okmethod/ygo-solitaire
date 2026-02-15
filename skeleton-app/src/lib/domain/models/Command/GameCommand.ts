@@ -3,7 +3,8 @@
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { GameStateUpdateResult, ValidationResult, AtomicStep } from "$lib/domain/models/GameProcessing";
+import type { GameStateUpdateResult, ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
+import { GameState } from "$lib/domain/models/GameState";
 
 /**
  * ゲーム操作コマンドの実行結果
@@ -40,3 +41,37 @@ export interface GameCommand {
   /** Commandを実行して更新後のゲーム状態を返す */
   execute(state: GameSnapshot): GameCommandResult;
 }
+
+/** 成功した GameCommandResult */
+export const successCommandResult = (
+  updatedState: GameSnapshot,
+  message?: string,
+  emittedEvents?: GameEvent[],
+  effectSteps?: AtomicStep[],
+): GameCommandResult => {
+  // 開発時のみ
+  if (import.meta.env.DEBUG) {
+    GameState.assert(updatedState);
+  }
+
+  // 勝利条件判定
+  const checkedState = GameState.checkVictory(updatedState);
+
+  return {
+    success: true,
+    updatedState: checkedState,
+    message,
+    emittedEvents,
+    effectSteps: effectSteps ?? [],
+  };
+};
+
+/** 失敗した GameCommandResult */
+export const failureCommandResult = (state: GameSnapshot, error: string): GameCommandResult => {
+  return {
+    success: false,
+    updatedState: state, // 状態は変更されない
+    error,
+    effectSteps: [],
+  };
+};

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
-import type { CardInstance } from "$lib/domain/models/CardOld";
+import type { CardInstance } from "$lib/domain/models/Card";
 
 describe("SummonMonsterCommand", () => {
   const createMonsterCard = (instanceId: string): CardInstance => ({
@@ -18,11 +18,12 @@ describe("SummonMonsterCommand", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -45,11 +46,12 @@ describe("SummonMonsterCommand", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -69,15 +71,16 @@ describe("SummonMonsterCommand", () => {
       expect(result.isValid).toBe(false);
     });
 
-    it("should return false if not in Main1 phase", () => {
+    it("should return false if not in main1 phase", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Draw",
+        phase: "draw",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -100,11 +103,12 @@ describe("SummonMonsterCommand", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 1,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -126,11 +130,12 @@ describe("SummonMonsterCommand", () => {
     it("should return false if card not found", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -151,13 +156,14 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if card is not in hand", () => {
       // Arrange
-      const monsterCard = { ...createMonsterCard("monster-1"), location: "deck" as const };
+      const monsterCard = { ...createMonsterCard("monster-1"), location: "mainDeck" as const };
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [monsterCard],
+        space: {
+          mainDeck: [monsterCard],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -188,11 +194,12 @@ describe("SummonMonsterCommand", () => {
       };
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -222,11 +229,12 @@ describe("SummonMonsterCommand", () => {
       }));
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: fullMonsterZone,
           spellTrapZone: [],
@@ -251,11 +259,12 @@ describe("SummonMonsterCommand", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -272,10 +281,10 @@ describe("SummonMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.hand.length).toBe(0);
-      expect(result.updatedState.zones.mainMonsterZone.length).toBe(1);
+      expect(result.updatedState.space.hand.length).toBe(0);
+      expect(result.updatedState.space.mainMonsterZone.length).toBe(1);
 
-      const summonedCard = result.updatedState.zones.mainMonsterZone[0];
+      const summonedCard = result.updatedState.space.mainMonsterZone[0];
       expect(summonedCard.instanceId).toBe("monster-1");
       expect(summonedCard.location).toBe("mainMonsterZone");
       expect(summonedCard.stateOnField?.position).toBe("faceUp");
@@ -287,11 +296,12 @@ describe("SummonMonsterCommand", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -311,15 +321,16 @@ describe("SummonMonsterCommand", () => {
       expect(result.updatedState.normalSummonUsed).toBe(1);
     });
 
-    it("should fail if not in Main1 phase", () => {
+    it("should fail if not in main1 phase", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Draw",
+        phase: "draw",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -343,11 +354,12 @@ describe("SummonMonsterCommand", () => {
       // Arrange
       const monsterCard = createMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 1,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -370,11 +382,12 @@ describe("SummonMonsterCommand", () => {
     it("should fail if card not found", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -396,13 +409,14 @@ describe("SummonMonsterCommand", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const monsterCard = { ...createMonsterCard("monster-1"), location: "deck" as const };
+      const monsterCard = { ...createMonsterCard("monster-1"), location: "mainDeck" as const };
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [monsterCard],
+        space: {
+          mainDeck: [monsterCard],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -434,11 +448,12 @@ describe("SummonMonsterCommand", () => {
       };
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -465,11 +480,12 @@ describe("SummonMonsterCommand", () => {
       const existingGraveyardCard = createMonsterCard("gy-card");
 
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonLimit: 1,
         normalSummonUsed: 0,
-        zones: {
-          deck: [existingDeckCard],
+        space: {
+          mainDeck: [existingDeckCard],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -486,9 +502,10 @@ describe("SummonMonsterCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.deck.length).toBe(1);
-      expect(result.updatedState.zones.graveyard.length).toBe(1);
-      expect(result.updatedState.zones.mainMonsterZone.length).toBe(1);
+      expect(result.updatedState.space.mainDeck.length).toBe(1);
+      expect(result.updatedState.space.extraDeck.length).toBe(0);
+      expect(result.updatedState.space.graveyard.length).toBe(1);
+      expect(result.updatedState.space.mainMonsterZone.length).toBe(1);
     });
   });
 

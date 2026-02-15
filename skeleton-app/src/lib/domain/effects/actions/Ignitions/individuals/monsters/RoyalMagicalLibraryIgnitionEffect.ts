@@ -13,15 +13,14 @@
  * @module domain/effects/actions/monsters/individuals/RoyalMagicalLibraryIgnitionEffect
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/BaseIgnitionEffect";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { removeCounterStep } from "$lib/domain/effects/steps/counters";
-import { Card } from "$lib/domain/models/Card";
-import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 必要な魔力カウンター数 */
 const REQUIRED_SPELL_COUNTERS = 3;
@@ -38,10 +37,10 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
    * チェック項目:
    * 1. 魔力カウンターが3つ以上であること
    */
-  protected individualConditions(_state: GameState, sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(_state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. 魔力カウンターが3つ以上であること
     const counters = sourceInstance.stateOnField?.counters ?? [];
-    const spellCounterCount = Card.Counter.getCounterCount(counters, "spell");
+    const spellCounterCount = Card.Counter.get(counters, "spell");
     if (spellCounterCount < REQUIRED_SPELL_COUNTERS) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_COUNTERS);
     }
@@ -57,7 +56,7 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
    *
    * @protected
    */
-  protected individualActivationSteps(_state: GameState, sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [removeCounterStep(sourceInstance.instanceId, "spell", REQUIRED_SPELL_COUNTERS)];
   }
 
@@ -69,7 +68,7 @@ export class RoyalMagicalLibraryIgnitionEffect extends BaseIgnitionEffect {
    *
    * @protected
    */
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [drawStep(1)];
   }
 }

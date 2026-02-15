@@ -6,17 +6,13 @@
  * @module domain/commands/SetSpellTrapCommand
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { GameCommand } from "$lib/domain/models/GameCommand";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { Zones } from "$lib/domain/models/Zone";
-import { findCardInstance } from "$lib/domain/models/Zone";
-import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isSpellCard, isTrapCard, isFieldSpellCard } from "$lib/domain/models/CardOld";
-import { moveCard, isSpellTrapZoneFull, isFieldZoneFull } from "$lib/domain/models/Zone";
-import { isMainPhase } from "$lib/domain/models/Phase";
+import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
+import { Command } from "$lib/domain/models/Command";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 魔法・罠セットコマンドクラス */
@@ -36,31 +32,31 @@ export class SetSpellTrapCommand implements GameCommand {
    * 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
    * 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
    */
-  canExecute(state: GameState): ValidationResult {
+  canExecute(state: GameSnapshot): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
     // 2. メインフェイズであること
-    if (!isMainPhase(state.phase)) {
+    if (!GameState.Phase.isMain(state.phase)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 
     // 3. 指定カードが手札に存在し、魔法カードまたは罠カードであること
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
     if (!cardInstance) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
     }
     if (cardInstance.location !== "hand") {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
     }
-    if (!isSpellCard(cardInstance) && !isTrapCard(cardInstance)) {
+    if (!Card.isSpell(cardInstance) && !Card.isTrap(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_SPELL_OR_TRAP_CARD);
     }
 
     // 4. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
-    if (!isFieldSpellCard(cardInstance) && isSpellTrapZoneFull(state.zones)) {
+    if (!Card.isFieldSpell(cardInstance) && GameState.Space.isSpellTrapZoneFull(state.space)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.SPELL_TRAP_ZONE_FULL);
     }
 
@@ -75,46 +71,42 @@ export class SetSpellTrapCommand implements GameCommand {
    * 2. 更新後状態の構築
    * 3. 戻り値の構築
    */
-  execute(state: GameState): GameStateUpdateResult {
+  execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
+      return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
-    const updatedState: GameState = {
+    const updatedState: GameSnapshot = {
       ...state,
-      zones: this.moveSetSpellTrapCard(state.zones, cardInstance),
+      space: this.moveSetSpellTrapCard(state.space, cardInstance),
     };
 
     // 3. 戻り値の構築
-    return successUpdateResult(updatedState, `Card set: ${cardInstance.jaName}`);
+    return Command.Result.success(updatedState, `Card set: ${cardInstance.jaName}`);
   }
 
   // セットする魔法・罠カードを適切なゾーンに裏向きで配置する
-  private moveSetSpellTrapCard(zones: Zones, cardInstance: CardInstance): Zones {
-    const setCardState: Partial<CardInstance> = {
-      stateOnField: {
-        position: "faceDown",
-        placedThisTurn: true,
-        counters: [],
-        activatedEffects: new Set<string>(),
-      },
-    };
-
+  private moveSetSpellTrapCard(space: CardSpace, cardInstance: CardInstance): CardSpace {
     // フィールド魔法カードの場合
-    if (isFieldSpellCard(cardInstance)) {
+    if (Card.isFieldSpell(cardInstance)) {
       // 既存フィールド魔法カードが存在する場合、先に墓地へ送る
-      if (isFieldZoneFull(zones)) {
-        zones = moveCard(zones, zones.fieldZone[0], "graveyard");
+      let updatedSpace = space;
+      if (GameState.Space.isFieldZoneFull(space)) {
+        updatedSpace = GameState.Space.moveCard(space, space.fieldZone[0], "graveyard");
       }
-      return moveCard(zones, cardInstance, "fieldZone", setCardState);
+      return GameState.Space.moveCard(updatedSpace, cardInstance, "fieldZone", {
+        position: "faceDown",
+      });
     }
 
-    return moveCard(zones, cardInstance, "spellTrapZone", setCardState);
+    return GameState.Space.moveCard(space, cardInstance, "spellTrapZone", {
+      position: "faceDown",
+    });
   }
 
   /** セット対象のカードインスタンスIDを取得する */

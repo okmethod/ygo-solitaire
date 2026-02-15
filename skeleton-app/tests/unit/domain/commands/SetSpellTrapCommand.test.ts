@@ -8,34 +8,8 @@
 
 import { describe, it, expect } from "vitest";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-
-// Helper to create a mock GameState
-function createMockGameState(overrides: Partial<GameState> = {}): GameState {
-  const defaultState: GameState = {
-    zones: {
-      deck: [],
-      hand: [],
-      mainMonsterZone: [],
-      spellTrapZone: [],
-      fieldZone: [],
-      graveyard: [],
-      banished: [],
-    },
-    lp: { player: 8000, opponent: 8000 },
-    phase: "Main1",
-    turn: 1,
-    result: { isGameOver: false },
-    activatedOncePerTurnCards: new Set<number>(),
-    pendingEndPhaseEffects: [],
-    damageNegation: false,
-    normalSummonLimit: 1,
-    normalSummonUsed: 0,
-  };
-
-  return { ...defaultState, ...overrides };
-}
+import type { CardInstance } from "$lib/domain/models/Card";
+import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 
 // Helper to create a normal spell card
 function createNormalSpellCard(instanceId: string): CardInstance {
@@ -95,9 +69,10 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createNormalSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -121,9 +96,10 @@ describe("SetSpellTrapCommand", () => {
       const fieldSpell1 = createFieldSpellCard("field-1");
       const fieldSpell2 = { ...createFieldSpellCard("field-2"), location: "fieldZone" as const };
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [fieldSpell1],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -142,13 +118,14 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should fail if not in Main1 phase", () => {
+    it("should fail if not in main1 phase", () => {
       // Arrange
       const spellCard = createNormalSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "Draw",
-        zones: {
-          deck: [],
+        phase: "draw",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -172,9 +149,10 @@ describe("SetSpellTrapCommand", () => {
       const spellCard = createNormalSpellCard("spell-1");
       const existingSpells = Array.from({ length: 5 }, (_, i) => createNormalSpellCard(`existing-${i}`));
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: existingSpells,
@@ -196,7 +174,7 @@ describe("SetSpellTrapCommand", () => {
     it("should fail if card not found", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
       });
 
       const command = new SetSpellTrapCommand("non-existent-id");
@@ -210,11 +188,12 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const spellCard = { ...createNormalSpellCard("spell-1"), location: "deck" as const };
+      const spellCard = { ...createNormalSpellCard("spell-1"), location: "mainDeck" as const };
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [spellCard],
+        phase: "main1",
+        space: {
+          mainDeck: [spellCard],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -244,9 +223,10 @@ describe("SetSpellTrapCommand", () => {
         location: "hand" as const,
       };
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [monsterCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -269,9 +249,10 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createNormalSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -297,9 +278,10 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createNormalSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -316,10 +298,10 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.hand.length).toBe(0);
-      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.space.hand.length).toBe(0);
+      expect(result.updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = result.updatedState.zones.spellTrapZone[0];
+      const setCard = result.updatedState.space.spellTrapZone[0];
       expect(setCard.instanceId).toBe("spell-1");
       expect(setCard.location).toBe("spellTrapZone");
       expect(setCard.stateOnField?.position).toBe("faceDown");
@@ -330,9 +312,10 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createQuickPlaySpellCard("quick-1");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -349,9 +332,9 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = result.updatedState.zones.spellTrapZone[0];
+      const setCard = result.updatedState.space.spellTrapZone[0];
       expect(setCard.instanceId).toBe("quick-1");
       expect(setCard.stateOnField?.position).toBe("faceDown");
       expect(setCard.stateOnField?.placedThisTurn).toBe(true);
@@ -361,9 +344,10 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createContinuousSpellCard("continuous-1");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -380,9 +364,9 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(result.updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = result.updatedState.zones.spellTrapZone[0];
+      const setCard = result.updatedState.space.spellTrapZone[0];
       expect(setCard.instanceId).toBe("continuous-1");
       expect(setCard.stateOnField?.position).toBe("faceDown");
     });
@@ -391,9 +375,10 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const fieldSpell = createFieldSpellCard("field-1");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [fieldSpell],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -410,10 +395,10 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.hand.length).toBe(0);
-      expect(result.updatedState.zones.fieldZone.length).toBe(1);
+      expect(result.updatedState.space.hand.length).toBe(0);
+      expect(result.updatedState.space.fieldZone.length).toBe(1);
 
-      const setCard = result.updatedState.zones.fieldZone[0];
+      const setCard = result.updatedState.space.fieldZone[0];
       expect(setCard.instanceId).toBe("field-1");
       expect(setCard.location).toBe("fieldZone");
       expect(setCard.stateOnField?.position).toBe("faceDown");
@@ -434,9 +419,10 @@ describe("SetSpellTrapCommand", () => {
       };
       const newFieldSpell = createFieldSpellCard("field-new");
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [newFieldSpell],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -453,20 +439,21 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.fieldZone.length).toBe(1);
-      expect(result.updatedState.zones.fieldZone[0].instanceId).toBe("field-new");
-      expect(result.updatedState.zones.graveyard.length).toBe(1);
-      expect(result.updatedState.zones.graveyard[0].instanceId).toBe("field-old");
+      expect(result.updatedState.space.fieldZone.length).toBe(1);
+      expect(result.updatedState.space.fieldZone[0].instanceId).toBe("field-new");
+      expect(result.updatedState.space.graveyard.length).toBe(1);
+      expect(result.updatedState.space.graveyard[0].instanceId).toBe("field-old");
     });
 
     it("should NOT consume normalSummonUsed when setting spell", () => {
       // Arrange
       const spellCard = createNormalSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
         normalSummonUsed: 0,
-        zones: {
-          deck: [],
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -486,13 +473,14 @@ describe("SetSpellTrapCommand", () => {
       expect(result.updatedState.normalSummonUsed).toBe(0); // Should NOT increment
     });
 
-    it("should fail if not in Main1 phase", () => {
+    it("should fail if not in main1 phase", () => {
       // Arrange
       const spellCard = createNormalSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "Draw",
-        zones: {
-          deck: [],
+        phase: "draw",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -515,7 +503,7 @@ describe("SetSpellTrapCommand", () => {
     it("should fail if card not found", () => {
       // Arrange
       const state = createMockGameState({
-        phase: "Main1",
+        phase: "main1",
       });
 
       const command = new SetSpellTrapCommand("non-existent-id");
@@ -530,11 +518,12 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const spellCard = { ...createNormalSpellCard("spell-1"), location: "deck" as const };
+      const spellCard = { ...createNormalSpellCard("spell-1"), location: "mainDeck" as const };
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [spellCard],
+        phase: "main1",
+        space: {
+          mainDeck: [spellCard],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -562,9 +551,10 @@ describe("SetSpellTrapCommand", () => {
         location: "spellTrapZone" as const,
       }));
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [],
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: existingSpells,
@@ -591,9 +581,10 @@ describe("SetSpellTrapCommand", () => {
       const existingGraveyardCard = createNormalSpellCard("gy-card");
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: [existingDeckCard],
+        phase: "main1",
+        space: {
+          mainDeck: [existingDeckCard],
+          extraDeck: [],
           hand: [spellCard],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -610,8 +601,8 @@ describe("SetSpellTrapCommand", () => {
 
       // Assert
       expect(result.success).toBe(true);
-      expect(result.updatedState.zones.deck).toEqual([existingDeckCard]);
-      expect(result.updatedState.zones.graveyard).toEqual([existingGraveyardCard]);
+      expect(result.updatedState.space.mainDeck).toEqual([existingDeckCard]);
+      expect(result.updatedState.space.graveyard).toEqual([existingGraveyardCard]);
     });
   });
 

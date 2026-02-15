@@ -13,11 +13,10 @@
 
 import { describe, it, expect } from "vitest";
 import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
-import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
@@ -33,19 +32,19 @@ class TestNormalSpell extends NormalSpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check deck size
-    if (state.zones.deck.length >= 2) {
+    if (state.space.mainDeck.length >= 2) {
       return GameProcessing.Validation.success();
     }
     return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_DECK);
   }
 
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 }
@@ -66,41 +65,41 @@ describe("NormalSpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Deck >= 2
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
-      const stateInMain1: GameState = {
+      const stateInMain1: GameSnapshot = {
         ...state,
-        phase: "Main1",
+        phase: "main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
     });
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (NormalSpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
       // Default phase is "Draw"
 
       // Act & Assert
-      expect(action.canActivate(state, state.zones.hand[0]).isValid).toBe(false);
+      expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(false);
     });
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
-      const state = createInitialGameState(createTestInitialDeck([1001]), { skipShuffle: true, skipInitialDraw: true });
-      const stateInMain1: GameState = {
+      const state = GameState.initialize(createTestInitialDeck([1001]), { skipShuffle: true, skipInitialDraw: true });
+      const stateInMain1: GameSnapshot = {
         ...state,
-        phase: "Main1",
+        phase: "main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.zones.hand[0]).isValid).toBe(false);
+      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(false);
     });
   });
 
@@ -118,7 +117,7 @@ describe("NormalSpellAction", () => {
 
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });

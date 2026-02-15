@@ -10,7 +10,7 @@
  * @see {@link docs/domain/overview.md}
  */
 
-export type { GameSnapshot } from "./GameSnapshot";
+export type { GameSnapshot, InitialDeckCardIds } from "./GameSnapshot";
 export type { Player } from "./Player";
 export type { GamePhase } from "./Phase";
 export type { GameResult } from "./GameResult";

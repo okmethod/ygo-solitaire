@@ -4,10 +4,9 @@
  * TODO: 仮実装が多く、冗長かもしれない。具体的な効果実装に沿って調整する。
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
 
 /**
  * AdditionalRule の効果カテゴリ
@@ -71,7 +70,7 @@ export interface AdditionalRule {
    * @param state - 現在のゲーム状態
    * @returns 適用可能ならtrue
    */
-  canApply(state: GameState): boolean;
+  canApply(state: GameSnapshot): boolean;
 
   /**
    * データ書き換え系（NameOverride, StatusModifier）
@@ -81,7 +80,7 @@ export interface AdditionalRule {
    * @param state - 現在のゲーム状態
    * @returns 新しいゲーム状態
    */
-  apply?(state: GameState): GameState;
+  apply?(state: GameSnapshot): GameSnapshot;
 
   /**
    * 判定追加・制限系（SummonCondition, Permission, VictoryCondition）
@@ -95,7 +94,7 @@ export interface AdditionalRule {
    * @param state - 現在のゲーム状態
    * @returns 許可ならtrue、禁止ならfalse
    */
-  checkPermission?(state: GameState): boolean;
+  checkPermission?(state: GameSnapshot): boolean;
 
   /**
    * 処理置換・フック系（ActionReplacement, SelfDestruction）
@@ -108,7 +107,7 @@ export interface AdditionalRule {
    * @param state - 現在のゲーム状態
    * @returns 置換後のゲーム状態
    */
-  replace?(state: GameState): GameState;
+  replace?(state: GameSnapshot): GameSnapshot;
 
   /**
    * トリガーイベント（TriggerRule用）
@@ -116,7 +115,7 @@ export interface AdditionalRule {
    * このルールが反応するイベントの種類を定義する。
    * TriggerRuleカテゴリのルールで使用する。
    */
-  readonly triggers?: readonly TriggerEvent[];
+  readonly triggers?: readonly EventType[];
 
   /**
    * トリガー発動時のステップ生成（TriggerRule用）
@@ -128,5 +127,5 @@ export interface AdditionalRule {
    * @param sourceInstance - このルールの発生源となるカードインスタンス
    * @returns 実行するAtomicStep配列
    */
-  createTriggerSteps?(state: GameState, sourceInstance: CardInstance): AtomicStep[];
+  createTriggerSteps?(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 }

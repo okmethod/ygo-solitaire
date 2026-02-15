@@ -13,11 +13,10 @@
 
 import { describe, it, expect } from "vitest";
 import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
-import { createInitialGameState, type InitialDeckCardIds } from "$lib/domain/models/GameStateOld";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
@@ -33,19 +32,19 @@ class TestQuickPlaySpell extends QuickPlaySpellAction {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(state: GameState, _sourceInstance: CardInstance): ValidationResult {
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // Test implementation: check hand size
-    if (state.zones.hand.length > 0) {
+    if (state.space.hand.length > 0) {
       return GameProcessing.Validation.success();
     }
     return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
 
-  protected individualActivationSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 
-  protected individualResolutionSteps(_state: GameState, _sourceInstance: CardInstance): AtomicStep[] {
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return [];
   }
 }
@@ -83,20 +82,20 @@ describe("QuickPlaySpellAction", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Hand not empty
-      const baseState = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const baseState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
       const handCard: CardInstance = {
-        ...baseState.zones.deck[0],
+        ...baseState.space.mainDeck[0],
         instanceId: "hand-0",
         location: "hand",
       };
-      const stateInMain1: GameState = {
+      const stateInMain1: GameSnapshot = {
         ...baseState,
-        phase: "Main1",
-        zones: {
-          ...baseState.zones,
+        phase: "main1",
+        space: {
+          ...baseState.space,
           hand: [handCard],
         },
       };
@@ -108,7 +107,7 @@ describe("QuickPlaySpellAction", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (QuickPlaySpellAction固有のフェーズ制約テスト)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -121,15 +120,15 @@ describe("QuickPlaySpellAction", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Hand is empty (additionalActivationConditions returns false)
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });
-      const emptyHandState: GameState = {
+      const emptyHandState: GameSnapshot = {
         ...state,
-        phase: "Main1",
-        zones: {
-          ...state.zones,
+        phase: "main1",
+        space: {
+          ...state.space,
           hand: [],
         },
       };
@@ -143,7 +142,7 @@ describe("QuickPlaySpellAction", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = createInitialGameState(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
       });

@@ -7,15 +7,13 @@
  * @module domain/commands/AdvancePhaseCommand
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { GameCommand } from "$lib/domain/models/GameCommand";
+import type { CardInstance, StateOnField } from "$lib/domain/models/Card";
+import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
-import type { Zones } from "$lib/domain/models/Zone";
-import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { getNextPhase, validatePhaseTransition, getPhaseDisplayName, isEndPhase } from "$lib/domain/models/Phase";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
+import { Command } from "$lib/domain/models/Command";
 
 /** フェイズ遷移コマンドクラス */
 export class AdvancePhaseCommand implements GameCommand {
@@ -32,16 +30,16 @@ export class AdvancePhaseCommand implements GameCommand {
    * 1. ゲーム終了状態でないこと
    * 2. フェイズ遷移が許可されていること
    */
-  canExecute(state: GameState): ValidationResult {
+  canExecute(state: GameSnapshot): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
-    const nextPhase = getNextPhase(state.phase);
+    const nextPhase = GameState.Phase.next(state.phase);
 
     // 2. フェイズ遷移が許可されていること
-    const validation = validatePhaseTransition(state.phase, nextPhase);
+    const validation = GameState.Phase.changeable(state.phase, nextPhase);
     if (!validation.valid) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.PHASE_TRANSITION_NOT_ALLOWED);
     }
@@ -59,49 +57,52 @@ export class AdvancePhaseCommand implements GameCommand {
    *
    * Note: 効果処理は、Application 層に返された後に実行される
    */
-  execute(state: GameState): GameStateUpdateResult {
+  execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
+      return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
 
-    const nextPhase = getNextPhase(state.phase);
-    const hasPendingEffects = isEndPhase(nextPhase) && state.pendingEndPhaseEffects.length > 0;
+    const nextPhase = GameState.Phase.next(state.phase);
+    const hasPendingEffects = GameState.Phase.isEnd(nextPhase) && state.queuedEndPhaseEffectIds.length > 0;
 
     // エンドフェイズ移行時にフィールドカードの activatedEffects をリセット
-    const updatedZones: Zones = isEndPhase(nextPhase) ? this.resetFieldCardActivatedEffects(state.zones) : state.zones;
+    const updatedSpace: CardSpace = GameState.Phase.isEnd(nextPhase)
+      ? this.resetFieldCardActivatedEffects(state.space)
+      : state.space;
 
     // 2. 更新後状態の構築
-    const updatedState: GameState = {
+    const updatedState: GameSnapshot = {
       ...state,
-      zones: updatedZones,
+      space: updatedSpace,
       phase: nextPhase,
       // ターン終了時に「名称ターン1制限」をリセット
-      activatedOncePerTurnCards: isEndPhase(nextPhase) ? new Set<number>() : state.activatedOncePerTurnCards,
+      activatedCardIds: GameState.Phase.isEnd(nextPhase) ? new Set<number>() : state.activatedCardIds,
       // 保留リストは、エンドフェイズに遷移した時点でクリアする
-      pendingEndPhaseEffects: hasPendingEffects ? [] : state.pendingEndPhaseEffects,
+      queuedEndPhaseEffectIds: hasPendingEffects ? [] : state.queuedEndPhaseEffectIds,
     };
 
     // 3. 戻り値の構築
-    return successUpdateResult(
+    // TODO: エンドフェイズ効果の解決ステップを生成する必要がある
+    return Command.Result.success(
       updatedState,
-      `Advanced to ${getPhaseDisplayName(nextPhase)}`,
+      `Advanced to ${GameState.Phase.displayName(nextPhase)}`,
       // 効果がある場合のみ、解決ステップを配列として付与する
-      hasPendingEffects ? [...state.pendingEndPhaseEffects] : undefined,
+      // hasPendingEffects ? [...state.queuedEndPhaseEffectIds] : undefined,
     );
   }
 
   /** 次のフェイズ名を取得する */
-  getNextPhase(state: GameState): string {
-    return getNextPhase(state.phase);
+  getNextPhase(state: GameSnapshot): string {
+    return GameState.Phase.next(state.phase);
   }
 
   /**
    * フィールドカードの activatedEffects をリセットする
    * エンドフェイズ移行時に呼び出され、1ターンに1度制限をリセットする
    */
-  private resetFieldCardActivatedEffects(zones: Zones): Zones {
+  private resetFieldCardActivatedEffects(space: CardSpace): CardSpace {
     const resetCard = (card: CardInstance): CardInstance => {
       if (!card.stateOnField) return card;
       if (card.stateOnField.activatedEffects.size === 0) return card;
@@ -114,10 +115,10 @@ export class AdvancePhaseCommand implements GameCommand {
     };
 
     return {
-      ...zones,
-      mainMonsterZone: zones.mainMonsterZone.map(resetCard),
-      spellTrapZone: zones.spellTrapZone.map(resetCard),
-      fieldZone: zones.fieldZone.map(resetCard),
+      ...space,
+      mainMonsterZone: space.mainMonsterZone.map(resetCard),
+      spellTrapZone: space.spellTrapZone.map(resetCard),
+      fieldZone: space.fieldZone.map(resetCard),
     };
   }
 }

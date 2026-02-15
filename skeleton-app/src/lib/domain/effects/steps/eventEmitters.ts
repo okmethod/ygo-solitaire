@@ -7,9 +7,9 @@
  * @module domain/effects/steps/eventEmitters
  */
 
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import { successUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { AtomicStep } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /**
  * 魔法カード発動イベントを発行するステップ
@@ -28,7 +28,7 @@ export function emitSpellActivatedEventStep(sourceInstance: CardInstance): Atomi
     description: "魔法カード発動をトリガーシステムに通知",
     notificationLevel: "silent",
     action: (state) =>
-      successUpdateResult(state, undefined, undefined, [
+      GameProcessing.Result.success(state, undefined, [
         {
           type: "spellActivated",
           sourceCardId: sourceInstance.id,

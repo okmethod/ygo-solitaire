@@ -12,10 +12,9 @@
  * @module domain/effects/steps/discards
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { moveCard, findCardInstance } from "$lib/domain/models/Zone";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameState } from "$lib/domain/models/GameState";
 import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
@@ -26,11 +25,11 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
     summary: "墓地へ送る",
     description: `《${cardName}》を墓地に送ります`,
     notificationLevel: "info",
-    action: (currentState: GameState): GameStateUpdateResult => {
-      const card = findCardInstance(currentState.zones, instanceId)!;
-      const updatedState: GameState = {
+    action: (currentState: GameSnapshot): GameStateUpdateResult => {
+      const card = GameState.Space.findCard(currentState.space, instanceId)!;
+      const updatedState: GameSnapshot = {
         ...currentState,
-        zones: moveCard(currentState.zones, card, "graveyard"),
+        space: GameState.Space.moveCard(currentState.space, card, "graveyard"),
       };
 
       return {
@@ -43,26 +42,26 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
 };
 
 /** 指定した複数カードを墓地に移動した後のゲーム状態 */
-const sendMultipleToGraveyardResult = (state: GameState, instanceIds: string[]): GameStateUpdateResult => {
-  let updatedZones = state.zones;
+const sendMultipleToGraveyardResult = (state: GameSnapshot, instanceIds: string[]): GameStateUpdateResult => {
+  let updatedSpace = state.space;
   for (const instanceId of instanceIds) {
-    const card = findCardInstance(updatedZones, instanceId)!;
-    updatedZones = moveCard(updatedZones, card, "graveyard");
+    const card = GameState.Space.findCard(updatedSpace, instanceId)!;
+    updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
   }
 
   return {
     success: true,
     updatedState: {
       ...state,
-      zones: updatedZones,
+      space: updatedSpace,
     },
     message: `Sent ${instanceIds.length} card${instanceIds.length > 1 ? "s" : ""} to graveyard`,
   };
 };
 
 /** 手札を全て捨てた後のゲーム状態 */
-const discardAllHandResult = (state: GameState): GameStateUpdateResult => {
-  const handCards = [...state.zones.hand];
+const discardAllHandResult = (state: GameSnapshot): GameStateUpdateResult => {
+  const handCards = [...state.space.hand];
 
   // 手札が空の場合は何もしない
   if (handCards.length === 0) {
@@ -85,7 +84,7 @@ export const discardAllHandStep = (): AtomicStep => {
     summary: "手札を全て捨てる",
     description: "手札を全て捨てます",
     notificationLevel: "info",
-    action: (state: GameState): GameStateUpdateResult => {
+    action: (state: GameSnapshot): GameStateUpdateResult => {
       return discardAllHandResult(state);
     },
   };
@@ -112,7 +111,7 @@ export const selectAndDiscardStep = (cardCount: number, cancelable?: boolean): A
     minCards: cardCount,
     maxCards: cardCount,
     cancelable: cancelable ?? false, // Default: キャンセル不可
-    onSelect: (currentState: GameState, selectedInstanceIds: string[]) => {
+    onSelect: (currentState: GameSnapshot, selectedInstanceIds: string[]) => {
       // 指定枚数が選択されていない場合はエラー
       if (selectedInstanceIds.length !== cardCount) {
         return {

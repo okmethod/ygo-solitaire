@@ -10,14 +10,13 @@
  * @module domain/effects/steps/lifePoints
  */
 
-import type { GameState, PlayerType } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
+import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 
 type LpOperationType = "gain" | "damage" | "payment" | "loss";
 
 // LP操作ステップの共通ヘルパー
-const commonLpStep = (type: LpOperationType, amount: number, target: PlayerType): AtomicStep => {
+const commonLpStep = (type: LpOperationType, amount: number, target: Player): AtomicStep => {
   const isPlayer = target === "player";
   const targetJa = isPlayer ? "プレイヤー" : "相手";
   const targetEn = isPlayer ? "Player" : "Opponent";
@@ -36,8 +35,8 @@ const commonLpStep = (type: LpOperationType, amount: number, target: PlayerType)
     summary: `${targetJa}のLP${labels.action}`,
     description: `${targetJa}に${amount}の${labels.action}が発生します`,
     notificationLevel: "info",
-    action: (state: GameState): GameStateUpdateResult => {
-      const updatedState: GameState = {
+    action: (state: GameSnapshot): GameStateUpdateResult => {
+      const updatedState: GameSnapshot = {
         ...state,
         lp: { ...state.lp, [target]: state.lp[target] + amount * sign },
       };
@@ -52,21 +51,21 @@ const commonLpStep = (type: LpOperationType, amount: number, target: PlayerType)
 };
 
 /** ライフポイントを増加させるステップ */
-export const gainLpStep = (amount: number, target: PlayerType): AtomicStep => {
+export const gainLpStep = (amount: number, target: Player): AtomicStep => {
   return commonLpStep("gain", amount, target);
 };
 
 /** ダメージを与えるステップ */
-export const damageLpStep = (amount: number, target: PlayerType): AtomicStep => {
+export const damageLpStep = (amount: number, target: Player): AtomicStep => {
   return commonLpStep("damage", amount, target);
 };
 
 /** ライフポイントを支払うステップ */
-export const payLpStep = (amount: number, target: PlayerType): AtomicStep => {
+export const payLpStep = (amount: number, target: Player): AtomicStep => {
   return commonLpStep("payment", amount, target);
 };
 
 /** ライフポイントを喪失するステップ */
-export const lossLpStep = (amount: number, target: PlayerType): AtomicStep => {
+export const lossLpStep = (amount: number, target: Player): AtomicStep => {
   return commonLpStep("loss", amount, target);
 };

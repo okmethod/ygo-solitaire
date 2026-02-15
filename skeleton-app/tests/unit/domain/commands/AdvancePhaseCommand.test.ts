@@ -10,18 +10,19 @@ describe("AdvancePhaseCommand", () => {
   describe("canExecute", () => {
     it("should return true for Draw → Standby", () => {
       const state = createMockGameState({
-        phase: "Draw",
-        zones: {
-          deck: [
+        phase: "draw",
+        space: {
+          mainDeck: [
             {
-              instanceId: "deck-0",
+              instanceId: "main-0",
               id: 12345678,
               jaName: "サンプルモンスター",
               type: "monster" as const,
               frameType: "normal" as const,
-              location: "deck" as const,
+              location: "mainDeck" as const,
             },
           ],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -36,21 +37,21 @@ describe("AdvancePhaseCommand", () => {
     });
 
     it("should return true for Standby → Main1", () => {
-      const state = createMockGameState({ phase: "Standby" });
+      const state = createMockGameState({ phase: "standby" });
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for Main1 → End", () => {
-      const state = createMockGameState({ phase: "Main1" });
+      const state = createMockGameState({ phase: "main1" });
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("should return true for End → End (循環)", () => {
-      const state = createMockGameState({ phase: "End" });
+      const state = createMockGameState({ phase: "end" });
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
@@ -67,18 +68,19 @@ describe("AdvancePhaseCommand", () => {
   describe("execute", () => {
     it("should advance from Draw to Standby", () => {
       const state = createMockGameState({
-        phase: "Draw",
-        zones: {
-          deck: [
+        phase: "draw",
+        space: {
+          mainDeck: [
             {
-              instanceId: "deck-0",
+              instanceId: "main-0",
               id: 12345678,
               jaName: "サンプルモンスター",
               type: "monster" as const,
               frameType: "normal" as const,
-              location: "deck" as const,
+              location: "mainDeck" as const,
             },
           ],
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -92,44 +94,44 @@ describe("AdvancePhaseCommand", () => {
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.updatedState.phase).toBe("Standby");
+      expect(result.updatedState.phase).toBe("standby");
       expect(result.message).toContain("スタンバイフェイズ");
     });
 
     it("should advance from Standby to Main1", () => {
-      const state = createMockGameState({ phase: "Standby" });
+      const state = createMockGameState({ phase: "standby" });
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.updatedState.phase).toBe("Main1");
+      expect(result.updatedState.phase).toBe("main1");
       expect(result.message).toContain("メインフェイズ");
     });
 
     it("should advance from Main1 to End", () => {
-      const state = createMockGameState({ phase: "Main1" });
+      const state = createMockGameState({ phase: "main1" });
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.updatedState.phase).toBe("End");
+      expect(result.updatedState.phase).toBe("end");
       expect(result.message).toContain("エンドフェイズ");
     });
 
     it("should stay at End phase when advancing from End", () => {
-      const state = createMockGameState({ phase: "End" });
+      const state = createMockGameState({ phase: "end" });
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
 
       expect(result.success).toBe(true);
-      expect(result.updatedState.phase).toBe("End");
+      expect(result.updatedState.phase).toBe("end");
     });
 
     it("should not mutate original state (immutability)", () => {
-      const state = createMockGameState({ phase: "Draw" });
+      const state = createMockGameState({ phase: "draw" });
       const originalPhase = state.phase;
       const command = new AdvancePhaseCommand();
 
@@ -152,31 +154,31 @@ describe("AdvancePhaseCommand", () => {
 
   describe("getNextPhase", () => {
     it("should return Standby for Draw phase", () => {
-      const state = createMockGameState({ phase: "Draw" });
+      const state = createMockGameState({ phase: "draw" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.getNextPhase(state)).toBe("Standby");
+      expect(command.getNextPhase(state)).toBe("standby");
     });
 
     it("should return Main1 for Standby phase", () => {
-      const state = createMockGameState({ phase: "Standby" });
+      const state = createMockGameState({ phase: "standby" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.getNextPhase(state)).toBe("Main1");
+      expect(command.getNextPhase(state)).toBe("main1");
     });
 
     it("should return End for Main1 phase", () => {
-      const state = createMockGameState({ phase: "Main1" });
+      const state = createMockGameState({ phase: "main1" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.getNextPhase(state)).toBe("End");
+      expect(command.getNextPhase(state)).toBe("end");
     });
 
     it("should return End for End phase", () => {
-      const state = createMockGameState({ phase: "End" });
+      const state = createMockGameState({ phase: "end" });
       const command = new AdvancePhaseCommand();
 
-      expect(command.getNextPhase(state)).toBe("End");
+      expect(command.getNextPhase(state)).toBe("end");
     });
   });
 

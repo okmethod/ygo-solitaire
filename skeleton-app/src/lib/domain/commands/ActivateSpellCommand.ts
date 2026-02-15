@@ -8,19 +8,15 @@
  * @module domain/commands/ActivateSpellCommand
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { GameCommand } from "$lib/domain/models/GameCommand";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import type { CardInstance, StateOnField } from "$lib/domain/models/CardOld";
-import type { Zones } from "$lib/domain/models/Zone";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { findCardInstance } from "$lib/domain/models/Zone";
-import { successUpdateResult, failureUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { isSpellCard, isFieldSpellCard, createInitialStateOnField } from "$lib/domain/models/CardOld";
-import { moveCard, updateCardInPlace } from "$lib/domain/models/Zone";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
+import { Command } from "$lib/domain/models/Command";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
 
 /** 魔法カード発動コマンドクラス */
 export class ActivateSpellCommand implements GameCommand {
@@ -43,13 +39,13 @@ export class ActivateSpellCommand implements GameCommand {
    *
    * Note: フェイズ判定・速攻魔法のセットターン制限は ChainableAction 側でチェック
    */
-  canExecute(state: GameState): ValidationResult {
+  canExecute(state: GameSnapshot): ValidationResult {
     // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
 
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId);
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
 
     // 2. 指定カードが手札、またはフィールドに存在し、魔法カードであること
     if (!cardInstance) {
@@ -58,12 +54,12 @@ export class ActivateSpellCommand implements GameCommand {
     if (!(["hand", "spellTrapZone", "fieldZone"] as string[]).includes(cardInstance.location)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_VALID_LOCATION);
     }
-    if (!isSpellCard(cardInstance)) {
+    if (!Card.isSpell(cardInstance)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_SPELL_CARD);
     }
 
     // 3. 魔法・罠ゾーンに空きがあること（フィールド魔法は除く）
-    if (!isFieldSpellCard(cardInstance) && state.zones.spellTrapZone.length >= 5) {
+    if (!Card.isFieldSpell(cardInstance) && GameState.Space.isSpellTrapZoneFull(state.space)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.SPELL_TRAP_ZONE_FULL);
     }
 
@@ -89,28 +85,29 @@ export class ActivateSpellCommand implements GameCommand {
    *
    * Note: 効果処理は、Application 層に返された後に実行される
    */
-  execute(state: GameState): GameStateUpdateResult {
+  execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
     const validationResult = this.canExecute(state);
     if (!validationResult.isValid) {
-      return failureUpdateResult(state, GameProcessing.Validation.errorMessage(validationResult));
+      return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
     // cardInstance は canExecute で存在が保証されている
-    const cardInstance = findCardInstance(state.zones, this.cardInstanceId)!;
+    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
-    const updatedActivatedCards = new Set(state.activatedOncePerTurnCards);
+    const updatedActivatedCards = new Set(state.activatedCardIds);
     updatedActivatedCards.add(cardInstance.id);
-    const updatedState: GameState = {
+    const updatedState: GameSnapshot = {
       ...state,
-      zones: this.moveActivatedSpellCard(state.zones, cardInstance),
-      activatedOncePerTurnCards: updatedActivatedCards, // 発動済みカードIDを記録
+      space: this.moveActivatedSpellCard(state.space, cardInstance),
+      activatedCardIds: updatedActivatedCards, // 発動済みカードIDを記録
     };
 
     // 3. 戻り値の構築
-    return successUpdateResult(
+    return Command.Result.success(
       updatedState,
       `Spell card activated: ${this.cardInstanceId}`,
+      [],
       this.buildEffectSteps(updatedState, cardInstance),
     );
   }
@@ -123,33 +120,26 @@ export class ActivateSpellCommand implements GameCommand {
    *   - フィールド魔法 → フィールドゾーン
    * - セットから発動: 同じゾーンに表向きで配置
    */
-  private moveActivatedSpellCard(zones: Zones, cardInstance: CardInstance): Zones {
-    // 発動状態: 表側表示, このターンに置いた
-    const activatedStateOnField: StateOnField = createInitialStateOnField({
-      position: "faceUp",
-      placedThisTurn: true,
-    });
-
+  private moveActivatedSpellCard(space: CardSpace, cardInstance: CardInstance): CardSpace {
     // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
-    if (cardInstance!.location === "hand") {
-      const targetZone = isFieldSpellCard(cardInstance) ? "fieldZone" : "spellTrapZone";
-      return moveCard(zones, cardInstance, targetZone, { stateOnField: activatedStateOnField });
+    if (cardInstance.location === "hand") {
+      const targetZone = Card.isFieldSpell(cardInstance) ? "fieldZone" : "spellTrapZone";
+      return GameState.Space.moveCard(space, cardInstance, targetZone, {
+        position: "faceUp",
+      });
     }
 
-    // セットから発動: 同じゾーンに表向きで配置（既存の stateOnField があれば position を更新）
-    const existingStateOnField = cardInstance.stateOnField ?? createInitialStateOnField();
-    const updatedStateOnField: StateOnField = {
-      ...existingStateOnField,
+    // セットから発動: 同じゾーンに表向きで配置
+    return GameState.Space.updateCardStateInPlace(space, cardInstance, {
       position: "faceUp",
-    };
-    return updateCardInPlace(zones, cardInstance, { stateOnField: updatedStateOnField });
+    });
   }
 
   // 効果処理ステップ配列を生成する
   // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
   // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
   // Note: トリガールール（魔力カウンター等）は effectQueueStore がイベントを検出して自動挿入
-  private buildEffectSteps(state: GameState, cardInstance: CardInstance): AtomicStep[] {
+  private buildEffectSteps(state: GameSnapshot, cardInstance: CardInstance): AtomicStep[] {
     const steps: AtomicStep[] = [];
 
     // カード固有の効果ステップ（イベント発行は BaseSpellAction 内で行われる）

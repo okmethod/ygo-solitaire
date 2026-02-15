@@ -10,12 +10,11 @@
  * - フィールド全体から適用可能なルールを収集
  */
 
+import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
-import type { TriggerEvent } from "$lib/domain/models/GameProcessing";
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import { isFaceUp } from "$lib/domain/models/CardOld";
 
 /**
  * 追加適用するルールのレジストリ（クラス）
@@ -49,14 +48,14 @@ export class AdditionalRuleRegistry {
    * フィールド上のすべてのカードをチェックし、
    * 指定カテゴリのルールで canApply() が true のものを収集する。
    */
-  static collectActiveRules(state: GameState, category: RuleCategory): AdditionalRule[] {
+  static collectActiveRules(state: GameSnapshot, category: RuleCategory): AdditionalRule[] {
     const activeRules: AdditionalRule[] = [];
 
     // フィールド上のすべてのカードをチェック（魔法・罠ゾーンとフィールド魔法ゾーン）
-    const fieldCards = [...state.zones.spellTrapZone, ...state.zones.fieldZone];
+    const fieldCards = [...state.space.spellTrapZone, ...state.space.fieldZone];
     for (const card of fieldCards) {
       // 表側表示のカードのみチェック
-      if (!isFaceUp(card)) continue;
+      if (!Card.Instance.isFaceUp(card)) continue;
 
       const cardRules = this.getByCategory(card.id, category);
       for (const rule of cardRules) {
@@ -77,17 +76,17 @@ export class AdditionalRuleRegistry {
    * 各ルールには発生源のカードインスタンスを紐付ける。
    */
   static collectTriggerRules(
-    state: GameState,
-    event: TriggerEvent,
+    state: GameSnapshot,
+    event: EventType,
   ): Array<{ rule: AdditionalRule; sourceInstance: CardInstance }> {
     const results: Array<{ rule: AdditionalRule; sourceInstance: CardInstance }> = [];
 
     // フィールド上のすべてのカードをチェック（モンスターゾーン、魔法・罠ゾーン、フィールド魔法ゾーン）
-    const fieldCards = [...state.zones.mainMonsterZone, ...state.zones.spellTrapZone, ...state.zones.fieldZone];
+    const fieldCards = [...state.space.mainMonsterZone, ...state.space.spellTrapZone, ...state.space.fieldZone];
 
     for (const card of fieldCards) {
       // 表側表示のカードのみチェック
-      if (!isFaceUp(card)) continue;
+      if (!Card.Instance.isFaceUp(card)) continue;
 
       const cardRules = this.getByCategory(card.id, "TriggerRule");
       for (const rule of cardRules) {
@@ -108,7 +107,7 @@ export class AdditionalRuleRegistry {
    * 各ルールの canApply() が true の場合のみ createTriggerSteps() を呼び出す。
    * 各ステップは実行時に最新のカードインスタンスを取得して処理を行う。
    */
-  static collectTriggerSteps(state: GameState, event: TriggerEvent): AtomicStep[] {
+  static collectTriggerSteps(state: GameSnapshot, event: EventType): AtomicStep[] {
     const triggerRules = this.collectTriggerRules(state, event);
     const steps: AtomicStep[] = [];
 

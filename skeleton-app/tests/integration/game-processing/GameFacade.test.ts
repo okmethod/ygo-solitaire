@@ -24,16 +24,16 @@ function createTestDeckRecipe(cardIds: number[]): DeckRecipe {
 // テスト用ヘルパー: デッキから手札へカードを直接移動する
 function drawCards(count: number): void {
   const state = get(gameStateStore);
-  const cardsToMove = state.zones.deck.slice(-count);
-  const remainingDeck = state.zones.deck.slice(0, -count);
+  const cardsToMove = state.space.mainDeck.slice(-count);
+  const remainingDeck = state.space.mainDeck.slice(0, -count);
 
   gameStateStore.set({
     ...state,
-    zones: {
-      ...state.zones,
-      deck: remainingDeck,
+    space: {
+      ...state.space,
+      mainDeck: remainingDeck,
       hand: [
-        ...state.zones.hand,
+        ...state.space.hand,
         ...cardsToMove.map((card) => ({
           ...card,
           location: "hand" as const,
@@ -68,18 +68,18 @@ describe("GameFacade", () => {
       facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
 
       const state = get(gameStateStore);
-      expect(state.zones.hand.length).toBe(5); // 初期手札5枚
-      expect(state.zones.deck.length).toBe(1); // 残りデッキ1枚 (6 - 5 = 1)
-      expect(state.phase).toBe("Draw");
+      expect(state.space.hand.length).toBe(5); // 初期手札5枚
+      expect(state.space.mainDeck.length).toBe(1); // 残りデッキ1枚 (6 - 5 = 1)
+      expect(state.phase).toBe("draw");
       expect(state.turn).toBe(1);
     });
 
     it("should reset state when called multiple times", () => {
       facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
-      expect(get(gameStateStore).zones.deck.length).toBe(1);
+      expect(get(gameStateStore).space.mainDeck.length).toBe(1);
 
       facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS, SIX_ANY_CARDS[0]])); // もう1枚追加した別のデッキ
-      expect(get(gameStateStore).zones.deck.length).toBe(2);
+      expect(get(gameStateStore).space.mainDeck.length).toBe(2);
     });
   });
 
@@ -88,8 +88,8 @@ describe("GameFacade", () => {
       facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
 
       const state = facade.getGameState();
-      expect(state.zones.deck.length).toBe(1);
-      expect(state.phase).toBe("Draw");
+      expect(state.space.mainDeck.length).toBe(1);
+      expect(state.phase).toBe("draw");
       expect(state.turn).toBe(1);
     });
   });
@@ -100,26 +100,26 @@ describe("GameFacade", () => {
     });
 
     it("should advance from Draw to Standby", () => {
-      expect(get(currentPhase)).toBe("Draw");
+      expect(get(currentPhase)).toBe("draw");
 
       const result = facade.advancePhase();
       expect(result.success).toBe(true);
       expect(result.message).toContain("スタンバイフェイズ");
-      expect(get(currentPhase)).toBe("Standby");
+      expect(get(currentPhase)).toBe("standby");
     });
 
     it("should advance through all phases", () => {
       facade.advancePhase(); // Draw → Standby
-      expect(get(currentPhase)).toBe("Standby");
+      expect(get(currentPhase)).toBe("standby");
 
       facade.advancePhase(); // Standby → Main1
-      expect(get(currentPhase)).toBe("Main1");
+      expect(get(currentPhase)).toBe("main1");
 
       facade.advancePhase(); // Main1 → End
-      expect(get(currentPhase)).toBe("End");
+      expect(get(currentPhase)).toBe("end");
 
       facade.advancePhase(); // End → End (循環)
-      expect(get(currentPhase)).toBe("End");
+      expect(get(currentPhase)).toBe("end");
     });
   });
 
@@ -129,7 +129,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const canSummon = facade.canSummonMonster(monsterInstanceId);
       expect(canSummon).toBe(true);
@@ -140,8 +140,8 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
-      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+      const firstMonsterInstanceId = state.space.hand[0].instanceId;
+      const secondMonsterInstanceId = state.space.hand[1].instanceId;
 
       facade.summonMonster(firstMonsterInstanceId); // 召喚1体目
       const canSummon = facade.canSummonMonster(secondMonsterInstanceId); // 召喚2体目
@@ -153,7 +153,7 @@ describe("GameFacade", () => {
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const canSummon = facade.canSummonMonster(monsterInstanceId);
       expect(canSummon).toBe(false);
@@ -166,18 +166,18 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const initialHandSize = state.zones.hand.length; // 5 initial + 1 moved = 6
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const initialHandSize = state.space.hand.length; // 5 initial + 1 moved = 6
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.summonMonster(monsterInstanceId);
       expect(result.success).toBe(true);
       expect(result.message).toContain("Monster summoned");
 
       const updatedState = get(gameStateStore);
-      expect(updatedState.zones.hand.length).toBe(initialHandSize - 1); // 1 card summoned
-      expect(updatedState.zones.mainMonsterZone.length).toBe(1);
+      expect(updatedState.space.hand.length).toBe(initialHandSize - 1); // 1 card summoned
+      expect(updatedState.space.mainMonsterZone.length).toBe(1);
 
-      const summonedCard = updatedState.zones.mainMonsterZone[0];
+      const summonedCard = updatedState.space.mainMonsterZone[0];
       expect(summonedCard.instanceId).toBe(monsterInstanceId);
       expect(summonedCard.stateOnField?.position).toBe("faceUp");
       expect(summonedCard.stateOnField?.battlePosition).toBe("attack");
@@ -189,7 +189,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
       expect(state.normalSummonUsed).toBe(0);
 
       facade.summonMonster(monsterInstanceId);
@@ -202,8 +202,8 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
-      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+      const firstMonsterInstanceId = state.space.hand[0].instanceId;
+      const secondMonsterInstanceId = state.space.hand[1].instanceId;
 
       facade.summonMonster(firstMonsterInstanceId); // 召喚1体目
       const result = facade.summonMonster(secondMonsterInstanceId); // 召喚2体目
@@ -216,7 +216,7 @@ describe("GameFacade", () => {
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.summonMonster(monsterInstanceId);
       expect(result.success).toBe(false);
@@ -228,13 +228,13 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const initialHandSize = state.zones.hand.length;
-      const initialMonsterZoneSize = state.zones.mainMonsterZone.length;
+      const initialHandSize = state.space.hand.length;
+      const initialMonsterZoneSize = state.space.mainMonsterZone.length;
 
       facade.summonMonster("non-existent-id");
       const updatedState = get(gameStateStore);
-      expect(updatedState.zones.hand.length).toBe(initialHandSize);
-      expect(updatedState.zones.mainMonsterZone.length).toBe(initialMonsterZoneSize);
+      expect(updatedState.space.hand.length).toBe(initialHandSize);
+      expect(updatedState.space.mainMonsterZone.length).toBe(initialMonsterZoneSize);
     });
   });
 
@@ -244,7 +244,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const canSet = facade.canSetMonster(monsterInstanceId);
       expect(canSet).toBe(true);
@@ -255,8 +255,8 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
-      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+      const firstMonsterInstanceId = state.space.hand[0].instanceId;
+      const secondMonsterInstanceId = state.space.hand[1].instanceId;
 
       facade.setMonster(firstMonsterInstanceId); // セット1体目
       const canSet = facade.canSetMonster(secondMonsterInstanceId); // セット2体目
@@ -268,7 +268,7 @@ describe("GameFacade", () => {
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
       const canSet = facade.canSetMonster(monsterInstanceId);
       expect(canSet).toBe(false);
     });
@@ -280,18 +280,18 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const initialHandSize = state.zones.hand.length;
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const initialHandSize = state.space.hand.length;
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.setMonster(monsterInstanceId);
       expect(result.success).toBe(true);
       expect(result.message).toContain("Monster set");
 
       const updatedState = get(gameStateStore);
-      expect(updatedState.zones.hand.length).toBe(initialHandSize - 1);
-      expect(updatedState.zones.mainMonsterZone.length).toBe(1);
+      expect(updatedState.space.hand.length).toBe(initialHandSize - 1);
+      expect(updatedState.space.mainMonsterZone.length).toBe(1);
 
-      const setCard = updatedState.zones.mainMonsterZone[0];
+      const setCard = updatedState.space.mainMonsterZone[0];
       expect(setCard.instanceId).toBe(monsterInstanceId);
       expect(setCard.stateOnField?.position).toBe("faceDown");
       expect(setCard.stateOnField?.battlePosition).toBe("defense");
@@ -303,7 +303,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
       expect(state.normalSummonUsed).toBe(0);
 
       facade.setMonster(monsterInstanceId);
@@ -316,8 +316,8 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const firstMonsterInstanceId = state.zones.hand[0].instanceId;
-      const secondMonsterInstanceId = state.zones.hand[1].instanceId;
+      const firstMonsterInstanceId = state.space.hand[0].instanceId;
+      const secondMonsterInstanceId = state.space.hand[1].instanceId;
 
       facade.setMonster(firstMonsterInstanceId); // セット1体目
       const result = facade.setMonster(secondMonsterInstanceId); // セット2体目
@@ -330,7 +330,7 @@ describe("GameFacade", () => {
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
-      const monsterInstanceId = state.zones.hand[0].instanceId;
+      const monsterInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.setMonster(monsterInstanceId);
       expect(result.success).toBe(false);
@@ -344,7 +344,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
+      const spellInstanceId = state.space.hand[0].instanceId;
 
       const canSet = facade.canSetSpellTrap(spellInstanceId);
       expect(canSet).toBe(true);
@@ -357,18 +357,18 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const initialHandSize = state.zones.hand.length;
-      const spellInstanceId = state.zones.hand[0].instanceId;
+      const initialHandSize = state.space.hand.length;
+      const spellInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.setSpellTrap(spellInstanceId);
       expect(result.success).toBe(true);
       expect(result.message).toContain("Card set");
 
       const updatedState = get(gameStateStore);
-      expect(updatedState.zones.hand.length).toBe(initialHandSize - 1);
-      expect(updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(updatedState.space.hand.length).toBe(initialHandSize - 1);
+      expect(updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = updatedState.zones.spellTrapZone[0];
+      const setCard = updatedState.space.spellTrapZone[0];
       expect(setCard.instanceId).toBe(spellInstanceId);
       expect(setCard.stateOnField?.position).toBe("faceDown");
       expect(setCard.stateOnField?.placedThisTurn).toBe(true);
@@ -379,15 +379,15 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const fieldSpellInstanceId = state.zones.hand[0].instanceId;
+      const fieldSpellInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.setSpellTrap(fieldSpellInstanceId);
       expect(result.success).toBe(true);
 
       const updatedState = get(gameStateStore);
-      expect(updatedState.zones.fieldZone.length).toBe(1); // フィールドゾーンに置かれる
-      expect(updatedState.zones.spellTrapZone.length).toBe(0); // 魔法・罠ゾーンには置かれない
-      expect(updatedState.zones.fieldZone[0].instanceId).toBe(fieldSpellInstanceId);
+      expect(updatedState.space.fieldZone.length).toBe(1); // フィールドゾーンに置かれる
+      expect(updatedState.space.spellTrapZone.length).toBe(0); // 魔法・罠ゾーンには置かれない
+      expect(updatedState.space.fieldZone[0].instanceId).toBe(fieldSpellInstanceId);
     });
 
     it("should replace existing field spell when setting a new one", () => {
@@ -395,23 +395,23 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const firstFieldSpellId = state.zones.hand[0].instanceId;
-      const secondFieldSpellId = state.zones.hand[1].instanceId;
+      const firstFieldSpellId = state.space.hand[0].instanceId;
+      const secondFieldSpellId = state.space.hand[1].instanceId;
 
       facade.setSpellTrap(firstFieldSpellId); // フィールド魔法セット1枚目
 
       const stateAfterFirst = get(gameStateStore);
-      expect(stateAfterFirst.zones.fieldZone.length).toBe(1);
-      expect(stateAfterFirst.zones.fieldZone[0].instanceId).toBe(firstFieldSpellId);
+      expect(stateAfterFirst.space.fieldZone.length).toBe(1);
+      expect(stateAfterFirst.space.fieldZone[0].instanceId).toBe(firstFieldSpellId);
 
       const result = facade.setSpellTrap(secondFieldSpellId); // フィールド魔法セット2枚目
       expect(result.success).toBe(true);
 
       const updatedState = get(gameStateStore);
-      expect(updatedState.zones.fieldZone.length).toBe(1);
-      expect(updatedState.zones.fieldZone[0].instanceId).toBe(secondFieldSpellId); // フィールドにある
-      expect(updatedState.zones.graveyard.length).toBe(1);
-      expect(updatedState.zones.graveyard[0].instanceId).toBe(firstFieldSpellId); // 墓地にある
+      expect(updatedState.space.fieldZone.length).toBe(1);
+      expect(updatedState.space.fieldZone[0].instanceId).toBe(secondFieldSpellId); // フィールドにある
+      expect(updatedState.space.graveyard.length).toBe(1);
+      expect(updatedState.space.graveyard[0].instanceId).toBe(firstFieldSpellId); // 墓地にある
     });
 
     it("should NOT consume normalSummonUsed when setting spell", () => {
@@ -419,7 +419,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
+      const spellInstanceId = state.space.hand[0].instanceId;
       expect(state.normalSummonUsed).toBe(0);
 
       facade.setSpellTrap(spellInstanceId);
@@ -432,7 +432,7 @@ describe("GameFacade", () => {
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
-      const spellInstanceId = state.zones.hand[0].instanceId;
+      const spellInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.setSpellTrap(spellInstanceId);
       expect(result.success).toBe(false);
@@ -449,11 +449,11 @@ describe("GameFacade", () => {
 
     // 5枚セットして魔法・罠ゾーンを埋める
     for (let i = 0; i < 5; i++) {
-      facade.setSpellTrap(state.zones.hand[i].instanceId);
+      facade.setSpellTrap(state.space.hand[i].instanceId);
     }
 
     const updatedState = get(gameStateStore);
-    const sixthSpellId = updatedState.zones.hand[0].instanceId;
+    const sixthSpellId = updatedState.space.hand[0].instanceId;
 
     const canSet = facade.canSetSpellTrap(sixthSpellId); // 6枚目をセット
     expect(canSet).toBe(false);
@@ -464,7 +464,7 @@ describe("GameFacade", () => {
     // ドローフェイズのまま
 
     const state = get(gameStateStore);
-    const spellInstanceId = state.zones.hand[0].instanceId;
+    const spellInstanceId = state.space.hand[0].instanceId;
 
     const canSet = facade.canSetSpellTrap(spellInstanceId);
     expect(canSet).toBe(false);
@@ -476,7 +476,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
+      const cardInstanceId = state.space.hand[0].instanceId;
       expect(facade.canActivateSpell(cardInstanceId)).toBe(true);
     });
 
@@ -491,7 +491,7 @@ describe("GameFacade", () => {
       facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
 
       const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
+      const cardInstanceId = state.space.hand[0].instanceId;
       // ドローフェイズでは発動不可
       expect(facade.canActivateSpell(cardInstanceId)).toBe(false);
     });
@@ -506,8 +506,8 @@ describe("GameFacade", () => {
       facade.advancePhase(); // Standby → Main1
 
       const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
-      const initialHandSize = state.zones.hand.length;
+      const cardInstanceId = state.space.hand[0].instanceId;
+      const initialHandSize = state.space.hand.length;
 
       const result = facade.activateSpell(cardInstanceId);
       expect(result.success).toBe(true);
@@ -515,8 +515,8 @@ describe("GameFacade", () => {
 
       const updatedState = get(gameStateStore);
       // Card is removed from hand and placed on spellTrapZone
-      expect(updatedState.zones.hand.length).toBe(initialHandSize - 1);
-      expect(updatedState.zones.spellTrapZone.length).toBe(1);
+      expect(updatedState.space.hand.length).toBe(initialHandSize - 1);
+      expect(updatedState.space.spellTrapZone.length).toBe(1);
       // Note: Graveyard step is in effectSteps, processed asynchronously by effectQueueStore
     });
 
@@ -525,7 +525,7 @@ describe("GameFacade", () => {
       facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
 
       const state = get(gameStateStore);
-      const cardInstanceId = state.zones.hand[0].instanceId;
+      const cardInstanceId = state.space.hand[0].instanceId;
 
       const result = facade.activateSpell(cardInstanceId);
       expect(result.success).toBe(false);
@@ -559,11 +559,11 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const chickenGameId = state.zones.hand[0].instanceId;
+      const chickenGameId = state.space.hand[0].instanceId;
 
       facade.activateSpell(chickenGameId);
       const updatedState = get(gameStateStore);
-      const activatedChickenGameId = updatedState.zones.fieldZone[0].instanceId;
+      const activatedChickenGameId = updatedState.space.fieldZone[0].instanceId;
 
       const canActivate = facade.canActivateIgnitionEffect(activatedChickenGameId);
       expect(canActivate).toBe(true);
@@ -574,7 +574,7 @@ describe("GameFacade", () => {
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
-      const upstartId = state.zones.hand[0].instanceId;
+      const upstartId = state.space.hand[0].instanceId;
 
       const canActivate = facade.canActivateIgnitionEffect(upstartId);
       expect(canActivate).toBe(false);

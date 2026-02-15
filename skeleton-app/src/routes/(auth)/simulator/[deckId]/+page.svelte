@@ -19,8 +19,7 @@
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
-  import { getCounterCount } from "$lib/domain/models/Card/Counter";
-  import { isFaceDown } from "$lib/domain/models/CardOld"; // FIXME: レイヤー間依存違反
+  import { Card } from "$lib/domain/models/Card"; // FIXME: レイヤー間依存違反
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -67,7 +66,7 @@
   // ゲーム開始時、Main1 まで自動進行
   let hasAutoAdvanced = $state(false);
   $effect(() => {
-    if ($currentTurn === 1 && $currentPhase === "Draw" && !hasAutoAdvanced && !$gameResult.isGameOver) {
+    if ($currentTurn === 1 && $currentPhase === "draw" && !hasAutoAdvanced && !$gameResult.isGameOver) {
       autoAdvanceToMainPhase();
       hasAutoAdvanced = true;
     }
@@ -150,9 +149,9 @@
     // Find the card instance from field cards
     const currentState = gameFacade.getGameState();
     const allFieldCards = [
-      ...currentState.zones.mainMonsterZone,
-      ...currentState.zones.spellTrapZone,
-      ...currentState.zones.fieldZone,
+      ...currentState.space.mainMonsterZone,
+      ...currentState.space.spellTrapZone,
+      ...currentState.space.fieldZone,
     ];
     const fieldCard = allFieldCards.find((c) => c.instanceId === instanceId);
     if (!fieldCard) {
@@ -218,7 +217,7 @@
   // DuelField用のゾーンデータ抽出（CardInstanceとCardDisplayDataをマージ）
   // フィールド魔法ゾーン用カード（frameType === "field"）
   const fieldMagicCards = $derived.by(() => {
-    const fieldInstances = $gameStateStore.zones.fieldZone;
+    const fieldInstances = $gameStateStore.space.fieldZone;
     return fieldInstances
       .map((instance) => {
         const displayData = getCardDisplayData(instance.id);
@@ -226,7 +225,7 @@
         return {
           card: displayData,
           instanceId: instance.instanceId,
-          faceDown: isFaceDown(instance),
+          faceDown: Card.Instance.isFaceDown(instance),
         };
       })
       .filter((item) => item !== null);
@@ -234,7 +233,7 @@
 
   // モンスターゾーン用カード配列（5枚固定、null埋め）
   const monsterZoneCards = $derived.by(() => {
-    const monsterInstances = $gameStateStore.zones.mainMonsterZone;
+    const monsterInstances = $gameStateStore.space.mainMonsterZone;
     const zone: ({
       card: CardDisplayData;
       instanceId: string;
@@ -249,9 +248,9 @@
           zone[i] = {
             card: displayData,
             instanceId: instance.instanceId,
-            faceDown: isFaceDown(instance),
+            faceDown: Card.Instance.isFaceDown(instance),
             rotation: instance.stateOnField?.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
-            spellCounterCount: getCounterCount(instance.stateOnField?.counters ?? [], "spell"), // 魔力カウンター数
+            spellCounterCount: Card.Counter.get(instance.stateOnField?.counters ?? [], "spell"), // 魔力カウンター数
           };
         }
       }
@@ -261,7 +260,7 @@
 
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   const spellTrapZoneCards = $derived.by(() => {
-    const spellTrapInstances = $gameStateStore.zones.spellTrapZone;
+    const spellTrapInstances = $gameStateStore.space.spellTrapZone;
     const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
     spellTrapInstances.forEach((instance, i) => {
       if (i < 5) {
@@ -270,7 +269,7 @@
           zone[i] = {
             card: displayData,
             instanceId: instance.instanceId,
-            faceDown: isFaceDown(instance),
+            faceDown: Card.Instance.isFaceDown(instance),
           };
         }
       }

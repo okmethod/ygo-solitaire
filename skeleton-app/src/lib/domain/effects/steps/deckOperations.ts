@@ -7,10 +7,9 @@
  * @module domain/effects/steps/deckOperations
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { shuffleDeck } from "$lib/domain/models/Zone";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameState } from "$lib/domain/models/GameState";
 
 /** デッキをシャッフルするステップ*/
 export const shuffleDeckStep = (): AtomicStep => {
@@ -19,10 +18,10 @@ export const shuffleDeckStep = (): AtomicStep => {
     summary: "デッキシャッフル",
     description: "デッキをシャッフルします",
     notificationLevel: "info",
-    action: (currentState: GameState): GameStateUpdateResult => {
-      const updatedState: GameState = {
+    action: (currentState: GameSnapshot): GameStateUpdateResult => {
+      const updatedState: GameSnapshot = {
         ...currentState,
-        zones: shuffleDeck(currentState.zones),
+        space: GameState.Space.shuffleMainDeck(currentState.space),
       };
 
       return {

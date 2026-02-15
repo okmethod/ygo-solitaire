@@ -15,9 +15,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
+import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
-import type { CardInstance } from "$lib/domain/models/CardOld";
-import type { GameState } from "$lib/domain/models/GameStateOld";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 
 describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () => {
   const royalMagicalLibraryId = 70791313;
@@ -49,7 +49,7 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       frameType: "normal" as const,
       desc: "テスト用カード",
       instanceId: `deck-${i}`,
-      location: "deck" as const,
+      location: "mainDeck" as const,
     }));
 
   beforeEach(() => {
@@ -62,9 +62,10 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       const libraryCard = createLibraryCard("library-0", 3);
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -88,8 +89,8 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // Assert: Counters removed
-      const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
+      const libraryAfterActivation = currentState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(0);
 
       // Act: Execute resolution steps (draw)
       const resolutionSteps = effect.createResolutionSteps(currentState, libraryCard);
@@ -100,8 +101,8 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // Assert: Drew 1 card
-      expect(currentState.zones.hand).toHaveLength(1);
-      expect(currentState.zones.deck).toHaveLength(4);
+      expect(currentState.space.hand).toHaveLength(1);
+      expect(currentState.space.mainDeck).toHaveLength(4);
     });
 
     it("Scenario: 魔力カウンター2つでは起動効果を発動できない", () => {
@@ -109,9 +110,10 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       const libraryCard = createLibraryCard("library-0", 2);
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -132,9 +134,10 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       const libraryCard = createLibraryCard("library-0", 0);
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -155,9 +158,10 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       const libraryCard = createLibraryCard("library-0", 5);
 
       const state = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -177,18 +181,19 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // Assert: 5 - 3 = 2 counters remaining
-      const libraryAfterActivation = currentState.zones.mainMonsterZone[0];
-      expect(Card.Counter.getCounterCount(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(2);
+      const libraryAfterActivation = currentState.space.mainMonsterZone[0];
+      expect(Card.Counter.get(libraryAfterActivation.stateOnField?.counters ?? [], "spell")).toBe(2);
     });
 
     it("Scenario: 起動効果は1ターンに複数回発動可能（カウンターがあれば）", () => {
       // Arrange: Start with 6 counters
       const libraryCard = createLibraryCard("library-0", 6);
 
-      let currentState: GameState = createMockGameState({
-        phase: "Main1",
-        zones: {
-          deck: createDeckCards(5),
+      let currentState: GameSnapshot = createMockGameState({
+        phase: "main1",
+        space: {
+          mainDeck: createDeckCards(5),
+          extraDeck: [],
           hand: [],
           mainMonsterZone: [libraryCard],
           spellTrapZone: [],
@@ -199,17 +204,17 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       });
 
       // First activation
-      const canActivate1 = effect.canActivate(currentState, currentState.zones.mainMonsterZone[0]);
+      const canActivate1 = effect.canActivate(currentState, currentState.space.mainMonsterZone[0]);
       expect(canActivate1.isValid).toBe(true);
 
       // Execute first activation
-      const activationSteps1 = effect.createActivationSteps(currentState, currentState.zones.mainMonsterZone[0]);
+      const activationSteps1 = effect.createActivationSteps(currentState, currentState.space.mainMonsterZone[0]);
       for (const step of activationSteps1) {
         const result = step.action(currentState);
         expect(result.success).toBe(true);
         currentState = result.updatedState;
       }
-      const resolutionSteps1 = effect.createResolutionSteps(currentState, currentState.zones.mainMonsterZone[0]);
+      const resolutionSteps1 = effect.createResolutionSteps(currentState, currentState.space.mainMonsterZone[0]);
       for (const step of resolutionSteps1) {
         const result = step.action(currentState);
         expect(result.success).toBe(true);
@@ -217,23 +222,21 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // After first activation: 6 - 3 = 3 counters, 1 card drawn
-      expect(
-        Card.Counter.getCounterCount(currentState.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell"),
-      ).toBe(3);
-      expect(currentState.zones.hand).toHaveLength(1);
+      expect(Card.Counter.get(currentState.space.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(3);
+      expect(currentState.space.hand).toHaveLength(1);
 
       // Second activation should be possible
-      const canActivate2 = effect.canActivate(currentState, currentState.zones.mainMonsterZone[0]);
+      const canActivate2 = effect.canActivate(currentState, currentState.space.mainMonsterZone[0]);
       expect(canActivate2.isValid).toBe(true);
 
       // Execute second activation
-      const activationSteps2 = effect.createActivationSteps(currentState, currentState.zones.mainMonsterZone[0]);
+      const activationSteps2 = effect.createActivationSteps(currentState, currentState.space.mainMonsterZone[0]);
       for (const step of activationSteps2) {
         const result = step.action(currentState);
         expect(result.success).toBe(true);
         currentState = result.updatedState;
       }
-      const resolutionSteps2 = effect.createResolutionSteps(currentState, currentState.zones.mainMonsterZone[0]);
+      const resolutionSteps2 = effect.createResolutionSteps(currentState, currentState.space.mainMonsterZone[0]);
       for (const step of resolutionSteps2) {
         const result = step.action(currentState);
         expect(result.success).toBe(true);
@@ -241,13 +244,11 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       }
 
       // After second activation: 3 - 3 = 0 counters, 2 cards drawn
-      expect(
-        Card.Counter.getCounterCount(currentState.zones.mainMonsterZone[0].stateOnField?.counters ?? [], "spell"),
-      ).toBe(0);
-      expect(currentState.zones.hand).toHaveLength(2);
+      expect(Card.Counter.get(currentState.space.mainMonsterZone[0].stateOnField?.counters ?? [], "spell")).toBe(0);
+      expect(currentState.space.hand).toHaveLength(2);
 
       // Third activation should NOT be possible (no counters left)
-      const canActivate3 = effect.canActivate(currentState, currentState.zones.mainMonsterZone[0]);
+      const canActivate3 = effect.canActivate(currentState, currentState.space.mainMonsterZone[0]);
       expect(canActivate3.isValid).toBe(false);
       expect(canActivate3.errorCode).toBe("INSUFFICIENT_COUNTERS");
     });

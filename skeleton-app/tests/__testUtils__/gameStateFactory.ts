@@ -10,17 +10,23 @@
  * @module __testUtils__/gameStateFactory
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import { INITIAL_LP } from "$lib/domain/models/GameStateOld";
-import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/CardOld";
+import type { GameSnapshot, GamePhase, CardSpace } from "$lib/domain/models/GameState";
+import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
+import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/Card";
 import type { CounterState } from "$lib/domain/models/Card";
-import { createInitialStateOnField } from "$lib/domain/models/CardOld";
-import { isFieldZone } from "$lib/domain/models/Zone";
-import type { GamePhase } from "$lib/domain/models/Phase";
-import { ExodiaNonEffect } from "$lib/domain/effects/rules/monsters/ExodiaNonEffect";
+import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
+import { Location } from "$lib/domain/models/Location";
 
 // CardDataRegistry から実際のカード名を取得するためのインポート
 import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+
+const EXODIA_PIECE_IDS = [
+  33396948, // 本体
+  7902349, // 左腕
+  70903634, // 右腕
+  44519536, // 左足
+  8124921, // 右足
+] as const;
 
 /**
  * カードIDからCardDataを取得（存在しない場合はフォールバック）
@@ -33,16 +39,20 @@ function getCardDataSafe(cardId: number): CardData | null {
   }
 }
 
+/** @deprecated Use GameSnapshot instead */
+export type GameState = GameSnapshot;
+
 /**
  * Create a minimal game state for testing
  *
- * @param overrides - Partial GameState to override defaults
- * @returns GameState
+ * @param overrides - Partial GameSnapshot to override defaults
+ * @returns GameSnapshot
  */
-export function createMockGameState(overrides?: Partial<GameState>): GameState {
-  const defaultState: GameState = {
-    zones: {
-      deck: [],
+export function createMockGameState(overrides?: Partial<GameSnapshot>): GameSnapshot {
+  const defaultState: GameSnapshot = {
+    space: {
+      mainDeck: [],
+      extraDeck: [],
       hand: [],
       mainMonsterZone: [],
       spellTrapZone: [],
@@ -54,24 +64,23 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
       player: INITIAL_LP,
       opponent: INITIAL_LP,
     },
-    phase: "Main1",
+    phase: "main1",
     turn: 1,
     result: {
       isGameOver: false,
     },
     normalSummonLimit: 1,
     normalSummonUsed: 0,
-    damageNegation: false,
-    pendingEndPhaseEffects: [],
-    activatedOncePerTurnCards: new Set<number>(),
+    queuedEndPhaseEffectIds: [],
+    activatedCardIds: new Set<number>(),
   };
 
   return {
     ...defaultState,
     ...overrides,
-    zones: {
-      ...defaultState.zones,
-      ...overrides?.zones,
+    space: {
+      ...defaultState.space,
+      ...overrides?.space,
     },
     lp: {
       ...defaultState.lp,
@@ -88,14 +97,14 @@ export function createMockGameState(overrides?: Partial<GameState>): GameState {
  * Create card instances from card IDs
  *
  * @param cardIds - Array of card IDs (string or number)
- * @param location - Zone location for the cards
+ * @param location - Location for the cards
  * @param prefix - Prefix for instance IDs (default: location name)
  * @param type - Card type (default: "spell" for test compatibility)
  * @returns Array of CardInstance
  */
 export function createCardInstances(
   cardIds: (string | number)[], // テストケースの可読性のため、テストのみ string も許容
-  location: "deck" | "hand" | "mainMonsterZone" | "spellTrapZone" | "fieldZone" | "graveyard" | "banished",
+  location: keyof CardSpace,
   prefix?: string,
   type: "monster" | "spell" | "trap" = "spell",
 ): CardInstance[] {
@@ -114,8 +123,8 @@ export function createCardInstances(
       jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
       location,
     };
-    // フィールドゾーンの場合は stateOnField を設定
-    if (isFieldZone(location)) {
+    // フィールドロケーションの場合は stateOnField を設定
+    if (Location.isField(location)) {
       return {
         ...baseInstance,
         stateOnField: createInitialStateOnField(),
@@ -166,11 +175,11 @@ export function createFieldCardInstance(options: {
 /**
  * Create a game state with Exodia deck (40 cards)
  *
- * @returns GameState with Exodia draw deck
+ * @returns GameSnapshot with Exodia draw deck
  */
-export function createExodiaDeckState(): GameState {
+export function createExodiaDeckState(): GameSnapshot {
   const exodiaDeck = [
-    ...ExodiaNonEffect.getExodiaPieceIds(), // 5 Exodia pieces
+    ...EXODIA_PIECE_IDS, // 5 Exodia pieces
     "19613556", // Pot of Greed (x3)
     "19613556",
     "19613556",
@@ -191,8 +200,9 @@ export function createExodiaDeckState(): GameState {
   ];
 
   return createMockGameState({
-    zones: {
-      deck: createCardInstances(exodiaDeck, "deck"),
+    space: {
+      mainDeck: createCardInstances(exodiaDeck, "mainDeck"),
+      extraDeck: [],
       hand: [],
       mainMonsterZone: [],
       spellTrapZone: [],
@@ -200,7 +210,7 @@ export function createExodiaDeckState(): GameState {
       graveyard: [],
       banished: [],
     },
-    phase: "Draw",
+    phase: "draw",
     turn: 1,
   });
 }
@@ -210,12 +220,13 @@ export function createExodiaDeckState(): GameState {
  *
  * @param cardIds - Array of card IDs to place in hand
  * @param phase - Current game phase
- * @returns GameState
+ * @returns GameSnapshot
  */
-export function createStateWithHand(cardIds: string[], phase: GamePhase = "Main1"): GameState {
+export function createStateWithHand(cardIds: string[], phase: GamePhase = "main1"): GameSnapshot {
   return createMockGameState({
-    zones: {
-      deck: createCardInstances(Array(30).fill("12345678"), "deck"),
+    space: {
+      mainDeck: createCardInstances(Array(30).fill("12345678"), "mainDeck"),
+      extraDeck: [],
       hand: createCardInstances(cardIds, "hand"),
       mainMonsterZone: [],
       spellTrapZone: [],
@@ -230,20 +241,21 @@ export function createStateWithHand(cardIds: string[], phase: GamePhase = "Main1
 /**
  * Create a game state with all Exodia pieces in hand (victory state)
  *
- * @returns GameState with Exodia victory condition
+ * @returns GameSnapshot with Exodia victory condition
  */
-export function createExodiaVictoryState(): GameState {
+export function createExodiaVictoryState(): GameSnapshot {
   return createMockGameState({
-    zones: {
-      deck: createCardInstances(Array(35).fill("12345678"), "deck"),
-      hand: createCardInstances([...ExodiaNonEffect.getExodiaPieceIds()], "hand"),
+    space: {
+      mainDeck: createCardInstances(Array(35).fill("12345678"), "mainDeck"),
+      extraDeck: [],
+      hand: createCardInstances([...EXODIA_PIECE_IDS], "hand"),
       mainMonsterZone: [],
       spellTrapZone: [],
       fieldZone: [],
       graveyard: [],
       banished: [],
     },
-    phase: "Main1",
+    phase: "main1",
     result: {
       isGameOver: true,
       winner: "player",
@@ -256,12 +268,13 @@ export function createExodiaVictoryState(): GameState {
 /**
  * Create a game state with empty deck (deck out scenario)
  *
- * @returns GameState with no cards in deck
+ * @returns GameSnapshot with no cards in deck
  */
-export function createDeckOutState(): GameState {
+export function createDeckOutState(): GameSnapshot {
   return createMockGameState({
-    zones: {
-      deck: [],
+    space: {
+      mainDeck: [],
+      extraDeck: [],
       hand: createCardInstances(["12345678"], "hand"),
       mainMonsterZone: [],
       spellTrapZone: [],
@@ -269,7 +282,7 @@ export function createDeckOutState(): GameState {
       graveyard: createCardInstances(Array(39).fill("12345678"), "graveyard"),
       banished: [],
     },
-    phase: "Draw",
+    phase: "draw",
     result: {
       isGameOver: true,
       winner: "opponent",
@@ -282,15 +295,15 @@ export function createDeckOutState(): GameState {
 /**
  * Create a game state with 0 LP (loss scenario)
  *
- * @returns GameState with player at 0 LP
+ * @returns GameSnapshot with player at 0 LP
  */
-export function createLPZeroState(): GameState {
+export function createLPZeroState(): GameSnapshot {
   return createMockGameState({
     lp: {
       player: 0,
       opponent: INITIAL_LP,
     },
-    phase: "Main1",
+    phase: "main1",
     result: {
       isGameOver: true,
       winner: "opponent",
@@ -304,12 +317,13 @@ export function createLPZeroState(): GameState {
  * Create a game state with a spell card on field (spellTrapZone)
  *
  * @param spellCardId - Card ID of the spell to place
- * @returns GameState
+ * @returns GameSnapshot
  */
-export function createStateWithSpellOnField(spellCardId: string): GameState {
+export function createStateWithSpellOnField(spellCardId: string): GameSnapshot {
   return createMockGameState({
-    zones: {
-      deck: createCardInstances(Array(35).fill("12345678"), "deck"),
+    space: {
+      mainDeck: createCardInstances(Array(35).fill("12345678"), "mainDeck"),
+      extraDeck: [],
       hand: [],
       mainMonsterZone: [],
       spellTrapZone: createCardInstances([spellCardId], "spellTrapZone"),
@@ -317,7 +331,7 @@ export function createStateWithSpellOnField(spellCardId: string): GameState {
       graveyard: [],
       banished: [],
     },
-    phase: "Main1",
+    phase: "main1",
   });
 }
 
@@ -325,12 +339,13 @@ export function createStateWithSpellOnField(spellCardId: string): GameState {
  * Create a game state with cards in graveyard
  *
  * @param cardIds - Array of card IDs to place in graveyard
- * @returns GameState
+ * @returns GameSnapshot
  */
-export function createStateWithGraveyard(cardIds: string[]): GameState {
+export function createStateWithGraveyard(cardIds: string[]): GameSnapshot {
   return createMockGameState({
-    zones: {
-      deck: createCardInstances(Array(30).fill("12345678"), "deck"),
+    space: {
+      mainDeck: createCardInstances(Array(30).fill("12345678"), "mainDeck"),
+      extraDeck: [],
       hand: [],
       mainMonsterZone: [],
       spellTrapZone: [],

@@ -8,14 +8,13 @@
  * @module domain/effects/steps/draws
  */
 
-import type { GameState } from "$lib/domain/models/GameStateOld";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { GameStateUpdateResult } from "$lib/domain/models/GameStateUpdate";
-import { drawCards } from "$lib/domain/models/Zone";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { drawCards } from "$lib/domain/models/GameState/CardSpace";
 
 // ドローステップの共通ヘルパー
 const commonDrawStep = (
-  calculateActualDrawCount: (state: GameState) => { drawCount: number; message: string },
+  calculateActualDrawCount: (state: GameSnapshot) => { drawCount: number; message: string },
   options: {
     id: string;
     summary: string;
@@ -26,7 +25,7 @@ const commonDrawStep = (
   summary: options.summary,
   description: options.description,
   notificationLevel: "info",
-  action: (state: GameState): GameStateUpdateResult => {
+  action: (state: GameSnapshot): GameStateUpdateResult => {
     const { drawCount, message } = calculateActualDrawCount(state);
 
     // ドロー不要なケース（fillHands用）
@@ -35,18 +34,18 @@ const commonDrawStep = (
     }
 
     // デッキ不足バリデーション
-    if (state.zones.deck.length < drawCount) {
+    if (state.space.mainDeck.length < drawCount) {
       return {
         success: false,
         updatedState: state,
-        error: `Insufficient deck: needed ${drawCount}, but only ${state.zones.deck.length} remaining.`,
+        error: `Insufficient deck: needed ${drawCount}, but only ${state.space.mainDeck.length} remaining.`,
       };
     }
 
     // ドロー実行
     return {
       success: true,
-      updatedState: { ...state, zones: drawCards(state.zones, drawCount) },
+      updatedState: { ...state, space: drawCards(state.space, drawCount) },
       message: `${message} (${drawCount} card${drawCount > 1 ? "s" : ""})`,
     };
   },
@@ -64,7 +63,7 @@ export const drawStep = (count: number): AtomicStep =>
 export const fillHandsStep = (targetCount: number): AtomicStep =>
   commonDrawStep(
     (state) => {
-      const needed = Math.max(0, targetCount - state.zones.hand.length);
+      const needed = Math.max(0, targetCount - state.space.hand.length);
       return {
         drawCount: needed,
         message: needed === 0 ? `Hand already has ${targetCount} or more cards` : `Filled hand to ${targetCount}`,
