@@ -15,12 +15,12 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { searchFromDeckTopStep } from "$lib/domain/effects/steps/searches";
 import { shuffleDeckStep } from "$lib/domain/effects/steps/deckOperations";
 
 /** 《強欲で謙虚な壺》効果クラス */
-export class PotOfDualityActivation extends NormalSpellAction {
+export class PotOfDualityActivation extends NormalSpellActivation {
   constructor() {
     super(98645731);
   }

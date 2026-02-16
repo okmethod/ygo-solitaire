@@ -14,15 +14,14 @@
  * @module domain/effects/actions/spells/individuals/ChickenGameActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { FieldSpellAction } from "$lib/domain/effects/actions/activations/FieldSpellAction";
+import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 
 /** 《チキンレース》効果クラス */
-export class ChickenGameActivation extends FieldSpellAction {
+export class ChickenGameActivation extends FieldSpellActivation {
   constructor() {
     super(67616300);
   }

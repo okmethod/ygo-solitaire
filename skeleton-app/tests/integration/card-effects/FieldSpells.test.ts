@@ -12,8 +12,8 @@
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
  * - **Base class validation**: Tested in tests/unit/domain/effects/actions/spells/
- *   - BaseSpellAction.test.ts: Game-over check
- *   - FieldSpellAction.test.ts: spellSpeed=1, Main1 phase check, empty activation steps
+ *   - BaseSpellActivation.test.ts: Game-over check
+ *   - FieldSpellActivation.test.ts: spellSpeed=1, Main1 phase check, empty activation steps
  * - **Card scenarios**: Tested here
  *   - Chicken Game: Field placement → Ignition effect (pay LP, draw) → Continuous effect
  *

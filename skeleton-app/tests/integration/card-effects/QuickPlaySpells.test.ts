@@ -12,8 +12,8 @@
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):
  * - **Base class validation**: Tested in tests/unit/domain/effects/actions/spells/
- *   - BaseSpellAction.test.ts: Game-over check
- *   - QuickPlaySpellAction.test.ts: spellSpeed=2, Main1 phase check
+ *   - BaseSpellActivation.test.ts: Game-over check
+ *   - QuickPlaySpellActivation.test.ts: spellSpeed=2, Main1 phase check
  * - **Card scenarios**: Tested here
  *   - Card Destruction: Hand >= 3 → Discard all → Draw same amount
  *

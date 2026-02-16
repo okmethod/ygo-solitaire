@@ -5,10 +5,9 @@
  * @see {@link docs/domain/effect-model.md}
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 
 /**
  * ChainableAction の効果カテゴリ

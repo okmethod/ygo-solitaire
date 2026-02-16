@@ -11,16 +11,15 @@
  * @module domain/effects/actions/spells/individuals/DarkFactoryActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
 /** 《闇の量産工場》効果クラス */
-export class DarkFactoryActivation extends NormalSpellAction {
+export class DarkFactoryActivation extends NormalSpellActivation {
   constructor() {
     super(90928333);
   }

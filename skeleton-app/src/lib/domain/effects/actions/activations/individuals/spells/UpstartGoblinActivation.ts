@@ -11,17 +11,16 @@
  * @module domain/effects/actions/spells/individuals/UpstartGoblinActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 
 /** 《成金ゴブリン》効果クラス */
-export class UpstartGoblinActivation extends NormalSpellAction {
+export class UpstartGoblinActivation extends NormalSpellActivation {
   constructor() {
     super(70368879);
   }

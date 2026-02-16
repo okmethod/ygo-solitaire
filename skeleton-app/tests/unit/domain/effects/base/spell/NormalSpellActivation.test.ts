@@ -1,18 +1,18 @@
 /**
- * FieldSpellAction Tests
+ * NormalSpellActivation Tests
  *
- * Tests for FieldSpellAction abstract class.
+ * Tests for NormalSpellActivation abstract class.
  *
  * Test Coverage:
  * - ChainableAction interface properties (spellSpeed = 1)
- * - canActivate() Field Spell conditions (Main Phase check)
- * - Inherits BaseSpellAction behavior
+ * - canActivate() Normal Spell conditions (Main Phase check)
+ * - Inherits BaseSpellActivation behavior
  *
- * @module tests/unit/domain/effects/actions/spells/FieldSpellAction
+ * @module tests/unit/domain/effects/actions/spells/NormalSpellActivation
  */
 
 import { describe, it, expect } from "vitest";
-import { FieldSpellAction } from "$lib/domain/effects/actions/activations/FieldSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
@@ -25,16 +25,19 @@ function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
 }
 
 /**
- * Concrete implementation of FieldSpellAction for testing
+ * Concrete implementation of NormalSpellActivation for testing
  */
-class TestFieldSpell extends FieldSpellAction {
+class TestNormalSpell extends NormalSpellActivation {
   constructor() {
     super(12345678); // Test Monster 2 from CardDataRegistry
   }
 
-  protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Test implementation: always true (no additional conditions)
-    return GameProcessing.Validation.success();
+  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+    // Test implementation: check deck size
+    if (state.space.mainDeck.length >= 2) {
+      return GameProcessing.Validation.success();
+    }
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_DECK);
   }
 
   protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
@@ -42,13 +45,12 @@ class TestFieldSpell extends FieldSpellAction {
   }
 
   protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    // Field Spells typically have no resolution steps (only continuous effects)
     return [];
   }
 }
 
-describe("FieldSpellAction", () => {
-  const action = new TestFieldSpell();
+describe("NormalSpellActivation", () => {
+  const action = new TestNormalSpell();
 
   describe("ChainableAction interface properties", () => {
     it("should have effect category = 'activation'", () => {
@@ -61,8 +63,8 @@ describe("FieldSpellAction", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
-      // Arrange: Main Phase 1
+    it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
+      // Arrange: Main Phase 1, Deck >= 2
       const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
@@ -77,7 +79,7 @@ describe("FieldSpellAction", () => {
     });
 
     it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw (FieldSpellAction固有のフェーズ制約テスト)
+      // Arrange: Phase is Draw (NormalSpellActivation固有のフェーズ制約テスト)
       const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
         skipInitialDraw: true,
@@ -88,32 +90,32 @@ describe("FieldSpellAction", () => {
       expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(false);
     });
 
-    it("should return true even with empty deck (no additional conditions)", () => {
-      // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
-      const state = GameState.initialize(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
+    it("should return false when additional conditions are not met", () => {
+      // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
+      const state = GameState.initialize(createTestInitialDeck([1001]), { skipShuffle: true, skipInitialDraw: true });
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(false);
     });
   });
 
   describe("createActivationSteps()", () => {
     // テスト用の sourceInstance を作成するヘルパー
     const createTestSourceInstance = (): CardInstance => ({
-      id: 67616300,
-      instanceId: "test-field-spell-1",
-      jaName: "Test Field Spell",
+      id: 12345678,
+      instanceId: "test-normal-spell-1",
+      jaName: "Test Monster A",
       type: "spell",
       frameType: "spell",
-      spellType: "field",
+      spellType: "normal",
       location: "hand",
     });
 
-    it("should return notification and event steps (field spells have no additional activation steps)", () => {
+    it("should return default activation step", () => {
       // Arrange
       const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
         skipShuffle: true,
@@ -124,26 +126,12 @@ describe("FieldSpellAction", () => {
       // Act
       const steps = action.createActivationSteps(state, sourceInstance);
 
-      // Assert: Field Spells have notification + event step (placement handled by ActivateSpellCommand)
-      expect(steps).toHaveLength(2);
-      expect(steps[0].summary).toBe("カード発動");
-      expect(steps[1].id).toBe("emit-spell-activated-test-field-spell-1");
-    });
-  });
-
-  describe("createResolutionSteps()", () => {
-    it("should return empty array (field spells have no resolution steps)", () => {
-      // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
-
-      // Act
-      const steps = action.createResolutionSteps(state, state.space.hand[0]);
-
       // Assert
-      expect(steps).toEqual([]);
+      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
+      expect(steps[0].id).toBe("12345678-activation-notification");
+      expect(steps[0].summary).toBe("カード発動");
+      expect(steps[0].description).toBe("《Test Monster A》を発動します");
+      expect(steps[1].id).toBe("emit-spell-activated-test-normal-spell-1");
     });
   });
 });

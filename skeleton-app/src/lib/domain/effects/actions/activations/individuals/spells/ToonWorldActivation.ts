@@ -11,16 +11,15 @@
  * @module domain/effects/actions/spells/individuals/ToonWorldActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { ContinuousSpellAction } from "$lib/domain/effects/actions/activations/ContinuousSpellAction";
+import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
 import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 
 /** 《トゥーン・ワールド》効果クラス */
-export class ToonWorldActivation extends ContinuousSpellAction {
+export class ToonWorldActivation extends ContinuousSpellActivation {
   constructor() {
     super(15259703);
   }

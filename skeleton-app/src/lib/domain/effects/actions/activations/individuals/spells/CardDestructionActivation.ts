@@ -13,18 +13,17 @@
  * @module domain/effects/actions/spells/individuals/CardDestructionActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { QuickPlaySpellAction } from "$lib/domain/effects/actions/activations/QuickPlaySpellAction";
-import { countHandExcludingSelf } from "$lib/domain/models/GameState/CardSpace";
+import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
 /** 《手札断札》効果クラス */
-export class CardDestructionActivation extends QuickPlaySpellAction {
+export class CardDestructionActivation extends QuickPlaySpellActivation {
   constructor() {
     super(74519184);
   }
@@ -38,7 +37,7 @@ export class CardDestructionActivation extends QuickPlaySpellAction {
    */
   protected individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. このカードを除き、手札が2枚以上であること
-    if (countHandExcludingSelf(state.space, sourceInstance) < 2) {
+    if (GameState.Space.countHandExcludingSelf(state.space, sourceInstance) < 2) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
     }
 

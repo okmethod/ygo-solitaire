@@ -1,7 +1,7 @@
 /**
- * BaseSpellAction Tests
+ * BaseSpellActivation Tests
  *
- * Tests for BaseSpellAction abstract class.
+ * Tests for BaseSpellActivation abstract class.
  *
  * Test Coverage:
  * - ChainableAction interface properties (isCardActivation, spellSpeed)
@@ -13,11 +13,11 @@
  * Subclass テストでは、各サブクラス固有の条件（subTypeConditions, individualConditions）をテストする。
  * ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテストする。
  *
- * @module tests/unit/domain/effects/actions/spells/BaseSpellAction
+ * @module tests/unit/domain/effects/actions/spells/BaseSpellActivation
  */
 
 import { describe, it, expect } from "vitest";
-import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
+import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
@@ -30,9 +30,9 @@ function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
 }
 
 /**
- * Concrete implementation of BaseSpellAction for testing
+ * Concrete implementation of BaseSpellActivation for testing
  */
-class TestSpellAction extends BaseSpellAction {
+class TestSpellAction extends BaseSpellActivation {
   readonly spellSpeed = 1 as const;
 
   constructor() {
@@ -77,7 +77,7 @@ class TestSpellAction extends BaseSpellAction {
   }
 }
 
-describe("BaseSpellAction", () => {
+describe("BaseSpellActivation", () => {
   const action = new TestSpellAction();
 
   describe("ChainableAction interface properties", () => {

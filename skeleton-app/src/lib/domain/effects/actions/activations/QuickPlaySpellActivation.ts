@@ -1,31 +1,30 @@
 /**
- * QuickPlaySpellAction - 速攻魔法カード発動の抽象基底クラス
+ * QuickPlaySpellActivation - 速攻魔法カード発動の抽象基底クラス
  *
- * BaseSpellAction を拡張し、速攻魔法に共通するプロパティとメソッドを提供する。
+ * BaseSpellActivation を拡張し、速攻魔法に共通するプロパティとメソッドを提供する。
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: セットしたターンではない
  * - ACTIVATION: 特になし（サブクラスで実装）
  * - RESOLUTION: 効果解決後に墓地に送られる
  *
- * @module domain/effects/actions/spells/QuickPlaySpellAction
+ * @module domain/effects/actions/spells/QuickPlaySpellActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
 import { Card } from "$lib/domain/models/Card";
-import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
+import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
 
 /**
- * QuickPlaySpellAction - 速攻魔法カードの抽象基底クラス
+ * QuickPlaySpellActivation - 速攻魔法カードの抽象基底クラス
  *
  * @abstract
  */
-export abstract class QuickPlaySpellAction extends BaseSpellAction {
+export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   /** スペルスピード2（速攻魔法） */
   readonly spellSpeed = 2 as const;
 

@@ -15,13 +15,12 @@
  * @module domain/effects/actions/BaseIgnitionEffect
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction } from "$lib/domain/models/Effect";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { isMainPhase } from "$lib/domain/models/GameState/Phase";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
@@ -69,7 +68,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    */
   canActivate(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
     // 1. 起動効果共通の発動条件チェック（メインフェイズであること）
-    if (!isMainPhase(state.phase)) {
+    if (!GameState.Phase.isMain(state.phase)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 

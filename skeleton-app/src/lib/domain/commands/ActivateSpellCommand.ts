@@ -153,7 +153,7 @@ export class ActivateSpellCommand implements GameCommand {
   private buildEffectSteps(state: GameSnapshot, cardInstance: CardInstance): AtomicStep[] {
     const steps: AtomicStep[] = [];
 
-    // カード固有の効果ステップ（イベント発行は BaseSpellAction 内で行われる）
+    // カード固有の効果ステップ（イベント発行は BaseSpellActivation 内で行われる）
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
     if (activation) {
       steps.push(...activation.createActivationSteps(state, cardInstance));

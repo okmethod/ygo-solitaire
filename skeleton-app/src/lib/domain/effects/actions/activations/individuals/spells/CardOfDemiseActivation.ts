@@ -15,12 +15,12 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { fillHandsStep } from "$lib/domain/effects/steps/draws";
 import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 
 /** 《命削りの宝札》効果クラス */
-export class CardOfDemiseActivation extends NormalSpellAction {
+export class CardOfDemiseActivation extends NormalSpellActivation {
   constructor() {
     super(59750328);
   }

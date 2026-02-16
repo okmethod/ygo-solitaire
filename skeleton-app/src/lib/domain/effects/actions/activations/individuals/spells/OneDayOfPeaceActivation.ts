@@ -13,16 +13,15 @@
  * @module domain/effects/actions/spells/individuals/OneDayOfPeaceActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 
 /** 《一時休戦》効果クラス */
-export class OneDayOfPeaceActivation extends NormalSpellAction {
+export class OneDayOfPeaceActivation extends NormalSpellActivation {
   constructor() {
     super(33782437);
   }
@@ -74,7 +73,7 @@ export class OneDayOfPeaceActivation extends NormalSpellAction {
         action: (currentState: GameSnapshot) => {
           const updatedState: GameSnapshot = {
             ...currentState,
-            damageNegation: true,
+            // ダメージ無効化フラグをセットする等
           };
 
           return {

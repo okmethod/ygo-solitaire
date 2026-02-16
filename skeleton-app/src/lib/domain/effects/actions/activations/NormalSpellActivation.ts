@@ -1,31 +1,30 @@
 /**
- * NormalSpellAction - 通常魔法カード発動の抽象基底クラス
+ * NormalSpellActivation - 通常魔法カード発動の抽象基底クラス
  *
- * BaseSpellAction を拡張し、通常魔法に共通するプロパティとメソッドを提供する。
+ * BaseSpellActivation を拡張し、通常魔法に共通するプロパティとメソッドを提供する。
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: メインフェイズのみ
  * - ACTIVATION: 特になし（サブクラスで実装）
  * - RESOLUTION: 効果解決後に墓地に送られる
  *
- * @module domain/effects/actions/spells/NormalSpellAction
+ * @module domain/effects/actions/spells/NormalSpellActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
-import { BaseSpellAction } from "$lib/domain/effects/actions/activations/BaseSpellAction";
-import { isMainPhase } from "$lib/domain/models/GameState/Phase";
-import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
+import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
 
 /**
- * NormalSpellAction - 通常魔法カードの抽象基底クラス
+ * NormalSpellActivation - 通常魔法カードの抽象基底クラス
  *
  * @abstract
  */
-export abstract class NormalSpellAction extends BaseSpellAction {
+export abstract class NormalSpellActivation extends BaseSpellActivation {
   /** スペルスピード1（通常魔法） */
   readonly spellSpeed = 1 as const;
 
@@ -40,7 +39,7 @@ export abstract class NormalSpellAction extends BaseSpellAction {
    */
   protected subTypeConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // 1. メインフェイズであること
-    if (!isMainPhase(state.phase)) {
+    if (!GameState.Phase.isMain(state.phase)) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 

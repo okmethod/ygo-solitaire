@@ -1,5 +1,5 @@
 /**
- * BaseSpellAction - 魔法カード発動の抽象基底クラス
+ * BaseSpellActivation - 魔法カード発動の抽象基底クラス
  *
  * Template Methodパターンを使用し、魔法カード発動の基本フローを定義する。
  *
@@ -13,7 +13,7 @@
  * - カードが存在し、魔法カードであること
  * - 魔法・罠ゾーンに空きがあること（フィールド魔法除く）
  *
- * @module domain/effects/actions/spells/BaseSpellAction
+ * @module domain/effects/actions/spells/BaseSpellActivation
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -25,13 +25,13 @@ import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions
 import { emitSpellActivatedEventStep } from "$lib/domain/effects/steps/eventEmitters";
 
 /**
- * BaseSpellAction - 魔法カードアクションの抽象基底クラス
+ * BaseSpellActivation - 魔法カード発動の抽象基底クラス
  *
  * ChainableActionインターフェースを実装し、魔法カード共通のロジックを提供する。
  *
  * @abstract
  */
-export abstract class BaseSpellAction implements ChainableAction {
+export abstract class BaseSpellActivation implements ChainableAction {
   /** カードID（数値） */
   readonly cardId: number;
 

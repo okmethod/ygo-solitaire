@@ -11,16 +11,15 @@
  * @module domain/effects/actions/spells/individuals/TerraformingActivation
  */
 
-import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { AtomicStep } from "$lib/domain/models/AtomicStep";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { NormalSpellAction } from "$lib/domain/effects/actions/activations/NormalSpellAction";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { searchFromDeckByConditionStep } from "$lib/domain/effects/steps/searches";
 
 /** 《テラ・フォーミング》効果クラス */
-export class TerraformingActivation extends NormalSpellAction {
+export class TerraformingActivation extends NormalSpellActivation {
   constructor() {
     super(73628505);
   }

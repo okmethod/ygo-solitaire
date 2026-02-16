@@ -4,9 +4,9 @@
  * TODO: 仮実装が多く、冗長かもしれない。具体的な効果実装に沿って調整する。
  */
 
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
-import type { CardInstance } from "$lib/domain/models/Card";
 
 /**
  * AdditionalRule の効果カテゴリ
