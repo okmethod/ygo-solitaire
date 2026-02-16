@@ -296,13 +296,13 @@
 <!-- ユーザー確認モーダル: カード選択を伴わない interactive ステップ向け -->
 <ConfirmationModal
   isOpen={$effectQueueStore.confirmationConfig !== null}
-  config={$effectQueueStore.confirmationConfig as ConfirmationModalConfig | null}
+  config={$effectQueueStore.confirmationConfig}
 />
 
 <!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
 <CardSelectionModal
   isOpen={$effectQueueStore.cardSelectionConfig !== null}
-  config={$effectQueueStore.cardSelectionConfig as CardSelectionModalConfig | null}
+  config={$effectQueueStore.cardSelectionConfig}
 />
 
 <!-- ゲーム終了モーダル -->
