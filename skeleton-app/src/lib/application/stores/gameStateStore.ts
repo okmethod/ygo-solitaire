@@ -25,45 +25,8 @@ function createEmptyGameState(): GameSnapshot {
   );
 }
 
-/** ゲーム状態ストアのインターフェース */
-export interface GameStateStore {
-  subscribe: (run: (value: GameSnapshot) => void) => () => void;
-
-  /** 状態を設定する（勝利判定付き） */
-  set: (state: GameSnapshot) => void;
-
-  /** 状態を更新する（勝利判定付き） */
-  update: (updater: (state: GameSnapshot) => GameSnapshot) => void;
-}
-
-// 状態に勝利判定を適用する（共通処理）
-function applyVictoryCheck(state: GameSnapshot): GameSnapshot {
-  // すでに勝敗が決まっている場合はそのまま返す
-  if (state.result.isGameOver) {
-    return state;
-  }
-  return state;
-}
-
-// カスタムストアを作成し、set/update時に自動的に勝利判定を行う
-function createGameStateStore(): GameStateStore {
-  const { subscribe, set, update } = writable<GameSnapshot>(createEmptyGameState());
-
-  return {
-    subscribe,
-
-    set: (state: GameSnapshot) => {
-      set(applyVictoryCheck(state));
-    },
-
-    update: (updater: (state: GameSnapshot) => GameSnapshot) => {
-      update((currentState) => applyVictoryCheck(updater(currentState)));
-    },
-  };
-}
-
 /** ゲーム状態ストア */
-export const gameStateStore: GameStateStore = createGameStateStore();
+export const gameStateStore = writable<GameSnapshot>(createEmptyGameState());
 
 // DeckRecipe を Domain Layer が要求する InitialDeck 形式に変換する
 function convertDeckRecipeToInitialDeck(deckRecipe: DeckRecipe): InitialDeckCardIds {

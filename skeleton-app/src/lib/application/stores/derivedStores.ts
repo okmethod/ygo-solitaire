@@ -36,7 +36,7 @@ export const fieldCardCount = derived(
   ($state) => $state.space.mainMonsterZone.length + $state.space.spellTrapZone.length + $state.space.fieldZone.length,
 );
 
-/** ゲーム結果（自動判定） */
+/** ゲーム結果 */
 export const gameResult = derived(gameStateStore, ($state) => $state.result);
 
 /** デッキが空かどうか */
