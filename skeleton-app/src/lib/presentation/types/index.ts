@@ -32,3 +32,5 @@ export type {
   ExtraDeckData,
   DeckData,
 } from "$lib/application/types/deck";
+
+export { ZONE_CAPACITY } from "$lib/application/types/card";

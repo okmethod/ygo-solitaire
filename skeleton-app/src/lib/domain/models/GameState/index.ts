@@ -40,6 +40,7 @@ export const GameState = {
   },
 
   Space: {
+    ZONE_CAPACITY: CardSpaceFuncs.ZONE_CAPACITY,
     countHandExcludingSelf: CardSpaceFuncs.countHandExcludingSelf,
     isMainDeckEmpty: CardSpaceFuncs.isMainDeckEmpty,
     isMainMonsterZoneFull: CardSpaceFuncs.isMainMonsterZoneFull,

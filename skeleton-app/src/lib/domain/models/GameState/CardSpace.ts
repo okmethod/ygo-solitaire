@@ -27,6 +27,13 @@ export type CardSpace = {
   readonly [L in LocationName]: readonly CardInstance[];
 };
 
+/** 各種ゾーンの最大容量 */
+export const ZONE_CAPACITY = {
+  mainMonsterZone: 5,
+  spellTrapZone: 5,
+  fieldZone: 1,
+} as const;
+
 /** 指定したロケーションのカード枚数を取得 */
 const countCardsAt = (space: CardSpace, location: LocationName): number => {
   return space[location].length;
@@ -49,15 +56,15 @@ const isLocationFull = (space: CardSpace, location: LocationName, limit: number)
 };
 
 /** メインモンスターゾーンが最大枚数に達しているか */
-export const isMainMonsterZoneFull = (space: CardSpace, limit: number = 5): boolean =>
+export const isMainMonsterZoneFull = (space: CardSpace, limit: number = ZONE_CAPACITY.mainMonsterZone): boolean =>
   isLocationFull(space, "mainMonsterZone", limit);
 
 /** 魔法・罠ゾーンが最大枚数に達しているか */
-export const isSpellTrapZoneFull = (space: CardSpace, limit: number = 5): boolean =>
+export const isSpellTrapZoneFull = (space: CardSpace, limit: number = ZONE_CAPACITY.spellTrapZone): boolean =>
   isLocationFull(space, "spellTrapZone", limit);
 
 /** フィールドゾーンが最大枚数に達しているか */
-export const isFieldZoneFull = (space: CardSpace, limit: number = 1): boolean =>
+export const isFieldZoneFull = (space: CardSpace, limit: number = ZONE_CAPACITY.fieldZone): boolean =>
   isLocationFull(space, "fieldZone", limit);
 
 /** 全てのロケーションからカードインスタンスを検索する */

@@ -86,3 +86,6 @@ export type {
   SpellSubType,
   TrapSubType,
 } from "$lib/domain/models/Card";
+
+/** 固定値の再エクスポート */
+export { ZONE_CAPACITY } from "$lib/domain/models/GameState/CardSpace";

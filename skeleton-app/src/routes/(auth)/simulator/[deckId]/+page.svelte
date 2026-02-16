@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { CardDisplayData } from "$lib/presentation/types";
+  import { ZONE_CAPACITY } from "$lib/presentation/types";
   import { gameFacade } from "$lib/application/GameFacade";
   import {
     currentPhaseDisplayName,
@@ -165,13 +166,13 @@
   );
 
   // フィールド魔法ゾーン用のカードデータ配列（1枚固定）
-  const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneDisplayStates, 1));
+  const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneDisplayStates, ZONE_CAPACITY.fieldZone));
 
   // モンスターゾーン用のカードデータ配列（5枚固定）
-  const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneDisplayStates, 5));
+  const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneDisplayStates, ZONE_CAPACITY.mainMonsterZone));
 
   // 魔法・罠ゾーン用のカードデータ配列（5枚固定）
-  const spellTrapZoneCards = $derived(toFixedSlotZone($spellTrapZoneDisplayStates, 5));
+  const spellTrapZoneCards = $derived(toFixedSlotZone($spellTrapZoneDisplayStates, ZONE_CAPACITY.spellTrapZone));
 </script>
 
 <div class="container mx-auto p-4">
