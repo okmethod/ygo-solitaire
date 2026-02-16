@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import type { CardDisplayData } from "$lib/presentation/types";
-  import type { ConfirmationModalConfig, CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
   import {
     currentPhaseDisplayName,
@@ -19,6 +18,7 @@
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
+  import { toFixedSlotZone } from "$lib/presentation/services/fieldCardAdapter";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
@@ -164,66 +164,14 @@
       .filter((card): card is CardDisplayData => card !== undefined),
   );
 
-  // DuelField用のゾーンデータ抽出（CardDisplayStateOnFieldとCardDisplayDataをマージ）
-  // フィールド魔法ゾーン用カード
-  const fieldMagicCards = $derived.by(() => {
-    return $fieldZoneDisplayStates
-      .map((displayState) => {
-        const displayData = getCardDisplayData(displayState.cardId);
-        if (!displayData) return null;
-        return {
-          card: displayData,
-          instanceId: displayState.instanceId,
-          faceDown: displayState.position === "faceDown",
-        };
-      })
-      .filter((item) => item !== null);
-  });
+  // フィールド魔法ゾーン用のカードデータ配列（1枚固定）
+  const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneDisplayStates, 1));
 
-  // モンスターゾーン用カード配列（5枚固定、null埋め）
-  const monsterZoneCards = $derived.by(() => {
-    const zone: ({
-      card: CardDisplayData;
-      instanceId: string;
-      faceDown: boolean;
-      rotation?: number;
-      spellCounterCount?: number;
-    } | null)[] = Array(5).fill(null);
-    $monsterZoneDisplayStates.forEach((displayState, i) => {
-      if (i < 5) {
-        const displayData = getCardDisplayData(displayState.cardId);
-        if (displayData) {
-          const spellCounter = displayState.counters.find((c) => c.type === "spell");
-          zone[i] = {
-            card: displayData,
-            instanceId: displayState.instanceId,
-            faceDown: displayState.position === "faceDown",
-            rotation: displayState.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
-            spellCounterCount: spellCounter?.count ?? 0, // 魔力カウンター数
-          };
-        }
-      }
-    });
-    return zone;
-  });
+  // モンスターゾーン用のカードデータ配列（5枚固定）
+  const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneDisplayStates, 5));
 
-  // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
-  const spellTrapZoneCards = $derived.by(() => {
-    const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
-    $spellTrapZoneDisplayStates.forEach((displayState, i) => {
-      if (i < 5) {
-        const displayData = getCardDisplayData(displayState.cardId);
-        if (displayData) {
-          zone[i] = {
-            card: displayData,
-            instanceId: displayState.instanceId,
-            faceDown: displayState.position === "faceDown",
-          };
-        }
-      }
-    });
-    return zone;
-  });
+  // 魔法・罠ゾーン用のカードデータ配列（5枚固定）
+  const spellTrapZoneCards = $derived(toFixedSlotZone($spellTrapZoneDisplayStates, 5));
 </script>
 
 <div class="container mx-auto p-4">
@@ -253,12 +201,12 @@
       </div>
     </div>
 
-    <!-- DuelField Integration -->
+    <!-- デュエルフィールドUI -->
     <DuelField
       deckCards={$deckCardCount}
       extraDeckCards={[]}
       graveyardCards={graveyardDisplayCards}
-      fieldCards={fieldMagicCards}
+      fieldCards={fieldSpellZoneCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
       {selectedFieldCardInstanceId}
@@ -268,7 +216,7 @@
       onCancelFieldCardSelection={handleCancelFieldCardSelection}
     />
 
-    <!-- Hand Zone -->
+    <!-- 手札UI -->
     <div class="card px-4 space-y-4">
       <h2 class="text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
       <Hands

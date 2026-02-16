@@ -12,6 +12,7 @@
    * @module presentation/components/organisms/board/DuelField
    */
   import type { CardDisplayData } from "$lib/presentation/types";
+  import type { FieldCardDisplayInfo } from "$lib/presentation/types/card";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
   import { isMobile } from "$lib/presentation/utils/mobile";
@@ -23,22 +24,13 @@
   import ExtraDeck from "./zones/ExtraDeck.svelte";
   import MainDeck from "./zones/MainDeck.svelte";
 
-  /** カードと位置・表示状態を含む型 */
-  interface CardWithPosition {
-    card: CardDisplayData;
-    instanceId: string; // カードインスタンスID
-    faceDown: boolean;
-    rotation?: number; // 守備表示時の回転角度
-    spellCounterCount?: number; // 魔力カウンター数
-  }
-
   interface DuelFieldProps {
     deckCards: number;
     extraDeckCards: CardDisplayData[];
     graveyardCards: CardDisplayData[];
-    fieldCards: CardWithPosition[];
-    monsterCards: (CardWithPosition | null)[];
-    spellTrapCards: (CardWithPosition | null)[];
+    fieldCards: (FieldCardDisplayInfo | null)[];
+    monsterCards: (FieldCardDisplayInfo | null)[];
+    spellTrapCards: (FieldCardDisplayInfo | null)[];
     selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId
     onFieldCardClick?: (card: CardDisplayData, instanceId: string) => void;
     onActivateSetSpell?: (card: CardDisplayData, instanceId: string) => void; // セット魔法カード発動
@@ -151,7 +143,7 @@
 <!-- ゾーン用 Snippets -->
 {#snippet fieldZone(placeholderText: string)}
   <div class="flex justify-center">
-    {#if fieldCards.length > 0}
+    {#if fieldCards[0]}
       <ActivatableCard
         card={fieldCards[0].card}
         instanceId={fieldCards[0].instanceId}

@@ -20,6 +20,7 @@ export type {
   CardImages,
   MonsterAttributes,
   CardDisplayData,
+  CardDisplayStateOnField,
 } from "$lib/application/types/card";
 
 export type {
