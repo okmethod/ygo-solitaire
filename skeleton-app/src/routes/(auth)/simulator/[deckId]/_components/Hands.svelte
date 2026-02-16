@@ -25,9 +25,6 @@
    */
   interface HandZoneProps {
     cards: Array<{ card: CardDisplayData | null; instanceId: string }>;
-    handCardCount: number;
-    currentPhase: string;
-    isGameOver: boolean;
     selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId
     onCardClick: (card: CardDisplayData, instanceId: string) => void;
     onSummonMonster: (card: CardDisplayData, instanceId: string) => void;
@@ -38,7 +35,6 @@
 
   let {
     cards,
-    handCardCount,
     selectedHandCardInstanceId,
     onCardClick,
     onSummonMonster,
@@ -185,7 +181,7 @@
   }
 </script>
 
-<div class="grid {getHandGridColumns(handCardCount)} gap-2 mb-16">
+<div class="grid {getHandGridColumns(cards.length)} gap-2 mb-16">
   {#each cards as { card, instanceId } (instanceId)}
     {#if card}
       <ActivatableCard

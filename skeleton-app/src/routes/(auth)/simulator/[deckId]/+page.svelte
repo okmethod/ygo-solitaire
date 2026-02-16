@@ -4,7 +4,6 @@
   import type { CardDisplayData } from "$lib/presentation/types";
   import type { ConfirmationModalConfig, CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
-  import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import {
     currentPhase,
     currentTurn,
@@ -13,13 +12,15 @@
     handCardCount,
     deckCardCount,
     gameResult,
-    handCardInstances,
-    graveyardCardInstances,
+    handCardRefs,
+    graveyardCardRefs,
+    monsterZoneDisplayInstances,
+    spellTrapZoneDisplayInstances,
+    fieldZoneDisplayInstances,
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
-  import { Card } from "$lib/domain/models/Card"; // FIXME: レイヤー間依存違反
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -37,9 +38,7 @@
       showInfo: (_summary, description) => {
         showSuccessToast(description);
       },
-      showInteractive: () => {
-        // Interactive level uses modal logic
-      },
+      // Interactiveレベルの通知はモーダルを使う
     });
   });
 
@@ -96,7 +95,7 @@
   }
 
   // 手札のカードクリックで効果発動
-  function handleHandCardClick(card: CardDisplayData, instanceId: string) {
+  function handleHandCardClick(_card: CardDisplayData, instanceId: string) {
     // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
     if (!result.success) showErrorToast(result.error || "発動に失敗しました");
@@ -196,36 +195,32 @@
     selectedFieldCardInstanceId = null;
   }
 
-  // 効果処理キューストアの状態を購読
-  const effectQueueState = effectQueueStore;
-
   // 手札カードとinstanceIdのマッピング（cache経由でCardDisplayDataを取得）
   const handCardsWithInstanceId = $derived(
-    $handCardInstances.map((instance) => ({
-      card: getCardDisplayData(instance.id),
-      instanceId: instance.instanceId,
+    $handCardRefs.map((ref) => ({
+      card: getCardDisplayData(ref.cardId) ?? null,
+      instanceId: ref.instanceId,
     })),
   );
 
   // 墓地カード（cache経由でCardDisplayDataを取得）
   const graveyardDisplayCards = $derived(
-    $graveyardCardInstances
-      .map((instance) => getCardDisplayData(instance.id))
+    $graveyardCardRefs
+      .map((ref) => getCardDisplayData(ref.cardId))
       .filter((card): card is CardDisplayData => card !== undefined),
   );
 
-  // DuelField用のゾーンデータ抽出（CardInstanceとCardDisplayDataをマージ）
-  // フィールド魔法ゾーン用カード（frameType === "field"）
+  // DuelField用のゾーンデータ抽出（CardDisplayStateOnFieldとCardDisplayDataをマージ）
+  // フィールド魔法ゾーン用カード
   const fieldMagicCards = $derived.by(() => {
-    const fieldInstances = $gameStateStore.space.fieldZone;
-    return fieldInstances
-      .map((instance) => {
-        const displayData = getCardDisplayData(instance.id);
+    return $fieldZoneDisplayInstances
+      .map((displayInstance) => {
+        const displayData = getCardDisplayData(displayInstance.cardId);
         if (!displayData) return null;
         return {
           card: displayData,
-          instanceId: instance.instanceId,
-          faceDown: Card.Instance.isFaceDown(instance),
+          instanceId: displayInstance.instanceId,
+          faceDown: displayInstance.position === "faceDown",
         };
       })
       .filter((item) => item !== null);
@@ -233,7 +228,6 @@
 
   // モンスターゾーン用カード配列（5枚固定、null埋め）
   const monsterZoneCards = $derived.by(() => {
-    const monsterInstances = $gameStateStore.space.mainMonsterZone;
     const zone: ({
       card: CardDisplayData;
       instanceId: string;
@@ -241,16 +235,17 @@
       rotation?: number;
       spellCounterCount?: number;
     } | null)[] = Array(5).fill(null);
-    monsterInstances.forEach((instance, i) => {
+    $monsterZoneDisplayInstances.forEach((displayInstance, i) => {
       if (i < 5) {
-        const displayData = getCardDisplayData(instance.id);
+        const displayData = getCardDisplayData(displayInstance.cardId);
         if (displayData) {
+          const spellCounter = displayInstance.counters.find((c) => c.type === "spell");
           zone[i] = {
             card: displayData,
-            instanceId: instance.instanceId,
-            faceDown: Card.Instance.isFaceDown(instance),
-            rotation: instance.stateOnField?.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
-            spellCounterCount: Card.Counter.get(instance.stateOnField?.counters ?? [], "spell"), // 魔力カウンター数
+            instanceId: displayInstance.instanceId,
+            faceDown: displayInstance.position === "faceDown",
+            rotation: displayInstance.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
+            spellCounterCount: spellCounter?.count ?? 0, // 魔力カウンター数
           };
         }
       }
@@ -260,16 +255,15 @@
 
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   const spellTrapZoneCards = $derived.by(() => {
-    const spellTrapInstances = $gameStateStore.space.spellTrapZone;
     const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
-    spellTrapInstances.forEach((instance, i) => {
+    $spellTrapZoneDisplayInstances.forEach((displayInstance, i) => {
       if (i < 5) {
-        const displayData = getCardDisplayData(instance.id);
+        const displayData = getCardDisplayData(displayInstance.cardId);
         if (displayData) {
           zone[i] = {
             card: displayData,
-            instanceId: instance.instanceId,
-            faceDown: Card.Instance.isFaceDown(instance),
+            instanceId: displayInstance.instanceId,
+            faceDown: displayInstance.position === "faceDown",
           };
         }
       }
@@ -325,9 +319,6 @@
       <h2 class="text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
       <Hands
         cards={handCardsWithInstanceId}
-        handCardCount={$handCardCount}
-        currentPhase={$currentPhase}
-        isGameOver={$gameResult.isGameOver}
         {selectedHandCardInstanceId}
         onCardClick={handleHandCardClick}
         onSummonMonster={handleSummonMonster}
@@ -350,14 +341,14 @@
 
 <!-- ユーザー確認モーダル: カード選択を伴わない interactive ステップ向け -->
 <ConfirmationModal
-  isOpen={$effectQueueState.confirmationConfig !== null}
-  config={$effectQueueState.confirmationConfig as ConfirmationModalConfig | null}
+  isOpen={$effectQueueStore.confirmationConfig !== null}
+  config={$effectQueueStore.confirmationConfig as ConfirmationModalConfig | null}
 />
 
 <!-- カード選択モーダル: カード選択を伴う interactive ステップ向け -->
 <CardSelectionModal
-  isOpen={$effectQueueState.cardSelectionConfig !== null}
-  config={$effectQueueState.cardSelectionConfig as CardSelectionModalConfig | null}
+  isOpen={$effectQueueStore.cardSelectionConfig !== null}
+  config={$effectQueueStore.cardSelectionConfig as CardSelectionModalConfig | null}
 />
 
 <!-- ゲーム終了モーダル -->

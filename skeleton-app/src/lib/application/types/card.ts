@@ -49,6 +49,29 @@ export interface CardDisplayData {
 }
 
 /**
+ * CardInstance への参照 (DTO)
+ *
+ * カードインスタンスを参照するための基底型。
+ * フィールド外（手札・墓地・除外など）ではこの型をそのまま使用する。
+ */
+export interface CardInstanceRef {
+  cardId: number; // CardDisplayData を参照するためのカードID
+  instanceId: string;
+}
+
+/**
+ * フィールド上のカードの状態 (DTO)
+ *
+ * CardInstanceRef を継承し、フィールド上の状態（position, battlePosition, counters）を追加。
+ * derivedStores で生成され、Presentation層はこの型を通じてフィールド上のカード状態にアクセスする。
+ */
+export interface CardDisplayStateOnField extends CardInstanceRef {
+  position: "faceUp" | "faceDown";
+  battlePosition?: "attack" | "defense";
+  counters: readonly { type: string; count: number }[];
+}
+
+/**
  * Domain 型の再エクスポート（Port/Adapter 境界での標準パターン）
  *
  * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。

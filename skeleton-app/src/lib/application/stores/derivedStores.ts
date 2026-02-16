@@ -7,7 +7,8 @@
  */
 
 import { derived } from "svelte/store";
-import { gameStateStore } from "./gameStateStore";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
+import { toInstanceRef, toStateOnField } from "$lib/application/factories/CardInstanceFactory";
 
 /** 現在のゲームフェーズ */
 export const currentPhase = derived(gameStateStore, ($state) => $state.phase);
@@ -45,18 +46,26 @@ export const isDeckEmpty = derived(gameStateStore, ($state) => $state.space.main
 /** 手札が空かどうか */
 export const isHandEmpty = derived(gameStateStore, ($state) => $state.space.hand.length === 0);
 
-/** 手札の CardInstance 配列 */
-export const handCardInstances = derived(gameStateStore, ($state) => $state.space.hand);
+/** 手札の CardInstanceRef 配列 */
+export const handCardRefs = derived(gameStateStore, ($state) => $state.space.hand.map(toInstanceRef));
 
-/** フィールドの CardInstance 配列 */
-export const fieldCardInstances = derived(gameStateStore, ($state) => [
-  ...$state.space.mainMonsterZone,
-  ...$state.space.spellTrapZone,
-  ...$state.space.fieldZone,
-]);
+/** 墓地の CardInstanceRef 配列 */
+export const graveyardCardRefs = derived(gameStateStore, ($state) => $state.space.graveyard.map(toInstanceRef));
 
-/** 墓地の CardInstance 配列 */
-export const graveyardCardInstances = derived(gameStateStore, ($state) => $state.space.graveyard);
+/** 除外ゾーンの CardInstanceRef 配列 */
+export const banishedCardRefs = derived(gameStateStore, ($state) => $state.space.banished.map(toInstanceRef));
 
-/** 除外ゾーンの CardInstance 配列 */
-export const banishedCardInstances = derived(gameStateStore, ($state) => $state.space.banished);
+/** モンスターゾーンの CardDisplayStateOnField 配列 */
+export const monsterZoneDisplayInstances = derived(gameStateStore, ($state) =>
+  $state.space.mainMonsterZone.map(toStateOnField),
+);
+
+/** 魔法・罠ゾーンの CardDisplayStateOnField 配列 */
+export const spellTrapZoneDisplayInstances = derived(gameStateStore, ($state) =>
+  $state.space.spellTrapZone.map(toStateOnField),
+);
+
+/** フィールドゾーンの CardDisplayStateOnField 配列 */
+export const fieldZoneDisplayInstances = derived(gameStateStore, ($state) =>
+  $state.space.fieldZone.map(toStateOnField),
+);
