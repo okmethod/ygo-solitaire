@@ -119,6 +119,38 @@ export class GameFacade {
     return this.executeCommand(AdvancePhaseCommand);
   }
 
+  /** ゲーム開始時、メインフェイズ1まで自動進行する */
+  async autoAdvanceToMainPhase(
+    onBeforeAdvance?: () => Promise<void>,
+    onPhaseAdvanced?: (message: string) => void,
+  ): Promise<boolean> {
+    const state = getCurrentGameState();
+
+    // 条件チェック: 1ターン目のドローフェイズでのみ実行
+    if (state.turn !== 1 || state.phase !== "draw") {
+      return false;
+    }
+
+    // Draw → Standby → Main1 へ進行（2回）
+    for (let i = 0; i < 2; i++) {
+      if (onBeforeAdvance) {
+        await onBeforeAdvance();
+      }
+
+      const result = this.advancePhase();
+      if (result.success) {
+        if (result.message && onPhaseAdvanced) {
+          onPhaseAdvanced(result.message);
+        }
+      } else {
+        console.error(`[GameFacade] Auto advance failed: ${result.error}`);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   /** 指定したモンスターカードインスタンスを通常召喚可能かどうかチェックして返す */
   canSummonMonster(cardInstanceId: string): boolean {
     return this.canExecuteCommand(SummonMonsterCommand, cardInstanceId);

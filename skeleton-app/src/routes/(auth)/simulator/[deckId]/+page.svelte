@@ -6,7 +6,6 @@
   import { gameFacade } from "$lib/application/GameFacade";
   import {
     currentPhase,
-    currentTurn,
     playerLP,
     opponentLP,
     handCardCount,
@@ -40,35 +39,12 @@
       },
       // Interactiveレベルの通知はモーダルを使う
     });
-  });
 
-  // 自動フェイズ進行 - Draw → Standby → Main1 まで自動進行
-  async function autoAdvanceToMainPhase() {
-    // フェイズ進行（2回）
-    for (let i = 0; i < 2; i++) {
-      // 300ms待機
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const result = gameFacade.advancePhase();
-      if (result.success) {
-        console.log(`[Simulator] ${result.message}`);
-        if (result.message) {
-          showSuccessToast(result.message);
-        }
-      } else {
-        showErrorToast(result.error || "フェーズ移行に失敗しました");
-        break;
-      }
-    }
-  }
-
-  // ゲーム開始時、Main1 まで自動進行
-  let hasAutoAdvanced = $state(false);
-  $effect(() => {
-    if ($currentTurn === 1 && $currentPhase === "draw" && !hasAutoAdvanced && !$gameResult.isGameOver) {
-      autoAdvanceToMainPhase();
-      hasAutoAdvanced = true;
-    }
+    // ゲーム開始時、Main1 まで自動進行
+    gameFacade.autoAdvanceToMainPhase(
+      () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
+      (message) => showSuccessToast(message), // 通知のコールバック
+    );
   });
 
   // ゲーム終了したらモーダルを開く
