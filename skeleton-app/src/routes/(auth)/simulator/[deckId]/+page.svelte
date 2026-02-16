@@ -5,7 +5,7 @@
   import type { ConfirmationModalConfig, CardSelectionModalConfig } from "$lib/presentation/types/interaction";
   import { gameFacade } from "$lib/application/GameFacade";
   import {
-    currentPhase,
+    currentPhaseDisplayName,
     playerLP,
     opponentLP,
     handCardCount,
@@ -56,18 +56,7 @@
   // 現在のステータス表示文字列を取得
   function getNowStatusString(): string {
     if ($gameResult.isGameOver) return "ゲーム終了";
-
-    function _getPhaseDisplay(phase: string): string {
-      const phaseMap: Record<string, string> = {
-        draw: "ドローフェイズ",
-        standby: "スタンバイフェイズ",
-        main1: "メインフェイズ1",
-        end: "エンドフェイズ",
-      };
-      return phaseMap[phase] || phase;
-    }
-
-    return _getPhaseDisplay($currentPhase);
+    return $currentPhaseDisplayName;
   }
 
   // ゲームアクション実行の共通ヘルパー

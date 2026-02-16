@@ -9,9 +9,13 @@
 import { derived } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { toInstanceRef, toStateOnField } from "$lib/application/factories/CardInstanceFactory";
+import { getPhaseDisplayName } from "$lib/domain/models/GameState/Phase";
 
 /** 現在のゲームフェーズ */
 export const currentPhase = derived(gameStateStore, ($state) => $state.phase);
+
+/** 現在のゲームフェーズの表示名 */
+export const currentPhaseDisplayName = derived(gameStateStore, ($state) => getPhaseDisplayName($state.phase));
 
 /** 現在のターン数 */
 export const currentTurn = derived(gameStateStore, ($state) => $state.turn);
