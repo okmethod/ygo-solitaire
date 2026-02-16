@@ -144,15 +144,8 @@
   }
 
   // フィールドカードクリックで効果発動 - 手札選択をクリア
-  function handleFieldCardClick(card: CardDisplayData, instanceId: string) {
-    // Find the card instance from field cards
-    const currentState = gameFacade.getGameState();
-    const allFieldCards = [
-      ...currentState.space.mainMonsterZone,
-      ...currentState.space.spellTrapZone,
-      ...currentState.space.fieldZone,
-    ];
-    const fieldCard = allFieldCards.find((c) => c.instanceId === instanceId);
+  function handleFieldCardClick(_card: CardDisplayData, instanceId: string) {
+    const fieldCard = gameFacade.findCardOnField(instanceId);
     if (!fieldCard) {
       showErrorToast("Card not found on field");
       return;

@@ -9,19 +9,20 @@
  * @module application/GameFacade
  */
 
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/Command";
-import type { DeckRecipe } from "$lib/application/types/deck";
-import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
-import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
-import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules/index";
+import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
+import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
+import type { DeckRecipe } from "$lib/application/types/deck";
+import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
+import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
 
 // インポート時、各種効果レジストリを初期化する
 initializeChainableActionRegistry();
@@ -100,6 +101,17 @@ export class GameFacade {
    */
   getGameState(): GameSnapshot {
     return getCurrentGameState();
+  }
+
+  /** 指定したカードインスタンスをフィールド上で検索して返す */
+  findCardOnField(cardInstanceId: string): CardInstance | undefined {
+    const currentState = getCurrentGameState();
+    const allFieldCards = [
+      ...currentState.space.mainMonsterZone,
+      ...currentState.space.spellTrapZone,
+      ...currentState.space.fieldZone,
+    ];
+    return allFieldCards.find((c) => c.instanceId === cardInstanceId);
   }
 
   /** 次のフェイズに進行する */
