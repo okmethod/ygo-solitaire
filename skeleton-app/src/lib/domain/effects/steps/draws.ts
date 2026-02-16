@@ -10,6 +10,7 @@
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { drawCards } from "$lib/domain/models/GameState/CardSpace";
 
 // ドローステップの共通ヘルパー
@@ -30,24 +31,20 @@ const commonDrawStep = (
 
     // ドロー不要なケース（fillHands用）
     if (drawCount === 0) {
-      return { success: true, updatedState: state, message };
+      return GameProcessing.Result.success(state, message);
     }
 
     // デッキ不足バリデーション
     if (state.space.mainDeck.length < drawCount) {
-      return {
-        success: false,
-        updatedState: state,
-        error: `Insufficient deck: needed ${drawCount}, but only ${state.space.mainDeck.length} remaining.`,
-      };
+      return GameProcessing.Result.failure(
+        state,
+        `Insufficient deck: needed ${drawCount}, but only ${state.space.mainDeck.length} remaining.`,
+      );
     }
 
     // ドロー実行
-    return {
-      success: true,
-      updatedState: { ...state, space: drawCards(state.space, drawCount) },
-      message: `${message} (${drawCount} card${drawCount > 1 ? "s" : ""})`,
-    };
+    const updatedState = { ...state, space: drawCards(state.space, drawCount) };
+    return GameProcessing.Result.success(updatedState, `${message} (${drawCount} card${drawCount > 1 ? "s" : ""})`);
   },
 });
 

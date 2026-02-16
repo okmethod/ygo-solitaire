@@ -8,8 +8,9 @@
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** デッキをシャッフルするステップ*/
 export const shuffleDeckStep = (): AtomicStep => {
@@ -23,12 +24,7 @@ export const shuffleDeckStep = (): AtomicStep => {
         ...currentState,
         space: GameState.Space.shuffleMainDeck(currentState.space),
       };
-
-      return {
-        success: true,
-        updatedState,
-        message: "Deck shuffled",
-      };
+      return GameProcessing.Result.success(updatedState, "Deck shuffled");
     },
   };
 };

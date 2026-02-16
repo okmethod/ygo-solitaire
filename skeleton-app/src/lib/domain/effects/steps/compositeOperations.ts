@@ -8,8 +8,9 @@
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
 /**
@@ -33,11 +34,7 @@ export const selectReturnShuffleDrawStep = (options: { min: number; max?: number
     onSelect: (currentState: GameSnapshot, selectedInstanceIds: string[]) => {
       // 0枚選択の場合は何もしない
       if (selectedInstanceIds.length === 0) {
-        return {
-          success: true,
-          updatedState: currentState,
-          message: "No cards selected",
-        };
+        return GameProcessing.Result.success(currentState, "No cards selected");
       }
 
       let updatedSpace = currentState.space;
@@ -54,14 +51,11 @@ export const selectReturnShuffleDrawStep = (options: { min: number; max?: number
       // 同じ枚数ドロー
       updatedSpace = GameState.Space.drawCards(updatedSpace, selectedInstanceIds.length);
 
-      return {
-        success: true,
-        updatedState: {
-          ...currentState,
-          space: updatedSpace,
-        },
-        message: `${selectedInstanceIds.length}枚をデッキに戻し、シャッフルして${selectedInstanceIds.length}枚ドローしました`,
-      };
+      const updatedState = { ...currentState, space: updatedSpace };
+      return GameProcessing.Result.success(
+        updatedState,
+        `${selectedInstanceIds.length}枚をデッキに戻し、シャッフルして${selectedInstanceIds.length}枚ドローしました`,
+      );
     },
   });
 };

@@ -12,6 +12,7 @@
 
 import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 type LpOperationType = "gain" | "damage" | "payment" | "loss";
 
@@ -40,12 +41,7 @@ const commonLpStep = (type: LpOperationType, amount: number, target: Player): At
         ...state,
         lp: { ...state.lp, [target]: state.lp[target] + amount * sign },
       };
-
-      return {
-        success: true,
-        updatedState,
-        message: `${targetEn} ${labels.msg} ${amount} LP`,
-      };
+      return GameProcessing.Result.success(updatedState, `${targetEn} ${labels.msg} ${amount} LP`);
     },
   };
 };

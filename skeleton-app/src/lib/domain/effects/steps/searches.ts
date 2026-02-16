@@ -13,6 +13,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 // カードを検索して手札に加える処理の共通ステップ
 const internalSearchStep = (
@@ -52,20 +53,12 @@ const internalSearchStep = (
 
       // 条件に合うカードが存在しない場合はエラー
       if (availableCards.length === 0) {
-        return {
-          success: false,
-          updatedState: currentState,
-          error: `No cards available in ${sourceZone} matching the criteria`,
-        };
+        return GameProcessing.Result.failure(currentState, `No cards available in ${sourceZone} matching the criteria`);
       }
 
       // まだ選択が行われていない場合（UIが選択モーダルを表示する）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-        return {
-          success: false,
-          updatedState: currentState,
-          error: "No cards selected",
-        };
+        return GameProcessing.Result.failure(currentState, "No cards selected");
       }
 
       // 選択されたカードをソースゾーンから手札に移動
@@ -80,17 +73,12 @@ const internalSearchStep = (
         updatedSpace = GameState.Space.shuffleMainDeck(updatedSpace);
       }
 
-      const updatedState: GameSnapshot = {
-        ...currentState,
-        space: updatedSpace,
-      };
-
+      const updatedState: GameSnapshot = { ...currentState, space: updatedSpace };
       const shuffleMessage = shouldShuffle ? " and shuffled" : "";
-      return {
-        success: true,
+      return GameProcessing.Result.success(
         updatedState,
-        message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from ${sourceZone} to hand${shuffleMessage}`,
-      };
+        `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from ${sourceZone} to hand${shuffleMessage}`,
+      );
     },
   };
 };
@@ -152,20 +140,15 @@ export const searchFromDeckTopStep = (config: {
 
       // デッキに十分なカード枚数がない場合はエラー
       if (topCards.length < config.count) {
-        return {
-          success: false,
-          updatedState: currentState,
-          error: `Cannot excavate ${config.count} cards. Deck has only ${topCards.length} cards.`,
-        };
+        return GameProcessing.Result.failure(
+          currentState,
+          `Cannot excavate ${config.count} cards. Deck has only ${topCards.length} cards.`,
+        );
       }
 
       // まだ選択が行われていない場合（UIが選択モーダルを表示する）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-        return {
-          success: false,
-          updatedState: currentState,
-          error: "No cards selected",
-        };
+        return GameProcessing.Result.failure(currentState, "No cards selected");
       }
 
       // 選択されたカードを手札に移動
@@ -176,16 +159,11 @@ export const searchFromDeckTopStep = (config: {
       }
 
       // 残りのカードはデッキに残る（シャッフルなし - 元の位置に戻る）
-      const updatedState: GameSnapshot = {
-        ...currentState,
-        space: updatedSpace,
-      };
-
-      return {
-        success: true,
+      const updatedState: GameSnapshot = { ...currentState, space: updatedSpace };
+      return GameProcessing.Result.success(
         updatedState,
-        message: `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from deck to hand`,
-      };
+        `Added ${selectedInstanceIds.length} card${selectedInstanceIds.length > 1 ? "s" : ""} from deck to hand`,
+      );
     },
   };
 };

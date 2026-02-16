@@ -9,10 +9,10 @@
  */
 
 import type { CounterType } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { Card } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** 指定カードにカウンターを置くステップ */

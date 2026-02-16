@@ -8,10 +8,11 @@
  * @module domain/effects/steps/interaction
  */
 
+import type { LocationName } from "$lib/domain/models/Location";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
-import type { CardInstance } from "$lib/domain/models/Card";
-import type { LocationName } from "$lib/domain/models/Location";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
 
 /** 発動を通知するステップ */
@@ -22,11 +23,7 @@ export const notifyActivationStep = (cardId: number): AtomicStep => {
     description: `${getCardNameWithBrackets(cardId)}を発動します`,
     notificationLevel: "info",
     action: (currentState: GameSnapshot): GameStateUpdateResult => {
-      return {
-        success: true,
-        updatedState: currentState,
-        message: `${getCardNameWithBrackets(cardId)} activated`,
-      };
+      return GameProcessing.Result.success(currentState, `${getCardNameWithBrackets(cardId)} activated`);
     },
   };
 };

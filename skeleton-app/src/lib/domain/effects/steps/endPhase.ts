@@ -9,6 +9,7 @@
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** エンドフェイズに処理される効果を登録するステップ */
 export function queueEndPhaseEffectStep(
@@ -29,12 +30,7 @@ export function queueEndPhaseEffectStep(
         ...currentState,
         queuedEndPhaseEffectIds: [...currentState.queuedEndPhaseEffectIds, effectStep.id],
       };
-
-      return {
-        success: true,
-        updatedState,
-        message: `Added end phase effect: ${effectStep.summary}`,
-      };
+      return GameProcessing.Result.success(updatedState, `Added end phase effect: ${effectStep.summary}`);
     },
   };
 }

@@ -13,8 +13,9 @@
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameState } from "$lib/domain/models/GameState";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
 import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
 
@@ -32,11 +33,7 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
         space: GameState.Space.moveCard(currentState.space, card, "graveyard"),
       };
 
-      return {
-        success: true,
-        updatedState,
-        message: `Sent ${cardName} to graveyard`,
-      };
+      return GameProcessing.Result.success(updatedState, `Sent ${cardName} to graveyard`);
     },
   };
 };
@@ -49,14 +46,11 @@ const sendMultipleToGraveyardResult = (state: GameSnapshot, instanceIds: string[
     updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
   }
 
-  return {
-    success: true,
-    updatedState: {
-      ...state,
-      space: updatedSpace,
-    },
-    message: `Sent ${instanceIds.length} card${instanceIds.length > 1 ? "s" : ""} to graveyard`,
-  };
+  const updatedState = { ...state, space: updatedSpace };
+  return GameProcessing.Result.success(
+    updatedState,
+    `Sent ${instanceIds.length} card${instanceIds.length > 1 ? "s" : ""} to graveyard`,
+  );
 };
 
 /** 手札を全て捨てた後のゲーム状態 */
@@ -65,11 +59,7 @@ const discardAllHandResult = (state: GameSnapshot): GameStateUpdateResult => {
 
   // 手札が空の場合は何もしない
   if (handCards.length === 0) {
-    return {
-      success: true,
-      updatedState: state,
-      message: "No cards in hand to discard",
-    };
+    return GameProcessing.Result.success(state, "No cards in hand to discard");
   }
 
   // 全ての手札カードを墓地へ送る
@@ -114,11 +104,10 @@ export const selectAndDiscardStep = (cardCount: number, cancelable?: boolean): A
     onSelect: (currentState: GameSnapshot, selectedInstanceIds: string[]) => {
       // 指定枚数が選択されていない場合はエラー
       if (selectedInstanceIds.length !== cardCount) {
-        return {
-          success: false,
-          updatedState: currentState,
-          error: `Must select exactly ${cardCount} card${cardCount > 1 ? "s" : ""} to discard`,
-        };
+        return GameProcessing.Result.failure(
+          currentState,
+          `Must select exactly ${cardCount} card${cardCount > 1 ? "s" : ""} to discard`,
+        );
       }
       return sendMultipleToGraveyardResult(currentState, selectedInstanceIds);
     },
