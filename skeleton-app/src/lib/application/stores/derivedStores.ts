@@ -56,16 +56,14 @@ export const graveyardCardRefs = derived(gameStateStore, ($state) => $state.spac
 export const banishedCardRefs = derived(gameStateStore, ($state) => $state.space.banished.map(toInstanceRef));
 
 /** モンスターゾーンの CardDisplayStateOnField 配列 */
-export const monsterZoneDisplayInstances = derived(gameStateStore, ($state) =>
+export const monsterZoneDisplayStates = derived(gameStateStore, ($state) =>
   $state.space.mainMonsterZone.map(toStateOnField),
 );
 
 /** 魔法・罠ゾーンの CardDisplayStateOnField 配列 */
-export const spellTrapZoneDisplayInstances = derived(gameStateStore, ($state) =>
+export const spellTrapZoneDisplayStates = derived(gameStateStore, ($state) =>
   $state.space.spellTrapZone.map(toStateOnField),
 );
 
 /** フィールドゾーンの CardDisplayStateOnField 配列 */
-export const fieldZoneDisplayInstances = derived(gameStateStore, ($state) =>
-  $state.space.fieldZone.map(toStateOnField),
-);
+export const fieldZoneDisplayStates = derived(gameStateStore, ($state) => $state.space.fieldZone.map(toStateOnField));

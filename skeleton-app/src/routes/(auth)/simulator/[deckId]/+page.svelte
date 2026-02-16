@@ -14,9 +14,9 @@
     gameResult,
     handCardRefs,
     graveyardCardRefs,
-    monsterZoneDisplayInstances,
-    spellTrapZoneDisplayInstances,
-    fieldZoneDisplayInstances,
+    monsterZoneDisplayStates,
+    spellTrapZoneDisplayStates,
+    fieldZoneDisplayStates,
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
@@ -128,20 +128,12 @@
 
   // モンスター召喚ハンドラー
   function handleSummonMonster(card: CardDisplayData, instanceId: string) {
-    _executeGameAction(
-      () => gameFacade.summonMonster(instanceId),
-      `${card.name}を召喚しました`,
-      "召喚に失敗しました",
-    );
+    _executeGameAction(() => gameFacade.summonMonster(instanceId), `${card.name}を召喚しました`, "召喚に失敗しました");
   }
 
   // モンスターセットハンドラー
   function handleSetMonster(card: CardDisplayData, instanceId: string) {
-    _executeGameAction(
-      () => gameFacade.setMonster(instanceId),
-      `${card.name}をセットしました`,
-      "セットに失敗しました",
-    );
+    _executeGameAction(() => gameFacade.setMonster(instanceId), `${card.name}をセットしました`, "セットに失敗しました");
   }
 
   // 魔法・罠セットハンドラー
@@ -173,11 +165,7 @@
 
   // セット魔法カードの発動ハンドラー
   function handleActivateSetSpell(card: CardDisplayData, instanceId: string) {
-    _executeGameAction(
-      () => gameFacade.activateSpell(instanceId),
-      `${card.name}を発動しました`,
-      "発動に失敗しました",
-    );
+    _executeGameAction(() => gameFacade.activateSpell(instanceId), `${card.name}を発動しました`, "発動に失敗しました");
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
@@ -214,14 +202,14 @@
   // DuelField用のゾーンデータ抽出（CardDisplayStateOnFieldとCardDisplayDataをマージ）
   // フィールド魔法ゾーン用カード
   const fieldMagicCards = $derived.by(() => {
-    return $fieldZoneDisplayInstances
-      .map((displayInstance) => {
-        const displayData = getCardDisplayData(displayInstance.cardId);
+    return $fieldZoneDisplayStates
+      .map((displayState) => {
+        const displayData = getCardDisplayData(displayState.cardId);
         if (!displayData) return null;
         return {
           card: displayData,
-          instanceId: displayInstance.instanceId,
-          faceDown: displayInstance.position === "faceDown",
+          instanceId: displayState.instanceId,
+          faceDown: displayState.position === "faceDown",
         };
       })
       .filter((item) => item !== null);
@@ -236,16 +224,16 @@
       rotation?: number;
       spellCounterCount?: number;
     } | null)[] = Array(5).fill(null);
-    $monsterZoneDisplayInstances.forEach((displayInstance, i) => {
+    $monsterZoneDisplayStates.forEach((displayState, i) => {
       if (i < 5) {
-        const displayData = getCardDisplayData(displayInstance.cardId);
+        const displayData = getCardDisplayData(displayState.cardId);
         if (displayData) {
-          const spellCounter = displayInstance.counters.find((c) => c.type === "spell");
+          const spellCounter = displayState.counters.find((c) => c.type === "spell");
           zone[i] = {
             card: displayData,
-            instanceId: displayInstance.instanceId,
-            faceDown: displayInstance.position === "faceDown",
-            rotation: displayInstance.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
+            instanceId: displayState.instanceId,
+            faceDown: displayState.position === "faceDown",
+            rotation: displayState.battlePosition === "defense" ? 270 : 0, // 守備表示は横向き回転
             spellCounterCount: spellCounter?.count ?? 0, // 魔力カウンター数
           };
         }
@@ -257,14 +245,14 @@
   // 魔法・罠ゾーン用カード配列（5枚固定、フィールド魔法除外）
   const spellTrapZoneCards = $derived.by(() => {
     const zone: ({ card: CardDisplayData; instanceId: string; faceDown: boolean } | null)[] = Array(5).fill(null);
-    $spellTrapZoneDisplayInstances.forEach((displayInstance, i) => {
+    $spellTrapZoneDisplayStates.forEach((displayState, i) => {
       if (i < 5) {
-        const displayData = getCardDisplayData(displayInstance.cardId);
+        const displayData = getCardDisplayData(displayState.cardId);
         if (displayData) {
           zone[i] = {
             card: displayData,
-            instanceId: displayInstance.instanceId,
-            faceDown: displayInstance.position === "faceDown",
+            instanceId: displayState.instanceId,
+            faceDown: displayState.position === "faceDown",
           };
         }
       }
