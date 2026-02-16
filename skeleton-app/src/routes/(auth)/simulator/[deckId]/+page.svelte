@@ -94,43 +94,19 @@
     return _getPhaseDisplay($currentPhase);
   }
 
-  // 手札のカードクリックで効果発動
-  function handleHandCardClick(_card: CardDisplayData, instanceId: string) {
-    // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
-    const result = gameFacade.activateSpell(instanceId);
-    if (!result.success) showErrorToast(result.error || "発動に失敗しました");
-  }
-
-  // モンスター召喚ハンドラー
-  function handleSummonMonster(card: CardDisplayData, instanceId: string) {
-    const result = gameFacade.summonMonster(instanceId);
+  // ゲームアクション実行の共通ヘルパー
+  function _executeGameAction(
+    action: () => { success: boolean; message?: string; error?: string },
+    successMessage: string,
+    errorMessage: string,
+  ): boolean {
+    const result = action();
     if (result.success) {
-      showSuccessToast(result.message || `${card.name}を召喚しました`);
+      showSuccessToast(result.message || successMessage);
     } else {
-      showErrorToast(result.error || "召喚に失敗しました");
+      showErrorToast(result.error || errorMessage);
     }
-  }
-
-  // モンスターセットハンドラー
-  function handleSetMonster(card: CardDisplayData, instanceId: string) {
-    const result = gameFacade.setMonster(instanceId);
-    if (result.success) {
-      // カード名を使った明示的なメッセージを優先
-      showSuccessToast(`${card.name}をセットしました`);
-    } else {
-      showErrorToast(result.error || "セットに失敗しました");
-    }
-  }
-
-  // 魔法・罠セットハンドラー
-  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
-    const result = gameFacade.setSpellTrap(instanceId);
-    if (result.success) {
-      // カード名を使った明示的なメッセージを優先
-      showSuccessToast(`${card.name}をセットしました`);
-    } else {
-      showErrorToast(result.error || "セットに失敗しました");
-    }
+    return result.success;
   }
 
   // カード選択状態管理 - 一元管理
@@ -143,11 +119,45 @@
     selectedFieldCardInstanceId = null; // フィールドカード選択をクリア
   }
 
+  // 手札のカードクリックで効果発動
+  function handleHandCardClick(_card: CardDisplayData, instanceId: string) {
+    // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
+    const result = gameFacade.activateSpell(instanceId);
+    if (!result.success) showErrorToast(result.error || "発動に失敗しました");
+  }
+
+  // モンスター召喚ハンドラー
+  function handleSummonMonster(card: CardDisplayData, instanceId: string) {
+    _executeGameAction(
+      () => gameFacade.summonMonster(instanceId),
+      `${card.name}を召喚しました`,
+      "召喚に失敗しました",
+    );
+  }
+
+  // モンスターセットハンドラー
+  function handleSetMonster(card: CardDisplayData, instanceId: string) {
+    _executeGameAction(
+      () => gameFacade.setMonster(instanceId),
+      `${card.name}をセットしました`,
+      "セットに失敗しました",
+    );
+  }
+
+  // 魔法・罠セットハンドラー
+  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
+    _executeGameAction(
+      () => gameFacade.setSpellTrap(instanceId),
+      `${card.name}をセットしました`,
+      "セットに失敗しました",
+    );
+  }
+
   // フィールドカードクリックで効果発動 - 手札選択をクリア
   function handleFieldCardClick(_card: CardDisplayData, instanceId: string) {
     const fieldCard = gameFacade.findCardOnField(instanceId);
     if (!fieldCard) {
-      showErrorToast("Card not found on field");
+      showErrorToast("カードが見つかりませんでした");
       return;
     }
 
@@ -163,23 +173,21 @@
 
   // セット魔法カードの発動ハンドラー
   function handleActivateSetSpell(card: CardDisplayData, instanceId: string) {
-    const result = gameFacade.activateSpell(instanceId);
-    if (result.success) {
-      showSuccessToast(result.message || `${card.name}を発動しました`);
-    } else {
-      showErrorToast(result.error || "発動に失敗しました");
-    }
+    _executeGameAction(
+      () => gameFacade.activateSpell(instanceId),
+      `${card.name}を発動しました`,
+      "発動に失敗しました",
+    );
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
   // 起動効果発動ハンドラー
   function handleActivateIgnitionEffect(card: CardDisplayData, instanceId: string) {
-    const result = gameFacade.activateIgnitionEffect(instanceId);
-    if (result.success) {
-      showSuccessToast(result.message || `${card.name}の効果を発動しました`);
-    } else {
-      showErrorToast(result.error || "効果発動に失敗しました");
-    }
+    _executeGameAction(
+      () => gameFacade.activateIgnitionEffect(instanceId),
+      `${card.name}の効果を発動しました`,
+      "効果発動に失敗しました",
+    );
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
