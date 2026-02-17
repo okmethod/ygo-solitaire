@@ -1,4 +1,9 @@
 import { vi } from "vitest";
+import { initializeCardDataRegistry, initializeTestCardData } from "$lib/domain/registries/CardDataRegistry";
+
+// カードデータレジストリを初期化（テストデータを含む）
+initializeCardDataRegistry();
+initializeTestCardData();
 
 // LocalStorageのモック
 const localStorageMock = {

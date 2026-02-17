@@ -13,17 +13,18 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { getCardNameWithBrackets } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
 
 /** 発動を通知するステップ */
 export const notifyActivationStep = (cardId: number): AtomicStep => {
+  const cardName = CardDataRegistry.getCardNameWithBrackets(cardId);
   return {
     id: `${cardId}-activation-notification`,
     summary: "カード発動",
-    description: `${getCardNameWithBrackets(cardId)}を発動します`,
+    description: `${cardName}を発動します`,
     notificationLevel: "info",
     action: (currentState: GameSnapshot): GameStateUpdateResult => {
-      return GameProcessing.Result.success(currentState, `${getCardNameWithBrackets(cardId)} activated`);
+      return GameProcessing.Result.success(currentState, `${cardName} activated`);
     },
   };
 };

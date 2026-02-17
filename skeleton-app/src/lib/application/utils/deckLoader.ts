@@ -23,7 +23,7 @@ import type {
 } from "$lib/application/types/deck";
 import type { CardData, ExtraMonsterSubType } from "$lib/application/types/card";
 import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
-import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
 
 /**
  * カードエントリーを指定したキーで分類する汎用ヘルパー
@@ -166,7 +166,7 @@ export function loadDeck(deckId: string): {
   const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
 
   // CardDataRegistry から CardData を取得
-  const cardDataList: CardData[] = uniqueCardIds.map((id) => getCardData(id));
+  const cardDataList: CardData[] = uniqueCardIds.map((id) => CardDataRegistry.get(id));
 
   // カード情報をID→CardDataのマップに変換（高速検索用）
   const cardDataMap = new Map(cardDataList.map((card) => [card.id, card]));

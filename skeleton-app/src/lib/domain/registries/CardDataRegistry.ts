@@ -1,7 +1,7 @@
 /**
  * CardDataRegistry - カードデータレジストリ
  *
- * ゲームロジック向けにカードデータを提供する。
+ * Card ID → CardData のマッピングを管理
  *
  * Registry Pattern
  * - カードデータの一元管理
@@ -11,83 +11,161 @@
  * @module domain/registries/CardDataRegistry
  */
 
-import type { CardData } from "$lib/domain/models/Card";
+import type { CardData, FrameSubType, SpellSubType, TrapSubType } from "$lib/domain/models/Card";
 
 /**
- * カードデータレジストリ（辞書）
+ * 登録用のカードデータ（id を除いた型）
  *
- * カードIDとドメインカードデータをマッピングする。
- * ゲームで使用されるカードプールのみを含む。
+ * register() 時に cardId をキーとして渡すため、id は自動設定される。
  */
-const CARD_DATA_REGISTRY: Record<number, CardData> = {
-  // モンスター
-  33396948: { id: 33396948, jaName: "封印されしエクゾディア", type: "monster", frameType: "effect" },
-  7902349: { id: 7902349, jaName: "封印されし者の右腕", type: "monster", frameType: "normal" },
-  70903634: { id: 70903634, jaName: "封印されし者の左腕", type: "monster", frameType: "normal" },
-  44519536: { id: 44519536, jaName: "封印されし者の左足", type: "monster", frameType: "normal" },
-  8124921: { id: 8124921, jaName: "封印されし者の右足", type: "monster", frameType: "normal" },
-  70791313: { id: 70791313, jaName: "王立魔法図書館", type: "monster", frameType: "effect" },
-
-  // 通常魔法
-  55144522: { id: 55144522, jaName: "強欲な壺", type: "spell", frameType: "spell", spellType: "normal" },
-  79571449: { id: 79571449, jaName: "天使の施し", type: "spell", frameType: "spell", spellType: "normal" },
-  70368879: { id: 70368879, jaName: "成金ゴブリン", type: "spell", frameType: "spell", spellType: "normal" },
-  33782437: { id: 33782437, jaName: "一時休戦", type: "spell", frameType: "spell", spellType: "normal" },
-  85852291: { id: 85852291, jaName: "打ち出の小槌", type: "spell", frameType: "spell", spellType: "normal" },
-  90928333: { id: 90928333, jaName: "闇の量産工場", type: "spell", frameType: "spell", spellType: "normal" },
-  73628505: { id: 73628505, jaName: "テラ・フォーミング", type: "spell", frameType: "spell", spellType: "normal" },
-  98494543: { id: 98494543, jaName: "魔法石の採掘", type: "spell", frameType: "spell", spellType: "normal" },
-  93946239: { id: 93946239, jaName: "無の煉獄", type: "spell", frameType: "spell", spellType: "normal" },
-  98645731: { id: 98645731, jaName: "強欲で謙虚な壺", type: "spell", frameType: "spell", spellType: "normal" },
-  59750328: { id: 59750328, jaName: "命削りの宝札", type: "spell", frameType: "spell", spellType: "normal" },
-  89997728: { id: 89997728, jaName: "トゥーンのもくじ", type: "spell", frameType: "spell", spellType: "normal" },
-
-  // 速攻魔法
-  74519184: { id: 74519184, jaName: "手札断札", type: "spell", frameType: "spell", spellType: "quick-play" },
-
-  // 永続魔法
-  15259703: { id: 15259703, jaName: "トゥーン・ワールド", type: "spell", frameType: "spell", spellType: "continuous" },
-
-  // フィールド魔法
-  67616300: { id: 67616300, jaName: "チキンレース", type: "spell", frameType: "spell", spellType: "field" },
-
-  // トラップカード
-  83968380: { id: 83968380, jaName: "強欲な瓶", type: "trap", frameType: "trap", trapType: "normal" },
-
-  // テスト用
-  1001: { id: 1001, jaName: "Test Spell 1", type: "spell", frameType: "spell", spellType: "normal" },
-  1002: { id: 1002, jaName: "Test Spell 2", type: "spell", frameType: "spell", spellType: "normal" },
-  1003: { id: 1003, jaName: "Test Spell 3", type: "spell", frameType: "spell", spellType: "normal" },
-  1004: { id: 1004, jaName: "Test Spell 4", type: "spell", frameType: "spell", spellType: "quick-play" },
-  1005: { id: 1005, jaName: "Test Spell 5", type: "spell", frameType: "spell", spellType: "continuous" },
-  1006: { id: 1006, jaName: "Test Spell 6", type: "spell", frameType: "spell", spellType: "field" },
-  12345678: { id: 12345678, jaName: "Test Monster A", type: "monster", frameType: "normal" },
-  87654321: { id: 87654321, jaName: "Test Monster B", type: "monster", frameType: "normal" },
-};
+type CardDataInput = Omit<CardData, "id">;
 
 /**
- * レジストリからカードデータを取得する
+ * カードデータレジストリ（クラス）
  *
- * @throws Error if card not found in registry
+ * カードIDをキーとして CardData を管理する。
  */
-export function getCardData(cardId: number): CardData {
-  const card = CARD_DATA_REGISTRY[cardId];
-  if (!card) {
-    throw new Error(
-      `Card data not found in registry: ${cardId}. ` +
-        `Please add this card to CARD_DATA_REGISTRY in CardDataRegistry.ts`,
-    );
+export class CardDataRegistry {
+  /** カードデータのマップ (Card ID → CardData) */
+  private static cards = new Map<number, CardData>();
+
+  // ===========================
+  // 登録API
+  // ===========================
+
+  /** カードデータを登録する */
+  static register(cardId: number, input: CardDataInput): void {
+    const cardData: CardData = { id: cardId, ...input };
+    this.cards.set(cardId, cardData);
   }
-  return card;
+
+  // ===========================
+  // 取得API
+  // ===========================
+
+  /** カードデータを取得する（見つからない場合は undefined） */
+  static getOrUndefined(cardId: number): CardData | undefined {
+    return this.cards.get(cardId);
+  }
+
+  /**
+   * カードデータを取得する（見つからない場合はエラーをスロー）
+   *
+   * @throws Error if card not found in registry
+   */
+  static get(cardId: number): CardData {
+    const card = this.cards.get(cardId);
+    if (!card) {
+      throw new Error(
+        `Card data not found in registry: ${cardId}. ` +
+          `Please register this card using CardDataRegistry.register() in initializeCardDataRegistry().`,
+      );
+    }
+    return card;
+  }
+
+  /**
+   * 《》付きでカード名を取得する
+   *
+   * @example
+   * getCardNameWithBrackets(55144522) // "《強欲な壺》"
+   */
+  static getCardNameWithBrackets(cardId: number): string {
+    const card = this.get(cardId);
+    return `《${card.jaName}》`;
+  }
+
+  /** カードが登録されているか判定する */
+  static has(cardId: number): boolean {
+    return this.cards.has(cardId);
+  }
+
+  // ===========================
+  // ユーティリティAPI
+  // ===========================
+
+  /** レジストリをクリアする（テスト用） */
+  static clear(): void {
+    this.cards.clear();
+  }
+
+  /** 登録済みカードIDの一覧を取得する（デバッグ用） */
+  static getRegisteredCardIds(): number[] {
+    return Array.from(this.cards.keys());
+  }
 }
 
-/**
- * 《》付きでカード名を取得する
- *
- * @example
- * getCardNameWithBrackets(55144522) // "《強欲な壺》"
- */
-export function getCardNameWithBrackets(cardId: number): string {
-  const card = getCardData(cardId);
-  return `《${card.jaName}》`;
+// ===========================
+// ビルダーヘルパー
+// ===========================
+
+/** モンスターカードを登録する */
+function monster(frameType: FrameSubType, cardId: number, jaName: string): void {
+  CardDataRegistry.register(cardId, { jaName, type: "monster", frameType });
+}
+
+/** 魔法カードを登録する */
+function spell(spellType: SpellSubType, cardId: number, jaName: string): void {
+  CardDataRegistry.register(cardId, { jaName, type: "spell", frameType: "spell", spellType });
+}
+
+/** 罠カードを登録する */
+function trap(trapType: TrapSubType, cardId: number, jaName: string): void {
+  CardDataRegistry.register(cardId, { jaName, type: "trap", frameType: "trap", trapType });
+}
+
+// ===========================
+// 初期化関数
+// ===========================
+
+/** 本番用カードデータを登録する */
+export function initializeCardDataRegistry(): void {
+  // モンスターカード
+  monster("effect", 33396948, "封印されしエクゾディア");
+  monster("normal", 7902349, "封印されし者の右腕");
+  monster("normal", 70903634, "封印されし者の左腕");
+  monster("normal", 44519536, "封印されし者の左足");
+  monster("normal", 8124921, "封印されし者の右足");
+  monster("effect", 70791313, "王立魔法図書館");
+
+  // 魔法カード
+  spell("normal", 55144522, "強欲な壺");
+  spell("normal", 79571449, "天使の施し");
+  spell("normal", 70368879, "成金ゴブリン");
+  spell("normal", 33782437, "一時休戦");
+  spell("normal", 85852291, "打ち出の小槌");
+  spell("normal", 90928333, "闇の量産工場");
+  spell("normal", 73628505, "テラ・フォーミング");
+  spell("normal", 98494543, "魔法石の採掘");
+  spell("normal", 93946239, "無の煉獄");
+  spell("normal", 98645731, "強欲で謙虚な壺");
+  spell("normal", 59750328, "命削りの宝札");
+  spell("normal", 89997728, "トゥーンのもくじ");
+  spell("quick-play", 74519184, "手札断札");
+  spell("continuous", 15259703, "トゥーン・ワールド");
+  spell("field", 67616300, "チキンレース");
+
+  // 罠カード
+  trap("normal", 83968380, "強欲な瓶");
+}
+
+/** テスト用カードデータを登録する */
+export function initializeTestCardData(): void {
+  // テスト用通常魔法
+  spell("normal", 1001, "Test Spell 1");
+  spell("normal", 1002, "Test Spell 2");
+  spell("normal", 1003, "Test Spell 3");
+
+  // テスト用速攻魔法
+  spell("quick-play", 1004, "Test Spell 4");
+
+  // テスト用永続魔法
+  spell("continuous", 1005, "Test Spell 5");
+
+  // テスト用フィールド魔法
+  spell("field", 1006, "Test Spell 6");
+
+  // テスト用モンスター
+  monster("normal", 12345678, "Test Monster A");
+  monster("normal", 87654321, "Test Monster B");
 }

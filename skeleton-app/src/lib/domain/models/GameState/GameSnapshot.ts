@@ -10,7 +10,7 @@ import type { Player } from "./Player";
 import type { GamePhase } from "./Phase";
 import type { GameResult } from "./GameResult";
 import { shuffleMainDeck, drawCards } from "./CardSpace";
-import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
 
 /** 初期ライフポイント */
 export const INITIAL_LP = 8000 as const;
@@ -64,7 +64,7 @@ export function createInitialGameSnapshot(
 ): GameSnapshot {
   // デッキカードを生成
   const mainDeckCards = initialDeck.mainDeckCardIds.map((cardId, index) => {
-    const cardData = getCardData(cardId);
+    const cardData = CardDataRegistry.get(cardId);
     return {
       ...cardData,
       instanceId: `main-${index}`,
@@ -74,7 +74,7 @@ export function createInitialGameSnapshot(
     };
   });
   const extraDeckCards = initialDeck.extraDeckCardIds.map((cardId, index) => {
-    const cardData = getCardData(cardId);
+    const cardData = CardDataRegistry.get(cardId);
     return {
       ...cardData,
       instanceId: `extra-${index}`,

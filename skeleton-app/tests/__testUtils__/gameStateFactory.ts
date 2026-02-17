@@ -12,13 +12,11 @@
 
 import type { GameSnapshot, GamePhase, CardSpace } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
-import type { CardInstance, CardData, FrameSubType } from "$lib/domain/models/Card";
+import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
 import type { CounterState } from "$lib/domain/models/Card";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { Location } from "$lib/domain/models/Location";
-
-// CardDataRegistry から実際のカード名を取得するためのインポート
-import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
 
 const EXODIA_PIECE_IDS = [
   33396948, // 本体
@@ -27,17 +25,6 @@ const EXODIA_PIECE_IDS = [
   44519536, // 左足
   8124921, // 右足
 ] as const;
-
-/**
- * カードIDからCardDataを取得（存在しない場合はフォールバック）
- */
-function getCardDataSafe(cardId: number): CardData | null {
-  try {
-    return getCardData(cardId);
-  } catch {
-    return null;
-  }
-}
 
 /** @deprecated Use GameSnapshot instead */
 export type GameState = GameSnapshot;
@@ -111,7 +98,7 @@ export function createCardInstances(
   const instancePrefix = prefix || location;
   return cardIds.map((cardId, index) => {
     const numericId = typeof cardId === "string" ? parseInt(cardId, 10) : cardId;
-    const registeredCard = getCardDataSafe(numericId);
+    const registeredCard = CardDataRegistry.getOrUndefined(numericId);
     const frameType: FrameSubType = registeredCard?.frameType ?? (type === "monster" ? "normal" : type);
     const spellType = registeredCard?.spellType;
     const baseInstance = {
@@ -186,7 +173,7 @@ export function createSpellCard(
   cardId: number = 1001,
   location: keyof CardSpace = "hand",
 ): CardInstance {
-  const registeredCard = getCardDataSafe(cardId);
+  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
   return {
     instanceId,
     id: cardId,
@@ -214,7 +201,7 @@ export function createSetCard(
   location: "spellTrapZone" | "fieldZone",
   options?: { placedThisTurn?: boolean },
 ): CardInstance {
-  const registeredCard = getCardDataSafe(cardId);
+  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
   return {
     instanceId,
     id: cardId,

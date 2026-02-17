@@ -20,11 +20,13 @@ import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand"
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
 import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
+import { initializeCardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
 
-// インポート時、各種効果レジストリを初期化する
+// インポート時、各種レジストリを初期化する
+initializeCardDataRegistry();
 initializeChainableActionRegistry();
 initializeAdditionalRuleRegistry();
 

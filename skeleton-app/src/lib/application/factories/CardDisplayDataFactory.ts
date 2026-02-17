@@ -15,7 +15,7 @@
 import type { ExternalCardData } from "$lib/application/ports/ICardDataRepository";
 import type { CardDisplayData, CardType, MonsterAttributes } from "$lib/application/types/card";
 import type { CardData } from "$lib/domain/models/Card";
-import { getCardData } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
 
 /** 外部APIの type 文字列を CardType に正規化する */
 function normalizeExternalType(type: string): CardType | null {
@@ -101,7 +101,7 @@ function createCardDisplayData(externalData: ExternalCardData, domainData: CardD
  * @throws Error - 指定カードが CardDataRegistry に登録されていない場合
  */
 export function createCardDisplayDataFromApi(externalData: ExternalCardData): CardDisplayData {
-  const domainData = getCardData(externalData.id);
+  const domainData = CardDataRegistry.get(externalData.id);
   return createCardDisplayData(externalData, domainData);
 }
 
