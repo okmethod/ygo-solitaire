@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createSpellCard, createSetCard } from "../../../__testUtils__/gameStateFactory";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
@@ -30,43 +30,9 @@ describe("ActivateSpellCommand", () => {
     initialState = createMockGameState({
       phase: "main1",
       space: {
-        mainDeck: [
-          {
-            instanceId: "main-0",
-            id: 1001,
-            jaName: "Test Card 1",
-            type: "spell" as const,
-            frameType: "spell" as const,
-            location: "mainDeck" as const,
-          },
-          {
-            instanceId: "mainDeck-1",
-            id: 1002,
-            jaName: "Test Card 2",
-            type: "spell" as const,
-            frameType: "spell" as const,
-            location: "mainDeck" as const,
-          },
-        ],
+        mainDeck: [createSpellCard("main-0", 1001, "mainDeck"), createSpellCard("mainDeck-1", 1002, "mainDeck")],
         extraDeck: [],
-        hand: [
-          {
-            instanceId: spellCardId,
-            id: 1001, // Test Card 1 (normal spell dummy)
-            jaName: "Test Card 1",
-            type: "spell" as const,
-            frameType: "spell" as const,
-            location: "hand" as const,
-          },
-          {
-            instanceId: "hand-2",
-            id: 1003,
-            jaName: "Test Card 3",
-            type: "spell" as const,
-            frameType: "spell" as const,
-            location: "hand" as const,
-          },
-        ],
+        hand: [createSpellCard(spellCardId, 1001, "hand"), createSpellCard("hand-2", 1003, "hand")],
         mainMonsterZone: [],
         spellTrapZone: [],
         fieldZone: [],
@@ -95,16 +61,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: spellCardId,
-              id: 1001, // Test Card 1 (dummy)
-              jaName: "Test Card 1",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellCard(spellCardId, 1001, "hand")],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -124,16 +81,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: spellCardId,
-              id: 1001, // Test Card 1 (dummy)
-              jaName: "Test Card 1",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellCard(spellCardId, 1001, "hand")],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -196,17 +144,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: spellCardId,
-              id: 1005, // Test Spell 5 (continuous, NoOp registered)
-              jaName: "Test Spell 5",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "continuous" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellCard(spellCardId, 1005, "hand")],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -283,17 +221,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: "field-spell-1",
-              id: 1006, // Test Spell 6 (field spell dummy)
-              jaName: "Test Spell 6",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellCard("field-spell-1", 1006, "hand")],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -314,40 +242,13 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should place normal spell in spellTrapZone", () => {
-      // Arrange: Normal spell in hand (Pot of Greed)
+      // Arrange: Normal spell in hand
       const normalSpellState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [
-            {
-              instanceId: "main-0",
-              id: 1001,
-              jaName: "Test Card 1",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              location: "mainDeck" as const,
-            },
-            {
-              instanceId: "main-1",
-              id: 1002,
-              jaName: "Test Card 2",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              location: "mainDeck" as const,
-            },
-          ],
+          mainDeck: [createSpellCard("main-0", 1001, "mainDeck"), createSpellCard("main-1", 1002, "mainDeck")],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: "normal-spell-1",
-              id: 1001, // Test Card 1 (normal spell dummy)
-              jaName: "強欲な壺",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "normal" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellCard("normal-spell-1", 1001, "hand")],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -369,23 +270,13 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should place continuous spell in spellTrapZone and keep it on field", () => {
-      // Arrange: Continuous spell in hand (no effect registered, for testing zone placement)
+      // Arrange: Continuous spell in hand (NoOp registered)
       const continuousSpellState = createMockGameState({
         phase: "main1",
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: "continuous-spell-1",
-              id: 1005,
-              jaName: "Test Spell 5",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "continuous" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellCard("continuous-spell-1", 1005, "hand")],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -412,45 +303,11 @@ describe("ActivateSpellCommand", () => {
       const setSpellState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [
-            // Pot of Greed needs at least 2 cards in mainDeck
-            {
-              instanceId: "main-0",
-              id: 1001,
-              jaName: "Test Card 1",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              location: "mainDeck" as const,
-            },
-            {
-              instanceId: "mainDeck-1",
-              id: 1002,
-              jaName: "Test Card 2",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              location: "mainDeck" as const,
-            },
-          ],
+          mainDeck: [createSpellCard("main-0", 1001, "mainDeck"), createSpellCard("mainDeck-1", 1002, "mainDeck")],
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [
-            {
-              instanceId: "set-spell-1",
-              id: 1001, // Test Card 1 (normal spell dummy)
-              jaName: "強欲な壺",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "normal" as const,
-              location: "spellTrapZone" as const,
-              stateOnField: {
-                position: "faceDown" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          spellTrapZone: [createSetCard("set-spell-1", 1001, "spellTrapZone")],
           fieldZone: [],
           graveyard: [],
           banished: [],
@@ -477,23 +334,7 @@ describe("ActivateSpellCommand", () => {
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [
-            {
-              instanceId: "set-field-spell-1",
-              id: 1006, // Test Spell 6 (field spell dummy)
-              jaName: "Test Spell 6",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              location: "fieldZone" as const,
-              stateOnField: {
-                position: "faceDown" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          fieldZone: [createSetCard("set-field-spell-1", 1006, "fieldZone")],
           graveyard: [],
           banished: [],
         },
@@ -520,23 +361,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [
-            {
-              instanceId: "set-quick-play-1",
-              id: 74519184, // 手札断札 (quick-play)
-              jaName: "手札断札",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "quick-play" as const,
-              location: "spellTrapZone" as const,
-              stateOnField: {
-                position: "faceDown" as const,
-                placedThisTurn: true, // Set this turn - should be blocked
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          spellTrapZone: [createSetCard("set-quick-play-1", 1004, "spellTrapZone", { placedThisTurn: true })],
           fieldZone: [],
           graveyard: [],
           banished: [],
@@ -554,7 +379,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should allow activating quick-play spell NOT set this turn", () => {
-      // Arrange: Quick-play spell set previous turn (use unregistered ID to avoid activation conditions)
+      // Arrange: Quick-play spell set previous turn
       const setQuickPlayState = createMockGameState({
         phase: "main1",
         space: {
@@ -562,23 +387,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [
-            {
-              instanceId: "set-quick-play-2",
-              id: 1004,
-              jaName: "Test Spell 4",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "quick-play" as const,
-              location: "spellTrapZone" as const,
-              stateOnField: {
-                position: "faceDown" as const,
-                placedThisTurn: false, // NOT set this turn - should be allowed
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          spellTrapZone: [createSetCard("set-quick-play-2", 1004, "spellTrapZone")], // placedThisTurn: false by default
           fieldZone: [],
           graveyard: [],
           banished: [],

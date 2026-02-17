@@ -173,6 +173,66 @@ export function createFieldCardInstance(options: {
 }
 
 /**
+ * Create a single spell card instance
+ * CardDataRegistry からカード情報を取得し、指定のlocationに配置
+ *
+ * @param instanceId - カードインスタンスID
+ * @param cardId - カードID（デフォルト: 1001 = Test Card 1）
+ * @param location - カードの配置場所（デフォルト: "hand"）
+ * @returns CardInstance
+ */
+export function createSpellCard(
+  instanceId: string,
+  cardId: number = 1001,
+  location: keyof CardSpace = "hand",
+): CardInstance {
+  const registeredCard = getCardDataSafe(cardId);
+  return {
+    instanceId,
+    id: cardId,
+    jaName: registeredCard?.jaName ?? `Test Card ${cardId}`,
+    type: registeredCard?.type ?? "spell",
+    frameType: registeredCard?.frameType ?? "spell",
+    spellType: registeredCard?.spellType,
+    location,
+  };
+}
+
+/**
+ * Create a set card instance (face-down on field)
+ * セット状態のカードを生成（stateOnField付き）
+ *
+ * @param instanceId - カードインスタンスID
+ * @param cardId - カードID
+ * @param location - 配置場所（spellTrapZone または fieldZone）
+ * @param options - オプション（placedThisTurn など）
+ * @returns CardInstance with stateOnField
+ */
+export function createSetCard(
+  instanceId: string,
+  cardId: number,
+  location: "spellTrapZone" | "fieldZone",
+  options?: { placedThisTurn?: boolean },
+): CardInstance {
+  const registeredCard = getCardDataSafe(cardId);
+  return {
+    instanceId,
+    id: cardId,
+    jaName: registeredCard?.jaName ?? `Test Card ${cardId}`,
+    type: registeredCard?.type ?? "spell",
+    frameType: registeredCard?.frameType ?? "spell",
+    spellType: registeredCard?.spellType,
+    location,
+    stateOnField: {
+      position: "faceDown",
+      placedThisTurn: options?.placedThisTurn ?? false,
+      counters: [],
+      activatedEffects: new Set(),
+    },
+  };
+}
+
+/**
  * Create a game state with Exodia deck (40 cards)
  *
  * @returns GameSnapshot with Exodia draw deck
