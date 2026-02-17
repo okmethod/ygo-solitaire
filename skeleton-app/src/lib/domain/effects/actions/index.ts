@@ -11,8 +11,8 @@ import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionR
 // カードの発動
 import { PotOfGreedActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfGreedActivation";
 import { GracefulCharityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/GracefulCharityActivation";
-import { ChickenGameActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ChickenGameActivation";
 import { UpstartGoblinActivation } from "$lib/domain/effects/actions/activations/individuals/spells/UpstartGoblinActivation";
+import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/activations/individuals/spells/OneDayOfPeaceActivation";
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
 import { CardDestructionActivation } from "$lib/domain/effects/actions/activations/individuals/spells/CardDestructionActivation";
@@ -34,7 +34,7 @@ export function initializeChainableActionRegistry(): void {
   // カードの発動
   ChainableActionRegistry.registerActivation(55144522, new PotOfGreedActivation());
   ChainableActionRegistry.registerActivation(79571449, new GracefulCharityActivation());
-  ChainableActionRegistry.registerActivation(67616300, new ChickenGameActivation());
+  ChainableActionRegistry.registerActivation(67616300, FieldSpellActivation.createNoOp(67616300));
   ChainableActionRegistry.registerActivation(70368879, new UpstartGoblinActivation());
   ChainableActionRegistry.registerActivation(33782437, new OneDayOfPeaceActivation());
   ChainableActionRegistry.registerActivation(85852291, new MagicalMalletActivation());

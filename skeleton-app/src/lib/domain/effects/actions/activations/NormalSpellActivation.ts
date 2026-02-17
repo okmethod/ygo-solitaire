@@ -110,4 +110,32 @@ export abstract class NormalSpellActivation extends BaseSpellActivation {
   protected subTypePostResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [sendToGraveyardStep(sourceInstance.instanceId, sourceInstance.jaName)];
   }
+
+  /**
+   * 通常魔法発動効果の空実装クラスを生成する
+   *
+   * 発動時に固有の処理を持たないカード用。
+   */
+  static createNoOp(cardId: number): NormalSpellActivation {
+    return new NoOpNormalSpellActivation(cardId);
+  }
+}
+
+/** 通常魔法発動効果の空実装クラス */
+class NoOpNormalSpellActivation extends NormalSpellActivation {
+  constructor(cardId: number) {
+    super(cardId);
+  }
+
+  protected individualConditions(): ValidationResult {
+    return GameProcessing.Validation.success();
+  }
+
+  protected individualActivationSteps(): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(): AtomicStep[] {
+    return [];
+  }
 }

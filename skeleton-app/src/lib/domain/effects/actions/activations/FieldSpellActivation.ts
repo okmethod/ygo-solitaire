@@ -108,4 +108,33 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   protected subTypePostResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     return []; // フィールド魔法は効果解決後処理なし（フィールドに残る）
   }
+
+  /**
+   * フィールド魔法発動効果の空実装クラスを生成する
+   *
+   * 発動時に固有の処理を持たないカード用。
+   * 永続効果や起動効果は別途登録する。
+   */
+  static createNoOp(cardId: number): FieldSpellActivation {
+    return new NoOpFieldSpellActivation(cardId);
+  }
+}
+
+/** フィールド魔法発動効果の空実装クラス */
+class NoOpFieldSpellActivation extends FieldSpellActivation {
+  constructor(cardId: number) {
+    super(cardId);
+  }
+
+  protected individualConditions(): ValidationResult {
+    return GameProcessing.Validation.success();
+  }
+
+  protected individualActivationSteps(): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(): AtomicStep[] {
+    return [];
+  }
 }

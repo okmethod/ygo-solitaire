@@ -110,4 +110,32 @@ export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   protected subTypePostResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return [sendToGraveyardStep(sourceInstance.instanceId, sourceInstance.jaName)];
   }
+
+  /**
+   * 速攻魔法発動効果の空実装クラスを生成する
+   *
+   * 発動時に固有の処理を持たない速攻魔法用。
+   */
+  static createNoOp(cardId: number): QuickPlaySpellActivation {
+    return new NoOpQuickPlaySpellActivation(cardId);
+  }
+}
+
+/** 速攻魔法発動効果の空実装クラス */
+class NoOpQuickPlaySpellActivation extends QuickPlaySpellActivation {
+  constructor(cardId: number) {
+    super(cardId);
+  }
+
+  protected individualConditions(): ValidationResult {
+    return GameProcessing.Validation.success();
+  }
+
+  protected individualActivationSteps(): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(): AtomicStep[] {
+    return [];
+  }
 }
