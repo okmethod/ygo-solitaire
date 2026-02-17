@@ -7,8 +7,7 @@
  * @module presentation/services/fieldCardAdapter
  */
 
-import type { CardDisplayStateOnField } from "$lib/presentation/types";
-import type { FieldCardDisplayInfo } from "$lib/presentation/types/card";
+import type { CardDisplayStateOnField, FieldCardDisplayInfo } from "$lib/presentation/types";
 import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
 
 /**

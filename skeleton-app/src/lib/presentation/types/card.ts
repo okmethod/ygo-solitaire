@@ -9,6 +9,17 @@
 import type { CardDisplayData } from "$lib/application/types/card";
 
 /**
+ * カード表示情報（インスタンス識別付き）
+ *
+ * 手札、墓地、エクストラデッキなど、
+ * フィールド外のゾーンで使用する汎用型。
+ */
+export interface CardInstanceDisplayInfo {
+  card: CardDisplayData | null;
+  instanceId: string;
+}
+
+/**
  * フィールド上のカード表示情報
  *
  * CardDisplayData とフィールド上の表示状態をマージした、

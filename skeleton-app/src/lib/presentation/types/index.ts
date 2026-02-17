@@ -34,3 +34,6 @@ export type {
 } from "$lib/application/types/deck";
 
 export { ZONE_CAPACITY } from "$lib/application/types/card";
+
+export type { CardInstanceDisplayInfo, FieldCardDisplayInfo } from "./card";
+export type { ConfirmationModalConfig, CardSelectionModalConfig } from "./interaction";

@@ -9,7 +9,7 @@
    * cancelable=true の場合はキャンセルボタンも表示する。
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import type { ConfirmationModalConfig } from "$lib/presentation/types/interaction";
+  import type { ConfirmationModalConfig } from "$lib/presentation/types";
 
   interface ConfirmationModalProps {
     isOpen: boolean;
