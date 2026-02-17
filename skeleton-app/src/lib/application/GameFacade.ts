@@ -20,7 +20,7 @@ import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand"
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
 import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
-import { initializeCardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
+import { initializeCardDataRegistry } from "$lib/domain/CardDataRegistry";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";

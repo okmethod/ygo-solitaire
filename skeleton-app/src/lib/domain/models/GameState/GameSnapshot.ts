@@ -10,7 +10,7 @@ import type { Player } from "./Player";
 import type { GamePhase } from "./Phase";
 import type { GameResult } from "./GameResult";
 import { shuffleMainDeck, drawCards } from "./CardSpace";
-import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** 初期ライフポイント */
 export const INITIAL_LP = 8000 as const;

@@ -23,7 +23,7 @@ import type {
 } from "$lib/application/types/deck";
 import type { CardData, ExtraMonsterSubType } from "$lib/application/types/card";
 import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
-import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /**
  * カードエントリーを指定したキーで分類する汎用ヘルパー

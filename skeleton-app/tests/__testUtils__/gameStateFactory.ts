@@ -16,7 +16,7 @@ import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
 import type { CounterState } from "$lib/domain/models/Card";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { Location } from "$lib/domain/models/Location";
-import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 const EXODIA_PIECE_IDS = [
   33396948, // 本体

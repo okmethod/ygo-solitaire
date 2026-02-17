@@ -15,7 +15,7 @@
 import type { ExternalCardData } from "$lib/application/ports/ICardDataRepository";
 import type { CardDisplayData, CardType, MonsterAttributes } from "$lib/application/types/card";
 import type { CardData } from "$lib/domain/models/Card";
-import { CardDataRegistry } from "$lib/domain/registries/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** 外部APIの type 文字列を CardType に正規化する */
 function normalizeExternalType(type: string): CardType | null {

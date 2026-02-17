@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { initializeCardDataRegistry, initializeTestCardData } from "$lib/domain/registries/CardDataRegistry";
+import { initializeCardDataRegistry, initializeTestCardData } from "$lib/domain/CardDataRegistry";
 
 // カードデータレジストリを初期化（テストデータを含む）
 initializeCardDataRegistry();
