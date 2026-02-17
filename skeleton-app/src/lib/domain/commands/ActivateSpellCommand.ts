@@ -2,7 +2,6 @@
  * ActivateSpellCommand - 魔法カード発動コマンド
  *
  * 手札またはフィールドにセットされた魔法カードを発動する Command パターン実装。
- * TODO: 効果レジストリに登録されていない場合はエラーにした方が良いが、テストの都合上エラーにしていない
  * TODO: チェーンシステムに対応する。
  *
  * @module domain/commands/ActivateSpellCommand
@@ -66,13 +65,16 @@ export class ActivateSpellCommand implements GameCommand {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.SPELL_TRAP_ZONE_FULL);
     }
 
-    // 5. 効果レジストリに登録されている場合、カード固有の発動条件を満たしていること
+    // 5. 効果レジストリに登録されていること
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
-    if (activation) {
-      const activationResult = activation.canActivate(state, cardInstance);
-      if (!activationResult.isValid) {
-        return activationResult;
-      }
+    if (!activation) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.EFFECT_NOT_REGISTERED);
+    }
+
+    // 6. カード固有の発動条件を満たしていること
+    const activationResult = activation.canActivate(state, cardInstance);
+    if (!activationResult.isValid) {
+      return activationResult;
     }
 
     return GameProcessing.Validation.success();

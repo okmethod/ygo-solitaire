@@ -7,8 +7,15 @@ import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand"
 import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
+import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
 
 initializeChainableActionRegistry();
+
+// テスト用ダミーカードの効果を登録
+ChainableActionRegistry.registerActivation(1004, QuickPlaySpellActivation.createNoOp(1004));
+ChainableActionRegistry.registerActivation(1005, ContinuousSpellActivation.createNoOp(1005));
 
 describe("ActivateSpellCommand", () => {
   let initialState: GameSnapshot;
@@ -366,8 +373,8 @@ describe("ActivateSpellCommand", () => {
           hand: [
             {
               instanceId: "continuous-spell-1",
-              id: 99999998, // Unregistered continuous spell
-              jaName: "未登録の永続魔法",
+              id: 1005,
+              jaName: "Test Spell 5",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "continuous" as const,
@@ -554,8 +561,8 @@ describe("ActivateSpellCommand", () => {
           spellTrapZone: [
             {
               instanceId: "set-quick-play-2",
-              id: 99999997, // Unregistered quick-play spell
-              jaName: "Test Quick-Play",
+              id: 1004,
+              jaName: "Test Spell 4",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "quick-play" as const,
@@ -578,10 +585,8 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("set-quick-play-2");
       const result = command.execute(setQuickPlayState);
 
-      // Assert: Activation succeeds (effectSteps is empty for unregistered cards)
-      // Note: 墓地送りは ChainableAction 側で処理されるため、未登録カードでは effectSteps は空
+      // Assert: セットしたターンでなければ発動可能
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toHaveLength(0);
       // Game state: card moved to face-up position
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone[0].stateOnField?.position).toBe("faceUp");

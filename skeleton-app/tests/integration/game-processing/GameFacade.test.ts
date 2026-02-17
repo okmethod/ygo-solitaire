@@ -8,6 +8,13 @@ import type { DeckRecipe } from "$lib/application/types/deck";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { currentPhase } from "$lib/application/stores/derivedStores";
 import { get } from "svelte/store";
+import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
+
+// テスト用ダミーカードの効果を登録
+ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));
+ChainableActionRegistry.registerActivation(1002, NormalSpellActivation.createNoOp(1002));
+ChainableActionRegistry.registerActivation(1003, NormalSpellActivation.createNoOp(1003));
 
 // テスト用ヘルパー: カードID配列からDeckRecipeを生成
 function createTestDeckRecipe(cardIds: number[]): DeckRecipe {
