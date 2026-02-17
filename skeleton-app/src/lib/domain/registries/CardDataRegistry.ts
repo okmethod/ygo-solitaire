@@ -60,6 +60,7 @@ const CARD_DATA_REGISTRY: Record<number, CardData> = {
   1003: { id: 1003, jaName: "Test Spell 3", type: "spell", frameType: "spell", spellType: "normal" },
   1004: { id: 1004, jaName: "Test Spell 4", type: "spell", frameType: "spell", spellType: "quick-play" },
   1005: { id: 1005, jaName: "Test Spell 5", type: "spell", frameType: "spell", spellType: "continuous" },
+  1006: { id: 1006, jaName: "Test Spell 6", type: "spell", frameType: "spell", spellType: "field" },
   12345678: { id: 12345678, jaName: "Test Monster A", type: "monster", frameType: "normal" },
   87654321: { id: 87654321, jaName: "Test Monster B", type: "monster", frameType: "normal" },
 };

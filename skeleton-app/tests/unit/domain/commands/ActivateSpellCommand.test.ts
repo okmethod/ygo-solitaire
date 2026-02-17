@@ -8,14 +8,18 @@ import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
 import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
+import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
+import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 
 initializeChainableActionRegistry();
 
 // テスト用ダミーカードの効果を登録
+ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));
 ChainableActionRegistry.registerActivation(1004, QuickPlaySpellActivation.createNoOp(1004));
 ChainableActionRegistry.registerActivation(1005, ContinuousSpellActivation.createNoOp(1005));
+ChainableActionRegistry.registerActivation(1006, FieldSpellActivation.createNoOp(1006));
 
 describe("ActivateSpellCommand", () => {
   let initialState: GameSnapshot;
@@ -48,12 +52,12 @@ describe("ActivateSpellCommand", () => {
         hand: [
           {
             instanceId: spellCardId,
-            id: 55144522,
-            jaName: "強欲な壺",
+            id: 1001, // Test Card 1 (normal spell dummy)
+            jaName: "Test Card 1",
             type: "spell" as const,
             frameType: "spell" as const,
             location: "hand" as const,
-          }, // Pot of Greed
+          },
           {
             instanceId: "hand-2",
             id: 1003,
@@ -94,8 +98,8 @@ describe("ActivateSpellCommand", () => {
           hand: [
             {
               instanceId: spellCardId,
-              id: 55144522,
-              jaName: "強欲な壺",
+              id: 1001, // Test Card 1 (dummy)
+              jaName: "Test Card 1",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
@@ -123,8 +127,8 @@ describe("ActivateSpellCommand", () => {
           hand: [
             {
               instanceId: spellCardId,
-              id: 55144522,
-              jaName: "強欲な壺",
+              id: 1001, // Test Card 1 (dummy)
+              jaName: "Test Card 1",
               type: "spell" as const,
               frameType: "spell" as const,
               location: "hand" as const,
@@ -195,10 +199,11 @@ describe("ActivateSpellCommand", () => {
           hand: [
             {
               instanceId: spellCardId,
-              id: 55144522,
-              jaName: "強欲な壺",
+              id: 1005, // Test Spell 5 (continuous, NoOp registered)
+              jaName: "Test Spell 5",
               type: "spell" as const,
               frameType: "spell" as const,
+              spellType: "continuous" as const,
               location: "hand" as const,
             },
           ],
@@ -272,7 +277,7 @@ describe("ActivateSpellCommand", () => {
 
   describe("Zone separation (US1)", () => {
     it("should place field spell in fieldZone", () => {
-      // Arrange: Field spell in hand (Chicken Game)
+      // Arrange: Field spell in hand (dummy field spell)
       const fieldSpellState = createMockGameState({
         phase: "main1",
         space: {
@@ -281,8 +286,8 @@ describe("ActivateSpellCommand", () => {
           hand: [
             {
               instanceId: "field-spell-1",
-              id: 67616300, // Chicken Game
-              jaName: "チキンレース",
+              id: 1006, // Test Spell 6 (field spell dummy)
+              jaName: "Test Spell 6",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
@@ -305,7 +310,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone.length).toBe(0);
-      expect(result.updatedState.space.fieldZone[0].id).toBe(67616300);
+      expect(result.updatedState.space.fieldZone[0].id).toBe(1006);
     });
 
     it("should place normal spell in spellTrapZone", () => {
@@ -335,7 +340,7 @@ describe("ActivateSpellCommand", () => {
           hand: [
             {
               instanceId: "normal-spell-1",
-              id: 55144522, // Pot of Greed
+              id: 1001, // Test Card 1 (normal spell dummy)
               jaName: "強欲な壺",
               type: "spell" as const,
               frameType: "spell" as const,
@@ -360,7 +365,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone.length).toBe(0);
-      expect(result.updatedState.space.spellTrapZone[0].id).toBe(55144522);
+      expect(result.updatedState.space.spellTrapZone[0].id).toBe(1001);
     });
 
     it("should place continuous spell in spellTrapZone and keep it on field", () => {
@@ -432,7 +437,7 @@ describe("ActivateSpellCommand", () => {
           spellTrapZone: [
             {
               instanceId: "set-spell-1",
-              id: 55144522, // 強欲な壺 (normal spell)
+              id: 1001, // Test Card 1 (normal spell dummy)
               jaName: "強欲な壺",
               type: "spell" as const,
               frameType: "spell" as const,
@@ -463,7 +468,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should allow activating field spell from fieldZone", () => {
-      // Arrange: Field spell set in fieldZone
+      // Arrange: Field spell set in fieldZone (dummy field spell)
       const setFieldSpellState = createMockGameState({
         phase: "main1",
         space: {
@@ -475,8 +480,8 @@ describe("ActivateSpellCommand", () => {
           fieldZone: [
             {
               instanceId: "set-field-spell-1",
-              id: 67616300, // Chicken Game (field spell)
-              jaName: "チキンレース",
+              id: 1006, // Test Spell 6 (field spell dummy)
+              jaName: "Test Spell 6",
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
@@ -503,7 +508,6 @@ describe("ActivateSpellCommand", () => {
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone[0].stateOnField?.position).toBe("faceUp");
       expect(result.updatedState.space.fieldZone[0].instanceId).toBe("set-field-spell-1");
-      // Chicken Game has ignition effect, so effectSteps may be empty if no choice is made
       expect(result.effectSteps).toBeDefined();
     });
 
