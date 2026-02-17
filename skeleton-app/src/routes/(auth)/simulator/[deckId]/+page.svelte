@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
-  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { CardDisplayData, CardInstanceDisplayInfo } from "$lib/presentation/types";
   import { ZONE_CAPACITY } from "$lib/presentation/types";
   import { gameFacade } from "$lib/application/GameFacade";
   import {
@@ -150,28 +150,23 @@
     selectedFieldCardInstanceId = null;
   }
 
-  // 手札カードとinstanceIdのマッピング（cache経由でCardDisplayDataを取得）
+  // 手札カードマップ
   const handCardsWithInstanceId = $derived(
-    $handCardRefs.map((ref) => ({
-      card: getCardDisplayData(ref.cardId) ?? null,
-      instanceId: ref.instanceId,
-    })),
+    $handCardRefs
+      .map((ref) => ({ card: getCardDisplayData(ref.cardId), instanceId: ref.instanceId }))
+      .filter((item): item is CardInstanceDisplayInfo => item.card !== undefined),
   );
 
-  // 墓地カード（cache経由でCardDisplayDataを取得）
-  const graveyardDisplayCards = $derived(
+  // 墓地カードマップ
+  const graveyardCardsWithInstanceId = $derived(
     $graveyardCardRefs
-      .map((ref) => getCardDisplayData(ref.cardId))
-      .filter((card): card is CardDisplayData => card !== undefined),
+      .map((ref) => ({ card: getCardDisplayData(ref.cardId), instanceId: ref.instanceId }))
+      .filter((item): item is CardInstanceDisplayInfo => item.card !== undefined),
   );
 
-  // フィールド魔法ゾーン用のカードデータ配列（1枚固定）
+  // フィールド上の各種ゾーン用のカードマップ
   const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneDisplayStates, ZONE_CAPACITY.fieldZone));
-
-  // モンスターゾーン用のカードデータ配列（5枚固定）
   const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneDisplayStates, ZONE_CAPACITY.mainMonsterZone));
-
-  // 魔法・罠ゾーン用のカードデータ配列（5枚固定）
   const spellTrapZoneCards = $derived(toFixedSlotZone($spellTrapZoneDisplayStates, ZONE_CAPACITY.spellTrapZone));
 </script>
 
@@ -206,7 +201,7 @@
     <DuelField
       deckCards={$deckCardCount}
       extraDeckCards={[]}
-      graveyardCards={graveyardDisplayCards}
+      graveyardCards={graveyardCardsWithInstanceId}
       fieldCards={fieldSpellZoneCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}

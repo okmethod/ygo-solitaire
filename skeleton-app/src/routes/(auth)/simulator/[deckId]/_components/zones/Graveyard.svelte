@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { CardInstanceDisplayInfo } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import { isMobile } from "$lib/presentation/utils/mobile";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
@@ -8,7 +8,7 @@
   import CardStackModal from "../modals/CardStackModal.svelte";
 
   interface GraveyardProps {
-    cards: CardDisplayData[];
+    cards: CardInstanceDisplayInfo[];
     size?: ComponentSize;
   }
 
@@ -20,7 +20,7 @@
   let modalOpen = $state(false);
 
   // 最後に墓地に置かれたカード
-  const topCard = $derived(cards.length > 0 ? cards[cards.length - 1] : null);
+  const topCard = $derived(cards.length > 0 ? cards[cards.length - 1].card : null);
 
   // クリック処理
   function handleClick() {

@@ -8,12 +8,12 @@
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
-  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { CardInstanceDisplayInfo, AggregatedCard } from "$lib/presentation/types";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
 
   interface CardStackModalProps {
-    cards: CardDisplayData[];
+    cards: CardInstanceDisplayInfo[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
     title: string;
@@ -36,22 +36,16 @@
   // 集約表示モードの状態
   let isAggregated = $state(false);
 
-  // 集約表示用のデータ構造
-  interface AggregatedCard {
-    card: CardDisplayData;
-    quantity: number;
-  }
-
   // 集約表示用データを生成
   const aggregatedCards = $derived.by(() => {
     const cardMap = new Map<number, AggregatedCard>();
 
-    reverseCards.forEach((card) => {
+    reverseCards.forEach(({ card, instanceId }) => {
       const existing = cardMap.get(card.id);
       if (existing) {
         existing.quantity += 1;
       } else {
-        cardMap.set(card.id, { card, quantity: 1 });
+        cardMap.set(card.id, { card, instanceId, quantity: 1 });
       }
     });
 
@@ -107,7 +101,7 @@
       <div class="flex gap-2 flex-wrap">
         {#if isAggregated}
           <!-- 集約表示モード -->
-          {#each aggregatedCards as { card, quantity } (card.id)}
+          {#each aggregatedCards as { card, instanceId, quantity } (instanceId)}
             <div class="relative">
               <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
                 <CardComponent {card} size="medium" showDetailOnClick={true} />
@@ -119,7 +113,7 @@
           {/each}
         {:else}
           <!-- 個別表示モード（順序保持） -->
-          {#each reverseCards as card, index (index)}
+          {#each reverseCards as { card, instanceId } (instanceId)}
             <div class="relative">
               <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
                 <CardComponent {card} size="medium" showDetailOnClick={true} />

@@ -9,10 +9,9 @@
    * cancelable=true の場合はキャンセルボタンも表示する。
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import type { CardDisplayData } from "$lib/presentation/types";
-  import type { CardSelectionModalConfig } from "$lib/presentation/types/interaction";
-  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import type { CardDisplayData, CardSelectionModalConfig } from "$lib/presentation/types";
   import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
+  import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
 
   interface CardSelectionModalProps {
     isOpen: boolean;

@@ -11,8 +11,7 @@
    *
    * @module presentation/components/organisms/board/DuelField
    */
-  import type { CardDisplayData } from "$lib/presentation/types";
-  import type { FieldCardDisplayInfo } from "$lib/presentation/types/card";
+  import type { CardDisplayData, CardInstanceDisplayInfo, FieldCardDisplayInfo } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
   import { isMobile } from "$lib/presentation/utils/mobile";
@@ -26,8 +25,8 @@
 
   interface DuelFieldProps {
     deckCards: number;
-    extraDeckCards: CardDisplayData[];
-    graveyardCards: CardDisplayData[];
+    extraDeckCards: CardInstanceDisplayInfo[];
+    graveyardCards: CardInstanceDisplayInfo[];
     fieldCards: (FieldCardDisplayInfo | null)[];
     monsterCards: (FieldCardDisplayInfo | null)[];
     spellTrapCards: (FieldCardDisplayInfo | null)[];
