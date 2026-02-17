@@ -12,12 +12,10 @@
  * - getRegisteredCardIds() functionality
  * - Multiple rules per card registration
  * - Unknown card ID handling
- *
- * @module tests/unit/domain/registries/AdditionalRuleRegistry
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
+import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";

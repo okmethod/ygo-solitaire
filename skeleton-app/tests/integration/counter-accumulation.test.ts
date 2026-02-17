@@ -13,8 +13,6 @@
  * Note: 新しいイベントトリガーシステムでは、トリガーステップは effectQueueStore の処理中に
  * 動的に挿入されます。このテストでは AdditionalRuleRegistry.collectTriggerSteps() を直接呼び出して
  * トリガーステップを取得し、カウンター蓄積ロジックをテストしています。
- *
- * @module tests/integration/counter-accumulation
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -24,8 +22,7 @@ import { Card } from "$lib/domain/models/Card";
 import type { EventType } from "$lib/domain/models/GameProcessing";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
-import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
+import { AdditionalRuleRegistry, initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
 
 // Initialize registries
 initializeChainableActionRegistry();

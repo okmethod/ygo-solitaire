@@ -6,7 +6,8 @@
  * @module domain/effects/rules
  */
 
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
+import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
+export { AdditionalRuleRegistry };
 
 // 永続効果
 import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";

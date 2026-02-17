@@ -139,7 +139,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
-import { AdditionalRuleRegistry } from "$lib/domain/registries/AdditionalRuleRegistry";
+import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 
 // 通知ハンドラのインターフェース
 interface NotificationHandler {
