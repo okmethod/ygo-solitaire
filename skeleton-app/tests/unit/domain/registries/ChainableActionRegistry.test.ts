@@ -18,7 +18,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";

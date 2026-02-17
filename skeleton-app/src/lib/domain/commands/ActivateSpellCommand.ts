@@ -15,7 +15,7 @@ import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProces
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 
 /** 魔法カード発動コマンドクラス */
 export class ActivateSpellCommand implements GameCommand {

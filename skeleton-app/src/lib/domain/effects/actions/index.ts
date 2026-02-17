@@ -6,7 +6,8 @@
  * @module domain/effects/actions
  */
 
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
+export { ChainableActionRegistry };
 
 // カードの発動
 import { PotOfGreedActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfGreedActivation";

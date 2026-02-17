@@ -18,7 +18,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
 import type { ChainableAction } from "$lib/domain/models/Effect";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 
 /** 起動効果発動コマンドクラス */
 export class ActivateIgnitionEffectCommand implements GameCommand {

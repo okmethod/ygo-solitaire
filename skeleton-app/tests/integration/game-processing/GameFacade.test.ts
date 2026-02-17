@@ -3,13 +3,13 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { GameFacade } from "$lib/application/GameFacade";
+import { get } from "svelte/store";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions";
+import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import type { DeckRecipe } from "$lib/application/types/deck";
+import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { currentPhase } from "$lib/application/stores/derivedStores";
-import { get } from "svelte/store";
-import { ChainableActionRegistry } from "$lib/domain/registries/ChainableActionRegistry";
-import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 
 // テスト用ダミーカードの効果を登録
 ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));

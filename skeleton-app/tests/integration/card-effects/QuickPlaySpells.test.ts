@@ -132,7 +132,7 @@ describe("Quick-Play Spell Card Effects", () => {
 
     it("Scenario: Spell Speed 2 allows chaining (verified via property)", async () => {
       // Arrange: Get the action from registry
-      const { ChainableActionRegistry } = await import("$lib/domain/registries/ChainableActionRegistry");
+      const { ChainableActionRegistry } = await import("$lib/domain/effects/actions");
       const action = ChainableActionRegistry.getActivation(74519184);
 
       // Assert: Spell Speed is 2 (Quick-Play characteristic)
