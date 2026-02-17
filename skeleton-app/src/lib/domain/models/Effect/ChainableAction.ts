@@ -1,13 +1,11 @@
 /**
  * ChainableAction - チェーンブロックを作る処理のモデル
- *
- * @module domain/models/ChainableAction
- * @see {@link docs/domain/effect-model.md}
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { EffectId } from "./EffectId";
 
 /**
  * ChainableAction の効果カテゴリ
@@ -32,10 +30,10 @@ export interface ChainableAction {
 
   /**
    * 効果の一意識別子
-   * 1ターンに1度制限等で使用。形式: "{カード名}-{効果種別}"
-   * 例: "chicken-game-activation", "chicken-game-ignition"
+   * 1ターンに1度制限等で使用。形式: "{category}-{cardId}" または "{category}-{cardId}-{effectIndex}"
+   * 例: "activation-55144522", "ignition-67616300-1"
    */
-  readonly effectId: string;
+  readonly effectId: EffectId;
 
   /**
    * 効果カテゴリ

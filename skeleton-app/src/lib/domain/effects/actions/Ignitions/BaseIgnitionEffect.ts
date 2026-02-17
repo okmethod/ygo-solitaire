@@ -19,7 +19,8 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
-import type { ChainableAction } from "$lib/domain/models/Effect";
+import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
+import { Effect } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
 
@@ -35,7 +36,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   readonly cardId: number;
 
   /** 効果の一意識別子 */
-  readonly effectId: string;
+  readonly effectId: EffectId;
 
   /** 効果カテゴリ: 起動効果 */
   readonly effectCategory = "ignition" as const;
@@ -50,7 +51,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
    */
   constructor(cardId: number, effectIndex: number) {
     this.cardId = cardId;
-    this.effectId = `ignition-${cardId}-${effectIndex}`;
+    this.effectId = Effect.Id.create("ignition", cardId, effectIndex);
   }
 
   /**
