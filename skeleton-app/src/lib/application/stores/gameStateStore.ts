@@ -16,13 +16,14 @@ import { writable } from "svelte/store";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { GameState } from "$lib/domain/models/GameState";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 // 空の初期GameStateを生成する
 function createEmptyGameState(): GameSnapshot {
-  return GameState.initialize(
-    { mainDeckCardIds: [], extraDeckCardIds: [] },
-    { skipShuffle: true, skipInitialDraw: true },
-  );
+  return GameState.initialize({ mainDeckCardIds: [], extraDeckCardIds: [] }, CardDataRegistry.getCard, {
+    skipShuffle: true,
+    skipInitialDraw: true,
+  });
 }
 
 /** ゲーム状態ストア */
@@ -50,7 +51,7 @@ function convertDeckRecipeToInitialDeck(deckRecipe: DeckRecipe): InitialDeckCard
 /** ストアを初期状態にリセットする */
 export function resetGameState(deckRecipe: DeckRecipe): void {
   const initialDeck = convertDeckRecipeToInitialDeck(deckRecipe);
-  gameStateStore.set(GameState.initialize(initialDeck));
+  gameStateStore.set(GameState.initialize(initialDeck, CardDataRegistry.getCard));
 }
 
 /** 現在の状態スナップショットを取得する（非リアクティブ） */

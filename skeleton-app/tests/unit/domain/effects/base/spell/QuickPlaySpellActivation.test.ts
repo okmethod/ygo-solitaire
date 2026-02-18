@@ -18,6 +18,7 @@ import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameSt
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -82,7 +83,7 @@ describe("QuickPlaySpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Hand not empty
-      const baseState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const baseState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -107,7 +108,7 @@ describe("QuickPlaySpellActivation", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (QuickPlaySpellActivation固有のフェーズ制約テスト)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -120,7 +121,7 @@ describe("QuickPlaySpellActivation", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Hand is empty (additionalActivationConditions returns false)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -142,7 +143,7 @@ describe("QuickPlaySpellActivation", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });

@@ -23,6 +23,7 @@ import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameSt
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -93,7 +94,7 @@ describe("BaseSpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when subtype conditions and individual conditions are met", () => {
       // Arrange: Deck has cards (individualConditions returns true)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -108,7 +109,10 @@ describe("BaseSpellActivation", () => {
 
     it("should return false when individual conditions are not met", () => {
       // Arrange: Deck is empty (individualConditions returns false)
-      const state = GameState.initialize(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
+      const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -132,7 +136,7 @@ describe("BaseSpellActivation", () => {
 
     it("should return default activation step with card info", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -154,7 +158,7 @@ describe("BaseSpellActivation", () => {
 
     it("should return step with action that does not modify state", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -174,7 +178,7 @@ describe("BaseSpellActivation", () => {
   describe("Abstract methods", () => {
     it("should implement createResolutionSteps()", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });

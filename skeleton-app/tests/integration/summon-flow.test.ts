@@ -12,6 +12,7 @@ import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand"
 import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[], extraDeckCardIds: number[] = []): InitialDeckCardIds {
@@ -50,7 +51,7 @@ describe("Summon Flow Integration", () => {
       EXODIA_PIECE_IDS[1], // Right Leg - will be drawn 2nd
       EXODIA_PIECE_IDS[0], // Exodia the Forbidden One - will be drawn 1st
     ];
-    initialState = GameState.initialize(createTestInitialDeck(deckIds, []), {
+    initialState = GameState.initialize(createTestInitialDeck(deckIds, []), CardDataRegistry.getCard, {
       skipShuffle: true,
       skipInitialDraw: true,
     });

@@ -11,6 +11,7 @@
 import { describe, it, expect } from "vitest";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -21,7 +22,7 @@ describe("GameState", () => {
   describe("createInitialGameState", () => {
     it("should create initial state with given deck (numeric IDs)", () => {
       const deckCardIds = [1001, 1002, 1003];
-      const state = GameState.initialize(createTestInitialDeck(deckCardIds), {
+      const state = GameState.initialize(createTestInitialDeck(deckCardIds), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -36,7 +37,7 @@ describe("GameState", () => {
     });
 
     it("should initialize with correct default values", () => {
-      const state = GameState.initialize(createTestInitialDeck([1001]), {
+      const state = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -51,7 +52,7 @@ describe("GameState", () => {
     });
 
     it("should create unique instance IDs for deck cards", () => {
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -64,7 +65,7 @@ describe("GameState", () => {
     });
 
     it("should set correct location for deck cards", () => {
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -75,7 +76,7 @@ describe("GameState", () => {
     });
 
     it("should handle empty deck", () => {
-      const state = GameState.initialize(createTestInitialDeck([]), {
+      const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -87,7 +88,7 @@ describe("GameState", () => {
 
   describe("Immutability with spread syntax", () => {
     it("should create new state instance when updated", () => {
-      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -103,7 +104,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating zones", () => {
-      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -126,7 +127,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating life points", () => {
-      const originalState = GameState.initialize(createTestInitialDeck([1001]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -144,7 +145,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating phase", () => {
-      const originalState = GameState.initialize(createTestInitialDeck([1001]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -159,7 +160,7 @@ describe("GameState", () => {
     });
 
     it("should not mutate original state when updating game result", () => {
-      const originalState = GameState.initialize(createTestInitialDeck([1001]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -181,7 +182,7 @@ describe("GameState", () => {
     });
 
     it("should support nested updates without mutation", () => {
-      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002]), {
+      const originalState = GameState.initialize(createTestInitialDeck([1001, 1002]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -222,7 +223,7 @@ describe("GameState", () => {
   describe("Helper functions", () => {
     describe("findCardInstance", () => {
       it("should find card in deck", () => {
-        const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+        const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
           skipShuffle: true,
           skipInitialDraw: true,
         });
@@ -235,7 +236,7 @@ describe("GameState", () => {
       });
 
       it("should find card in hand", () => {
-        const initialState = GameState.initialize(createTestInitialDeck([1001]), {
+        const initialState = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
           skipShuffle: true,
           skipInitialDraw: true,
         });
@@ -255,7 +256,7 @@ describe("GameState", () => {
       });
 
       it("should return undefined for non-existent card", () => {
-        const state = GameState.initialize(createTestInitialDeck([1001]), {
+        const state = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
           skipShuffle: true,
           skipInitialDraw: true,
         });
@@ -264,7 +265,7 @@ describe("GameState", () => {
       });
 
       it("should search across all zones", () => {
-        const initialState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+        const initialState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
           skipShuffle: true,
           skipInitialDraw: true,
         });
@@ -289,7 +290,7 @@ describe("GameState", () => {
 
   describe("Type safety", () => {
     it("should enforce readonly at compile time", () => {
-      const state = GameState.initialize(createTestInitialDeck([1001]), {
+      const state = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });

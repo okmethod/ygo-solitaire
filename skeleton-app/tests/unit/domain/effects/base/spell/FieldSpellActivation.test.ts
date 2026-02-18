@@ -18,6 +18,7 @@ import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameSt
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
@@ -63,7 +64,7 @@ describe("FieldSpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
       // Arrange: Main Phase 1
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -78,7 +79,7 @@ describe("FieldSpellActivation", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (FieldSpellActivation固有のフェーズ制約テスト)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -90,7 +91,10 @@ describe("FieldSpellActivation", () => {
 
     it("should return true even with empty deck (no additional conditions)", () => {
       // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
-      const state = GameState.initialize(createTestInitialDeck([]), { skipShuffle: true, skipInitialDraw: true });
+      const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
+        skipShuffle: true,
+        skipInitialDraw: true,
+      });
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -115,7 +119,7 @@ describe("FieldSpellActivation", () => {
 
     it("should return notification and event steps (field spells have no additional activation steps)", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });
@@ -134,7 +138,7 @@ describe("FieldSpellActivation", () => {
   describe("createResolutionSteps()", () => {
     it("should return empty array (field spells have no resolution steps)", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), {
+      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
       });

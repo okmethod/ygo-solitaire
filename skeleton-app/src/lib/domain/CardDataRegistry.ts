@@ -65,6 +65,14 @@ export class CardDataRegistry {
   }
 
   /**
+   * コールバック用のバインド済み get 関数
+   *
+   * 静的メソッドを直接渡すと this コンテキストが失われるため、
+   * アロー関数でラップしたものを提供する。
+   */
+  static readonly getCard = (cardId: number): CardData => CardDataRegistry.get(cardId);
+
+  /**
    * 《》付きでカード名を取得する
    *
    * @example

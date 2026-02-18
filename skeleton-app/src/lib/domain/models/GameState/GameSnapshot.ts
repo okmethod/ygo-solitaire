@@ -1,16 +1,13 @@
 /**
  * GameSnapshot - イミュータブルなあるゲーム状態のスナップショット
- *
- * モデルがレジストリに依存するのは理想的ではないが、一旦許容している。
- * （初期デッキからゲーム状態を生成するために必要）
  */
 
+import type { CardData } from "$lib/domain/models/Card";
 import type { CardSpace } from "./CardSpace";
 import type { Player } from "./Player";
 import type { GamePhase } from "./Phase";
 import type { GameResult } from "./GameResult";
 import { shuffleMainDeck, drawCards } from "./CardSpace";
-import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /** 初期ライフポイント */
 export const INITIAL_LP = 8000 as const;
@@ -56,15 +53,15 @@ export type InitialDeckCardIds = {
   readonly extraDeckCardIds: readonly number[];
 };
 
-// TODO: レジストリを参照する処理は、モデル層の外に出すべきかもしれない
 /** 初期デッキ情報からGameSnapshotを生成する */
 export function createInitialGameSnapshot(
   initialDeck: InitialDeckCardIds,
+  getCardData: (cardId: number) => CardData, // CardDataレジストリをコールバックとして注入
   options?: { skipShuffle?: boolean; skipInitialDraw?: boolean },
 ): GameSnapshot {
   // デッキカードを生成
   const mainDeckCards = initialDeck.mainDeckCardIds.map((cardId, index) => {
-    const cardData = CardDataRegistry.get(cardId);
+    const cardData = getCardData(cardId);
     return {
       ...cardData,
       instanceId: `main-${index}`,
@@ -74,7 +71,7 @@ export function createInitialGameSnapshot(
     };
   });
   const extraDeckCards = initialDeck.extraDeckCardIds.map((cardId, index) => {
-    const cardData = CardDataRegistry.get(cardId);
+    const cardData = getCardData(cardId);
     return {
       ...cardData,
       instanceId: `extra-${index}`,
