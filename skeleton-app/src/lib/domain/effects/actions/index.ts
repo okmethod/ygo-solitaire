@@ -25,8 +25,8 @@ import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/activ
 import { ToonWorldActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonWorldActivation";
 
 // 起動効果
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";
-import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/spells/ChickenGameIgnitionEffect";
+import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 
 // ===========================
 // マップエントリ生成ヘルパー

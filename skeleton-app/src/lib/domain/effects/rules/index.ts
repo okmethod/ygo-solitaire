@@ -8,8 +8,8 @@ import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRule
 export { AdditionalRuleRegistry };
 
 // 永続効果
-import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
-import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
+import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/continuouses/spells/ChickenGameContinuousEffect";
+import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/continuouses/monsters/RoyalMagicalLibraryContinuousEffect";
 
 // ===========================
 // マップエントリ生成ヘルパー

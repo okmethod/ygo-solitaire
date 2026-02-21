@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
+import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { createMockGameState, createFieldCardInstance } from "../../../../../../__testUtils__/gameStateFactory";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";

@@ -17,7 +17,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { BaseIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/BaseIgnitionEffect";
+import { BaseIgnitionEffect } from "$lib/domain/effects/actions/ignitions/BaseIgnitionEffect";
 import { payLpStep } from "$lib/domain/effects/steps/lifePoints";
 import { drawStep } from "$lib/domain/effects/steps/draws";
 

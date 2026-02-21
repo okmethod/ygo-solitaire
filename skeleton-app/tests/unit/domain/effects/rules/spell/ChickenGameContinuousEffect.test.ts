@@ -15,7 +15,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
+import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/continuouses/spells/ChickenGameContinuousEffect";
 import { createMockGameState, createFieldCardInstance } from "../../../../../__testUtils__/gameStateFactory";
 
 describe("ChickenGameContinuousEffect", () => {

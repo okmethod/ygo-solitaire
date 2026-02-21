@@ -29,7 +29,7 @@ import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";
+import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/spells/ChickenGameIgnitionEffect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 

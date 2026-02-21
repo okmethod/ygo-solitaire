@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
+import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/continuouses/monsters/RoyalMagicalLibraryContinuousEffect";
 import type { CardInstance, CounterState } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
