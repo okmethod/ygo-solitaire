@@ -1,7 +1,7 @@
 # 効果モデル
 
-**実装箇所**: `domain/models/ChainableAction.ts`, `domain/models/AdditionalRule.ts`
-**参考資料**: [Problem-Solving Card Text, Part 3: Conditions, Activations, and Effects](https://www.yugioh-card.com/en/play/psct/psct-3/)
+**実装箇所**: `domain/models/Effect`, `domain/effects`
+**参考資料**: [PSCT: Problem-Solving Card Text](https://www.yugioh-card.com/en/play/psct/)
 
 ---
 

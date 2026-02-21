@@ -1,6 +1,6 @@
 # ゲーム操作コマンドモデル
 
-**実装箇所**: `domain/models/GameCommand.ts`, `domain/commands/`
+**実装箇所**: `domain/models/Command`, `domain/commands`
 
 ---
 
