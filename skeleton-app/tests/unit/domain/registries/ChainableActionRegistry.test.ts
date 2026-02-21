@@ -23,7 +23,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { ChainableAction, ActionEffectCategory } from "$lib/domain/models/Effect";
+import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
 
 /**
  * Mock ChainableAction for testing
@@ -31,13 +31,17 @@ import type { ChainableAction, ActionEffectCategory } from "$lib/domain/models/E
  * Simple implementation to test Registry functionality without real card logic.
  */
 class MockChainableAction implements ChainableAction {
+  public readonly effectId: EffectId;
+
   constructor(
     public readonly cardId: number,
     public readonly cardName: string,
     public readonly spellSpeed: 1 | 2 | 3 = 1,
     public readonly effectCategory: ActionEffectCategory = "activation",
-    public readonly effectId: string = "mock-effect",
-  ) {}
+    effectId: string = "mock-effect",
+  ) {
+    this.effectId = effectId as EffectId;
+  }
 
   canActivate(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
     // Mock: always return valid
