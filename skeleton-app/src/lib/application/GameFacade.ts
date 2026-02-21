@@ -89,7 +89,28 @@ export class GameFacade {
   }
 
   /**
+   * デッキデータを読み込む（ゲーム状態は変更しない）
+   *
+   * カードデータレジストリのみ更新し、デッキデータを返す。
+   * レシピ表示など、ゲームを開始しない用途向け。
+   */
+  loadDeck(deckId: string): { deckData: DeckData; uniqueCardIds: number[] } {
+    const deckRecipe = getDeckRecipe(deckId);
+    const uniqueCardIds = extractUniqueCardIds(deckRecipe);
+
+    // カードデータのみレジストリに登録
+    registerCardDataByIds(uniqueCardIds);
+
+    // デッキデータを構築
+    const deckData = buildDeckData(deckRecipe, uniqueCardIds);
+
+    return { deckData, uniqueCardIds };
+  }
+
+  /**
    * ゲームを初期化する
+   *
+   * 全レジストリを更新し、ゲーム状態をリセットする。
    */
   initializeGame(deckId: string): { deckData: DeckData; uniqueCardIds: number[] } {
     const deckRecipe = getDeckRecipe(deckId);
