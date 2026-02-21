@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
   import { navigateTo } from "$lib/presentation/utils/navigation";
-  import { initializeCache } from "$lib/presentation/services/cardDisplayDataCache";
+  import { initializeCache } from "$lib/presentation/services/displayDataCache";
   import CardList from "./_componets/CardList.svelte";
 
   let { data }: { data: PageData } = $props();
@@ -23,7 +23,7 @@
   const { fusion, synchro, xyz, link } = data.deckData.extraDeck;
 
   onMount(async () => {
-    // CardDisplayData キャッシュを初期化
+    // DisplayCardData キャッシュを初期化
     await initializeCache(data.uniqueCardIds);
   });
 

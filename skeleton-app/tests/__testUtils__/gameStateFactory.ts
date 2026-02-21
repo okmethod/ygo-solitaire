@@ -165,7 +165,7 @@ export function createFieldCardInstance(options: {
  *
  * @param instanceId - カードインスタンスID
  * @param cardId - カードID（デフォルト: 1001 = Test Card 1）
- * @param location - カードの配置場所（デフォルト: "hand"）
+ * @param location - カードの配置位置（デフォルト: "hand"）
  * @returns CardInstance
  */
 export function createSpellCard(
@@ -191,7 +191,7 @@ export function createSpellCard(
  *
  * @param instanceId - カードインスタンスID
  * @param cardId - カードID
- * @param location - 配置場所（spellTrapZone または fieldZone）
+ * @param location - 配置位置（spellTrapZone または fieldZone）
  * @param options - オプション（placedThisTurn など）
  * @returns CardInstance with stateOnField
  */

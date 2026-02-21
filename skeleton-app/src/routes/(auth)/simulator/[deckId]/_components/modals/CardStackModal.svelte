@@ -8,12 +8,12 @@
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
-  import type { CardInstanceDisplayInfo, AggregatedCard } from "$lib/presentation/types";
+  import type { DisplayCardInstance, DisplayCardInstanceAggregated } from "$lib/presentation/types";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
 
   interface CardStackModalProps {
-    cards: CardInstanceDisplayInfo[];
+    cards: DisplayCardInstance[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
     title: string;
@@ -38,7 +38,7 @@
 
   // 集約表示用データを生成
   const aggregatedCards = $derived.by(() => {
-    const cardMap = new Map<number, AggregatedCard>();
+    const cardMap = new Map<number, DisplayCardInstanceAggregated>();
 
     reverseCards.forEach(({ card, instanceId }) => {
       const existing = cardMap.get(card.id);

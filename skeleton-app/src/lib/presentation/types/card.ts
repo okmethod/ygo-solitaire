@@ -6,7 +6,7 @@
  * @module presentation/types/card
  */
 
-import type { CardDisplayData } from "$lib/application/types/card";
+import type { DisplayCardData } from "$lib/application/types/card";
 
 /**
  * カード表示情報（インスタンス識別付き）
@@ -14,18 +14,18 @@ import type { CardDisplayData } from "$lib/application/types/card";
  * 手札、墓地、エクストラデッキなど、
  * フィールド外のゾーンで使用する汎用型。
  */
-export interface CardInstanceDisplayInfo {
-  card: CardDisplayData;
+export interface DisplayCardInstance {
+  card: DisplayCardData;
   instanceId: string;
 }
 
 /**
  * フィールド上のカード表示情報
  *
- * CardInstanceDisplayInfo にフィールド固有の表示状態を追加した、
+ * DisplayCardInstance にフィールド固有の表示状態を追加した、
  * UIコンポーネントが直接使用する表示用データ。
  */
-export interface FieldCardDisplayInfo extends CardInstanceDisplayInfo {
+export interface DisplayCardInstanceOnField extends DisplayCardInstance {
   faceDown: boolean;
   rotation?: number; // カードの向き（守備表示等）
   spellCounterCount?: number; // 魔力カウンター数（全ゾーン共通）
@@ -36,6 +36,6 @@ export interface FieldCardDisplayInfo extends CardInstanceDisplayInfo {
  *
  * 同名カードをまとめて枚数表示する際に使用。
  */
-export interface AggregatedCard extends CardInstanceDisplayInfo {
+export interface DisplayCardInstanceAggregated extends DisplayCardInstance {
   quantity: number;
 }

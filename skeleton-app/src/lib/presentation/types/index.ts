@@ -19,8 +19,8 @@ export type {
   TrapSubType,
   CardImages,
   MonsterAttributes,
-  CardDisplayData,
-  CardDisplayStateOnField,
+  DisplayCardData,
+  CardInstanceOnFieldRef,
 } from "$lib/application/types/card";
 
 export type {
@@ -35,5 +35,5 @@ export type {
 
 export { ZONE_CAPACITY } from "$lib/application/types/card";
 
-export type { CardInstanceDisplayInfo, FieldCardDisplayInfo, AggregatedCard } from "./card";
+export type { DisplayCardInstance, DisplayCardInstanceOnField, DisplayCardInstanceAggregated } from "./card";
 export type { ConfirmationModalConfig, CardSelectionModalConfig } from "./interaction";

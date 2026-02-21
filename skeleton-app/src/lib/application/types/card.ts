@@ -30,13 +30,13 @@ export interface CardImages {
 /**
  * UI 表示用カードデータ (DTO)
  *
- * CardDisplayDataFactory によって生成される。
+ * displayDataFactory によって生成される。
  * - CardData (Domain層): ゲームロジックの根拠
  * - ExternalCardData (API経由): 表示用および検証用
  *
- * @see CardDisplayDataFactory
+ * @see displayDataFactory
  */
-export interface CardDisplayData {
+export interface DisplayCardData {
   id: number;
   name: string; // 英語版カード名
   jaName: string; // 日本語版カード名
@@ -55,7 +55,7 @@ export interface CardDisplayData {
  * フィールド外（手札・墓地・除外など）ではこの型をそのまま使用する。
  */
 export interface CardInstanceRef {
-  cardId: number; // CardDisplayData を参照するためのカードID
+  cardId: number; // DisplayCardData を参照するためのカードID
   instanceId: string;
 }
 
@@ -65,7 +65,7 @@ export interface CardInstanceRef {
  * CardInstanceRef を継承し、フィールド上の状態（position, battlePosition, counters）を追加。
  * derivedStores で生成され、Presentation層はこの型を通じてフィールド上のカード状態にアクセスする。
  */
-export interface CardDisplayStateOnField extends CardInstanceRef {
+export interface CardInstanceOnFieldRef extends CardInstanceRef {
   position: "faceUp" | "faceDown";
   battlePosition?: "attack" | "defense";
   counters: readonly { type: string; count: number }[];

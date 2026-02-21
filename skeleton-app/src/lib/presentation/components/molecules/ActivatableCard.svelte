@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { DisplayCardData } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import SpellCounterBadge from "$lib/presentation/components/atoms/SpellCounterBadge.svelte";
@@ -13,15 +13,15 @@
     label: string; // ボタンラベル（例: "発動", "セット", "召喚"）
     style?: ButtonStyle; // ボタンスタイル（デフォルト: "filled"）
     color?: ButtonColor; // ボタンカラー（デフォルト: "primary"）
-    onClick: (card: CardDisplayData, instanceId: string) => void; // アクション実行時のコールバック
+    onClick: (card: DisplayCardData, instanceId: string) => void; // アクション実行時のコールバック
   }
 
   interface ActivatableCardProps {
-    card: CardDisplayData;
+    card: DisplayCardData;
     instanceId: string;
     isSelected: boolean;
     isActivatable: boolean; // 発動可能条件（フェーズ、ゲーム状態など）
-    onSelect: (card: CardDisplayData, instanceId: string) => void;
+    onSelect: (card: DisplayCardData, instanceId: string) => void;
     actionButtons: CardActionButton[]; // アクション定義の配列
     onCancel: () => void;
     size?: ComponentSize;

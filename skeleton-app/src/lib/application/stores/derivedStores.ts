@@ -8,7 +8,7 @@
 
 import { derived } from "svelte/store";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
-import { toInstanceRef, toStateOnField } from "$lib/application/factories/CardInstanceFactory";
+import { toInstanceRef, toInstanceOnFieldRef } from "$lib/application/factories/cardRefFactory";
 import { getPhaseDisplayName } from "$lib/domain/models/GameState/Phase";
 
 /** 現在のゲームフェーズ */
@@ -59,15 +59,17 @@ export const graveyardCardRefs = derived(gameStateStore, ($state) => $state.spac
 /** 除外ゾーンの CardInstanceRef 配列 */
 export const banishedCardRefs = derived(gameStateStore, ($state) => $state.space.banished.map(toInstanceRef));
 
-/** モンスターゾーンの CardDisplayStateOnField 配列 */
-export const monsterZoneDisplayStates = derived(gameStateStore, ($state) =>
-  $state.space.mainMonsterZone.map(toStateOnField),
+/** モンスターゾーンの CardInstanceOnFieldRef 配列 */
+export const monsterZoneInstanceOnFieldRefs = derived(gameStateStore, ($state) =>
+  $state.space.mainMonsterZone.map(toInstanceOnFieldRef),
 );
 
-/** 魔法・罠ゾーンの CardDisplayStateOnField 配列 */
-export const spellTrapZoneDisplayStates = derived(gameStateStore, ($state) =>
-  $state.space.spellTrapZone.map(toStateOnField),
+/** 魔法・罠ゾーンの CardInstanceOnFieldRef 配列 */
+export const spellTrapZoneInstanceOnFieldRefs = derived(gameStateStore, ($state) =>
+  $state.space.spellTrapZone.map(toInstanceOnFieldRef),
 );
 
-/** フィールドゾーンの CardDisplayStateOnField 配列 */
-export const fieldZoneDisplayStates = derived(gameStateStore, ($state) => $state.space.fieldZone.map(toStateOnField));
+/** フィールドゾーンの CardInstanceOnFieldRef 配列 */
+export const fieldZoneInstanceOnFieldRefs = derived(gameStateStore, ($state) =>
+  $state.space.fieldZone.map(toInstanceOnFieldRef),
+);

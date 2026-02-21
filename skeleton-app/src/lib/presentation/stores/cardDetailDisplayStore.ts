@@ -2,12 +2,11 @@
  * cardDetailDisplayStore - カード詳細表示用のストア
  *
  * UIコンポーネントで表示するカード情報を管理する。
- * 表示時に zonesDisplayStore から取得した CardDisplayData を渡してセットし、
- * 非表示時にクリアする。
+ * 表示時に DisplayCardData を渡してセットし、非表示時にクリアする。
  */
 
 import { writable, get } from "svelte/store";
-import type { CardDisplayData } from "$lib/presentation/types";
+import type { DisplayCardData } from "$lib/presentation/types";
 import { isMobile } from "$lib/presentation/utils/mobile";
 
 const STORAGE_KEY = "cardDetailDisplayEnabled";
@@ -18,7 +17,7 @@ const _isMobile = isMobile();
 export const cardDetailDisplayEnabled = writable<boolean>(loadEnabledState());
 
 /** カード詳細表示用のストア */
-export const selectedCardForDisplay = writable<CardDisplayData | null>(null);
+export const selectedCardForDisplay = writable<DisplayCardData | null>(null);
 
 /** ローカルストレージから有効状態を読み込む */
 function loadEnabledState(): boolean {
@@ -49,7 +48,7 @@ export function setCardDetailDisplayEnabled(enabled: boolean) {
 }
 
 /** カード詳細表示を表示する（機能が有効な場合のみ） */
-export function showCardDetailDisplay(card: CardDisplayData) {
+export function showCardDetailDisplay(card: DisplayCardData) {
   if (get(cardDetailDisplayEnabled)) {
     selectedCardForDisplay.set(card);
   }

@@ -3,14 +3,14 @@
    * CardList - カードリスト表示コンポーネント
    *
    * LoadedCardEntry配列を受け取り、
-   * cardDisplayDataCache から CardDisplayData を取得して表示する。
+   * displayCardDataCache から DisplayCardData を取得して表示する。
    *
    * @module presentation/components/organisms/CardList
    */
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
-  import type { LoadedCardEntry, CardDisplayData } from "$lib/presentation/types";
-  import { getCardDisplayData, cardDisplayDataCacheStore } from "$lib/presentation/services/cardDisplayDataCache";
+  import type { LoadedCardEntry, DisplayCardData } from "$lib/presentation/types";
+  import { getDisplayCardData, displayCardDataCacheStore } from "$lib/presentation/services/displayDataCache";
 
   interface CardListProps {
     title?: string;
@@ -23,14 +23,14 @@
 
   // キャッシュの状態を購読してリアクティブに更新
   let cacheState = $state<{ isInitialized: boolean }>({ isInitialized: false });
-  cardDisplayDataCacheStore.subscribe((state) => {
+  displayCardDataCacheStore.subscribe((state) => {
     cacheState = { isInitialized: state.isInitialized };
   });
 
-  // CardData.id から CardDisplayData を取得
-  function getDisplayData(cardId: number): CardDisplayData | undefined {
+  // CardData.id から DisplayCardData を取得
+  function getDisplayData(cardId: number): DisplayCardData | undefined {
     if (!cacheState.isInitialized) return undefined;
-    return getCardDisplayData(cardId);
+    return getDisplayCardData(cardId);
   }
 
   // titleまたはcardCountが指定されているか確認

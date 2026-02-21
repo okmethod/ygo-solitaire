@@ -1,8 +1,8 @@
 /**
- * cardDisplayDataCache - CardDisplayData のキャッシュサービス
+ * displayCardDataCache - DisplayCardData のキャッシュサービス
  *
  * cardRepository（Infrastructure Layer）の利用を一箇所に集約し、
- * デッキ読み込み時に全カードの CardDisplayData を一括取得・キャッシュする。
+ * デッキ読み込み時に全カードの DisplayCardData を一括取得・キャッシュする。
  * 以降は同期的にデータを提供する。
  *
  * @architecture レイヤー間依存ルール - Presentation Layer (API Service)
@@ -10,14 +10,14 @@
  * - ALLOWED: Application Layer / Infrastructure Layer への依存
  * - FORBIDDEN: Domain Layer への直接依存
  *
- * @module presentation/services/cardDisplayDataCache
+ * @module presentation/services/displayCardDataCache
  */
 
 import { writable, get } from "svelte/store";
-import type { CardDisplayData } from "$lib/presentation/types";
+import type { DisplayCardData } from "$lib/presentation/types";
 import type { ICardDataRepository } from "$lib/application/ports/ICardDataRepository";
 import { getCardDataRepository } from "$lib/infrastructure/adapters/YGOProDeckCardDataRepository";
-import { createCardDisplayDataList } from "$lib/application/factories/CardDisplayDataFactory";
+import { createDisplayCardDataList } from "$lib/application/factories/displayDataFactory";
 
 /** キャッシュの状態 */
 interface CacheState {
@@ -27,8 +27,8 @@ interface CacheState {
   isLoading: boolean;
   /** エラーメッセージ（あれば） */
   error: string | null;
-  /** キャッシュされた CardDisplayData（ID → データ） */
-  data: Map<number, CardDisplayData>;
+  /** キャッシュされた DisplayCardData（ID → データ） */
+  data: Map<number, DisplayCardData>;
 }
 
 /** 初期状態 */
@@ -46,7 +46,7 @@ const cacheStore = writable<CacheState>(initialState);
 const cardRepository: ICardDataRepository = getCardDataRepository();
 
 /**
- * 指定されたカードIDリストで CardDisplayData を一括取得しキャッシュを初期化する
+ * 指定されたカードIDリストで DisplayCardData を一括取得しキャッシュを初期化する
  *
  * @param cardIds - 取得するカードIDの配列
  * @returns 初期化が完了したら resolve する Promise
@@ -73,7 +73,7 @@ export async function initializeCache(cardIds: number[]): Promise<void> {
     if (uncachedIds.length > 0) {
       // API から一括取得
       const apiDataList = await cardRepository.getCardsByIds(fetch, uncachedIds);
-      const displayDataList = createCardDisplayDataList(apiDataList);
+      const displayDataList = createDisplayCardDataList(apiDataList);
 
       // キャッシュに追加
       cacheStore.update((state) => {
@@ -97,8 +97,8 @@ export async function initializeCache(cardIds: number[]): Promise<void> {
       }));
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Failed to initialize card display data cache";
-    console.error("[cardDisplayDataCache] Initialization error:", err);
+    const errorMessage = err instanceof Error ? err.message : "Failed to initialize display card data cache";
+    console.error("[displayCardDataCache] Initialization error:", err);
     cacheStore.update((state) => ({
       ...state,
       isLoading: false,
@@ -108,16 +108,16 @@ export async function initializeCache(cardIds: number[]): Promise<void> {
   }
 }
 
-/** キャッシュから指定カードIDの CardDisplayData を取得 */
-export function getCardDisplayData(cardId: number): CardDisplayData | undefined {
+/** キャッシュから指定カードIDの DisplayCardData を取得 */
+export function getDisplayCardData(cardId: number): DisplayCardData | undefined {
   const state = get(cacheStore);
   return state.data.get(cardId);
 }
 
-/** キャッシュから複数カードIDの CardDisplayData を取得 */
-export function getCardDisplayDataList(cardIds: number[]): CardDisplayData[] {
+/** キャッシュから複数カードIDの DisplayCardData を取得 */
+export function getDisplayCardDataList(cardIds: number[]): DisplayCardData[] {
   const state = get(cacheStore);
-  return cardIds.map((id) => state.data.get(id)).filter((card): card is CardDisplayData => card !== undefined);
+  return cardIds.map((id) => state.data.get(id)).filter((card): card is DisplayCardData => card !== undefined);
 }
 
 /**
@@ -125,7 +125,7 @@ export function getCardDisplayDataList(cardIds: number[]): CardDisplayData[] {
  *
  * リアクティブに状態変化を購読できる
  */
-export const cardDisplayDataCacheStore = {
+export const displayCardDataCacheStore = {
   subscribe: cacheStore.subscribe,
   /** キャッシュが初期化済みかどうか */
   get isInitialized() {

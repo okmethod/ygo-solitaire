@@ -1,13 +1,13 @@
 /**
- * CardInstanceFactory - CardInstance 変換ファクトリ
+ * cardRefFactory - CardInstance 変換ファクトリ
  *
  * CardInstance（Domain層）を Presentation層で使用する DTO に変換する。
  *
- * @module application/factories/CardInstanceFactory
+ * @module application/factories/cardRefFactory
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { CardInstanceRef, CardDisplayStateOnField } from "$lib/application/types/card";
+import type { CardInstanceRef, CardInstanceOnFieldRef } from "$lib/application/types/card";
 
 /**
  * CardInstance を CardInstanceRef に変換する（フィールド外用）
@@ -22,11 +22,11 @@ export function toInstanceRef(instance: CardInstance): CardInstanceRef {
 }
 
 /**
- * CardInstance を CardDisplayStateOnField に変換する（フィールド上用）
+ * CardInstance を CardInstanceOnFieldRef に変換する（フィールド上用）
  *
  * モンスターゾーン・魔法罠ゾーン・フィールドゾーンなど、フィールド上のカード用。
  */
-export function toStateOnField(instance: CardInstance): CardDisplayStateOnField {
+export function toInstanceOnFieldRef(instance: CardInstance): CardInstanceOnFieldRef {
   return {
     cardId: instance.id,
     instanceId: instance.instanceId,

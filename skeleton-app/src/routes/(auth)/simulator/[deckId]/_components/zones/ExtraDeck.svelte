@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { CardInstanceDisplayInfo } from "$lib/presentation/types";
+  import type { DisplayCardInstance } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
   import CardStackModal from "../modals/CardStackModal.svelte";
 
   interface ExtraDeckProps {
-    cards: CardInstanceDisplayInfo[];
+    cards: DisplayCardInstance[];
     size?: ComponentSize;
   }
 

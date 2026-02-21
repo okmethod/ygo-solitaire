@@ -11,7 +11,7 @@
    *
    * @module presentation/components/organisms/board/Hands
    */
-  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { DisplayCardData } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
   import { isMobile } from "$lib/presentation/utils/mobile";
@@ -24,12 +24,12 @@
    * Hands コンポーネントのプロパティ
    */
   interface HandZoneProps {
-    cards: Array<{ card: CardDisplayData | null; instanceId: string }>;
+    cards: Array<{ card: DisplayCardData | null; instanceId: string }>;
     selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId
-    onCardClick: (card: CardDisplayData, instanceId: string) => void;
-    onSummonMonster: (card: CardDisplayData, instanceId: string) => void;
-    onSetMonster: (card: CardDisplayData, instanceId: string) => void;
-    onSetSpellTrap: (card: CardDisplayData, instanceId: string) => void;
+    onCardClick: (card: DisplayCardData, instanceId: string) => void;
+    onSummonMonster: (card: DisplayCardData, instanceId: string) => void;
+    onSetMonster: (card: DisplayCardData, instanceId: string) => void;
+    onSetSpellTrap: (card: DisplayCardData, instanceId: string) => void;
     onHandCardSelect: (instanceId: string | null) => void; // 手札カード選択変更の通知
   }
 
@@ -95,32 +95,32 @@
   }
 
   // カードクリック時：選択状態をトグルして親に通知
-  function handleSelect(card: CardDisplayData, instanceId: string) {
+  function handleSelect(card: DisplayCardData, instanceId: string) {
     // 同じカードをクリックしたら選択解除、違うカードなら選択
     const newSelection = selectedHandCardInstanceId === instanceId ? null : instanceId;
     onHandCardSelect(newSelection);
   }
 
   // 発動ボタンクリック時：親コンポーネントのonCardClickを呼び出して選択解除
-  function handleActivate(card: CardDisplayData, instanceId: string) {
+  function handleActivate(card: DisplayCardData, instanceId: string) {
     onCardClick(card, instanceId);
     onHandCardSelect(null);
   }
 
   // 召喚ボタンクリック時
-  function handleSummon(card: CardDisplayData, instanceId: string) {
+  function handleSummon(card: DisplayCardData, instanceId: string) {
     onSummonMonster(card, instanceId);
     onHandCardSelect(null);
   }
 
   // モンスターセットボタンクリック時
-  function handleSetMonster(card: CardDisplayData, instanceId: string) {
+  function handleSetMonster(card: DisplayCardData, instanceId: string) {
     onSetMonster(card, instanceId);
     onHandCardSelect(null);
   }
 
   // 魔法・罠セットボタンクリック時
-  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
+  function handleSetSpellTrap(card: DisplayCardData, instanceId: string) {
     onSetSpellTrap(card, instanceId);
     onHandCardSelect(null);
   }
@@ -131,7 +131,7 @@
   }
 
   // カードタイプに応じたアクション定義
-  function getActionsForCard(card: CardDisplayData, instanceId: string): CardActionButton[] {
+  function getActionsForCard(card: DisplayCardData, instanceId: string): CardActionButton[] {
     const actionButtons: CardActionButton[] = [];
 
     // モンスターカードの場合

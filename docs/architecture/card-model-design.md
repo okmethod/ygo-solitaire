@@ -28,7 +28,7 @@ YGO Solitaire の Card モデルは、Clean Architecture の 4 層構造で設�
     ↓
 [gameStateStore] → CardInstance 生成・状態管理
     ↓
-[cardDisplayDataCache] → YGOPRODeck API で表示データ取得
+[displayDataCache] → YGOPRODeck API で表示データ取得
     ↓
 [Card.svelte] → UI コンポーネント表示
 ```
@@ -81,7 +81,7 @@ YGO Solitaire の Card モデルは、Clean Architecture の 4 層構造で設�
       - Port/Adapter パターンの Port (抽象/契約定義)
   - 実装コード: `application/ports/ICardDataRepository.ts`
 - **DTO（Data Transfer Object）** : 各層のデータをつなぐデータ形式
-  - **`CardDisplayData`**: UI 表示用（ドメイン層 + インフラ層の統合）
+  - **`DisplayCardData`**: UI 表示用（ドメイン層 + インフラ層の統合）
     - 主要プロパティ:
       - カードID
       - カード名（日本語版）
@@ -93,7 +93,7 @@ YGO Solitaire の Card モデルは、Clean Architecture の 4 層構造で設�
     - 主要プロパティ:
       - カードID
       - インスタンスID
-  - **`CardDisplayStateOnField`**: カード参照（フィールド上用）
+  - **`CardInstanceOnFieldRef`**: カード参照（フィールド上用）
     - 主要プロパティ:
       - CardInstanceRef継承
       - フィールド上での状態
@@ -101,10 +101,10 @@ YGO Solitaire の Card モデルは、Clean Architecture の 4 層構造で設�
 
 ### 機能・クラス
 
-- **`CardDisplayDataFactory`**: CardData を DTO に変換するファクトリ
-  - 実装コード: `application/factories/CardDisplayDataFactory.ts`
-- **`CardInstanceFactory`**: CardInstance を DTO に変換するファクトリ
-  - 実装コード: `application/factories/CardInstanceFactory.ts`
+- **`displayDataFactory`**: CardData を DTO に変換するファクトリ
+  - 実装コード: `application/factories/displayDataFactory.ts`
+- **`cardRefFactory`**: CardInstance を DTO に変換するファクトリ
+  - 実装コード: `application/factories/cardRefFactory.ts`
 - **`deckLoader`**: プリセットデッキ一覧からデッキレシピを選択し、デッキデータを構築する関数
   - 実装コード: `application/decks/deckLoader.ts`
 - **`gameStateStore`**: ゲーム状態を Svelte writable store で管理するストア
@@ -144,25 +144,25 @@ YGO Solitaire の Card モデルは、Clean Architecture の 4 層構造で設�
 
 ### 型・インターフェース
 
-- **`CardInstanceDisplayInfo`**: 表示用カードインスタンス
+- **`DisplayCardInstance`**: 表示用カードインスタンス
   - 主要プロパティ:
-    - instanceId
-    - CardDisplayData
-- **`FieldCardDisplayInfo`**: 表示用カードインスタンス（フィールド用）
+    - インスタンスID
+    - DisplayCardData
+- **`DisplayCardInstanceOnField`**: 表示用カードインスタンス（フィールド用）
   - 主要プロパティ:
-    - CardInstanceDisplayInfo継承
+    - DisplayCardInstance継承
     - フィールド用
-- **`AggregatedCard`**: 表示用カードインスタンス（集約表示用）
+- **`DisplayCardInstanceAggregated`**: 表示用カードインスタンス（集約表示用）
   - 主要プロパティ:
-    - CardInstanceDisplayInfo継承
+    - DisplayCardInstance継承
     - 枚数
 - 実装コード: `presentation/types/card.ts`
 
 ### 機能・クラス
 
-- **`cardDisplayDataCache`**: CardDisplayData のキャッシュサービス
+- **`displayDataCache`**: DisplayCardData のキャッシュサービス
   - 設計意図:
     - インフラ層の使用を局所化
-  - 実装コード: `presentation/services/cardDisplayDataCache.ts`
-- **`fieldCardAdapter`**: CardDisplayStateOnField を FieldCardDisplayInfo への変換するアダプタ
-  - 実装コード: `presentation/services/fieldCardAdapter.ts`
+  - 実装コード: `presentation/services/displayDataCache.ts`
+- **`displayInstanceAdapter`**: CardInstanceOnFieldRef を DisplayCardInstanceOnField への変換するアダプタ
+  - 実装コード: `presentation/services/displayInstanceAdapter.ts`

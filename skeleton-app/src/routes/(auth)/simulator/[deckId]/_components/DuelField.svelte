@@ -11,7 +11,7 @@
    *
    * @module presentation/components/organisms/board/DuelField
    */
-  import type { CardDisplayData, CardInstanceDisplayInfo, FieldCardDisplayInfo } from "$lib/presentation/types";
+  import type { DisplayCardData, DisplayCardInstance, DisplayCardInstanceOnField } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
   import { isMobile } from "$lib/presentation/utils/mobile";
@@ -25,15 +25,15 @@
 
   interface DuelFieldProps {
     deckCards: number;
-    extraDeckCards: CardInstanceDisplayInfo[];
-    graveyardCards: CardInstanceDisplayInfo[];
-    fieldCards: (FieldCardDisplayInfo | null)[];
-    monsterCards: (FieldCardDisplayInfo | null)[];
-    spellTrapCards: (FieldCardDisplayInfo | null)[];
+    extraDeckCards: DisplayCardInstance[];
+    graveyardCards: DisplayCardInstance[];
+    fieldCards: (DisplayCardInstanceOnField | null)[];
+    monsterCards: (DisplayCardInstanceOnField | null)[];
+    spellTrapCards: (DisplayCardInstanceOnField | null)[];
     selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのinstanceId
-    onFieldCardClick?: (card: CardDisplayData, instanceId: string) => void;
-    onActivateSetSpell?: (card: CardDisplayData, instanceId: string) => void; // セット魔法カード発動
-    onActivateIgnitionEffect?: (card: CardDisplayData, instanceId: string) => void; // 起動効果発動
+    onFieldCardClick?: (card: DisplayCardData, instanceId: string) => void;
+    onActivateSetSpell?: (card: DisplayCardData, instanceId: string) => void; // セット魔法カード発動
+    onActivateIgnitionEffect?: (card: DisplayCardData, instanceId: string) => void; // 起動効果発動
     onCancelFieldCardSelection?: () => void; // 選択キャンセル
   }
 
@@ -60,7 +60,7 @@
   const cardSize: ComponentSize = _isMobile ? "small" : "medium";
 
   // カードクリック処理
-  function handleCardClick(card: CardDisplayData, instanceId: string) {
+  function handleCardClick(card: DisplayCardData, instanceId: string) {
     if (onFieldCardClick) {
       onFieldCardClick(card, instanceId);
     }

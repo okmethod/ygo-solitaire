@@ -1,15 +1,12 @@
 <script lang="ts">
-  import type { CardDisplayData } from "$lib/presentation/types";
+  import type { DisplayCardData } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
-  /**
-   * Card型はCardDisplayDataのエイリアスです
-   */
   interface CardComponentProps {
-    card?: CardDisplayData;
+    card?: DisplayCardData;
     size?: ComponentSize;
     clickable?: boolean;
     selectable?: boolean;
@@ -20,8 +17,8 @@
     animate?: boolean;
     showDetailOnClick?: boolean;
     faceDown?: boolean; // 裏側表示フラグ (T033-T034)
-    onClick?: (card: CardDisplayData) => void;
-    onHover?: (card: CardDisplayData | null) => void;
+    onClick?: (card: DisplayCardData) => void;
+    onHover?: (card: DisplayCardData | null) => void;
   }
 
   let {
@@ -66,7 +63,7 @@
       internalSelectedState = !internalSelectedState; // 内部stateをトグル
     }
     if (showDetailOnClick && card) {
-      // Card型はCardDisplayDataのエイリアス
+      // Card型はDisplayCardDataのエイリアス
       showCardDetailDisplay(card);
     }
   }

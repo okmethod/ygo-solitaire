@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
-  import type { CardDisplayData, CardInstanceDisplayInfo } from "$lib/presentation/types";
+  import type { DisplayCardData, DisplayCardInstance } from "$lib/presentation/types";
   import { ZONE_CAPACITY } from "$lib/presentation/types";
   import { gameFacade } from "$lib/application/GameFacade";
   import {
@@ -13,13 +13,13 @@
     gameResult,
     handCardRefs,
     graveyardCardRefs,
-    monsterZoneDisplayStates,
-    spellTrapZoneDisplayStates,
-    fieldZoneDisplayStates,
+    monsterZoneInstanceOnFieldRefs,
+    spellTrapZoneInstanceOnFieldRefs,
+    fieldZoneInstanceOnFieldRefs,
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
-  import { initializeCache, getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
-  import { toFixedSlotZone } from "$lib/presentation/services/fieldCardAdapter";
+  import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
+  import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
@@ -31,7 +31,7 @@
   const deckName = data.deckData.name;
 
   onMount(async () => {
-    // CardDisplayData キャッシュを初期化
+    // DisplayCardData キャッシュを初期化
     await initializeCache(data.uniqueCardIds);
 
     // effectQueueStore に通知ハンドラを登録（DI）
@@ -87,24 +87,24 @@
   }
 
   // 手札のカードクリックで効果発動
-  function handleHandCardClick(_card: CardDisplayData, instanceId: string) {
+  function handleHandCardClick(_card: DisplayCardData, instanceId: string) {
     // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
     if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }
 
   // モンスター召喚ハンドラー
-  function handleSummonMonster(card: CardDisplayData, instanceId: string) {
+  function handleSummonMonster(card: DisplayCardData, instanceId: string) {
     _executeGameAction(() => gameFacade.summonMonster(instanceId), `${card.name}を召喚しました`, "召喚に失敗しました");
   }
 
   // モンスターセットハンドラー
-  function handleSetMonster(card: CardDisplayData, instanceId: string) {
+  function handleSetMonster(card: DisplayCardData, instanceId: string) {
     _executeGameAction(() => gameFacade.setMonster(instanceId), `${card.name}をセットしました`, "セットに失敗しました");
   }
 
   // 魔法・罠セットハンドラー
-  function handleSetSpellTrap(card: CardDisplayData, instanceId: string) {
+  function handleSetSpellTrap(card: DisplayCardData, instanceId: string) {
     _executeGameAction(
       () => gameFacade.setSpellTrap(instanceId),
       `${card.name}をセットしました`,
@@ -113,7 +113,7 @@
   }
 
   // フィールドカードクリックで効果発動 - 手札選択をクリア
-  function handleFieldCardClick(_card: CardDisplayData, instanceId: string) {
+  function handleFieldCardClick(_card: DisplayCardData, instanceId: string) {
     const fieldCard = gameFacade.findCardOnField(instanceId);
     if (!fieldCard) {
       showErrorToast("カードが見つかりませんでした");
@@ -131,13 +131,13 @@
   }
 
   // セット魔法カードの発動ハンドラー
-  function handleActivateSetSpell(card: CardDisplayData, instanceId: string) {
+  function handleActivateSetSpell(card: DisplayCardData, instanceId: string) {
     _executeGameAction(() => gameFacade.activateSpell(instanceId), `${card.name}を発動しました`, "発動に失敗しました");
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
   // 起動効果発動ハンドラー
-  function handleActivateIgnitionEffect(card: CardDisplayData, instanceId: string) {
+  function handleActivateIgnitionEffect(card: DisplayCardData, instanceId: string) {
     _executeGameAction(
       () => gameFacade.activateIgnitionEffect(instanceId),
       `${card.name}の効果を発動しました`,
@@ -154,21 +154,21 @@
   // 手札カードマップ
   const handCardsWithInstanceId = $derived(
     $handCardRefs
-      .map((ref) => ({ card: getCardDisplayData(ref.cardId), instanceId: ref.instanceId }))
-      .filter((item): item is CardInstanceDisplayInfo => item.card !== undefined),
+      .map((ref) => ({ card: getDisplayCardData(ref.cardId), instanceId: ref.instanceId }))
+      .filter((item): item is DisplayCardInstance => item.card !== undefined),
   );
 
   // 墓地カードマップ
   const graveyardCardsWithInstanceId = $derived(
     $graveyardCardRefs
-      .map((ref) => ({ card: getCardDisplayData(ref.cardId), instanceId: ref.instanceId }))
-      .filter((item): item is CardInstanceDisplayInfo => item.card !== undefined),
+      .map((ref) => ({ card: getDisplayCardData(ref.cardId), instanceId: ref.instanceId }))
+      .filter((item): item is DisplayCardInstance => item.card !== undefined),
   );
 
   // フィールド上の各種ゾーン用のカードマップ
-  const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneDisplayStates, ZONE_CAPACITY.fieldZone));
-  const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneDisplayStates, ZONE_CAPACITY.mainMonsterZone));
-  const spellTrapZoneCards = $derived(toFixedSlotZone($spellTrapZoneDisplayStates, ZONE_CAPACITY.spellTrapZone));
+  const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneInstanceOnFieldRefs, ZONE_CAPACITY.fieldZone));
+  const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneInstanceOnFieldRefs, ZONE_CAPACITY.mainMonsterZone));
+  const spellTrapZoneCards = $derived(toFixedSlotZone($spellTrapZoneInstanceOnFieldRefs, ZONE_CAPACITY.spellTrapZone));
 </script>
 
 <div class="container mx-auto p-4">

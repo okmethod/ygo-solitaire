@@ -1,19 +1,19 @@
 /**
- * CardDisplayDataFactory - CardDisplayData 生成ファクトリ
+ * displayDataFactory - DisplayCardData 生成ファクトリ
  *
  * CardData（Domain層）と ExternalCardData（外部API経由）を組み合わせて
- * UI表示用の CardDisplayData を生成する。
+ * UI表示用の DisplayCardData を生成する。
  *
  * @remarks
  * - ゲームロジックは、内部データ（Domain層のCardData）に従って動作する
  * - 外部データ（ExternalCardData）は表示用および検証用として用いる
  * - 内部データ/外部データに齟齬がある場合はワーニングを出力の上、内部データを優先する
  *
- * @module application/factories/CardDisplayDataFactory
+ * @module application/factories/displayDataFactory
  */
 
 import type { ExternalCardData } from "$lib/application/ports/ICardDataRepository";
-import type { CardDisplayData, CardType, MonsterAttributes } from "$lib/application/types/card";
+import type { DisplayCardData, CardType, MonsterAttributes } from "$lib/application/types/card";
 import type { CardData } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
 
@@ -39,7 +39,7 @@ function normalizeExternalFrameType(frameType: string): string {
  * 手動で記述したDomain層データにミスがある可能性があるため、
  * 外部APIのデータと比較して不一致を検出する。
  */
-function validateCardData(externalData: ExternalCardData, domainData: CardData): void {
+function compareCardData(externalData: ExternalCardData, domainData: CardData): void {
   const cardName = `${domainData.jaName} (ID: ${domainData.id})`;
 
   // type の検証
@@ -61,10 +61,10 @@ function validateCardData(externalData: ExternalCardData, domainData: CardData):
   }
 }
 
-/** ExternalCardData と CardData から CardDisplayData を生成する */
-function createCardDisplayData(externalData: ExternalCardData, domainData: CardData): CardDisplayData {
+/** ExternalCardData と CardData から DisplayCardData を生成する */
+function buildDisplayCardData(externalData: ExternalCardData, domainData: CardData): DisplayCardData {
   // Domain層と外部APIのデータを検証
-  validateCardData(externalData, domainData);
+  compareCardData(externalData, domainData);
 
   // モンスターカード属性の変換（外部APIから取得）
   const monsterAttributes: MonsterAttributes | undefined =
@@ -81,7 +81,7 @@ function createCardDisplayData(externalData: ExternalCardData, domainData: CardD
         }
       : undefined;
 
-  // CardDisplayData を生成
+  // DisplayCardData を生成
   return {
     id: domainData.id,
     name: externalData.name, // 外部データ
@@ -96,20 +96,20 @@ function createCardDisplayData(externalData: ExternalCardData, domainData: CardD
 }
 
 /**
- * ExternalCardData から CardDisplayData を生成する
+ * ExternalCardData から DisplayCardData を生成する
  *
  * @throws Error - 指定カードが CardDataRegistry に登録されていない場合
  */
-export function createCardDisplayDataFromApi(externalData: ExternalCardData): CardDisplayData {
+export function createDisplayCardData(externalData: ExternalCardData): DisplayCardData {
   const domainData = CardDataRegistry.get(externalData.id);
-  return createCardDisplayData(externalData, domainData);
+  return buildDisplayCardData(externalData, domainData);
 }
 
 /**
- * 複数の ExternalCardData から CardDisplayData の配列を生成する
+ * 複数の ExternalCardData から DisplayCardData の配列を生成する
  *
  * @throws Error - 指定カードが CardDataRegistry に登録されていない場合
  */
-export function createCardDisplayDataList(externalDataList: ExternalCardData[]): CardDisplayData[] {
-  return externalDataList.map((externalData) => createCardDisplayDataFromApi(externalData));
+export function createDisplayCardDataList(externalDataList: ExternalCardData[]): DisplayCardData[] {
+  return externalDataList.map((externalData) => createDisplayCardData(externalData));
 }

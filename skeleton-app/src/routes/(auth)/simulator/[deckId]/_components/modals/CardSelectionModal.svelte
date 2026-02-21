@@ -9,8 +9,8 @@
    * cancelable=true の場合はキャンセルボタンも表示する。
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
-  import type { CardDisplayData, CardSelectionModalConfig } from "$lib/presentation/types";
-  import { getCardDisplayData } from "$lib/presentation/services/cardDisplayDataCache";
+  import type { DisplayCardData, CardSelectionModalConfig } from "$lib/presentation/types";
+  import { getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
 
   interface CardSelectionModalProps {
@@ -91,11 +91,11 @@
     config?.onCancel?.();
   }
 
-  // instanceIdからCardDisplayDataを取得
-  function getCardDisplay(instanceId: string): CardDisplayData | undefined {
+  // instanceIdからDisplayCardDataを取得
+  function getCardDisplay(instanceId: string): DisplayCardData | undefined {
     const cardInstance = config?.availableCards.find((c) => c.instanceId === instanceId);
     if (!cardInstance) return undefined;
-    return getCardDisplayData(cardInstance.id);
+    return getDisplayCardData(cardInstance.id);
   }
 </script>
 
