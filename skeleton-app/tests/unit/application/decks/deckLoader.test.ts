@@ -42,7 +42,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
 
     // 統計情報が計算されていることを確認
     expect(deckData.stats).toBeDefined();
-    expect(deckData.stats.totalCards).toBeGreaterThan(0);
+    expect(deckData.stats.mainDeckCount).toBeGreaterThan(0);
     expect(deckData.stats.uniqueCards).toBeGreaterThan(0);
     expect(typeof deckData.stats.monsterCount).toBe("number");
     expect(typeof deckData.stats.spellCount).toBe("number");

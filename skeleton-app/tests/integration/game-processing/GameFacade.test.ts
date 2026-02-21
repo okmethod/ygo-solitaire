@@ -13,6 +13,7 @@ import { currentPhase } from "$lib/application/stores/derivedStores";
 function createTestDeckRecipe(cardIds: number[]): DeckRecipe {
   return {
     name: "Test Deck",
+    description: "A deck for testing purposes",
     mainDeck: cardIds.map((id) => ({
       id,
       quantity: 1,

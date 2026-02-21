@@ -8,7 +8,17 @@
   let { data }: { data: PageData } = $props();
   const deckName = data.deckData.name;
   const deckDescription = data.deckData.description;
-  const { monsterCount, spellCount, trapCount } = data.deckData.stats;
+  const {
+    mainDeckCount,
+    monsterCount,
+    spellCount,
+    trapCount,
+    extraDeckCount,
+    fusionCount,
+    synchroCount,
+    xyzCount,
+    linkCount,
+  } = data.deckData.stats;
   const { monsters, spells, traps } = data.deckData.mainDeck;
   const { fusion, synchro, xyz, link } = data.deckData.extraDeck;
 
@@ -34,21 +44,20 @@
   </header>
 
   <!-- デッキ説明 -->
-  {#if deckDescription}
-    <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
-      <p class="text-sm opacity-75">{deckDescription}</p>
-    </div>
-  {/if}
+  <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
+    <p class="text-sm opacity-75">{deckDescription}</p>
+  </div>
+
+  <hr class="my-8 border-t border-gray-300" />
 
   <!-- カード一覧 -->
   <div class="space-y-6">
-    <hr class="my-8 border-t border-gray-300" />
     <!-- メインデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">メインデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm shadow-md"
-        >{monsterCount + spellCount + trapCount}枚</span
-      >
+      <span class="badge preset-tonal-surface text-sm shadow-md">
+        {mainDeckCount}枚
+      </span>
     </div>
     <!-- モンスターカード -->
     <CardList title="モンスター" cardCount={monsterCount} cards={monsters} />
@@ -59,38 +68,32 @@
     <!-- 罠カード -->
     <CardList title="罠" cardCount={trapCount} cards={traps} />
 
-    <hr class="my-8 border-t border-gray-300" />
-
     <!-- エクストラデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">エクストラデッキ</h2>
-      <span class="badge preset-tonal-surface text-sm shadow-md"
-        >{fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
-          synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
-          xyz.reduce((sum, entry) => sum + entry.quantity, 0) +
-          link.reduce((sum, entry) => sum + entry.quantity, 0)}枚</span
-      >
+      <span class="badge preset-tonal-surface text-sm shadow-md">
+        {extraDeckCount}枚
+      </span>
     </div>
 
     <!-- 融合モンスター -->
     {#if fusion.length > 0}
-      <CardList title="融合" cardCount={fusion.reduce((sum, entry) => sum + entry.quantity, 0)} cards={fusion} />
+      <CardList title="融合" cardCount={fusionCount} cards={fusion} />
     {/if}
 
     <!-- シンクロモンスター -->
     {#if synchro.length > 0}
-      <CardList title="シンクロ" cardCount={synchro.reduce((sum, entry) => sum + entry.quantity, 0)} cards={synchro} />
+      <CardList title="シンクロ" cardCount={synchroCount} cards={synchro} />
     {/if}
 
     <!-- エクシーズモンスター -->
     {#if xyz.length > 0}
-      <CardList title="エクシーズ" cardCount={xyz.reduce((sum, entry) => sum + entry.quantity, 0)} cards={xyz} />
+      <CardList title="エクシーズ" cardCount={xyzCount} cards={xyz} />
     {/if}
 
     <!-- リンクモンスター -->
     {#if link.length > 0}
-      <CardList title="リンク" cardCount={link.reduce((sum, entry) => sum + entry.quantity, 0)} cards={link} />
+      <CardList title="リンク" cardCount={linkCount} cards={link} />
     {/if}
-    <hr class="my-8 border-t border-gray-300" />
   </div>
 </div>

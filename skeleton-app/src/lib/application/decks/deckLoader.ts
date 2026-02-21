@@ -98,16 +98,14 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
   const monsterCount = mainDeck.monsters.reduce((sum, entry) => sum + entry.quantity, 0);
   const spellCount = mainDeck.spells.reduce((sum, entry) => sum + entry.quantity, 0);
   const trapCount = mainDeck.traps.reduce((sum, entry) => sum + entry.quantity, 0);
+  const mainDeckCount = monsterCount + spellCount + trapCount;
 
-  // エクストラデッキの総枚数を算出（全タイプの合計）
-  const extraCount =
-    extraDeck.fusion.reduce((sum, entry) => sum + entry.quantity, 0) +
-    extraDeck.synchro.reduce((sum, entry) => sum + entry.quantity, 0) +
-    extraDeck.xyz.reduce((sum, entry) => sum + entry.quantity, 0) +
-    extraDeck.link.reduce((sum, entry) => sum + entry.quantity, 0);
-
-  // デッキ全体の総枚数
-  const totalCards = monsterCount + spellCount + trapCount + extraCount;
+  // エクストラデッキ各タイプの総枚数を算出（quantityの合計）
+  const fusionCount = extraDeck.fusion.reduce((sum, entry) => sum + entry.quantity, 0);
+  const synchroCount = extraDeck.synchro.reduce((sum, entry) => sum + entry.quantity, 0);
+  const xyzCount = extraDeck.xyz.reduce((sum, entry) => sum + entry.quantity, 0);
+  const linkCount = extraDeck.link.reduce((sum, entry) => sum + entry.quantity, 0);
+  const extraDeckCount = fusionCount + synchroCount + xyzCount + linkCount;
 
   // ユニークカード種類数（配列の長さ = 異なるカードの種類数）
   const uniqueCards =
@@ -120,11 +118,16 @@ function calculateDeckStats(mainDeck: MainDeckData, extraDeck: ExtraDeckData): D
     extraDeck.link.length;
 
   return {
-    totalCards,
-    uniqueCards,
+    mainDeckCount,
     monsterCount,
     spellCount,
     trapCount,
+    extraDeckCount,
+    fusionCount,
+    synchroCount,
+    xyzCount,
+    linkCount,
+    uniqueCards,
   };
 }
 

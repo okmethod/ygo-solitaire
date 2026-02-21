@@ -22,17 +22,27 @@ export interface LoadedCardEntry {
 
 /** デッキ統計情報 */
 export interface DeckStats {
-  totalCards: number;
+  // メインデッキ
+  mainDeckCount: number;
   monsterCount: number;
   spellCount: number;
   trapCount: number;
+
+  // エクストラデッキ
+  extraDeckCount: number;
+  fusionCount: number;
+  synchroCount: number;
+  xyzCount: number;
+  linkCount: number;
+
+  // ユニークカード数
   uniqueCards: number;
 }
 
 // デッキ基本情報
 interface DeckBase {
   name: string;
-  description?: string;
+  description: string;
   category?: string;
 }
 
