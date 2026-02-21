@@ -23,7 +23,7 @@ import type {
 } from "$lib/application/types/deck";
 import type { CardData, ExtraMonsterSubType } from "$lib/application/types/card";
 import { presetDeckRecipes } from "$lib/application/decks/presetDeckRecipes";
-import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/cards";
 
 /**
  * プリセットデッキの一覧を取得する

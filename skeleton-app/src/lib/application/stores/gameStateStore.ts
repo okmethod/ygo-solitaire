@@ -16,7 +16,7 @@ import { writable } from "svelte/store";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { GameState } from "$lib/domain/models/GameState";
-import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/cards";
 
 // 空の初期GameStateを生成する
 function createEmptyGameState(): GameSnapshot {

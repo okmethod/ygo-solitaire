@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { CardDataRegistry, registerCardDataByIds } from "$lib/domain/CardDataRegistry";
+import { CardDataRegistry, registerCardDataByIds } from "$lib/domain/cards";
 import { ChainableActionRegistry, registerChainableActionsByIds } from "$lib/domain/effects/actions";
 import { registerAdditionalRulesByIds } from "$lib/domain/effects/rules";
 import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";

@@ -11,7 +11,7 @@
 import { describe, it, expect } from "vitest";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/cards";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {

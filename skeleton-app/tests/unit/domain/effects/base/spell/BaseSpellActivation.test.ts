@@ -23,7 +23,7 @@ import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameSt
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
+import { CardDataRegistry } from "$lib/domain/cards";
 
 /** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
 function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {

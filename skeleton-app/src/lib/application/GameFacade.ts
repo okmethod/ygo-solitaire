@@ -18,7 +18,7 @@ import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { registerCardDataByIds } from "$lib/domain/CardDataRegistry";
+import { registerCardDataByIds } from "$lib/domain/cards";
 import { registerChainableActionsByIds } from "$lib/domain/effects/actions";
 import { registerAdditionalRulesByIds } from "$lib/domain/effects/rules";
 import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
