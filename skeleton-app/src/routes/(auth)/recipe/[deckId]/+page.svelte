@@ -6,6 +6,9 @@
   import CardList from "./_componets/CardList.svelte";
 
   let { data }: { data: PageData } = $props();
+  const deckName = data.deckData.name;
+  const deckDescription = data.deckData.description;
+  const { monsterCount, spellCount, trapCount } = data.deckData.stats;
   const { monsters, spells, traps } = data.deckData.mainDeck;
   const { fusion, synchro, xyz, link } = data.deckData.extraDeck;
 
@@ -23,7 +26,7 @@
   <!-- ヘッダー -->
   <header class="my-6">
     <div class="flex items-center space-x-8 mb-4">
-      <h2 class="h3">{data.deckData.name}</h2>
+      <h2 class="h3">{deckName}</h2>
       <button class="btn preset-tonal rounded-full shadow-lg text-lg px-4 py-2" onclick={navigateToSimulator}>
         決闘開始
       </button>
@@ -31,9 +34,9 @@
   </header>
 
   <!-- デッキ説明 -->
-  {#if data.deckData.description}
+  {#if deckDescription}
     <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
-      <p class="text-sm opacity-75">{data.deckData.description}</p>
+      <p class="text-sm opacity-75">{deckDescription}</p>
     </div>
   {/if}
 
@@ -44,17 +47,17 @@
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">メインデッキ</h2>
       <span class="badge preset-tonal-surface text-sm shadow-md"
-        >{data.deckData.stats.monsterCount + data.deckData.stats.spellCount + data.deckData.stats.trapCount}枚</span
+        >{monsterCount + spellCount + trapCount}枚</span
       >
     </div>
     <!-- モンスターカード -->
-    <CardList title="モンスター" cardCount={data.deckData.stats.monsterCount} cards={monsters} />
+    <CardList title="モンスター" cardCount={monsterCount} cards={monsters} />
 
     <!-- 魔法カード -->
-    <CardList title="魔法" cardCount={data.deckData.stats.spellCount} cards={spells} />
+    <CardList title="魔法" cardCount={spellCount} cards={spells} />
 
     <!-- 罠カード -->
-    <CardList title="罠" cardCount={data.deckData.stats.trapCount} cards={traps} />
+    <CardList title="罠" cardCount={trapCount} cards={traps} />
 
     <hr class="my-8 border-t border-gray-300" />
 

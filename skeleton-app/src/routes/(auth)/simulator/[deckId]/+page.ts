@@ -6,9 +6,5 @@ export const load: PageLoad = ({ params }) => {
 
   const { deckData, uniqueCardIds } = gameFacade.initializeGame(deckId);
 
-  return {
-    deckId,
-    deckName: deckData.name,
-    uniqueCardIds,
-  };
+  return { deckId, deckData, uniqueCardIds };
 };

@@ -6,9 +6,5 @@ export const load: PageLoad = ({ params }) => {
 
   const { deckData, uniqueCardIds } = gameFacade.loadDeck(deckId);
 
-  return {
-    deckId,
-    deckData,
-    uniqueCardIds,
-  };
+  return { deckId, deckData, uniqueCardIds };
 };

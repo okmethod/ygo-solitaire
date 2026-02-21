@@ -28,6 +28,7 @@
   import GameOverModal from "./_components/modals/GameOverModal.svelte";
 
   const { data } = $props<{ data: PageData }>();
+  const deckName = data.deckData.name;
 
   onMount(async () => {
     // CardDisplayData キャッシュを初期化
@@ -176,7 +177,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Left Column: Deck Title -->
       <div class="card px-4">
-        <h1 class="text-2xl font-bold">Deck: {data.deckName}</h1>
+        <h1 class="text-2xl font-bold">Deck: {deckName}</h1>
       </div>
 
       <!-- Right Column: Game Info -->
