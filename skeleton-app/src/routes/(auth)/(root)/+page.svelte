@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { presetDeckRecipes } from "$lib/application/deck/presetDeckRecipes";
+  import { getPresetDecks } from "$lib/application/deck/deckLoader";
   import { navigateTo } from "$lib/presentation/utils/navigation";
 
-  // レシピのキーと値の配列を作成
-  const recipeEntries = Object.entries(presetDeckRecipes);
-  let selectedRecipeId = recipeEntries[0][0]; // 初期値として最初のIDを設定
+  const decks = getPresetDecks();
+  let selectedRecipeId = decks[0].id;
 
   function navigateToSimulator() {
     navigateTo(`/simulator/${selectedRecipeId}`);
@@ -28,8 +27,8 @@
         bind:value={selectedRecipeId}
         class="badge preset-tonal text-sm border border-gray-100 rounded px-4 py-2 w-full"
       >
-        {#each recipeEntries as [id, recipe] (id)}
-          <option value={id}>{recipe.name}</option>
+        {#each decks as { id, name } (id)}
+          <option value={id}>{name}</option>
         {/each}
       </select>
     </div>

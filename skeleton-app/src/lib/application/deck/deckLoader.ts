@@ -26,6 +26,18 @@ import { presetDeckRecipes } from "$lib/application/deck/presetDeckRecipes";
 import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /**
+ * プリセットデッキの一覧を取得する
+ *
+ * @returns デッキIDと名前のリスト
+ */
+export function getPresetDecks(): Array<{ id: string; name: string }> {
+  return Object.entries(presetDeckRecipes).map(([id, recipe]) => ({
+    id,
+    name: recipe.name,
+  }));
+}
+
+/**
  * カードエントリーを指定したキーで分類する汎用ヘルパー
  *
  * @param cardDataMap - カードID → CardData のマップ
@@ -140,8 +152,6 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
  *
  * CardDataRegistry から CardData を取得し、カードタイプ別に分類する。
  *
- * @param deckId - プリセットデッキのID
- * @returns デッキレシピ、デッキデータ、ユニークカードIDリスト
  * @throws Error デッキが見つからない場合、またはカードがレジストリにない場合
  */
 export function loadDeck(deckId: string): {
