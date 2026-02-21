@@ -22,7 +22,7 @@ import type {
   ExtraDeckData,
 } from "$lib/application/types/deck";
 import type { CardData, ExtraMonsterSubType } from "$lib/application/types/card";
-import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
+import { presetDeckRecipes } from "$lib/application/deck/presetDeckRecipes";
 import { CardDataRegistry } from "$lib/domain/CardDataRegistry";
 
 /**

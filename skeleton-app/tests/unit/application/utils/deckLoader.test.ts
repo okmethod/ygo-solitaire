@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { loadDeck } from "$lib/application/utils/deckLoader";
+import { loadDeck } from "$lib/application/deck/deckLoader";
 
 describe("loadDeck - Deck Recipe Loading Test", () => {
   it("should load deck recipe from CardDataRegistry", () => {

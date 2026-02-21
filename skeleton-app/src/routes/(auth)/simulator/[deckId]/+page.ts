@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import { loadDeck } from "$lib/application/utils/deckLoader";
+import { loadDeck } from "$lib/application/deck/deckLoader";
 import { gameFacade } from "$lib/application/GameFacade";
 
 export const load: PageLoad = ({ params }) => {

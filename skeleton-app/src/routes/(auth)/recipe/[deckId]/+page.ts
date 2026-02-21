@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import { loadDeck } from "$lib/application/utils/deckLoader";
+import { loadDeck } from "$lib/application/deck/deckLoader";
 
 export const load: PageLoad = ({ params }) => {
   const { deckId } = params;

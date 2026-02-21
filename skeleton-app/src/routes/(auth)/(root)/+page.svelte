@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { presetDeckRecipes } from "$lib/application/data/presetDeckRecipes";
+  import { presetDeckRecipes } from "$lib/application/deck/presetDeckRecipes";
   import { navigateTo } from "$lib/presentation/utils/navigation";
 
   // レシピのキーと値の配列を作成
