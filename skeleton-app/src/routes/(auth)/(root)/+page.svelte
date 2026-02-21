@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getPresetDecks } from "$lib/application/deck/deckLoader";
+  import { getPresetDecks } from "$lib/application/decks/deckLoader";
   import { navigateTo } from "$lib/presentation/utils/navigation";
 
   const decks = getPresetDecks();
