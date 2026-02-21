@@ -1,8 +1,6 @@
 /**
  * AdditionalRule Effect Library - 適用する効果ライブラリ
  *
- * TODO: 選んだデッキレシピに含まれるカードの効果のみ登録するように最適化したい
- * *
  * @module domain/effects/rules
  */
 
@@ -13,9 +11,42 @@ export { AdditionalRuleRegistry };
 import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/spells/ChickenGameContinuousEffect";
 import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/monsters/RoyalMagicalLibraryContinuousEffect";
 
-/** 適用する効果:追加適用されるルール のレジストリを初期化する */
-export function initializeAdditionalRuleRegistry(): void {
-  // 永続効果
-  AdditionalRuleRegistry.register(67616300, new ChickenGameContinuousEffect());
-  AdditionalRuleRegistry.register(70791313, new RoyalMagicalLibraryContinuousEffect());
+// ===========================
+// マップエントリ生成ヘルパー
+// ===========================
+
+import type { AdditionalRule } from "$lib/domain/models/Effect";
+
+type RegistrationEntry = [number, () => void];
+
+/** 永続効果のエントリを生成 */
+const rule = (id: number, additionalRule: AdditionalRule): RegistrationEntry => [
+  id,
+  () => AdditionalRuleRegistry.register(id, additionalRule),
+];
+
+// ===========================
+// 定義マップ
+// ===========================
+
+/** カードID → 登録関数のマッピング */
+const additionalRuleRegistrations = new Map<number, () => void>([
+  rule(67616300, new ChickenGameContinuousEffect()),
+  rule(70791313, new RoyalMagicalLibraryContinuousEffect()),
+]);
+
+// ===========================
+// 登録関数
+// ===========================
+
+/** レジストリをクリアし、指定されたカードIDの AdditionalRule を登録する。 */
+export function registerAdditionalRulesByIds(cardIds: number[]): void {
+  AdditionalRuleRegistry.clear();
+
+  for (const cardId of cardIds) {
+    const register = additionalRuleRegistrations.get(cardId);
+    if (register) {
+      register();
+    }
+  }
 }

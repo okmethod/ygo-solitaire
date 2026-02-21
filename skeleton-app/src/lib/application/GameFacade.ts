@@ -18,17 +18,13 @@ import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
-import { initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
-import { initializeCardDataRegistry } from "$lib/domain/CardDataRegistry";
-import type { DeckRecipe } from "$lib/application/types/deck";
+import { registerCardDataByIds } from "$lib/domain/CardDataRegistry";
+import { registerChainableActionsByIds } from "$lib/domain/effects/actions";
+import { registerAdditionalRulesByIds } from "$lib/domain/effects/rules";
+import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
+import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
-
-// インポート時、各種レジストリを初期化する
-initializeCardDataRegistry();
-initializeChainableActionRegistry();
-initializeAdditionalRuleRegistry();
 
 /**
  * GameFacadeのメソッドが返す結果型（Presentation Layerへの公開用）
@@ -92,8 +88,33 @@ export class GameFacade {
     };
   }
 
-  /** ゲーム状態を初期化する */
-  initializeGame(deckRecipe: DeckRecipe): void {
+  /**
+   * ゲームを初期化する
+   */
+  initializeGame(deckId: string): { deckData: DeckData; uniqueCardIds: number[] } {
+    const deckRecipe = getDeckRecipe(deckId);
+    const uniqueCardIds = extractUniqueCardIds(deckRecipe);
+
+    // 各種レジストリに必要なカードを登録
+    registerCardDataByIds(uniqueCardIds);
+    registerChainableActionsByIds(uniqueCardIds);
+    registerAdditionalRulesByIds(uniqueCardIds);
+
+    // デッキデータを構築
+    const deckData = buildDeckData(deckRecipe, uniqueCardIds);
+
+    // ゲーム開始
+    this.startGame(deckRecipe);
+
+    return { deckData, uniqueCardIds };
+  }
+
+  /**
+   * ゲームを開始する
+   *
+   * レジストリを維持し、ゲーム状態のみリセットする。
+   */
+  startGame(deckRecipe: DeckRecipe): void {
     resetGameState(deckRecipe);
   }
 

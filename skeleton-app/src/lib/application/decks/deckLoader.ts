@@ -148,23 +148,26 @@ function validateRecipeCardEntry(entry: RecipeCardEntry): void {
 }
 
 /**
- * デッキレシピからデッキデータを生成する
+ * デッキIDからデッキレシピを取得する
  *
- * CardDataRegistry から CardData を取得し、カードタイプ別に分類する。
- *
- * @throws Error デッキが見つからない場合、またはカードがレジストリにない場合
+ * @throws Error デッキが見つからない場合
  */
-export function loadDeck(deckId: string): {
-  deckRecipe: DeckRecipe;
-  deckData: DeckData;
-  uniqueCardIds: number[];
-} {
+export function getDeckRecipe(deckId: string): DeckRecipe {
   const deckRecipe = presetDeckRecipes[deckId];
   if (!deckRecipe) {
     throw new Error(`Deck not found: ${deckId}`);
   }
+  return deckRecipe;
+}
 
-  // メインデッキとエクストラデッキの全カードIDを取得
+/**
+ * デッキレシピからユニークなカードIDを抽出する
+ *
+ * @param deckRecipe デッキレシピ
+ * @returns 重複を除いたカードIDの配列
+ * @throws Error カードIDや枚数が無効な場合
+ */
+export function extractUniqueCardIds(deckRecipe: DeckRecipe): number[] {
   const allCardEntries = [...deckRecipe.mainDeck, ...deckRecipe.extraDeck];
 
   // RecipeCardEntryのバリデーション（IDと枚数の妥当性チェック）
@@ -173,8 +176,21 @@ export function loadDeck(deckId: string): {
   }
 
   // 重複を除いたユニークなカードIDリストを作成
-  const uniqueCardIds = Array.from(new Set(allCardEntries.map((entry) => entry.id)));
+  return Array.from(new Set(allCardEntries.map((entry) => entry.id)));
+}
 
+/**
+ * デッキレシピからデッキデータを構築する
+ *
+ * CardDataRegistry から CardData を取得し、カードタイプ別に分類する。
+ * 事前に必要なカードがレジストリに登録されている必要がある。
+ *
+ * @param deckRecipe デッキレシピ
+ * @param uniqueCardIds ユニークなカードIDの配列
+ * @returns デッキデータ
+ * @throws Error カードがレジストリにない場合
+ */
+export function buildDeckData(deckRecipe: DeckRecipe, uniqueCardIds: number[]): DeckData {
   // CardDataRegistry から CardData を取得
   const cardDataList: CardData[] = uniqueCardIds.map((id) => CardDataRegistry.get(id));
 
@@ -190,7 +206,7 @@ export function loadDeck(deckId: string): {
   // 統計情報を計算
   const stats = calculateDeckStats(mainDeckData, extraDeckData);
 
-  const deckData: DeckData = {
+  return {
     name: deckRecipe.name,
     description: deckRecipe.description,
     category: deckRecipe.category,
@@ -198,6 +214,4 @@ export function loadDeck(deckId: string): {
     extraDeck: extraDeckData,
     stats,
   };
-
-  return { deckRecipe, deckData, uniqueCardIds };
 }

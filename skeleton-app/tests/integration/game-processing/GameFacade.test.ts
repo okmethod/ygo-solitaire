@@ -4,17 +4,10 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { get } from "svelte/store";
-import { ChainableActionRegistry } from "$lib/domain/effects/actions";
-import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import type { DeckRecipe } from "$lib/application/types/deck";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { currentPhase } from "$lib/application/stores/derivedStores";
-
-// テスト用ダミーカードの効果を登録
-ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));
-ChainableActionRegistry.registerActivation(1002, NormalSpellActivation.createNoOp(1002));
-ChainableActionRegistry.registerActivation(1003, NormalSpellActivation.createNoOp(1003));
 
 // テスト用ヘルパー: カードID配列からDeckRecipeを生成
 function createTestDeckRecipe(cardIds: number[]): DeckRecipe {
@@ -72,7 +65,7 @@ describe("GameFacade", () => {
 
   describe("initializeGame", () => {
     it("should initialize game with given deck", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
 
       const state = get(gameStateStore);
       expect(state.space.hand.length).toBe(5); // 初期手札5枚
@@ -82,17 +75,17 @@ describe("GameFacade", () => {
     });
 
     it("should reset state when called multiple times", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
       expect(get(gameStateStore).space.mainDeck.length).toBe(1);
 
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS, SIX_ANY_CARDS[0]])); // もう1枚追加した別のデッキ
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS, SIX_ANY_CARDS[0]])); // もう1枚追加した別のデッキ
       expect(get(gameStateStore).space.mainDeck.length).toBe(2);
     });
   });
 
   describe("getGameState", () => {
     it("should return current state snapshot", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
 
       const state = facade.getGameState();
       expect(state.space.mainDeck.length).toBe(1);
@@ -103,7 +96,7 @@ describe("GameFacade", () => {
 
   describe("advancePhase", () => {
     beforeEach(() => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
     });
 
     it("should advance from Draw to Standby", () => {
@@ -132,7 +125,7 @@ describe("GameFacade", () => {
 
   describe("canSummonMonster", () => {
     it("should return true when monster can be summoned", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -143,7 +136,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when summon limit reached", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -156,7 +149,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
@@ -169,7 +162,7 @@ describe("GameFacade", () => {
 
   describe("summonMonster", () => {
     it("should successfully summon monster from hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -192,7 +185,7 @@ describe("GameFacade", () => {
     });
 
     it("should increment normalSummonUsed", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -205,7 +198,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail if summon limit reached", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -219,7 +212,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail if not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
@@ -231,7 +224,7 @@ describe("GameFacade", () => {
     });
 
     it("should not update store on failure", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -247,7 +240,7 @@ describe("GameFacade", () => {
 
   describe("canSetMonster", () => {
     it("should return true when monster can be set", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -258,7 +251,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when summon limit reached", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -271,7 +264,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
@@ -283,7 +276,7 @@ describe("GameFacade", () => {
 
   describe("setMonster", () => {
     it("should successfully set monster from hand to mainMonsterZone face-down", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -306,7 +299,7 @@ describe("GameFacade", () => {
     });
 
     it("should increment normalSummonUsed when setting a monster", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -319,7 +312,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail if summon limit reached", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -333,7 +326,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail if not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_MONSTERS]));
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
@@ -347,7 +340,7 @@ describe("GameFacade", () => {
 
   describe("canSetSpellTrap", () => {
     it("should return true when spell/trap can be set", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -360,7 +353,7 @@ describe("GameFacade", () => {
 
   describe("setSpellTrap", () => {
     it("should successfully set normal spell to spellTrapZone face-down", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -382,7 +375,7 @@ describe("GameFacade", () => {
     });
 
     it("should set field spell to fieldZone", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -398,7 +391,7 @@ describe("GameFacade", () => {
     });
 
     it("should replace existing field spell when setting a new one", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -422,7 +415,7 @@ describe("GameFacade", () => {
     });
 
     it("should NOT consume normalSummonUsed when setting spell", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -435,7 +428,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail if not in Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
       // ドローフェイズのまま
 
       const state = get(gameStateStore);
@@ -448,7 +441,7 @@ describe("GameFacade", () => {
   });
 
   it("should return false when spellTrapZone is full", () => {
-    facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, FIVE_NORMAL_SPELLS[0]])); // 6枚デッキ
+    facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, FIVE_NORMAL_SPELLS[0]])); // 6枚デッキ
     advanceToMain1Phase(facade);
     drawCards(1); // 6枚目が必要
 
@@ -467,7 +460,7 @@ describe("GameFacade", () => {
   });
 
   it("should return false when not in Main1 phase", () => {
-    facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+    facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
     // ドローフェイズのまま
 
     const state = get(gameStateStore);
@@ -479,7 +472,7 @@ describe("GameFacade", () => {
 
   describe("canActivateSpell", () => {
     it("should return true for spell card in hand during Main1 phase", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_DUMMY_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -488,14 +481,14 @@ describe("GameFacade", () => {
     });
 
     it("should return false for card not in hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
 
       expect(facade.canActivateSpell("non-existent-id")).toBe(false);
     });
 
     it("should return false for card in wrong phase", () => {
       // 登録済みカード（Upstart Goblin）を使用してメインフェイズチェックを行う
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
 
       const state = get(gameStateStore);
       const cardInstanceId = state.space.hand[0].instanceId;
@@ -508,7 +501,7 @@ describe("GameFacade", () => {
     it("should successfully activate spell card from hand", () => {
       // Use registered spell cards (Upstart Goblin) for proper effect processing
       // Need 6 cards: 5 for initial hand + 1 for Upstart Goblin's draw condition
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, 70368879]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS, 70368879]));
       facade.advancePhase(); // Draw → Standby
       facade.advancePhase(); // Standby → Main1
 
@@ -529,7 +522,7 @@ describe("GameFacade", () => {
 
     it("should fail when not in Main1 phase", () => {
       // 登録済みカード（Upstart Goblin）を使用してメインフェイズチェックを行う
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS]));
 
       const state = get(gameStateStore);
       const cardInstanceId = state.space.hand[0].instanceId;
@@ -541,7 +534,7 @@ describe("GameFacade", () => {
     });
 
     it("should fail when card is not in hand", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
       advanceToMain1Phase(facade);
 
       const result = facade.activateSpell("non-existent-card-id");
@@ -550,7 +543,7 @@ describe("GameFacade", () => {
     });
 
     it("should not update store on failed activation", () => {
-      facade.initializeGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
+      facade.startGame(createTestDeckRecipe([...SIX_ANY_CARDS]));
 
       const initialState = get(gameStateStore);
       facade.activateSpell("non-existent-card-id");
@@ -562,7 +555,7 @@ describe("GameFacade", () => {
 
   describe("canActivateIgnitionEffect", () => {
     it("should return true when ignition effect can be activated", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
+      facade.startGame(createTestDeckRecipe([...FIVE_FIELD_SPELLS]));
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);
@@ -577,7 +570,7 @@ describe("GameFacade", () => {
     });
 
     it("should return false when card has no ignition effect", () => {
-      facade.initializeGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS])); // no ignition effect
+      facade.startGame(createTestDeckRecipe([...FIVE_NORMAL_SPELLS])); // no ignition effect
       advanceToMain1Phase(facade);
 
       const state = get(gameStateStore);

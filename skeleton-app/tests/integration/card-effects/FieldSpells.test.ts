@@ -33,9 +33,7 @@ import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
-import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
-
-initializeChainableActionRegistry();
+// Note: ChainableActionRegistry は setup.ts で初期化済み
 
 describe("Chicken Game (67616300) - Integration Tests", () => {
   const chickenGameCardId = 67616300;

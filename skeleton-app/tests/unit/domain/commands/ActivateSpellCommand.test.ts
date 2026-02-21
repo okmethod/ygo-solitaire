@@ -6,19 +6,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState, createSpellCard, createSetCard } from "../../../__testUtils__/gameStateFactory";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { ChainableActionRegistry, initializeChainableActionRegistry } from "$lib/domain/effects/actions";
-import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
-import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
-import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
-import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
-
-initializeChainableActionRegistry();
-
-// テスト用ダミーカードの効果を登録
-ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));
-ChainableActionRegistry.registerActivation(1004, QuickPlaySpellActivation.createNoOp(1004));
-ChainableActionRegistry.registerActivation(1005, ContinuousSpellActivation.createNoOp(1005));
-ChainableActionRegistry.registerActivation(1006, FieldSpellActivation.createNoOp(1006));
 
 describe("ActivateSpellCommand", () => {
   let initialState: GameSnapshot;

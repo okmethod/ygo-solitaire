@@ -1,8 +1,6 @@
 /**
  * ChainableAction Effect Library - 発動する効果ライブラリ
  *
- * TODO: 選んだデッキレシピに含まれるカードの効果のみ登録するように最適化したい
- *
  * @module domain/effects/actions
  */
 
@@ -30,26 +28,73 @@ import { ToonWorldActivation } from "$lib/domain/effects/actions/activations/ind
 import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/spells/ChickenGameIgnitionEffect";
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/Ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 
-/** 発動する効果:チェーンブロックを作る処理 のレジストリを初期化する */
-export function initializeChainableActionRegistry(): void {
-  // カードの発動
-  ChainableActionRegistry.registerActivation(55144522, new PotOfGreedActivation());
-  ChainableActionRegistry.registerActivation(79571449, new GracefulCharityActivation());
-  ChainableActionRegistry.registerActivation(67616300, FieldSpellActivation.createNoOp(67616300));
-  ChainableActionRegistry.registerActivation(70368879, new UpstartGoblinActivation());
-  ChainableActionRegistry.registerActivation(33782437, new OneDayOfPeaceActivation());
-  ChainableActionRegistry.registerActivation(85852291, new MagicalMalletActivation());
-  ChainableActionRegistry.registerActivation(74519184, new CardDestructionActivation());
-  ChainableActionRegistry.registerActivation(90928333, new DarkFactoryActivation());
-  ChainableActionRegistry.registerActivation(73628505, new TerraformingActivation());
-  ChainableActionRegistry.registerActivation(98494543, new MagicalStoneExcavationActivation());
-  ChainableActionRegistry.registerActivation(93946239, new IntoTheVoidActivation());
-  ChainableActionRegistry.registerActivation(98645731, new PotOfDualityActivation());
-  ChainableActionRegistry.registerActivation(59750328, new CardOfDemiseActivation());
-  ChainableActionRegistry.registerActivation(89997728, new ToonTableOfContentsActivation());
-  ChainableActionRegistry.registerActivation(15259703, new ToonWorldActivation());
+// ===========================
+// マップエントリ生成ヘルパー
+// ===========================
 
-  // 起動効果
-  ChainableActionRegistry.registerIgnition(67616300, new ChickenGameIgnitionEffect());
-  ChainableActionRegistry.registerIgnition(70791313, new RoyalMagicalLibraryIgnitionEffect());
+import type { ChainableAction } from "$lib/domain/models/Effect";
+
+type RegistrationEntry = [number, () => void];
+
+/** 発動効果のエントリを生成 */
+const activation = (id: number, action: ChainableAction): RegistrationEntry => [
+  id,
+  () => ChainableActionRegistry.registerActivation(id, action),
+];
+
+/** 起動効果のエントリを生成 */
+const ignition = (id: number, action: ChainableAction): RegistrationEntry => [
+  id,
+  () => ChainableActionRegistry.registerIgnition(id, action),
+];
+
+/** 発動効果＋起動効果のエントリを生成（フィールド魔法など） */
+const fieldWithIgnition = (id: number, ignitionAction: ChainableAction): RegistrationEntry => [
+  id,
+  () => {
+    ChainableActionRegistry.registerActivation(id, FieldSpellActivation.createNoOp(id));
+    ChainableActionRegistry.registerIgnition(id, ignitionAction);
+  },
+];
+
+// ===========================
+// 定義マップ
+// ===========================
+
+/** カードID → 登録関数のマッピング */
+const chainableActionRegistrations = new Map<number, () => void>([
+  // カードの発動
+  activation(55144522, new PotOfGreedActivation()),
+  activation(79571449, new GracefulCharityActivation()),
+  fieldWithIgnition(67616300, new ChickenGameIgnitionEffect()),
+  activation(70368879, new UpstartGoblinActivation()),
+  activation(33782437, new OneDayOfPeaceActivation()),
+  activation(85852291, new MagicalMalletActivation()),
+  activation(74519184, new CardDestructionActivation()),
+  activation(90928333, new DarkFactoryActivation()),
+  activation(73628505, new TerraformingActivation()),
+  activation(98494543, new MagicalStoneExcavationActivation()),
+  activation(93946239, new IntoTheVoidActivation()),
+  activation(98645731, new PotOfDualityActivation()),
+  activation(59750328, new CardOfDemiseActivation()),
+  activation(89997728, new ToonTableOfContentsActivation()),
+  activation(15259703, new ToonWorldActivation()),
+  // 起動効果のみのカード
+  ignition(70791313, new RoyalMagicalLibraryIgnitionEffect()),
+]);
+
+// ===========================
+// 登録関数
+// ===========================
+
+/** レジストリをクリアし、指定されたカードIDの ChainableAction を登録する */
+export function registerChainableActionsByIds(cardIds: number[]): void {
+  ChainableActionRegistry.clear();
+
+  for (const cardId of cardIds) {
+    const register = chainableActionRegistrations.get(cardId);
+    if (register) {
+      register();
+    }
+  }
 }

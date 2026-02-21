@@ -15,18 +15,13 @@
  * トリガーステップを取得し、カウンター蓄積ロジックをテストしています。
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { EventType } from "$lib/domain/models/GameProcessing";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-import { initializeChainableActionRegistry } from "$lib/domain/effects/actions";
-import { AdditionalRuleRegistry, initializeAdditionalRuleRegistry } from "$lib/domain/effects/rules";
-
-// Initialize registries
-initializeChainableActionRegistry();
-initializeAdditionalRuleRegistry();
+import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 
 describe("Counter Accumulation - Royal Magical Library", () => {
   const royalMagicalLibraryId = 70791313;
@@ -73,12 +68,6 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       instanceId: `deck-${i}`,
       location: "mainDeck" as const,
     }));
-
-  beforeEach(() => {
-    // Clear the registry before each test to ensure isolation
-    AdditionalRuleRegistry.clear();
-    initializeAdditionalRuleRegistry();
-  });
 
   describe("US1: 魔力カウンターの自動蓄積", () => {
     it("Scenario: 王立魔法図書館がフィールドにいる状態で魔法発動 → カウンターが1つ置かれる", () => {

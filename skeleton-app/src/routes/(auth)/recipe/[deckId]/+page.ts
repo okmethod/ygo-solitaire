@@ -1,11 +1,16 @@
 import type { PageLoad } from "./$types";
-import { loadDeck } from "$lib/application/decks/deckLoader";
+import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
+import { registerCardDataByIds } from "$lib/domain/CardDataRegistry";
 
 export const load: PageLoad = ({ params }) => {
   const { deckId } = params;
 
-  // デッキデータを読み込む
-  const { deckData, uniqueCardIds } = loadDeck(deckId);
+  const deckRecipe = getDeckRecipe(deckId);
+  const uniqueCardIds = extractUniqueCardIds(deckRecipe);
+
+  registerCardDataByIds(uniqueCardIds);
+
+  const deckData = buildDeckData(deckRecipe, uniqueCardIds);
 
   return {
     deckId,

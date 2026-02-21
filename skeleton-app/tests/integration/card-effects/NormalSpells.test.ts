@@ -29,9 +29,7 @@
 import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { initializeChainableActionRegistry } from "$lib/domain/effects/actions/index";
-
-initializeChainableActionRegistry();
+// Note: ChainableActionRegistry は setup.ts で初期化済み
 
 describe("Normal Spell Card Effects", () => {
   describe("Pot of Greed (55144522) - Scenario Tests", () => {
