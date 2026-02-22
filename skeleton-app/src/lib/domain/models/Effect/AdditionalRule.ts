@@ -118,6 +118,26 @@ export interface AdditionalRule {
   readonly triggers?: readonly EventType[];
 
   /**
+   * トリガータイミング種別（TriggerRule用）
+   *
+   * - "when": 「〜した時」- 直後のみ発動可能、タイミングを逃す可能性あり
+   * - "if": 「〜した場合」- 一連の処理の後でも発動可能、タイミングを逃さない
+   *
+   * 未指定の場合は "if" として扱う（タイミングを逃さない）
+   */
+  readonly triggerTiming?: "when" | "if";
+
+  /**
+   * 強制効果かどうか（TriggerRule用）
+   *
+   * - true: 強制効果（条件を満たせば必ず発動）
+   * - false: 任意効果（発動するか選択可能）
+   *
+   * 未指定の場合は true（強制）として扱う
+   */
+  readonly isMandatory?: boolean;
+
+  /**
    * トリガー発動時のステップ生成（TriggerRule用）
    *
    * 指定したトリガーイベントが発生した際に実行されるステップを生成する。

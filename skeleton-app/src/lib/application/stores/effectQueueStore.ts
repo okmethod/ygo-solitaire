@@ -140,6 +140,7 @@ import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/Ga
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
+import { isThenMarker } from "$lib/domain/effects/steps/timing";
 
 // 通知ハンドラのインターフェース
 interface NotificationHandler {
@@ -415,6 +416,19 @@ function createEffectQueueStore(): EffectQueueStore {
     confirmCurrentStep: async () => {
       let state = getStoreValue(effectQueueStore);
       if (!state.currentStep) return;
+
+      // THEN マーカー検出: タイミングを進めて次のステップへ
+      if (isThenMarker(state.currentStep)) {
+        update((s) => ({
+          ...s,
+          eventTimeline: GameProcessing.TimeLine.advanceTime(s.eventTimeline),
+        }));
+        const hasNext = transitionToNextStep(state, update);
+        if (hasNext) {
+          effectQueueStore.confirmCurrentStep();
+        }
+        return;
+      }
 
       const currentGameState = getStoreValue(gameStateStore);
       const strategy = selectStrategy(state.currentStep);
