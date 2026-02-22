@@ -111,8 +111,6 @@ export class ActivateSpellCommand implements GameCommand {
     const activation = ChainableActionRegistry.getActivation(cardInstance.id);
     const activationSteps = activation?.createActivationSteps(updatedState, cardInstance) ?? [];
     const resolutionSteps = activation?.createResolutionSteps(updatedState, cardInstance) ?? [];
-
-    // チェーンブロック情報を構築
     const chainBlock = activation
       ? {
           effectId: activation.effectId,
@@ -124,8 +122,6 @@ export class ActivateSpellCommand implements GameCommand {
         }
       : undefined;
 
-    // effectSteps: 発動時処理（即座に実行）
-    // chainBlock.resolutionSteps: 解決時処理（チェーン解決時に実行）
     return Command.Result.success(
       updatedState,
       `Spell card activated: ${this.cardInstanceId}`,

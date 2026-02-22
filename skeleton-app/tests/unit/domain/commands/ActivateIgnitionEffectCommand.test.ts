@@ -216,15 +216,15 @@ describe("ActivateIgnitionEffectCommand", () => {
   });
 
   describe("execute", () => {
-    it("should successfully activate ignition effect and return effectSteps", () => {
+    it("should successfully activate ignition effect and return activationSteps", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
       expect(result.updatedState).toBeDefined();
-      expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBeGreaterThan(0);
+      expect(result.activationSteps).toBeDefined();
+      expect(result.activationSteps!.length).toBeGreaterThan(0);
       expect(result.message).toContain("Ignition effect activated");
     });
 
@@ -285,16 +285,16 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(initialState).toEqual(originalState);
     });
 
-    it("should include both activation and resolution steps in effectSteps", () => {
+    it("should include both activation and resolution steps in activationSteps", () => {
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      // Chicken Game: effectSteps = activation steps only (発動通知 + LP payment)
-      expect(result.effectSteps!.length).toBe(2);
+      // Chicken Game: activationSteps = activation steps only (発動通知 + LP payment)
+      expect(result.activationSteps!.length).toBe(2);
       // chainBlock.resolutionSteps = resolution steps (draw)
       expect(result.chainBlock!.resolutionSteps.length).toBe(1);
     });
@@ -441,15 +441,15 @@ describe("ActivateIgnitionEffectCommand", () => {
     });
 
     describe("execute", () => {
-      it("should successfully activate Royal Magical Library ignition effect and return effectSteps", () => {
+      it("should successfully activate Royal Magical Library ignition effect and return activationSteps", () => {
         const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
 
         const result = command.execute(libraryState);
 
         expect(result.success).toBe(true);
         expect(result.updatedState).toBeDefined();
-        expect(result.effectSteps).toBeDefined();
-        expect(result.effectSteps!.length).toBeGreaterThan(0);
+        expect(result.activationSteps).toBeDefined();
+        expect(result.activationSteps!.length).toBeGreaterThan(0);
         expect(result.message).toContain("Ignition effect activated");
       });
 
@@ -459,10 +459,10 @@ describe("ActivateIgnitionEffectCommand", () => {
         const result = command.execute(libraryState);
 
         expect(result.success).toBe(true);
-        expect(result.effectSteps).toBeDefined();
+        expect(result.activationSteps).toBeDefined();
         expect(result.chainBlock).toBeDefined();
-        // Royal Magical Library: effectSteps = activation steps only (発動通知 + カウンター消費)
-        expect(result.effectSteps!.length).toBe(2);
+        // Royal Magical Library: activationSteps = activation steps only (発動通知 + カウンター消費)
+        expect(result.activationSteps!.length).toBe(2);
         // chainBlock.resolutionSteps = resolution steps (draw)
         expect(result.chainBlock!.resolutionSteps.length).toBe(1);
       });
@@ -473,12 +473,12 @@ describe("ActivateIgnitionEffectCommand", () => {
         const result = command.execute(libraryState);
 
         expect(result.success).toBe(true);
-        expect(result.effectSteps).toBeDefined();
+        expect(result.activationSteps).toBeDefined();
         expect(result.chainBlock).toBeDefined();
 
-        // Execute all steps: effectSteps (activation) + chainBlock.resolutionSteps (resolution)
+        // Execute all steps: activationSteps (activation) + chainBlock.resolutionSteps (resolution)
         let currentState = result.updatedState;
-        for (const step of result.effectSteps!) {
+        for (const step of result.activationSteps!) {
           const stepResult = step.action(currentState);
           expect(stepResult.success).toBe(true);
           currentState = stepResult.updatedState;
@@ -573,7 +573,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       // Execute Chicken Game's activation steps to record it
       let stateAfterChicken = chickenResult.updatedState;
-      for (const step of chickenResult.effectSteps!) {
+      for (const step of chickenResult.activationSteps!) {
         const stepResult = step.action(stateAfterChicken);
         if (stepResult.success) {
           stateAfterChicken = stepResult.updatedState;

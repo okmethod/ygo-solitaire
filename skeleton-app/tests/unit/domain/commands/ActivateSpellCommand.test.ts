@@ -89,7 +89,7 @@ describe("ActivateSpellCommand", () => {
   });
 
   describe("execute", () => {
-    it("should successfully activate spell card and return effectSteps", () => {
+    it("should successfully activate spell card and return activationSteps", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(initialState);
@@ -107,9 +107,9 @@ describe("ActivateSpellCommand", () => {
       expect(result.updatedState.space.spellTrapZone.some((c) => c.instanceId === spellCardId)).toBe(true);
       expect(result.updatedState.space.graveyard.length).toBe(0);
 
-      // NEW: Verify effectSteps are returned
-      expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBeGreaterThan(0);
+      // NEW: Verify activationSteps are returned
+      expect(result.activationSteps).toBeDefined();
+      expect(result.activationSteps!.length).toBeGreaterThan(0);
     });
 
     it("should fail when card is not in hand", () => {
@@ -335,7 +335,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone[0].stateOnField?.position).toBe("faceUp");
       expect(result.updatedState.space.fieldZone[0].instanceId).toBe("set-field-spell-1");
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
     });
 
     it("should reject activating quick-play spell set this turn", () => {

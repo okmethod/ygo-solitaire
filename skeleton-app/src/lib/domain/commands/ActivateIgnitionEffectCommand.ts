@@ -122,8 +122,6 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     // 3. 戻り値の構築
     const activationSteps = activatableEffect.createActivationSteps(updatedState, cardInstance);
     const resolutionSteps = activatableEffect.createResolutionSteps(updatedState, cardInstance);
-
-    // チェーンブロック情報を構築
     const chainBlock = {
       effectId: activatableEffect.effectId,
       sourceInstanceId: cardInstance.instanceId,
@@ -133,8 +131,6 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       isNegated: false,
     };
 
-    // effectSteps: 発動時処理（即座に実行）
-    // chainBlock.resolutionSteps: 解決時処理（チェーン解決時に実行）
     return Command.Result.success(
       updatedState,
       `Ignition effect activated: ${this.cardInstanceId}`,

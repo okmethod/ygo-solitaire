@@ -95,7 +95,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
 
       // Assert: Activation successful
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
 
       // 新しい設計: トリガーステップは effectQueueStore で動的に挿入される
       // ここでは AdditionalRuleRegistry.collectTriggerSteps() を直接呼び出してテスト
@@ -225,7 +225,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const result = command.execute(state);
 
       // Verify trigger step does NOT exist (face-down cards don't trigger)
-      const triggerStep = result.effectSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
+      const triggerStep = result.activationSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
       expect(triggerStep).toBeUndefined();
 
       // Verify activation succeeds and library remains unchanged
@@ -257,7 +257,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const result = command.execute(state);
 
       // Verify trigger step does NOT exist (no trigger rules on field)
-      const triggerStep = result.effectSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
+      const triggerStep = result.activationSteps!.find((step) => step.id.startsWith("royal-magical-library-counter-"));
       expect(triggerStep).toBeUndefined();
 
       // Activation should still succeed

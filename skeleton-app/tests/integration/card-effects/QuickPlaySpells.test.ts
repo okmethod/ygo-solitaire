@@ -50,19 +50,19 @@ describe("Quick-Play Spell Card Effects", () => {
         },
       });
 
-      // Act: Activate Card Destruction (new system - returns effectSteps)
+      // Act: Activate Card Destruction (new system - returns activationSteps)
       const command = new ActivateSpellCommand("destruction-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(3); // discard + draw + send-to-graveyard
 
       // Verify activation steps
-      expect(result.effectSteps![0]).toMatchObject({
+      expect(result.activationSteps![0]).toMatchObject({
         id: "74519184-activation-notification",
         summary: "カード発動",
         description: "《手札断札》を発動します",

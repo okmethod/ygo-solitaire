@@ -518,7 +518,7 @@ describe("GameFacade", () => {
       // Card is removed from hand and placed on spellTrapZone
       expect(updatedState.space.hand.length).toBe(initialHandSize - 1);
       expect(updatedState.space.spellTrapZone.length).toBe(1);
-      // Note: Graveyard step is in effectSteps, processed asynchronously by effectQueueStore
+      // Note: Graveyard step is in activationSteps, processed asynchronously by effectQueueStore
     });
 
     it("should fail when not in Main1 phase", () => {

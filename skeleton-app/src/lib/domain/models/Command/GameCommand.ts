@@ -12,18 +12,16 @@ import { GameState } from "$lib/domain/models/GameState";
  */
 export interface GameCommandResult extends GameStateUpdateResult {
   /**
-   * 効果処理ステップ（activationSteps）
+   * 発動時処理ステップ
    *
    * ドメイン層がアプリ層に効果処理を委譲する際に使用。
-   * - ActivateSpellCommand.execute() が effectSteps を返す
+   * - ActivateSpellCommand.execute() が activationSteps を返す
    * - GameFacade.activateSpell() が effectQueueStore.startProcessing() を呼ぶ
    *
-   * Note: チェーンシステム実装後は、発動時処理（activationSteps）のみを含む。
+   * 発動時処理（コスト支払い、対象選択等）のみを含む。
    * 解決時処理（resolutionSteps）は chainBlock に含まれる。
-   * フェーズ3でチェーンシステムを実装後、GameFacade 側で発動時処理と解決時処理を分離したのち、
-   * activationSteps にリネームする
    */
-  readonly effectSteps: AtomicStep[];
+  readonly activationSteps: AtomicStep[];
 
   /**
    * チェーンブロック情報（チェーンブロックを作る処理の場合）
@@ -62,7 +60,7 @@ export const successCommandResult = (
   updatedState: GameSnapshot,
   message?: string,
   emittedEvents?: GameEvent[],
-  effectSteps?: AtomicStep[],
+  activationSteps?: AtomicStep[],
   chainBlock?: ChainBlockParams,
 ): GameCommandResult => {
   // 開発時のみ
@@ -78,7 +76,7 @@ export const successCommandResult = (
     updatedState: checkedState,
     message,
     emittedEvents,
-    effectSteps: effectSteps ?? [],
+    activationSteps: activationSteps ?? [],
     chainBlock,
   };
 };
@@ -89,6 +87,6 @@ export const failureCommandResult = (state: GameSnapshot, error: string): GameCo
     success: false,
     updatedState: state, // 状態は変更されない
     error,
-    effectSteps: [],
+    activationSteps: [],
   };
 };

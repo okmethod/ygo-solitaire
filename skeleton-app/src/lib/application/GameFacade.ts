@@ -36,8 +36,7 @@ export type FacadeResult = {
   success: boolean;
   message?: string;
   error?: string;
-  // updatedState: アプリ層で消費されるため、プレゼン層には公開しない
-  // effectSteps: アプリ層で消費されるため、プレゼン層には公開しない
+  // アプリ層で消化される効果処理ステップ等は公開しない
 };
 
 // 許容される GameCommand のコンストラクタ引数パターンの定義
@@ -86,10 +85,10 @@ export class GameFacade {
         chainStackStore.pushChainBlock(result.chainBlock);
       }
 
-      // effectSteps（発動時処理）を即座に実行
+      // activationSteps（発動時処理）を即座に実行
       // チェーン解決は effectQueueStore 内で処理完了後に行われる
-      if (result.effectSteps && result.effectSteps.length > 0) {
-        effectQueueStore.startProcessing(result.effectSteps);
+      if (result.activationSteps && result.activationSteps.length > 0) {
+        effectQueueStore.startProcessing(result.activationSteps);
       } else if (result.chainBlock) {
         // 発動時処理がない場合は即座にチェーン解決を開始
         effectQueueStore.resolveChain();

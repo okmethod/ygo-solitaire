@@ -51,24 +51,24 @@ describe("Normal Spell Card Effects", () => {
         },
       });
 
-      // Act: Activate Pot of Greed (new system - returns effectSteps + chainBlock)
+      // Act: Activate Pot of Greed (new system - returns activationSteps + chainBlock)
       const command = new ActivateSpellCommand("pot-0"); // createCardInstances uses 0-based index
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) and chainBlock (resolution) are returned
+      // Assert: activationSteps (activation) and chainBlock (resolution) are returned
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
 
-      // effectSteps contains activation steps only:
+      // activationSteps contains activation steps only:
       // [activation notification, spell activated event]
-      expect(result.effectSteps!.length).toBe(2);
+      expect(result.activationSteps!.length).toBe(2);
       // chainBlock.resolutionSteps contains resolution steps:
       // [draw step, send-to-graveyard step]
       expect(result.chainBlock!.resolutionSteps.length).toBe(2);
 
       // Verify activation steps
-      expect(result.effectSteps![0]).toMatchObject({
+      expect(result.activationSteps![0]).toMatchObject({
         id: "55144522-activation-notification", // ID now uses card ID
         summary: "カード発動",
         description: "《強欲な壺》を発動します",
@@ -131,24 +131,24 @@ describe("Normal Spell Card Effects", () => {
         },
       });
 
-      // Act: Activate Graceful Charity (new system - returns effectSteps + chainBlock)
+      // Act: Activate Graceful Charity (new system - returns activationSteps + chainBlock)
       const command = new ActivateSpellCommand("charity-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) and chainBlock (resolution) are returned
+      // Assert: activationSteps (activation) and chainBlock (resolution) are returned
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
 
-      // effectSteps contains activation steps only:
+      // activationSteps contains activation steps only:
       // [activation notification, spell activated event]
-      expect(result.effectSteps!.length).toBe(2);
+      expect(result.activationSteps!.length).toBe(2);
       // chainBlock.resolutionSteps contains resolution steps:
       // [draw step, discard step, send-to-graveyard step]
       expect(result.chainBlock!.resolutionSteps.length).toBe(3);
 
       // Verify activation steps
-      expect(result.effectSteps![0]).toMatchObject({
+      expect(result.activationSteps![0]).toMatchObject({
         id: "79571449-activation-notification",
         summary: "カード発動",
         description: "《天使の施し》を発動します",
@@ -220,14 +220,14 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("mallet-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation only) and chainBlock (resolution)
+      // Assert: activationSteps (activation only) and chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation notification + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation notification + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(2); // select-return-shuffle-draw + send-to-graveyard
 
-      expect(result.effectSteps![0]).toMatchObject({
+      expect(result.activationSteps![0]).toMatchObject({
         id: "85852291-activation-notification",
         summary: "カード発動",
       });
@@ -290,14 +290,14 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("peace-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) and chainBlock (resolution) are returned
+      // Assert: activationSteps (activation) and chainBlock (resolution) are returned
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
 
-      // effectSteps contains activation steps only:
+      // activationSteps contains activation steps only:
       // [activation notification, spell activated event]
-      expect(result.effectSteps!.length).toBe(2);
+      expect(result.activationSteps!.length).toBe(2);
       // chainBlock.resolutionSteps contains resolution steps:
       // [draw step, damage negation step, send-to-graveyard step]
       expect(result.chainBlock!.resolutionSteps.length).toBe(3);
@@ -366,11 +366,11 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("goblin-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(3); // draw + gain life + send-to-graveyard
 
       // Verify resolution steps
@@ -460,11 +460,11 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("factory-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(2); // selection + send-to-graveyard
 
       // Verify resolution steps
@@ -561,11 +561,11 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("terra-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(2); // search + send-to-graveyard
 
       // Verify resolution steps
@@ -631,21 +631,21 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("excavation-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation with discard cost) + chainBlock (resolution)
+      // Assert: activationSteps (activation with discard cost) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(3); // activation + spell activated event + discard (cost)
+      expect(result.activationSteps!.length).toBe(3); // activation + spell activated event + discard (cost)
       expect(result.chainBlock!.resolutionSteps.length).toBe(2); // search + send-to-graveyard
 
       // Verify activation steps
-      expect(result.effectSteps![0]).toMatchObject({
+      expect(result.activationSteps![0]).toMatchObject({
         id: "98494543-activation-notification",
         summary: "カード発動",
         description: "《魔法石の採掘》を発動します",
       });
       // index=1 is emitSpellActivatedEventStep
-      expect(result.effectSteps![2]).toMatchObject({
+      expect(result.activationSteps![2]).toMatchObject({
         id: "select-and-discard-2-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
@@ -730,15 +730,15 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("void-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(3); // draw + end phase + send-to-graveyard
 
       // Verify activation steps
-      expect(result.effectSteps![0]).toMatchObject({
+      expect(result.activationSteps![0]).toMatchObject({
         id: "93946239-activation-notification",
         summary: "カード発動",
         description: "《無の煉獄》を発動します",
@@ -825,15 +825,15 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("duality-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(3); // search + shuffle + send-to-graveyard
 
       // Verify activation step
-      expect(result.effectSteps![0].id).toBe("98645731-activation-notification");
+      expect(result.activationSteps![0].id).toBe("98645731-activation-notification");
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0].id).toContain("pot-of-duality-search");
@@ -927,15 +927,15 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("demise-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(3); // draw + end phase effect + send-to-graveyard
 
       // Verify activation step
-      expect(result.effectSteps![0].id).toBe("59750328-activation-notification");
+      expect(result.activationSteps![0].id).toBe("59750328-activation-notification");
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0].id).toContain("fill-hands-3");
@@ -970,11 +970,11 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("demise-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(3); // draw + end phase + send-to-graveyard
 
       // Verify resolution steps
@@ -1050,11 +1050,11 @@ describe("Normal Spell Card Effects", () => {
       const command = new ActivateSpellCommand("toon-table-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps (activation) + chainBlock (resolution)
+      // Assert: activationSteps (activation) + chainBlock (resolution)
       expect(result.success).toBe(true);
-      expect(result.effectSteps).toBeDefined();
+      expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      expect(result.effectSteps!.length).toBe(2); // activation + spell activated event
+      expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(2); // search + send-to-graveyard
 
       // Verify resolution steps
