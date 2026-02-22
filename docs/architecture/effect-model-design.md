@@ -24,9 +24,9 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 ```
 [コマンド選択]
     ↓
-[GameFacade] → 各種Commandクラス実行、GameState更新、effectSteps生成
+[GameFacade] → 各種Commandクラス実行、GameState更新、効果処理ステップ生成
     ↓
-[effectQueueStore] → effectSteps処理、通知とインタラクティブ制御、イベント検知と割り込み処理制御、GameState更新
+[effectQueueStore] → ステップ処理、通知とインタラクティブ制御、イベント検知と割り込み処理制御、GameState更新
     ↓
 [Modal.svelte] → UI コンポーネント表示
 ```
@@ -41,7 +41,7 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 
 **階層構造**
 
-- `models/Effect/AtomicStep.ts`: インターフェース定義
+- `models/GameProcessing/AtomicStep.ts`: インターフェース定義
 - `effects/steps/` ステップ定義
 
 ### Chainable Action :チェーンブロックを作る処理（発動する効果）
@@ -97,6 +97,7 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 | `NameOverride`      | カード名変更             | `apply()`              |
 | `StatusModifier`    | 攻撃力/守備力変更        | `apply()`              |
 | `SummonCondition`   | 特殊召喚条件             | `checkPermission()`    |
+| `SummonPermission`  | 召喚制限                 | `checkPermission()`    |
 | `ActionPermission`  | 行動制限（攻撃不可等）   | `checkPermission()`    |
 | `VictoryCondition`  | 特殊勝利判定             | `checkPermission()`    |
 | `ActionReplacement` | 破壊耐性、身代わり効果   | `replace()`            |
@@ -143,7 +144,8 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 - **イベントトリガー処理**:
   - 各種効果のトリガーとなるイベントを検知し、条件を満たす効果を収集する
   - 収集した効果のステップをキューに挿入し、割り込み処理する
-- **チェーン管理**:（⏳ 未実装）
+- **チェーン管理**:
+  - `chainStackStore` と連携してチェーンスタックを管理する
   - チェーンできるイベントとタイミングを検知し、チェーン有無を確認するステップをキューに挿入する
   - チェーンする場合は、発動処理ステップを処理し、解決処理ステップをスタックする
   - チェーン解決時に、スタックした解決処理ステップを処理する
