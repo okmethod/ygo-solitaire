@@ -5,157 +5,208 @@
 YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設計されている:
 
 - **Domain Layer**: 効果の分類と手続き・ルールの定義
-  - **ChainableAction**:「発動する効果: チェーンブロックを作る処理」のモデル化と具体実装とレジストリ
-  - **AdditionalRule**: 「適用する効果: 追加適用されるルール」のモデル化と具体実装とレジストリ
-- **Application Layer**: 効果処理・ルール適用のワークフロー
-- **Presentation Layer**: 通知や、カード選択などの UI 提供
+  - 「発動する効果: チェーンブロックを作る処理」のモデル化と具体実装とレジストリ
+  - 「適用する効果: 追加適用されるルール」のモデル化と具体実装とレジストリ
+- **Application Layer**: 効果処理・ルール適用・ユーザ選択のワークフロー
+- **Presentation Layer**: 通知・カード選択などの UI 提供
 
 この 3 層構造により、以下を実現している:
 
 1. **明確な責務分離**: Domain/Application/Presentation の各層が独立
 2. **遊戯王 PSCT への準拠**: 遊戯王の公式ルールへのプログラム的な解釈・マッピングと実行可能性を担保
 3. **抽象化による再利用と重複排除**: 共通クラスの再利用により、個別カードの実装コードを極小化
+4. **テスタビリティ**: 各効果を個別にユニットテスト可能
 
-この設計により、高い保守性・拡張性・テスタビリティの高いコードベースを実現している。
+ドメイン知識（発動する効果、適用する効果等）については [効果モデル](../domain/effect-model.md) を参照。
 
-**参考**: [PSCT: Problem-Solving Card Text](https://www.yugioh-card.com/en/play/psct/)
+## 処理フロー
+
+```
+[コマンド選択]
+    ↓
+[GameFacade] → 各種Commandクラス実行、GameState更新、effectSteps生成
+    ↓
+[effectQueueStore] → effectSteps処理、通知とインタラクティブ制御、イベント検知と割り込み処理制御、GameState更新
+    ↓
+[Modal.svelte] → UI コンポーネント表示
+```
 
 ---
 
 ## Domain Layer
+
+### Atomic Step :効果処理ステップ
+
+アトミックなゲーム状態更新のステップを定義し、個別の効果実装で再利用する。
+
+**階層構造**
+
+- `models/Effect/AtomicStep.ts`: インターフェース定義
+- `effects/steps/` ステップ定義
 
 ### Chainable Action :チェーンブロックを作る処理（発動する効果）
 
 発動宣言から解決までのフローを管理する。  
 カードの発動も、「チェーンブロックを作る処理」のため、同一クラスで管理する。
 
-#### クラス階層 (抽象化構造)
+**階層構造**
 
-```
-domain/
-├── models/
-│   ├── ChainableAction.ts           # チェーンブロックを作る処理のインターフェース
-│   └── AtomicStep.ts                # 効果処理ステップのインターフェース
-│
-├── effects/
-│   ├── base/                        # 種別ごとの基底クラス
-│   │   ├── monster (※将来拡張予定)
-│   │   │   └── BaseMonsterAction    # モンスターカード共通
-│   │   ├── spell
-│   │   │   ├── BaseSpellAction      # 魔法カード共通
-│   │   │   ├── NormalSpellAction    # 通常魔法共通
-│   │   │   ├── QuickPlaySpellAction # 速攻魔法共通
-│   │   │   └── FieldSpellAction     # フィールド魔法共通
-│   │   └── trap (※将来拡張予定)
-│   │       └── BaseTrapAction       # 罠カード共通
-│   │
-│   ├── builders/                    # 頻出ステップのヘルパー関数群
-│   │   └── (etc)
-│   │
-│   └── actions/                     # 個別カードの具象実装
-│       ├── monster
-│       │   └── (etc)
-│       ├── spell
-│       │   └── (etc)
-│       └── trap
-│           └── (etc)
-│
-└── registries/
-    └── ChainableActionRegistry.ts   # チェーンブロックを作る処理の定義レジストリ
-```
+- `models/Effect/ChainableAction.ts`: インターフェース定義
+- `effects/actions/`: 効果定義
+  - `ChainableActionRegistry.ts`: 定義レジストリ
+  - `activations/`: カードの発動
+    - `individuals/**/*Activation.ts`
+  - `ignitions/`: 起動効果
+    - `individuals/**/*IgnitionEffect.ts`
+  - `quicks/`: 誘発即時効果（⏳ 未実装）
+    - `individuals/**/*QuickEffect.ts`
+  - `triggers/`: 誘発効果（⏳ 未実装）
+    - `individuals/**/*TriggerEffect.ts`
 
-#### 主要メソッド
+**主要メソッド**
 
 - **CONDITIONS**: `canActivate(state, context)`
 - **ACTIVATION**: `createActivationSteps(state, instanceId)`
 - **RESOLUTION**: `createResolutionSteps(state, instanceId)`
 
-#### Step Builder 関数 (Step Factories)
-
-よく使われる処理は `builders/stepBuilders.ts` として共通化し、個別のカード実装を簡略化する。
-
-- `createDrawStep(amount)`: ドロー処理の生成
-- `createSendToGraveyardStep(target)`: 墓地送り処理の生成
-- `createSearchStep(filter)`: デッキからのサーチ処理の生成
-
 ### Additional Rule :追加適用するルール（適用する効果）
 
-#### クラス階層 (抽象化構造)
+チェーンブロックを作らず、特定の条件下で常にゲーム状態に干渉する。
 
-```
-domain/
-├── models/
-│   ├── AdditionalRule.ts           # 追加適用するルールのインターフェース
-│   └── RuleContext.ts              # 各ルールのコンテキストパラメータのインターフェース
-│
-├── effects/
-│   ├── base/                       # 種別ごとの基底クラス
-│   │   └── (※将来拡張予定)
-│   │
-│   └── rules/                      # 個別カードの具象実装
-│       ├── monster
-│       │   └── (etc)
-│       ├── spell
-│       │   └── (etc)
-│       └── trap
-│           └── (etc)
-│
-└── registries/
-    └── AdditionalRuleRegistry.ts   # 追加適用するルールの定義レジストリ
-```
+**階層構造**
 
-#### 主要フラグ
+- `models/Effect/AdditionalRule.ts`: インターフェース定義
+- `effects/rules/`: 効果定義
+  - `AdditionalRuleRegistry.ts`: 定義レジストリ
+  - `continuouses/`: 永続効果
+    - `individuals/**/*ContinuousEffect.ts`
+  - `unclassifieds/`: 分類されない効果（⏳ 未実装）
+    - `individuals/**/*UnclassifiedEffect.ts`
+  - `nons/`: 効果外テキスト（⏳ 未実装）
+    - `individuals/**/*NonEffect.ts`
 
-チェーンブロックを作らず、特定の条件下で常にゲーム状態に干渉する。  
-フラグ、およびファイル命名規則（後述）によって分類する。
+**主要プロパティ**
 
-| ルールタイプ     | isEffect             | scope                            |
-| ---------------- | -------------------- | -------------------------------- |
-| 永続効果         | `True` (無効化可能)  | `Field` (フィールド上でのみ有効) |
-| 分類されない効果 | `True` (無効化可能)  | `Any` (フィールド以外でも有効)   |
-| 効果外テキスト   | `False` (無効化不可) | `Any` (フィールド以外でも有効)   |
+- `isEffect: boolean` - ルール上「効果」にあたるか（無効化の対象となるか）
+- `category: RuleCategory` - どの処理に介入するかを定義
 
-### 個別カード効果実装ファイルの命名規則
+**RuleCategory の分類**
 
-| 効果タイプ           | 接尾語                  | 説明                                                   |
-| -------------------- | ----------------------- | ------------------------------------------------------ |
-| **カードの発動**     | `Activation.ts`         | 永続カードの発動、および使い切りカードの発動＆効果処理 |
-| **起動効果**         | `IgnitionEffect.ts`     | 発動を宣言して使用する効果（スペルスピード 1）         |
-| **誘発即時効果**     | `QuickEffect.ts`        | 発動を宣言して使用する効果（スペルスピード 2）         |
-| **誘発効果**         | `TriggerEffect.ts`      | 特定のイベントに反応して、強制または任意で発動する効果 |
-| **永続効果**         | `ContinuousEffect.ts`   | フィールドに存在する限り有効になるルール効果           |
-| **分類されない効果** | `UnclassifiedEffect.ts` | フィールドに存在しなくても有効になるルール効果         |
-| **効果外テキスト**   | `NonEffect.ts`          | 特殊勝利条件等、無効化されないルール効果               |
+| カテゴリ            | 用途                     | 使用メソッド           |
+| ------------------- | ------------------------ | ---------------------- |
+| `NameOverride`      | カード名変更             | `apply()`              |
+| `StatusModifier`    | 攻撃力/守備力変更        | `apply()`              |
+| `SummonCondition`   | 特殊召喚条件             | `checkPermission()`    |
+| `ActionPermission`  | 行動制限（攻撃不可等）   | `checkPermission()`    |
+| `VictoryCondition`  | 特殊勝利判定             | `checkPermission()`    |
+| `ActionReplacement` | 破壊耐性、身代わり効果   | `replace()`            |
+| `SelfDestruction`   | 維持コスト、自壊         | `replace()`            |
+| `TriggerRule`       | イベント発生時に自動実行 | `createTriggerSteps()` |
 
 ---
 
 ## Application Layer
 
-### 効果処理のワークフロー
+効果処理のワークフロー制御を担当する。
 
-効果処理は、UI との対話（対象の選択など）を伴うため、ステップ形式で実行する。
+### `GameFacade`
 
-1. **発動フェーズ**:
+ゲーム状態に干渉するための唯一の入り口（Facade パターン）として、プレゼン層へのゲーム操作（コマンド）実行のエンドポイントを提供する。
 
-- `canActivate` 判定
-- `createActivationSteps` によるコスト支払い・対象指定ステップの実行。
+**ファイル**: `application/GameFacade.ts`
 
-2. **解決フェーズ**:
+**主要メソッド**
 
-- チェーンスタックからのポップ。
-- `createResolutionSteps` による効果処理ステップの実行。
+提供しているコマンドについては、[ゲーム操作コマンドモデル](./game-command-model.md) を参照。
 
-### ルール適用
+### `gameStateStore`
 
-※将来拡張予定
+**ファイル**: `application/stores/gameStateStore.ts`
+
+ゲーム状態の SSOT を管理する。  
+このストアの変更を `derivedStores` により監視し、派生したread-only値をプレゼン層に提供する。
+
+### `effectQueueStore`
+
+効果処理ステップキューの SSOT を管理する。  
+蓄積された AtomicStep を順次実行し、通知・カード選択をプレゼン層に委譲する。
+
+**ファイル**: `application/stores/effectQueueStore.ts`
+
+**主要機能**
+
+- **ステップキュー管理**:
+  - AtomicStep を順次実行する
+- **タイミング管理**:（⏳ 未実装）
+  - 「その後(THEN)」を検知し、タイミングを次に進める
+  - 「同時に発生したこと」「順番に発生したこと」を区別する
+- **イベントトリガー処理**:
+  - 各種効果のトリガーとなるイベントを検知し、条件を満たす効果を収集する
+  - 収集した効果のステップをキューに挿入し、割り込み処理する
+- **チェーン管理**:（⏳ 未実装）
+  - チェーンできるイベントとタイミングを検知し、チェーン有無を確認するステップをキューに挿入する
+  - チェーンする場合は、発動処理ステップを処理し、解決処理ステップをスタックする
+  - チェーン解決時に、スタックした解決処理ステップを処理する
+- **UI 連携**:
+  - 通知レベルに応じた通知・インタラクション制御により、ユーザーの選択を効果処理に反映させる
+
+**処理フロー**
+
+```
+[ステップ実行処理開始] → EventTimeline初期化
+    ↓
+[ステップ実行ループ:開始]
+  [[ステップを取り出す]]
+  step.id === "then-marker" ？
+    ├─ Yes → タイミングをインクリメント
+    └─ No  → ステップ実行（GameState更新、イベント収集）
+      ↓
+  [[イベント検知]]
+    ├─ TriggerRule (AdditionalRule) 抽出
+    │   → ステップをキューに自動挿入（割り込み処理）
+    │
+    └─ TriggerEffect (ChainableAction) 抽出 （⏳ 未実装）
+        → 発動確認ステップを挿入（強制or任意）
+        発動する？
+          ├─ Yes → activation → 自動挿入（即座に処理）
+          │        resolution → スタック
+          └─ No  → 次へ
+  [[チェーン確認]]
+  チェーンスタックが空でない？
+    ├─ Yes → チェーン確認ステップを挿入 → スペルスピード確認 → チェーン可能な効果を収集
+    │      発動する？
+    │        ├─ Yes → チェーン構築を繰り返す
+    │        └→ No  → チェーン終了 → スタックをLIFO順で解決
+    └─ No  → 次のステップへ
+[ステップ実行ループ:終了]
+    ↓
+[ステップ実行終了] → 最終的な GameState を確定
+```
 
 ---
 
 ## Presentation Layer
 
-### Effect Visibility
+効果処理の進行状況表示、ユーザー入力の受付を担当する。
 
-ユーザーに効果の内容や進行状況を伝えるためのデータ変換を行う。
+**コンポーネント構造**
 
-- **`ActionDisplayData`**: 発動可能な効果をボタンやリストとして表示するための型。
-- **`ResolutionStepView`**: 解決中のステップ内容（例：「カードを 1 枚ドローします」）をモーダルやログに表示。
+- `routes/(auth)/simulator/[deckId]/_components/`
+  - `DuelField.svelte`: ゲーム盤面表示コンポーネント
+  - `Hands.svelte`: 手札表示・操作コンポーネント
+  - `modals/ConfirmationModal.svelte`: 効果発動の通知・確認
+  - `modals/CardSelectionModal.svelte`: カード選択インタラクション
+
+**UIフロー**
+
+```
+[DuelField / Hands] → ユーザー操作受付（GameFacade経由でコマンド実行）
+  ↓
+[DuelField] → effectQueueStore 監視
+  notificationConfig発生 → ConfirmationModal 表示
+  cardSelectionConfig発生 → CardSelectionModal 表示
+    ↓
+  ユーザー操作（onConfirm or onCancel）
+    ↓
+  次のステップへ
+```
