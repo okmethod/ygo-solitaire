@@ -69,6 +69,9 @@ export interface chainStackStore {
   /** 現在のスタックサイズを取得する */
   getStackSize: () => number;
 
+  /** 現在の状態を取得する */
+  getState: () => ChainState;
+
   /** チェーンをリセットする */
   reset: () => void;
 }
@@ -144,6 +147,10 @@ function createchainStackStore(): chainStackStore {
     getStackSize: (): number => {
       const state = getStoreValue(store);
       return state.stack.length;
+    },
+
+    getState: (): ChainState => {
+      return getStoreValue(store);
     },
 
     reset: () => {

@@ -10,6 +10,9 @@
  */
 
 import type { ChainableAction } from "$lib/domain/models/Effect";
+import type { CardInstance } from "$lib/domain/models/Card";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { Card } from "$lib/domain/models/Card";
 
 /**
  * 1つのカードが持つ効果群を表現するインターフェース
@@ -68,6 +71,74 @@ export class ChainableActionRegistry {
   static hasIgnitionEffects(cardId: number): boolean {
     const entry = this.effects.get(cardId);
     return entry !== undefined && entry.ignitionEffects.length > 0;
+  }
+
+  // ===========================
+  // 収集API
+  // ===========================
+
+  /**
+   * チェーン可能なカードと効果を収集する
+   *
+   * 既にチェーンスタックに積まれているカードは除外される
+   */
+  static collectChainableActions(
+    state: GameSnapshot,
+    requiredSpellSpeed: 1 | 2 | 3,
+    excludeInstanceIds: Set<string> = new Set(),
+  ): { instance: CardInstance; action: ChainableAction }[] {
+    const result: { instance: CardInstance; action: ChainableAction }[] = [];
+
+    // 手札の速攻魔法を検索
+    for (const card of state.space.hand) {
+      // 既にスタックに積まれているカードはスキップ
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+
+      if (Card.isQuickPlaySpell(card)) {
+        const activation = this.getActivation(card.id);
+        if (activation && activation.spellSpeed >= requiredSpellSpeed) {
+          const validation = activation.canActivate(state, card);
+          if (validation.isValid) {
+            result.push({ instance: card, action: activation });
+          }
+        }
+      }
+    }
+
+    // セットされた速攻魔法・罠を検索
+    for (const card of state.space.spellTrapZone) {
+      // 既にスタックに積まれているカードはスキップ
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+
+      if (!Card.Instance.isFaceDown(card)) continue;
+
+      // セットしたターンは発動不可
+      if (card.stateOnField?.placedThisTurn) continue;
+
+      // 速攻魔法
+      if (Card.isQuickPlaySpell(card)) {
+        const activation = this.getActivation(card.id);
+        if (activation && activation.spellSpeed >= requiredSpellSpeed) {
+          const validation = activation.canActivate(state, card);
+          if (validation.isValid) {
+            result.push({ instance: card, action: activation });
+          }
+        }
+      }
+
+      // 罠カード
+      if (Card.isTrap(card)) {
+        const activation = this.getActivation(card.id);
+        if (activation && activation.spellSpeed >= requiredSpellSpeed) {
+          const validation = activation.canActivate(state, card);
+          if (validation.isValid) {
+            result.push({ instance: card, action: activation });
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   // ===========================

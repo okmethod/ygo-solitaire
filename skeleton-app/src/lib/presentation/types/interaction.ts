@@ -6,10 +6,17 @@
  * @module presentation/types/interaction
  */
 
-import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
+import type {
+  ConfirmationConfig,
+  ResolvedCardSelectionConfig,
+  ChainConfirmationConfig,
+} from "$lib/application/types/game";
 
 /** 確認モーダル用の設定（UIコンポーネントとしてわかりやすい名前） */
 export type ConfirmationModalConfig = ConfirmationConfig;
 
 /** カード選択モーダル用の設定（UIコンポーネントとしてわかりやすい名前） */
 export type CardSelectionModalConfig = ResolvedCardSelectionConfig;
+
+/** チェーン確認モーダル用の設定（UIコンポーネントとしてわかりやすい名前） */
+export type ChainConfirmationModalConfig = ChainConfirmationConfig;

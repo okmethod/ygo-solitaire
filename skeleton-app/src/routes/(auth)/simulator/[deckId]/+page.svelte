@@ -25,6 +25,7 @@
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
   import CardSelectionModal from "./_components/modals/CardSelectionModal.svelte";
+  import ChainConfirmationModal from "./_components/modals/ChainConfirmationModal.svelte";
   import GameOverModal from "./_components/modals/GameOverModal.svelte";
 
   const { data } = $props<{ data: PageData }>();
@@ -248,6 +249,12 @@
 <CardSelectionModal
   isOpen={$effectQueueStore.cardSelectionConfig !== null}
   config={$effectQueueStore.cardSelectionConfig}
+/>
+
+<!-- チェーン確認モーダル: チェーン可能なカードがある場合 -->
+<ChainConfirmationModal
+  isOpen={$effectQueueStore.chainConfirmationConfig !== null}
+  config={$effectQueueStore.chainConfirmationConfig}
 />
 
 <!-- ゲーム終了モーダル -->

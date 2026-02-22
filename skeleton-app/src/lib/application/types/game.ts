@@ -10,6 +10,7 @@
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 import type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
 
 /** Domain 型の再エクスポート */
@@ -39,4 +40,19 @@ export interface ResolvedCardSelectionConfig
   availableCards: readonly CardInstance[];
   onConfirm: (selectedInstanceIds: string[]) => void;
   onCancel?: () => void; // cancelable=true の場合のみ選択可能
+}
+
+/**
+ * チェーン確認設定（コールバック付き）
+ *
+ * チェーン可能なカードをユーザーに提示し、発動するかパスするかを選択させる。
+ * effectQueueStore が生成し、プレゼン層のUIが消費する。
+ */
+export interface ChainConfirmationConfig {
+  /** チェーン可能なカードと効果のペア配列 */
+  chainableCards: readonly { instance: CardInstance; action: ChainableAction }[];
+  /** カードを選択して発動する */
+  onActivate: (instanceId: string) => void;
+  /** チェーンをパスする */
+  onPass: () => void;
 }

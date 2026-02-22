@@ -9,6 +9,7 @@
  * - getActivation() functionality
  * - getIgnitionEffects() functionality
  * - hasIgnitionEffects() functionality
+ * - collectChainableActions() functionality
  * - clear() functionality
  * - getRegisteredCardIds() functionality
  * - Multiple registrations
@@ -21,6 +22,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { CardSpace } from "$lib/domain/models/GameState/CardSpace";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
@@ -373,6 +375,333 @@ describe("ChainableActionRegistry", () => {
       // Assert
       expect(ChainableActionRegistry.getRegisteredCardIds()).toHaveLength(0);
       expect(ChainableActionRegistry.getRegisteredCardIds()).toEqual([]);
+    });
+  });
+
+  describe("collectChainableActions()", () => {
+    // ==============================
+    // テスト用ヘルパー関数
+    // ==============================
+
+    /** テスト用速攻魔法カードインスタンスを作成 */
+    const createQuickPlaySpellInstance = (
+      id: number,
+      instanceId: string,
+      location: "hand" | "spellTrapZone",
+      options?: { placedThisTurn?: boolean; position?: "faceUp" | "faceDown" },
+    ): CardInstance => ({
+      id,
+      instanceId,
+      jaName: `速攻魔法${id}`,
+      type: "spell",
+      frameType: "spell",
+      spellType: "quick-play",
+      location,
+      stateOnField:
+        location === "spellTrapZone"
+          ? {
+              position: options?.position ?? "faceDown",
+              placedThisTurn: options?.placedThisTurn ?? false,
+              counters: [],
+              activatedEffects: new Set<string>(),
+            }
+          : undefined,
+    });
+
+    /** テスト用罠カードインスタンスを作成 */
+    const createTrapInstance = (
+      id: number,
+      instanceId: string,
+      options?: { placedThisTurn?: boolean; position?: "faceUp" | "faceDown" },
+    ): CardInstance => ({
+      id,
+      instanceId,
+      jaName: `罠カード${id}`,
+      type: "trap",
+      frameType: "trap",
+      trapType: "normal",
+      location: "spellTrapZone",
+      stateOnField: {
+        position: options?.position ?? "faceDown",
+        placedThisTurn: options?.placedThisTurn ?? false,
+        counters: [],
+        activatedEffects: new Set<string>(),
+      },
+    });
+
+    /** テスト用通常魔法カードインスタンスを作成 */
+    const createNormalSpellInstance = (id: number, instanceId: string): CardInstance => ({
+      id,
+      instanceId,
+      jaName: `通常魔法${id}`,
+      type: "spell",
+      frameType: "spell",
+      spellType: "normal",
+      location: "hand",
+    });
+
+    /** テスト用空のCardSpaceを作成 */
+    const createEmptyCardSpace = (): CardSpace => ({
+      mainDeck: [],
+      extraDeck: [],
+      hand: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
+      graveyard: [],
+      banished: [],
+    });
+
+    /** テスト用GameSnapshotを作成 */
+    const createTestGameSnapshot = (space: Partial<CardSpace> = {}): GameSnapshot => ({
+      space: { ...createEmptyCardSpace(), ...space },
+      lp: { player: 8000, opponent: 8000 },
+      phase: "main1",
+      turn: 1,
+      result: { isGameOver: false },
+      normalSummonLimit: 1,
+      normalSummonUsed: 0,
+      activatedCardIds: new Set<number>(),
+      queuedEndPhaseEffectIds: [],
+    });
+
+    /** canActivateがfalseを返すMockChainableAction */
+    class MockInvalidChainableAction extends MockChainableAction {
+      canActivate(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+        return GameProcessing.Validation.failure("ACTIVATION_CONDITIONS_NOT_MET");
+      }
+    }
+
+    // ==============================
+    // テストケース
+    // ==============================
+
+    it("手札の速攻魔法を収集できる", () => {
+      // Arrange
+      const cardId = 12345;
+      const quickPlaySpell = createQuickPlaySpellInstance(cardId, "hand-0", "hand");
+      const state = createTestGameSnapshot({ hand: [quickPlaySpell] });
+      const action = new MockChainableAction(cardId, "Quick-Play Spell", 2, "activation", "quick-play");
+      ChainableActionRegistry.registerActivation(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].instance).toBe(quickPlaySpell);
+      expect(result[0].action).toBe(action);
+    });
+
+    it("セットされた速攻魔法（前ターンセット）を収集できる", () => {
+      // Arrange
+      const cardId = 12345;
+      const setQuickPlaySpell = createQuickPlaySpellInstance(cardId, "spell-0", "spellTrapZone", {
+        placedThisTurn: false,
+        position: "faceDown",
+      });
+      const state = createTestGameSnapshot({ spellTrapZone: [setQuickPlaySpell] });
+      const action = new MockChainableAction(cardId, "Set Quick-Play", 2, "activation", "set-quick-play");
+      ChainableActionRegistry.registerActivation(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].instance).toBe(setQuickPlaySpell);
+    });
+
+    it("セットされた罠カード（前ターンセット）を収集できる", () => {
+      // Arrange
+      const cardId = 54321;
+      const setTrap = createTrapInstance(cardId, "trap-0", { placedThisTurn: false, position: "faceDown" });
+      const state = createTestGameSnapshot({ spellTrapZone: [setTrap] });
+      const action = new MockChainableAction(cardId, "Trap Card", 2, "activation", "trap");
+      ChainableActionRegistry.registerActivation(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].instance).toBe(setTrap);
+    });
+
+    it("セットしたターンのカードは収集されない", () => {
+      // Arrange
+      const cardId = 12345;
+      const setThisTurn = createQuickPlaySpellInstance(cardId, "spell-0", "spellTrapZone", {
+        placedThisTurn: true,
+        position: "faceDown",
+      });
+      const state = createTestGameSnapshot({ spellTrapZone: [setThisTurn] });
+      const action = new MockChainableAction(cardId, "Set This Turn", 2, "activation", "set-this-turn");
+      ChainableActionRegistry.registerActivation(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("表側表示のカードは収集されない", () => {
+      // Arrange
+      const cardId = 12345;
+      const faceUpCard = createQuickPlaySpellInstance(cardId, "spell-0", "spellTrapZone", {
+        placedThisTurn: false,
+        position: "faceUp",
+      });
+      const state = createTestGameSnapshot({ spellTrapZone: [faceUpCard] });
+      const action = new MockChainableAction(cardId, "Face Up", 2, "activation", "face-up");
+      ChainableActionRegistry.registerActivation(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("requiredSpellSpeedで絞り込める", () => {
+      // Arrange
+      const spellSpeed1CardId = 11111;
+      const spellSpeed2CardId = 22222;
+      const spell1 = createQuickPlaySpellInstance(spellSpeed1CardId, "hand-0", "hand");
+      const spell2 = createQuickPlaySpellInstance(spellSpeed2CardId, "hand-1", "hand");
+      const state = createTestGameSnapshot({ hand: [spell1, spell2] });
+
+      // spellSpeed 1 の効果
+      ChainableActionRegistry.registerActivation(
+        spellSpeed1CardId,
+        new MockChainableAction(spellSpeed1CardId, "Speed 1", 1, "activation", "speed-1"),
+      );
+      // spellSpeed 2 の効果
+      ChainableActionRegistry.registerActivation(
+        spellSpeed2CardId,
+        new MockChainableAction(spellSpeed2CardId, "Speed 2", 2, "activation", "speed-2"),
+      );
+
+      // Act - requiredSpellSpeed 2 で絞り込み
+      const result = ChainableActionRegistry.collectChainableActions(state, 2);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].instance.id).toBe(spellSpeed2CardId);
+    });
+
+    it("excludeInstanceIdsで除外できる", () => {
+      // Arrange
+      const cardId1 = 11111;
+      const cardId2 = 22222;
+      const spell1 = createQuickPlaySpellInstance(cardId1, "hand-0", "hand");
+      const spell2 = createQuickPlaySpellInstance(cardId2, "hand-1", "hand");
+      const state = createTestGameSnapshot({ hand: [spell1, spell2] });
+
+      ChainableActionRegistry.registerActivation(
+        cardId1,
+        new MockChainableAction(cardId1, "Spell 1", 2, "activation", "spell-1"),
+      );
+      ChainableActionRegistry.registerActivation(
+        cardId2,
+        new MockChainableAction(cardId2, "Spell 2", 2, "activation", "spell-2"),
+      );
+
+      // Act - hand-0 を除外
+      const excludeIds = new Set(["hand-0"]);
+      const result = ChainableActionRegistry.collectChainableActions(state, 1, excludeIds);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].instance.instanceId).toBe("hand-1");
+    });
+
+    it("canActivateがfalseの場合は収集されない", () => {
+      // Arrange
+      const cardId = 12345;
+      const quickPlaySpell = createQuickPlaySpellInstance(cardId, "hand-0", "hand");
+      const state = createTestGameSnapshot({ hand: [quickPlaySpell] });
+
+      // canActivateがfalseを返すアクション
+      const invalidAction = new MockInvalidChainableAction(cardId, "Invalid", 2, "activation", "invalid");
+      ChainableActionRegistry.registerActivation(cardId, invalidAction);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("通常魔法は収集されない（速攻魔法ではないため）", () => {
+      // Arrange
+      const cardId = 12345;
+      const normalSpell = createNormalSpellInstance(cardId, "hand-0");
+      const state = createTestGameSnapshot({ hand: [normalSpell] });
+
+      const action = new MockChainableAction(cardId, "Normal Spell", 1, "activation", "normal");
+      ChainableActionRegistry.registerActivation(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("効果が登録されていないカードは収集されない", () => {
+      // Arrange
+      const unregisteredCardId = 99999;
+      const quickPlaySpell = createQuickPlaySpellInstance(unregisteredCardId, "hand-0", "hand");
+      const state = createTestGameSnapshot({ hand: [quickPlaySpell] });
+      // 効果を登録しない
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("複数のチェーン可能カードを収集できる", () => {
+      // Arrange
+      const cardId1 = 11111;
+      const cardId2 = 22222;
+      const cardId3 = 33333;
+      const handSpell = createQuickPlaySpellInstance(cardId1, "hand-0", "hand");
+      const setSpell = createQuickPlaySpellInstance(cardId2, "spell-0", "spellTrapZone", {
+        placedThisTurn: false,
+        position: "faceDown",
+      });
+      const setTrap = createTrapInstance(cardId3, "trap-0", { placedThisTurn: false, position: "faceDown" });
+      const state = createTestGameSnapshot({
+        hand: [handSpell],
+        spellTrapZone: [setSpell, setTrap],
+      });
+
+      ChainableActionRegistry.registerActivation(
+        cardId1,
+        new MockChainableAction(cardId1, "Hand Spell", 2, "activation", "hand-spell"),
+      );
+      ChainableActionRegistry.registerActivation(
+        cardId2,
+        new MockChainableAction(cardId2, "Set Spell", 2, "activation", "set-spell"),
+      );
+      ChainableActionRegistry.registerActivation(
+        cardId3,
+        new MockChainableAction(cardId3, "Set Trap", 2, "activation", "set-trap"),
+      );
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert
+      expect(result).toHaveLength(3);
+      const instanceIds = result.map((r) => r.instance.instanceId);
+      expect(instanceIds).toContain("hand-0");
+      expect(instanceIds).toContain("spell-0");
+      expect(instanceIds).toContain("trap-0");
     });
   });
 });

@@ -133,14 +133,22 @@
  */
 
 import { writable, get as getStoreValue } from "svelte/store";
-import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import type { CardInstance } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import { isThenMarker } from "$lib/domain/effects/steps/timing";
+import type {
+  ConfirmationConfig,
+  ResolvedCardSelectionConfig,
+  ChainConfirmationConfig,
+} from "$lib/application/types/game";
+import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { chainStackStore } from "$lib/application/stores/chainStackStore";
 
 // 通知ハンドラのインターフェース
@@ -159,6 +167,8 @@ interface EffectQueueState {
   confirmationConfig: ConfirmationConfig | null;
   // カード選択用の設定（null = 非表示）
   cardSelectionConfig: ResolvedCardSelectionConfig | null;
+  // チェーン確認用の設定（null = 非表示）
+  chainConfirmationConfig: ChainConfirmationConfig | null;
   // イベント時間軸（effectQueueStore の内部状態として管理）
   eventTimeline: EventTimeline;
 }
@@ -242,6 +252,43 @@ function transitionToNextStep(
   }
 }
 
+/**
+ * チェーン発動時のカード移動処理
+ *
+ * ActivateSpellCommand.moveActivatedSpellCard() と同等の処理を行う。
+ * - 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
+ * - セットから発動: 同じゾーンで表向きにする
+ */
+function moveCardForChainActivation(gameState: GameSnapshot, instance: CardInstance): GameSnapshot {
+  let updatedState = gameState;
+
+  if (Card.Instance.inHand(instance)) {
+    if (Card.isFieldSpell(instance)) {
+      const sweepedSpace = GameState.Space.sendExistingFieldSpellToGraveyard(updatedState.space);
+      updatedState = {
+        ...updatedState,
+        space: GameState.Space.moveCard(sweepedSpace, instance, "fieldZone", { position: "faceUp" }),
+      };
+    } else {
+      updatedState = {
+        ...updatedState,
+        space: GameState.Space.moveCard(updatedState.space, instance, "spellTrapZone", { position: "faceUp" }),
+      };
+    }
+  } else if (Card.Instance.isFaceDown(instance)) {
+    updatedState = {
+      ...updatedState,
+      space: GameState.Space.updateCardStateInPlace(updatedState.space, instance, { position: "faceUp" }),
+    };
+  }
+
+  // 発動済みカードIDを記録
+  const updatedActivatedCards = new Set(updatedState.activatedCardIds);
+  updatedActivatedCards.add(instance.id);
+
+  return { ...updatedState, activatedCardIds: updatedActivatedCards };
+}
+
 // 効果処理完了時の後処理を行う（共通処理）
 function finalizeProcessing(update: (updater: (state: EffectQueueState) => EffectQueueState) => void): void {
   // ストアリセット
@@ -253,14 +300,57 @@ function finalizeProcessing(update: (updater: (state: EffectQueueState) => Effec
     currentIndex: -1,
   }));
 
-  // チェーンスタックに残りがあれば解決を継続
+  const chainState = chainStackStore.getState();
+
+  // チェーンスタックに残りがあれば処理を継続
   if (!chainStackStore.isEmpty()) {
-    // 次のイベントループで解決を継続（再帰的な呼び出しを避けるため）
-    setTimeout(() => {
-      effectQueueStore.resolveChain();
-    }, 0);
+    if (chainState.isBuilding) {
+      // チェーン構築中: チェーン可能なカードを収集して確認UIを表示
+      const requiredSpellSpeed = chainState.lastSpellSpeed ?? 1;
+      const gameState = getStoreValue(gameStateStore);
+      // 既にスタックに積まれているカードのinstanceIdを取得
+      const stackedInstanceIds = new Set(chainState.stack.map((b) => b.sourceInstanceId));
+      const chainableCards = ChainableActionRegistry.collectChainableActions(
+        gameState,
+        requiredSpellSpeed,
+        stackedInstanceIds,
+      );
+
+      if (chainableCards.length > 0) {
+        // チェーン可能なカードがある場合、確認UIを表示
+        update((s) => ({
+          ...s,
+          chainConfirmationConfig: {
+            chainableCards,
+            onActivate: (instanceId: string) => {
+              // 選択されたカードでチェーン発動
+              const selected = chainableCards.find((c) => c.instance.instanceId === instanceId);
+              if (selected) {
+                effectQueueStore.activateChain(selected.instance, selected.action);
+              }
+            },
+            onPass: () => {
+              // チェーンをパス → 解決開始
+              update((s) => ({ ...s, chainConfirmationConfig: null }));
+              effectQueueStore.resolveChain();
+            },
+          },
+        }));
+        return;
+      }
+
+      // チェーン可能なカードがない場合、即座に解決開始
+      setTimeout(() => {
+        effectQueueStore.resolveChain();
+      }, 0);
+    } else {
+      // チェーン解決中: 次のブロックを処理
+      setTimeout(() => {
+        effectQueueStore.continueChainResolution();
+      }, 0);
+    }
   } else {
-    // チェーン解決完了、スタックをリセット
+    // チェーンスタックが空: 全処理完了、リセット
     chainStackStore.reset();
   }
 }
@@ -380,8 +470,14 @@ export interface EffectQueueStore {
   /** 現在のステップを確定して次に進む */
   confirmCurrentStep: () => Promise<void>;
 
+  /** チェーン発動を行う（チェーン確認UIからのコールバック用） */
+  activateChain: (instance: CardInstance, action: ChainableAction) => void;
+
   /** チェーン解決を開始する（chainStackStore から LIFO で取り出して処理） */
   resolveChain: () => void;
+
+  /** チェーン解決を継続する（次のブロックを処理） */
+  continueChainResolution: () => void;
 
   /** 効果処理をキャンセルする */
   cancelProcessing: () => void;
@@ -400,6 +496,7 @@ function createEffectQueueStore(): EffectQueueStore {
     notificationHandler: null,
     confirmationConfig: null,
     cardSelectionConfig: null,
+    chainConfirmationConfig: null,
     eventTimeline: GameProcessing.TimeLine.createEmptyTimeline(),
   });
 
@@ -500,49 +597,71 @@ function createEffectQueueStore(): EffectQueueStore {
       }
     },
 
+    activateChain: (instance: CardInstance, action: ChainableAction) => {
+      // チェーン確認モーダルを閉じる
+      update((s) => ({ ...s, chainConfirmationConfig: null }));
+
+      // カードを移動してゲーム状態を更新
+      const currentState = getStoreValue(gameStateStore);
+      const gameState = moveCardForChainActivation(currentState, instance);
+      gameStateStore.set(gameState);
+
+      // activationSteps と resolutionSteps を生成（カード移動後の状態で）
+      const activationSteps = action.createActivationSteps(gameState, instance);
+      const resolutionSteps = action.createResolutionSteps(gameState, instance);
+
+      // チェーンブロックをスタックに追加
+      chainStackStore.pushChainBlock({
+        sourceInstanceId: instance.instanceId,
+        sourceCardId: instance.id,
+        effectId: action.effectId,
+        spellSpeed: action.spellSpeed,
+        resolutionSteps,
+        isNegated: false,
+      });
+
+      // activationSteps を処理
+      if (activationSteps.length > 0) {
+        effectQueueStore.startProcessing(activationSteps);
+      } else {
+        // activationSteps がない場合、再度チェーン確認へ
+        finalizeProcessing(update);
+      }
+    },
+
     resolveChain: () => {
-      // チェーン構築を終了
+      // チェーン構築を終了し、解決を開始
       chainStackStore.endChainBuilding();
+      effectQueueStore.continueChainResolution();
+    },
 
-      // チェーンスタックから LIFO で取り出して処理
-      const resolveNextBlock = () => {
-        const block = chainStackStore.popChainBlock();
+    continueChainResolution: () => {
+      // チェーンスタックから次のブロックを取り出して処理
+      const block = chainStackStore.popChainBlock();
 
-        if (!block) {
-          // チェーン解決完了
-          chainStackStore.reset();
-          return;
-        }
+      if (!block) {
+        // チェーン解決完了
+        chainStackStore.reset();
+        return;
+      }
 
-        // 無効化されていない場合のみ resolutionSteps を実行
-        if (!block.isNegated && block.resolutionSteps.length > 0) {
-          // resolutionSteps を処理し、完了後に次のブロックを処理
-          update((state) => ({
-            ...state,
-            isActive: true,
-            steps: block.resolutionSteps,
-            currentIndex: 0,
-            currentStep: block.resolutionSteps[0] || null,
-          }));
+      // 無効化されていない場合のみ resolutionSteps を実行
+      if (!block.isNegated && block.resolutionSteps.length > 0) {
+        update((state) => ({
+          ...state,
+          isActive: true,
+          steps: block.resolutionSteps,
+          currentIndex: 0,
+          currentStep: block.resolutionSteps[0] || null,
+        }));
 
-          // 処理完了を監視するために、subscribeを使用せず
-          // finalizeProcessing 内でチェーン解決を継続する仕組みを使う
-          // → _pendingChainResolution フラグで管理
-
-          const firstStep = block.resolutionSteps[0];
-          if (firstStep) {
-            const level = firstStep.notificationLevel || "info";
-            if (level === "info" || level === "silent") {
-              effectQueueStore.confirmCurrentStep();
-            }
-          }
-        } else {
-          // resolutionSteps がない、または無効化されている場合は次へ
-          resolveNextBlock();
-        }
-      };
-
-      resolveNextBlock();
+        // 最初のステップの処理を開始
+        // interactive ステップも含めて常に confirmCurrentStep() を呼ぶ
+        effectQueueStore.confirmCurrentStep();
+      } else {
+        // resolutionSteps がない、または無効化されている場合は次へ
+        effectQueueStore.continueChainResolution();
+      }
     },
 
     cancelProcessing: () => {

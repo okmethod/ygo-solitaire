@@ -36,4 +36,4 @@ export type {
 export { ZONE_CAPACITY } from "$lib/application/types/card";
 
 export type { DisplayCardInstance, DisplayCardInstanceOnField, DisplayCardInstanceAggregated } from "./card";
-export type { ConfirmationModalConfig, CardSelectionModalConfig } from "./interaction";
+export type { ConfirmationModalConfig, CardSelectionModalConfig, ChainConfirmationModalConfig } from "./interaction";
