@@ -293,10 +293,9 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      // Chicken Game has: 2 activation steps (発動通知 + LP payment) + 1 resolution step (draw)
-      // For backward compatibility, effectSteps contains all steps
-      expect(result.effectSteps!.length).toBe(3);
-      // chainBlock.resolutionSteps contains resolution steps for future chain system
+      // Chicken Game: effectSteps = activation steps only (発動通知 + LP payment)
+      expect(result.effectSteps!.length).toBe(2);
+      // chainBlock.resolutionSteps = resolution steps (draw)
       expect(result.chainBlock!.resolutionSteps.length).toBe(1);
     });
 
@@ -462,10 +461,9 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
         expect(result.chainBlock).toBeDefined();
-        // Royal Magical Library: 2 activation steps (発動通知 + カウンター消費) + 1 resolution step (draw)
-        // For backward compatibility, effectSteps contains all steps
-        expect(result.effectSteps!.length).toBe(3);
-        // chainBlock.resolutionSteps contains resolution steps for future chain system
+        // Royal Magical Library: effectSteps = activation steps only (発動通知 + カウンター消費)
+        expect(result.effectSteps!.length).toBe(2);
+        // chainBlock.resolutionSteps = resolution steps (draw)
         expect(result.chainBlock!.resolutionSteps.length).toBe(1);
       });
 
@@ -476,10 +474,16 @@ describe("ActivateIgnitionEffectCommand", () => {
 
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
+        expect(result.chainBlock).toBeDefined();
 
-        // Execute all effect steps (effectSteps now contains all steps for backward compatibility)
+        // Execute all steps: effectSteps (activation) + chainBlock.resolutionSteps (resolution)
         let currentState = result.updatedState;
         for (const step of result.effectSteps!) {
+          const stepResult = step.action(currentState);
+          expect(stepResult.success).toBe(true);
+          currentState = stepResult.updatedState;
+        }
+        for (const step of result.chainBlock!.resolutionSteps) {
           const stepResult = step.action(currentState);
           expect(stepResult.success).toBe(true);
           currentState = stepResult.updatedState;

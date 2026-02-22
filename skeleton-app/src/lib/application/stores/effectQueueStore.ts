@@ -141,6 +141,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ConfirmationConfig, ResolvedCardSelectionConfig } from "$lib/application/types/game";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import { isThenMarker } from "$lib/domain/effects/steps/timing";
+import { chainStackStore } from "$lib/application/stores/chainStackStore";
 
 // 通知ハンドラのインターフェース
 interface NotificationHandler {
@@ -251,6 +252,17 @@ function finalizeProcessing(update: (updater: (state: EffectQueueState) => Effec
     steps: [],
     currentIndex: -1,
   }));
+
+  // チェーンスタックに残りがあれば解決を継続
+  if (!chainStackStore.isEmpty()) {
+    // 次のイベントループで解決を継続（再帰的な呼び出しを避けるため）
+    setTimeout(() => {
+      effectQueueStore.resolveChain();
+    }, 0);
+  } else {
+    // チェーン解決完了、スタックをリセット
+    chainStackStore.reset();
+  }
 }
 
 // Strategy: "silent"レベル - 通知なし、即座に実行
@@ -368,6 +380,9 @@ export interface EffectQueueStore {
   /** 現在のステップを確定して次に進む */
   confirmCurrentStep: () => Promise<void>;
 
+  /** チェーン解決を開始する（chainStackStore から LIFO で取り出して処理） */
+  resolveChain: () => void;
+
   /** 効果処理をキャンセルする */
   cancelProcessing: () => void;
 
@@ -483,6 +498,51 @@ function createEffectQueueStore(): EffectQueueStore {
       } else {
         finalizeProcessing(update);
       }
+    },
+
+    resolveChain: () => {
+      // チェーン構築を終了
+      chainStackStore.endChainBuilding();
+
+      // チェーンスタックから LIFO で取り出して処理
+      const resolveNextBlock = () => {
+        const block = chainStackStore.popChainBlock();
+
+        if (!block) {
+          // チェーン解決完了
+          chainStackStore.reset();
+          return;
+        }
+
+        // 無効化されていない場合のみ resolutionSteps を実行
+        if (!block.isNegated && block.resolutionSteps.length > 0) {
+          // resolutionSteps を処理し、完了後に次のブロックを処理
+          update((state) => ({
+            ...state,
+            isActive: true,
+            steps: block.resolutionSteps,
+            currentIndex: 0,
+            currentStep: block.resolutionSteps[0] || null,
+          }));
+
+          // 処理完了を監視するために、subscribeを使用せず
+          // finalizeProcessing 内でチェーン解決を継続する仕組みを使う
+          // → _pendingChainResolution フラグで管理
+
+          const firstStep = block.resolutionSteps[0];
+          if (firstStep) {
+            const level = firstStep.notificationLevel || "info";
+            if (level === "info" || level === "silent") {
+              effectQueueStore.confirmCurrentStep();
+            }
+          }
+        } else {
+          // resolutionSteps がない、または無効化されている場合は次へ
+          resolveNextBlock();
+        }
+      };
+
+      resolveNextBlock();
     },
 
     cancelProcessing: () => {

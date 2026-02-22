@@ -133,13 +133,13 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       isNegated: false,
     };
 
-    // Note: 後方互換性のため effectSteps には全ステップを含める
-    // フェーズ3でチェーンシステムを実装後、GameFacade 側で分離処理する
+    // effectSteps: 発動時処理（即座に実行）
+    // chainBlock.resolutionSteps: 解決時処理（チェーン解決時に実行）
     return Command.Result.success(
       updatedState,
       `Ignition effect activated: ${this.cardInstanceId}`,
       [],
-      [...activationSteps, ...resolutionSteps],
+      activationSteps,
       chainBlock,
     );
   }

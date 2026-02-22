@@ -25,6 +25,7 @@ import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
 import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
+import { chainStackStore } from "$lib/application/stores/chainStackStore";
 
 /**
  * GameFacadeのメソッドが返す結果型（プレゼン層への公開用）
@@ -75,14 +76,23 @@ export class GameFacade {
     if (result.success) {
       gameStateStore.set(result.updatedState);
 
-      // 効果処理ステップを構築
-      // - effectSteps: 発動時処理（activationSteps）
-      // - chainBlock?.resolutionSteps: 解決時処理
-      // Note: フェーズ3でチェーンシステムを実装するまでは、両方を連結して処理
-      const allSteps = [...(result.effectSteps ?? []), ...(result.chainBlock?.resolutionSteps ?? [])];
+      // チェーンブロックがある場合は chainStackStore に登録
+      if (result.chainBlock) {
+        // 新しいチェーンを開始（まだ構築中でない場合）
+        const chainState = chainStackStore.getStackSize();
+        if (chainState === 0) {
+          chainStackStore.startChain();
+        }
+        chainStackStore.pushChainBlock(result.chainBlock);
+      }
 
-      if (allSteps.length > 0) {
-        effectQueueStore.startProcessing(allSteps);
+      // effectSteps（発動時処理）を即座に実行
+      // チェーン解決は effectQueueStore 内で処理完了後に行われる
+      if (result.effectSteps && result.effectSteps.length > 0) {
+        effectQueueStore.startProcessing(result.effectSteps);
+      } else if (result.chainBlock) {
+        // 発動時処理がない場合は即座にチェーン解決を開始
+        effectQueueStore.resolveChain();
       }
     }
 

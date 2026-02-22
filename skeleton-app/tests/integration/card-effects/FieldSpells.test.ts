@@ -126,9 +126,14 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const fieldCard = commandResult.updatedState.space.fieldZone[0];
       expect(fieldCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
 
-      // Execute effect steps (effectSteps now contains all steps for backward compatibility)
+      // Execute all steps: effectSteps (activation) + chainBlock.resolutionSteps (resolution)
       let currentState = commandResult.updatedState;
       for (const step of commandResult.effectSteps!) {
+        const stepResult = step.action(currentState);
+        expect(stepResult.success).toBe(true);
+        currentState = stepResult.updatedState;
+      }
+      for (const step of commandResult.chainBlock!.resolutionSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
         currentState = stepResult.updatedState;
@@ -322,9 +327,14 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const fieldCardAfterIgnition = ignitionResult.updatedState.space.fieldZone[0];
       expect(fieldCardAfterIgnition.stateOnField?.activatedEffects.size).toBe(1);
 
-      // Execute effect steps (effectSteps now contains all steps for backward compatibility)
+      // Execute all steps: effectSteps (activation) + chainBlock.resolutionSteps (resolution)
       let currentState: GameSnapshot = ignitionResult.updatedState;
       for (const step of ignitionResult.effectSteps!) {
+        const stepResult = step.action(currentState);
+        expect(stepResult.success).toBe(true);
+        currentState = stepResult.updatedState;
+      }
+      for (const step of ignitionResult.chainBlock!.resolutionSteps) {
         const stepResult = step.action(currentState);
         expect(stepResult.success).toBe(true);
         currentState = stepResult.updatedState;
@@ -375,14 +385,15 @@ describe("Field Spell Card Effects > Toon World (15259703)", () => {
     const command = new ActivateSpellCommand("toon-world-0");
     const result = command.execute(state);
 
-    // Assert: Activation successful
+    // Assert: effectSteps (activation with LP payment as cost) + chainBlock (no resolution for field spell)
     expect(result.success).toBe(true);
     expect(result.effectSteps).toBeDefined();
-    expect(result.effectSteps!.length).toBe(3); // Notification step + spell activated event + LP payment step
+    expect(result.chainBlock).toBeDefined();
+    expect(result.effectSteps!.length).toBe(3); // Notification + spell activated event + LP payment
+    expect(result.chainBlock!.resolutionSteps.length).toBe(0); // No resolution steps for field spell
 
-    // Verify notification step and LP payment step
+    // Verify activation steps
     expect(result.effectSteps![0].summary).toBe("カード発動");
-    // index=1 is emitSpellActivatedEventStep (skipped in assertion)
     expect(result.effectSteps![2].id).toContain("pay-lp-player-1000");
 
     // Note: Card stays on field (not sent to graveyard)
