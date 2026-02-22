@@ -73,13 +73,13 @@ const YGOProDeckResponseSchema = z.object({
   data: z.array(YGOProDeckCardInfoSchema),
 });
 
-/** YGOProDeck API カード情報型（Infrastructure層内部用） */
+/** YGOProDeck API カード情報型（インフラ層内部用） */
 type YGOProDeckCardInfo = z.infer<typeof YGOProDeckCardInfoSchema>;
 
 /**
  * YGOProDeckCardInfo を ExternalCardData に変換
  *
- * Infrastructure層内部の型からApplication層が期待する型へ変換する。
+ * インフラ層内部の型からアプリ層が期待する型へ変換する。
  */
 function toExternalCardData(apiData: YGOProDeckCardInfo): ExternalCardData {
   const cardImage = apiData.card_images[0];

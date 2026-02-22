@@ -1,10 +1,10 @@
 /**
  * GameFacade - 全てのゲーム操作コマンドの唯一の入り口（Single Entry Point）
  *
- * @architecture レイヤー間依存ルール - Application Layer (Facade)
- * - ROLE: ゲーム進行制御、Presentation Layer へのゲーム操作手段の提供
- * - ALLOWED: Domain Layer への依存
- * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ * @architecture レイヤー間依存ルール - アプリ層（Facade）
+ * - ROLE: ゲーム進行制御、プレゼン層へのゲーム操作手段の提供
+ * - ALLOWED: ドメイン層への依存
+ * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @module application/GameFacade
  */
@@ -27,7 +27,7 @@ import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/applic
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
 
 /**
- * GameFacadeのメソッドが返す結果型（Presentation Layerへの公開用）
+ * GameFacadeのメソッドが返す結果型（プレゼン層への公開用）
  *
  * GameStateUpdateResult から、一部のフィールドのみを公開する。
  */
@@ -35,8 +35,8 @@ export type FacadeResult = {
   success: boolean;
   message?: string;
   error?: string;
-  // updatedState: Application層で消費されるため、Presentation層には公開しない
-  // effectSteps: Application層で消費されるため、Presentation層には公開しない
+  // updatedState: アプリ層で消費されるため、プレゼン層には公開しない
+  // effectSteps: アプリ層で消費されるため、プレゼン層には公開しない
 };
 
 // 許容される GameCommand のコンストラクタ引数パターンの定義

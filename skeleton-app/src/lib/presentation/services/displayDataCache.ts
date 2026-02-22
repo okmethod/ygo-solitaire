@@ -1,14 +1,14 @@
 /**
  * displayCardDataCache - DisplayCardData のキャッシュサービス
  *
- * cardRepository（Infrastructure Layer）の利用を一箇所に集約し、
+ * cardRepository（インフラ層）の利用を一箇所に集約し、
  * デッキ読み込み時に全カードの DisplayCardData を一括取得・キャッシュする。
  * 以降は同期的にデータを提供する。
  *
- * @architecture レイヤー間依存ルール - Presentation Layer (API Service)
- * - ROLE: Infrastructure Layer への依存を局所化し、表示用データのキャッシュを管理
- * - ALLOWED: Application Layer / Infrastructure Layer への依存
- * - FORBIDDEN: Domain Layer への直接依存
+ * @architecture レイヤー間依存ルール - プレゼン層 (API Service)
+ * - ROLE: インフラ層への依存を局所化し、表示用データのキャッシュを管理
+ * - ALLOWED: アプリ層/インフラ層への依存
+ * - FORBIDDEN: ドメイン層への直接依存
  *
  * @module presentation/services/displayCardDataCache
  */

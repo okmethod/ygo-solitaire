@@ -44,7 +44,7 @@ Card モデル設計と API 統合
 - テストピラミッド（Unit/Integration/E2E）
 - Vitest テスト（Unit + Integration）
 - Playwright テスト（E2E）
-- カバレッジ目標（Domain Layer 80%以上）
+- カバレッジ目標（ドメイン層 80%以上）
 - テスト実行フロー
 
 **読むべき人**: 実装者、レビュアー

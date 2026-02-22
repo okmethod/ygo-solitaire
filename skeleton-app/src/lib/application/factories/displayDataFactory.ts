@@ -1,11 +1,11 @@
 /**
  * displayDataFactory - DisplayCardData 生成ファクトリ
  *
- * CardData（Domain層）と ExternalCardData（外部API経由）を組み合わせて
+ * ドメイン層の CardData と、 ExternalCardData（外部API経由）を組み合わせて
  * UI表示用の DisplayCardData を生成する。
  *
  * @remarks
- * - ゲームロジックは、内部データ（Domain層のCardData）に従って動作する
+ * - ゲームロジックは、内部データ（CardData）に従って動作する
  * - 外部データ（ExternalCardData）は表示用および検証用として用いる
  * - 内部データ/外部データに齟齬がある場合はワーニングを出力の上、内部データを優先する
  *
@@ -32,11 +32,11 @@ function normalizeExternalFrameType(frameType: string): string {
 }
 
 /**
- * Domain層と外部APIのデータを検証し、不一致があればワーニングを出力
+ * ドメイン層と外部APIのデータを検証し、不一致があればワーニングを出力
  *
  * @remarks
- * ゲームはDomain層のデータに従って動作するが、
- * 手動で記述したDomain層データにミスがある可能性があるため、
+ * ゲームはドメイン層のデータに従って動作するが、
+ * 手動で記述したドメイン層データにミスがある可能性があるため、
  * 外部APIのデータと比較して不一致を検出する。
  */
 function compareCardData(externalData: ExternalCardData, domainData: CardData): void {
@@ -63,7 +63,7 @@ function compareCardData(externalData: ExternalCardData, domainData: CardData): 
 
 /** ExternalCardData と CardData から DisplayCardData を生成する */
 function buildDisplayCardData(externalData: ExternalCardData, domainData: CardData): DisplayCardData {
-  // Domain層と外部APIのデータを検証
+  // ドメイン層と外部APIのデータを検証
   compareCardData(externalData, domainData);
 
   // モンスターカード属性の変換（外部APIから取得）

@@ -6,16 +6,16 @@
  * - 将来的に別のカードAPI（ローカルストレージ、FastAPI等）への切り替えが容易
  * - 外部APIの実装詳細から完全に分離
  *
- * @architecture レイヤー間依存ルール - Application Layer (Port)
- * - ROLE: Infrastructure Layer が実装すべき抽象インターフェース（契約）の定義
- * - ALLOWED: Application Layer 内の DTO 定義への依存
- * - FORBIDDEN: Infrastructure Layer への依存
+ * @architecture レイヤー間依存ルール - アプリ層 (Port)
+ * - ROLE: インフラ層が実装すべき抽象インターフェース（契約）の定義
+ * - ALLOWED: アプリ層の DTO 定義への依存
+ * - FORBIDDEN: インフラ層への依存
  *
  * @module application/ports/ICardDataRepository
  */
 
 // ============================================================================
-// Application層が必要とする外部カードデータの型定義
+// アプリ層が必要とする外部カードデータの型定義
 // ============================================================================
 
 /** 外部APIから取得するカード画像情報 */
@@ -28,8 +28,8 @@ export interface ExternalCardImages {
 /**
  * 外部カードデータ (External Card Data)
  *
- * Application層が外部APIから必要とするカード情報。
- * Infrastructure層で外部API固有の形式から変換されて提供される。
+ * アプリ層が外部APIから必要とするカード情報。
+ * インフラ層で外部API固有の形式から変換されて提供される。
  */
 export interface ExternalCardData {
   // 基本情報（全カード共通）

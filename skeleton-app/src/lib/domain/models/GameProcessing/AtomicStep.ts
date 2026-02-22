@@ -1,7 +1,7 @@
 /**
  * AtomicStep - ゲーム状態更新処理の単一ステップ
  *
- * Domain層で定義され、アプリケーション層が実行時に処理を注入する。
+ * ドメイン層で定義され、アプリケーション層が実行時に処理を注入する。
  */
 
 import type { LocationName } from "$lib/domain/models/Location";
@@ -12,7 +12,7 @@ import type { GameStateUpdateResult } from "./GameStateUpdate";
 /**
  * 効果処理ステップの通知レベル
  *
- * Domain層で定義され、Presentation層が表示方法を決定する：
+ * ドメイン層で定義され、プレゼン層が表示方法を決定する：
  * - silent: 通知なし（内部状態変更のみ、即座に実行）
  * - info: 情報通知（トースト、非ブロッキング、自動進行）
  * - interactive: ユーザー入力要求（モーダル、ブロッキング）
@@ -22,9 +22,9 @@ export type NotificationLevel = "silent" | "info" | "interactive";
 /**
  * ユーザーインタラクション設定の基底クラス
  *
- * ユーザー操作自体は Presentation 層で実装されるが、
+ * ユーザー操作自体はプレゼン層で実装されるが、
  * ユーザーの意思決定を要するということ自体はゲームのルールに関わるため、
- * Domain 層で設定を定義している。
+ * ドメイン層で設定を定義している。
  *
  */
 export interface InteractionConfig {

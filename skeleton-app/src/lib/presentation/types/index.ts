@@ -1,8 +1,8 @@
 /**
- * Presentation Layer の型エイリアス群
+ * プレゼン層 の型エイリアス群
  *
- * Application層のDTOを再エクスポートし、Presentation層のコンポーネントに提供する。
- * 型定義の実体はApplication層にあり、Presentation層は型エイリアスのみを持つ。
+ * アプリ層のDTOを再エクスポートし、プレゼン層のコンポーネントに提供する。
+ * 型定義の実体はアプリ層にあり、プレゼン層は型エイリアスのみを持つ。
  *
  * @module presentation/types
  */

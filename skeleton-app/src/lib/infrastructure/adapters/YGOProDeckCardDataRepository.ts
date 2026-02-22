@@ -9,10 +9,10 @@
  * - 未キャッシュIDのみAPIリクエスト（バッチ最適化）
  * - Singletonパターンで単一インスタンスを共有
  *
- * @architecture  レイヤー間依存ルール - Infrastructure Layer (Adapter)
+ * @architecture  レイヤー間依存ルール - インフラ層 (Adapter)
  * - ROLE: Port に従った具体的な技術実装（API通信、キャッシュ、外部ライブラリ）
- * - ALLOWED: Application Layer の Port への依存
- * - FORBIDDEN: Domain Layer への直接依存
+ * - ALLOWED: アプリ層の Port への依存
+ * - FORBIDDEN: ドメイン層への直接依存
  *
  * @module infrastructure/adapters/YGOProDeckCardDataRepository
  */
@@ -43,7 +43,7 @@ let repositoryInstance: ICardDataRepository | null = null;
 /**
  * Singleton getter
  *
- * Application Layerから利用する統一アクセスポイント。
+ * アプリ層から利用する統一アクセスポイント。
  * 単一のYGOProDeckCardDataRepositoryインスタンスを共有し、効率的なキャッシュ管理を実現。
  */
 export function getCardDataRepository(): ICardDataRepository {

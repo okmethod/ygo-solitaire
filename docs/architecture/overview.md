@@ -4,20 +4,20 @@
 
 ゲームロジックを UI・外部リソースから完全に分離し、変更に強くテストしやすい構成にする。
 
-1. **Domain Layer** : 外部に依存しない静的ゲームルール
-2. **Application Layer** : ユースケース・動的ゲーム状態管理
-3. **Infrastructure Layer** : DB アクセス・外部 API アクセス
-4. **Presentation Layer** : UI・Controller
+1. **Domain Layer（ドメイン層）** : 外部に依存しない静的ゲームルール
+2. **Application Layer（アプリ層）** : ユースケース・動的ゲーム状態管理
+3. **Infrastructure Layer（インフラ層）** : DB アクセス・外部 API アクセス
+4. **Presentation Layer（プレゼン層）** : UI・Controller
 
 ```mermaid
   graph LR
     subgraph Game Core Logic
-        D[Domain Layer<br>静的ゲームルール]
-        A[Application Layer<br>動的ゲーム状態管理]
+        D[ドメイン層<br>静的ゲームルール]
+        A[アプリ層<br>動的ゲーム状態管理]
         IP(Port Interface<br>抽象インターフェース)
     end
-    P[Presentation Layer<br>UI・Controller]
-    I[Infrastructure Layer<br>外部アクセス]
+    P[プレゼン層<br>UI・Controller]
+    I[インフラ層<br>外部アクセス]
 
     P --> A
     A --> D
@@ -29,10 +29,10 @@
 
 ```
 skeleton-app/src/lib/
-├── domain/          # Domain Layer
-├── application/     # Application Layer
-├── infrastructure/  # Infrastructure Layer
-└── presentation/    # Presentation Layer
+├── domain/          # ドメイン層
+├── application/     # アプリ層
+├── infrastructure/  # インフラ層
+└── presentation/    # プレゼン層
 ```
 
 ---
@@ -99,7 +99,7 @@ skeleton-app/src/lib/domain/
   - spread 構文によるゲーム状態の不変更新を保証
   - 行動履歴の追跡とテストが容易
   - `GameStateUpdateResult`を返却（newState + オプショナルな effectSteps）
-  - 効果処理ステップは Application Layer に委譲（Clean Architecture 準拠）
+  - 効果処理ステップはアプリ層に委譲（Clean Architecture 準拠）
 
 ### Application Layer
 
@@ -113,19 +113,19 @@ skeleton-app/src/lib/domain/
 
 ```
 skeleton-app/src/lib/application/
-├── ports/         # Port Interface（Infrastructure層への依存抽象化）
+├── ports/         # Port Interface（インフラ層への依存抽象化）
 ├── types/         # DTO（CardDisplayData, DeckRecipe等）
 ├── data/          # サンプルデッキレシピ等の静的データ
 ├── utils/         # デッキローダー等のユーティリティ
 ├── stores/        # Svelte Storeによる状態管理
-└── GameFacade.ts  # Presentation LayerとDomain Layerの橋渡し（Facade Pattern）
+└── GameFacade.ts  # プレゼン層とドメイン層の橋渡し（Facade Pattern）
 ```
 
 **主要コンポーネント**:
 
 - **GameFacade**: UI からの単一窓口（Facade Pattern）
-  - Presentation Layer と Domain Layer の橋渡し
-  - Domain 層の Commands を呼び出し、結果を Store に反映
+  - プレゼン層 と ドメイン層 の橋渡し
+  - ドメイン層の Commands を呼び出し、結果を Store に反映
   - すべてのゲーム操作コマンドのエンドポイントをシンプルなメソッドで提供
   - Store 更新の責任を一元管理
 
@@ -136,13 +136,13 @@ skeleton-app/src/lib/application/
   - 不変オブジェクト（spread 構文）による更新検知で Svelte の再描画を最適化
 
 - **Ports**: 抽象インターフェース（Port/Adapter Pattern）
-  - Infrastructure 層への依存を抽象化
+  - インフラ層への依存を抽象化
   - 例: `ICardDataRepository`（カードデータ取得の抽象）
 
-- **Types & DTOs**: Application 層のデータ型
+- **Types & DTOs**: アプリ層のデータ型
   - `CardDisplayData`: UI 表示用のカード情報
   - `DeckRecipe`: デッキレシピ定義
-  - Domain 層の型（`CardData`）とは明確に区別
+  - ドメイン層の型（`CardData`）とは明確に区別
 
 ### Infrastructure Layer
 
@@ -150,7 +150,7 @@ skeleton-app/src/lib/application/
 
 - 外部 API との統合（YGOPRODeck API v7 等）
 - Port/Adapter パターンによる抽象化
-- Application Layer から外部リソースへの依存を隔離
+- アプリ層 から外部リソースへの依存を隔離
 
 **ディレクトリ構造**
 
@@ -165,7 +165,7 @@ skeleton-app/src/lib/infrastructure/
 **主要コンポーネント**:
 
 - **Adapters**: Port/Adapter Pattern 実装
-  - Application Layer 定義の Port を実装
+  - アプリ層 定義の Port を実装
   - 例: `YGOProDeckCardDataRepository`（ICardDataRepository 実装）
 
 - **API Clients**: 外部 API 統合
@@ -180,9 +180,9 @@ skeleton-app/src/lib/infrastructure/
 
 **依存性逆転（Port/Adapter Pattern）**:
 
-- Application Layer は抽象 Port（`ICardDataRepository`）に依存
-- Infrastructure Layer が具象 Adapter（`YGOProDeckCardDataRepository`）を提供
-- → Application Layer は API 実装詳細から完全に分離
+- アプリ層 は抽象 Port（`ICardDataRepository`）に依存
+- インフラ層 が具象 Adapter（`YGOProDeckCardDataRepository`）を提供
+- → アプリ層 は API 実装詳細から完全に分離
 
 **キャッシング戦略**:
 
@@ -208,7 +208,7 @@ skeleton-app/src/lib/presentation/
 │   ├── organisms/  # 複合UI（DuelField, Hands等）
 │   └── modals/     # モーダルダイアログ
 ├── stores/      # UI状態管理（カード選択、モーダル表示、テーマ、音声）
-├── types/       # Application Layerからの型再エクスポート（後方互換性）
+├── types/       # アプリ層からの型再エクスポート（後方互換性）
 ├── utils/       # UI専用ユーティリティ（ナビゲーション、音声再生等）
 ├── assets/      # 画像ファイル
 └── constants/   # UI定数値
@@ -218,14 +218,14 @@ skeleton-app/src/lib/presentation/
 
 - **Components**: Atomic Design 構成（atoms/molecules/organisms/modals）
 - **Stores**: UI 状態管理（カード選択、モーダル表示、テーマ、音声）
-- **Types**: Application Layer からの型再エクスポート（後方互換性）
+- **Types**: アプリ層 からの型再エクスポート（後方互換性）
 - **Utils**: UI 専用ユーティリティ（ナビゲーション、トランジション、音声再生）
 - **Assets & Constants**: 画像ファイル、UI 定数値
 
 **ロジックの責務**:
 
 - ✅ 表示ロジック（アニメーション、モーダル制御等）
-- ❌ ゲームロジック（攻撃力計算等）→ Application/Domain Layer に委譲
+- ❌ ゲームロジック（攻撃力計算等）→ Application/ドメイン層 に委譲
 
 ---
 

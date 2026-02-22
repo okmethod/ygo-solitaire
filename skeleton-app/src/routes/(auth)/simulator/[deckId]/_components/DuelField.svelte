@@ -4,10 +4,10 @@
    *
    * フィールド魔法ゾーン、モンスターゾーン、魔法罠ゾーン、墓地、デッキを表示・操作する。
    *
-   * ARCH: Presentation Layer - レイヤー依存ルール
-   * - Presentation Layer は Application Layer（GameFacade、Stores）のみに依存する
-   * - Domain Layer（Command、Rule等）を直接 import してはいけない
-   * - 全てのゲームロジック呼び出しは GameFacade 経由で行う
+   * @architecture レイヤー間依存ルール - プレゼン層（UI）
+   * - ROLE: UI提供、GameFacade 経由でのゲーム操作
+   * - ALLOWED: アプリ層（GameFacade、Stores）への依存
+   * - FORBIDDEN: ドメイン層への依存
    *
    * @module presentation/components/organisms/board/DuelField
    */

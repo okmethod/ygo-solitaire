@@ -60,7 +60,7 @@ const ERROR_MESSAGES: Record<ValidationErrorCode, string> = {
   // カード関連
   CARD_NOT_FOUND: "カードが見つかりません",
   CARD_NOT_IN_HAND: "カードが手札にありません",
-  CARD_NOT_IN_VALID_LOCATION: "カードが有効な場所にありません",
+  CARD_NOT_IN_VALID_LOCATION: "カードが有効な位置にありません",
   CARD_NOT_ON_FIELD: "カードがフィールドにありません",
   CARD_NOT_FACE_UP: "カードが表側表示ではありません",
   NOT_SPELL_CARD: "魔法カードではありません",

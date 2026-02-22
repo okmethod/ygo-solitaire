@@ -13,11 +13,11 @@ export interface GameCommandResult extends GameStateUpdateResult {
   /**
    * 効果処理ステップ
    *
-   * Domain層がApplication層に効果処理を委譲する際に使用。
+   * ドメイン層がアプリ層に効果処理を委譲する際に使用。
    * - ActivateSpellCommand.execute() が effectSteps を返す
    * - GameFacade.activateSpell() が effectQueueStore.startProcessing() を呼ぶ
    *
-   * これにより、Domain層がApplication層の制御フローに依存しない設計を実現。
+   * これにより、ドメイン層がアプリ層の制御フローに依存しない設計を実現。
    */
   readonly effectSteps: AtomicStep[];
 }

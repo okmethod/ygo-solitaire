@@ -1,10 +1,10 @@
 /**
  * card - カードデータの DTO (Data Transfer Object)
  *
- * @architecture レイヤー間依存ルール - Application Layer (DTO)
- * - ROLE: Application Layer や Presentation Layer が消費するデータ形式の定義
- * - ALLOWED: Domain Layer のモデルへの依存
- * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ * @architecture レイヤー間依存ルール - アプリ層 (DTO)
+ * - ROLE: アプリ層やプレゼン層が消費するデータ形式の定義
+ * - ALLOWED: ドメイン層のモデルへの依存
+ * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @module application/types/card
  */
@@ -31,7 +31,7 @@ export interface CardImages {
  * UI 表示用カードデータ (DTO)
  *
  * displayDataFactory によって生成される。
- * - CardData (Domain層): ゲームロジックの根拠
+ * - CardData (ドメイン層): ゲームロジックの根拠
  * - ExternalCardData (API経由): 表示用および検証用
  *
  * @see displayDataFactory
@@ -63,7 +63,7 @@ export interface CardInstanceRef {
  * フィールド上のカードの状態 (DTO)
  *
  * CardInstanceRef を継承し、フィールド上の状態（position, battlePosition, counters）を追加。
- * derivedStores で生成され、Presentation層はこの型を通じてフィールド上のカード状態にアクセスする。
+ * derivedStores で生成され、プレゼン層はこの型を通じてフィールド上のカード状態にアクセスする。
  */
 export interface CardInstanceOnFieldRef extends CardInstanceRef {
   position: "faceUp" | "faceDown";
@@ -72,9 +72,9 @@ export interface CardInstanceOnFieldRef extends CardInstanceRef {
 }
 
 /**
- * Domain 型の再エクスポート（Port/Adapter 境界での標準パターン）
+ * ドメイン層の型の再エクスポート（Port/Adapter 境界での標準パターン）
  *
- * Infrastructure 層が Domain 層に直接依存するのを防ぐため、Application 層で再エクスポートする。
+ * インフラ層がドメイン層に直接依存するのを防ぐため、アプリ層で再エクスポートする。
  */
 export type {
   CardData,

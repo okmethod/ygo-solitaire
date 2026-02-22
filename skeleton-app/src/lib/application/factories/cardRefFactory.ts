@@ -1,7 +1,7 @@
 /**
  * cardRefFactory - CardInstance 変換ファクトリ
  *
- * CardInstance（Domain層）を Presentation層で使用する DTO に変換する。
+ * ドメイン層の CardInstance をプレゼン層で使用する DTO に変換する。
  *
  * @module application/factories/cardRefFactory
  */

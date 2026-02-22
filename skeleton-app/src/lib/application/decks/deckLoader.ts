@@ -2,12 +2,12 @@
  * deckLoader - 指定したデッキIDから、デッキレシピとデッキデータを読み込むユーティリティ
  *
  * DeckRecipe をベースに、CardDataRegistry から CardData を取得し、デッキデータを構築する。
- * 表示用データ（DisplayCardData）への変換は Presentation Layer で行う。
+ * 表示用データ（DisplayCardData）への変換はプレゼン層で行う。
  *
- * @architecture レイヤー間依存ルール - Application Layer (Store)
- * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
- * - ALLOWED: Domain Layer への依存
- * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ * @architecture レイヤー間依存ルール - アプリ層 (Store)
+ * - ROLE: ゲーム進行制御、プレゼン層へのデータ提供
+ * - ALLOWED: ドメイン層への依存
+ * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @module application/utils/deckLoader
  */

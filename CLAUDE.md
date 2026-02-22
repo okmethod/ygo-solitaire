@@ -41,8 +41,8 @@
 ## 開発時の重要ルール
 
 - **Svelte 5 Runes モード**: `$state`, `$derived`, `$effect`を活用
-- **不変性保持**: すべての状態更新は`Immer.js`の`produce()`を使用
-- **レイヤー境界**: Domain Layer に Svelte/UI 依存コードを書かない
+- **不変性保持**: 状態は `readonly` のメンバを使用
+- **レイヤー境界**: ドメイン層に Svelte/UI 依存コードを書かない
 - **スタイル**: 可能な限り TailwindCSS を使用
 
 ---

@@ -5,9 +5,10 @@
    * プレイヤーの手札を表示し、カードの発動・召喚・セット操作を提供する。
    * ゲーム操作が集中する重要なコンポーネント。
    *
-   * ARCH: Presentation Layer - レイヤー依存ルール
-   * - Application Layer（GameFacade）経由でのみゲームロジック呼び出し可能
-   * - 魔法・罠セット、モンスター召喚等の操作は GameFacade メソッドで検証
+   * @architecture レイヤー間依存ルール - プレゼン層（UI）
+   * - ROLE: UI提供、GameFacade 経由でのゲーム操作
+   * - ALLOWED: アプリ層（GameFacade、Stores）への依存
+   * - FORBIDDEN: ドメイン層への依存
    *
    * @module presentation/components/organisms/board/Hands
    */
@@ -20,9 +21,6 @@
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
 
-  /**
-   * Hands コンポーネントのプロパティ
-   */
   interface HandZoneProps {
     cards: Array<{ card: DisplayCardData | null; instanceId: string }>;
     selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId

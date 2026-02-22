@@ -55,7 +55,7 @@ export class AdvancePhaseCommand implements GameCommand {
    * 2. 更新後状態の構築
    * 3. 戻り値の構築
    *
-   * Note: 効果処理は、Application 層に返された後に実行される
+   * Note: 効果処理は、アプリ層に返された後に実行される
    */
   execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定

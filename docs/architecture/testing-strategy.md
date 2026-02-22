@@ -59,10 +59,10 @@
 ```
 tests/
 ├── unit/                 # Unit Tests（src/lib配下の構成に準拠）
-│   ├── application/      # Application 層のテスト
-│   ├── domain/           # Domain 層のテスト
-│   ├── infrastructure/   # Infrastructure 層のテスト
-│   └── presentation/     # Presentation 層のテスト
+│   ├── domain/           # ドメイン層のテスト
+│   ├── application/      # アプリ層のテスト
+│   ├── infrastructure/   # インフラ層のテスト
+│   └── presentation/     # プレゼン層のテスト
 │
 ├── integration/          # Integration Tests
 │   ├── card-effects/     # 固有カード効果のシナリオテスト

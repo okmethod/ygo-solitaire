@@ -88,7 +88,7 @@
 
   // 手札のカードクリックで効果発動
   function handleHandCardClick(_card: DisplayCardData, instanceId: string) {
-    // Domain Layerで全ての判定を実施（フェーズチェック、発動可否など）
+    // ドメイン層で全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
     if (!result.success) showErrorToast(result.error || "発動に失敗しました");
   }

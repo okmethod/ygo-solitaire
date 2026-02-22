@@ -1,7 +1,7 @@
 /**
  * 表示用のカード型定義
  *
- * Application層の型を再エクスポートし、Presentation層固有の型エイリアスを提供。
+ * アプリ層の型を再エクスポートし、プレゼン層固有の型エイリアスを提供。
  *
  * @module presentation/types/card
  */

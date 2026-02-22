@@ -4,10 +4,10 @@
  * GameState の Single Source of Truth (SSOT)。
  * すべてのゲーム状態（ゾーン、フェーズ、LP等）はこのストアを通じて管理される。
  *
- * @architecture レイヤー間依存ルール - Application Layer (Store)
- * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
- * - ALLOWED: Domain Layer への依存
- * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ * @architecture レイヤー間依存ルール - アプリ層 (Store)
+ * - ROLE: ゲーム進行制御、プレゼン層へのデータ提供
+ * - ALLOWED: ドメイン層への依存
+ * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @module application/stores/gameStateStore
  */
@@ -29,7 +29,7 @@ function createEmptyGameState(): GameSnapshot {
 /** ゲーム状態ストア */
 export const gameStateStore = writable<GameSnapshot>(createEmptyGameState());
 
-// DeckRecipe を Domain Layer が要求する InitialDeck 形式に変換する
+// DeckRecipe を、ドメイン層が要求する InitialDeck 形式に変換する
 function convertDeckRecipeToInitialDeck(deckRecipe: DeckRecipe): InitialDeckCardIds {
   const mainDeckCardIds: number[] = [];
   deckRecipe.mainDeck.forEach((entry) => {

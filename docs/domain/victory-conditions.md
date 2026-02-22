@@ -1,5 +1,7 @@
 # 特殊勝利条件
 
+**実装箇所**: `domain/GameState/VictoryCondition.ts`
+
 ---
 
 ## 封印されしエクゾディア

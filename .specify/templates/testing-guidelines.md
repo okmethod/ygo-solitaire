@@ -35,9 +35,9 @@ description: "Testing strategy guidelines for ygo-solitaire project"
 
 **Use for**:
 
-- ✅ Domain Layer 純粋関数（GameState, Rules）
-- ✅ Application Layer Command クラス
-- ✅ Domain + Application 連携（Integration）
+- ✅ ドメイン層 純粋関数（GameState, Rules）
+- ✅ アプリ層 Command クラス
+- ✅ ドメイン層 + アプリ層 連携（Integration）
 - ✅ Store の状態管理ロジック
 - ✅ カード ID 判定、デッキ枚数チェック等の内部ロジック
 - ✅ エラーハンドリング、バリデーション
@@ -108,7 +108,6 @@ description: "Testing strategy guidelines for ygo-solitaire project"
 **Instead**, separate tests into:
 
 1. **Command Test File** (`ActivateSpellCommand.test.ts`)
-
    - ✅ Test Command pattern implementation
    - ✅ Test universal flow (hand → field → graveyard)
    - ✅ Test phase checks, game-over checks
@@ -314,7 +313,7 @@ When creating test tasks for a new feature, ask:
 
 ## Coverage Goals (from docs/architecture/testing-strategy.md)
 
-**Domain Layer**: 80%+ coverage required
+**ドメイン層**: 80%+ coverage required
 
 ```typescript
 // vitest.config.ts
@@ -329,9 +328,9 @@ coverage: {
 }
 ```
 
-**Application Layer**: Aim for high coverage (not strictly enforced)
+**アプリ層**: Aim for high coverage (not strictly enforced)
 
-**Presentation Layer**: E2E for critical user flows only
+**プレゼン層**: E2E for critical user flows only
 
 ---
 

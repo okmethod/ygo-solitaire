@@ -2,22 +2,22 @@
  * effectQueueStore - 効果処理ステップキューストア
  *
  * 効果処理ステップキューの Single Source of Truth (SSOT)。
- * 蓄積された AtomicStep を順次実行し、通知・カード選択を Presentation Layer に委譲する。
+ * 蓄積された AtomicStep を順次実行し、通知・カード選択を プレゼン層 に委譲する。
  *
- * @architecture レイヤー間依存ルール - Application Layer (Store)
- * - ROLE: ゲーム進行制御、Presentation Layer へのデータ提供
- * - ALLOWED: Domain Layer への依存
- * - FORBIDDEN: Infrastructure Layer への依存、Presentation Layer への依存
+ * @architecture レイヤー間依存ルール - アプリ層 (Store)
+ * - ROLE: ゲーム進行制御、プレゼン層 へのデータ提供
+ * - ALLOWED: ドメイン層 への依存
+ * - FORBIDDEN: インフラ層 への依存、プレゼン層 への依存
  *
  * @remark ユーザーインタラクティブ操作のレイヤー間役割分担
- * - Domain層: ゲームルールとしての設定（ユーザーが何を決める必要があるか）
- * - Application層: ユーザの操作制御の設定（ユーザーの選択をどう扱うか）
- * - Presentation層: ユーザ操作のUI実装（ユーザーにどう見せるか）
+ * - ドメイン層: ゲームルールとしての設定（ユーザーが何を決める必要があるか）
+ * - アプリ層: ユーザの操作制御の設定（ユーザーの選択をどう扱うか）
+ * - プレゼン層: ユーザ操作のUI実装（ユーザーにどう見せるか）
  *
  * @remark 効果処理の設計思想
  * - 効果処理は複数の AtomicStep から構成されるシーケンス
  * - effectQueueStore が効果処理の状態を一元管理（SSOT）
- * - Presentation層は状態を監視し、configがnullでなければUIを表示
+ * - プレゼン層は状態を監視し、configがnullでなければUIを表示
  * - ユーザー操作時にconfig内のコールバックを実行
  *
  * ============================================================================
