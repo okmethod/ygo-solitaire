@@ -292,9 +292,12 @@ describe("ActivateIgnitionEffectCommand", () => {
 
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
+      expect(result.chainBlock).toBeDefined();
       // Chicken Game has: 2 activation steps (発動通知 + LP payment) + 1 resolution step (draw)
-      // Note: 発動記録（1ターンに1度制限用）はコマンド側で行う
+      // For backward compatibility, effectSteps contains all steps
       expect(result.effectSteps!.length).toBe(3);
+      // chainBlock.resolutionSteps contains resolution steps for future chain system
+      expect(result.chainBlock!.resolutionSteps.length).toBe(1);
     });
 
     it("should record activation in stateOnField.activatedEffects", () => {
@@ -458,8 +461,12 @@ describe("ActivateIgnitionEffectCommand", () => {
 
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
+        expect(result.chainBlock).toBeDefined();
         // Royal Magical Library: 2 activation steps (発動通知 + カウンター消費) + 1 resolution step (draw)
+        // For backward compatibility, effectSteps contains all steps
         expect(result.effectSteps!.length).toBe(3);
+        // chainBlock.resolutionSteps contains resolution steps for future chain system
+        expect(result.chainBlock!.resolutionSteps.length).toBe(1);
       });
 
       it("should draw 1 card after executing all steps", () => {
@@ -470,7 +477,7 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.success).toBe(true);
         expect(result.effectSteps).toBeDefined();
 
-        // Execute all effect steps
+        // Execute all effect steps (effectSteps now contains all steps for backward compatibility)
         let currentState = result.updatedState;
         for (const step of result.effectSteps!) {
           const stepResult = step.action(currentState);

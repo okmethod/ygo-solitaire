@@ -4,8 +4,6 @@
  * フィールドに表側表示で存在するカードの起動効果を発動する Command パターン実装。
  * ChainableActionRegistry から起動効果を取得し、汎用的に発動する。
  *
- * TODO: チェーンシステムに対応する。
- *
  * @module domain/commands/ActivateIgnitionEffectCommand
  */
 
@@ -13,7 +11,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
@@ -122,22 +120,28 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
+    const activationSteps = activatableEffect.createActivationSteps(updatedState, cardInstance);
+    const resolutionSteps = activatableEffect.createResolutionSteps(updatedState, cardInstance);
+
+    // チェーンブロック情報を構築
+    const chainBlock = {
+      effectId: activatableEffect.effectId,
+      sourceInstanceId: cardInstance.instanceId,
+      sourceCardId: cardInstance.id,
+      spellSpeed: activatableEffect.spellSpeed,
+      resolutionSteps,
+      isNegated: false,
+    };
+
+    // Note: 後方互換性のため effectSteps には全ステップを含める
+    // フェーズ3でチェーンシステムを実装後、GameFacade 側で分離処理する
     return Command.Result.success(
       updatedState,
       `Ignition effect activated: ${this.cardInstanceId}`,
       [],
-      this.buildEffectSteps(updatedState, cardInstance, activatableEffect),
+      [...activationSteps, ...resolutionSteps],
+      chainBlock,
     );
-  }
-
-  /**
-   * 効果処理ステップ配列を生成する
-   * Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
-   */
-  private buildEffectSteps(state: GameSnapshot, cardInstance: CardInstance, effect: ChainableAction): AtomicStep[] {
-    const activationSteps = effect.createActivationSteps(state, cardInstance);
-    const resolutionSteps = effect.createResolutionSteps(state, cardInstance);
-    return [...activationSteps, ...resolutionSteps];
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

@@ -126,7 +126,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const fieldCard = commandResult.updatedState.space.fieldZone[0];
       expect(fieldCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
 
-      // Execute effect steps
+      // Execute effect steps (effectSteps now contains all steps for backward compatibility)
       let currentState = commandResult.updatedState;
       for (const step of commandResult.effectSteps!) {
         const stepResult = step.action(currentState);
@@ -322,6 +322,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const fieldCardAfterIgnition = ignitionResult.updatedState.space.fieldZone[0];
       expect(fieldCardAfterIgnition.stateOnField?.activatedEffects.size).toBe(1);
 
+      // Execute effect steps (effectSteps now contains all steps for backward compatibility)
       let currentState: GameSnapshot = ignitionResult.updatedState;
       for (const step of ignitionResult.effectSteps!) {
         const stepResult = step.action(currentState);

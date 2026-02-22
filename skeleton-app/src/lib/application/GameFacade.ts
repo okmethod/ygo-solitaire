@@ -75,9 +75,14 @@ export class GameFacade {
     if (result.success) {
       gameStateStore.set(result.updatedState);
 
-      // 効果処理ステップがある場合は委譲
-      if (result.effectSteps && result.effectSteps.length > 0) {
-        effectQueueStore.startProcessing(result.effectSteps);
+      // 効果処理ステップを構築
+      // - effectSteps: 発動時処理（activationSteps）
+      // - chainBlock?.resolutionSteps: 解決時処理
+      // Note: フェーズ3でチェーンシステムを実装するまでは、両方を連結して処理
+      const allSteps = [...(result.effectSteps ?? []), ...(result.chainBlock?.resolutionSteps ?? [])];
+
+      if (allSteps.length > 0) {
+        effectQueueStore.startProcessing(allSteps);
       }
     }
 

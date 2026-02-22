@@ -2,7 +2,6 @@
  * ActivateSpellCommand - 魔法カード発動コマンド
  *
  * 手札またはフィールドにセットされた魔法カードを発動する Command パターン実装。
- * TODO: チェーンシステムに対応する。
  *
  * @module domain/commands/ActivateSpellCommand
  */
@@ -11,7 +10,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
@@ -109,11 +108,30 @@ export class ActivateSpellCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
+    const activation = ChainableActionRegistry.getActivation(cardInstance.id);
+    const activationSteps = activation?.createActivationSteps(updatedState, cardInstance) ?? [];
+    const resolutionSteps = activation?.createResolutionSteps(updatedState, cardInstance) ?? [];
+
+    // チェーンブロック情報を構築
+    const chainBlock = activation
+      ? {
+          effectId: activation.effectId,
+          sourceInstanceId: cardInstance.instanceId,
+          sourceCardId: cardInstance.id,
+          spellSpeed: activation.spellSpeed,
+          resolutionSteps,
+          isNegated: false,
+        }
+      : undefined;
+
+    // Note: 後方互換性のため effectSteps には全ステップを含める
+    // フェーズ3でチェーンシステムを実装後、GameFacade 側で分離処理する
     return Command.Result.success(
       updatedState,
       `Spell card activated: ${this.cardInstanceId}`,
       [],
-      this.buildEffectSteps(updatedState, cardInstance),
+      [...activationSteps, ...resolutionSteps],
+      chainBlock,
     );
   }
 
@@ -146,23 +164,6 @@ export class ActivateSpellCommand implements GameCommand {
     return GameState.Space.updateCardStateInPlace(space, cardInstance, {
       position: "faceUp",
     });
-  }
-
-  // 効果処理ステップ配列を生成する
-  // Note: 発動条件は canExecute でチェック済みのため、ここでは再チェックしない
-  // Note: 通常魔法・速攻魔法の墓地送りは、ChainableAction 側で処理される
-  // Note: トリガールール（魔力カウンター等）は effectQueueStore がイベントを検出して自動挿入
-  private buildEffectSteps(state: GameSnapshot, cardInstance: CardInstance): AtomicStep[] {
-    const steps: AtomicStep[] = [];
-
-    // カード固有の効果ステップ（イベント発行は BaseSpellActivation 内で行われる）
-    const activation = ChainableActionRegistry.getActivation(cardInstance.id);
-    if (activation) {
-      steps.push(...activation.createActivationSteps(state, cardInstance));
-      steps.push(...activation.createResolutionSteps(state, cardInstance));
-    }
-
-    return steps;
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

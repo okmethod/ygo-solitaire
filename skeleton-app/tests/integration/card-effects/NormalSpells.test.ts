@@ -51,28 +51,37 @@ describe("Normal Spell Card Effects", () => {
         },
       });
 
-      // Act: Activate Pot of Greed (new system - returns effectSteps)
+      // Act: Activate Pot of Greed (new system - returns effectSteps + chainBlock)
       const command = new ActivateSpellCommand("pot-0"); // createCardInstances uses 0-based index
       const result = command.execute(state);
 
-      // Assert: effectSteps are returned in the result
+      // Assert: effectSteps (activation) and chainBlock (resolution) are returned
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(4);
+      expect(result.chainBlock).toBeDefined();
 
-      // Verify steps: [activation step, spell activated event, draw step, send-to-graveyard step]
+      // effectSteps contains all steps for backward compatibility:
+      // [activation notification, spell activated event, draw step, send-to-graveyard step]
+      expect(result.effectSteps!.length).toBe(4);
+      // chainBlock.resolutionSteps also contains resolution steps for future chain system:
+      // [draw step, send-to-graveyard step]
+      expect(result.chainBlock!.resolutionSteps.length).toBe(2);
+
+      // Verify activation steps
       expect(result.effectSteps![0]).toMatchObject({
         id: "55144522-activation-notification", // ID now uses card ID
         summary: "カード発動",
         description: "《強欲な壺》を発動します",
       });
       // index=1 is emitSpellActivatedEventStep (skipped in assertion)
-      expect(result.effectSteps![2]).toMatchObject({
+
+      // Verify resolution steps
+      expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
         id: "draw-2", // ID now uses step builder format
         summary: "カードをドロー",
         description: "デッキから2枚ドローします",
       });
-      expect(result.effectSteps![3]).toMatchObject({
+      expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({
         summary: "墓地へ送る",
         description: "《強欲な壺》を墓地に送ります",
       });
@@ -122,33 +131,42 @@ describe("Normal Spell Card Effects", () => {
         },
       });
 
-      // Act: Activate Graceful Charity (new system - returns effectSteps)
+      // Act: Activate Graceful Charity (new system - returns effectSteps + chainBlock)
       const command = new ActivateSpellCommand("charity-0");
       const result = command.execute(state);
 
-      // Assert: effectSteps are returned in the result
+      // Assert: effectSteps (activation) and chainBlock (resolution) are returned
       expect(result.success).toBe(true);
       expect(result.effectSteps).toBeDefined();
-      expect(result.effectSteps!.length).toBe(5);
+      expect(result.chainBlock).toBeDefined();
 
-      // Verify steps: [activation step, spell activated event, draw step, discard step, send-to-graveyard step]
+      // effectSteps contains all steps for backward compatibility:
+      // [activation notification, spell activated event, draw step, discard step, send-to-graveyard step]
+      expect(result.effectSteps!.length).toBe(5);
+      // chainBlock.resolutionSteps also contains resolution steps:
+      // [draw step, discard step, send-to-graveyard step]
+      expect(result.chainBlock!.resolutionSteps.length).toBe(3);
+
+      // Verify activation steps
       expect(result.effectSteps![0]).toMatchObject({
         id: "79571449-activation-notification",
         summary: "カード発動",
         description: "《天使の施し》を発動します",
       });
       // index=1 is emitSpellActivatedEventStep (skipped in assertion)
-      expect(result.effectSteps![2]).toMatchObject({
+
+      // Verify resolution steps
+      expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
         id: "draw-3",
         summary: "カードをドロー",
         description: "デッキから3枚ドローします",
       });
-      expect(result.effectSteps![3]).toMatchObject({
+      expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({
         id: "select-and-discard-2-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
       });
-      expect(result.effectSteps![4]).toMatchObject({
+      expect(result.chainBlock!.resolutionSteps[2]).toMatchObject({
         summary: "墓地へ送る",
         description: "《天使の施し》を墓地に送ります",
       });

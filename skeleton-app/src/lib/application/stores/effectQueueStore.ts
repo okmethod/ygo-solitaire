@@ -87,7 +87,7 @@
  * }
  * ```
  *
- * ## チェーンシステム（chainStore）の責務
+ * ## チェーンシステム（chainStackStore）の責務
  * - ChainableAction 発動をフックに起動
  * - ACTIVATION → 即座に effectQueueStore に渡して処理
  * - RESOLUTION → チェーンスタックに積む（LIFO）
@@ -108,7 +108,7 @@
  * ```
  * ChainableAction 発動
  *   ↓
- * chainStore 起動
+ * chainStackStore 起動
  *   ├─→ activation() を effectQueueStore で即座に処理
  *   └─→ resolution() をチェーンスタックにプッシュ
  *   ↓

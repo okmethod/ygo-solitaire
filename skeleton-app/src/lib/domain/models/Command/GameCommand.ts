@@ -4,6 +4,7 @@
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { GameStateUpdateResult, ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
+import type { ChainBlockParams } from "$lib/domain/models/Chain";
 import { GameState } from "$lib/domain/models/GameState";
 
 /**
@@ -11,15 +12,29 @@ import { GameState } from "$lib/domain/models/GameState";
  */
 export interface GameCommandResult extends GameStateUpdateResult {
   /**
-   * 効果処理ステップ
+   * 効果処理ステップ（activationSteps）
    *
    * ドメイン層がアプリ層に効果処理を委譲する際に使用。
    * - ActivateSpellCommand.execute() が effectSteps を返す
    * - GameFacade.activateSpell() が effectQueueStore.startProcessing() を呼ぶ
    *
-   * これにより、ドメイン層がアプリ層の制御フローに依存しない設計を実現。
+   * Note: チェーンシステム実装後は、発動時処理（activationSteps）のみを含む。
+   * 解決時処理（resolutionSteps）は chainBlock に含まれる。
+   * フェーズ3でチェーンシステムを実装後、GameFacade 側で発動時処理と解決時処理を分離したのち、
+   * activationSteps にリネームする
    */
   readonly effectSteps: AtomicStep[];
+
+  /**
+   * チェーンブロック情報（チェーンブロックを作る処理の場合）
+   *
+   * カードの発動・効果の発動など、チェーンブロックを作る処理の場合に設定。
+   * - chainStackStore.pushChainBlock() で使用される
+   * - resolutionSteps はチェーン解決時に処理される
+   *
+   * チェーンブロックを作らない処理（召喚、セット等）の場合は undefined。
+   */
+  readonly chainBlock?: ChainBlockParams;
 }
 
 /**
@@ -48,6 +63,7 @@ export const successCommandResult = (
   message?: string,
   emittedEvents?: GameEvent[],
   effectSteps?: AtomicStep[],
+  chainBlock?: ChainBlockParams,
 ): GameCommandResult => {
   // 開発時のみ
   if (import.meta.env.DEBUG) {
@@ -63,6 +79,7 @@ export const successCommandResult = (
     message,
     emittedEvents,
     effectSteps: effectSteps ?? [],
+    chainBlock,
   };
 };
 
