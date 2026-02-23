@@ -12,10 +12,12 @@
    *
    * @module presentation/components/organisms/board/Hands
    */
+  import { tick } from "svelte";
   import type { DisplayCardData } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
   import { isMobile } from "$lib/presentation/utils/mobile";
+  import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
@@ -23,7 +25,8 @@
 
   interface HandZoneProps {
     cards: Array<{ card: DisplayCardData | null; instanceId: string }>;
-    selectedHandCardInstanceId: string | null; // 選択された手札カードのinstanceId
+    selectedHandCardInstanceId: string | null; // 選択された手札カードのインスタンスID
+    animatingInstanceIds: Set<string>; // アニメーション中のカードのインスタンスID
     onCardClick: (card: DisplayCardData, instanceId: string) => void;
     onSummonMonster: (card: DisplayCardData, instanceId: string) => void;
     onSetMonster: (card: DisplayCardData, instanceId: string) => void;
@@ -34,6 +37,7 @@
   let {
     cards,
     selectedHandCardInstanceId,
+    animatingInstanceIds,
     onCardClick,
     onSummonMonster,
     onSetMonster,
@@ -44,6 +48,34 @@
   // スマホではカードサイズを小さく
   const _isMobile = isMobile();
   const cardSize: ComponentSize = _isMobile ? "small" : "medium";
+
+  // カード要素の参照を保持
+  let cardElements: Record<string, HTMLElement | undefined> = $state({});
+
+  // カード位置を登録（cardsが変更されたときのみ）
+  // 前回のカードIDリストを記憶して変更を検出
+  let lastCardIds: string[] = [];
+
+  async function updateCardPositions() {
+    await tick(); // DOM更新を待つ
+    for (const { instanceId } of cards) {
+      const element = cardElements[instanceId];
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        cardAnimationStore.registerCardPosition(instanceId, rect);
+      }
+    }
+  }
+
+  $effect(() => {
+    // cardsの変更を検出（IDリストが変わった場合のみ）
+    const currentIds = cards.map((c) => c.instanceId).join(",");
+    const prevIds = lastCardIds.join(",");
+    if (currentIds !== prevIds) {
+      lastCardIds = cards.map((c) => c.instanceId);
+      updateCardPositions();
+    }
+  });
 
   // カードを発動可能か
   function isActivatable(instanceId: string): boolean {
@@ -182,16 +214,18 @@
 <div class="grid {getHandGridColumns(cards.length)} gap-2 mb-16">
   {#each cards as { card, instanceId } (instanceId)}
     {#if card}
-      <ActivatableCard
-        {card}
-        {instanceId}
-        isSelected={selectedHandCardInstanceId === instanceId}
-        isActivatable={getActionsForCard(card, instanceId).length > 0}
-        onSelect={handleSelect}
-        actionButtons={getActionsForCard(card, instanceId)}
-        onCancel={handleCancel}
-        size={cardSize}
-      />
+      <div bind:this={cardElements[instanceId]} class={animatingInstanceIds.has(instanceId) ? "opacity-0" : ""}>
+        <ActivatableCard
+          {card}
+          {instanceId}
+          isSelected={selectedHandCardInstanceId === instanceId}
+          isActivatable={getActionsForCard(card, instanceId).length > 0}
+          onSelect={handleSelect}
+          actionButtons={getActionsForCard(card, instanceId)}
+          onCancel={handleCancel}
+          size={cardSize}
+        />
+      </div>
     {:else}
       <!-- ローディング中のplaceholder -->
       <CardComponent placeholder={true} placeholderText="..." size={cardSize} />

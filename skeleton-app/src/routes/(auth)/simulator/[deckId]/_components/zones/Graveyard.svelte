@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import type { DisplayCardInstance } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import { isMobile } from "$lib/presentation/utils/mobile";
+  import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
@@ -10,17 +12,35 @@
   interface GraveyardProps {
     cards: DisplayCardInstance[];
     size?: ComponentSize;
+    animatingInstanceIds?: Set<string>; // アニメーション中のカードのインスタンスID
   }
 
-  let { cards, size = "medium" }: GraveyardProps = $props();
+  let { cards, size = "medium", animatingInstanceIds = new Set<string>() }: GraveyardProps = $props();
 
   const _isMobile = isMobile();
+
+  // ゾーン要素の参照
+  let zoneElement: HTMLElement | undefined = $state();
+
+  onMount(() => {
+    // ゾーン位置を登録（マウント時に1回のみ。画面サイズ変更に追従しない）
+    if (zoneElement) {
+      const rect = zoneElement.getBoundingClientRect();
+      cardAnimationStore.registerZonePosition("graveyard", rect);
+    }
+  });
 
   // モーダル状態管理
   let modalOpen = $state(false);
 
-  // 最後に墓地に置かれたカード
-  const topCard = $derived(cards.length > 0 ? cards[cards.length - 1].card : null);
+  // アニメーション中のカードを除外した表示用カード
+  const visibleCards = $derived(cards.filter((c) => !animatingInstanceIds.has(c.instanceId)));
+
+  // 最後に墓地に置かれたカード（アニメーション中のカードを除外）
+  const topCard = $derived(visibleCards.length > 0 ? visibleCards[visibleCards.length - 1].card : null);
+
+  // 表示用のカード枚数（アニメーション中のカードを除外）
+  const displayCount = $derived(visibleCards.length);
 
   // クリック処理
   function handleClick() {
@@ -45,6 +65,7 @@
 </script>
 
 <div
+  bind:this={zoneElement}
   class="
     {CARD_SIZE_CLASSES[size]}
     relative
@@ -68,7 +89,7 @@
     <div class="absolute inset-1">
       <CardComponent card={topCard} {size} clickable={false} />
     </div>
-    <CountBadge count={cards.length} />
+    <CountBadge count={displayCount} />
   {:else}
     <!-- カードが無い場合、プレースホルダー色調：グレーを表示する -->
     <div
@@ -82,7 +103,7 @@
         </span>
       </div>
     </div>
-    <CountBadge count={cards.length} />
+    <CountBadge count={displayCount} />
   {/if}
 </div>
 

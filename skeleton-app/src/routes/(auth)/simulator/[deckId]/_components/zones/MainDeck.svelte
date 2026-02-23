@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
@@ -9,9 +11,21 @@
   }
 
   let { cardCount, size = "medium" }: MainDeckProps = $props();
+
+  // ゾーン要素の参照
+  let zoneElement: HTMLElement | undefined = $state();
+
+  onMount(() => {
+    // ゾーン位置を登録（マウント時に1回のみ。画面サイズ変更に追従しない）
+    if (zoneElement) {
+      const rect = zoneElement.getBoundingClientRect();
+      cardAnimationStore.registerZonePosition("mainDeck", rect);
+    }
+  });
 </script>
 
 <div
+  bind:this={zoneElement}
   class="
     {CARD_SIZE_CLASSES[size]}
     relative
