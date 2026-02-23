@@ -51,7 +51,7 @@ function validateSpace(state: GameSnapshot): ConsistencyAssessment {
   // 各ゾーンの枚数チェック
   errors.push(...checkRange(state.space.mainDeck.length, 0, 60, "Deck size"));
   errors.push(...checkRange(state.space.extraDeck.length, 0, 15, "Extra Deck size"));
-  errors.push(...checkRange(state.space.hand.length, 0, 10, "Hand size"));
+  errors.push(...checkRange(state.space.hand.length, 0, 99, "Hand size"));
   errors.push(...checkRange(state.space.mainMonsterZone.length, 0, 5, "Main Monster Zone size"));
   errors.push(...checkRange(state.space.spellTrapZone.length, 0, 5, "Spell/Trap Zone size"));
   errors.push(...checkRange(state.space.fieldZone.length, 0, 1, "Field Zone size"));
