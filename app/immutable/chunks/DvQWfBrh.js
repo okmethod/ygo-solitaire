@@ -1,0 +1,1 @@
+import{g as i,w as e}from"./vgD3KS5I.js";const n=e(!1);function u(){return i(n)}function s(o){n.set(o),t||r()}let t=null;function r(){return t=new window.AudioContext,t}function d(){return!t||!u()?null:t}export{d as a,u as g,s};
