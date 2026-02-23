@@ -22,7 +22,11 @@ export function playMelody(
     const frequency = getFrequency(melodyNote.name, melodyNote.octave);
     const startTime = index * beatDurationSec;
     setTimeout(() => {
-      playBeep(audioContextProvider, waveType, frequency, melodyNote.duration * beatDurationSec);
+      playBeep(audioContextProvider, {
+        waveType,
+        startFreq: frequency,
+        duration: melodyNote.duration * beatDurationSec,
+      });
     }, startTime * 1000); // ミリ秒単位に変換
   });
 }

@@ -23,14 +23,10 @@ function initializeAudioContext(): AudioContext | null {
   return audioContext;
 }
 
-// ユーザー操作により初期化されたはずの AudioContext を返す
+// AudioContext を返す（初期化前または音声オフの場合は null）
 export function audioContextProvider(): AudioContext | null {
-  if (!audioContext) {
-    throw new Error("AudioContext is not initialized");
-  }
-  if (getAudioOn()) {
-    return audioContext;
-  } else {
+  if (!audioContext || !getAudioOn()) {
     return null;
   }
+  return audioContext;
 }

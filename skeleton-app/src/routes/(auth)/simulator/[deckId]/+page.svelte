@@ -21,6 +21,7 @@
   import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
+  import { SoundEffects } from "$lib/presentation/sounds/soundEffects";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -46,14 +47,20 @@
     // ゲーム開始時、Main1 まで自動進行
     gameFacade.autoAdvanceToMainPhase(
       () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
-      (message) => showSuccessToast(message), // 通知のコールバック
+      (message) => {
+        SoundEffects.phaseChange();
+        showSuccessToast(message);
+      }, // 通知のコールバック
     );
   });
 
   // ゲーム終了したらモーダルを開く
   let isGameOverModalOpen = $state(false);
   $effect(() => {
-    if ($gameResult.isGameOver) isGameOverModalOpen = true;
+    if ($gameResult.isGameOver) {
+      SoundEffects.win();
+      isGameOverModalOpen = true;
+    }
   });
 
   // 現在のステータス表示文字列を取得
@@ -70,8 +77,10 @@
   ): boolean {
     const result = action();
     if (result.success) {
+      SoundEffects.activate();
       showSuccessToast(result.message || successMessage);
     } else {
+      SoundEffects.error();
       showErrorToast(result.error || errorMessage);
     }
     return result.success;
@@ -91,7 +100,12 @@
   function handleHandCardClick(_card: DisplayCardData, instanceId: string) {
     // ドメイン層で全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
-    if (!result.success) showErrorToast(result.error || "発動に失敗しました");
+    if (result.success) {
+      SoundEffects.activate();
+    } else {
+      SoundEffects.error();
+      showErrorToast(result.error || "発動に失敗しました");
+    }
   }
 
   // モンスター召喚ハンドラー
