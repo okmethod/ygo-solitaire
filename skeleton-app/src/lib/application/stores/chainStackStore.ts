@@ -8,6 +8,10 @@
  * - ROLE: チェーン進行制御
  * - ALLOWED: ドメイン層への依存
  * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
+ *
+ * @module application/stores/chainStackStore
+ * @see {@link docs/domain/chain-system.md}
+ * @see {@link docs/architecture/effect-model-design.md}
  */
 
 import { writable, get as getStoreValue } from "svelte/store";
@@ -66,11 +70,20 @@ export interface chainStackStore {
   /** スタックが空かどうか */
   isEmpty: () => boolean;
 
+  /** チェーン構築中かどうか */
+  isBuilding: () => boolean;
+
   /** 現在のスタックサイズを取得する */
   getStackSize: () => number;
 
   /** 現在の状態を取得する */
   getState: () => ChainState;
+
+  /** スタックに積まれているインスタンスIDのセットを取得する */
+  getStackedInstanceIds: () => Set<string>;
+
+  /** チェーンに必要なスペルスピード下限を取得する */
+  getRequiredSpellSpeed: () => 1 | 2 | 3;
 
   /** チェーンをリセットする */
   reset: () => void;
@@ -144,6 +157,11 @@ function createchainStackStore(): chainStackStore {
       return state.stack.length === 0;
     },
 
+    isBuilding: (): boolean => {
+      const state = getStoreValue(store);
+      return state.isBuilding;
+    },
+
     getStackSize: (): number => {
       const state = getStoreValue(store);
       return state.stack.length;
@@ -151,6 +169,16 @@ function createchainStackStore(): chainStackStore {
 
     getState: (): ChainState => {
       return getStoreValue(store);
+    },
+
+    getStackedInstanceIds: (): Set<string> => {
+      const state = getStoreValue(store);
+      return new Set(state.stack.map((block) => block.sourceInstanceId));
+    },
+
+    getRequiredSpellSpeed: (): 1 | 2 | 3 => {
+      const state = getStoreValue(store);
+      return state.lastSpellSpeed ?? 1;
     },
 
     reset: () => {

@@ -5,9 +5,9 @@
  * 蓄積された AtomicStep を順次実行し、通知・カード選択を プレゼン層 に委譲する。
  *
  * @architecture レイヤー間依存ルール - アプリ層 (Store)
- * - ROLE: ゲーム進行制御、プレゼン層 へのデータ提供
- * - ALLOWED: ドメイン層 への依存
- * - FORBIDDEN: インフラ層 への依存、プレゼン層 への依存
+ * - ROLE: ゲーム進行制御、プレゼン層へのデータ提供
+ * - ALLOWED: ドメイン層への依存
+ * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @remark ユーザーインタラクティブ操作のレイヤー間役割分担
  * - ドメイン層: ゲームルールとしての設定（ユーザーが何を決める必要があるか）
@@ -20,116 +20,10 @@
  * - プレゼン層は状態を監視し、configがnullでなければUIを表示
  * - ユーザー操作時にconfig内のコールバックを実行
  *
- * ============================================================================
- * @design イベントトリガーシステム（実装済み）
- * ============================================================================
- *
- * ## 概要
- * AtomicStep 実行時に発行されるイベントを検出し、トリガールールを自動挿入する機構。
- * これにより、ActivateSpellCommand などから直接トリガー収集する必要がなくなった。
- *
- * ## 実装済み機能
- *
- * ### AtomicStep の責務（実装済み）
- * - step.action() 実行時に GameStateUpdateResult.emittedEvents でイベントを発行
- * - 例: emitSpellActivatedEventStep() が spellActivated イベントを発行
- *
- * ### effectQueueStore の責務（実装済み）
- * - EventTimeline を内部状態として管理（GameState には含めない）
- * - AtomicStep からのイベント通知を受け取り、EventTimeline に記録
- * - AdditionalRuleRegistry.collectTriggerSteps() でトリガールールを収集
- * - 収集したトリガーステップをステップキューに挿入
- *
- * ## 処理フロー（実装済み）
- * ```
- * effectQueueStore.startProcessing(steps)
- *   ↓ EventTimeline を初期化
- * step.action() 実行
- *   ↓ GameState 更新 + emittedEvents を返す
- * effectQueueStore がイベントを EventTimeline に記録
- *   ↓ AdditionalRuleRegistry からトリガールールを収集
- *   ↓ トリガーステップをキューに挿入
- * 次のステップへ
- *   ↓ 全ステップ完了
- * 最終的な GameState を確定
- * ```
- *
- * ============================================================================
- * @design 将来の拡張アイデア: タイミング管理（THEN マーカー）
- * ============================================================================
- *
- * ## 概要（未実装）
- * - 「その後」に相当する THEN ステップを効果定義に挿入
- * - effectQueueStore が THEN を検出したらタイミングを進める
- * - THEN の前後で別タイミングとして扱う
- * - 任意効果の「タイミングを逃す」判定に使用
- *
- * ```typescript
- * // 効果定義例: 「3枚ドローする。その後、手札を2枚捨てる」
- * return [drawStep(3), THEN, selectAndDiscardStep(2)];
- * ```
- *
- * ## 将来対応予定
- * - THEN フラグ検出によるタイムスタンプインクリメント
- * - 強制効果 vs 任意効果の区別
- * - 任意効果の「タイミングを逃す」判定
- *
- * ============================================================================
- * @design 将来の拡張アイデア: チェーンシステムとの関係
- * ============================================================================
- *
- * ## 前提: ChainableAction の構造
- * ```typescript
- * interface ChainableAction {
- *   conditions: () => boolean;      // 発動条件
- *   activation: () => AtomicStep[]; // コスト支払い、対象選択等（即座に処理）
- *   resolution: () => AtomicStep[]; // 狭義の「効果」（チェーン解決時に処理）
- * }
- * ```
- *
- * ## チェーンシステム（chainStackStore）の責務
- * - ChainableAction 発動をフックに起動
- * - ACTIVATION → 即座に effectQueueStore に渡して処理
- * - RESOLUTION → チェーンスタックに積む（LIFO）
- * - 次のチェーンの有無を確認（スペルスピード管理）
- * - チェーン解決時 → スタックした RESOLUTION を LIFO 順で effectQueueStore に渡す
- *
- * ## effectQueueStore の責務
- * - 渡された AtomicStep を順番に処理（FIFO）
- * - イベントトリガーと THEN フラグを監視
- * - 適切な割り込み処理（強制効果 or 任意効果）を実行
- * - UI との連携（通知、カード選択）
- *
- * ## AtomicStep の責務
- * - 「イベントトリガーの発生」を effectQueueStore に通知
- * - 「タイミングを次に進める（THEN フラグ）」を effectQueueStore に通知
- *
- * ## 処理フロー
- * ```
- * ChainableAction 発動
- *   ↓
- * chainStackStore 起動
- *   ├─→ activation() を effectQueueStore で即座に処理
- *   └─→ resolution() をチェーンスタックにプッシュ
- *   ↓
- * チェーン確認（次のチェーンあり？）
- *   ├─→ あり: 次の ChainableAction へ
- *   └─→ なし: チェーン解決開始
- *   ↓
- * チェーン解決（LIFO 順）
- *   ↓ resolution を effectQueueStore で処理
- *   ↓ イベント発生 → eventTimeline に記録
- *   ↓ 強制効果トリガー → 新しいチェーンを形成可能
- *   ↓ 任意効果 → 「タイミングを逃す」判定
- * ```
- *
- * ## 注意事項
- * - 現時点ではチェーンシステムは未実装
- * - このアイデアと大きく乖離する実装を避けること
- *
- * ============================================================================
- *
  * @module application/stores/effectQueueStore
+ * @see {@link docs/domain/effect-model.md}
+ * @see {@link docs/domain/chain-system.md}
+ * @see {@link docs/architecture/effect-model-design.md}
  */
 
 import { writable, get as getStoreValue } from "svelte/store";
@@ -300,16 +194,13 @@ function finalizeProcessing(update: (updater: (state: EffectQueueState) => Effec
     currentIndex: -1,
   }));
 
-  const chainState = chainStackStore.getState();
-
   // チェーンスタックに残りがあれば処理を継続
   if (!chainStackStore.isEmpty()) {
-    if (chainState.isBuilding) {
+    if (chainStackStore.isBuilding()) {
       // チェーン構築中: チェーン可能なカードを収集して確認UIを表示
-      const requiredSpellSpeed = chainState.lastSpellSpeed ?? 1;
       const gameState = getStoreValue(gameStateStore);
-      // 既にスタックに積まれているカードのinstanceIdを取得
-      const stackedInstanceIds = new Set(chainState.stack.map((b) => b.sourceInstanceId));
+      const requiredSpellSpeed = chainStackStore.getRequiredSpellSpeed();
+      const stackedInstanceIds = chainStackStore.getStackedInstanceIds();
       const chainableCards = ChainableActionRegistry.collectChainableActions(
         gameState,
         requiredSpellSpeed,
