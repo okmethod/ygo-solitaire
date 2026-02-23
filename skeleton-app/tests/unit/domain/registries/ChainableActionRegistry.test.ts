@@ -528,7 +528,7 @@ describe("ChainableActionRegistry", () => {
       expect(result[0].instance).toBe(setTrap);
     });
 
-    it("セットしたターンのカードは収集されない", () => {
+    it("セットしたターンのカードは収集されない（canActivateで判定）", () => {
       // Arrange
       const cardId = 12345;
       const setThisTurn = createQuickPlaySpellInstance(cardId, "spell-0", "spellTrapZone", {
@@ -536,7 +536,8 @@ describe("ChainableActionRegistry", () => {
         position: "faceDown",
       });
       const state = createTestGameSnapshot({ spellTrapZone: [setThisTurn] });
-      const action = new MockChainableAction(cardId, "Set This Turn", 2, "activation", "set-this-turn");
+      // セットしたターンはcanActivateがfalseを返す（実際のQuickPlaySpellActivationの動作）
+      const action = new MockInvalidChainableAction(cardId, "Set This Turn", 2, "activation", "set-this-turn");
       ChainableActionRegistry.registerActivation(cardId, action);
 
       // Act
@@ -634,17 +635,18 @@ describe("ChainableActionRegistry", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("通常魔法は収集されない（速攻魔法ではないため）", () => {
+    it("通常魔法は収集されない（spellSpeed 1 < requiredSpellSpeed 2）", () => {
       // Arrange
       const cardId = 12345;
       const normalSpell = createNormalSpellInstance(cardId, "hand-0");
       const state = createTestGameSnapshot({ hand: [normalSpell] });
 
+      // 通常魔法は spellSpeed 1
       const action = new MockChainableAction(cardId, "Normal Spell", 1, "activation", "normal");
       ChainableActionRegistry.registerActivation(cardId, action);
 
-      // Act
-      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+      // Act - チェーンを組む場合は通常 requiredSpellSpeed >= 2
+      const result = ChainableActionRegistry.collectChainableActions(state, 2);
 
       // Assert
       expect(result).toHaveLength(0);

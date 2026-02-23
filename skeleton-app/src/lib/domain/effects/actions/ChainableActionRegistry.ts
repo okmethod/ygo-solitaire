@@ -80,7 +80,8 @@ export class ChainableActionRegistry {
   /**
    * チェーン可能なカードと効果を収集する
    *
-   * 既にチェーンスタックに積まれているカードは除外される
+   * 既にチェーンスタックに積まれているカードは除外される。
+   * 種別判定は spellSpeed と canActivate に委譲する。
    */
   static collectChainableActions(
     state: GameSnapshot,
@@ -89,52 +90,22 @@ export class ChainableActionRegistry {
   ): { instance: CardInstance; action: ChainableAction }[] {
     const result: { instance: CardInstance; action: ChainableAction }[] = [];
 
-    // 手札の速攻魔法を検索
-    for (const card of state.space.hand) {
-      // 既にスタックに積まれているカードはスキップ
+    // チェーン可能な領域のカードを収集（手札 + セット状態の魔法罠）
+    const candidates = [
+      ...state.space.hand,
+      ...state.space.spellTrapZone.filter((card) => Card.Instance.isFaceDown(card)),
+    ];
+
+    for (const card of candidates) {
       if (excludeInstanceIds.has(card.instanceId)) continue;
 
-      if (Card.isQuickPlaySpell(card)) {
-        const activation = this.getActivation(card.id);
-        if (activation && activation.spellSpeed >= requiredSpellSpeed) {
-          const validation = activation.canActivate(state, card);
-          if (validation.isValid) {
-            result.push({ instance: card, action: activation });
-          }
-        }
-      }
-    }
+      const activation = this.getActivation(card.id);
+      if (!activation) continue;
+      if (activation.spellSpeed < requiredSpellSpeed) continue;
 
-    // セットされた速攻魔法・罠を検索
-    for (const card of state.space.spellTrapZone) {
-      // 既にスタックに積まれているカードはスキップ
-      if (excludeInstanceIds.has(card.instanceId)) continue;
-
-      if (!Card.Instance.isFaceDown(card)) continue;
-
-      // セットしたターンは発動不可
-      if (card.stateOnField?.placedThisTurn) continue;
-
-      // 速攻魔法
-      if (Card.isQuickPlaySpell(card)) {
-        const activation = this.getActivation(card.id);
-        if (activation && activation.spellSpeed >= requiredSpellSpeed) {
-          const validation = activation.canActivate(state, card);
-          if (validation.isValid) {
-            result.push({ instance: card, action: activation });
-          }
-        }
-      }
-
-      // 罠カード
-      if (Card.isTrap(card)) {
-        const activation = this.getActivation(card.id);
-        if (activation && activation.spellSpeed >= requiredSpellSpeed) {
-          const validation = activation.canActivate(state, card);
-          if (validation.isValid) {
-            result.push({ instance: card, action: activation });
-          }
-        }
+      const validation = activation.canActivate(state, card);
+      if (validation.isValid) {
+        result.push({ instance: card, action: activation });
       }
     }
 
