@@ -48,7 +48,6 @@
     gameFacade.autoAdvanceToMainPhase(
       () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
       (message) => {
-        playSE.phaseChange();
         showSuccessToast(message);
       }, // 通知のコールバック
     );
@@ -77,10 +76,8 @@
   ): boolean {
     const result = action();
     if (result.success) {
-      playSE.activate();
       showSuccessToast(result.message || successMessage);
     } else {
-      playSE.error();
       showErrorToast(result.error || errorMessage);
     }
     return result.success;
@@ -101,9 +98,7 @@
     // ドメイン層で全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
     if (result.success) {
-      playSE.activate();
     } else {
-      playSE.error();
       showErrorToast(result.error || "発動に失敗しました");
     }
   }
