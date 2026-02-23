@@ -80,8 +80,17 @@ export class ChainableActionRegistry {
   /**
    * チェーン可能なカードと効果を収集する
    *
+   * 探索対象:
+   * - 手札: 速攻魔法カードの発動、モンスターの手札誘発効果の発動
+   * - モンスターゾーン（表側表示）: 起動効果、誘発効果、誘発即時効果の発動
+   * - 魔法罠ゾーン（セット状態）: 罠カード・速攻魔法カードの発動
+   * - 魔法罠ゾーン（表側表示）: 永続魔法・罠の効果の発動
+   * - フィールドゾーン（表側表示）: フィールド魔法の効果の発動
+   * - 墓地: 墓地発動効果
+   * - 除外: 除外状態で発動できる効果
+   *
+   * 発動可否の判定は spellSpeed と canActivate に委譲する。
    * 既にチェーンスタックに積まれているカードは除外される。
-   * 種別判定は spellSpeed と canActivate に委譲する。
    */
   static collectChainableActions(
     state: GameSnapshot,
@@ -90,26 +99,100 @@ export class ChainableActionRegistry {
   ): { instance: CardInstance; action: ChainableAction }[] {
     const result: { instance: CardInstance; action: ChainableAction }[] = [];
 
-    // チェーン可能な領域のカードを収集（手札 + セット状態の魔法罠）
-    const candidates = [
-      ...state.space.hand,
-      ...state.space.spellTrapZone.filter((card) => Card.Instance.isFaceDown(card)),
-    ];
-
-    for (const card of candidates) {
+    // 手札: カードの発動 + 効果の発動
+    for (const card of state.space.hand) {
       if (excludeInstanceIds.has(card.instanceId)) continue;
+      this.collectActivation(result, card, state, requiredSpellSpeed);
+      this.collectEffects(result, card, state, requiredSpellSpeed);
+    }
 
-      const activation = this.getActivation(card.id);
-      if (!activation) continue;
-      if (activation.spellSpeed < requiredSpellSpeed) continue;
+    // モンスターゾーン: 表側表示の効果の発動
+    for (const card of state.space.mainMonsterZone) {
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+      if (!Card.Instance.isFaceUp(card)) continue;
+      this.collectEffects(result, card, state, requiredSpellSpeed);
+    }
 
-      const validation = activation.canActivate(state, card);
-      if (validation.isValid) {
-        result.push({ instance: card, action: activation });
+    // 魔法罠ゾーン: 裏側表示のカードの発動、表側表示の効果の発動
+    for (const card of state.space.spellTrapZone) {
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+      if (Card.Instance.isFaceDown(card)) {
+        this.collectActivation(result, card, state, requiredSpellSpeed);
+      } else {
+        this.collectEffects(result, card, state, requiredSpellSpeed);
       }
     }
 
+    // フィールドゾーン: 表側表示の効果の発動
+    for (const card of state.space.fieldZone) {
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+      if (!Card.Instance.isFaceUp(card)) continue;
+      this.collectEffects(result, card, state, requiredSpellSpeed);
+    }
+
+    // 墓地: 効果の発動
+    for (const card of state.space.graveyard) {
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+      this.collectEffects(result, card, state, requiredSpellSpeed);
+    }
+
+    // 除外: 効果の発動
+    for (const card of state.space.banished) {
+      if (excludeInstanceIds.has(card.instanceId)) continue;
+      this.collectEffects(result, card, state, requiredSpellSpeed);
+    }
+
     return result;
+  }
+
+  /**
+   * カードの発動（activation）を収集する
+   */
+  private static collectActivation(
+    result: { instance: CardInstance; action: ChainableAction }[],
+    card: CardInstance,
+    state: GameSnapshot,
+    requiredSpellSpeed: 1 | 2 | 3,
+  ): void {
+    const activation = this.getActivation(card.id);
+    if (activation) {
+      this.tryAddAction(result, card, activation, state, requiredSpellSpeed);
+    }
+  }
+
+  /**
+   * 効果の発動（ignition/trigger/quick）を収集する
+   */
+  private static collectEffects(
+    result: { instance: CardInstance; action: ChainableAction }[],
+    card: CardInstance,
+    state: GameSnapshot,
+    requiredSpellSpeed: 1 | 2 | 3,
+  ): void {
+    // ignitionEffects（起動効果）
+    for (const ignition of this.getIgnitionEffects(card.id)) {
+      this.tryAddAction(result, card, ignition, state, requiredSpellSpeed);
+    }
+    // TODO: triggerEffects（誘発効果）
+    // TODO: quickEffects（誘発即時効果）
+  }
+
+  /**
+   * 発動可能な効果を結果配列に追加する
+   */
+  private static tryAddAction(
+    result: { instance: CardInstance; action: ChainableAction }[],
+    card: CardInstance,
+    action: ChainableAction,
+    state: GameSnapshot,
+    requiredSpellSpeed: 1 | 2 | 3,
+  ): void {
+    if (action.spellSpeed < requiredSpellSpeed) return;
+
+    const validation = action.canActivate(state, card);
+    if (validation.isValid) {
+      result.push({ instance: card, action });
+    }
   }
 
   // ===========================

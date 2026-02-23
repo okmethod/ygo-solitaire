@@ -547,7 +547,7 @@ describe("ChainableActionRegistry", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("表側表示のカードは収集されない", () => {
+    it("表側表示のカードも収集できる（永続魔法・罠の効果発動）", () => {
       // Arrange
       const cardId = 12345;
       const faceUpCard = createQuickPlaySpellInstance(cardId, "spell-0", "spellTrapZone", {
@@ -555,13 +555,34 @@ describe("ChainableActionRegistry", () => {
         position: "faceUp",
       });
       const state = createTestGameSnapshot({ spellTrapZone: [faceUpCard] });
+      // 表側表示は「効果の発動」なので ignition を登録
+      const action = new MockChainableAction(cardId, "Face Up Effect", 1, "ignition", "face-up-effect");
+      ChainableActionRegistry.registerIgnition(cardId, action);
+
+      // Act
+      const result = ChainableActionRegistry.collectChainableActions(state, 1);
+
+      // Assert - 表側表示の永続魔法・罠の効果発動が収集される
+      expect(result).toHaveLength(1);
+      expect(result[0].instance).toBe(faceUpCard);
+    });
+
+    it("表側表示のカードはactivationが収集されない（カードの発動は不可）", () => {
+      // Arrange
+      const cardId = 12345;
+      const faceUpCard = createQuickPlaySpellInstance(cardId, "spell-0", "spellTrapZone", {
+        placedThisTurn: false,
+        position: "faceUp",
+      });
+      const state = createTestGameSnapshot({ spellTrapZone: [faceUpCard] });
+      // 表側表示に activation を登録しても収集されない
       const action = new MockChainableAction(cardId, "Face Up", 2, "activation", "face-up");
       ChainableActionRegistry.registerActivation(cardId, action);
 
       // Act
       const result = ChainableActionRegistry.collectChainableActions(state, 1);
 
-      // Assert
+      // Assert - 表側表示では activation（カードの発動）は収集されない
       expect(result).toHaveLength(0);
     });
 
