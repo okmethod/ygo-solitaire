@@ -52,14 +52,16 @@ export function playBeep(audioContextProvider: () => AudioContext | null, option
 export interface NoteOptions extends BeepOptions {
   endFreq?: number; // 周波数を変化させる場合の終了周波数
   volume?: number; // 0.0 ~ 1.0（デフォルト: 0.1）
+  delay?: number; // 再生開始までの遅延（秒単位、デフォルト: 0）
 }
 /**
  * 高機能な音再生関数
  * - エンベロープ（余韻）付き
  * - 周波数変化対応
+ * - アルペジオ（遅延再生）対応
  */
 export function playNote(audioContextProvider: () => AudioContext | null, options: NoteOptions): void {
-  const { waveType, startFreq, endFreq, duration, volume = 0.1 } = options;
+  const { waveType, startFreq, endFreq, duration, volume = 0.1, delay = 0 } = options;
   const audioCtx = audioContextProvider();
   if (!audioCtx) return;
 
@@ -70,36 +72,44 @@ export function playNote(audioContextProvider: () => AudioContext | null, option
   gainNode.connect(audioCtx.destination);
 
   oscillator.type = waveType;
-  const now = audioCtx.currentTime;
+  const startTime = audioCtx.currentTime + delay;
 
   // 周波数の制御
-  oscillator.frequency.setValueAtTime(startFreq, now);
+  oscillator.frequency.setValueAtTime(startFreq, startTime);
   if (endFreq && endFreq > 0) {
-    oscillator.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+    oscillator.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
   }
 
   // エンベロープ（音量減衰）
-  gainNode.gain.setValueAtTime(volume, now);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // delay中は無音
+  gainNode.gain.setValueAtTime(volume, startTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
-  oscillator.start(now);
-  oscillator.stop(now + duration);
+  oscillator.start(startTime);
+  oscillator.stop(startTime + duration);
+}
+
+/** playChord用のオプション */
+export interface ChordOptions extends Omit<NoteOptions, "startFreq" | "delay"> {
+  arpeggio?: number; // 各音間の遅延（秒単位）。0または未指定で同時再生
 }
 
 /**
- * 和音を再生（複数の音を同時に鳴らす）
+ * 和音を再生（同時 or アルペジオ）
  */
 export function playChord(
   audioContextProvider: () => AudioContext | null,
   frequencies: number[],
-  options: Omit<NoteOptions, "startFreq">,
+  options: ChordOptions,
 ): void {
-  const volumePerNote = (options.volume ?? 0.1) / frequencies.length;
-  frequencies.forEach((freq) => {
+  const { arpeggio = 0, ...noteOptions } = options;
+  const volumePerNote = (noteOptions.volume ?? 0.1) / frequencies.length;
+  frequencies.forEach((freq, index) => {
     playNote(audioContextProvider, {
-      ...options,
+      ...noteOptions,
       startFreq: freq,
       volume: volumePerNote,
+      delay: arpeggio * index,
     });
   });
 }

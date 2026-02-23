@@ -1,12 +1,13 @@
 import { audioContextProvider } from "$lib/presentation/stores/audioStore";
-import { playNote, playChord, type NoteOptions } from "$lib/presentation/utils/beep";
+import type { NoteOptions, ChordOptions } from "$lib/presentation/utils/beep";
+import { playNote, playChord } from "$lib/presentation/utils/beep";
 
 /**
  * サウンド定義（単音 or 和音）
  */
 type SoundDefinition =
   | { type: "note"; options: NoteOptions }
-  | { type: "chord"; frequencies: number[]; options: Omit<NoteOptions, "startFreq"> };
+  | { type: "chord"; frequencies: number[]; options: ChordOptions };
 
 /**
  * サウンドエフェクト設定
@@ -87,7 +88,7 @@ const configs: readonly SoundEffectConfig[] = [
     sound: {
       type: "chord",
       frequencies: [523.25, 659.25, 783.99, 1046.5],
-      options: { waveType: "triangle", duration: 0.8, volume: 0.1 },
+      options: { waveType: "triangle", duration: 0.8, volume: 0.1, arpeggio: 0.08 },
     },
   },
 ];
