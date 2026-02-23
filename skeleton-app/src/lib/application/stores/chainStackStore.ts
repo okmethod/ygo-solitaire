@@ -178,7 +178,16 @@ function createchainStackStore(): chainStackStore {
 
     getRequiredSpellSpeed: (): 1 | 2 | 3 => {
       const state = getStoreValue(store);
-      return state.lastSpellSpeed ?? 1;
+      // チェーン 1（スタックが空）: SS1 以上が候補
+      if (state.stack.length === 0) {
+        return 1;
+      }
+      // チェーン 2 以降: 最低 SS2、かつ直前の spellSpeed 以上
+      // - SS1 はチェーン 1 にしか置けない
+      // - SS3（カウンター罠）には SS3 でしかチェーンできない
+      // TODO: 同時に誘発した効果（SEGOC: Simultaneous Effects Go On Chain）対応
+      // SEGOC 中は SS1 の誘発効果を連続して積める例外がある
+      return Math.max(2, state.lastSpellSpeed ?? 2) as 2 | 3;
     },
 
     reset: () => {
