@@ -113,7 +113,6 @@ function processTriggerEvents(
   const triggerSteps: AtomicStep[] = [];
 
   for (const event of events) {
-    // AdditionalRuleRegistry からトリガールールを収集
     const steps = AdditionalRuleRegistry.collectTriggerSteps(currentState, event.type);
     triggerSteps.push(...steps);
   }
@@ -339,7 +338,7 @@ const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, g
 };
 
 // 通知レベルに応じた Strategyを選択する
-function selectStrategy(step: AtomicStep): NotificationStrategy {
+function selectInteractiveStrategy(step: AtomicStep): NotificationStrategy {
   const level = step.notificationLevel || "info";
 
   if (level === "silent") return silentStrategy;
@@ -420,7 +419,7 @@ function createEffectQueueStore(): EffectQueueStore {
       let state = getStoreValue(effectQueueStore);
       if (!state.currentStep) return;
 
-      // THEN マーカー検出: タイミングを進めて次のステップへ
+      // タイミング制御: THEN マーカーを検出した場合はタイミングを進めて次のステップへ
       if (isThenMarker(state.currentStep)) {
         update((s) => ({
           ...s,
@@ -433,10 +432,9 @@ function createEffectQueueStore(): EffectQueueStore {
         return;
       }
 
+      // インタラクティブステップ処理: Strategy Pattern で実行戦略を選択
       const currentGameState = getStoreValue(gameStateStore);
-      const strategy = selectStrategy(state.currentStep);
-
-      // Strategy実行
+      const strategy = selectInteractiveStrategy(state.currentStep);
       const result = await strategy(
         state.currentStep,
         currentGameState,
@@ -444,7 +442,7 @@ function createEffectQueueStore(): EffectQueueStore {
         update,
       );
 
-      // イベント処理: emittedEvents がある場合はトリガールールを収集してキューに挿入
+      // イベントトリガー処理: emittedEvents がある場合はトリガールールを収集してキューに挿入
       if (result.emittedEvents && result.emittedEvents.length > 0) {
         // EventTimeline に記録（将来の拡張用）
         let updatedTimeline = state.eventTimeline;
