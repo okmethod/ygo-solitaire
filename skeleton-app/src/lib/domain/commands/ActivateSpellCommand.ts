@@ -6,14 +6,14 @@
  * @module domain/commands/ActivateSpellCommand
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
-import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
+import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 
 /** 魔法カード発動コマンドクラス */
@@ -103,7 +103,7 @@ export class ActivateSpellCommand implements GameCommand {
     updatedActivatedCards.add(cardInstance.id);
     const updatedState: GameSnapshot = {
       ...state,
-      space: this.moveActivatedSpellCard(state.space, cardInstance),
+      space: placeCardForActivation(state.space, cardInstance),
       activatedCardIds: updatedActivatedCards, // 発動済みカードIDを記録
     };
 
@@ -129,37 +129,6 @@ export class ActivateSpellCommand implements GameCommand {
       activationSteps,
       chainBlock,
     );
-  }
-
-  /**
-   * 発動した魔法カードを適切なゾーンに表向きで配置する
-   *
-   * - 手札から発動: 適切なゾーンに表向きで配置
-   *   - 通常魔法/速攻魔法 → 魔法・罠ゾーン
-   *   - フィールド魔法 → フィールドゾーン（既存のフィールド魔法は墓地へ）
-   * - セットから発動: 同じゾーンに表向きで配置
-   */
-  private moveActivatedSpellCard(space: CardSpace, cardInstance: CardInstance): CardSpace {
-    // 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
-    if (cardInstance.location === "hand") {
-      // フィールド魔法の場合
-      if (Card.isFieldSpell(cardInstance)) {
-        const sweepedFieldSpellSpace = GameState.Space.sendExistingFieldSpellToGraveyard(space);
-        return GameState.Space.moveCard(sweepedFieldSpellSpace, cardInstance, "fieldZone", {
-          position: "faceUp",
-        });
-      }
-
-      // 通常魔法/速攻魔法の場合
-      return GameState.Space.moveCard(space, cardInstance, "spellTrapZone", {
-        position: "faceUp",
-      });
-    }
-
-    // セットから発動: 同じゾーンに表向きで配置
-    return GameState.Space.updateCardStateInPlace(space, cardInstance, {
-      position: "faceUp",
-    });
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

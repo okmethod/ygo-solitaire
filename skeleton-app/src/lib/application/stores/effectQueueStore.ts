@@ -28,14 +28,13 @@
 
 import { writable, get as getStoreValue } from "svelte/store";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
+import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
 import { isThenMarker } from "$lib/domain/effects/steps/timing";
 import type {
   ConfirmationConfig,
@@ -143,43 +142,6 @@ function transitionToNextStep(
     finalizeProcessing(update);
     return false;
   }
-}
-
-/**
- * チェーン発動時のカード移動処理
- *
- * ActivateSpellCommand.moveActivatedSpellCard() と同等の処理を行う。
- * - 手札から発動: 魔法・罠ゾーン or フィールドゾーンに表向きで配置
- * - セットから発動: 同じゾーンで表向きにする
- */
-function moveCardForChainActivation(gameState: GameSnapshot, instance: CardInstance): GameSnapshot {
-  let updatedState = gameState;
-
-  if (Card.Instance.inHand(instance)) {
-    if (Card.isFieldSpell(instance)) {
-      const sweepedSpace = GameState.Space.sendExistingFieldSpellToGraveyard(updatedState.space);
-      updatedState = {
-        ...updatedState,
-        space: GameState.Space.moveCard(sweepedSpace, instance, "fieldZone", { position: "faceUp" }),
-      };
-    } else {
-      updatedState = {
-        ...updatedState,
-        space: GameState.Space.moveCard(updatedState.space, instance, "spellTrapZone", { position: "faceUp" }),
-      };
-    }
-  } else if (Card.Instance.isFaceDown(instance)) {
-    updatedState = {
-      ...updatedState,
-      space: GameState.Space.updateCardStateInPlace(updatedState.space, instance, { position: "faceUp" }),
-    };
-  }
-
-  // 発動済みカードIDを記録
-  const updatedActivatedCards = new Set(updatedState.activatedCardIds);
-  updatedActivatedCards.add(instance.id);
-
-  return { ...updatedState, activatedCardIds: updatedActivatedCards };
 }
 
 // 効果処理完了時の後処理を行う（共通処理）
@@ -492,7 +454,14 @@ function createEffectQueueStore(): EffectQueueStore {
 
       // カードを移動してゲーム状態を更新
       const currentState = getStoreValue(gameStateStore);
-      const gameState = moveCardForChainActivation(currentState, instance);
+      const updatedSpace = placeCardForActivation(currentState.space, instance);
+      const updatedActivatedCards = new Set(currentState.activatedCardIds);
+      updatedActivatedCards.add(instance.id);
+      const gameState: GameSnapshot = {
+        ...currentState,
+        space: updatedSpace,
+        activatedCardIds: updatedActivatedCards,
+      };
       gameStateStore.set(gameState);
 
       // activationSteps と resolutionSteps を生成（カード移動後の状態で）
