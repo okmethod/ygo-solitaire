@@ -21,7 +21,7 @@
   import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
-  import { SoundEffects } from "$lib/presentation/sounds/soundEffects";
+  import { playSE } from "$lib/presentation/sounds/soundEffects";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -48,7 +48,7 @@
     gameFacade.autoAdvanceToMainPhase(
       () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
       (message) => {
-        SoundEffects.phaseChange();
+        playSE.phaseChange();
         showSuccessToast(message);
       }, // 通知のコールバック
     );
@@ -58,7 +58,7 @@
   let isGameOverModalOpen = $state(false);
   $effect(() => {
     if ($gameResult.isGameOver) {
-      SoundEffects.win();
+      playSE.win();
       isGameOverModalOpen = true;
     }
   });
@@ -77,10 +77,10 @@
   ): boolean {
     const result = action();
     if (result.success) {
-      SoundEffects.activate();
+      playSE.activate();
       showSuccessToast(result.message || successMessage);
     } else {
-      SoundEffects.error();
+      playSE.error();
       showErrorToast(result.error || errorMessage);
     }
     return result.success;
@@ -101,9 +101,9 @@
     // ドメイン層で全ての判定を実施（フェーズチェック、発動可否など）
     const result = gameFacade.activateSpell(instanceId);
     if (result.success) {
-      SoundEffects.activate();
+      playSE.activate();
     } else {
-      SoundEffects.error();
+      playSE.error();
       showErrorToast(result.error || "発動に失敗しました");
     }
   }
