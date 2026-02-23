@@ -99,12 +99,10 @@ export class ActivateSpellCommand implements GameCommand {
     const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId)!;
 
     // 2. 更新後状態の構築
-    const updatedActivatedCards = new Set(state.activatedCardIds);
-    updatedActivatedCards.add(cardInstance.id);
     const updatedState: GameSnapshot = {
       ...state,
       space: placeCardForActivation(state.space, cardInstance),
-      activatedCardIds: updatedActivatedCards, // 発動済みカードIDを記録
+      activatedCardIds: GameState.updatedActivatedCardIds(state.activatedCardIds, cardInstance.id),
     };
 
     // 3. 戻り値の構築

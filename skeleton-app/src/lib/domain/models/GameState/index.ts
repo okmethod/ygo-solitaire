@@ -28,6 +28,7 @@ import * as CardSpaceFuncs from "./CardSpace";
  */
 export const GameState = {
   initialize: GameSnapshotFuncs.createInitialGameSnapshot,
+  updatedActivatedCardIds: GameSnapshotFuncs.updatedActivatedCardIds,
   assert: GameStateConsistencyFuncs.assertValidGameState,
   checkVictory: GameStateVictoryFuncs.checkedVictoryState,
 

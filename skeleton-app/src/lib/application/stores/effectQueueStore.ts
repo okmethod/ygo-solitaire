@@ -29,6 +29,7 @@
 import { writable, get as getStoreValue } from "svelte/store";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -454,13 +455,10 @@ function createEffectQueueStore(): EffectQueueStore {
 
       // カードを移動してゲーム状態を更新
       const currentState = getStoreValue(gameStateStore);
-      const updatedSpace = placeCardForActivation(currentState.space, instance);
-      const updatedActivatedCards = new Set(currentState.activatedCardIds);
-      updatedActivatedCards.add(instance.id);
       const gameState: GameSnapshot = {
         ...currentState,
-        space: updatedSpace,
-        activatedCardIds: updatedActivatedCards,
+        space: placeCardForActivation(currentState.space, instance),
+        activatedCardIds: GameState.updatedActivatedCardIds(currentState.activatedCardIds, instance.id),
       };
       gameStateStore.set(gameState);
 

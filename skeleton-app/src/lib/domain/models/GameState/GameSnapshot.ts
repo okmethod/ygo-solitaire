@@ -118,3 +118,10 @@ export function createInitialGameSnapshot(
     queuedEndPhaseEffectIds: [],
   };
 }
+
+/** 発動済みカードIDを追加した新しいSetを返す */
+export function updatedActivatedCardIds(ids: ReadonlySet<number>, cardId: number): Set<number> {
+  const updated = new Set(ids);
+  updated.add(cardId);
+  return updated;
+}
