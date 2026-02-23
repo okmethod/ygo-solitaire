@@ -1,5 +1,5 @@
 /**
- * CardDestructionActivation - 《手札断札》(Card Destruction)
+ * CardDestructionActivation - 《手札断殺》(Card Destruction)
  *
  * Card ID: 74519184 | Type: Spell | Subtype: Quick-Play
  *
@@ -22,7 +22,7 @@ import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activation
 import { drawStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 
-/** 《手札断札》効果クラス */
+/** 《手札断殺》効果クラス */
 export class CardDestructionActivation extends QuickPlaySpellActivation {
   constructor() {
     super(74519184);

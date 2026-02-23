@@ -22,7 +22,7 @@ const deckRecipeExodia: DeckRecipe = {
     { id: 70368879, quantity: 3 }, // 成金ゴブリン
     { id: 33782437, quantity: 3 }, // 一時休戦
     { id: 93946239, quantity: 3 }, // 無の煉獄
-    { id: 74519184, quantity: 3 }, // 手札断札
+    { id: 74519184, quantity: 3 }, // 手札断殺
     { id: 90928333, quantity: 3 }, // 闇の量産工場
     { id: 98494543, quantity: 3 }, // 魔法石の採掘
     { id: 85852291, quantity: 3 }, // 打ち出の小槌
@@ -73,7 +73,7 @@ const deckRecipeLibrary: DeckRecipe = {
     { id: 70368879, quantity: 3 }, // 成金ゴブリン
     { id: 33782437, quantity: 3 }, // 一時休戦
     { id: 93946239, quantity: 3 }, // 無の煉獄
-    { id: 74519184, quantity: 3 }, // 手札断札
+    { id: 74519184, quantity: 3 }, // 手札断殺
     { id: 90928333, quantity: 2 }, // 闇の量産工場
     { id: 85852291, quantity: 1 }, // 打ち出の小槌
     { id: 89997728, quantity: 3 }, // トゥーンのもくじ

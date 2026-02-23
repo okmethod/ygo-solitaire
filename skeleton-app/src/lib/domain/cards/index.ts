@@ -60,7 +60,7 @@ const cardDataRegistrations = new Map<number, () => void>([
   spell("normal", 98645731, "強欲で謙虚な壺"),
   spell("normal", 59750328, "命削りの宝札"),
   spell("normal", 89997728, "トゥーンのもくじ"),
-  spell("quick-play", 74519184, "手札断札"),
+  spell("quick-play", 74519184, "手札断殺"),
   spell("continuous", 15259703, "トゥーン・ワールド"),
   spell("field", 67616300, "チキンレース"),
 

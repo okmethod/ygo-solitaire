@@ -65,7 +65,7 @@ describe("Quick-Play Spell Card Effects", () => {
       expect(result.activationSteps![0]).toMatchObject({
         id: "74519184-activation-notification",
         summary: "カード発動",
-        description: "《手札断札》を発動します",
+        description: "《手札断殺》を発動します",
       });
 
       // Verify resolution steps
@@ -79,7 +79,7 @@ describe("Quick-Play Spell Card Effects", () => {
       });
       expect(result.chainBlock!.resolutionSteps[2]).toMatchObject({
         summary: "墓地へ送る",
-        description: "《手札断札》を墓地に送ります",
+        description: "《手札断殺》を墓地に送ります",
       });
     });
 
