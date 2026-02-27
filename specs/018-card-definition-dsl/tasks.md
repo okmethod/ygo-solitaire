@@ -25,9 +25,9 @@
 
 **Purpose**: Project initialization and DSL infrastructure setup
 
-- [ ] T001 Install js-yaml and @types/js-yaml dependencies via `npm install js-yaml @types/js-yaml`
-- [ ] T002 Create DSL directory structure: `skeleton-app/src/lib/domain/dsl/` with subdirectories `types/`, `registries/`, `parsers/`, `factories/`
-- [ ] T003 Create card definitions directory structure: `skeleton-app/src/lib/domain/cards/definitions/spells/` and `monsters/`
+- [x] T001 Install js-yaml and @types/js-yaml dependencies via `npm install js-yaml @types/js-yaml`
+- [x] T002 Create DSL directory structure: `skeleton-app/src/lib/domain/dsl/` with subdirectories `types/`, `registries/`, `parsers/`, `factories/`
+- [x] T003 Create card definitions directory structure: `skeleton-app/src/lib/domain/cards/definitions/spells/` and `monsters/`
 
 ---
 
@@ -37,11 +37,11 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Define CardDSLDefinition type in `skeleton-app/src/lib/domain/dsl/types/CardDSLDefinition.ts` (includes CardDSLDefinition, ChainableActionDSL, StepDSL interfaces)
-- [ ] T005 [P] Define DSL error types (DSLParseError, DSLValidationError) in `skeleton-app/src/lib/domain/dsl/types/DSLErrors.ts`
-- [ ] T006 Create Zod schema for CardDSLDefinition validation in `skeleton-app/src/lib/domain/dsl/parsers/schemas/CardDSLSchema.ts`
-- [ ] T007 Create CardDSLParser with yaml parsing and Zod validation in `skeleton-app/src/lib/domain/dsl/parsers/CardDSLParser.ts`
-- [ ] T008 Add unit tests for CardDSLParser in `skeleton-app/src/lib/domain/dsl/__tests__/CardDSLParser.test.ts`
+- [x] T004 [P] Define CardDSLDefinition type in `skeleton-app/src/lib/domain/dsl/types/CardDSLDefinition.ts` (includes CardDSLDefinition, ChainableActionDSL, StepDSL interfaces)
+- [x] T005 [P] Define DSL error types (DSLParseError, DSLValidationError) in `skeleton-app/src/lib/domain/dsl/types/DSLErrors.ts`
+- [x] T006 Create Zod schema for CardDSLDefinition validation in `skeleton-app/src/lib/domain/dsl/parsers/schemas/CardDSLSchema.ts`
+- [x] T007 Create CardDSLParser with yaml parsing and Zod validation in `skeleton-app/src/lib/domain/dsl/parsers/CardDSLParser.ts`
+- [x] T008 Add unit tests for CardDSLParser in `tests/unit/domain/dsl/CardDSLParser.test.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -57,21 +57,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Create unit test for StepRegistry in `skeleton-app/src/lib/domain/dsl/__tests__/StepRegistry.test.ts`
-- [ ] T010 [P] [US1] Create unit test for ConditionRegistry in `skeleton-app/src/lib/domain/dsl/__tests__/ConditionRegistry.test.ts`
-- [ ] T011 [P] [US1] Create unit test for GenericNormalSpellActivation in `skeleton-app/src/lib/domain/dsl/__tests__/GenericNormalSpellActivation.test.ts`
+- [x] T009 [P] [US1] Create unit test for StepRegistry in `skeleton-app/tests/unit/domain/dsl/StepRegistry.test.ts`
+- [x] T010 [P] [US1] Create unit test for ConditionRegistry in `skeleton-app/tests/unit/domain/dsl/ConditionRegistry.test.ts`
+- [x] T011 [P] [US1] Create unit test for GenericNormalSpellActivation in `skeleton-app/tests/unit/domain/dsl/GenericNormalSpellActivation.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement StepRegistry with basic steps (DRAW, SELECT_AND_DISCARD, FILL_HANDS, THEN) in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
-- [ ] T013 [P] [US1] Implement ConditionRegistry with basic conditions (CAN_DRAW) in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
-- [ ] T014 [US1] Implement GenericNormalSpellActivation extending NormalSpellActivation in `skeleton-app/src/lib/domain/dsl/factories/GenericNormalSpellActivation.ts`
-- [ ] T015 [US1] Implement DSL Loader for loading and registering DSL-defined cards in `skeleton-app/src/lib/domain/dsl/loader.ts`
-- [ ] T016 [US1] Create YAML definition for "Graceful Charity" (79571449) in `skeleton-app/src/lib/domain/cards/definitions/spells/graceful-charity.yaml`
-- [ ] T017 [US1] Create YAML definition for "Pot of Greed" (55144522) in `skeleton-app/src/lib/domain/cards/definitions/spells/pot-of-greed.yaml`
-- [ ] T018 [US1] Create YAML definition for "Upstart Goblin" (70368879) in `skeleton-app/src/lib/domain/cards/definitions/spells/upstart-goblin.yaml`
-- [ ] T019 [US1] Create equivalence test comparing DSL vs class-based implementations in `skeleton-app/src/lib/domain/dsl/__tests__/DSLEquivalence.test.ts`
-- [ ] T020 [US1] Integrate DSL loader with ChainableActionRegistry registration in `skeleton-app/src/lib/domain/effects/actions/index.ts`
+- [x] T012 [P] [US1] Implement StepRegistry with basic steps (DRAW, SELECT_AND_DISCARD, FILL_HANDS, THEN, GAIN_LP) in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
+- [x] T013 [P] [US1] Implement ConditionRegistry with basic conditions (CAN_DRAW) in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
+- [x] T014 [US1] Implement GenericNormalSpellActivation extending NormalSpellActivation in `skeleton-app/src/lib/domain/dsl/factories/GenericNormalSpellActivation.ts`
+- [x] T015 [US1] Implement DSL Loader for loading and registering DSL-defined cards in `skeleton-app/src/lib/domain/dsl/loader.ts`
+- [x] T016 [US1] Create YAML definition for "Graceful Charity" (79571449) in `skeleton-app/src/lib/domain/cards/definitions/spells/graceful-charity.yaml`
+- [x] T017 [US1] Create YAML definition for "Pot of Greed" (55144522) in `skeleton-app/src/lib/domain/cards/definitions/spells/pot-of-greed.yaml`
+- [x] T018 [US1] Create YAML definition for "Upstart Goblin" (70368879) in `skeleton-app/src/lib/domain/cards/definitions/spells/upstart-goblin.yaml`
+- [x] T019 [US1] Create equivalence test comparing DSL vs class-based implementations in `skeleton-app/tests/unit/domain/dsl/DSLEquivalence.test.ts`
+- [x] T020 [US1] Integrate DSL loader with ChainableActionRegistry registration in `skeleton-app/src/lib/domain/effects/actions/index.ts`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - DSL-defined simple normal spells work correctly
 

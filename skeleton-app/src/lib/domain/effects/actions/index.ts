@@ -1,10 +1,15 @@
 /**
  * ChainableAction Effect Library - 発動する効果ライブラリ
  *
+ * 登録方式:
+ * - クラスベース: 個別のActivationクラスをインポートして登録（レガシー）
+ * - DSLベース: YAML定義からloaderを使って登録（新方式）
+ *
  * @module domain/effects/actions
  */
 
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
+import { loadCardFromYaml } from "$lib/domain/dsl/loader";
 export { ChainableActionRegistry };
 
 // カードの発動
@@ -96,5 +101,31 @@ export function registerChainableActionsByIds(cardIds: number[]): void {
     if (register) {
       register();
     }
+  }
+}
+
+// ===========================
+// DSLベース登録
+// ===========================
+
+/**
+ * YAML定義文字列からカードを登録する
+ *
+ * クラスベース登録と併用可能。同じカードIDの場合は後から登録した方が優先される。
+ *
+ * @param yamlContent - YAMLファイルの内容
+ */
+export function registerChainableActionFromYaml(yamlContent: string): void {
+  loadCardFromYaml(yamlContent);
+}
+
+/**
+ * 複数のYAML定義文字列からカードを一括登録する
+ *
+ * @param yamlContents - YAMLファイル内容の配列
+ */
+export function registerChainableActionsFromYaml(yamlContents: string[]): void {
+  for (const content of yamlContents) {
+    loadCardFromYaml(content);
   }
 }
