@@ -11,7 +11,9 @@ import type { CardDSLDefinition } from "$lib/domain/dsl/types";
 import { parseCardDSL } from "$lib/domain/dsl/parsers";
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
-import { createGenericNormalSpellActivation } from "$lib/domain/dsl/factories";
+import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
+import { createGenericNormalSpellActivation, createGenericIgnitionEffect } from "$lib/domain/dsl/factories";
+import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
 
 /**
  * DSL定義をCardDataRegistryに登録する
@@ -30,8 +32,6 @@ function registerCardData(definition: CardDSLDefinition): void {
 
 /**
  * DSL定義をChainableActionRegistryに登録する
- *
- * 現在は通常魔法のactivationsのみ対応。
  */
 function registerChainableAction(definition: CardDSLDefinition): void {
   const { id } = definition;
@@ -48,7 +48,34 @@ function registerChainableAction(definition: CardDSLDefinition): void {
     ChainableActionRegistry.registerActivation(id, activation);
   }
 
-  // TODO: ignitions セクション（起動効果）の対応は Phase 5 で実装
+  // ignitions セクション（起動効果）
+  if (chainableActions.ignitions) {
+    chainableActions.ignitions.forEach((ignitionDef, index) => {
+      const ignition = createGenericIgnitionEffect(id, index + 1, ignitionDef);
+      ChainableActionRegistry.registerIgnition(id, ignition);
+    });
+  }
+}
+
+/**
+ * DSL定義をAdditionalRuleRegistryに登録する
+ */
+function registerAdditionalRules(definition: CardDSLDefinition): void {
+  const { id } = definition;
+  const additionalRules = definition["effect-additional-rules"];
+
+  // 追加適用するルールがない場合はスキップ
+  if (!additionalRules) {
+    return;
+  }
+
+  // continuous セクション（永続効果）
+  if (additionalRules.continuous) {
+    for (const ruleDef of additionalRules.continuous) {
+      const rule = new GenericTriggerRule(id, ruleDef);
+      AdditionalRuleRegistry.register(id, rule);
+    }
+  }
 }
 
 /**
@@ -61,6 +88,7 @@ export function loadCardFromYaml(yamlContent: string): void {
   const definition = parseCardDSL(yamlContent);
   registerCardData(definition);
   registerChainableAction(definition);
+  registerAdditionalRules(definition);
 }
 
 /**
@@ -84,6 +112,7 @@ export function loadCardsFromYaml(yamlContents: readonly string[]): void {
 export function loadCardFromDefinition(definition: CardDSLDefinition): void {
   registerCardData(definition);
   registerChainableAction(definition);
+  registerAdditionalRules(definition);
 }
 
 /**

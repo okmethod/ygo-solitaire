@@ -128,10 +128,117 @@ describe("ConditionRegistry - ユーティリティ", () => {
     const names = getRegisteredConditionNames();
 
     expect(names).toContain("CAN_DRAW");
+    expect(names).toContain("HAS_COUNTER");
   });
 
   it("isConditionRegistered で登録状態をチェックできる", () => {
     expect(isConditionRegistered("CAN_DRAW")).toBe(true);
+    expect(isConditionRegistered("HAS_COUNTER")).toBe(true);
     expect(isConditionRegistered("UNKNOWN")).toBe(false);
+  });
+});
+
+// =============================================================================
+// HAS_COUNTER 条件のテスト
+// =============================================================================
+
+const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "bushido", count: number): CardInstance =>
+  ({
+    instanceId: `monster-${cardId}`,
+    id: cardId,
+    jaName: "テストモンスター",
+    type: "monster",
+    frameType: "effect",
+    location: "mainMonsterZone",
+    stateOnField: {
+      position: "faceUp",
+      battlePosition: "attack",
+      placedThisTurn: false,
+      counters: count > 0 ? [{ type: counterType, count }] : [],
+      activatedEffects: new Set<string>(),
+    },
+  }) as CardInstance;
+
+describe("ConditionRegistry - HAS_COUNTER", () => {
+  it("カウンターが十分にある場合は成功を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      counterType: "spell",
+      minCount: 3,
+    });
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it("カウンターが多い場合も成功を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 5);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      counterType: "spell",
+      minCount: 3,
+    });
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it("カウンターが不足している場合は失敗を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 2);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      counterType: "spell",
+      minCount: 3,
+    });
+
+    expect(result.isValid).toBe(false);
+  });
+
+  it("カウンターが0の場合は失敗を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 0);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      counterType: "spell",
+      minCount: 1,
+    });
+
+    expect(result.isValid).toBe(false);
+  });
+
+  it("異なるタイプのカウンターでは失敗を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "bushido", 3);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      counterType: "spell",
+      minCount: 1,
+    });
+
+    expect(result.isValid).toBe(false);
+  });
+
+  it("counterType引数が無い場合は失敗を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      minCount: 3,
+    });
+
+    expect(result.isValid).toBe(false);
+  });
+
+  it("minCount引数が無効な場合は失敗を返す", () => {
+    const state = createMockGameState(5);
+    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
+
+    const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
+      counterType: "spell",
+    });
+
+    expect(result.isValid).toBe(false);
   });
 });

@@ -11,6 +11,9 @@ import { GracefulCharityActivation } from "$lib/domain/effects/actions/activatio
 import { UpstartGoblinActivation } from "$lib/domain/effects/actions/activations/individuals/spells/UpstartGoblinActivation";
 import { MagicalStoneExcavationActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalStoneExcavationActivation";
 import { TerraformingActivation } from "$lib/domain/effects/actions/activations/individuals/spells/TerraformingActivation";
+import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
+import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/continuouses/monsters/RoyalMagicalLibraryContinuousEffect";
+import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
 
 /**
  * DSL Equivalence Tests
@@ -626,5 +629,229 @@ describe("DSLEquivalence - Terraforming", () => {
     // search ステップが両方に存在すること
     expect(dslSteps.some((s) => s.id.includes("search"))).toBe(true);
     expect(classSteps.some((s) => s.id.includes("search"))).toBe(true);
+  });
+});
+
+// =============================================================================
+// Phase 5: User Story 3 - モンスター効果の等価性テスト
+// =============================================================================
+
+const ROYAL_MAGICAL_LIBRARY_YAML = `
+id: 70791313
+data:
+  jaName: "王立魔法図書館"
+  type: "monster"
+  frameType: "effect"
+  attribute: "LIGHT"
+  race: "Spellcaster"
+  level: 4
+
+effect-additional-rules:
+  continuous:
+    - category: "TriggerRule"
+      triggers: ["spellActivated"]
+      triggerTiming: "if"
+      isMandatory: true
+      resolutions:
+        - step: "PLACE_COUNTER"
+          args: { counterType: "spell", count: 1, limit: 3 }
+
+effect-chainable-actions:
+  ignitions:
+    - conditions:
+        - step: "HAS_COUNTER"
+          args: { counterType: "spell", minCount: 3 }
+      activations:
+        - step: "REMOVE_COUNTER"
+          args: { counterType: "spell", count: 3 }
+      resolutions:
+        - step: "DRAW"
+          args: { count: 1 }
+`;
+
+/**
+ * Royal Magical Library のゲーム状態を作成
+ * - フィールド上にモンスターを配置
+ * - カウンターを指定数置く
+ */
+const createRoyalMagicalLibraryGameState = (
+  spellCounterCount: number,
+  deckCount: number = 10,
+): { state: GameSnapshot; instance: CardInstance } => {
+  const CARD_ID = 70791313;
+  const monsterInstance: CardInstance = {
+    instanceId: `monster-${CARD_ID}`,
+    id: CARD_ID,
+    jaName: "王立魔法図書館",
+    type: "monster",
+    frameType: "effect",
+    location: "mainMonsterZone",
+    stateOnField: {
+      position: "faceUp",
+      battlePosition: "attack",
+      placedThisTurn: false,
+      counters: spellCounterCount > 0 ? [{ type: "spell", count: spellCounterCount }] : [],
+      activatedEffects: new Set<string>(),
+    },
+  };
+
+  const deckCards = Array(deckCount)
+    .fill(null)
+    .map((_, i) => ({
+      instanceId: `deck-card-${i}`,
+      id: i + 1000,
+      jaName: `デッキカード${i}`,
+      type: "monster" as const,
+      frameType: "normal" as const,
+      location: "mainDeck" as const,
+    }));
+
+  const state: GameSnapshot = {
+    phase: "main1",
+    turn: 1,
+    lp: { player: 8000, opponent: 8000 },
+    space: {
+      mainDeck: deckCards,
+      hand: [],
+      extraDeck: [],
+      mainMonsterZone: [monsterInstance],
+      spellTrapZone: [],
+      fieldZone: [],
+      graveyard: [],
+      banished: [],
+    },
+    result: { isGameOver: false },
+    normalSummonLimit: 1,
+    normalSummonUsed: 0,
+    activatedCardIds: new Set<number>(),
+    queuedEndPhaseEffectIds: [],
+  };
+
+  return { state, instance: monsterInstance };
+};
+
+describe("DSLEquivalence - Royal Magical Library (Continuous Effect)", () => {
+  const CARD_ID = 70791313;
+
+  beforeEach(() => {
+    CardDataRegistry.clear();
+    ChainableActionRegistry.clear();
+    AdditionalRuleRegistry.clear();
+  });
+
+  it("TriggerRule カテゴリとして登録される", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslRules = AdditionalRuleRegistry.get(CARD_ID);
+    const classRule = new RoyalMagicalLibraryContinuousEffect();
+
+    expect(dslRules.length).toBe(1);
+    expect(dslRules[0].category).toBe(classRule.category);
+    expect(dslRules[0].category).toBe("TriggerRule");
+  });
+
+  it("triggers が spellActivated を含む", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslRules = AdditionalRuleRegistry.get(CARD_ID);
+    const classRule = new RoyalMagicalLibraryContinuousEffect();
+
+    expect(dslRules[0].triggers).toContain("spellActivated");
+    expect(classRule.triggers).toContain("spellActivated");
+  });
+
+  it("canApply がフィールド上にカードがある場合 true を返す", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslRules = AdditionalRuleRegistry.get(CARD_ID);
+    const classRule = new RoyalMagicalLibraryContinuousEffect();
+    const { state } = createRoyalMagicalLibraryGameState(0);
+
+    expect(dslRules[0].canApply(state)).toBe(classRule.canApply(state));
+    expect(dslRules[0].canApply(state)).toBe(true);
+  });
+
+  it("createTriggerSteps がカウンター配置ステップを生成する", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslRules = AdditionalRuleRegistry.get(CARD_ID);
+    const classRule = new RoyalMagicalLibraryContinuousEffect();
+    const { state, instance } = createRoyalMagicalLibraryGameState(0);
+
+    const dslSteps = dslRules[0].createTriggerSteps!(state, instance);
+    const classSteps = classRule.createTriggerSteps!(state, instance);
+
+    // counter ステップが両方に存在すること
+    expect(dslSteps.some((s) => s.id.includes("counter"))).toBe(true);
+    expect(classSteps.some((s) => s.id.includes("counter"))).toBe(true);
+  });
+});
+
+describe("DSLEquivalence - Royal Magical Library (Ignition Effect)", () => {
+  const CARD_ID = 70791313;
+
+  beforeEach(() => {
+    CardDataRegistry.clear();
+    ChainableActionRegistry.clear();
+    AdditionalRuleRegistry.clear();
+  });
+
+  it("起動効果が登録される", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslIgnitions = ChainableActionRegistry.getIgnitionEffects(CARD_ID);
+    const classIgnition = new RoyalMagicalLibraryIgnitionEffect();
+
+    expect(dslIgnitions.length).toBe(1);
+    expect(dslIgnitions[0].spellSpeed).toBe(classIgnition.spellSpeed);
+  });
+
+  it("canActivate がカウンター3つ以上で true を返す", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslIgnitions = ChainableActionRegistry.getIgnitionEffects(CARD_ID);
+    const classIgnition = new RoyalMagicalLibraryIgnitionEffect();
+    const { state, instance } = createRoyalMagicalLibraryGameState(3);
+
+    const dslResult = dslIgnitions[0].canActivate(state, instance);
+    const classResult = classIgnition.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(true);
+  });
+
+  it("canActivate がカウンター不足で false を返す", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslIgnitions = ChainableActionRegistry.getIgnitionEffects(CARD_ID);
+    const classIgnition = new RoyalMagicalLibraryIgnitionEffect();
+    const { state, instance } = createRoyalMagicalLibraryGameState(2);
+
+    const dslResult = dslIgnitions[0].canActivate(state, instance);
+    const classResult = classIgnition.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(false);
+  });
+
+  it("createActivationSteps がカウンター削除ステップを生成する", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslIgnitions = ChainableActionRegistry.getIgnitionEffects(CARD_ID);
+    const classIgnition = new RoyalMagicalLibraryIgnitionEffect();
+    const { state, instance } = createRoyalMagicalLibraryGameState(3);
+
+    const dslSteps = dslIgnitions[0].createActivationSteps(state, instance);
+    const classSteps = classIgnition.createActivationSteps(state, instance);
+
+    // counter 削除ステップが両方に存在すること（発動通知ステップの後）
+    expect(dslSteps.some((s: { id: string }) => s.id.includes("counter"))).toBe(true);
+    expect(classSteps.some((s: { id: string }) => s.id.includes("counter"))).toBe(true);
+  });
+
+  it("createResolutionSteps がドローステップを生成する", () => {
+    loadCardFromYaml(ROYAL_MAGICAL_LIBRARY_YAML);
+    const dslIgnitions = ChainableActionRegistry.getIgnitionEffects(CARD_ID);
+    const classIgnition = new RoyalMagicalLibraryIgnitionEffect();
+    const { state, instance } = createRoyalMagicalLibraryGameState(3);
+
+    const dslSteps = dslIgnitions[0].createResolutionSteps(state, instance);
+    const classSteps = classIgnition.createResolutionSteps(state, instance);
+
+    // draw ステップが両方に存在すること
+    expect(dslSteps.some((s: { id: string }) => s.id.includes("draw"))).toBe(true);
+    expect(classSteps.some((s: { id: string }) => s.id.includes("draw"))).toBe(true);
   });
 });

@@ -111,21 +111,21 @@
 
 ### Tests for User Story 3
 
-- [ ] T031 [P] [US3] Create unit test for GenericTriggerRule in `skeleton-app/src/lib/domain/dsl/__tests__/GenericTriggerRule.test.ts`
-- [ ] T032 [P] [US3] Create unit test for counter steps in `skeleton-app/src/lib/domain/dsl/__tests__/CounterSteps.test.ts`
+- [x] T031 [P] [US3] Create unit test for GenericTriggerRule in `skeleton-app/tests/unit/domain/dsl/GenericTriggerRule.test.ts`
+- [x] T032 [P] [US3] Create unit test for counter steps in `skeleton-app/tests/unit/domain/dsl/CounterSteps.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Define AdditionalRuleDSL type in `skeleton-app/src/lib/domain/dsl/types/CardDSLDefinition.ts`
-- [ ] T034 [US3] Add effect-additional-rules section parsing to CardDSLParser in `skeleton-app/src/lib/domain/dsl/parsers/CardDSLParser.ts`
-- [ ] T035 [US3] Implement GenericTriggerRule extending AdditionalRule base in `skeleton-app/src/lib/domain/dsl/factories/GenericTriggerRule.ts`
-- [ ] T036 [P] [US3] Add PLACE_COUNTER step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
-- [ ] T037 [P] [US3] Add REMOVE_COUNTER step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
-- [ ] T038 [US3] Add HAS_COUNTER condition to ConditionRegistry in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
-- [ ] T039 [US3] Implement GenericIgnitionEffect for DSL-based ignition effects in `skeleton-app/src/lib/domain/dsl/factories/GenericIgnitionEffect.ts`
-- [ ] T040 [US3] Create YAML definition for "Royal Magical Library" (70791313) with continuous + ignition in `skeleton-app/src/lib/domain/cards/definitions/monsters/royal-magical-library.yaml`
-- [ ] T041 [US3] Integrate DSL loader with AdditionalRuleRegistry in `skeleton-app/src/lib/domain/dsl/loader.ts`
-- [ ] T042 [US3] Add equivalence tests for monster effects in `skeleton-app/src/lib/domain/dsl/__tests__/DSLEquivalence.test.ts`
+- [x] T033 [US3] Define AdditionalRuleDSL type in `skeleton-app/src/lib/domain/dsl/types/CardDSLDefinition.ts` (既存)
+- [x] T034 [US3] Add effect-additional-rules section parsing to CardDSLParser in `skeleton-app/src/lib/domain/dsl/parsers/CardDSLParser.ts` (既存)
+- [x] T035 [US3] Implement GenericTriggerRule extending AdditionalRule base in `skeleton-app/src/lib/domain/dsl/factories/GenericTriggerRule.ts`
+- [x] T036 [P] [US3] Add PLACE_COUNTER step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
+- [x] T037 [P] [US3] Add REMOVE_COUNTER step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
+- [x] T038 [US3] Add HAS_COUNTER condition to ConditionRegistry in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
+- [x] T039 [US3] Implement GenericIgnitionEffect for DSL-based ignition effects in `skeleton-app/src/lib/domain/dsl/factories/GenericIgnitionEffect.ts`
+- [x] T040 [US3] Create YAML definition for "Royal Magical Library" (70791313) with continuous + ignition in `skeleton-app/src/lib/domain/cards/definitions/monsters/royal-magical-library.yaml`
+- [x] T041 [US3] Integrate DSL loader with AdditionalRuleRegistry in `skeleton-app/src/lib/domain/dsl/loader.ts`
+- [x] T042 [US3] Add equivalence tests for monster effects in `skeleton-app/tests/unit/domain/dsl/DSLEquivalence.test.ts`
 
 **Checkpoint**: All user stories should now be independently functional
 

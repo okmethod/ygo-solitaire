@@ -15,6 +15,8 @@ import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { markThenStep } from "$lib/domain/effects/steps/timing";
 import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 import { searchFromDeckByConditionStep, salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
+import { addCounterStep, removeCounterStep } from "$lib/domain/effects/steps/counters";
+import type { CounterType } from "$lib/domain/models/Card";
 
 /**
  * ステップビルドコンテキスト
@@ -168,6 +170,49 @@ const registeredSteps: Record<string, StepBuilder> = {
       maxCards: count,
       cancelable: false,
     });
+  },
+
+  /**
+   * PLACE_COUNTER - カードにカウンターを置く
+   * args: { counterType: CounterType, count: number, limit?: number }
+   */
+  PLACE_COUNTER: (args, context) => {
+    const counterType = args.counterType as CounterType;
+    const count = args.count as number;
+    const limit = args.limit as number | undefined;
+
+    if (!counterType) {
+      throw new Error("PLACE_COUNTER step requires counterType argument");
+    }
+    if (typeof count !== "number" || count < 1) {
+      throw new Error("PLACE_COUNTER step requires a positive count argument");
+    }
+
+    // sourceInstanceId が必要（カウンターを置く対象）
+    const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
+
+    return addCounterStep(targetInstanceId, counterType, count, limit);
+  },
+
+  /**
+   * REMOVE_COUNTER - カードからカウンターを取り除く
+   * args: { counterType: CounterType, count: number }
+   */
+  REMOVE_COUNTER: (args, context) => {
+    const counterType = args.counterType as CounterType;
+    const count = args.count as number;
+
+    if (!counterType) {
+      throw new Error("REMOVE_COUNTER step requires counterType argument");
+    }
+    if (typeof count !== "number" || count < 1) {
+      throw new Error("REMOVE_COUNTER step requires a positive count argument");
+    }
+
+    // sourceInstanceId が必要（カウンターを取り除く対象）
+    const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
+
+    return removeCounterStep(targetInstanceId, counterType, count);
   },
 };
 

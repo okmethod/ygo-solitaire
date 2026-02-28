@@ -1,0 +1,39 @@
+# 王立魔法図書館 (Royal Magical Library)
+# Card ID: 70791313 | Type: Monster | Subtype: Effect
+#
+# 永続効果:
+# - 魔法カードが発動する度に、このカードに魔力カウンターを1つ置く（最大3つまで）
+#
+# 起動効果:
+# - 魔力カウンターを3つ取り除いて発動できる。デッキから1枚ドローする。
+
+id: 70791313
+data:
+  jaName: "王立魔法図書館"
+  type: "monster"
+  frameType: "effect"
+  attribute: "LIGHT"
+  race: "Spellcaster"
+  level: 4
+
+effect-additional-rules:
+  continuous:
+    - category: "TriggerRule"
+      triggers: ["spellActivated"]
+      triggerTiming: "if"
+      isMandatory: true
+      resolutions:
+        - step: "PLACE_COUNTER"
+          args: { counterType: "spell", count: 1, limit: 3 }
+
+effect-chainable-actions:
+  ignitions:
+    - conditions:
+        - step: "HAS_COUNTER"
+          args: { counterType: "spell", minCount: 3 }
+      activations:
+        - step: "REMOVE_COUNTER"
+          args: { counterType: "spell", count: 3 }
+      resolutions:
+        - step: "DRAW"
+          args: { count: 1 }

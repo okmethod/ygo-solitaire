@@ -7,7 +7,8 @@
  * @module domain/dsl/registries/ConditionRegistry
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardInstance, CounterType } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
@@ -102,6 +103,32 @@ const registeredConditions: Record<string, ConditionChecker> = {
     }
 
     return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  },
+
+  /**
+   * HAS_COUNTER - 発動元カードに指定タイプのカウンターが指定枚数以上あるか
+   * args: { counterType: CounterType, minCount: number }
+   */
+  HAS_COUNTER: (_state, sourceInstance, args) => {
+    const counterType = args.counterType as CounterType;
+    const minCount = args.minCount as number;
+
+    if (!counterType) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+    if (typeof minCount !== "number" || minCount < 1) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+
+    // フィールド上のカードでない場合はカウンターを持てない
+    const counters = sourceInstance.stateOnField?.counters ?? [];
+    const currentCount = Card.Counter.get(counters, counterType);
+
+    if (currentCount >= minCount) {
+      return GameProcessing.Validation.success();
+    }
+
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_COUNTERS);
   },
 };
 
