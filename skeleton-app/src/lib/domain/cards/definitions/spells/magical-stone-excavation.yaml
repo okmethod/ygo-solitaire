@@ -1,0 +1,27 @@
+# 魔法石の採掘 (Magical Stone Excavation)
+# Card ID: 98494543 | Type: Spell | Subtype: Normal
+#
+# Effect:
+# - Cost: Discard 2 cards from hand
+# - Effect: Add 1 Spell card from graveyard to hand
+
+id: 98494543
+data:
+  jaName: "魔法石の採掘"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "HAND_COUNT_EXCLUDING_SELF"
+        args: { minCount: 2 }
+      - step: "GRAVEYARD_HAS_SPELL"
+        args: { minCount: 1 }
+    activations:
+      - step: "SELECT_AND_DISCARD"
+        args: { count: 2 }
+    resolutions:
+      - step: "SALVAGE_FROM_GRAVEYARD"
+        args: { filterType: "spell", count: 1 }

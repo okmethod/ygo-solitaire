@@ -1,0 +1,21 @@
+# テラ・フォーミング (Terraforming)
+# Card ID: 73628505 | Type: Spell | Subtype: Normal
+#
+# Effect:
+# - Add 1 Field Spell card from deck to hand
+
+id: 73628505
+data:
+  jaName: "テラ・フォーミング"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "DECK_HAS_CARD"
+        args: { filterType: "spell", filterSpellType: "field", minCount: 1 }
+    resolutions:
+      - step: "SEARCH_FROM_DECK"
+        args: { filterType: "spell", filterSpellType: "field", count: 1 }

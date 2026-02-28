@@ -9,10 +9,12 @@
 
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import type { Player } from "$lib/domain/models/GameState";
+import type { CardInstance } from "$lib/domain/models/Card";
 import { drawStep, fillHandsStep } from "$lib/domain/effects/steps/draws";
 import { selectAndDiscardStep } from "$lib/domain/effects/steps/discards";
 import { markThenStep } from "$lib/domain/effects/steps/timing";
 import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
+import { searchFromDeckByConditionStep, salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 
 /**
  * ステップビルドコンテキスト
@@ -94,6 +96,78 @@ const registeredSteps: Record<string, StepBuilder> = {
       throw new Error('GAIN_LP step requires target to be "player" or "opponent"');
     }
     return gainLpStep(amount, target);
+  },
+
+  /**
+   * SEARCH_FROM_DECK - デッキからカードをサーチ
+   * args: { filterType: string, filterSpellType?: string, count: number }
+   */
+  SEARCH_FROM_DECK: (args, context) => {
+    const filterType = args.filterType as string;
+    const filterSpellType = args.filterSpellType as string | undefined;
+    const count = args.count as number;
+
+    if (!filterType) {
+      throw new Error("SEARCH_FROM_DECK step requires filterType argument");
+    }
+    if (typeof count !== "number" || count < 1) {
+      throw new Error("SEARCH_FROM_DECK step requires a positive count argument");
+    }
+
+    // DSL定義からフィルター関数を生成
+    const filter = (card: CardInstance): boolean => {
+      if (card.type !== filterType) return false;
+      if (filterSpellType && card.spellType !== filterSpellType) return false;
+      return true;
+    };
+
+    const filterDesc = filterSpellType ? `${filterSpellType}${filterType}` : filterType;
+
+    return searchFromDeckByConditionStep({
+      id: `search-from-deck-${filterDesc}-${context.cardId}`,
+      summary: `${filterDesc}カード${count}枚をサーチ`,
+      description: `デッキから${filterDesc}カード${count}枚を選択し、手札に加えます`,
+      filter,
+      minCards: count,
+      maxCards: count,
+      cancelable: false,
+    });
+  },
+
+  /**
+   * SALVAGE_FROM_GRAVEYARD - 墓地からカードをサルベージ
+   * args: { filterType: string, filterSpellType?: string, count: number }
+   */
+  SALVAGE_FROM_GRAVEYARD: (args, context) => {
+    const filterType = args.filterType as string;
+    const filterSpellType = args.filterSpellType as string | undefined;
+    const count = args.count as number;
+
+    if (!filterType) {
+      throw new Error("SALVAGE_FROM_GRAVEYARD step requires filterType argument");
+    }
+    if (typeof count !== "number" || count < 1) {
+      throw new Error("SALVAGE_FROM_GRAVEYARD step requires a positive count argument");
+    }
+
+    // DSL定義からフィルター関数を生成
+    const filter = (card: CardInstance): boolean => {
+      if (card.type !== filterType) return false;
+      if (filterSpellType && card.spellType !== filterSpellType) return false;
+      return true;
+    };
+
+    const filterDesc = filterSpellType ? `${filterSpellType}${filterType}` : filterType;
+
+    return salvageFromGraveyardStep({
+      id: `salvage-from-graveyard-${filterDesc}-${context.cardId}`,
+      summary: `${filterDesc}カード${count}枚をサルベージ`,
+      description: `墓地から${filterDesc}カード${count}枚を選択し、手札に加えます`,
+      filter,
+      minCards: count,
+      maxCards: count,
+      cancelable: false,
+    });
   },
 };
 

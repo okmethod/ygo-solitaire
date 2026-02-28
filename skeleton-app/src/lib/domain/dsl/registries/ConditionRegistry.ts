@@ -9,6 +9,7 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
@@ -38,6 +39,65 @@ const registeredConditions: Record<string, ConditionChecker> = {
     }
 
     if (state.space.mainDeck.length >= count) {
+      return GameProcessing.Validation.success();
+    }
+
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  },
+
+  /**
+   * HAND_COUNT_EXCLUDING_SELF - 自身を除く手札が指定枚数以上あるか
+   * args: { minCount: number }
+   */
+  HAND_COUNT_EXCLUDING_SELF: (state, sourceInstance, args) => {
+    const minCount = args.minCount as number;
+    if (typeof minCount !== "number" || minCount < 1) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+
+    const handCountExcludingSelf = GameState.Space.countHandExcludingSelf(state.space, sourceInstance);
+    if (handCountExcludingSelf >= minCount) {
+      return GameProcessing.Validation.success();
+    }
+
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  },
+
+  /**
+   * GRAVEYARD_HAS_SPELL - 墓地に魔法カードが指定枚数以上あるか
+   * args: { minCount?: number } (デフォルト: 1)
+   */
+  GRAVEYARD_HAS_SPELL: (state, _sourceInstance, args) => {
+    const minCount = (args.minCount as number) ?? 1;
+
+    const spellCardsInGraveyard = state.space.graveyard.filter((card) => card.type === "spell");
+    if (spellCardsInGraveyard.length >= minCount) {
+      return GameProcessing.Validation.success();
+    }
+
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  },
+
+  /**
+   * DECK_HAS_CARD - デッキに条件に合うカードが指定枚数以上あるか
+   * args: { filterType: string, filterSpellType?: string, minCount?: number }
+   */
+  DECK_HAS_CARD: (state, _sourceInstance, args) => {
+    const filterType = args.filterType as string;
+    const filterSpellType = args.filterSpellType as string | undefined;
+    const minCount = (args.minCount as number) ?? 1;
+
+    if (!filterType) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+
+    const matchingCards = state.space.mainDeck.filter((card) => {
+      if (card.type !== filterType) return false;
+      if (filterSpellType && card.spellType !== filterSpellType) return false;
+      return true;
+    });
+
+    if (matchingCards.length >= minCount) {
       return GameProcessing.Validation.success();
     }
 

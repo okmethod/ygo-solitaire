@@ -85,19 +85,19 @@
 
 ### Tests for User Story 2
 
-- [ ] T021 [P] [US2] Create unit test for cost-related steps in `skeleton-app/src/lib/domain/dsl/__tests__/CostSteps.test.ts`
-- [ ] T022 [P] [US2] Create unit test for cost-related conditions in `skeleton-app/src/lib/domain/dsl/__tests__/CostConditions.test.ts`
+- [x] T021 [P] [US2] Create unit test for cost-related steps in `skeleton-app/tests/unit/domain/dsl/CostSteps.test.ts`
+- [x] T022 [P] [US2] Create unit test for cost-related conditions in `skeleton-app/tests/unit/domain/dsl/CostConditions.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Add activations section parsing to GenericNormalSpellActivation in `skeleton-app/src/lib/domain/dsl/factories/GenericNormalSpellActivation.ts`
-- [ ] T024 [P] [US2] Add SEARCH_FROM_DECK step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
-- [ ] T025 [P] [US2] Add SALVAGE_FROM_GRAVEYARD step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
-- [ ] T026 [P] [US2] Add HAND_COUNT_EXCLUDING_SELF condition to ConditionRegistry in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
-- [ ] T027 [P] [US2] Add GRAVEYARD_HAS_SPELL condition to ConditionRegistry in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
-- [ ] T028 [US2] Create YAML definition for "Magical Stone Excavation" (98494543) in `skeleton-app/src/lib/domain/cards/definitions/spells/magical-stone-excavation.yaml`
-- [ ] T029 [US2] Create YAML definition for "Terraforming" (73628505) in `skeleton-app/src/lib/domain/cards/definitions/spells/terraforming.yaml`
-- [ ] T030 [US2] Add equivalence tests for cost-based spells in `skeleton-app/src/lib/domain/dsl/__tests__/DSLEquivalence.test.ts`
+- [x] T023 [P] [US2] activations section parsing already implemented in Phase 3 (GenericNormalSpellActivation)
+- [x] T024 [P] [US2] Add SEARCH_FROM_DECK step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
+- [x] T025 [P] [US2] Add SALVAGE_FROM_GRAVEYARD step to StepRegistry in `skeleton-app/src/lib/domain/dsl/registries/StepRegistry.ts`
+- [x] T026 [P] [US2] Add HAND_COUNT_EXCLUDING_SELF condition to ConditionRegistry in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
+- [x] T027 [P] [US2] Add GRAVEYARD_HAS_SPELL and DECK_HAS_CARD conditions to ConditionRegistry in `skeleton-app/src/lib/domain/dsl/registries/ConditionRegistry.ts`
+- [x] T028 [US2] Create YAML definition for "Magical Stone Excavation" (98494543) in `skeleton-app/src/lib/domain/cards/definitions/spells/magical-stone-excavation.yaml`
+- [x] T029 [US2] Create YAML definition for "Terraforming" (73628505) in `skeleton-app/src/lib/domain/cards/definitions/spells/terraforming.yaml`
+- [x] T030 [US2] Add equivalence tests for cost-based spells in `skeleton-app/tests/unit/domain/dsl/DSLEquivalence.test.ts`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
