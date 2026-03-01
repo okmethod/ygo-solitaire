@@ -14,7 +14,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
-import { loadCardFromYaml } from "$lib/domain/dsl/loader";
+import { loadCardDataWithEffectsFromYaml } from "$lib/domain/dsl/loader";
 import { getDSLDefinition } from "$lib/domain/cards/definitions";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -60,7 +60,7 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
     ChainableActionRegistry.clear();
     const yamlContent = getDSLDefinition(royalMagicalLibraryId);
     if (yamlContent) {
-      loadCardFromYaml(yamlContent);
+      loadCardDataWithEffectsFromYaml(yamlContent);
     }
     // レジストリから起動効果を取得
     const ignitions = ChainableActionRegistry.getIgnitionEffects(royalMagicalLibraryId);

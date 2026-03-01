@@ -1,48 +1,23 @@
 /**
  * ChainableAction Effect Library - 発動する効果ライブラリ
  *
- * 登録方式:
- * - DSLベース: YAML定義からloaderを使って登録（優先）
- * - クラスベース: 個別のActivationクラスをインポートして登録
- *
  * @module domain/effects/actions
  */
 
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
-import { loadCardFromYaml } from "$lib/domain/dsl/loader";
-import { dslDefinitions } from "$lib/domain/cards/definitions";
 export { ChainableActionRegistry };
 
 // ===========================
-// 定義マップ（DSL未対応カードのみ）
+// DSL未対応カードのフォールバック
 // ===========================
 
+/** DSL未対応カードの定義マップ */
 const chainableActionRegistrations = new Map<number, () => void>([]);
 
-// ===========================
-// 登録関数
-// ===========================
-
-/**
- * レジストリをクリアし、指定されたカードIDの ChainableAction を登録する
- *
- * DSL定義、またはクラス定義マップから登録する。
- */
-export function registerChainableActionsByIds(cardIds: number[]): void {
-  ChainableActionRegistry.clear();
-
-  for (const cardId of cardIds) {
-    // DSL定義があれば登録（優先）
-    const yamlContent = dslDefinitions.get(cardId);
-    if (yamlContent) {
-      loadCardFromYaml(yamlContent);
-      continue;
-    }
-
-    // なければクラス定義マップから登録
-    const register = chainableActionRegistrations.get(cardId);
-    if (register) {
-      register();
-    }
+/** DSL未対応カード定義マップから ChainableAction を登録する*/
+export function registerChainableActionFromMap(cardId: number): void {
+  const register = chainableActionRegistrations.get(cardId);
+  if (register) {
+    register();
   }
 }

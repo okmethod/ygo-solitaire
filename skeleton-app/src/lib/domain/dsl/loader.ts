@@ -102,12 +102,28 @@ function registerAdditionalRules(definition: CardDSLDefinition): void {
 }
 
 /**
- * YAML文字列からカードを登録する
+ * YAML文字列からカードデータのみを登録する
+ *
+ * 効果は登録しない。レシピ表示など、ゲームを開始しない用途向け。
  *
  * @param yamlContent - YAMLファイルの内容
  * @throws DSLParseError, DSLValidationError - パース/バリデーションエラー時
  */
-export function loadCardFromYaml(yamlContent: string): void {
+export function loadCardDataFromYaml(yamlContent: string): void {
+  const definition = parseCardDSL(yamlContent);
+  registerCardData(definition);
+}
+
+/**
+ * YAML文字列からカードデータと効果を登録する
+ *
+ * CardData, ChainableAction, AdditionalRules を一括登録する。
+ * ゲーム開始時のレジストリ初期化で使用。
+ *
+ * @param yamlContent - YAMLファイルの内容
+ * @throws DSLParseError, DSLValidationError - パース/バリデーションエラー時
+ */
+export function loadCardDataWithEffectsFromYaml(yamlContent: string): void {
   const definition = parseCardDSL(yamlContent);
   registerCardData(definition);
   registerChainableAction(definition);
@@ -121,7 +137,7 @@ export function loadCardFromYaml(yamlContent: string): void {
  */
 export function loadCardsFromYaml(yamlContents: readonly string[]): void {
   for (const content of yamlContents) {
-    loadCardFromYaml(content);
+    loadCardDataWithEffectsFromYaml(content);
   }
 }
 

@@ -18,9 +18,7 @@ import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { registerCardDataByIds } from "$lib/domain/cards";
-import { registerChainableActionsByIds } from "$lib/domain/effects/actions";
-import { registerAdditionalRulesByIds } from "$lib/domain/effects/rules";
+import { registerCardDataByIds, registerCardDataWithEffectsByIds } from "$lib/domain/cards";
 import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
 import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
@@ -130,10 +128,8 @@ export class GameFacade {
     const deckRecipe = getDeckRecipe(deckId);
     const uniqueCardIds = extractUniqueCardIds(deckRecipe);
 
-    // 各種レジストリに必要なカードを登録
-    registerCardDataByIds(uniqueCardIds);
-    registerChainableActionsByIds(uniqueCardIds);
-    registerAdditionalRulesByIds(uniqueCardIds);
+    // 全レジストリに必要なカードを登録（CardData + 効果一括、DSL優先）
+    registerCardDataWithEffectsByIds(uniqueCardIds);
 
     // デッキデータを構築
     const deckData = buildDeckData(deckRecipe, uniqueCardIds);

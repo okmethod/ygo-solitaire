@@ -24,4 +24,9 @@ export { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationErr
 export { GenericNormalSpellActivation, createGenericNormalSpellActivation } from "./factories";
 
 // Loader
-export { loadCardFromYaml, loadCardsFromYaml, loadCardFromDefinition, loadCardsFromDefinitions } from "./loader";
+export {
+  loadCardDataWithEffectsFromYaml,
+  loadCardsFromYaml,
+  loadCardFromDefinition,
+  loadCardsFromDefinitions,
+} from "./loader";
