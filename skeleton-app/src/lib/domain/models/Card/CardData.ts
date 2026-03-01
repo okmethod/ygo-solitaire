@@ -29,10 +29,11 @@ export interface CardData {
   readonly frameType: FrameSubType;
   readonly spellType?: SpellSubType;
   readonly trapType?: TrapSubType;
-  // 将来拡張用:
+
+  // モンスターカードのみ
+  readonly level?: number; // レベル
   // readonly attack?: number;
   // readonly defense?: number;
-  // readonly level?: number;
 }
 
 /** モンスターカードかどうか */

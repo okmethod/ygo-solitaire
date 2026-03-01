@@ -36,3 +36,19 @@ export const handCountExcludingSelf = (
   }
   return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
 };
+
+/** 手札に魔法カードが指定枚数以上あるか（自身を除く） */
+export const handHasSpell = (
+  state: GameSnapshot,
+  sourceInstance: CardInstance,
+  minCount: number = 1,
+): ValidationResult => {
+  const spellCount = state.space.hand.filter(
+    (card) => card.type === "spell" && card.instanceId !== sourceInstance.instanceId,
+  ).length;
+
+  if (spellCount >= minCount) {
+    return GameProcessing.Validation.success();
+  }
+  return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+};

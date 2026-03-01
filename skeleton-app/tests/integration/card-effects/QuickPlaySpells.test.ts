@@ -70,7 +70,7 @@ describe("Quick-Play Spell Card Effects", () => {
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
-        id: "select-and-discard-2-cards",
+        id: "select-and-discard-2-any-cards",
         summary: "手札を2枚捨てる",
       });
       expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({

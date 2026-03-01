@@ -196,7 +196,7 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
     expect(steps.length).toBeGreaterThanOrEqual(3);
     expect(steps[0].id).toBe("draw-3");
     expect(steps[1].id).toBe("then-marker");
-    expect(steps[2].id).toBe("select-and-discard-2-cards");
+    expect(steps[2].id).toBe("select-and-discard-2-any-cards");
   });
 
   it("createActivationSteps で発動ステップを生成できる", () => {

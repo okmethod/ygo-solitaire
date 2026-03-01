@@ -35,7 +35,7 @@ describe("StepRegistry - 登録済みステップ", () => {
   it("SELECT_AND_DISCARD ステップを生成できる", () => {
     const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createTestContext());
 
-    expect(step.id).toBe("select-and-discard-2-cards");
+    expect(step.id).toBe("select-and-discard-2-any-cards");
     expect(step.summary).toContain("捨てる");
     expect(typeof step.action).toBe("function");
   });

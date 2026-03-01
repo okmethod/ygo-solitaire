@@ -16,7 +16,7 @@ import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditio
 
 // 具体実装
 import { canDraw, deckHasCard, deckHasNameIncludes } from "./deckConditions";
-import { handCount, handCountExcludingSelf } from "./handConditions";
+import { handCount, handCountExcludingSelf, handHasSpell } from "./handConditions";
 import { graveyardHasSpell, graveyardHasMonster } from "./graveyardConditions";
 import { hasCounter } from "./counterConditions";
 import { oncePerTurn, oncePerTurnEffect } from "./activationConditions";
@@ -42,6 +42,7 @@ export {
   deckHasNameIncludes,
   handCount,
   handCountExcludingSelf,
+  handHasSpell,
   graveyardHasSpell,
   graveyardHasMonster,
   hasCounter,
@@ -222,4 +223,13 @@ AtomicConditionRegistry.register("ONCE_PER_TURN_EFFECT", (_state, sourceInstance
 
   const effectId = Effect.Id.create("ignition", sourceInstance.id, effectIndex);
   return oncePerTurnEffect(sourceInstance, effectId);
+});
+
+/**
+ * HAND_HAS_SPELL - 手札に魔法カードが指定枚数以上あるか（自身を除く）
+ * args: { minCount?: number } (デフォルト: 1)
+ */
+AtomicConditionRegistry.register("HAND_HAS_SPELL", (state, sourceInstance, args) => {
+  const minCount = (args.minCount as number) ?? 1;
+  return handHasSpell(state, sourceInstance, minCount);
 });

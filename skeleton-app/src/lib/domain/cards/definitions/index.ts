@@ -25,6 +25,7 @@ import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 
 // Monsters
 import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
+import summonerMonkYaml from "./monsters/summoner-monk.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -57,6 +58,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // 効果モンスター
   [70791313, royalMagicalLibraryYaml], // 王立魔法図書館
+  [423585, summonerMonkYaml], // 召喚僧サモンプリースト
 ]);
 
 /**

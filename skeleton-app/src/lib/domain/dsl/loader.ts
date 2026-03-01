@@ -33,6 +33,7 @@ function registerCardData(definition: CardDSLDefinition): void {
     frameType: data.frameType,
     spellType: data.spellType,
     trapType: data.trapType,
+    level: data.level,
   });
 }
 

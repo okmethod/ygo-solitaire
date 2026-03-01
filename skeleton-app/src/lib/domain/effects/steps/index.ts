@@ -24,6 +24,8 @@ import { searchFromDeckByConditionStep, searchFromDeckTopStep, salvageFromGravey
 import { addCounterStep, removeCounterStep } from "./counters";
 import { shuffleDeckStep } from "./deckOperations";
 import { selectReturnShuffleDrawStep } from "./compositeOperations";
+import { changeBattlePositionStep } from "./battlePosition";
+import { specialSummonFromDeckStep } from "./summons";
 
 // ===========================
 // エクスポート
@@ -54,6 +56,8 @@ export {
   addCounterStep,
   removeCounterStep,
   selectReturnShuffleDrawStep,
+  changeBattlePositionStep,
+  specialSummonFromDeckStep,
 };
 
 // ===========================
@@ -125,15 +129,16 @@ AtomicStepRegistry.register("DRAW", (args) => {
 
 /**
  * SELECT_AND_DISCARD - 手札から指定枚数を選択して捨てる
- * args: { count: number, cancelable?: boolean }
+ * args: { count: number, cancelable?: boolean, filterType?: "spell" | "monster" | "trap" }
  */
 AtomicStepRegistry.register("SELECT_AND_DISCARD", (args) => {
   const count = args.count as number;
   const cancelable = args.cancelable as boolean | undefined;
+  const filterType = args.filterType as "spell" | "monster" | "trap" | undefined;
   if (typeof count !== "number" || count < 1) {
     throw new Error("SELECT_AND_DISCARD step requires a positive count argument");
   }
-  return selectAndDiscardStep(count, cancelable);
+  return selectAndDiscardStep(count, cancelable, filterType);
 });
 
 /**
@@ -398,4 +403,59 @@ AtomicStepRegistry.register("SELECT_RETURN_SHUFFLE_DRAW", (args) => {
   }
 
   return selectReturnShuffleDrawStep({ min, max });
+});
+
+/**
+ * CHANGE_BATTLE_POSITION - モンスターの表示形式を変更
+ * args: { position: "attack" | "defense" }
+ *
+ * sourceInstanceの表示形式を変更する。誘発効果で自身を守備表示にする場合などに使用。
+ */
+AtomicStepRegistry.register("CHANGE_BATTLE_POSITION", (args, context) => {
+  const position = args.position as "attack" | "defense";
+
+  if (position !== "attack" && position !== "defense") {
+    throw new Error('CHANGE_BATTLE_POSITION step requires position to be "attack" or "defense"');
+  }
+
+  const instanceId = context.sourceInstanceId;
+  if (!instanceId) {
+    throw new Error("CHANGE_BATTLE_POSITION step requires sourceInstanceId in context");
+  }
+
+  return changeBattlePositionStep(instanceId, position);
+});
+
+/**
+ * SPECIAL_SUMMON_FROM_DECK - デッキからモンスターを特殊召喚
+ * args: { filterType: "monster", filterLevel?: number, count: number, battlePosition?: "attack" | "defense" }
+ */
+AtomicStepRegistry.register("SPECIAL_SUMMON_FROM_DECK", (args, context) => {
+  const filterType = args.filterType as string;
+  const filterLevel = args.filterLevel as number | undefined;
+  const battlePosition = args.battlePosition as "attack" | "defense" | undefined;
+
+  if (filterType !== "monster") {
+    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster"');
+  }
+
+  // フィルター関数を生成
+  const filter = (card: CardInstance): boolean => {
+    if (card.type !== "monster") return false;
+    if (filterLevel !== undefined && card.level !== filterLevel) return false;
+    return true;
+  };
+
+  // 日本語表示用
+  const levelDesc = filterLevel !== undefined ? `レベル${filterLevel}` : "";
+  const summary = `${levelDesc}モンスターを特殊召喚`;
+  const description = `デッキから${levelDesc}モンスター1体を特殊召喚します`;
+
+  return specialSummonFromDeckStep({
+    id: `${context.cardId}-special-summon-from-deck-level${filterLevel ?? "any"}`,
+    summary,
+    description,
+    filter,
+    battlePosition,
+  });
 });

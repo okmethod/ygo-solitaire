@@ -89,15 +89,32 @@ export const discardAllHandEndPhaseStep = (): AtomicStep => {
   });
 };
 
+/** カードタイプの日本語変換 */
+const cardTypeToJapanese: Record<string, string> = {
+  spell: "魔法",
+  monster: "モンスター",
+  trap: "罠",
+};
+
 /** 手札から指定枚数のカードを選択して捨てるステップ */
-export const selectAndDiscardStep = (cardCount: number, cancelable?: boolean): AtomicStep => {
+export const selectAndDiscardStep = (
+  cardCount: number,
+  cancelable?: boolean,
+  filterType?: "spell" | "monster" | "trap",
+): AtomicStep => {
+  const filterTypeJa = filterType ? cardTypeToJapanese[filterType] : "";
+  const summary = filterType ? `手札の${filterTypeJa}を${cardCount}枚捨てる` : `手札を${cardCount}枚捨てる`;
+  const description = filterType
+    ? `手札から${filterTypeJa}カードを${cardCount}枚選んで捨てます`
+    : `手札から${cardCount}枚選んで捨てます`;
+
   return selectCardsStep({
-    id: `select-and-discard-${cardCount}-cards`,
-    summary: `手札を${cardCount}枚捨てる`,
-    description: `手札から${cardCount}枚選んで捨てます`,
+    id: `select-and-discard-${cardCount}-${filterType ?? "any"}-cards`,
+    summary,
+    description,
     availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
     _sourceZone: "hand",
-    _filter: undefined, // 全て対象
+    _filter: filterType ? (card) => card.type === filterType : undefined,
     minCards: cardCount,
     maxCards: cardCount,
     cancelable: cancelable ?? false, // Default: キャンセル不可

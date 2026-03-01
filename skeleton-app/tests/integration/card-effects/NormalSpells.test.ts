@@ -167,7 +167,7 @@ describe("Normal Spell Card Effects", () => {
         description: "「その後」処理によりタイミングが進む",
       });
       expect(result.chainBlock!.resolutionSteps[2]).toMatchObject({
-        id: "select-and-discard-2-cards",
+        id: "select-and-discard-2-any-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
       });
@@ -647,7 +647,7 @@ describe("Normal Spell Card Effects", () => {
       });
       // index=1 is emitSpellActivatedEventStep
       expect(result.activationSteps![2]).toMatchObject({
-        id: "select-and-discard-2-cards",
+        id: "select-and-discard-2-any-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
       });

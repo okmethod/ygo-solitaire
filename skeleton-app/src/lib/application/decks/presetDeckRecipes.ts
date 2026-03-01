@@ -66,9 +66,9 @@ const deckRecipeLibrary: DeckRecipe = {
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
     { id: 8124921, quantity: 1 }, // 封印されし者の右足
     { id: 70791313, quantity: 3 }, // 王立魔法図書館
+    { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
 
     // 魔法カード
-    { id: 55144522, quantity: 3 }, // 強欲な壺
     { id: 79571449, quantity: 3 }, // 天使の施し
     { id: 70368879, quantity: 3 }, // 成金ゴブリン
     { id: 33782437, quantity: 3 }, // 一時休戦
