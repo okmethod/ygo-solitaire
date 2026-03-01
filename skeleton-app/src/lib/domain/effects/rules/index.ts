@@ -13,28 +13,11 @@ import { loadCardFromYaml } from "$lib/domain/dsl/loader";
 import { dslDefinitions } from "$lib/domain/cards/definitions";
 export { AdditionalRuleRegistry };
 
-// 永続効果（DSL未対応のみ）
-import { ChickenGameContinuousEffect } from "$lib/domain/effects/rules/continuouses/spells/ChickenGameContinuousEffect";
-
-// ===========================
-// マップエントリ生成ヘルパー
-// ===========================
-
-import type { AdditionalRule } from "$lib/domain/models/Effect";
-
-type RegistrationEntry = [number, () => void];
-
-/** 永続効果のエントリを生成 */
-const rule = (id: number, additionalRule: AdditionalRule): RegistrationEntry => [
-  id,
-  () => AdditionalRuleRegistry.register(id, additionalRule),
-];
-
 // ===========================
 // 定義マップ（DSL未対応カードのみ）
 // ===========================
 
-const additionalRuleRegistrations = new Map<number, () => void>([rule(67616300, new ChickenGameContinuousEffect())]);
+const additionalRuleRegistrations = new Map<number, () => void>([]);
 
 // ===========================
 // 登録関数
