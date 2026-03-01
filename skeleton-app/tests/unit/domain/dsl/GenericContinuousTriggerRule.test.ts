@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
+import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
 /**
- * GenericTriggerRule Tests - DSL定義のトリガールールのテスト
+ * GenericContinuousTriggerRule Tests - DSL定義の永続効果トリガールールのテスト
  *
  * TEST STRATEGY:
- * - GenericTriggerRule が AdditionalRule インターフェースを正しく実装していること
+ * - GenericContinuousTriggerRule が AdditionalRule インターフェースを正しく実装していること
  * - DSL定義からトリガールールを生成できること
  * - canApply がカードのフィールド状態を正しく判定すること
  * - createTriggerSteps がDSL定義に基づいてステップを生成すること
@@ -63,17 +63,17 @@ const createMockGameState = (config: { monsterOnField?: CardInstance }): GameSna
 });
 
 // =============================================================================
-// GenericTriggerRule のテスト
+// GenericContinuousTriggerRule のテスト
 // =============================================================================
 
-describe("GenericTriggerRule", () => {
+describe("GenericContinuousTriggerRule", () => {
   it("TriggerRule カテゴリとして生成される", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
       triggers: ["spellActivated"],
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
 
     expect(rule.category).toBe("TriggerRule");
     expect(rule.isEffect).toBe(true);
@@ -85,7 +85,7 @@ describe("GenericTriggerRule", () => {
       triggers: ["spellActivated"],
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
 
     expect(rule.triggers).toContain("spellActivated");
   });
@@ -97,7 +97,7 @@ describe("GenericTriggerRule", () => {
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const cardId = 70791313;
-    const rule = new GenericTriggerRule(cardId, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(cardId, dslDefinition);
     const monster = createMockCardInstance(cardId, "mainMonsterZone");
     const state = createMockGameState({ monsterOnField: monster });
 
@@ -110,7 +110,7 @@ describe("GenericTriggerRule", () => {
       triggers: ["spellActivated"],
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
     const state = createMockGameState({});
 
     expect(rule.canApply(state)).toBe(false);
@@ -123,7 +123,7 @@ describe("GenericTriggerRule", () => {
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const cardId = 70791313;
-    const rule = new GenericTriggerRule(cardId, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(cardId, dslDefinition);
     const monster = createMockCardInstance(cardId, "mainMonsterZone");
     const state = createMockGameState({ monsterOnField: monster });
 
@@ -140,7 +140,7 @@ describe("GenericTriggerRule", () => {
       triggerTiming: "if",
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
 
     expect(rule.triggerTiming).toBe("if");
   });
@@ -151,7 +151,7 @@ describe("GenericTriggerRule", () => {
       triggers: ["spellActivated"],
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
 
     expect(rule.triggerTiming).toBe("if");
   });
@@ -162,7 +162,7 @@ describe("GenericTriggerRule", () => {
       triggers: ["spellActivated"],
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
 
     expect(rule.isMandatory).toBe(true);
   });
@@ -174,7 +174,7 @@ describe("GenericTriggerRule", () => {
       isMandatory: false,
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
 
     expect(rule.isMandatory).toBe(false);
   });
@@ -184,14 +184,14 @@ describe("GenericTriggerRule", () => {
 // 複数トリガーのテスト
 // =============================================================================
 
-describe("GenericTriggerRule - Multiple Triggers", () => {
+describe("GenericContinuousTriggerRule - Multiple Triggers", () => {
   it("複数のトリガーイベントに対応できる", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
       triggers: ["spellActivated", "monsterSummoned"],
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1 } }],
     };
-    const rule = new GenericTriggerRule(12345, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(12345, dslDefinition);
 
     expect(rule.triggers).toContain("spellActivated");
     expect(rule.triggers).toContain("monsterSummoned");

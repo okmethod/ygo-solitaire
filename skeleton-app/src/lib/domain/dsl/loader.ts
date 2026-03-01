@@ -18,7 +18,7 @@ import {
   createGenericContinuousSpellActivation,
   createGenericIgnitionEffect,
 } from "$lib/domain/dsl/factories";
-import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
+import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 
 /**
@@ -95,7 +95,7 @@ function registerAdditionalRules(definition: CardDSLDefinition): void {
   // continuous セクション（永続効果）
   if (additionalRules.continuous) {
     for (const ruleDef of additionalRules.continuous) {
-      const rule = new GenericTriggerRule(id, ruleDef);
+      const rule = new GenericContinuousTriggerRule(id, ruleDef);
       AdditionalRuleRegistry.register(id, rule);
     }
   }

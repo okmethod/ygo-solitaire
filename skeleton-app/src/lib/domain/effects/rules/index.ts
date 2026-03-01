@@ -12,6 +12,7 @@ import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRule
 import { loadCardFromYaml } from "$lib/domain/dsl/loader";
 import { dslDefinitions } from "$lib/domain/cards/definitions";
 export { AdditionalRuleRegistry };
+export { BaseContinuousEffect } from "$lib/domain/effects/rules/continuouses/BaseContinuousEffect";
 
 // ===========================
 // 定義マップ（DSL未対応カードのみ）
