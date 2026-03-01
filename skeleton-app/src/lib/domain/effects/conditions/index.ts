@@ -15,7 +15,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditionRegistry";
 
 // 具体実装
-import { canDraw, deckHasCard } from "./deckConditions";
+import { canDraw, deckHasCard, deckHasNameIncludes } from "./deckConditions";
 import { handCount, handCountExcludingSelf } from "./handConditions";
 import { graveyardHasSpell, graveyardHasMonster } from "./graveyardConditions";
 import { hasCounter } from "./counterConditions";
@@ -39,6 +39,7 @@ export const clearConditionRegistry = AtomicConditionRegistry.clear.bind(AtomicC
 export {
   canDraw,
   deckHasCard,
+  deckHasNameIncludes,
   handCount,
   handCountExcludingSelf,
   graveyardHasSpell,
@@ -109,6 +110,21 @@ AtomicConditionRegistry.register("DECK_HAS_CARD", (state, _sourceInstance, args)
   };
 
   return deckHasCard(state, filter, minCount);
+});
+
+/**
+ * DECK_HAS_NAME_INCLUDES - デッキに名前パターンを含むカードが指定枚数以上あるか
+ * args: { namePattern: string, minCount?: number }
+ */
+AtomicConditionRegistry.register("DECK_HAS_NAME_INCLUDES", (state, _sourceInstance, args) => {
+  const namePattern = args.namePattern as string;
+  const minCount = (args.minCount as number) ?? 1;
+
+  if (!namePattern) {
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  }
+
+  return deckHasNameIncludes(state, namePattern, minCount);
 });
 
 /**

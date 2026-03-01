@@ -35,3 +35,12 @@ export const deckHasCard = (
   }
   return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
 };
+
+/** デッキに名前パターンを含むカードが指定枚数以上あるか */
+export const deckHasNameIncludes = (state: GameSnapshot, namePattern: string, minCount: number): ValidationResult => {
+  const matchingCards = state.space.mainDeck.filter((card) => card.jaName.includes(namePattern));
+  if (matchingCards.length >= minCount) {
+    return GameProcessing.Validation.success();
+  }
+  return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+};

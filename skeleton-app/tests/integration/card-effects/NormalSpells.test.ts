@@ -1058,8 +1058,8 @@ describe("Normal Spell Card Effects", () => {
       expect(result.activationSteps!.length).toBe(2); // activation + spell activated event
       expect(result.chainBlock!.resolutionSteps.length).toBe(2); // search + send-to-graveyard
 
-      // Verify resolution steps
-      expect(result.chainBlock!.resolutionSteps[0].id).toContain("toon-table-search");
+      // Verify resolution steps (DSL uses "search-by-name" format)
+      expect(result.chainBlock!.resolutionSteps[0].id).toContain("search");
       expect(result.chainBlock!.resolutionSteps[0].cardSelectionConfig).toBeDefined();
       expect(result.chainBlock!.resolutionSteps[0].cardSelectionConfig!.minCards).toBe(1);
       expect(result.chainBlock!.resolutionSteps[0].cardSelectionConfig!.maxCards).toBe(1);

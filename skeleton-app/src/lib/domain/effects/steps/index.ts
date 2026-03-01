@@ -316,3 +316,32 @@ AtomicStepRegistry.register("PAY_LP", (args) => {
   }
   return payLpStep(amount, target);
 });
+
+/**
+ * SEARCH_FROM_DECK_BY_NAME - デッキから名前パターンでカードをサーチ
+ * args: { namePattern: string, count: number }
+ */
+AtomicStepRegistry.register("SEARCH_FROM_DECK_BY_NAME", (args, context) => {
+  const namePattern = args.namePattern as string;
+  const count = args.count as number;
+
+  if (!namePattern) {
+    throw new Error("SEARCH_FROM_DECK_BY_NAME step requires namePattern argument");
+  }
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("SEARCH_FROM_DECK_BY_NAME step requires a positive count argument");
+  }
+
+  // 名前パターンでフィルタリング
+  const filter = (card: CardInstance): boolean => card.jaName.includes(namePattern);
+
+  return searchFromDeckByConditionStep({
+    id: `${context.cardId}-search-by-name-${namePattern}`,
+    summary: `「${namePattern}」カード${count}枚をサーチ`,
+    description: `デッキから「${namePattern}」を含むカード${count}枚を選択し、手札に加えます`,
+    filter,
+    minCards: count,
+    maxCards: count,
+    cancelable: false,
+  });
+});
