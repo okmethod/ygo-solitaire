@@ -17,6 +17,7 @@ import cardOfDemiseYaml from "./spells/card-of-demise.yaml?raw";
 import darkFactoryYaml from "./spells/dark-factory.yaml?raw";
 import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
 import cardDestructionYaml from "./spells/card-destruction.yaml?raw";
+import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 
 // Monsters
@@ -41,6 +42,9 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // 速攻魔法
   [74519184, cardDestructionYaml], // 手札断殺
+
+  // 永続魔法
+  [15259703, toonWorldYaml], // トゥーン・ワールド
 
   // フィールド魔法
   [67616300, chickenGameYaml], // チキンレース

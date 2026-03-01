@@ -15,6 +15,7 @@ import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRule
 import {
   createGenericNormalSpellActivation,
   createGenericQuickPlaySpellActivation,
+  createGenericContinuousSpellActivation,
   createGenericIgnitionEffect,
 } from "$lib/domain/dsl/factories";
 import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
@@ -57,6 +58,9 @@ function registerChainableAction(definition: CardDSLDefinition): void {
       ChainableActionRegistry.registerActivation(id, activation);
     } else if (spellType === "quick-play") {
       const activation = createGenericQuickPlaySpellActivation(id, chainableActions.activations);
+      ChainableActionRegistry.registerActivation(id, activation);
+    } else if (spellType === "continuous") {
+      const activation = createGenericContinuousSpellActivation(id, chainableActions.activations);
       ChainableActionRegistry.registerActivation(id, activation);
     } else {
       throw new Error(`Unsupported spell type "${spellType}" for card ID ${id}`);

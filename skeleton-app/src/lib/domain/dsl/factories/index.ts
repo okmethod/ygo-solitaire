@@ -7,5 +7,9 @@ export {
   GenericQuickPlaySpellActivation,
   createGenericQuickPlaySpellActivation,
 } from "./GenericQuickPlaySpellActivation";
+export {
+  GenericContinuousSpellActivation,
+  createGenericContinuousSpellActivation,
+} from "./GenericContinuousSpellActivation";
 export { GenericIgnitionEffect, createGenericIgnitionEffect } from "./GenericIgnitionEffect";
 export { GenericTriggerRule } from "./GenericTriggerRule";

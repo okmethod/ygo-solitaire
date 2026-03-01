@@ -1,0 +1,23 @@
+# 《トゥーン・ワールド》 (Toon World)
+# Card ID: 15259703 | Type: Spell | Subtype: Continuous
+#
+# カードの発動:
+# - CONDITIONS: LP>=1000
+# - ACTIVATION: 1000LP支払い
+# - RESOLUTION: 無し（フィールドに残る）
+
+id: 15259703
+data:
+  jaName: "トゥーン・ワールド"
+  type: "spell"
+  frameType: "spell"
+  spellType: "continuous"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "LP_AT_LEAST"
+        args: { amount: 1000 }
+    activations:
+      - step: "PAY_LP"
+        args: { amount: 1000 }

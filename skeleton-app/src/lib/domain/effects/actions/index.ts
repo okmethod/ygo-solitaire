@@ -17,7 +17,6 @@ export { ChainableActionRegistry };
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
 import { PotOfDualityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfDualityActivation";
 import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonTableOfContentsActivation";
-import { ToonWorldActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonWorldActivation";
 
 // ===========================
 // マップエントリ生成ヘルパー
@@ -41,7 +40,6 @@ const chainableActionRegistrations = new Map<number, () => void>([
   activation(85852291, new MagicalMalletActivation()),
   activation(98645731, new PotOfDualityActivation()),
   activation(89997728, new ToonTableOfContentsActivation()),
-  activation(15259703, new ToonWorldActivation()),
 ]);
 
 // ===========================
