@@ -106,6 +106,58 @@ const registeredConditions: Record<string, ConditionChecker> = {
   },
 
   /**
+   * HAND_COUNT - 手札が指定枚数以上あるか
+   * args: { minCount: number }
+   */
+  HAND_COUNT: (state, _sourceInstance, args) => {
+    const minCount = args.minCount as number;
+    if (typeof minCount !== "number" || minCount < 1) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+
+    if (state.space.hand.length >= minCount) {
+      return GameProcessing.Validation.success();
+    }
+
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  },
+
+  /**
+   * ONCE_PER_TURN - このカードがこのターンまだ発動されていないか
+   * args: { cardId: number } (省略時はsourceInstanceのIDを使用)
+   */
+  ONCE_PER_TURN: (state, sourceInstance, args) => {
+    const cardId = (args.cardId as number) ?? sourceInstance.id;
+
+    if (state.activatedCardIds.has(cardId)) {
+      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    }
+
+    return GameProcessing.Validation.success();
+  },
+
+  /**
+   * GRAVEYARD_HAS_MONSTER - 墓地にモンスターカードが指定枚数以上あるか
+   * args: { minCount?: number, frameType?: string } (デフォルト: minCount=1)
+   */
+  GRAVEYARD_HAS_MONSTER: (state, _sourceInstance, args) => {
+    const minCount = (args.minCount as number) ?? 1;
+    const frameType = args.frameType as string | undefined;
+
+    const monstersInGraveyard = state.space.graveyard.filter((card) => {
+      if (card.type !== "monster") return false;
+      if (frameType && card.frameType !== frameType) return false;
+      return true;
+    });
+
+    if (monstersInGraveyard.length >= minCount) {
+      return GameProcessing.Validation.success();
+    }
+
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  },
+
+  /**
    * HAS_COUNTER - 発動元カードに指定タイプのカウンターが指定枚数以上あるか
    * args: { counterType: CounterType, minCount: number }
    */

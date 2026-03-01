@@ -1,0 +1,22 @@
+# Dark Factory of Mass Production / 闇の量産工場
+# Card ID: 90928333 | Type: Spell | Subtype: Normal
+#
+# Conditions: Graveyard has 2+ normal monsters
+# Resolution: Salvage 2 normal monsters from graveyard
+
+id: 90928333
+
+data:
+  jaName: "闘の量産工場"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "GRAVEYARD_HAS_MONSTER"
+        args: { minCount: 2, frameType: "normal" }
+    resolutions:
+      - step: "SALVAGE_FROM_GRAVEYARD"
+        args: { filterType: "monster", filterFrameType: "normal", count: 2 }

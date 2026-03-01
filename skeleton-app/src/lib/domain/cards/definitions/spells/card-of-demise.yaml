@@ -1,0 +1,22 @@
+# Card of Demise / 命削りの宝札
+# Card ID: 59750328 | Type: Spell | Subtype: Normal
+#
+# Conditions: Once per turn
+# Resolution: Draw until hand is 3, discard all hand at end phase
+
+id: 59750328
+
+data:
+  jaName: "命削りの宝札"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "ONCE_PER_TURN"
+    resolutions:
+      - step: "FILL_HANDS"
+        args: { count: 3 }
+      - step: "DISCARD_ALL_HAND_END_PHASE"

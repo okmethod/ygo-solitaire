@@ -1,0 +1,25 @@
+# Into the Void / 無の煉獄
+# Card ID: 93946239 | Type: Spell | Subtype: Normal
+#
+# Conditions: Hand >= 3, Deck >= 1
+# Resolution: Draw 1, discard all hand at end phase
+
+id: 93946239
+
+data:
+  jaName: "無の煉獄"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "HAND_COUNT"
+        args: { minCount: 3 }
+      - step: "CAN_DRAW"
+        args: { count: 1 }
+    resolutions:
+      - step: "DRAW"
+        args: { count: 1 }
+      - step: "DISCARD_ALL_HAND_END_PHASE"

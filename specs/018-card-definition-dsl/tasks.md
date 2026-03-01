@@ -135,11 +135,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T043 [P] Add additional simple spell DSL definitions (Dark Factory, Card Destruction, etc.) in `skeleton-app/src/lib/domain/cards/definitions/spells/`
-- [ ] T044 Validate error messages contain card ID and field path for debugging in `skeleton-app/src/lib/domain/dsl/__tests__/DSLErrors.test.ts`
-- [ ] T045 [P] Update docs/architecture/card-definition-dsl-design.md with implementation notes
+- [x] T043 [P] Add additional simple spell DSL definitions (Dark Factory, Card Destruction, etc.) in `skeleton-app/src/lib/domain/cards/definitions/spells/`
+- [x] T044 Validate error messages contain card ID and field path for debugging in `skeleton-app/tests/unit/domain/dsl/DSLErrors.test.ts`
+- [x] T045 [P] Update docs/architecture/card-definition-dsl-design.md with implementation notes
 - [SKIP] T046 ~~Run full test suite including existing E2E tests to verify DSL/class coexistence~~ (E2Eテストはスコープ外。Unitテスト中心で進める)
-- [ ] T047 Clean up any temporary task IDs from source code comments
+- [x] T047 Clean up any temporary task IDs from source code comments
 
 ---
 

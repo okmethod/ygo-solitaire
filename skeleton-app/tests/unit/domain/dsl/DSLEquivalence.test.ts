@@ -14,6 +14,9 @@ import { TerraformingActivation } from "$lib/domain/effects/actions/activations/
 import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
 import { RoyalMagicalLibraryContinuousEffect } from "$lib/domain/effects/rules/continuouses/monsters/RoyalMagicalLibraryContinuousEffect";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
+import { IntoTheVoidActivation } from "$lib/domain/effects/actions/activations/individuals/spells/IntoTheVoidActivation";
+import { CardOfDemiseActivation } from "$lib/domain/effects/actions/activations/individuals/spells/CardOfDemiseActivation";
+import { DarkFactoryActivation } from "$lib/domain/effects/actions/activations/individuals/spells/DarkFactoryActivation";
 
 /**
  * DSL Equivalence Tests
@@ -853,5 +856,397 @@ describe("DSLEquivalence - Royal Magical Library (Ignition Effect)", () => {
     // draw ステップが両方に存在すること
     expect(dslSteps.some((s: { id: string }) => s.id.includes("draw"))).toBe(true);
     expect(classSteps.some((s: { id: string }) => s.id.includes("draw"))).toBe(true);
+  });
+});
+
+// =============================================================================
+// Phase 6: 追加スペルカードの等価性テスト
+// =============================================================================
+
+const INTO_THE_VOID_YAML = `
+id: 93946239
+data:
+  jaName: "無の煉獄"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "HAND_COUNT"
+        args: { minCount: 3 }
+      - step: "CAN_DRAW"
+        args: { count: 1 }
+    resolutions:
+      - step: "DRAW"
+        args: { count: 1 }
+      - step: "DISCARD_ALL_HAND_END_PHASE"
+`;
+
+const CARD_OF_DEMISE_YAML = `
+id: 59750328
+data:
+  jaName: "命削りの宝札"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "ONCE_PER_TURN"
+    resolutions:
+      - step: "FILL_HANDS"
+        args: { count: 3 }
+      - step: "DISCARD_ALL_HAND_END_PHASE"
+`;
+
+const DARK_FACTORY_YAML = `
+id: 90928333
+data:
+  jaName: "闇の量産工場"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "GRAVEYARD_HAS_MONSTER"
+        args: { minCount: 2, frameType: "normal" }
+    resolutions:
+      - step: "SALVAGE_FROM_GRAVEYARD"
+        args: { filterType: "monster", filterFrameType: "normal", count: 2 }
+`;
+
+/**
+ * Into the Void のゲーム状態を作成
+ * - 手札が3枚以上必要
+ * - デッキに1枚以上必要
+ */
+const createIntoTheVoidGameState = (handCount: number, deckCount: number): GameSnapshot => {
+  const handCards = Array(handCount)
+    .fill(null)
+    .map((_, i) => ({
+      instanceId: `hand-card-${i}`,
+      id: i + 100,
+      jaName: `手札カード${i}`,
+      type: "monster" as const,
+      frameType: "normal" as const,
+      location: "hand" as const,
+    }));
+
+  const deckCards = Array(deckCount)
+    .fill(null)
+    .map((_, i) => ({
+      instanceId: `deck-card-${i}`,
+      id: i + 200,
+      jaName: `デッキカード${i}`,
+      type: "monster" as const,
+      frameType: "normal" as const,
+      location: "mainDeck" as const,
+    }));
+
+  return {
+    phase: "main1",
+    turn: 1,
+    lp: { player: 8000, opponent: 8000 },
+    space: {
+      mainDeck: deckCards,
+      hand: handCards,
+      extraDeck: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
+      graveyard: [],
+      banished: [],
+    },
+    result: { isGameOver: false },
+    normalSummonLimit: 1,
+    normalSummonUsed: 0,
+    activatedCardIds: new Set<number>(),
+    queuedEndPhaseEffectIds: [],
+  };
+};
+
+/**
+ * Card of Demise のゲーム状態を作成
+ * - 1ターンに1度制限
+ */
+const createCardOfDemiseGameState = (alreadyActivated: boolean): GameSnapshot => {
+  const deckCards = Array(10)
+    .fill(null)
+    .map((_, i) => ({
+      instanceId: `deck-card-${i}`,
+      id: i + 100,
+      jaName: `デッキカード${i}`,
+      type: "monster" as const,
+      frameType: "normal" as const,
+      location: "mainDeck" as const,
+    }));
+
+  return {
+    phase: "main1",
+    turn: 1,
+    lp: { player: 8000, opponent: 8000 },
+    space: {
+      mainDeck: deckCards,
+      hand: [],
+      extraDeck: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
+      graveyard: [],
+      banished: [],
+    },
+    result: { isGameOver: false },
+    normalSummonLimit: 1,
+    normalSummonUsed: 0,
+    activatedCardIds: alreadyActivated ? new Set<number>([59750328]) : new Set<number>(),
+    queuedEndPhaseEffectIds: [],
+  };
+};
+
+/**
+ * Dark Factory のゲーム状態を作成
+ * - 墓地に通常モンスターが必要
+ */
+const createDarkFactoryGameState = (normalMonsterCountInGraveyard: number): GameSnapshot => {
+  const graveyardMonsters = Array(normalMonsterCountInGraveyard)
+    .fill(null)
+    .map((_, i) => ({
+      instanceId: `graveyard-monster-${i}`,
+      id: i + 100,
+      jaName: `通常モンスター${i}`,
+      type: "monster" as const,
+      frameType: "normal" as const,
+      location: "graveyard" as const,
+    }));
+
+  return {
+    phase: "main1",
+    turn: 1,
+    lp: { player: 8000, opponent: 8000 },
+    space: {
+      mainDeck: [],
+      hand: [],
+      extraDeck: [],
+      mainMonsterZone: [],
+      spellTrapZone: [],
+      fieldZone: [],
+      graveyard: graveyardMonsters,
+      banished: [],
+    },
+    result: { isGameOver: false },
+    normalSummonLimit: 1,
+    normalSummonUsed: 0,
+    activatedCardIds: new Set<number>(),
+    queuedEndPhaseEffectIds: [],
+  };
+};
+
+describe("DSLEquivalence - Into the Void", () => {
+  const CARD_ID = 93946239;
+
+  beforeEach(() => {
+    CardDataRegistry.clear();
+    ChainableActionRegistry.clear();
+  });
+
+  it("spellSpeed が一致する", () => {
+    loadCardFromYaml(INTO_THE_VOID_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new IntoTheVoidActivation();
+
+    expect(dslActivation).toBeDefined();
+    expect(dslActivation!.spellSpeed).toBe(classActivation.spellSpeed);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（条件成立）", () => {
+    loadCardFromYaml(INTO_THE_VOID_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new IntoTheVoidActivation();
+    const state = createIntoTheVoidGameState(3, 1); // 手札3枚、デッキ1枚
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(true);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（手札不足）", () => {
+    loadCardFromYaml(INTO_THE_VOID_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new IntoTheVoidActivation();
+    const state = createIntoTheVoidGameState(2, 1); // 手札2枚（不足）
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(false);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（デッキ不足）", () => {
+    loadCardFromYaml(INTO_THE_VOID_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new IntoTheVoidActivation();
+    const state = createIntoTheVoidGameState(3, 0); // デッキ0枚
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(false);
+  });
+
+  it("createResolutionSteps がドローとエンドフェイズ捨てステップを生成する", () => {
+    loadCardFromYaml(INTO_THE_VOID_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new IntoTheVoidActivation();
+    const state = createIntoTheVoidGameState(3, 1);
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslSteps = dslActivation!.createResolutionSteps(state, instance);
+    const classSteps = classActivation.createResolutionSteps(state, instance);
+
+    // draw-1 ステップが両方に存在
+    expect(dslSteps.some((s) => s.id === "draw-1")).toBe(true);
+    expect(classSteps.some((s) => s.id === "draw-1")).toBe(true);
+
+    // end-phase 関連ステップが両方に存在
+    expect(dslSteps.some((s) => s.id.includes("end-phase"))).toBe(true);
+    expect(classSteps.some((s) => s.id.includes("end-phase"))).toBe(true);
+  });
+});
+
+describe("DSLEquivalence - Card of Demise", () => {
+  const CARD_ID = 59750328;
+
+  beforeEach(() => {
+    CardDataRegistry.clear();
+    ChainableActionRegistry.clear();
+  });
+
+  it("spellSpeed が一致する", () => {
+    loadCardFromYaml(CARD_OF_DEMISE_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new CardOfDemiseActivation();
+
+    expect(dslActivation).toBeDefined();
+    expect(dslActivation!.spellSpeed).toBe(classActivation.spellSpeed);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（条件成立）", () => {
+    loadCardFromYaml(CARD_OF_DEMISE_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new CardOfDemiseActivation();
+    const state = createCardOfDemiseGameState(false); // まだ発動していない
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(true);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（既に発動済み）", () => {
+    loadCardFromYaml(CARD_OF_DEMISE_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new CardOfDemiseActivation();
+    const state = createCardOfDemiseGameState(true); // 既に発動済み
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(false);
+  });
+
+  it("createResolutionSteps がFILL_HANDSとエンドフェイズ捨てステップを生成する", () => {
+    loadCardFromYaml(CARD_OF_DEMISE_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new CardOfDemiseActivation();
+    const state = createCardOfDemiseGameState(false);
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslSteps = dslActivation!.createResolutionSteps(state, instance);
+    const classSteps = classActivation.createResolutionSteps(state, instance);
+
+    // fill-hands ステップが両方に存在
+    expect(dslSteps.some((s) => s.id.includes("fill-hands"))).toBe(true);
+    expect(classSteps.some((s) => s.id.includes("fill-hands"))).toBe(true);
+
+    // end-phase 関連ステップが両方に存在
+    expect(dslSteps.some((s) => s.id.includes("end-phase"))).toBe(true);
+    expect(classSteps.some((s) => s.id.includes("end-phase"))).toBe(true);
+  });
+});
+
+describe("DSLEquivalence - Dark Factory of Mass Production", () => {
+  const CARD_ID = 90928333;
+
+  beforeEach(() => {
+    CardDataRegistry.clear();
+    ChainableActionRegistry.clear();
+  });
+
+  it("spellSpeed が一致する", () => {
+    loadCardFromYaml(DARK_FACTORY_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new DarkFactoryActivation();
+
+    expect(dslActivation).toBeDefined();
+    expect(dslActivation!.spellSpeed).toBe(classActivation.spellSpeed);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（条件成立）", () => {
+    loadCardFromYaml(DARK_FACTORY_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new DarkFactoryActivation();
+    const state = createDarkFactoryGameState(2); // 通常モンスター2枚
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(true);
+  });
+
+  it("canActivate が同一条件で同じ結果を返す（通常モンスター不足）", () => {
+    loadCardFromYaml(DARK_FACTORY_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new DarkFactoryActivation();
+    const state = createDarkFactoryGameState(1); // 通常モンスター1枚（不足）
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslResult = dslActivation!.canActivate(state, instance);
+    const classResult = classActivation.canActivate(state, instance);
+
+    expect(dslResult.isValid).toBe(classResult.isValid);
+    expect(dslResult.isValid).toBe(false);
+  });
+
+  it("createResolutionSteps がサルベージステップを生成する", () => {
+    loadCardFromYaml(DARK_FACTORY_YAML);
+    const dslActivation = ChainableActionRegistry.getActivation(CARD_ID);
+    const classActivation = new DarkFactoryActivation();
+    const state = createDarkFactoryGameState(2);
+    const instance = createMockCardInstance(CARD_ID);
+
+    const dslSteps = dslActivation!.createResolutionSteps(state, instance);
+    const classSteps = classActivation.createResolutionSteps(state, instance);
+
+    // salvage ステップが両方に存在
+    expect(dslSteps.some((s) => s.id.includes("salvage"))).toBe(true);
+    expect(classSteps.some((s) => s.id.includes("salvage") || s.id.includes("search"))).toBe(true);
   });
 });

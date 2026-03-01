@@ -16,6 +16,7 @@ import { markThenStep } from "$lib/domain/effects/steps/timing";
 import { gainLpStep } from "$lib/domain/effects/steps/lifePoints";
 import { searchFromDeckByConditionStep, salvageFromGraveyardStep } from "$lib/domain/effects/steps/searches";
 import { addCounterStep, removeCounterStep } from "$lib/domain/effects/steps/counters";
+import { discardAllHandEndPhaseStep } from "$lib/domain/effects/steps/discards";
 import type { CounterType } from "$lib/domain/models/Card";
 
 /**
@@ -138,11 +139,12 @@ const registeredSteps: Record<string, StepBuilder> = {
 
   /**
    * SALVAGE_FROM_GRAVEYARD - 墓地からカードをサルベージ
-   * args: { filterType: string, filterSpellType?: string, count: number }
+   * args: { filterType: string, filterSpellType?: string, filterFrameType?: string, count: number }
    */
   SALVAGE_FROM_GRAVEYARD: (args, context) => {
     const filterType = args.filterType as string;
     const filterSpellType = args.filterSpellType as string | undefined;
+    const filterFrameType = args.filterFrameType as string | undefined;
     const count = args.count as number;
 
     if (!filterType) {
@@ -156,10 +158,15 @@ const registeredSteps: Record<string, StepBuilder> = {
     const filter = (card: CardInstance): boolean => {
       if (card.type !== filterType) return false;
       if (filterSpellType && card.spellType !== filterSpellType) return false;
+      if (filterFrameType && card.frameType !== filterFrameType) return false;
       return true;
     };
 
-    const filterDesc = filterSpellType ? `${filterSpellType}${filterType}` : filterType;
+    const filterDescParts: string[] = [];
+    if (filterFrameType) filterDescParts.push(filterFrameType);
+    if (filterSpellType) filterDescParts.push(filterSpellType);
+    filterDescParts.push(filterType);
+    const filterDesc = filterDescParts.join("");
 
     return salvageFromGraveyardStep({
       id: `salvage-from-graveyard-${filterDesc}-${context.cardId}`,
@@ -170,6 +177,14 @@ const registeredSteps: Record<string, StepBuilder> = {
       maxCards: count,
       cancelable: false,
     });
+  },
+
+  /**
+   * DISCARD_ALL_HAND_END_PHASE - エンドフェイズに手札を全て捨てる効果を登録
+   * args: なし
+   */
+  DISCARD_ALL_HAND_END_PHASE: () => {
+    return discardAllHandEndPhaseStep();
   },
 
   /**
