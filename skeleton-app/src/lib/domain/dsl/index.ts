@@ -6,19 +6,19 @@
  * @module domain/dsl
  */
 
-// Types
+// Types & Schemas
 export type { StepDSL, ChainableActionDSL, AdditionalRuleDSL, CardDataDSL, CardDSLDefinition } from "./types";
 
-export { DSLParseError, DSLValidationError, DSLStepResolutionError, DSLConditionResolutionError } from "./types";
+export {
+  CardDSLDefinitionSchema,
+  DSLParseError,
+  DSLValidationError,
+  DSLStepResolutionError,
+  DSLConditionResolutionError,
+} from "./types";
 
 // Parsers
-export {
-  parseCardDSL,
-  parseMultipleCardDSL,
-  isDSLParseError,
-  isDSLValidationError,
-  CardDSLDefinitionSchema,
-} from "./parsers";
+export { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationError } from "./parsers";
 
 // Registries
 export {

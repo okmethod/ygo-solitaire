@@ -7,8 +7,7 @@
 
 import yaml from "js-yaml";
 import type { CardDSLDefinition } from "$lib/domain/dsl/types";
-import { DSLParseError, DSLValidationError } from "$lib/domain/dsl/types";
-import { CardDSLDefinitionSchema } from "./schemas/CardDSLSchema";
+import { CardDSLDefinitionSchema, DSLParseError, DSLValidationError } from "$lib/domain/dsl/types";
 
 /**
  * YAML文字列をCardDSLDefinitionにパースする
