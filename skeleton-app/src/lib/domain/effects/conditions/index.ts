@@ -8,12 +8,17 @@
  */
 
 import type { CounterType } from "$lib/domain/models/Card";
-import { Card } from "$lib/domain/models/Card";
-import { GameState } from "$lib/domain/models/GameState";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 // レジストリAPI
 import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditionRegistry";
+
+// 具体実装
+import { canDraw, deckHasCard } from "./deckConditions";
+import { handCount, handCountExcludingSelf } from "./handConditions";
+import { graveyardHasSpell, graveyardHasMonster } from "./graveyardConditions";
+import { hasCounter } from "./counterConditions";
+import { oncePerTurn } from "./activationConditions";
 
 // ===========================
 // エクスポート
@@ -28,9 +33,23 @@ export const isConditionRegistered = AtomicConditionRegistry.isRegistered.bind(A
 export const getRegisteredConditionNames = AtomicConditionRegistry.getRegisteredNames.bind(AtomicConditionRegistry);
 export const clearConditionRegistry = AtomicConditionRegistry.clear.bind(AtomicConditionRegistry);
 
+// 具体実装（直接利用する場合）
+export {
+  canDraw,
+  deckHasCard,
+  handCount,
+  handCountExcludingSelf,
+  graveyardHasSpell,
+  graveyardHasMonster,
+  hasCounter,
+  oncePerTurn,
+};
+
 // ===========================
 // 条件登録
 // ===========================
+
+const { ERROR_CODES } = GameProcessing.Validation;
 
 /**
  * CAN_DRAW - デッキに指定枚数以上のカードがあるか
@@ -39,14 +58,9 @@ export const clearConditionRegistry = AtomicConditionRegistry.clear.bind(AtomicC
 AtomicConditionRegistry.register("CAN_DRAW", (state, _sourceInstance, args) => {
   const count = args.count as number;
   if (typeof count !== "number" || count < 1) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
-
-  if (state.space.mainDeck.length >= count) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  return canDraw(state, count);
 });
 
 /**
@@ -56,15 +70,9 @@ AtomicConditionRegistry.register("CAN_DRAW", (state, _sourceInstance, args) => {
 AtomicConditionRegistry.register("HAND_COUNT_EXCLUDING_SELF", (state, sourceInstance, args) => {
   const minCount = args.minCount as number;
   if (typeof minCount !== "number" || minCount < 1) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
-
-  const handCountExcludingSelf = GameState.Space.countHandExcludingSelf(state.space, sourceInstance);
-  if (handCountExcludingSelf >= minCount) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  return handCountExcludingSelf(state, sourceInstance, minCount);
 });
 
 /**
@@ -73,13 +81,7 @@ AtomicConditionRegistry.register("HAND_COUNT_EXCLUDING_SELF", (state, sourceInst
  */
 AtomicConditionRegistry.register("GRAVEYARD_HAS_SPELL", (state, _sourceInstance, args) => {
   const minCount = (args.minCount as number) ?? 1;
-
-  const spellCardsInGraveyard = state.space.graveyard.filter((card) => card.type === "spell");
-  if (spellCardsInGraveyard.length >= minCount) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  return graveyardHasSpell(state, minCount);
 });
 
 /**
@@ -92,20 +94,16 @@ AtomicConditionRegistry.register("DECK_HAS_CARD", (state, _sourceInstance, args)
   const minCount = (args.minCount as number) ?? 1;
 
   if (!filterType) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
 
-  const matchingCards = state.space.mainDeck.filter((card) => {
+  const filter = (card: { type: string; spellType?: string }) => {
     if (card.type !== filterType) return false;
     if (filterSpellType && card.spellType !== filterSpellType) return false;
     return true;
-  });
+  };
 
-  if (matchingCards.length >= minCount) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  return deckHasCard(state, filter, minCount);
 });
 
 /**
@@ -115,14 +113,9 @@ AtomicConditionRegistry.register("DECK_HAS_CARD", (state, _sourceInstance, args)
 AtomicConditionRegistry.register("HAND_COUNT", (state, _sourceInstance, args) => {
   const minCount = args.minCount as number;
   if (typeof minCount !== "number" || minCount < 1) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
-
-  if (state.space.hand.length >= minCount) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  return handCount(state, minCount);
 });
 
 /**
@@ -131,12 +124,7 @@ AtomicConditionRegistry.register("HAND_COUNT", (state, _sourceInstance, args) =>
  */
 AtomicConditionRegistry.register("ONCE_PER_TURN", (state, sourceInstance, args) => {
   const cardId = (args.cardId as number) ?? sourceInstance.id;
-
-  if (state.activatedCardIds.has(cardId)) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  return GameProcessing.Validation.success();
+  return oncePerTurn(state, cardId);
 });
 
 /**
@@ -147,17 +135,9 @@ AtomicConditionRegistry.register("GRAVEYARD_HAS_MONSTER", (state, _sourceInstanc
   const minCount = (args.minCount as number) ?? 1;
   const frameType = args.frameType as string | undefined;
 
-  const monstersInGraveyard = state.space.graveyard.filter((card) => {
-    if (card.type !== "monster") return false;
-    if (frameType && card.frameType !== frameType) return false;
-    return true;
-  });
+  const filter = frameType ? (card: { frameType?: string }) => card.frameType === frameType : undefined;
 
-  if (monstersInGraveyard.length >= minCount) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  return graveyardHasMonster(state, minCount, filter);
 });
 
 /**
@@ -169,19 +149,11 @@ AtomicConditionRegistry.register("HAS_COUNTER", (_state, sourceInstance, args) =
   const minCount = args.minCount as number;
 
   if (!counterType) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
   if (typeof minCount !== "number" || minCount < 1) {
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
 
-  // フィールド上のカードでない場合はカウンターを持てない
-  const counters = sourceInstance.stateOnField?.counters ?? [];
-  const currentCount = Card.Counter.get(counters, counterType);
-
-  if (currentCount >= minCount) {
-    return GameProcessing.Validation.success();
-  }
-
-  return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.INSUFFICIENT_COUNTERS);
+  return hasCounter(sourceInstance, counterType, minCount);
 });
