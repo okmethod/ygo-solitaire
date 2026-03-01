@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
-import type { AdditionalRuleDSL } from "$lib/domain/dsl/types/CardDSLDefinition";
+import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 

@@ -10,5 +10,4 @@ export {
   ChainableActionDSLSchema,
   AdditionalRuleDSLSchema,
   CardDataDSLSchema,
-  type CardDSLDefinitionParsed,
 } from "./schemas/CardDSLSchema";

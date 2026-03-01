@@ -64,9 +64,8 @@ export function parseCardDSL(yamlContent: string): CardDSLDefinition {
     );
   }
 
-  // Step 5: 型キャストして返却
-  // Zodのパース結果は型安全だが、CardDSLDefinitionとの互換性を確保
-  return result.data as CardDSLDefinition;
+  // Step 5: バリデーション済みデータを返却
+  return result.data;
 }
 
 /**
