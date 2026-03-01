@@ -3,7 +3,7 @@
  *
  * 登録方式:
  * - DSLベース: YAML定義からloaderを使って登録（優先）
- * - クラスベース: 個別のActivationクラスをインポートして登録（フォールバック）
+ * - クラスベース: 個別のActivationクラスをインポートして登録
  *
  * @module domain/effects/actions
  */
@@ -49,17 +49,10 @@ const fieldWithIgnition = (id: number, ignitionAction: ChainableAction): Registr
 ];
 
 // ===========================
-// 定義マップ
+// 定義マップ（DSL未対応カードのみ）
 // ===========================
 
-/**
- * カードID → 登録関数のマッピング（DSL未対応カードのみ）
- *
- * DSL定義済みカードは dslDefinitions から登録されるため、
- * ここにはDSL未対応のカードのみを登録する。
- */
 const chainableActionRegistrations = new Map<number, () => void>([
-  // カードの発動（DSL未対応）
   fieldWithIgnition(67616300, new ChickenGameIgnitionEffect()),
   activation(33782437, new OneDayOfPeaceActivation()),
   activation(85852291, new MagicalMalletActivation()),
@@ -76,50 +69,23 @@ const chainableActionRegistrations = new Map<number, () => void>([
 /**
  * レジストリをクリアし、指定されたカードIDの ChainableAction を登録する
  *
- * DSL定義が存在するカードはDSLから登録し、
- * 存在しないカードは従来のクラスベース登録を使用する。
+ * DSL定義、またはクラス定義マップから登録する。
  */
 export function registerChainableActionsByIds(cardIds: number[]): void {
   ChainableActionRegistry.clear();
 
   for (const cardId of cardIds) {
-    // DSL定義があればDSLから登録（優先）
+    // DSL定義があれば登録（優先）
     const yamlContent = dslDefinitions.get(cardId);
     if (yamlContent) {
       loadCardFromYaml(yamlContent);
       continue;
     }
 
-    // なければ従来クラスから登録（フォールバック）
+    // なければクラス定義マップから登録
     const register = chainableActionRegistrations.get(cardId);
     if (register) {
       register();
     }
-  }
-}
-
-// ===========================
-// DSLベース登録
-// ===========================
-
-/**
- * YAML定義文字列からカードを登録する
- *
- * クラスベース登録と併用可能。同じカードIDの場合は後から登録した方が優先される。
- *
- * @param yamlContent - YAMLファイルの内容
- */
-export function registerChainableActionFromYaml(yamlContent: string): void {
-  loadCardFromYaml(yamlContent);
-}
-
-/**
- * 複数のYAML定義文字列からカードを一括登録する
- *
- * @param yamlContents - YAMLファイル内容の配列
- */
-export function registerChainableActionsFromYaml(yamlContents: string[]): void {
-  for (const content of yamlContents) {
-    loadCardFromYaml(content);
   }
 }

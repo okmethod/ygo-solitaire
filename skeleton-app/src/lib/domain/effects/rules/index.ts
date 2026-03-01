@@ -3,7 +3,7 @@
  *
  * 登録方式:
  * - DSLベース: YAML定義からloaderを使って登録（優先）
- * - クラスベース: 個別のRuleクラスをインポートして登録（フォールバック）
+ * - クラスベース: 個別のRuleクラスをインポートして登録
  *
  * @module domain/effects/rules
  */
@@ -31,18 +31,10 @@ const rule = (id: number, additionalRule: AdditionalRule): RegistrationEntry => 
 ];
 
 // ===========================
-// 定義マップ
+// 定義マップ（DSL未対応カードのみ）
 // ===========================
 
-/**
- * カードID → 登録関数のマッピング（DSL未対応カードのみ）
- *
- * DSL定義済みカードは dslDefinitions から登録されるため、
- * ここにはDSL未対応のカードのみを登録する。
- */
-const additionalRuleRegistrations = new Map<number, () => void>([
-  rule(67616300, new ChickenGameContinuousEffect()),
-]);
+const additionalRuleRegistrations = new Map<number, () => void>([rule(67616300, new ChickenGameContinuousEffect())]);
 
 // ===========================
 // 登録関数
@@ -51,21 +43,20 @@ const additionalRuleRegistrations = new Map<number, () => void>([
 /**
  * レジストリをクリアし、指定されたカードIDの AdditionalRule を登録する
  *
- * DSL定義が存在するカードはDSLから登録し、
- * 存在しないカードは従来のクラスベース登録を使用する。
+ * DSL定義、またはクラス定義マップから登録する。
  */
 export function registerAdditionalRulesByIds(cardIds: number[]): void {
   AdditionalRuleRegistry.clear();
 
   for (const cardId of cardIds) {
-    // DSL定義があればDSLから登録（優先）
+    // DSL定義があれば登録（優先）
     const yamlContent = dslDefinitions.get(cardId);
     if (yamlContent) {
       loadCardFromYaml(yamlContent);
       continue;
     }
 
-    // なければ従来クラスから登録（フォールバック）
+    // なければクラス定義マップから登録
     const register = additionalRuleRegistrations.get(cardId);
     if (register) {
       register();
