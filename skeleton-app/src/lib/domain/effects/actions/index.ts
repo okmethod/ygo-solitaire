@@ -13,28 +13,11 @@ import { loadCardFromYaml } from "$lib/domain/dsl/loader";
 import { dslDefinitions } from "$lib/domain/cards/definitions";
 export { ChainableActionRegistry };
 
-// カードの発動（DSL未対応のみ）
-import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
-
-// ===========================
-// マップエントリ生成ヘルパー
-// ===========================
-
-import type { ChainableAction } from "$lib/domain/models/Effect";
-
-type RegistrationEntry = [number, () => void];
-
-/** 発動効果のエントリを生成 */
-const activation = (id: number, action: ChainableAction): RegistrationEntry => [
-  id,
-  () => ChainableActionRegistry.registerActivation(id, action),
-];
-
 // ===========================
 // 定義マップ（DSL未対応カードのみ）
 // ===========================
 
-const chainableActionRegistrations = new Map<number, () => void>([activation(85852291, new MagicalMalletActivation())]);
+const chainableActionRegistrations = new Map<number, () => void>([]);
 
 // ===========================
 // 登録関数

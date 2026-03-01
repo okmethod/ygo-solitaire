@@ -23,6 +23,7 @@ import { gainLpStep, payLpStep } from "./lifePoints";
 import { searchFromDeckByConditionStep, searchFromDeckTopStep, salvageFromGraveyardStep } from "./searches";
 import { addCounterStep, removeCounterStep } from "./counters";
 import { shuffleDeckStep } from "./deckOperations";
+import { selectReturnShuffleDrawStep } from "./compositeOperations";
 
 // ===========================
 // エクスポート
@@ -52,6 +53,7 @@ export {
   shuffleDeckStep,
   addCounterStep,
   removeCounterStep,
+  selectReturnShuffleDrawStep,
 };
 
 // ===========================
@@ -381,4 +383,19 @@ AtomicStepRegistry.register("SEARCH_FROM_DECK_TOP", (args, context) => {
  */
 AtomicStepRegistry.register("SHUFFLE_DECK", () => {
   return shuffleDeckStep();
+});
+
+/**
+ * SELECT_RETURN_SHUFFLE_DRAW - 手札から選択してデッキに戻し、シャッフルして同じ枚数ドロー
+ * args: { min: number, max?: number }
+ */
+AtomicStepRegistry.register("SELECT_RETURN_SHUFFLE_DRAW", (args) => {
+  const min = (args.min as number) ?? 0;
+  const max = args.max as number | undefined;
+
+  if (typeof min !== "number" || min < 0) {
+    throw new Error("SELECT_RETURN_SHUFFLE_DRAW step requires a non-negative min argument");
+  }
+
+  return selectReturnShuffleDrawStep({ min, max });
 });

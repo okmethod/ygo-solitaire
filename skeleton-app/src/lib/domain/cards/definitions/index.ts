@@ -18,6 +18,7 @@ import darkFactoryYaml from "./spells/dark-factory.yaml?raw";
 import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
 import toonTableOfContentsYaml from "./spells/toon-table-of-contents.yaml?raw";
 import potOfDualityYaml from "./spells/pot-of-duality.yaml?raw";
+import magicalMalletYaml from "./spells/magical-mallet.yaml?raw";
 import cardDestructionYaml from "./spells/card-destruction.yaml?raw";
 import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
@@ -43,6 +44,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [33782437, oneDayOfPeaceYaml], // 一時休戦
   [89997728, toonTableOfContentsYaml], // トゥーンのもくじ
   [98645731, potOfDualityYaml], // 強欲で謙虚な壺
+  [85852291, magicalMalletYaml], // 打ち出の小槌
 
   // 速攻魔法
   [74519184, cardDestructionYaml], // 手札断殺
