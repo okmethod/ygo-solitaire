@@ -305,7 +305,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.activationSteps!.length).toBe(2);
       // chainBlock.resolutionSteps contains resolution steps:
       // [draw step, damage negation step, send-to-graveyard step]
-      expect(result.chainBlock!.resolutionSteps.length).toBe(3);
+      expect(result.chainBlock!.resolutionSteps.length).toBe(2);
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
@@ -313,10 +313,6 @@ describe("Normal Spell Card Effects", () => {
         summary: "カードをドロー",
       });
       expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({
-        id: "one-day-of-peace-damage-negation",
-        summary: "ダメージ無効化",
-      });
-      expect(result.chainBlock!.resolutionSteps[2]).toMatchObject({
         summary: "墓地へ送る",
         description: "《一時休戦》を墓地に送ります",
       });

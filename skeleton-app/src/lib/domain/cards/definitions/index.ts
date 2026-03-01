@@ -16,6 +16,7 @@ import magicalStoneExcavationYaml from "./spells/magical-stone-excavation.yaml?r
 import intoTheVoidYaml from "./spells/into-the-void.yaml?raw";
 import cardOfDemiseYaml from "./spells/card-of-demise.yaml?raw";
 import darkFactoryYaml from "./spells/dark-factory.yaml?raw";
+import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
 
 // Monsters
 import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
@@ -35,6 +36,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [93946239, intoTheVoidYaml], // 無の煉獄
   [59750328, cardOfDemiseYaml], // 命削りの宝札
   [90928333, darkFactoryYaml], // 闇の量産工場
+  [33782437, oneDayOfPeaceYaml], // 一時休戦
 
   // Monsters
   [70791313, royalMagicalLibraryYaml], // 王立魔法図書館

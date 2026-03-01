@@ -15,7 +15,6 @@ export { ChainableActionRegistry };
 
 // カードの発動（DSL未対応のみ）
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
-import { OneDayOfPeaceActivation } from "$lib/domain/effects/actions/activations/individuals/spells/OneDayOfPeaceActivation";
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
 import { CardDestructionActivation } from "$lib/domain/effects/actions/activations/individuals/spells/CardDestructionActivation";
 import { PotOfDualityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfDualityActivation";
@@ -54,7 +53,6 @@ const fieldWithIgnition = (id: number, ignitionAction: ChainableAction): Registr
 
 const chainableActionRegistrations = new Map<number, () => void>([
   fieldWithIgnition(67616300, new ChickenGameIgnitionEffect()),
-  activation(33782437, new OneDayOfPeaceActivation()),
   activation(85852291, new MagicalMalletActivation()),
   activation(74519184, new CardDestructionActivation()),
   activation(98645731, new PotOfDualityActivation()),
