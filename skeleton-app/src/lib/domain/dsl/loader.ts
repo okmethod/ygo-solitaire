@@ -14,6 +14,7 @@ import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableAc
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
 import { createGenericNormalSpellActivation, createGenericIgnitionEffect } from "$lib/domain/dsl/factories";
 import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
+import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 
 /**
  * DSL定義をCardDataRegistryに登録する
@@ -34,7 +35,7 @@ function registerCardData(definition: CardDSLDefinition): void {
  * DSL定義をChainableActionRegistryに登録する
  */
 function registerChainableAction(definition: CardDSLDefinition): void {
-  const { id } = definition;
+  const { id, data } = definition;
   const chainableActions = definition["effect-chainable-actions"];
 
   // チェーンブロックを作る処理がない場合はスキップ
@@ -42,9 +43,20 @@ function registerChainableAction(definition: CardDSLDefinition): void {
     return;
   }
 
-  // activations セクション（カードの発動 - 通常魔法）
+  // activations セクション（カードの発動）
+  const spellType = data.spellType;
+
   if (chainableActions.activations) {
-    const activation = createGenericNormalSpellActivation(id, chainableActions.activations);
+    // spellTypeに応じて適切なファクトリを使用
+    if (spellType === "normal") {
+      const activation = createGenericNormalSpellActivation(id, chainableActions.activations);
+      ChainableActionRegistry.registerActivation(id, activation);
+    } else {
+      throw new Error(`Unsupported spell type "${spellType}" for card ID ${id}`);
+    }
+  } else if (spellType === "field") {
+    // フィールド魔法はactivationsがなくてもNoOpで発動可能
+    const activation = FieldSpellActivation.createNoOp(id);
     ChainableActionRegistry.registerActivation(id, activation);
   }
 

@@ -19,7 +19,7 @@ import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./A
 import { drawStep, fillHandsStep } from "./draws";
 import { selectAndDiscardStep, discardAllHandEndPhaseStep } from "./discards";
 import { markThenStep } from "./timing";
-import { gainLpStep } from "./lifePoints";
+import { gainLpStep, payLpStep } from "./lifePoints";
 import { searchFromDeckByConditionStep, salvageFromGraveyardStep } from "./searches";
 import { addCounterStep, removeCounterStep } from "./counters";
 
@@ -44,6 +44,7 @@ export {
   discardAllHandEndPhaseStep,
   markThenStep,
   gainLpStep,
+  payLpStep,
   searchFromDeckByConditionStep,
   salvageFromGraveyardStep,
   addCounterStep,
@@ -298,4 +299,20 @@ AtomicStepRegistry.register("REMOVE_COUNTER", (args, context) => {
   const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
 
   return removeCounterStep(targetInstanceId, counterType, count);
+});
+
+/**
+ * PAY_LP - LP支払い（コスト）
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+AtomicStepRegistry.register("PAY_LP", (args) => {
+  const amount = args.amount as number;
+  const target = (args.target as Player) ?? "player";
+  if (typeof amount !== "number" || amount < 1) {
+    throw new Error("PAY_LP step requires a positive amount argument");
+  }
+  if (target !== "player" && target !== "opponent") {
+    throw new Error('PAY_LP step requires target to be "player" or "opponent"');
+  }
+  return payLpStep(amount, target);
 });

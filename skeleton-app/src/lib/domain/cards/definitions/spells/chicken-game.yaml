@@ -1,0 +1,30 @@
+# 《チキンレース》 (Chicken Game)
+# Card ID: 67616300 | Type: Spell | Subtype: Field
+#
+# 起動効果:
+# - CONDITIONS: LP>1000、1ターンに1度制限
+# - ACTIVATION: 1000LP支払い
+# - RESOLUTION: 1枚ドロー
+#
+# Note: 本来は3つの選択肢から1つを選択するが、実装簡略化のためドロー効果のみ実装
+
+id: 67616300
+data:
+  jaName: "チキンレース"
+  type: "spell"
+  frameType: "spell"
+  spellType: "field"
+
+effect-chainable-actions:
+  ignitions:
+    - conditions:
+        - step: "LP_GREATER_THAN"
+          args: { amount: 1000 }
+        - step: "ONCE_PER_TURN_EFFECT"
+          args: { effectIndex: 1 }
+      activations:
+        - step: "PAY_LP"
+          args: { amount: 1000 }
+      resolutions:
+        - step: "DRAW"
+          args: { count: 1 }

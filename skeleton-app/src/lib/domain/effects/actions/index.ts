@@ -14,15 +14,11 @@ import { dslDefinitions } from "$lib/domain/cards/definitions";
 export { ChainableActionRegistry };
 
 // カードの発動（DSL未対応のみ）
-import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
 import { CardDestructionActivation } from "$lib/domain/effects/actions/activations/individuals/spells/CardDestructionActivation";
 import { PotOfDualityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfDualityActivation";
 import { ToonTableOfContentsActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonTableOfContentsActivation";
 import { ToonWorldActivation } from "$lib/domain/effects/actions/activations/individuals/spells/ToonWorldActivation";
-
-// 起動効果（DSL未対応のみ）
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/spells/ChickenGameIgnitionEffect";
 
 // ===========================
 // マップエントリ生成ヘルパー
@@ -38,21 +34,11 @@ const activation = (id: number, action: ChainableAction): RegistrationEntry => [
   () => ChainableActionRegistry.registerActivation(id, action),
 ];
 
-/** 発動効果＋起動効果のエントリを生成（フィールド魔法など） */
-const fieldWithIgnition = (id: number, ignitionAction: ChainableAction): RegistrationEntry => [
-  id,
-  () => {
-    ChainableActionRegistry.registerActivation(id, FieldSpellActivation.createNoOp(id));
-    ChainableActionRegistry.registerIgnition(id, ignitionAction);
-  },
-];
-
 // ===========================
 // 定義マップ（DSL未対応カードのみ）
 // ===========================
 
 const chainableActionRegistrations = new Map<number, () => void>([
-  fieldWithIgnition(67616300, new ChickenGameIgnitionEffect()),
   activation(85852291, new MagicalMalletActivation()),
   activation(74519184, new CardDestructionActivation()),
   activation(98645731, new PotOfDualityActivation()),

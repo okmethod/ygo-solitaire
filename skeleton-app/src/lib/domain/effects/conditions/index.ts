@@ -8,6 +8,7 @@
  */
 
 import type { CounterType } from "$lib/domain/models/Card";
+import { Effect } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 // レジストリAPI
@@ -18,7 +19,8 @@ import { canDraw, deckHasCard } from "./deckConditions";
 import { handCount, handCountExcludingSelf } from "./handConditions";
 import { graveyardHasSpell, graveyardHasMonster } from "./graveyardConditions";
 import { hasCounter } from "./counterConditions";
-import { oncePerTurn } from "./activationConditions";
+import { oncePerTurn, oncePerTurnEffect } from "./activationConditions";
+import { lpAtLeast, lpGreaterThan } from "./lpConditions";
 
 // ===========================
 // エクスポート
@@ -43,6 +45,9 @@ export {
   graveyardHasMonster,
   hasCounter,
   oncePerTurn,
+  oncePerTurnEffect,
+  lpAtLeast,
+  lpGreaterThan,
 };
 
 // ===========================
@@ -156,4 +161,49 @@ AtomicConditionRegistry.register("HAS_COUNTER", (_state, sourceInstance, args) =
   }
 
   return hasCounter(sourceInstance, counterType, minCount);
+});
+
+/**
+ * LP_AT_LEAST - プレイヤーのLPが指定値以上か
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+AtomicConditionRegistry.register("LP_AT_LEAST", (state, _sourceInstance, args) => {
+  const amount = args.amount as number;
+  const target = (args.target as "player" | "opponent") ?? "player";
+
+  if (typeof amount !== "number" || amount < 0) {
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  }
+
+  return lpAtLeast(state, amount, target);
+});
+
+/**
+ * LP_GREATER_THAN - プレイヤーのLPが指定値を超えているか
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+AtomicConditionRegistry.register("LP_GREATER_THAN", (state, _sourceInstance, args) => {
+  const amount = args.amount as number;
+  const target = (args.target as "player" | "opponent") ?? "player";
+
+  if (typeof amount !== "number" || amount < 0) {
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  }
+
+  return lpGreaterThan(state, amount, target);
+});
+
+/**
+ * ONCE_PER_TURN_EFFECT - この効果がこのターンまだ発動されていないか（フィールド上のカード用）
+ * args: { effectIndex: number } (同一カードの起動効果の番号、1始まり)
+ */
+AtomicConditionRegistry.register("ONCE_PER_TURN_EFFECT", (_state, sourceInstance, args) => {
+  const effectIndex = args.effectIndex as number;
+
+  if (typeof effectIndex !== "number" || effectIndex < 1) {
+    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  }
+
+  const effectId = Effect.Id.create("ignition", sourceInstance.id, effectIndex);
+  return oncePerTurnEffect(sourceInstance, effectId);
 });

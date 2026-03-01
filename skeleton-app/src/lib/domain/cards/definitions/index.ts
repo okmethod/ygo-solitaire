@@ -2,7 +2,6 @@
  * DSL Definition Index - カードID別のYAML定義マップ
  *
  * DSL定義済みカードのYAML文字列をカードIDで管理する。
- * registerChainableActionsByIds で DSL優先判定に使用。
  *
  * @module domain/cards/definitions
  */
@@ -17,6 +16,7 @@ import intoTheVoidYaml from "./spells/into-the-void.yaml?raw";
 import cardOfDemiseYaml from "./spells/card-of-demise.yaml?raw";
 import darkFactoryYaml from "./spells/dark-factory.yaml?raw";
 import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
+import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 
 // Monsters
 import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
@@ -27,7 +27,7 @@ import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
  * DSL定義が存在するカードのみを含む。
  */
 export const dslDefinitions: ReadonlyMap<number, string> = new Map([
-  // Spells
+  // 通常魔法
   [55144522, potOfGreedYaml], // 強欲な壺
   [70368879, upstartGoblinYaml], // 成金ゴブリン
   [79571449, gracefulCharityYaml], // 天使の施し
@@ -38,7 +38,10 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [90928333, darkFactoryYaml], // 闇の量産工場
   [33782437, oneDayOfPeaceYaml], // 一時休戦
 
-  // Monsters
+  // フィールド魔法
+  [67616300, chickenGameYaml], // チキンレース
+
+  // 効果モンスター
   [70791313, royalMagicalLibraryYaml], // 王立魔法図書館
 ]);
 
