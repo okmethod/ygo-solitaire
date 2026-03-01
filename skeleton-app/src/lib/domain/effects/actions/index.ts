@@ -15,7 +15,6 @@ export { ChainableActionRegistry };
 
 // カードの発動（DSL未対応のみ）
 import { MagicalMalletActivation } from "$lib/domain/effects/actions/activations/individuals/spells/MagicalMalletActivation";
-import { PotOfDualityActivation } from "$lib/domain/effects/actions/activations/individuals/spells/PotOfDualityActivation";
 
 // ===========================
 // マップエントリ生成ヘルパー
@@ -35,10 +34,7 @@ const activation = (id: number, action: ChainableAction): RegistrationEntry => [
 // 定義マップ（DSL未対応カードのみ）
 // ===========================
 
-const chainableActionRegistrations = new Map<number, () => void>([
-  activation(85852291, new MagicalMalletActivation()),
-  activation(98645731, new PotOfDualityActivation()),
-]);
+const chainableActionRegistrations = new Map<number, () => void>([activation(85852291, new MagicalMalletActivation())]);
 
 // ===========================
 // 登録関数

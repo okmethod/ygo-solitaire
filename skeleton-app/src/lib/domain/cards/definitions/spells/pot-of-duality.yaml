@@ -1,0 +1,25 @@
+# 《強欲で謙虚な壺》 (Pot of Duality)
+# Card ID: 98645731 | Type: Spell | Subtype: Normal
+#
+# カードの発動:
+# - CONDITIONS: 1ターンに1度制限、デッキに3枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: デッキトップ3枚確認、1枚選んで手札に加える、デッキシャッフル
+
+id: 98645731
+data:
+  jaName: "強欲で謙虚な壺"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "ONCE_PER_TURN"
+      - step: "CAN_DRAW"
+        args: { count: 3 }
+    resolutions:
+      - step: "SEARCH_FROM_DECK_TOP"
+        args: { count: 3, selectCount: 1 }
+      - step: "SHUFFLE_DECK"

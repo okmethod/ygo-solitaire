@@ -836,8 +836,8 @@ describe("Normal Spell Card Effects", () => {
       // Verify activation step
       expect(result.activationSteps![0].id).toBe("98645731-activation-notification");
 
-      // Verify resolution steps
-      expect(result.chainBlock!.resolutionSteps[0].id).toContain("pot-of-duality-search");
+      // Verify resolution steps (DSL uses "search-from-deck-top" format)
+      expect(result.chainBlock!.resolutionSteps[0].id).toContain("search");
       expect(result.chainBlock!.resolutionSteps[0].cardSelectionConfig).toBeDefined();
       expect(result.chainBlock!.resolutionSteps[0].cardSelectionConfig!.minCards).toBe(1);
       expect(result.chainBlock!.resolutionSteps[0].cardSelectionConfig!.maxCards).toBe(1);

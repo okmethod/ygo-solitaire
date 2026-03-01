@@ -20,8 +20,9 @@ import { drawStep, fillHandsStep } from "./draws";
 import { selectAndDiscardStep, discardAllHandEndPhaseStep } from "./discards";
 import { markThenStep } from "./timing";
 import { gainLpStep, payLpStep } from "./lifePoints";
-import { searchFromDeckByConditionStep, salvageFromGraveyardStep } from "./searches";
+import { searchFromDeckByConditionStep, searchFromDeckTopStep, salvageFromGraveyardStep } from "./searches";
 import { addCounterStep, removeCounterStep } from "./counters";
+import { shuffleDeckStep } from "./deckOperations";
 
 // ===========================
 // エクスポート
@@ -46,7 +47,9 @@ export {
   gainLpStep,
   payLpStep,
   searchFromDeckByConditionStep,
+  searchFromDeckTopStep,
   salvageFromGraveyardStep,
+  shuffleDeckStep,
   addCounterStep,
   removeCounterStep,
 };
@@ -344,4 +347,38 @@ AtomicStepRegistry.register("SEARCH_FROM_DECK_BY_NAME", (args, context) => {
     maxCards: count,
     cancelable: false,
   });
+});
+
+/**
+ * SEARCH_FROM_DECK_TOP - デッキトップから指定枚数を確認して選択
+ * args: { count: number, selectCount: number }
+ */
+AtomicStepRegistry.register("SEARCH_FROM_DECK_TOP", (args, context) => {
+  const count = args.count as number;
+  const selectCount = args.selectCount as number;
+
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("SEARCH_FROM_DECK_TOP step requires a positive count argument");
+  }
+  if (typeof selectCount !== "number" || selectCount < 1) {
+    throw new Error("SEARCH_FROM_DECK_TOP step requires a positive selectCount argument");
+  }
+
+  return searchFromDeckTopStep({
+    id: `${context.cardId}-search-from-deck-top-${count}`,
+    summary: `デッキトップ${count}枚から${selectCount}枚をサーチ`,
+    description: `デッキトップ${count}枚から${selectCount}枚を選択し、手札に加えます`,
+    count,
+    minCards: selectCount,
+    maxCards: selectCount,
+    cancelable: false,
+  });
+});
+
+/**
+ * SHUFFLE_DECK - デッキをシャッフル
+ * args: なし
+ */
+AtomicStepRegistry.register("SHUFFLE_DECK", () => {
+  return shuffleDeckStep();
 });
