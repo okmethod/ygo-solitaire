@@ -16,6 +16,7 @@ import intoTheVoidYaml from "./spells/into-the-void.yaml?raw";
 import cardOfDemiseYaml from "./spells/card-of-demise.yaml?raw";
 import darkFactoryYaml from "./spells/dark-factory.yaml?raw";
 import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
+import cardDestructionYaml from "./spells/card-destruction.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 
 // Monsters
@@ -37,6 +38,9 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [59750328, cardOfDemiseYaml], // 命削りの宝札
   [90928333, darkFactoryYaml], // 闇の量産工場
   [33782437, oneDayOfPeaceYaml], // 一時休戦
+
+  // 速攻魔法
+  [74519184, cardDestructionYaml], // 手札断殺
 
   // フィールド魔法
   [67616300, chickenGameYaml], // チキンレース

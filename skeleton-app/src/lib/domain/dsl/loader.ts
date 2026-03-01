@@ -12,7 +12,11 @@ import { parseCardDSL } from "$lib/domain/dsl/parsers";
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
-import { createGenericNormalSpellActivation, createGenericIgnitionEffect } from "$lib/domain/dsl/factories";
+import {
+  createGenericNormalSpellActivation,
+  createGenericQuickPlaySpellActivation,
+  createGenericIgnitionEffect,
+} from "$lib/domain/dsl/factories";
 import { GenericTriggerRule } from "$lib/domain/dsl/factories/GenericTriggerRule";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 
@@ -50,6 +54,9 @@ function registerChainableAction(definition: CardDSLDefinition): void {
     // spellTypeに応じて適切なファクトリを使用
     if (spellType === "normal") {
       const activation = createGenericNormalSpellActivation(id, chainableActions.activations);
+      ChainableActionRegistry.registerActivation(id, activation);
+    } else if (spellType === "quick-play") {
+      const activation = createGenericQuickPlaySpellActivation(id, chainableActions.activations);
       ChainableActionRegistry.registerActivation(id, activation);
     } else {
       throw new Error(`Unsupported spell type "${spellType}" for card ID ${id}`);

@@ -3,5 +3,9 @@
  */
 
 export { GenericNormalSpellActivation, createGenericNormalSpellActivation } from "./GenericNormalSpellActivation";
+export {
+  GenericQuickPlaySpellActivation,
+  createGenericQuickPlaySpellActivation,
+} from "./GenericQuickPlaySpellActivation";
 export { GenericIgnitionEffect, createGenericIgnitionEffect } from "./GenericIgnitionEffect";
 export { GenericTriggerRule } from "./GenericTriggerRule";
