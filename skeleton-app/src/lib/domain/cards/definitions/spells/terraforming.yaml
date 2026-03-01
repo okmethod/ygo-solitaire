@@ -1,8 +1,10 @@
-# テラ・フォーミング (Terraforming)
+# 《テラ・フォーミング》 (Terraforming)
 # Card ID: 73628505 | Type: Spell | Subtype: Normal
 #
-# Effect:
-# - Add 1 Field Spell card from deck to hand
+# カードの発動:
+# - CONDITIONS: デッキにフィールド魔法が1枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: フィールド魔法1枚をサーチ
 
 id: 73628505
 data:

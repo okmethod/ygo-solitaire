@@ -1,9 +1,10 @@
-# 魔法石の採掘 (Magical Stone Excavation)
+# 《魔法石の採掘》 (Magical Stone Excavation)
 # Card ID: 98494543 | Type: Spell | Subtype: Normal
 #
-# Effect:
-# - Cost: Discard 2 cards from hand
-# - Effect: Add 1 Spell card from graveyard to hand
+# カードの発動:
+# - CONDITIONS: 捨てられる手札が2枚以上、墓地に魔法カードが1枚以上
+# - ACTIVATION: 手札を2枚捨てる
+# - RESOLUTION: 魔法カード1枚をサルベージ
 
 id: 98494543
 data:

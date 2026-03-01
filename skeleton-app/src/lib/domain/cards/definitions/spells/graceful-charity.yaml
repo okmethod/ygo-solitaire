@@ -1,8 +1,10 @@
-# 天使の施し (Graceful Charity)
+# 《天使の施し》 (Graceful Charity)
 # Card ID: 79571449 | Type: Spell | Subtype: Normal
 #
-# Effect:
-# - Draw 3 cards, then discard 2 cards from hand
+# カードの発動:
+# - CONDITIONS: デッキに3枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: 3枚ドロー、手札を2枚捨てる
 
 id: 79571449
 data:

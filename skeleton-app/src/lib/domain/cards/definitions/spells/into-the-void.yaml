@@ -1,8 +1,10 @@
-# Into the Void / 無の煉獄
+# 《無の煉獄》 (Into the Void)
 # Card ID: 93946239 | Type: Spell | Subtype: Normal
 #
-# Conditions: Hand >= 3, Deck >= 1
-# Resolution: Draw 1, discard all hand at end phase
+# カードの発動:
+# - CONDITIONS: 手札が3枚以上、デッキに1枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: 1枚ドロー、エンドフェイズに手札を全て捨てる
 
 id: 93946239
 

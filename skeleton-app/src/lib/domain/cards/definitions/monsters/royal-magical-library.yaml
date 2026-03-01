@@ -1,11 +1,13 @@
-# 王立魔法図書館 (Royal Magical Library)
+# 《王立魔法図書館》 (Royal Magical Library)
 # Card ID: 70791313 | Type: Monster | Subtype: Effect
 #
 # 永続効果:
 # - 魔法カードが発動する度に、このカードに魔力カウンターを1つ置く（最大3つまで）
 #
 # 起動効果:
-# - 魔力カウンターを3つ取り除いて発動できる。デッキから1枚ドローする。
+# - CONDITIONS: 魔力カウンターが3つ以上
+# - ACTIVATION: 魔力カウンターを3つ取り除く
+# - RESOLUTION: 1枚ドロー
 
 id: 70791313
 data:

@@ -1,13 +1,15 @@
-# Dark Factory of Mass Production / 闇の量産工場
+# 《闇の量産工場》 (Dark Factory of Mass Production)
 # Card ID: 90928333 | Type: Spell | Subtype: Normal
 #
-# Conditions: Graveyard has 2+ normal monsters
-# Resolution: Salvage 2 normal monsters from graveyard
+# カードの発動:
+# - CONDITIONS: 1ターンに1度制限
+# - ACTIVATION: 無し
+# - RESOLUTION: 手札が3枚になるようにドロー、エンドフェイズに手札を全て捨てる
 
 id: 90928333
 
 data:
-  jaName: "闘の量産工場"
+  jaName: "闇の量産工場"
   type: "spell"
   frameType: "spell"
   spellType: "normal"

@@ -1,8 +1,10 @@
-# 成金ゴブリン (Upstart Goblin)
+# 《成金ゴブリン》 (Upstart Goblin)
 # Card ID: 70368879 | Type: Spell | Subtype: Normal
 #
-# Effect:
-# - Draw 1 card, then your opponent gains 1000 LP
+# カードの発動:
+# - CONDITIONS: デッキに1枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: 1枚ドロー、相手が1000LP回復
 
 id: 70368879
 data:

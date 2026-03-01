@@ -51,6 +51,57 @@ export {
 };
 
 // ===========================
+// 日本語変換マップ
+// ===========================
+
+/** カードタイプの日本語変換 */
+const cardTypeToJapanese: Record<string, string> = {
+  spell: "魔法",
+  monster: "モンスター",
+  trap: "罠",
+};
+
+/** フレームタイプの日本語変換 */
+const frameTypeToJapanese: Record<string, string> = {
+  normal: "通常",
+  effect: "効果",
+  fusion: "融合",
+  ritual: "儀式",
+  synchro: "シンクロ",
+  xyz: "エクシーズ",
+  link: "リンク",
+};
+
+/** スペルタイプの日本語変換 */
+const spellTypeToJapanese: Record<string, string> = {
+  field: "フィールド",
+  normal: "通常",
+  "quick-play": "速攻",
+  continuous: "永続",
+  equip: "装備",
+  ritual: "儀式",
+};
+
+/**
+ * フィルター条件を日本語に変換する
+ */
+function buildJapaneseFilterDesc(filterType: string, filterSpellType?: string, filterFrameType?: string): string {
+  const parts: string[] = [];
+
+  if (filterFrameType) {
+    parts.push(frameTypeToJapanese[filterFrameType] ?? filterFrameType);
+  }
+  if (filterSpellType) {
+    parts.push(spellTypeToJapanese[filterSpellType] ?? filterSpellType);
+  }
+
+  const typeJa = cardTypeToJapanese[filterType] ?? filterType;
+  parts.push(typeJa);
+
+  return parts.join("");
+}
+
+// ===========================
 // ステップ登録
 // ===========================
 
@@ -136,12 +187,15 @@ AtomicStepRegistry.register("SEARCH_FROM_DECK", (args, context) => {
     return true;
   };
 
-  const filterDesc = filterSpellType ? `${filterSpellType}${filterType}` : filterType;
+  // ID用（英語）
+  const filterDescEn = filterSpellType ? `${filterSpellType}${filterType}` : filterType;
+  // 表示用（日本語）
+  const filterDescJa = buildJapaneseFilterDesc(filterType, filterSpellType);
 
   return searchFromDeckByConditionStep({
-    id: `search-from-deck-${filterDesc}-${context.cardId}`,
-    summary: `${filterDesc}カード${count}枚をサーチ`,
-    description: `デッキから${filterDesc}カード${count}枚を選択し、手札に加えます`,
+    id: `${context.cardId}-search-from-deck-${filterDescEn}`,
+    summary: `${filterDescJa}カード${count}枚をサーチ`,
+    description: `デッキから${filterDescJa}カード${count}枚を選択し、手札に加えます`,
     filter,
     minCards: count,
     maxCards: count,
@@ -174,16 +228,20 @@ AtomicStepRegistry.register("SALVAGE_FROM_GRAVEYARD", (args, context) => {
     return true;
   };
 
-  const filterDescParts: string[] = [];
-  if (filterFrameType) filterDescParts.push(filterFrameType);
-  if (filterSpellType) filterDescParts.push(filterSpellType);
-  filterDescParts.push(filterType);
-  const filterDesc = filterDescParts.join("");
+  // ID用（英語）
+  const filterDescPartsEn: string[] = [];
+  if (filterFrameType) filterDescPartsEn.push(filterFrameType);
+  if (filterSpellType) filterDescPartsEn.push(filterSpellType);
+  filterDescPartsEn.push(filterType);
+  const filterDescEn = filterDescPartsEn.join("");
+
+  // 表示用（日本語）
+  const filterDescJa = buildJapaneseFilterDesc(filterType, filterSpellType, filterFrameType);
 
   return salvageFromGraveyardStep({
-    id: `salvage-from-graveyard-${filterDesc}-${context.cardId}`,
-    summary: `${filterDesc}カード${count}枚をサルベージ`,
-    description: `墓地から${filterDesc}カード${count}枚を選択し、手札に加えます`,
+    id: `${context.cardId}-salvage-from-graveyard-${filterDescEn}`,
+    summary: `${filterDescJa}カード${count}枚をサルベージ`,
+    description: `墓地から${filterDescJa}カード${count}枚を選択し、手札に加えます`,
     filter,
     minCards: count,
     maxCards: count,

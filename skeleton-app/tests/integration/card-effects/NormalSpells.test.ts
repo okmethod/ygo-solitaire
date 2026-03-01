@@ -145,7 +145,7 @@ describe("Normal Spell Card Effects", () => {
       expect(result.activationSteps!.length).toBe(2);
       // chainBlock.resolutionSteps contains resolution steps:
       // [draw step, discard step, send-to-graveyard step]
-      expect(result.chainBlock!.resolutionSteps.length).toBe(3);
+      expect(result.chainBlock!.resolutionSteps.length).toBe(4);
 
       // Verify activation steps
       expect(result.activationSteps![0]).toMatchObject({
@@ -162,11 +162,16 @@ describe("Normal Spell Card Effects", () => {
         description: "デッキから3枚ドローします",
       });
       expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({
+        id: "then-marker",
+        summary: "タイミング進行",
+        description: "「その後」処理によりタイミングが進む",
+      });
+      expect(result.chainBlock!.resolutionSteps[2]).toMatchObject({
         id: "select-and-discard-2-cards",
         summary: "手札を2枚捨てる",
         description: "手札から2枚選んで捨てます",
       });
-      expect(result.chainBlock!.resolutionSteps[2]).toMatchObject({
+      expect(result.chainBlock!.resolutionSteps[3]).toMatchObject({
         summary: "墓地へ送る",
         description: "《天使の施し》を墓地に送ります",
       });
@@ -469,8 +474,8 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
-        id: "dark-factory-search-factory-0",
-        summary: "通常モンスター2枚をサルベージ",
+        id: "90928333-salvage-from-graveyard-normalmonster",
+        summary: "通常モンスターカード2枚をサルベージ",
       });
       expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({
         summary: "墓地へ送る",
@@ -570,8 +575,8 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
-        id: "terraforming-search-terra-0",
-        summary: "フィールド魔法1枚をサーチ",
+        id: "73628505-search-from-deck-fieldspell",
+        summary: "フィールド魔法カード1枚をサーチ",
       });
       expect(result.chainBlock!.resolutionSteps[1]).toMatchObject({
         summary: "墓地へ送る",
@@ -653,7 +658,7 @@ describe("Normal Spell Card Effects", () => {
 
       // Verify resolution steps
       expect(result.chainBlock!.resolutionSteps[0]).toMatchObject({
-        id: "magical-stone-excavation-search-excavation-0",
+        id: "98494543-salvage-from-graveyard-spell",
         summary: "魔法カード1枚をサルベージ",
         description: "墓地から魔法カード1枚を選択し、手札に加えます",
       });

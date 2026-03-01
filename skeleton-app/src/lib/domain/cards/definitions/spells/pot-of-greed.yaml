@@ -1,8 +1,10 @@
-# 強欲な壺 (Pot of Greed)
+# 《強欲な壺》 (Pot of Greed)
 # Card ID: 55144522 | Type: Spell | Subtype: Normal
 #
-# Effect:
-# - Draw 2 cards
+# カードの発動:
+# - CONDITIONS: デッキに2枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: 2枚ドロー
 
 id: 55144522
 data:
