@@ -14,7 +14,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
 import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
-import { checkCondition } from "$lib/domain/dsl/registries/ConditionRegistry";
+import { checkCondition } from "$lib/domain/effects/conditions";
 
 /**
  * GenericNormalSpellActivation - DSL定義ベースの通常魔法効果

@@ -20,9 +20,6 @@ export {
 // Parsers
 export { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationError } from "./parsers";
 
-// Registries
-export { checkCondition, getRegisteredConditionNames, isConditionRegistered, registerCondition } from "./registries";
-
 // Factories
 export { GenericNormalSpellActivation, createGenericNormalSpellActivation } from "./factories";
 

@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  checkCondition,
-  getRegisteredConditionNames,
-  isConditionRegistered,
-} from "$lib/domain/dsl/registries/ConditionRegistry";
+import { checkCondition, getRegisteredConditionNames, isConditionRegistered } from "$lib/domain/effects/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
