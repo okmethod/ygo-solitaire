@@ -15,7 +15,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
-import { buildStep, type StepBuildContext } from "$lib/domain/dsl/registries/StepRegistry";
+import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
 
 /**
  * GenericTriggerRule - DSL定義に基づくトリガールール実装

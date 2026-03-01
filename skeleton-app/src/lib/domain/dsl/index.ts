@@ -21,16 +21,7 @@ export {
 export { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationError } from "./parsers";
 
 // Registries
-export {
-  buildStep,
-  getRegisteredStepNames,
-  isStepRegistered,
-  registerStep,
-  checkCondition,
-  getRegisteredConditionNames,
-  isConditionRegistered,
-  registerCondition,
-} from "./registries";
+export { checkCondition, getRegisteredConditionNames, isConditionRegistered, registerCondition } from "./registries";
 
 // Factories
 export { GenericNormalSpellActivation, createGenericNormalSpellActivation } from "./factories";

@@ -1,15 +1,9 @@
 /**
  * DSL Registries - レジストリ関連のエクスポート
+ *
+ * NOTE: StepRegistry は effects/steps/AtomicStepRegistry に移動しました。
+ * 直接 $lib/domain/effects/steps/AtomicStepRegistry からインポートしてください。
  */
-
-export {
-  buildStep,
-  getRegisteredStepNames,
-  isStepRegistered,
-  registerStep,
-  type StepBuilder,
-  type StepBuildContext,
-} from "./StepRegistry";
 
 export {
   checkCondition,

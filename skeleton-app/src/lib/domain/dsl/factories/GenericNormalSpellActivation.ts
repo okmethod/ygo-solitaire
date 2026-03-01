@@ -13,7 +13,7 @@ import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProces
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
-import { buildStep, type StepBuildContext } from "$lib/domain/dsl/registries/StepRegistry";
+import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
 import { checkCondition } from "$lib/domain/dsl/registries/ConditionRegistry";
 
 /**

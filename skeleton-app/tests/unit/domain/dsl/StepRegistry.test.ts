@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  buildStep,
-  getRegisteredStepNames,
-  isStepRegistered,
-  type StepBuildContext,
-} from "$lib/domain/dsl/registries/StepRegistry";
+import { buildStep, getRegisteredStepNames, isStepRegistered, type StepBuildContext } from "$lib/domain/effects/steps";
 
 /**
  * StepRegistry Tests
