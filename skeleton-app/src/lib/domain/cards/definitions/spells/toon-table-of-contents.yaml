@@ -1,0 +1,23 @@
+# 《トゥーンのもくじ》 (Toon Table of Contents)
+# Card ID: 89997728 | Type: Spell | Subtype: Normal
+#
+# カードの発動:
+# - CONDITIONS: デッキに「トゥーン」カードが1枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: 「トゥーン」カード1枚をサーチ
+
+id: 89997728
+data:
+  jaName: "トゥーンのもくじ"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "DECK_HAS_NAME_INCLUDES"
+        args: { namePattern: "トゥーン", minCount: 1 }
+    resolutions:
+      - step: "SEARCH_FROM_DECK_BY_NAME"
+        args: { namePattern: "トゥーン", count: 1 }

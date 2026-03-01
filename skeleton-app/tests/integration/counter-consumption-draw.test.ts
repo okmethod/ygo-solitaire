@@ -13,15 +13,18 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { RoyalMagicalLibraryIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/monsters/RoyalMagicalLibraryIgnitionEffect";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
+import { loadCardDataWithEffectsFromYaml } from "$lib/domain/dsl/loader";
+import { getDSLDefinition } from "$lib/domain/cards/definitions";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 
 describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () => {
   const royalMagicalLibraryId = 70791313;
-  let effect: RoyalMagicalLibraryIgnitionEffect;
+  let effect: ChainableAction;
 
   // Helper function to create Royal Magical Library card instance
   const createLibraryCard = (instanceId: string, counterCount: number): CardInstance => ({
@@ -53,7 +56,15 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
     }));
 
   beforeEach(() => {
-    effect = new RoyalMagicalLibraryIgnitionEffect();
+    // DSL定義からロードしてレジストリに登録
+    ChainableActionRegistry.clear();
+    const yamlContent = getDSLDefinition(royalMagicalLibraryId);
+    if (yamlContent) {
+      loadCardDataWithEffectsFromYaml(yamlContent);
+    }
+    // レジストリから起動効果を取得
+    const ignitions = ChainableActionRegistry.getIgnitionEffects(royalMagicalLibraryId);
+    effect = ignitions[0];
   });
 
   describe("US4: カウンター消費によるドロー効果", () => {

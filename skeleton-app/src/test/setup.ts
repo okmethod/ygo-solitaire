@@ -1,7 +1,7 @@
 import { vi } from "vitest";
-import { CardDataRegistry, registerCardDataByIds } from "$lib/domain/cards";
-import { ChainableActionRegistry, registerChainableActionsByIds } from "$lib/domain/effects/actions";
-import { registerAdditionalRulesByIds } from "$lib/domain/effects/rules";
+import { CardDataRegistry } from "$lib/domain/cards";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions";
+import { registerCardDataWithEffectsByIds } from "$lib/domain/cards";
 import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
 import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
 import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
@@ -22,7 +22,7 @@ const TEST_CARD_IDS = [
   33782437, // 一時休戦
   85852291, // 打ち出の小槌
   74519184, // 手札断殺
-  90928333, // 闇の量産工場
+  90928333, // 闘の量産工場
   73628505, // テラフォーミング
   98494543, // 魔法石の採掘
   93946239, // 無の煉獄
@@ -32,10 +32,8 @@ const TEST_CARD_IDS = [
   15259703, // トゥーン・ワールド
 ];
 
-// 各種レジストリを初期化（テストデータを含む）
-registerCardDataByIds(TEST_CARD_IDS);
-registerChainableActionsByIds(TEST_CARD_IDS);
-registerAdditionalRulesByIds(TEST_CARD_IDS);
+// 各種レジストリを初期化（CardData + 効果一括、DSL優先）
+registerCardDataWithEffectsByIds(TEST_CARD_IDS);
 
 // テスト用カードデータも登録
 CardDataRegistry.register(12345678, { jaName: "Test Monster A", type: "monster", frameType: "normal" });

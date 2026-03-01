@@ -29,11 +29,9 @@ import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
-import { ChickenGameIgnitionEffect } from "$lib/domain/effects/actions/ignitions/individuals/spells/ChickenGameIgnitionEffect";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-
-// Note: ChainableActionRegistry は setup.ts で初期化済み
 
 describe("Chicken Game (67616300) - Integration Tests", () => {
   const chickenGameCardId = 67616300;
@@ -178,9 +176,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         },
       });
 
-      // Act: Try to activate ignition effect again
-      const ignitionEffect = new ChickenGameIgnitionEffect();
-      const canActivate = ignitionEffect.canActivate(state, chickenGameAlreadyActivated);
+      // Act: Try to activate ignition effect again (via registry)
+      const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);
+      expect(ignitionEffects.length).toBeGreaterThan(0);
+      const canActivate = ignitionEffects[0].canActivate(state, chickenGameAlreadyActivated);
 
       // Assert: Cannot activate
       expect(canActivate.isValid).toBe(false);
@@ -203,9 +202,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         },
       });
 
-      // Act: Try to activate ignition effect
-      const ignitionEffect = new ChickenGameIgnitionEffect();
-      const canActivate = ignitionEffect.canActivate(state, chickenGameOnField);
+      // Act: Try to activate ignition effect (via registry)
+      const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);
+      expect(ignitionEffects.length).toBeGreaterThan(0);
+      const canActivate = ignitionEffects[0].canActivate(state, chickenGameOnField);
 
       // Assert: Cannot activate
       expect(canActivate.isValid).toBe(false);
@@ -314,9 +314,10 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
 
       // Step 2: Use ignition effect via ActivateIgnitionEffectCommand
       const fieldCard = stateAfterActivation.space.fieldZone[0];
-      const ignitionEffect = new ChickenGameIgnitionEffect();
+      const ignitionEffects = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);
+      expect(ignitionEffects.length).toBeGreaterThan(0);
 
-      expect(ignitionEffect.canActivate(stateAfterActivation, fieldCard).isValid).toBe(true);
+      expect(ignitionEffects[0].canActivate(stateAfterActivation, fieldCard).isValid).toBe(true);
 
       const { ActivateIgnitionEffectCommand } = await import("$lib/domain/commands/ActivateIgnitionEffectCommand");
       const ignitionCommand = new ActivateIgnitionEffectCommand(fieldCard.instanceId);
@@ -350,9 +351,9 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       const finalFieldCard = finalState.space.fieldZone[0];
       expect(finalFieldCard.stateOnField?.activatedEffects.size).toBe(1);
 
-      // Step 3: Try to activate again (should fail)
-      const ignitionEffect2 = new ChickenGameIgnitionEffect();
-      expect(ignitionEffect2.canActivate(finalState, finalFieldCard).isValid).toBe(false);
+      // Step 3: Try to activate again (should fail, via registry)
+      const ignitionEffects2 = ChainableActionRegistry.getIgnitionEffects(chickenGameCardId);
+      expect(ignitionEffects2[0].canActivate(finalState, finalFieldCard).isValid).toBe(false);
     });
   });
 });

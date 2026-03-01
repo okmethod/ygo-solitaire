@@ -1,0 +1,20 @@
+# 《打ち出の小槌》 (Magical Mallet)
+# Card ID: 85852291 | Type: Spell | Subtype: Normal
+#
+# カードの発動:
+# - CONDITIONS: 無し
+# - ACTIVATION: 無し
+# - RESOLUTION: 手札から任意枚数選択、デッキに戻してシャッフル、同じ枚数ドロー
+
+id: 85852291
+data:
+  jaName: "打ち出の小槌"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    resolutions:
+      - step: "SELECT_RETURN_SHUFFLE_DRAW"
+        args: { min: 0 }

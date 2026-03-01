@@ -1,0 +1,25 @@
+# 《成金ゴブリン》 (Upstart Goblin)
+# Card ID: 70368879 | Type: Spell | Subtype: Normal
+#
+# カードの発動:
+# - CONDITIONS: デッキに1枚以上
+# - ACTIVATION: 無し
+# - RESOLUTION: 1枚ドロー、相手が1000LP回復
+
+id: 70368879
+data:
+  jaName: "成金ゴブリン"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effect-chainable-actions:
+  activations:
+    conditions:
+      - step: "CAN_DRAW"
+        args: { count: 1 }
+    resolutions:
+      - step: "DRAW"
+        args: { count: 1 }
+      - step: "GAIN_LP"
+        args: { amount: 1000, target: "opponent" }
