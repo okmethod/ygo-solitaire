@@ -37,3 +37,30 @@ export function emitSpellActivatedEventStep(sourceInstance: CardInstance): Atomi
       ]),
   };
 }
+
+/**
+ * モンスター召喚イベントを発行するステップ
+ *
+ * effectQueueStore がこのステップの実行結果から emittedEvents を検出し、
+ * AdditionalRuleRegistry.collectTriggerSteps() を呼び出して
+ * トリガールール（例: 召喚僧サモンプリーストの守備表示変更）を自動挿入する。
+ *
+ * @param summonedInstance - 召喚されたモンスターカードのインスタンス
+ * @returns AtomicStep
+ */
+export function emitMonsterSummonedEventStep(summonedInstance: CardInstance): AtomicStep {
+  return {
+    id: `emit-monster-summoned-${summonedInstance.instanceId}`,
+    summary: "モンスター召喚イベント",
+    description: "モンスター召喚をトリガーシステムに通知",
+    notificationLevel: "silent",
+    action: (state) =>
+      GameProcessing.Result.success(state, undefined, [
+        {
+          type: "monsterSummoned",
+          sourceCardId: summonedInstance.id,
+          sourceInstanceId: summonedInstance.instanceId,
+        },
+      ]),
+  };
+}

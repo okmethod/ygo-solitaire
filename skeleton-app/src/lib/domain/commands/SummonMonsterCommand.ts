@@ -15,6 +15,7 @@ import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command"
 import { Command } from "$lib/domain/models/Command";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { emitMonsterSummonedEventStep } from "$lib/domain/effects/steps/eventEmitters";
 
 /** モンスター通常召喚コマンドクラス */
 export class SummonMonsterCommand implements GameCommand {
@@ -65,7 +66,8 @@ export class SummonMonsterCommand implements GameCommand {
    * 処理フロー:
    * 1. 実行可能性判定
    * 2. 更新後状態の構築
-   * 3. 戻り値の構築
+   * 3. 召喚イベントステップの生成
+   * 4. 戻り値の構築
    */
   execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
@@ -79,11 +81,17 @@ export class SummonMonsterCommand implements GameCommand {
     // 2. 更新後状態の構築
     const updatedState: GameSnapshot = executeNormalSummon(state, this.cardInstanceId, "attack");
 
-    // 3. 戻り値の構築
+    // 3. 召喚イベントステップの生成
+    // 召喚後の状態から最新のカードインスタンスを取得してイベント発行
+    const summonedInstance = GameState.Space.findCard(updatedState.space, this.cardInstanceId)!;
+    const activationSteps = [emitMonsterSummonedEventStep(summonedInstance)];
+
+    // 4. 戻り値の構築
     return Command.Result.success(
       updatedState,
       `Monster summoned: ${cardInstance.jaName}`,
-      // TODO: 召喚成功時に誘発する効果があればここに追加
+      undefined, // emittedEvents
+      activationSteps,
     );
   }
 

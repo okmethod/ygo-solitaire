@@ -108,6 +108,14 @@ const AdditionalRuleDSLSchema = z.object({
   triggerTiming: z.enum(["when", "if"]).optional(),
   /** 強制効果かどうか（デフォルト: true） */
   isMandatory: z.boolean().optional(),
+  /**
+   * 自身が発生源のイベントのみに反応するか
+   * - true: イベントの sourceInstanceId がこのカード自身の場合のみ反応
+   * - false: すべての該当イベントに反応（デフォルト）
+   *
+   * 例: 「このカードが召喚に成功した時」→ selfOnly: true
+   */
+  selfOnly: z.boolean().optional(),
   /** 効果処理のステップリスト */
   resolutions: z.array(StepDSLSchema).optional(),
 });

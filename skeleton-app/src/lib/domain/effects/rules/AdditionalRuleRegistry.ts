@@ -13,7 +13,7 @@
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 
 /**
@@ -107,17 +107,24 @@ export class AdditionalRuleRegistry {
    * 各ルールの canApply() が true の場合のみ createTriggerSteps() を呼び出す。
    * 各ステップは実行時に最新のカードインスタンスを取得して処理を行う。
    */
-  static collectTriggerSteps(state: GameSnapshot, event: EventType): AtomicStep[] {
-    const triggerRules = this.collectTriggerRules(state, event);
+  static collectTriggerSteps(state: GameSnapshot, event: GameEvent): AtomicStep[] {
+    const triggerRules = this.collectTriggerRules(state, event.type);
     const steps: AtomicStep[] = [];
 
     for (const { rule, sourceInstance } of triggerRules) {
       // canApply で適用可能かチェック
-      if (rule.canApply(state) && rule.createTriggerSteps) {
-        // 各ルールにステップ生成を委譲
-        const ruleSteps = rule.createTriggerSteps(state, sourceInstance);
-        steps.push(...ruleSteps);
+      if (!rule.canApply(state) || !rule.createTriggerSteps) {
+        continue;
       }
+
+      // selfOnly の場合、イベントの発生源と自身が一致するかチェック
+      if (rule.selfOnly && event.sourceInstanceId !== sourceInstance.instanceId) {
+        continue;
+      }
+
+      // 各ルールにステップ生成を委譲
+      const ruleSteps = rule.createTriggerSteps(state, sourceInstance);
+      steps.push(...ruleSteps);
     }
 
     return steps;

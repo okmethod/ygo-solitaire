@@ -18,7 +18,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 
@@ -941,7 +941,8 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, "spellActivated");
+      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
+      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, event);
       const newState = executeSteps(steps, state);
 
       // Assert
@@ -995,7 +996,8 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, "spellActivated");
+      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
+      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, event);
       const newState = executeSteps(steps, state);
 
       // Assert
@@ -1064,7 +1066,8 @@ describe("AdditionalRuleRegistry", () => {
       };
 
       // Act
-      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, "spellActivated");
+      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
+      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, event);
       const newState = executeSteps(steps, state);
 
       // Assert

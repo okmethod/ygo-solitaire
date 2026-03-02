@@ -138,6 +138,19 @@ export interface AdditionalRule {
   readonly isMandatory?: boolean;
 
   /**
+   * 自身が発生源のイベントのみに反応するか（TriggerRule用）
+   *
+   * - true: イベントの sourceInstanceId がこのカード自身の場合のみ反応
+   * - false: すべての該当イベントに反応
+   *
+   * 例: 「このカードが召喚に成功した時」→ selfOnly: true
+   * 例: 「魔法カードが発動した時」→ selfOnly: false
+   *
+   * 未指定の場合は false として扱う
+   */
+  readonly selfOnly?: boolean;
+
+  /**
    * トリガー発動時のステップ生成（TriggerRule用）
    *
    * 指定したトリガーイベントが発生した際に実行されるステップを生成する。

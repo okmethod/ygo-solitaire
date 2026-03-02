@@ -19,7 +19,7 @@ import { describe, it, expect } from "vitest";
 import { createMockGameState } from "../__testUtils__/gameStateFactory";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
-import type { EventType } from "$lib/domain/models/GameProcessing";
+import type { GameEvent } from "$lib/domain/models/GameProcessing";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 
@@ -99,10 +99,12 @@ describe("Counter Accumulation - Royal Magical Library", () => {
 
       // 新しい設計: トリガーステップは effectQueueStore で動的に挿入される
       // ここでは AdditionalRuleRegistry.collectTriggerSteps() を直接呼び出してテスト
-      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
-        result.updatedState,
-        "spellActivated" as EventType,
-      );
+      const spellActivatedEvent: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: potOfGreedCardId,
+        sourceInstanceId: "pot-0",
+      };
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(result.updatedState, spellActivatedEvent);
       expect(triggerSteps).toHaveLength(1);
       expect(triggerSteps[0].id).toContain("add-counter-spell");
       expect(triggerSteps[0].summary).toBe("カウンターを置く");
@@ -146,10 +148,12 @@ describe("Counter Accumulation - Royal Magical Library", () => {
         expect(result.success).toBe(true);
 
         // 新しい設計: トリガーステップを直接収集して実行
-        const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
-          result.updatedState,
-          "spellActivated" as EventType,
-        );
+        const spellActivatedEvent: GameEvent = {
+          type: "spellActivated",
+          sourceCardId: potOfGreedCardId,
+          sourceInstanceId: `pot-${i}`,
+        };
+        const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(result.updatedState, spellActivatedEvent);
         expect(triggerSteps).toHaveLength(1);
 
         const triggerResult = triggerSteps[0].action(result.updatedState);
@@ -187,10 +191,12 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const result = command.execute(state);
 
       // 新しい設計: トリガーステップを直接収集して実行
-      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
-        result.updatedState,
-        "spellActivated" as EventType,
-      );
+      const spellActivatedEvent: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: potOfGreedCardId,
+        sourceInstanceId: "pot-0",
+      };
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(result.updatedState, spellActivatedEvent);
       expect(triggerSteps).toHaveLength(1);
       const triggerResult = triggerSteps[0].action(result.updatedState);
 
@@ -291,10 +297,12 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const result = command.execute(state);
 
       // 新しい設計: トリガーステップを直接収集して実行
-      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
-        result.updatedState,
-        "spellActivated" as EventType,
-      );
+      const spellActivatedEvent: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: potOfGreedCardId,
+        sourceInstanceId: "pot-0",
+      };
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(result.updatedState, spellActivatedEvent);
       expect(triggerSteps).toHaveLength(2);
 
       let currentState = result.updatedState;
@@ -338,10 +346,12 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       const result = command.execute(state);
 
       // 新しい設計: トリガーステップを直接収集して実行
-      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(
-        result.updatedState,
-        "spellActivated" as EventType,
-      );
+      const spellActivatedEvent: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: potOfGreedCardId,
+        sourceInstanceId: "pot-0",
+      };
+      const triggerSteps = AdditionalRuleRegistry.collectTriggerSteps(result.updatedState, spellActivatedEvent);
       expect(triggerSteps).toHaveLength(2);
 
       let currentState = result.updatedState;

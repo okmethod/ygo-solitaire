@@ -8,7 +8,6 @@
 # - CONDITIONS: このカードが召喚に成功した場合
 # - ACTIVATION: 無し
 # - RESOLUTION: このカードを守備表示にする
-# - Note: monsterSummonedイベント発火機構が未実装のため、誘発効果は動作しない可能性あり
 #
 # 起動効果:
 # - CONDITIONS: 1ターンに1度制限、捨てられる魔法カードが1枚以上
@@ -34,6 +33,7 @@ effect-additional-rules:
       triggers: ["monsterSummoned"]
       triggerTiming: "if"
       isMandatory: true
+      selfOnly: true # このカードが召喚された時のみ反応
       resolutions:
         - step: "CHANGE_BATTLE_POSITION"
           args: { position: "defense" }

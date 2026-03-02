@@ -38,6 +38,9 @@ export class GenericContinuousTriggerRule extends BaseContinuousEffect {
   /** 強制効果かどうか（デフォルト: true） */
   readonly isMandatory: boolean;
 
+  /** 自身が発生源のイベントのみに反応するか（デフォルト: false） */
+  readonly selfOnly: boolean;
+
   /** DSL定義（内部保持） */
   private readonly dslDefinition: AdditionalRuleDSL;
 
@@ -56,6 +59,7 @@ export class GenericContinuousTriggerRule extends BaseContinuousEffect {
     this.triggers = dslDefinition.triggers ?? [];
     this.triggerTiming = dslDefinition.triggerTiming ?? "if";
     this.isMandatory = dslDefinition.isMandatory ?? true;
+    this.selfOnly = dslDefinition.selfOnly ?? false;
   }
 
   /**

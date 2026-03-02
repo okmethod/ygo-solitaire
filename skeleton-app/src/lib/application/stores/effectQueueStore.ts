@@ -113,7 +113,8 @@ function processTriggerEvents(
   const triggerSteps: AtomicStep[] = [];
 
   for (const event of events) {
-    const steps = AdditionalRuleRegistry.collectTriggerSteps(currentState, event.type);
+    // イベント全体を渡して、selfOnly などの判定を可能にする
+    const steps = AdditionalRuleRegistry.collectTriggerSteps(currentState, event);
     triggerSteps.push(...steps);
   }
 
