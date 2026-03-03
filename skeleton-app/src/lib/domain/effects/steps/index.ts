@@ -8,13 +8,14 @@
  * @module domain/effects/steps
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
-import type { CounterType } from "$lib/domain/models/Card";
+import type { CardInstance, CardType, FrameSubType, SpellSubType, CounterType } from "$lib/domain/models/Card";
 import type { Player } from "$lib/domain/models/GameState";
 
 // レジストリAPI
 import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./AtomicStepRegistry";
 import { STEP_NAMES, type StepName } from "./StepNames";
+
+import { buildJapaneseFilterDesc } from "./jpLabels";
 
 // 具体実装
 import { drawStep, fillHandsStep } from "./builders/draws";
@@ -62,57 +63,6 @@ export {
 export const buildStep = AtomicStepRegistry.build.bind(AtomicStepRegistry);
 
 // ===========================
-// 日本語変換マップ
-// ===========================
-
-/** カードタイプの日本語変換 */
-const cardTypeToJapanese: Record<string, string> = {
-  spell: "魔法",
-  monster: "モンスター",
-  trap: "罠",
-};
-
-/** フレームタイプの日本語変換 */
-const frameTypeToJapanese: Record<string, string> = {
-  normal: "通常",
-  effect: "効果",
-  fusion: "融合",
-  ritual: "儀式",
-  synchro: "シンクロ",
-  xyz: "エクシーズ",
-  link: "リンク",
-};
-
-/** スペルタイプの日本語変換 */
-const spellTypeToJapanese: Record<string, string> = {
-  field: "フィールド",
-  normal: "通常",
-  "quick-play": "速攻",
-  continuous: "永続",
-  equip: "装備",
-  ritual: "儀式",
-};
-
-/**
- * フィルター条件を日本語に変換する
- */
-function buildJapaneseFilterDesc(filterType: string, filterSpellType?: string, filterFrameType?: string): string {
-  const parts: string[] = [];
-
-  if (filterFrameType) {
-    parts.push(frameTypeToJapanese[filterFrameType] ?? filterFrameType);
-  }
-  if (filterSpellType) {
-    parts.push(spellTypeToJapanese[filterSpellType] ?? filterSpellType);
-  }
-
-  const typeJa = cardTypeToJapanese[filterType] ?? filterType;
-  parts.push(typeJa);
-
-  return parts.join("");
-}
-
-// ===========================
 // ステップ登録
 // ===========================
 
@@ -130,12 +80,12 @@ AtomicStepRegistry.register("DRAW", (args) => {
 
 /**
  * SELECT_AND_DISCARD - 手札から指定枚数を選択して捨てる
- * args: { count: number, cancelable?: boolean, filterType?: "spell" | "monster" | "trap" }
+ * args: { count: number, cancelable?: boolean, filterType?: CardType }
  */
 AtomicStepRegistry.register("SELECT_AND_DISCARD", (args) => {
   const count = args.count as number;
   const cancelable = args.cancelable as boolean | undefined;
-  const filterType = args.filterType as "spell" | "monster" | "trap" | undefined;
+  const filterType = args.filterType as CardType | undefined;
   if (typeof count !== "number" || count < 1) {
     throw new Error("SELECT_AND_DISCARD step requires a positive count argument");
   }
@@ -178,11 +128,11 @@ AtomicStepRegistry.register("GAIN_LP", (args) => {
 
 /**
  * SEARCH_FROM_DECK - デッキからカードをサーチ
- * args: { filterType: string, filterSpellType?: string, count: number }
+ * args: { filterType: CardType, filterSpellType?: SpellSubType, count: number }
  */
 AtomicStepRegistry.register("SEARCH_FROM_DECK", (args, context) => {
-  const filterType = args.filterType as string;
-  const filterSpellType = args.filterSpellType as string | undefined;
+  const filterType = args.filterType as CardType;
+  const filterSpellType = args.filterSpellType as SpellSubType | undefined;
   const count = args.count as number;
 
   if (!filterType) {
@@ -217,12 +167,12 @@ AtomicStepRegistry.register("SEARCH_FROM_DECK", (args, context) => {
 
 /**
  * SALVAGE_FROM_GRAVEYARD - 墓地からカードをサルベージ
- * args: { filterType: string, filterSpellType?: string, filterFrameType?: string, count: number }
+ * args: { filterType: CardType, filterSpellType?: SpellSubType, filterFrameType?: FrameSubType, count: number }
  */
 AtomicStepRegistry.register("SALVAGE_FROM_GRAVEYARD", (args, context) => {
-  const filterType = args.filterType as string;
-  const filterSpellType = args.filterSpellType as string | undefined;
-  const filterFrameType = args.filterFrameType as string | undefined;
+  const filterType = args.filterType as CardType;
+  const filterSpellType = args.filterSpellType as SpellSubType | undefined;
+  const filterFrameType = args.filterFrameType as FrameSubType | undefined;
   const count = args.count as number;
 
   if (!filterType) {
