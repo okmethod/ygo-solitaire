@@ -13,8 +13,8 @@ import type { CounterType } from "$lib/domain/models/Card";
 import type { Player } from "$lib/domain/models/GameState";
 
 // レジストリAPI
-import type { StepBuilder, StepBuildContext } from "./AtomicStepRegistry";
-import { AtomicStepRegistry } from "./AtomicStepRegistry";
+import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./AtomicStepRegistry";
+import { STEP_NAMES, type StepName } from "./StepNames";
 
 // 具体実装
 import { drawStep, fillHandsStep } from "./builders/draws";
@@ -34,10 +34,9 @@ import { emitSpellActivatedEventStep, emitMonsterSummonedEventStep } from "./bui
 // エクスポート
 // ===========================
 
+export { AtomicStepRegistry, type StepBuilder, type StepBuildContext };
+export { STEP_NAMES, type StepName };
 export {
-  type StepBuilder,
-  type StepBuildContext,
-  AtomicStepRegistry,
   drawStep,
   fillHandsStep,
   sendToGraveyardStep,

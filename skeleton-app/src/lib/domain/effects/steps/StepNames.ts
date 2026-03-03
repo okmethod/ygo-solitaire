@@ -1,0 +1,40 @@
+/**
+ * StepNames - ステップ名の定数定義
+ *
+ * 型安全なステップ名を提供する。
+ * DSLの "activations", "resolutions" セクションで使用する。
+ */
+
+export const STEP_NAMES = {
+  // ドロー・手札操作
+  DRAW: "DRAW",
+  FILL_HANDS: "FILL_HANDS",
+  SELECT_AND_DISCARD: "SELECT_AND_DISCARD",
+  SELECT_RETURN_SHUFFLE_DRAW: "SELECT_RETURN_SHUFFLE_DRAW",
+  DISCARD_ALL_HAND_END_PHASE: "DISCARD_ALL_HAND_END_PHASE",
+
+  // サーチ・サルベージ
+  SEARCH_FROM_DECK: "SEARCH_FROM_DECK",
+  SEARCH_FROM_DECK_BY_NAME: "SEARCH_FROM_DECK_BY_NAME",
+  SEARCH_FROM_DECK_TOP: "SEARCH_FROM_DECK_TOP",
+  SALVAGE_FROM_GRAVEYARD: "SALVAGE_FROM_GRAVEYARD",
+
+  // ライフポイント
+  GAIN_LP: "GAIN_LP",
+  PAY_LP: "PAY_LP",
+
+  // カウンター
+  PLACE_COUNTER: "PLACE_COUNTER",
+  REMOVE_COUNTER: "REMOVE_COUNTER",
+
+  // フィールド・召喚
+  CHANGE_BATTLE_POSITION: "CHANGE_BATTLE_POSITION",
+  SPECIAL_SUMMON_FROM_DECK: "SPECIAL_SUMMON_FROM_DECK",
+
+  // デッキ操作・その他
+  SHUFFLE_DECK: "SHUFFLE_DECK",
+  THEN: "THEN", // タイミング進行
+} as const;
+
+/** 登録済みステップ名の Union 型 */
+export type StepName = (typeof STEP_NAMES)[keyof typeof STEP_NAMES];

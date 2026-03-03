@@ -2,13 +2,14 @@
  * CardDSLSchema - YAML形式カード定義のZodスキーマと型定義
  *
  * YAMLからパースされた生データをバリデーションし、型安全なオブジェクトに変換する。
- * 型はZodスキーマから導出される（Single Source of Truth）。
  */
 
 import { z } from "zod";
 import { CONDITION_NAMES, type ConditionName } from "$lib/domain/effects/conditions";
+import { STEP_NAMES, type StepName } from "$lib/domain/effects/steps";
 
 const conditionValues = Object.values(CONDITION_NAMES) as [ConditionName, ...ConditionName[]];
+const stepValues = Object.values(STEP_NAMES) as [StepName, ...StepName[]];
 
 // =============================================================================
 // 基本型のスキーマ
@@ -81,7 +82,7 @@ const ConditionDSLSchema = z.object({
  */
 const StepDSLSchema = z.object({
   /** StepRegistryのキー */
-  step: z.string().min(1),
+  step: z.enum(stepValues),
   /** ステップに渡す引数（オプション） */
   args: z.record(z.string(), z.any()).optional(),
 });
