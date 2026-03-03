@@ -12,12 +12,12 @@ import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditio
 import { CONDITION_NAMES, type ConditionName } from "./ConditionNames";
 
 // ConditionChecker 実装
-import { canDrawCondition, deckHasCardCondition, deckHasNameIncludesCondition } from "./builders/deckConditions";
-import { handCountCondition, handCountExcludingSelfCondition, handHasSpellCondition } from "./builders/handConditions";
-import { graveyardHasSpellCondition, graveyardHasMonsterCondition } from "./builders/graveyardConditions";
-import { hasCounterCondition } from "./builders/counterConditions";
-import { oncePerTurnCondition, oncePerTurnEffectCondition } from "./builders/activationConditions";
-import { lpAtLeastCondition, lpGreaterThanCondition } from "./builders/lpConditions";
+import { canDrawCondition, deckHasCardCondition, deckHasNameIncludesCondition } from "./checkers/deckConditions";
+import { handCountCondition, handCountExcludingSelfCondition, handHasSpellCondition } from "./checkers/handConditions";
+import { graveyardHasSpellCondition, graveyardHasMonsterCondition } from "./checkers/graveyardConditions";
+import { hasCounterCondition } from "./checkers/counterConditions";
+import { oncePerTurnCondition, oncePerTurnEffectCondition } from "./checkers/activationConditions";
+import { lpAtLeastCondition, lpGreaterThanCondition } from "./checkers/lpConditions";
 
 // ===========================
 // エクスポート
