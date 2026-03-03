@@ -15,12 +15,12 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditionRegistry";
 
 // 具体実装
-import { canDraw, deckHasCard, deckHasNameIncludes } from "./deckConditions";
-import { handCount, handCountExcludingSelf, handHasSpell } from "./handConditions";
-import { graveyardHasSpell, graveyardHasMonster } from "./graveyardConditions";
-import { hasCounter } from "./counterConditions";
-import { oncePerTurn, oncePerTurnEffect } from "./activationConditions";
-import { lpAtLeast, lpGreaterThan } from "./lpConditions";
+import { canDraw, deckHasCard, deckHasNameIncludes } from "./builders/deckConditions";
+import { handCount, handCountExcludingSelf, handHasSpell } from "./builders/handConditions";
+import { graveyardHasSpell, graveyardHasMonster } from "./builders/graveyardConditions";
+import { hasCounter } from "./builders/counterConditions";
+import { oncePerTurn, oncePerTurnEffect } from "./builders/activationConditions";
+import { lpAtLeast, lpGreaterThan } from "./builders/lpConditions";
 
 // ===========================
 // エクスポート
