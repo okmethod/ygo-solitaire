@@ -12,7 +12,8 @@ import { Effect } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 // レジストリAPI
-import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditionRegistry";
+import type { ConditionChecker } from "./AtomicConditionRegistry";
+import { AtomicConditionRegistry } from "./AtomicConditionRegistry";
 
 // 具体実装
 import { canDraw, deckHasCard, deckHasNameIncludes } from "./builders/deckConditions";
@@ -26,17 +27,9 @@ import { lpAtLeast, lpGreaterThan } from "./builders/lpConditions";
 // エクスポート
 // ===========================
 
-export { AtomicConditionRegistry, type ConditionChecker };
-
-// 後方互換性のためのエイリアス関数
-export const checkCondition = AtomicConditionRegistry.check.bind(AtomicConditionRegistry);
-export const registerCondition = AtomicConditionRegistry.register.bind(AtomicConditionRegistry);
-export const isConditionRegistered = AtomicConditionRegistry.isRegistered.bind(AtomicConditionRegistry);
-export const getRegisteredConditionNames = AtomicConditionRegistry.getRegisteredNames.bind(AtomicConditionRegistry);
-export const clearConditionRegistry = AtomicConditionRegistry.clear.bind(AtomicConditionRegistry);
-
-// 具体実装（直接利用する場合）
 export {
+  type ConditionChecker,
+  AtomicConditionRegistry,
   canDraw,
   deckHasCard,
   deckHasNameIncludes,
@@ -51,6 +44,8 @@ export {
   lpAtLeast,
   lpGreaterThan,
 };
+
+export const checkCondition = AtomicConditionRegistry.check.bind(AtomicConditionRegistry);
 
 // ===========================
 // 条件登録

@@ -13,7 +13,8 @@ import type { CounterType } from "$lib/domain/models/Card";
 import type { Player } from "$lib/domain/models/GameState";
 
 // レジストリAPI
-import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./AtomicStepRegistry";
+import type { StepBuilder, StepBuildContext } from "./AtomicStepRegistry";
+import { AtomicStepRegistry } from "./AtomicStepRegistry";
 
 // 具体実装
 import { drawStep, fillHandsStep } from "./builders/draws";
@@ -33,17 +34,10 @@ import { emitSpellActivatedEventStep, emitMonsterSummonedEventStep } from "./bui
 // エクスポート
 // ===========================
 
-export { AtomicStepRegistry, type StepBuilder, type StepBuildContext };
-
-// 後方互換性のためのエイリアス関数
-export const buildStep = AtomicStepRegistry.build.bind(AtomicStepRegistry);
-export const registerStep = AtomicStepRegistry.register.bind(AtomicStepRegistry);
-export const isStepRegistered = AtomicStepRegistry.isRegistered.bind(AtomicStepRegistry);
-export const getRegisteredStepNames = AtomicStepRegistry.getRegisteredNames.bind(AtomicStepRegistry);
-export const clearStepRegistry = AtomicStepRegistry.clear.bind(AtomicStepRegistry);
-
-// 具体実装（直接利用する場合）
 export {
+  type StepBuilder,
+  type StepBuildContext,
+  AtomicStepRegistry,
   drawStep,
   fillHandsStep,
   sendToGraveyardStep,
@@ -65,6 +59,8 @@ export {
   emitSpellActivatedEventStep,
   emitMonsterSummonedEventStep,
 };
+
+export const buildStep = AtomicStepRegistry.build.bind(AtomicStepRegistry);
 
 // ===========================
 // 日本語変換マップ
