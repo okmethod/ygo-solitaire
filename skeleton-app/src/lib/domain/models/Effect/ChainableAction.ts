@@ -11,10 +11,10 @@ import type { EffectId } from "./EffectId";
  * ChainableAction の効果カテゴリ
  * - activation: カードの発動
  * - ignition: 起動効果
- * - trigger: 誘発効果 TODO: 将来追加
+ * - trigger: 誘発効果
  * - quick: 誘発即時効果 TODO: 将来追加
  */
-export type ActionEffectCategory = "activation" | "ignition";
+export type ActionEffectCategory = "activation" | "ignition" | "trigger";
 
 /**
  * チェーンブロックを作る処理

@@ -113,9 +113,37 @@ function processTriggerEvents(
   const triggerSteps: AtomicStep[] = [];
 
   for (const event of events) {
-    // イベント全体を渡して、selfOnly などの判定を可能にする
-    const steps = AdditionalRuleRegistry.collectTriggerSteps(currentState, event);
-    triggerSteps.push(...steps);
+    // AdditionalRule の TriggerRule を収集
+    const additionalRuleSteps = AdditionalRuleRegistry.collectTriggerSteps(currentState, event);
+    // 即座に実行
+    triggerSteps.push(...additionalRuleSteps);
+
+    // ChainableAction の TriggerEffect を収集（強制効果のみ）
+    const chainableActionSteps = ChainableActionRegistry.collectTriggerSteps(currentState, event, (chainBlock) => {
+      // チェーンブロック作成してスタックに追加
+      chainStackStore.pushChainBlock(chainBlock);
+    });
+    triggerSteps.push(...chainableActionSteps);
+
+    // TODO: 任意効果のチェーン確認UI統合（将来拡張）
+    // collectTriggerSteps の戻り値を { mandatorySteps, optionalEffects } に拡張し、
+    // optionalEffects がある場合は既存のチェーン確認UIを表示する。
+    //
+    // 実装イメージ:
+    // const result = ChainableActionRegistry.collectTriggerSteps(...);
+    // triggerSteps.push(...result.mandatorySteps);
+    //
+    // if (result.optionalEffects.length > 0) {
+    //   update((s) => ({
+    //     ...s,
+    //     chainConfirmationConfig: {
+    //       chainableCards: result.optionalEffects,
+    //       onActivate: (instanceId) => { effectQueueStore.activateChain(...); },
+    //       onPass: () => { update((s) => ({ ...s, chainConfirmationConfig: null })); effectQueueStore.next(); },
+    //     },
+    //   }));
+    //   return currentSteps; // UIが表示されるので待機
+    // }
   }
 
   if (triggerSteps.length === 0) {

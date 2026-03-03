@@ -12,4 +12,5 @@ export {
   createGenericContinuousSpellActivation,
 } from "./GenericContinuousSpellActivation";
 export { GenericIgnitionEffect, createGenericIgnitionEffect } from "./GenericIgnitionEffect";
+export { GenericTriggerEffect, createGenericTriggerEffect } from "./GenericTriggerEffect";
 export { GenericContinuousTriggerRule } from "./GenericContinuousTriggerRule";

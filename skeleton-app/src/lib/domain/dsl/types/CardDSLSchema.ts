@@ -91,6 +91,41 @@ const ChainableActionDSLSchema = z.object({
 export type ChainableActionDSL = z.infer<typeof ChainableActionDSLSchema>;
 
 /**
+ * 誘発効果のDSL表現スキーマ
+ *
+ * ChainableActionDSL を拡張し、誘発効果固有のプロパティを追加する。
+ */
+const TriggerEffectDSLSchema = z.object({
+  /** トリガーイベント */
+  triggers: z.array(EventTypeSchema),
+  /**
+   * トリガータイミング種別
+   * - "when": タイミングを逃す可能性あり
+   * - "if": タイミングを逃さない（デフォルト）
+   */
+  triggerTiming: z.enum(["when", "if"]).optional(),
+  /** 強制効果かどうか（デフォルト: true） */
+  isMandatory: z.boolean().optional(),
+  /**
+   * 自身が発生源のイベントのみに反応するか
+   * - true: イベントの sourceInstanceId がこのカード自身の場合のみ反応
+   * - false: すべての該当イベントに反応（デフォルト）
+   */
+  selfOnly: z.boolean().optional(),
+  /** スペルスピード（通常1、一部のカードで2） */
+  spellSpeed: z.literal(1).or(z.literal(2)).optional(),
+  /** 発動条件のステップリスト */
+  conditions: z.array(StepDSLSchema).optional(),
+  /** 発動時処理（コスト支払い等）のステップリスト */
+  activations: z.array(StepDSLSchema).optional(),
+  /** 効果処理のステップリスト */
+  resolutions: z.array(StepDSLSchema).optional(),
+});
+
+/** 誘発効果のDSL表現 */
+export type TriggerEffectDSL = z.infer<typeof TriggerEffectDSLSchema>;
+
+/**
  * 追加適用するルールのDSL表現スキーマ
  *
  * 永続効果などのAdditionalRuleをDSLで定義する。
@@ -170,11 +205,13 @@ export const CardDSLDefinitionSchema = z.object({
    * チェーンブロックを作る処理
    * - activations: カードの発動（魔法・罠）
    * - ignitions: 起動効果（モンスター）
+   * - triggers: 誘発効果（モンスター）
    */
   "effect-chainable-actions": z
     .object({
       activations: ChainableActionDSLSchema.optional(),
       ignitions: z.array(ChainableActionDSLSchema).optional(),
+      triggers: z.array(TriggerEffectDSLSchema).optional(),
     })
     .optional(),
   /**
@@ -203,6 +240,7 @@ export type CardDSLDefinition = z.infer<typeof CardDSLDefinitionSchema>;
 export {
   StepDSLSchema,
   ChainableActionDSLSchema,
+  TriggerEffectDSLSchema,
   AdditionalRuleDSLSchema,
   CardDataDSLSchema,
   CardTypeSchema,

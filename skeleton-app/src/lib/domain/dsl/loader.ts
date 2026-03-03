@@ -17,6 +17,7 @@ import {
   createGenericQuickPlaySpellActivation,
   createGenericContinuousSpellActivation,
   createGenericIgnitionEffect,
+  createGenericTriggerEffect,
 } from "$lib/domain/dsl/factories";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
@@ -77,6 +78,14 @@ function registerChainableAction(definition: CardDSLDefinition): void {
     chainableActions.ignitions.forEach((ignitionDef, index) => {
       const ignition = createGenericIgnitionEffect(id, index + 1, ignitionDef);
       ChainableActionRegistry.registerIgnition(id, ignition);
+    });
+  }
+
+  // triggers セクション（誘発効果）
+  if (chainableActions.triggers) {
+    chainableActions.triggers.forEach((triggerDef, index) => {
+      const trigger = createGenericTriggerEffect(id, index + 1, triggerDef);
+      ChainableActionRegistry.registerTrigger(id, trigger);
     });
   }
 }

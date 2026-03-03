@@ -25,20 +25,19 @@ data:
   race: "Spellcaster"
   level: 4
 
-effect-additional-rules:
-  continuous:
+effect-chainable-actions:
+  triggers:
     # 誘発効果: 召喚成功時、守備表示にする
-    # TODO: 誘発効果は本来ChainableActionで実装する必要があるため、別途対応する
-    - category: "TriggerRule"
-      triggers: ["monsterSummoned"]
+    - triggers: ["monsterSummoned"]
       triggerTiming: "if"
       isMandatory: true
-      selfOnly: true # このカードが召喚された時のみ反応
+      selfOnly: true
+      spellSpeed: 1
+      conditions: []
+      activations: []
       resolutions:
         - step: "CHANGE_BATTLE_POSITION"
           args: { position: "defense" }
-
-effect-chainable-actions:
   ignitions:
     # 起動効果: 手札魔法1枚捨て → デッキからLv4モンスター特殊召喚
     - conditions:

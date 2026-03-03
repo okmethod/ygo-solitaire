@@ -9,22 +9,26 @@
  * - Map による O(1) 高速ルックアップ
  */
 
-import type { ChainableAction } from "$lib/domain/models/Effect";
+import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { GameEvent, AtomicStep } from "$lib/domain/models/GameProcessing";
 import { Card } from "$lib/domain/models/Card";
+import { isTriggerEffect } from "$lib/domain/effects/actions/triggers/BaseTriggerEffect";
 
 /**
  * 1つのカードが持つ効果群を表現するインターフェース
  *
  * - activation: カードの発動時効果（1つのカードに1つ）
  * - ignitionEffects: 起動効果（1つのカードに複数）
+ * - triggerEffects: 誘発効果（1つのカードに複数）
  *
- * 将来拡張: triggerEffects, quickEffects
+ * 将来拡張: quickEffects
  */
 interface CardEffectEntry {
   activation?: ChainableAction;
   ignitionEffects: ChainableAction[];
+  triggerEffects: ChainableAction[];
 }
 
 /**
@@ -53,6 +57,12 @@ export class ChainableActionRegistry {
     entry.ignitionEffects.push(action);
   }
 
+  /** 誘発効果（trigger）を登録する */
+  static registerTrigger(cardId: number, action: ChainableAction): void {
+    const entry = this.getOrCreateEntry(cardId);
+    entry.triggerEffects.push(action);
+  }
+
   // ===========================
   // 取得API
   // ===========================
@@ -73,9 +83,107 @@ export class ChainableActionRegistry {
     return entry !== undefined && entry.ignitionEffects.length > 0;
   }
 
+  /** 誘発効果（trigger）の一覧を取得する */
+  static getTriggerEffects(cardId: number): ChainableAction[] {
+    return this.effects.get(cardId)?.triggerEffects ?? [];
+  }
+
+  /** 誘発効果（trigger）が登録されているかを判定する */
+  static hasTriggerEffects(cardId: number): boolean {
+    const entry = this.effects.get(cardId);
+    return entry !== undefined && entry.triggerEffects.length > 0;
+  }
+
   // ===========================
   // 収集API
   // ===========================
+
+  /**
+   * イベントに反応する誘発効果のトリガーステップを収集する
+   *
+   * AdditionalRuleRegistry.collectTriggerSteps() と同じパターンで、
+   * レジストリ側で収集ロジックを完結させる。
+   *
+   * 現在の実装: 強制効果（isMandatory: true）のみ処理
+   * 将来拡張: 任意効果（isMandatory: false）のチェーン確認UI統合
+   * TODO: 戻り値を { mandatorySteps, optionalEffects } に拡張して任意効果に対応
+   */
+  static collectTriggerSteps(
+    state: GameSnapshot,
+    event: GameEvent,
+    onCreateChainBlock: (chainBlock: {
+      sourceInstanceId: string;
+      sourceCardId: number;
+      effectId: EffectId;
+      spellSpeed: 1 | 2 | 3;
+      resolutionSteps: AtomicStep[];
+      isNegated: boolean;
+    }) => void,
+  ): AtomicStep[] {
+    const activationSteps: AtomicStep[] = [];
+
+    // Helper: カードから誘発効果を収集
+    const collectFromCards = (cards: readonly CardInstance[], requireFaceUp: boolean) => {
+      for (const card of cards) {
+        if (requireFaceUp && !Card.Instance.isFaceUp(card)) continue;
+
+        const triggerEffects = this.getTriggerEffects(card.id);
+        for (const effect of triggerEffects) {
+          // 型ガードで BaseTriggerEffect であることを確認
+          if (!isTriggerEffect(effect)) continue;
+
+          // triggers プロパティチェック
+          if (!effect.triggers.includes(event.type)) continue;
+
+          // selfOnly チェック
+          if (effect.selfOnly && event.sourceInstanceId !== card.instanceId) continue;
+
+          // 発動条件チェック
+          const canActivate = effect.canActivate(state, card);
+          if (!canActivate.isValid) continue;
+
+          // 強制効果のみ処理（isMandatory: true）
+          // TODO: 任意効果のチェーン確認UI統合は将来拡張
+          // 戻り値を { mandatorySteps: AtomicStep[], optionalEffects: Array<{ instance, action }> } に拡張し、
+          // 任意効果（isMandatory: false）は optionalEffects 配列に追加する。
+          // effectQueueStore 側で既存のチェーン確認UIを使って発動するかパスするかを選択させる。
+          if (!effect.isMandatory) continue;
+
+          // ActivationSteps と ResolutionSteps を生成
+          const stepsBatch = effect.createActivationSteps(state, card);
+          const resolutionSteps = effect.createResolutionSteps(state, card);
+
+          // チェーンブロック作成をコールバック経由で委譲
+          onCreateChainBlock({
+            sourceInstanceId: card.instanceId,
+            sourceCardId: card.id,
+            effectId: effect.effectId,
+            spellSpeed: effect.spellSpeed,
+            resolutionSteps,
+            isNegated: false,
+          });
+
+          // ActivationSteps を収集
+          activationSteps.push(...stepsBatch);
+        }
+      }
+    };
+
+    // 手札: 表裏判定不要
+    collectFromCards(state.space.hand, false);
+    // モンスターゾーン: 表側表示のみ
+    collectFromCards(state.space.mainMonsterZone, true);
+    // 魔法罠ゾーン: 表側表示のみ
+    collectFromCards(state.space.spellTrapZone, true);
+    // フィールドゾーン: 表側表示のみ
+    collectFromCards(state.space.fieldZone, true);
+    // 墓地: 表裏判定不要
+    collectFromCards(state.space.graveyard, false);
+    // 除外: 表裏判定不要
+    collectFromCards(state.space.banished, false);
+
+    return activationSteps;
+  }
 
   /**
    * チェーン可能なカードと効果を収集する
@@ -173,7 +281,10 @@ export class ChainableActionRegistry {
     for (const ignition of this.getIgnitionEffects(card.id)) {
       this.tryAddAction(result, card, ignition, state, requiredSpellSpeed);
     }
-    // TODO: triggerEffects（誘発効果）
+    // triggerEffects（誘発効果）
+    for (const trigger of this.getTriggerEffects(card.id)) {
+      this.tryAddAction(result, card, trigger, state, requiredSpellSpeed);
+    }
     // TODO: quickEffects（誘発即時効果）
   }
 
@@ -217,7 +328,7 @@ export class ChainableActionRegistry {
   private static getOrCreateEntry(cardId: number): CardEffectEntry {
     let entry = this.effects.get(cardId);
     if (!entry) {
-      entry = { ignitionEffects: [] };
+      entry = { ignitionEffects: [], triggerEffects: [] };
       this.effects.set(cardId, entry);
     }
     return entry;

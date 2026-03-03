@@ -5,13 +5,21 @@
  */
 
 // 型定義
-export type { StepDSL, ChainableActionDSL, AdditionalRuleDSL, CardDataDSL, CardDSLDefinition } from "./CardDSLSchema";
+export type {
+  StepDSL,
+  TriggerEffectDSL,
+  ChainableActionDSL,
+  AdditionalRuleDSL,
+  CardDataDSL,
+  CardDSLDefinition,
+} from "./CardDSLSchema";
 
 // Zodスキーマ
 export {
   CardDSLDefinitionSchema,
   StepDSLSchema,
   ChainableActionDSLSchema,
+  TriggerEffectDSLSchema,
   AdditionalRuleDSLSchema,
   CardDataDSLSchema,
 } from "./CardDSLSchema";
