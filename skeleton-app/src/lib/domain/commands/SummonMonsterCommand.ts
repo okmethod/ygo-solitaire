@@ -15,7 +15,7 @@ import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command"
 import { Command } from "$lib/domain/models/Command";
 import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { emitMonsterSummonedEventStep } from "$lib/domain/effects/steps/eventEmitters";
+import { emitMonsterSummonedEventStep } from "$lib/domain/effects/steps";
 
 /** モンスター通常召喚コマンドクラス */
 export class SummonMonsterCommand implements GameCommand {

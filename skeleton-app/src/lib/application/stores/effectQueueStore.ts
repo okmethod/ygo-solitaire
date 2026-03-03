@@ -36,7 +36,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
-import { isThenMarker } from "$lib/domain/effects/steps/timing";
+import { isThenMarker } from "$lib/domain/effects/steps/builders/timing";
 import type {
   ConfirmationConfig,
   ResolvedCardSelectionConfig,

@@ -16,8 +16,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/endPhase";
-import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
+import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/builders/endPhase";
+import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
 
 /** 指定カードを墓地に送るステップ */
 export const sendToGraveyardStep = (instanceId: string, cardName: string): AtomicStep => {

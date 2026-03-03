@@ -16,16 +16,18 @@ import type { Player } from "$lib/domain/models/GameState";
 import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./AtomicStepRegistry";
 
 // 具体実装
-import { drawStep, fillHandsStep } from "./draws";
-import { selectAndDiscardStep, discardAllHandEndPhaseStep } from "./discards";
-import { markThenStep } from "./timing";
-import { gainLpStep, payLpStep } from "./lifePoints";
-import { searchFromDeckByConditionStep, searchFromDeckTopStep, salvageFromGraveyardStep } from "./searches";
-import { addCounterStep, removeCounterStep } from "./counters";
-import { shuffleDeckStep } from "./deckOperations";
-import { selectReturnShuffleDrawStep } from "./compositeOperations";
-import { changeBattlePositionStep } from "./battlePosition";
-import { specialSummonFromDeckStep } from "./summons";
+import { drawStep, fillHandsStep } from "./builders/draws";
+import { sendToGraveyardStep, selectAndDiscardStep, discardAllHandEndPhaseStep } from "./builders/discards";
+import { markThenStep } from "./builders/timing";
+import { gainLpStep, payLpStep } from "./builders/lifePoints";
+import { searchFromDeckByConditionStep, searchFromDeckTopStep, salvageFromGraveyardStep } from "./builders/searches";
+import { addCounterStep, removeCounterStep } from "./builders/counters";
+import { shuffleDeckStep } from "./builders/deckOperations";
+import { selectReturnShuffleDrawStep } from "./builders/compositeOperations";
+import { changeBattlePositionStep } from "./builders/battlePosition";
+import { specialSummonFromDeckStep } from "./builders/summons";
+import { notifyActivationStep } from "./builders/userInteractions";
+import { emitSpellActivatedEventStep, emitMonsterSummonedEventStep } from "./builders/eventEmitters";
 
 // ===========================
 // エクスポート
@@ -44,6 +46,7 @@ export const clearStepRegistry = AtomicStepRegistry.clear.bind(AtomicStepRegistr
 export {
   drawStep,
   fillHandsStep,
+  sendToGraveyardStep,
   selectAndDiscardStep,
   discardAllHandEndPhaseStep,
   markThenStep,
@@ -58,6 +61,9 @@ export {
   selectReturnShuffleDrawStep,
   changeBattlePositionStep,
   specialSummonFromDeckStep,
+  notifyActivationStep,
+  emitSpellActivatedEventStep,
+  emitMonsterSummonedEventStep,
 };
 
 // ===========================

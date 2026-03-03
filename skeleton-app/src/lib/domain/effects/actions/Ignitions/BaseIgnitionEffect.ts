@@ -22,7 +22,7 @@ import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProces
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
 import { Effect } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { notifyActivationStep } from "$lib/domain/effects/steps/userInteractions";
+import { notifyActivationStep } from "$lib/domain/effects/steps/builders/userInteractions";
 
 /**
  * BaseIgnitionEffect - 起動効果アクションの抽象基底クラス

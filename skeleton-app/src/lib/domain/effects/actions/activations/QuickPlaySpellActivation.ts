@@ -17,7 +17,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
-import { sendToGraveyardStep } from "$lib/domain/effects/steps/discards";
+import { sendToGraveyardStep } from "$lib/domain/effects/steps";
 
 /**
  * QuickPlaySpellActivation - 速攻魔法カードの抽象基底クラス

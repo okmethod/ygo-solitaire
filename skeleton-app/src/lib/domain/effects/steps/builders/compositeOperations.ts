@@ -11,7 +11,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { selectCardsStep } from "$lib/domain/effects/steps/userInteractions";
+import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
 
 /**
  * 手札から任意枚数を選択してデッキに戻し、シャッフルして同じ枚数ドローするステップ
