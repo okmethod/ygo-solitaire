@@ -7,224 +7,50 @@
  * @module domain/effects/conditions
  */
 
-import type { CounterType } from "$lib/domain/models/Card";
-import { Effect } from "$lib/domain/models/Effect";
-import { GameProcessing } from "$lib/domain/models/GameProcessing";
-
 // レジストリAPI
 import type { ConditionChecker } from "./AtomicConditionRegistry";
 import { AtomicConditionRegistry } from "./AtomicConditionRegistry";
 
-// 具体実装
-import { canDraw, deckHasCard, deckHasNameIncludes } from "./builders/deckConditions";
-import { handCount, handCountExcludingSelf, handHasSpell } from "./builders/handConditions";
-import { graveyardHasSpell, graveyardHasMonster } from "./builders/graveyardConditions";
-import { hasCounter } from "./builders/counterConditions";
-import { oncePerTurn, oncePerTurnEffect } from "./builders/activationConditions";
-import { lpAtLeast, lpGreaterThan } from "./builders/lpConditions";
+// ConditionChecker 実装
+import { canDrawCondition, deckHasCardCondition, deckHasNameIncludesCondition } from "./builders/deckConditions";
+import { handCountCondition, handCountExcludingSelfCondition, handHasSpellCondition } from "./builders/handConditions";
+import { graveyardHasSpellCondition, graveyardHasMonsterCondition } from "./builders/graveyardConditions";
+import { hasCounterCondition } from "./builders/counterConditions";
+import { oncePerTurnCondition, oncePerTurnEffectCondition } from "./builders/activationConditions";
+import { lpAtLeastCondition, lpGreaterThanCondition } from "./builders/lpConditions";
 
 // ===========================
 // エクスポート
 // ===========================
 
-export {
-  type ConditionChecker,
-  AtomicConditionRegistry,
-  canDraw,
-  deckHasCard,
-  deckHasNameIncludes,
-  handCount,
-  handCountExcludingSelf,
-  handHasSpell,
-  graveyardHasSpell,
-  graveyardHasMonster,
-  hasCounter,
-  oncePerTurn,
-  oncePerTurnEffect,
-  lpAtLeast,
-  lpGreaterThan,
-};
-
+export { type ConditionChecker, AtomicConditionRegistry };
 export const checkCondition = AtomicConditionRegistry.check.bind(AtomicConditionRegistry);
 
 // ===========================
 // 条件登録
 // ===========================
 
-const { ERROR_CODES } = GameProcessing.Validation;
+// デッキ関連
+AtomicConditionRegistry.register("CAN_DRAW", canDrawCondition);
+AtomicConditionRegistry.register("DECK_HAS_CARD", deckHasCardCondition);
+AtomicConditionRegistry.register("DECK_HAS_NAME_INCLUDES", deckHasNameIncludesCondition);
 
-/**
- * CAN_DRAW - デッキに指定枚数以上のカードがあるか
- * args: { count: number }
- */
-AtomicConditionRegistry.register("CAN_DRAW", (state, _sourceInstance, args) => {
-  const count = args.count as number;
-  if (typeof count !== "number" || count < 1) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-  return canDraw(state, count);
-});
+// 手札関連
+AtomicConditionRegistry.register("HAND_COUNT", handCountCondition);
+AtomicConditionRegistry.register("HAND_COUNT_EXCLUDING_SELF", handCountExcludingSelfCondition);
+AtomicConditionRegistry.register("HAND_HAS_SPELL", handHasSpellCondition);
 
-/**
- * HAND_COUNT_EXCLUDING_SELF - 自身を除く手札が指定枚数以上あるか
- * args: { minCount: number }
- */
-AtomicConditionRegistry.register("HAND_COUNT_EXCLUDING_SELF", (state, sourceInstance, args) => {
-  const minCount = args.minCount as number;
-  if (typeof minCount !== "number" || minCount < 1) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-  return handCountExcludingSelf(state, sourceInstance, minCount);
-});
+// 墓地関連
+AtomicConditionRegistry.register("GRAVEYARD_HAS_SPELL", graveyardHasSpellCondition);
+AtomicConditionRegistry.register("GRAVEYARD_HAS_MONSTER", graveyardHasMonsterCondition);
 
-/**
- * GRAVEYARD_HAS_SPELL - 墓地に魔法カードが指定枚数以上あるか
- * args: { minCount?: number } (デフォルト: 1)
- */
-AtomicConditionRegistry.register("GRAVEYARD_HAS_SPELL", (state, _sourceInstance, args) => {
-  const minCount = (args.minCount as number) ?? 1;
-  return graveyardHasSpell(state, minCount);
-});
+// カウンター関連
+AtomicConditionRegistry.register("HAS_COUNTER", hasCounterCondition);
 
-/**
- * DECK_HAS_CARD - デッキに条件に合うカードが指定枚数以上あるか
- * args: { filterType: string, filterSpellType?: string, minCount?: number }
- */
-AtomicConditionRegistry.register("DECK_HAS_CARD", (state, _sourceInstance, args) => {
-  const filterType = args.filterType as string;
-  const filterSpellType = args.filterSpellType as string | undefined;
-  const minCount = (args.minCount as number) ?? 1;
+// 発動条件関連
+AtomicConditionRegistry.register("ONCE_PER_TURN", oncePerTurnCondition);
+AtomicConditionRegistry.register("ONCE_PER_TURN_EFFECT", oncePerTurnEffectCondition);
 
-  if (!filterType) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  const filter = (card: { type: string; spellType?: string }) => {
-    if (card.type !== filterType) return false;
-    if (filterSpellType && card.spellType !== filterSpellType) return false;
-    return true;
-  };
-
-  return deckHasCard(state, filter, minCount);
-});
-
-/**
- * DECK_HAS_NAME_INCLUDES - デッキに名前パターンを含むカードが指定枚数以上あるか
- * args: { namePattern: string, minCount?: number }
- */
-AtomicConditionRegistry.register("DECK_HAS_NAME_INCLUDES", (state, _sourceInstance, args) => {
-  const namePattern = args.namePattern as string;
-  const minCount = (args.minCount as number) ?? 1;
-
-  if (!namePattern) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  return deckHasNameIncludes(state, namePattern, minCount);
-});
-
-/**
- * HAND_COUNT - 手札が指定枚数以上あるか
- * args: { minCount: number }
- */
-AtomicConditionRegistry.register("HAND_COUNT", (state, _sourceInstance, args) => {
-  const minCount = args.minCount as number;
-  if (typeof minCount !== "number" || minCount < 1) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-  return handCount(state, minCount);
-});
-
-/**
- * ONCE_PER_TURN - このカードがこのターンまだ発動されていないか
- * args: { cardId: number } (省略時はsourceInstanceのIDを使用)
- */
-AtomicConditionRegistry.register("ONCE_PER_TURN", (state, sourceInstance, args) => {
-  const cardId = (args.cardId as number) ?? sourceInstance.id;
-  return oncePerTurn(state, cardId);
-});
-
-/**
- * GRAVEYARD_HAS_MONSTER - 墓地にモンスターカードが指定枚数以上あるか
- * args: { minCount?: number, frameType?: string } (デフォルト: minCount=1)
- */
-AtomicConditionRegistry.register("GRAVEYARD_HAS_MONSTER", (state, _sourceInstance, args) => {
-  const minCount = (args.minCount as number) ?? 1;
-  const frameType = args.frameType as string | undefined;
-
-  const filter = frameType ? (card: { frameType?: string }) => card.frameType === frameType : undefined;
-
-  return graveyardHasMonster(state, minCount, filter);
-});
-
-/**
- * HAS_COUNTER - 発動元カードに指定タイプのカウンターが指定枚数以上あるか
- * args: { counterType: CounterType, minCount: number }
- */
-AtomicConditionRegistry.register("HAS_COUNTER", (_state, sourceInstance, args) => {
-  const counterType = args.counterType as CounterType;
-  const minCount = args.minCount as number;
-
-  if (!counterType) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-  if (typeof minCount !== "number" || minCount < 1) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  return hasCounter(sourceInstance, counterType, minCount);
-});
-
-/**
- * LP_AT_LEAST - プレイヤーのLPが指定値以上か
- * args: { amount: number, target?: "player" | "opponent" }
- */
-AtomicConditionRegistry.register("LP_AT_LEAST", (state, _sourceInstance, args) => {
-  const amount = args.amount as number;
-  const target = (args.target as "player" | "opponent") ?? "player";
-
-  if (typeof amount !== "number" || amount < 0) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  return lpAtLeast(state, amount, target);
-});
-
-/**
- * LP_GREATER_THAN - プレイヤーのLPが指定値を超えているか
- * args: { amount: number, target?: "player" | "opponent" }
- */
-AtomicConditionRegistry.register("LP_GREATER_THAN", (state, _sourceInstance, args) => {
-  const amount = args.amount as number;
-  const target = (args.target as "player" | "opponent") ?? "player";
-
-  if (typeof amount !== "number" || amount < 0) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  return lpGreaterThan(state, amount, target);
-});
-
-/**
- * ONCE_PER_TURN_EFFECT - この効果がこのターンまだ発動されていないか（フィールド上のカード用）
- * args: { effectIndex: number } (同一カードの起動効果の番号、1始まり)
- */
-AtomicConditionRegistry.register("ONCE_PER_TURN_EFFECT", (_state, sourceInstance, args) => {
-  const effectIndex = args.effectIndex as number;
-
-  if (typeof effectIndex !== "number" || effectIndex < 1) {
-    return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  const effectId = Effect.Id.create("ignition", sourceInstance.id, effectIndex);
-  return oncePerTurnEffect(sourceInstance, effectId);
-});
-
-/**
- * HAND_HAS_SPELL - 手札に魔法カードが指定枚数以上あるか（自身を除く）
- * args: { minCount?: number } (デフォルト: 1)
- */
-AtomicConditionRegistry.register("HAND_HAS_SPELL", (state, sourceInstance, args) => {
-  const minCount = (args.minCount as number) ?? 1;
-  return handHasSpell(state, sourceInstance, minCount);
-});
+// LP関連
+AtomicConditionRegistry.register("LP_AT_LEAST", lpAtLeastCondition);
+AtomicConditionRegistry.register("LP_GREATER_THAN", lpGreaterThanCondition);

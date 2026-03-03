@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildStep, getRegisteredStepNames, isStepRegistered, type StepBuildContext } from "$lib/domain/effects/steps";
+import { buildStep, AtomicStepRegistry, type StepBuildContext } from "$lib/domain/effects/steps";
 
 /**
  * StepRegistry Tests
@@ -109,8 +109,8 @@ describe("StepRegistry - エラーケース", () => {
 // =============================================================================
 
 describe("StepRegistry - ユーティリティ", () => {
-  it("getRegisteredStepNames で登録済みステップ名一覧を取得できる", () => {
-    const names = getRegisteredStepNames();
+  it("getRegisteredNames で登録済みステップ名一覧を取得できる", () => {
+    const names = AtomicStepRegistry.getRegisteredNames();
 
     expect(names).toContain("DRAW");
     expect(names).toContain("SELECT_AND_DISCARD");
@@ -119,8 +119,8 @@ describe("StepRegistry - ユーティリティ", () => {
     expect(names).toContain("GAIN_LP");
   });
 
-  it("isStepRegistered で登録状態をチェックできる", () => {
-    expect(isStepRegistered("DRAW")).toBe(true);
-    expect(isStepRegistered("UNKNOWN")).toBe(false);
+  it("isRegistered で登録状態をチェックできる", () => {
+    expect(AtomicStepRegistry.isRegistered("DRAW")).toBe(true);
+    expect(AtomicStepRegistry.isRegistered("UNKNOWN")).toBe(false);
   });
 });

@@ -1,49 +1,57 @@
 /**
  * lpConditions - LP関連の発動条件チェック
  *
- * 公開条件:
- * - lpAtLeast: LPが指定値以上かチェック
- * - lpGreaterThan: LPが指定値を超えているかチェック
- *
- * @module domain/effects/conditions/lpConditions
+ * ConditionChecker:
+ * - lpAtLeastCondition: LPが指定値以上かチェック
+ * - lpGreaterThanCondition: LPが指定値を超えているかチェック
  */
 
 import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
-import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { ConditionChecker } from "../AtomicConditionRegistry";
 
-const { ERROR_CODES } = GameProcessing.Validation;
+const { success, failure, ERROR_CODES } = GameProcessing.Validation;
 
-/**
- * LPが指定値以上かチェック (LP >= amount)
- *
- * @param state - 現在のゲーム状態
- * @param amount - 必要なLP
- * @param target - チェック対象（デフォルト: player）
- */
-export function lpAtLeast(state: GameSnapshot, amount: number, target: Player = "player"): ValidationResult {
-  const currentLp = state.lp[target];
+// ===========================
+// 純粋関数（private）
+// ===========================
 
-  if (currentLp >= amount) {
-    return GameProcessing.Validation.success();
-  }
+/** LPが指定値以上か (LP >= amount) */
+const lpAtLeast = (state: GameSnapshot, amount: number, target: Player): boolean => state.lp[target] >= amount;
 
-  return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-}
+/** LPが指定値を超えているか (LP > amount) */
+const lpGreaterThan = (state: GameSnapshot, amount: number, target: Player): boolean => state.lp[target] > amount;
+
+// ===========================
+// ConditionChecker（export）
+// ===========================
 
 /**
- * LPが指定値を超えているかチェック (LP > amount)
- *
- * @param state - 現在のゲーム状態
- * @param amount - 超えている必要があるLP
- * @param target - チェック対象（デフォルト: player）
+ * LP_AT_LEAST - プレイヤーのLPが指定値以上か
+ * args: { amount: number, target?: "player" | "opponent" }
  */
-export function lpGreaterThan(state: GameSnapshot, amount: number, target: Player = "player"): ValidationResult {
-  const currentLp = state.lp[target];
+export const lpAtLeastCondition: ConditionChecker = (state, _sourceInstance, args) => {
+  const amount = args.amount as number;
+  const target = (args.target as Player) ?? "player";
 
-  if (currentLp > amount) {
-    return GameProcessing.Validation.success();
+  if (typeof amount !== "number" || amount < 0) {
+    return failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
   }
 
-  return GameProcessing.Validation.failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-}
+  return lpAtLeast(state, amount, target) ? success() : failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+};
+
+/**
+ * LP_GREATER_THAN - プレイヤーのLPが指定値を超えているか
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+export const lpGreaterThanCondition: ConditionChecker = (state, _sourceInstance, args) => {
+  const amount = args.amount as number;
+  const target = (args.target as Player) ?? "player";
+
+  if (typeof amount !== "number" || amount < 0) {
+    return failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+  }
+
+  return lpGreaterThan(state, amount, target) ? success() : failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+};

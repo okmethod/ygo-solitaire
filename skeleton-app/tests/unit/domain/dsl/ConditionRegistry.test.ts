@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkCondition, getRegisteredConditionNames, isConditionRegistered } from "$lib/domain/effects/conditions";
+import { checkCondition, AtomicConditionRegistry } from "$lib/domain/effects/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
@@ -120,17 +120,17 @@ describe("ConditionRegistry - エラーケース", () => {
 // =============================================================================
 
 describe("ConditionRegistry - ユーティリティ", () => {
-  it("getRegisteredConditionNames で登録済み条件名一覧を取得できる", () => {
-    const names = getRegisteredConditionNames();
+  it("getRegisteredNames で登録済み条件名一覧を取得できる", () => {
+    const names = AtomicConditionRegistry.getRegisteredNames();
 
     expect(names).toContain("CAN_DRAW");
     expect(names).toContain("HAS_COUNTER");
   });
 
-  it("isConditionRegistered で登録状態をチェックできる", () => {
-    expect(isConditionRegistered("CAN_DRAW")).toBe(true);
-    expect(isConditionRegistered("HAS_COUNTER")).toBe(true);
-    expect(isConditionRegistered("UNKNOWN")).toBe(false);
+  it("isRegistered で登録状態をチェックできる", () => {
+    expect(AtomicConditionRegistry.isRegistered("CAN_DRAW")).toBe(true);
+    expect(AtomicConditionRegistry.isRegistered("HAS_COUNTER")).toBe(true);
+    expect(AtomicConditionRegistry.isRegistered("UNKNOWN")).toBe(false);
   });
 });
 

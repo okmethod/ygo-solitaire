@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildStep, getRegisteredStepNames, isStepRegistered, type StepBuildContext } from "$lib/domain/effects/steps";
+import { buildStep, AtomicStepRegistry, type StepBuildContext } from "$lib/domain/effects/steps";
 
 /**
  * CostSteps Tests - コスト関連ステップのテスト
@@ -52,12 +52,12 @@ describe("StepRegistry - SEARCH_FROM_DECK", () => {
     }).toThrow("SEARCH_FROM_DECK step requires a positive count argument");
   });
 
-  it("isStepRegistered で SEARCH_FROM_DECK が登録済みであることを確認できる", () => {
-    expect(isStepRegistered("SEARCH_FROM_DECK")).toBe(true);
+  it("isRegistered で SEARCH_FROM_DECK が登録済みであることを確認できる", () => {
+    expect(AtomicStepRegistry.isRegistered("SEARCH_FROM_DECK")).toBe(true);
   });
 
-  it("getRegisteredStepNames に SEARCH_FROM_DECK が含まれる", () => {
-    const names = getRegisteredStepNames();
+  it("getRegisteredNames に SEARCH_FROM_DECK が含まれる", () => {
+    const names = AtomicStepRegistry.getRegisteredNames();
     expect(names).toContain("SEARCH_FROM_DECK");
   });
 });
@@ -94,12 +94,12 @@ describe("StepRegistry - SALVAGE_FROM_GRAVEYARD", () => {
     }).toThrow("SALVAGE_FROM_GRAVEYARD step requires a positive count argument");
   });
 
-  it("isStepRegistered で SALVAGE_FROM_GRAVEYARD が登録済みであることを確認できる", () => {
-    expect(isStepRegistered("SALVAGE_FROM_GRAVEYARD")).toBe(true);
+  it("isRegistered で SALVAGE_FROM_GRAVEYARD が登録済みであることを確認できる", () => {
+    expect(AtomicStepRegistry.isRegistered("SALVAGE_FROM_GRAVEYARD")).toBe(true);
   });
 
-  it("getRegisteredStepNames に SALVAGE_FROM_GRAVEYARD が含まれる", () => {
-    const names = getRegisteredStepNames();
+  it("getRegisteredNames に SALVAGE_FROM_GRAVEYARD が含まれる", () => {
+    const names = AtomicStepRegistry.getRegisteredNames();
     expect(names).toContain("SALVAGE_FROM_GRAVEYARD");
   });
 });

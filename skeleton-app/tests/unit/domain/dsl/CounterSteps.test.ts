@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildStep, getRegisteredStepNames, isStepRegistered, type StepBuildContext } from "$lib/domain/effects/steps";
+import { buildStep, AtomicStepRegistry, type StepBuildContext } from "$lib/domain/effects/steps";
 
 /**
  * CounterSteps Tests - カウンター関連ステップのテスト
@@ -66,12 +66,12 @@ describe("StepRegistry - PLACE_COUNTER", () => {
     expect(typeof step.action).toBe("function");
   });
 
-  it("isStepRegistered で PLACE_COUNTER が登録済みであることを確認できる", () => {
-    expect(isStepRegistered("PLACE_COUNTER")).toBe(true);
+  it("isRegistered で PLACE_COUNTER が登録済みであることを確認できる", () => {
+    expect(AtomicStepRegistry.isRegistered("PLACE_COUNTER")).toBe(true);
   });
 
-  it("getRegisteredStepNames に PLACE_COUNTER が含まれる", () => {
-    const names = getRegisteredStepNames();
+  it("getRegisteredNames に PLACE_COUNTER が含まれる", () => {
+    const names = AtomicStepRegistry.getRegisteredNames();
     expect(names).toContain("PLACE_COUNTER");
   });
 });
@@ -108,12 +108,12 @@ describe("StepRegistry - REMOVE_COUNTER", () => {
     }).toThrow("REMOVE_COUNTER step requires a positive count argument");
   });
 
-  it("isStepRegistered で REMOVE_COUNTER が登録済みであることを確認できる", () => {
-    expect(isStepRegistered("REMOVE_COUNTER")).toBe(true);
+  it("isRegistered で REMOVE_COUNTER が登録済みであることを確認できる", () => {
+    expect(AtomicStepRegistry.isRegistered("REMOVE_COUNTER")).toBe(true);
   });
 
-  it("getRegisteredStepNames に REMOVE_COUNTER が含まれる", () => {
-    const names = getRegisteredStepNames();
+  it("getRegisteredNames に REMOVE_COUNTER が含まれる", () => {
+    const names = AtomicStepRegistry.getRegisteredNames();
     expect(names).toContain("REMOVE_COUNTER");
   });
 });

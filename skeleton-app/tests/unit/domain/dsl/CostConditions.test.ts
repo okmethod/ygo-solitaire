@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkCondition, getRegisteredConditionNames, isConditionRegistered } from "$lib/domain/effects/conditions";
+import { checkCondition, AtomicConditionRegistry } from "$lib/domain/effects/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
@@ -135,8 +135,8 @@ describe("ConditionRegistry - HAND_COUNT_EXCLUDING_SELF", () => {
     expect(result.isValid).toBe(false);
   });
 
-  it("isConditionRegistered で登録状態をチェックできる", () => {
-    expect(isConditionRegistered("HAND_COUNT_EXCLUDING_SELF")).toBe(true);
+  it("isRegistered で登録状態をチェックできる", () => {
+    expect(AtomicConditionRegistry.isRegistered("HAND_COUNT_EXCLUDING_SELF")).toBe(true);
   });
 });
 
@@ -187,8 +187,8 @@ describe("ConditionRegistry - GRAVEYARD_HAS_SPELL", () => {
     expect(result.isValid).toBe(true);
   });
 
-  it("isConditionRegistered で登録状態をチェックできる", () => {
-    expect(isConditionRegistered("GRAVEYARD_HAS_SPELL")).toBe(true);
+  it("isRegistered で登録状態をチェックできる", () => {
+    expect(AtomicConditionRegistry.isRegistered("GRAVEYARD_HAS_SPELL")).toBe(true);
   });
 });
 
@@ -234,12 +234,12 @@ describe("ConditionRegistry - DECK_HAS_CARD", () => {
     expect(result.isValid).toBe(false);
   });
 
-  it("isConditionRegistered で登録状態をチェックできる", () => {
-    expect(isConditionRegistered("DECK_HAS_CARD")).toBe(true);
+  it("isRegistered で登録状態をチェックできる", () => {
+    expect(AtomicConditionRegistry.isRegistered("DECK_HAS_CARD")).toBe(true);
   });
 
-  it("getRegisteredConditionNames で登録済み条件名一覧を取得できる", () => {
-    const names = getRegisteredConditionNames();
+  it("getRegisteredNames で登録済み条件名一覧を取得できる", () => {
+    const names = AtomicConditionRegistry.getRegisteredNames();
 
     expect(names).toContain("HAND_COUNT_EXCLUDING_SELF");
     expect(names).toContain("GRAVEYARD_HAS_SPELL");
