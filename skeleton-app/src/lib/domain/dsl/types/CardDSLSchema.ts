@@ -6,6 +6,9 @@
  */
 
 import { z } from "zod";
+import { CONDITION_NAMES, type ConditionName } from "$lib/domain/effects/conditions";
+
+const conditionValues = Object.values(CONDITION_NAMES) as [ConditionName, ...ConditionName[]];
 
 // =============================================================================
 // 基本型のスキーマ
@@ -58,7 +61,20 @@ const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestro
 // =============================================================================
 
 /**
- * ステップのDSL表現スキーマ
+ * Condition のDSL表現スキーマ
+ *
+ * ConditionRegistryのキーと引数をマッピングする。
+ * 例: { step: "DRAW", args: { count: 3 } }
+ */
+const ConditionDSLSchema = z.object({
+  /** ConditionRegistryのキー */
+  step: z.enum(conditionValues),
+  /** ステップに渡す引数（オプション） */
+  args: z.record(z.string(), z.any()).optional(),
+});
+
+/**
+ * Step のDSL表現スキーマ
  *
  * StepRegistryのキーと引数をマッピングする。
  * 例: { step: "DRAW", args: { count: 3 } }
@@ -80,7 +96,7 @@ export type StepDSL = z.infer<typeof StepDSLSchema>;
  */
 const ChainableActionDSLSchema = z.object({
   /** 発動条件のステップリスト */
-  conditions: z.array(StepDSLSchema).optional(),
+  conditions: z.array(ConditionDSLSchema).optional(),
   /** 発動時処理（コスト支払い等）のステップリスト */
   activations: z.array(StepDSLSchema).optional(),
   /** 効果処理のステップリスト */
@@ -115,7 +131,7 @@ const TriggerEffectDSLSchema = z.object({
   /** スペルスピード（通常1、一部のカードで2） */
   spellSpeed: z.literal(1).or(z.literal(2)).optional(),
   /** 発動条件のステップリスト */
-  conditions: z.array(StepDSLSchema).optional(),
+  conditions: z.array(ConditionDSLSchema).optional(),
   /** 発動時処理（コスト支払い等）のステップリスト */
   activations: z.array(StepDSLSchema).optional(),
   /** 効果処理のステップリスト */

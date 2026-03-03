@@ -1,0 +1,36 @@
+/**
+ * ConditionNames - 条件名の定数定義
+ *
+ * 型安全な条件名を提供する。
+ * DSLの "conditions" セクションで使用する。
+ */
+
+export const CONDITION_NAMES = {
+  // デッキ関連
+  CAN_DRAW: "CAN_DRAW",
+  DECK_HAS_CARD: "DECK_HAS_CARD",
+  DECK_HAS_NAME_INCLUDES: "DECK_HAS_NAME_INCLUDES",
+
+  // 手札関連
+  HAND_COUNT: "HAND_COUNT",
+  HAND_COUNT_EXCLUDING_SELF: "HAND_COUNT_EXCLUDING_SELF",
+  HAND_HAS_SPELL: "HAND_HAS_SPELL",
+
+  // 墓地関連
+  GRAVEYARD_HAS_SPELL: "GRAVEYARD_HAS_SPELL",
+  GRAVEYARD_HAS_MONSTER: "GRAVEYARD_HAS_MONSTER",
+
+  // カウンター関連
+  HAS_COUNTER: "HAS_COUNTER",
+
+  // 発動条件関連
+  ONCE_PER_TURN: "ONCE_PER_TURN",
+  ONCE_PER_TURN_EFFECT: "ONCE_PER_TURN_EFFECT",
+
+  // LP関連
+  LP_AT_LEAST: "LP_AT_LEAST",
+  LP_GREATER_THAN: "LP_GREATER_THAN",
+} as const;
+
+/** 登録済み条件名の Union 型 */
+export type ConditionName = (typeof CONDITION_NAMES)[keyof typeof CONDITION_NAMES];

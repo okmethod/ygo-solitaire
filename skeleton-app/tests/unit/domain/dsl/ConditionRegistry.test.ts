@@ -110,6 +110,7 @@ describe("ConditionRegistry - エラーケース", () => {
     const sourceInstance = createMockCardInstance();
 
     expect(() => {
+      // @ts-expect-error: UNKNOWN_CONDITION is not a valid ConditionName
       checkCondition("UNKNOWN_CONDITION", state, sourceInstance, {});
     }).toThrow('Unknown condition "UNKNOWN_CONDITION" for card 12345. Available conditions: CAN_DRAW');
   });
@@ -130,6 +131,7 @@ describe("ConditionRegistry - ユーティリティ", () => {
   it("isRegistered で登録状態をチェックできる", () => {
     expect(AtomicConditionRegistry.isRegistered("CAN_DRAW")).toBe(true);
     expect(AtomicConditionRegistry.isRegistered("HAS_COUNTER")).toBe(true);
+    // @ts-expect-error: "UNKNOWN" は ConditionName 型に含まれないためコンパイルエラーになるが、実行時の挙動を確認したい
     expect(AtomicConditionRegistry.isRegistered("UNKNOWN")).toBe(false);
   });
 });

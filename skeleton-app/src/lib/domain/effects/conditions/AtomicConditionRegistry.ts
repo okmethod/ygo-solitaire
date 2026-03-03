@@ -12,6 +12,7 @@
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { ConditionName } from "./ConditionNames";
 
 /**
  * 条件チェック関数の型
@@ -32,7 +33,7 @@ export type ConditionChecker = (
  */
 export class AtomicConditionRegistry {
   /** 登録済み条件のマップ (Condition Name → ConditionChecker) */
-  private static conditions = new Map<string, ConditionChecker>();
+  private static conditions = new Map<ConditionName, ConditionChecker>();
 
   // ===========================
   // 登録API
@@ -45,7 +46,7 @@ export class AtomicConditionRegistry {
    * @param checker - 条件チェック関数
    * @throws Error - 既に登録済みの場合
    */
-  static register(conditionName: string, checker: ConditionChecker): void {
+  static register(conditionName: ConditionName, checker: ConditionChecker): void {
     if (this.conditions.has(conditionName)) {
       throw new Error(`Condition "${conditionName}" is already registered`);
     }
@@ -67,7 +68,7 @@ export class AtomicConditionRegistry {
    * @throws Error - 未登録の条件名の場合
    */
   static check(
-    conditionName: string,
+    conditionName: ConditionName,
     state: GameSnapshot,
     sourceInstance: CardInstance,
     args: Readonly<Record<string, unknown>> = {},
@@ -84,14 +85,14 @@ export class AtomicConditionRegistry {
   /**
    * 条件が登録されているかチェックする
    */
-  static isRegistered(conditionName: string): boolean {
+  static isRegistered(conditionName: ConditionName): boolean {
     return this.conditions.has(conditionName);
   }
 
   /**
    * 登録されている条件名一覧を取得する
    */
-  static getRegisteredNames(): readonly string[] {
+  static getRegisteredNames(): readonly ConditionName[] {
     return Array.from(this.conditions.keys());
   }
 
