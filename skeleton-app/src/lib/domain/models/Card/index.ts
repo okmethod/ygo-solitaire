@@ -32,6 +32,7 @@ import * as CounterFuncs from "./Counter";
  * カードに関する純粋関数（ロジック）を階層的に集約する。
  */
 export const Card = {
+  TypeJaName: CardDataFuncs.buildJapaneseCardTypeDesc,
   isMonster: CardDataFuncs.isMonsterCard,
   isSpell: CardDataFuncs.isSpellCard,
   isTrap: CardDataFuncs.isTrapCard,

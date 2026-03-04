@@ -9,13 +9,12 @@
  */
 
 import type { CardInstance, CardType, FrameSubType, SpellSubType, CounterType } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
 import type { Player } from "$lib/domain/models/GameState";
 
 // レジストリAPI
 import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./AtomicStepRegistry";
 import { STEP_NAMES, type StepName } from "./StepNames";
-
-import { buildJapaneseFilterDesc } from "./jpLabels";
 
 // 具体実装
 import { drawStep, fillHandsStep } from "./builders/draws";
@@ -152,7 +151,7 @@ AtomicStepRegistry.register("SEARCH_FROM_DECK", (args, context) => {
   // ID用（英語）
   const filterDescEn = filterSpellType ? `${filterSpellType}${filterType}` : filterType;
   // 表示用（日本語）
-  const filterDescJa = buildJapaneseFilterDesc(filterType, filterSpellType);
+  const filterDescJa = Card.TypeJaName(filterType, undefined, filterSpellType, undefined);
 
   return searchFromDeckByConditionStep({
     id: `${context.cardId}-search-from-deck-${filterDescEn}`,
@@ -198,7 +197,7 @@ AtomicStepRegistry.register("SALVAGE_FROM_GRAVEYARD", (args, context) => {
   const filterDescEn = filterDescPartsEn.join("");
 
   // 表示用（日本語）
-  const filterDescJa = buildJapaneseFilterDesc(filterType, filterSpellType, filterFrameType);
+  const filterDescJa = Card.TypeJaName(filterType, filterFrameType, filterSpellType, undefined);
 
   return salvageFromGraveyardStep({
     id: `${context.cardId}-salvage-from-graveyard-${filterDescEn}`,

@@ -65,3 +65,73 @@ export const isFieldSpellCard = (card: CardData): boolean => {
 export const isTrapCard = (card: CardData): boolean => {
   return card.type === "trap";
 };
+
+/** カードタイプの日本語変換 */
+const CARD_TYPE_NAMES: Record<CardType, string> = {
+  spell: "魔法",
+  monster: "モンスター",
+  trap: "罠",
+};
+
+/** フレームタイプの日本語変換 */
+const FRAME_TYPE_NAMES: Record<FrameSubType, string> = {
+  normal: "通常",
+  effect: "効果",
+  fusion: "融合",
+  ritual: "儀式",
+  pendulum: "ペンデュラム",
+  synchro: "シンクロ",
+  xyz: "エクシーズ",
+  link: "リンク",
+  spell: "魔法",
+  trap: "罠",
+};
+
+/** 魔法カード種別の日本語変換 */
+const SPELL_TYPE_NAMES: Record<SpellSubType, string> = {
+  field: "フィールド",
+  normal: "通常",
+  "quick-play": "速攻",
+  continuous: "永続",
+  equip: "装備",
+  ritual: "儀式",
+};
+
+/** 罠カード種別の日本語変換 */
+const TRAP_TYPE_NAMES: Record<TrapSubType, string> = {
+  normal: "通常",
+  continuous: "永続",
+  counter: "カウンター",
+};
+
+/**
+ * カードタイプを日本語に変換する
+ *
+ * 例:
+ * - { type: "spell", spellType: "field" } -> "フィールド魔法"
+ * - { type: "monster", frameType: "fusion" } -> "融合モンスター"
+ * - { type: "trap", trapType: "counter" } -> "カウンター罠"
+ */
+export function buildJapaneseCardTypeDesc(
+  type: CardType,
+  frameType?: FrameSubType,
+  spellType?: SpellSubType,
+  trapType?: TrapSubType,
+): string {
+  const parts: string[] = [];
+
+  if (frameType) {
+    parts.push(FRAME_TYPE_NAMES[frameType] ?? frameType);
+  }
+  if (spellType) {
+    parts.push(SPELL_TYPE_NAMES[spellType] ?? spellType);
+  }
+  if (trapType) {
+    parts.push(TRAP_TYPE_NAMES[trapType] ?? trapType);
+  }
+
+  const typeJa = CARD_TYPE_NAMES[type] ?? type;
+  parts.push(typeJa);
+
+  return parts.join("");
+}
