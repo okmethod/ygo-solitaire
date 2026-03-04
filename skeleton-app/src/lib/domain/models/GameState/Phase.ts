@@ -9,7 +9,7 @@ export const GAME_PHASES = ["draw", "standby", "main1", "end"] as const;
 export type GamePhase = (typeof GAME_PHASES)[number];
 
 /** 各フェイズの日本語名 */
-export const PHASE_NAMES: Record<GamePhase, string> = {
+const PHASE_NAMES: Record<GamePhase, string> = {
   draw: "ドローフェイズ",
   standby: "スタンバイフェイズ",
   main1: "メインフェイズ",
