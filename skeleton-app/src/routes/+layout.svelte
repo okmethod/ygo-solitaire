@@ -3,9 +3,8 @@
   import { onMount } from "svelte";
   import { Toaster } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
-  import ThemeSwitchModal from "$lib/presentation/components/modals/ThemeSwitchModal.svelte";
   import AudioToggle from "$lib/presentation/components/buttons/AudioToggle.svelte";
-  import CardDetailToggle from "$lib/presentation/components/buttons/CardDetailToggle.svelte";
+  import SettingsModal from "$lib/presentation/components/modals/SettingsModal.svelte";
   import CardDetailDisplay from "$lib/presentation/components/atoms/CardDetailDisplay.svelte";
   import { applyTheme } from "$lib/presentation/stores/themeStore";
   import { toaster } from "$lib/presentation/utils/toaster";
@@ -38,15 +37,12 @@
       </a>
 
       <nav>
-        <ul class="flex space-x-4 items-center justify-center">
+        <ul class="flex space-x-2 items-center justify-center">
           <li>
             <AudioToggle />
           </li>
           <li>
-            <CardDetailToggle />
-          </li>
-          <li>
-            <ThemeSwitchModal />
+            <SettingsModal />
           </li>
         </ul>
       </nav>

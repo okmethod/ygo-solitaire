@@ -1,29 +1,24 @@
 <script lang="ts">
   import Icon from "@iconify/svelte";
-  import { Switch } from "@skeletonlabs/skeleton-svelte";
   import { getAudioOn, setAudioOn } from "$lib/presentation/stores/audioStore";
 
-  let currentAudioOn: boolean = getAudioOn();
+  let currentAudioOn: boolean = $state(getAudioOn());
 
-  // オーディオのオン/オフを切り替える関数
   function toggleAudio() {
     currentAudioOn = !currentAudioOn;
     setAudioOn(currentAudioOn);
   }
 </script>
 
-<Switch
-  name="audioToggle"
-  controlClasses="h-8"
-  controlActive="bg-surface-950-50"
-  compact
-  checked={currentAudioOn}
-  onCheckedChange={() => toggleAudio()}
+<button
+  type="button"
+  class="btn p-2 rounded-xl h-10 w-10 {currentAudioOn ? 'preset-filled-primary-500' : 'preset-tonal'}"
+  onclick={toggleAudio}
+  aria-label={currentAudioOn ? "音声をオフにする" : "音声をオンにする"}
 >
-  {#snippet activeChild()}
-    <Icon icon="mdi:volume-high" class="size-5 text-white" />
-  {/snippet}
-  {#snippet inactiveChild()}
-    <Icon icon="mdi:volume-off" class="size-5 text-white" />
-  {/snippet}
-</Switch>
+  {#if currentAudioOn}
+    <Icon icon="mdi:volume-high" class="size-5" />
+  {:else}
+    <Icon icon="mdi:volume-off" class="size-5" />
+  {/if}
+</button>
