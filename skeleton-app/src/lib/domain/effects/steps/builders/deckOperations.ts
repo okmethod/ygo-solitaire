@@ -1,16 +1,15 @@
 /**
  * deckOperations.ts - デッキ操作系ステップビルダー
  *
- * 公開ステップ:
- * - shuffleDeckStep: デッキシャッフル
- *
- * @module domain/effects/steps/deckOperations
+ * StepBuilder:
+ * - shuffleDeckStepBuilder: デッキシャッフル
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** デッキをシャッフルするステップ*/
 export const shuffleDeckStep = (): AtomicStep => {
@@ -28,3 +27,13 @@ export const shuffleDeckStep = (): AtomicStep => {
     },
   };
 };
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * SHUFFLE_DECK - デッキシャッフル
+ * args: none
+ */
+export const shuffleDeckStepBuilder: StepBuilder = () => shuffleDeckStep();

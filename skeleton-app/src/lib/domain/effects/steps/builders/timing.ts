@@ -1,17 +1,19 @@
 /**
- * timing - タイミング制御系ステップビルダー
+ * timing.ts - タイミング制御系ステップビルダー
  *
- * 公開関数:
- * - markThenStep: THEN マーカー
+ * StepBuilder:
+ * - thenStepBuilder: 「その後」タイミングマーカー
  *
- * @module domain/effects/steps/timing
+ * 純粋関数:
+ * - isThenMarker: ステップが THEN マーカーかどうか判定
  */
 
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** THEN マーカーの step ID */
-export const THEN_MARKER_ID = "then-marker";
+const THEN_MARKER_ID = "then-marker";
 
 /** THEN（「その後」）マーカーを通知するステップ */
 export function markThenStep(): AtomicStep {
@@ -28,3 +30,13 @@ export function markThenStep(): AtomicStep {
 export function isThenMarker(step: AtomicStep): boolean {
   return step.id === THEN_MARKER_ID;
 }
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * THEN - 「その後」タイミングマーカー
+ * args: none
+ */
+export const thenStepBuilder: StepBuilder = () => markThenStep();

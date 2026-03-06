@@ -1,23 +1,21 @@
 /**
  * discards.ts - カード破棄系ステップビルダー
  *
- * 公開関数:
- * - sendToGraveyardStep: カードを墓地へ送る
- * - discardAllHandStep: 手札を全て捨てる
- * - discardAllHandEndPhaseStep: エンドフェイズに手札を全て捨てる
- * - selectAndDiscardStep: 手札から指定枚数を選択して捨てる
+ * StepBuilder:
+ * - selectAndDiscardStepBuilder: 手札から指定枚数選んで捨てる
+ * - discardAllHandEndPhaseStepBuilder: エンドフェイズに手札を全て捨てる
  *
  * TODO: 「墓地の送る」と「捨てる」を区別する
- *
- * @module domain/effects/steps/discards
  */
 
+import type { CardType } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/builders/endPhase";
 import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** 指定カードを墓地に送るステップ */
 export const sendToGraveyardStep = (instanceId: string, cardName: string): AtomicStep => {
@@ -130,3 +128,27 @@ export const selectAndDiscardStep = (
     },
   });
 };
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * SELECT_AND_DISCARD - 手札から指定枚数選んで捨てる
+ * args: { count: number, cancelable?: boolean, filterType?: CardType }
+ */
+export const selectAndDiscardStepBuilder: StepBuilder = (args) => {
+  const count = args.count as number;
+  const cancelable = args.cancelable as boolean | undefined;
+  const filterType = args.filterType as CardType | undefined;
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("SELECT_AND_DISCARD step requires a positive count argument");
+  }
+  return selectAndDiscardStep(count, cancelable, filterType);
+};
+
+/**
+ * DISCARD_ALL_HAND_END_PHASE - エンドフェイズに手札を全て捨てる
+ * args: none
+ */
+export const discardAllHandEndPhaseStepBuilder: StepBuilder = () => discardAllHandEndPhaseStep();

@@ -1,10 +1,8 @@
 /**
  * summons.ts - 特殊召喚系ステップビルダー
  *
- * 公開関数:
- * - specialSummonFromDeckStep: デッキから条件に合うモンスターを特殊召喚
- *
- * @module domain/effects/steps/summons
+ * StepBuilder:
+ * - specialSummonFromDeckStepBuilder: デッキからモンスターを特殊召喚
  */
 
 import type { CardInstance, BattlePosition } from "$lib/domain/models/Card";
@@ -12,9 +10,10 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /**
- * デッキから条件に合うモンスターを選択し、フィールドに特殊召喚するステップ
+ * デッキから指定レベルのモンスターを選択し、フィールドに特殊召喚するステップ
  *
  * 処理:
  * 1. デッキから条件に合うカードを選択（UI表示）
@@ -23,33 +22,38 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
  *
  * TODO: 攻撃表示or守備表示を選択できるようにする
  */
-export const specialSummonFromDeckStep = (config: {
-  id: string;
-  summary: string;
-  description: string;
-  filter: (card: CardInstance) => boolean;
-  battlePosition?: BattlePosition;
-}): AtomicStep => {
-  const battlePosition = config.battlePosition ?? "attack";
+export const specialSummonFromDeckStep = (
+  cardId: number,
+  filterLevel?: number,
+  battlePosition: BattlePosition = "attack",
+): AtomicStep => {
+  const levelDesc = filterLevel !== undefined ? `レベル${filterLevel}` : "";
+  const summary = `${levelDesc}モンスターを特殊召喚`;
+  const description = `デッキから${levelDesc}モンスター1体を特殊召喚します`;
+  const filter = (card: CardInstance): boolean => {
+    if (card.type !== "monster") return false;
+    if (filterLevel !== undefined && card.level !== filterLevel) return false;
+    return true;
+  };
 
   return {
-    id: config.id,
-    summary: config.summary,
-    description: config.description,
+    id: `${cardId}-special-summon-from-deck-level${filterLevel ?? "any"}`,
+    summary,
+    description,
     notificationLevel: "interactive",
     cardSelectionConfig: {
       availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
       minCards: 1,
       maxCards: 1,
-      summary: config.summary,
-      description: config.description,
+      summary,
+      description,
       cancelable: false,
       _sourceZone: "mainDeck",
-      _filter: config.filter,
+      _filter: filter,
     },
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // デッキからフィルター条件に合うカードを取得
-      const availableCards = currentState.space.mainDeck.filter(config.filter);
+      const availableCards = currentState.space.mainDeck.filter(filter);
 
       // 条件に合うカードが存在しない場合はエラー
       if (availableCards.length === 0) {
@@ -85,4 +89,22 @@ export const specialSummonFromDeckStep = (config: {
       );
     },
   };
+};
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * SPECIAL_SUMMON_FROM_DECK - デッキからモンスターを特殊召喚
+ * args: { filterType: "monster", filterLevel?: number, battlePosition?: BattlePosition }
+ */
+export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => {
+  const filterType = args.filterType as string;
+  const filterLevel = args.filterLevel as number | undefined;
+  const battlePosition = (args.battlePosition as BattlePosition) ?? "attack";
+  if (filterType !== "monster") {
+    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster"');
+  }
+  return specialSummonFromDeckStep(context.cardId, filterLevel, battlePosition);
 };

@@ -1,18 +1,15 @@
 /**
- * steps/lifePoints - LP操作系ステップビルダー
+ * lifePoints.ts - LP操作系ステップビルダー
  *
- * 公開ステップ:
- * - gainLpStep: LP回復
- * - damageLpStep: LP減少（ダメージ）
- * - payLpStep: LP支払い（コスト）
- * - lossLpStep: LP喪失（失う）
- *
- * @module domain/effects/steps/lifePoints
+ * StepBuilder:
+ * - gainLpStepBuilder: ライフポイント回復
+ * - payLpStepBuilder: ライフポイント支払い（コスト）
  */
 
 import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 type LpOperationType = "gain" | "damage" | "payment" | "loss";
 
@@ -64,4 +61,40 @@ export const payLpStep = (amount: number, target: Player): AtomicStep => {
 /** ライフポイントを喪失するステップ */
 export const lossLpStep = (amount: number, target: Player): AtomicStep => {
   return commonLpStep("loss", amount, target);
+};
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * GAIN_LP - ライフポイント回復
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+export const gainLpStepBuilder: StepBuilder = (args) => {
+  const amount = args.amount as number;
+  const target = (args.target as Player) ?? "player";
+  if (typeof amount !== "number" || amount < 1) {
+    throw new Error("GAIN_LP step requires a positive amount argument");
+  }
+  if (target !== "player" && target !== "opponent") {
+    throw new Error('GAIN_LP step requires target to be "player" or "opponent"');
+  }
+  return gainLpStep(amount, target);
+};
+
+/**
+ * PAY_LP - ライフポイント支払い（コスト）
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+export const payLpStepBuilder: StepBuilder = (args) => {
+  const amount = args.amount as number;
+  const target = (args.target as Player) ?? "player";
+  if (typeof amount !== "number" || amount < 1) {
+    throw new Error("PAY_LP step requires a positive amount argument");
+  }
+  if (target !== "player" && target !== "opponent") {
+    throw new Error('PAY_LP step requires target to be "player" or "opponent"');
+  }
+  return payLpStep(amount, target);
 };

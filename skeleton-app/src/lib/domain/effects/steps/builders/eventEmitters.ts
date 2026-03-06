@@ -4,7 +4,9 @@
  * effectQueueStore がイベントを検出し、トリガールールを自動挿入するための
  * イベント発行ステップを定義する。
  *
- * @module domain/effects/steps/eventEmitters
+ * 純粋関数:
+ * - emitSpellActivatedEventStep: 魔法カード発動イベントを発行
+ * - emitMonsterSummonedEventStep: モンスター召喚イベントを発行
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";

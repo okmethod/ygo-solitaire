@@ -1,17 +1,16 @@
 /**
  * draws.ts - ドロー系ステップビルダー
  *
- * 公開関数:
- * - drawStep: 指定枚数ドロー
- * - fillHandsStep: 手札が指定枚数になるまでドロー
- *
- * @module domain/effects/steps/draws
+ * StepBuilder:
+ * - drawStepBuilder: 指定枚数ドロー
+ * - fillHandsStepBuilder: 手札が指定枚数になるまでドロー
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { drawCards } from "$lib/domain/models/GameState/CardSpace";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 // ドローステップの共通ヘルパー
 const commonDrawStep = (
@@ -72,3 +71,31 @@ export const fillHandsStep = (targetCount: number): AtomicStep =>
       description: `手札が${targetCount}枚になるまでドローします`,
     },
   );
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * DRAW - 指定枚数ドロー
+ * args: { count: number }
+ */
+export const drawStepBuilder: StepBuilder = (args) => {
+  const count = args.count as number;
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("DRAW step requires a positive count argument");
+  }
+  return drawStep(count);
+};
+
+/**
+ * FILL_HANDS - 手札が指定枚数になるまでドロー
+ * args: { count: number }
+ */
+export const fillHandsStepBuilder: StepBuilder = (args) => {
+  const count = args.count as number;
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("FILL_HANDS step requires a positive count argument");
+  }
+  return fillHandsStep(count);
+};

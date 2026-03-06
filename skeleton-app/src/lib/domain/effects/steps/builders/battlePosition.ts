@@ -1,10 +1,8 @@
 /**
  * battlePosition.ts - 表示形式変更ステップビルダー
  *
- * 公開関数:
- * - changeBattlePositionStep: モンスターの表示形式を変更
- *
- * @module domain/effects/steps/battlePosition
+ * StepBuilder:
+ * - changeBattlePositionStepBuilder: 表示形式変更
  */
 
 import type { BattlePosition } from "$lib/domain/models/Card";
@@ -12,6 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /**
  * 表示形式変更ステップ
@@ -54,4 +53,24 @@ export const changeBattlePositionStep = (instanceId: string, targetPosition: Bat
       return GameProcessing.Result.success(updatedState, `Changed to ${targetPosition} position`);
     },
   };
+};
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * CHANGE_BATTLE_POSITION - 表示形式変更
+ * args: { position: "attack" | "defense" }
+ */
+export const changeBattlePositionStepBuilder: StepBuilder = (args, context) => {
+  const position = args.position as BattlePosition;
+  if (position !== "attack" && position !== "defense") {
+    throw new Error('CHANGE_BATTLE_POSITION step requires position to be "attack" or "defense"');
+  }
+  const instanceId = context.sourceInstanceId;
+  if (!instanceId) {
+    throw new Error("CHANGE_BATTLE_POSITION step requires sourceInstanceId in context");
+  }
+  return changeBattlePositionStep(instanceId, position);
 };

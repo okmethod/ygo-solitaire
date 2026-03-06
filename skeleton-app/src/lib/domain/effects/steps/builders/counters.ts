@@ -1,11 +1,9 @@
 /**
  * counters.ts - カウンター操作系ステップビルダー
  *
- * 公開関数:
- * - addCounterStep: 指定カードに指定タイプのカウンターを置く
- * - removeCounterStep: 指定カードから指定タイプのカウンターを取り除く
- *
- * @module domain/effects/steps/counters
+ * StepBuilder:
+ * - placeCounterStepBuilder: カウンターを置く
+ * - removeCounterStepBuilder: カウンターを取り除く
  */
 
 import type { CounterType } from "$lib/domain/models/Card";
@@ -14,6 +12,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** 指定カードにカウンターを置くステップ */
 export const addCounterStep = (
@@ -90,3 +89,42 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
     );
   },
 });
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * PLACE_COUNTER - カウンターを置く
+ * args: { counterType: CounterType, count: number, limit?: number }
+ */
+export const placeCounterStepBuilder: StepBuilder = (args, context) => {
+  const counterType = args.counterType as CounterType;
+  const count = args.count as number;
+  const limit = args.limit as number | undefined;
+  if (!counterType) {
+    throw new Error("PLACE_COUNTER step requires counterType argument");
+  }
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("PLACE_COUNTER step requires a positive count argument");
+  }
+  const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
+  return addCounterStep(targetInstanceId, counterType, count, limit);
+};
+
+/**
+ * REMOVE_COUNTER - カウンターを取り除く
+ * args: { counterType: CounterType, count: number }
+ */
+export const removeCounterStepBuilder: StepBuilder = (args, context) => {
+  const counterType = args.counterType as CounterType;
+  const count = args.count as number;
+  if (!counterType) {
+    throw new Error("REMOVE_COUNTER step requires counterType argument");
+  }
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("REMOVE_COUNTER step requires a positive count argument");
+  }
+  const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
+  return removeCounterStep(targetInstanceId, counterType, count);
+};

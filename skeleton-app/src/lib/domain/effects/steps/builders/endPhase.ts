@@ -1,7 +1,7 @@
 /**
  * endPhase.ts - エンドフェイズ系ステップビルダー
  *
- * 公開関数:
+ * 純粋関数:
  * - queueEndPhaseEffectStep: エンドフェイズ効果を登録
  *
  * @module domain/effects/steps/endPhase
