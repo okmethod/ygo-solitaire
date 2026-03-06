@@ -5,10 +5,13 @@
    * チェーン可能なカードをユーザーに提示し、発動するかパスするかを選択させる。
    * effectQueueStore の chainConfirmationConfig から情報を取得し、
    * ユーザーによる操作確定時に config 内のコールバックを実行する。
+   *
+   * chainConfirmationEnabled がオフの場合、モーダルを表示せず自動的にパスする。
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import type { DisplayCardData, ChainConfirmationModalConfig } from "$lib/presentation/types";
   import { getDisplayCardData } from "$lib/presentation/services/displayDataCache";
+  import { getChainConfirmationEnabled } from "$lib/presentation/stores/chainConfirmationStore";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
 
   interface ChainConfirmationModalProps {
@@ -21,9 +24,14 @@
   // 選択状態を内部で管理
   let selectedId = $state<string | null>(null);
 
-  // isOpenがtrueになったら選択状態をリセット
+  // isOpenがtrueになったら選択状態をリセット、または自動パス
   $effect(() => {
-    if (isOpen) {
+    if (isOpen && config) {
+      // チェーン確認がオフの場合は自動的にパス
+      if (!getChainConfirmationEnabled()) {
+        config.onPass();
+        return;
+      }
       selectedId = null;
     }
   });

@@ -2,6 +2,7 @@
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import CardDetailToggle from "$lib/presentation/components/buttons/CardDetailToggle.svelte";
+  import ChainConfirmationToggle from "$lib/presentation/components/buttons/ChainConfirmationToggle.svelte";
   import ThemeSwitch from "$lib/presentation/components/atoms/ThemeSwitch.svelte";
 
   let openState = $state(false);
@@ -36,6 +37,15 @@
         <span>カード詳細表示</span>
       </div>
       <CardDetailToggle />
+    </div>
+
+    <!-- チェーン確認設定 -->
+    <div class="flex items-center justify-between py-2 border-b border-surface-300-700">
+      <div class="flex items-center gap-2">
+        <Icon icon="mdi:link-variant" class="size-5" />
+        <span>チェーン確認</span>
+      </div>
+      <ChainConfirmationToggle />
     </div>
 
     <!-- テーマ設定 -->
