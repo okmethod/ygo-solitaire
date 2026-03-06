@@ -13,11 +13,7 @@ import { STEP_NAMES, type StepName } from "./StepNames";
 
 // StepBuilder 実装
 import { drawStepBuilder, fillHandsStepBuilder } from "./builders/draws";
-import {
-  sendToGraveyardStep,
-  selectAndDiscardStepBuilder,
-  discardAllHandEndPhaseStepBuilder,
-} from "./builders/discards";
+import { selectAndDiscardStepBuilder, discardAllHandEndPhaseStepBuilder } from "./builders/discards";
 import { thenStepBuilder } from "./builders/timing";
 import { gainLpStepBuilder, payLpStepBuilder } from "./builders/lifePoints";
 import {
@@ -31,8 +27,6 @@ import { shuffleDeckStepBuilder } from "./builders/deckOperations";
 import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import { specialSummonFromDeckStepBuilder } from "./builders/summons";
-import { notifyActivationStep } from "./builders/userInteractions";
-import { emitSpellActivatedEventStep, emitMonsterSummonedEventStep } from "./builders/eventEmitters";
 
 // ===========================
 // エクスポート
@@ -41,9 +35,6 @@ import { emitSpellActivatedEventStep, emitMonsterSummonedEventStep } from "./bui
 export { AtomicStepRegistry, type StepBuilder, type StepBuildContext };
 export { STEP_NAMES, type StepName };
 export const buildStep = AtomicStepRegistry.build.bind(AtomicStepRegistry);
-
-// 外部で直接使用されるビルダー関数のみエクスポート
-export { sendToGraveyardStep, notifyActivationStep, emitSpellActivatedEventStep, emitMonsterSummonedEventStep };
 
 // ===========================
 // ステップ登録

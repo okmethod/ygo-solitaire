@@ -22,7 +22,7 @@ import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
 import { Effect } from "$lib/domain/models/Effect";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { notifyActivationStep } from "$lib/domain/effects/steps";
+import { notifyActivationStep } from "$lib/domain/effects/steps/builders/userInteractions";
 
 /**
  * BaseTriggerEffect - 誘発効果アクションの抽象基底クラス
