@@ -7,6 +7,7 @@
  * 純粋関数:
  * - emitSpellActivatedEventStep: 魔法カード発動イベントを発行
  * - emitMonsterSummonedEventStep: モンスター召喚イベントを発行
+ * - emitSentToGraveyardEventStep: 墓地送りイベントを発行
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -62,6 +63,33 @@ export function emitMonsterSummonedEventStep(summonedInstance: CardInstance): At
           type: "monsterSummoned",
           sourceCardId: summonedInstance.id,
           sourceInstanceId: summonedInstance.instanceId,
+        },
+      ]),
+  };
+}
+
+/**
+ * 墓地送りイベントを発行するステップ
+ *
+ * effectQueueStore がこのステップの実行結果から emittedEvents を検出し、
+ * ChainableActionRegistry.collectTriggerSteps() を呼び出して
+ * 誘発効果（例: クリッター、黒き森のウィッチのサーチ効果）を自動挿入する。
+ *
+ * @param sentInstance - 墓地に送られたカードのインスタンス
+ * @returns AtomicStep
+ */
+export function emitSentToGraveyardEventStep(sentInstance: CardInstance): AtomicStep {
+  return {
+    id: `emit-sent-to-graveyard-${sentInstance.instanceId}`,
+    summary: "墓地送りイベント",
+    description: "墓地送りをトリガーシステムに通知",
+    notificationLevel: "silent",
+    action: (state) =>
+      GameProcessing.Result.success(state, undefined, [
+        {
+          type: "sentToGraveyard",
+          sourceCardId: sentInstance.id,
+          sourceInstanceId: sentInstance.instanceId,
         },
       ]),
   };

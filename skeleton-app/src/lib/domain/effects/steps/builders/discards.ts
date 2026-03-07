@@ -17,7 +17,11 @@ import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/builders/endP
 import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
 import type { StepBuilder } from "../AtomicStepRegistry";
 
-/** 指定カードを墓地に送るステップ */
+/**
+ * 指定カードを墓地に送るステップ
+ *
+ * sentToGraveyard イベントを発行し、クリッター等の誘発効果をトリガーする。
+ */
 export const sendToGraveyardStep = (instanceId: string, cardName: string): AtomicStep => {
   return {
     id: `send-${instanceId}-to-graveyard`,
@@ -31,23 +35,43 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
         space: GameState.Space.moveCard(currentState.space, card, "graveyard"),
       };
 
-      return GameProcessing.Result.success(updatedState, `Sent ${cardName} to graveyard`);
+      // sentToGraveyard イベントを発行（誘発効果のトリガー用）
+      return GameProcessing.Result.success(updatedState, `Sent ${cardName} to graveyard`, [
+        {
+          type: "sentToGraveyard",
+          sourceCardId: card.id,
+          sourceInstanceId: card.instanceId,
+        },
+      ]);
     },
   };
 };
 
-/** 指定した複数カードを墓地に移動した後のゲーム状態 */
+/**
+ * 指定した複数カードを墓地に移動した後のゲーム状態
+ *
+ * 各カードに対して sentToGraveyard イベントを発行する。
+ */
 const sendMultipleToGraveyardResult = (state: GameSnapshot, instanceIds: string[]): GameStateUpdateResult => {
   let updatedSpace = state.space;
+  const events: Array<{ type: "sentToGraveyard"; sourceCardId: number; sourceInstanceId: string }> = [];
+
   for (const instanceId of instanceIds) {
     const card = GameState.Space.findCard(updatedSpace, instanceId)!;
     updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
+    // 各カードに対してイベントを記録
+    events.push({
+      type: "sentToGraveyard",
+      sourceCardId: card.id,
+      sourceInstanceId: card.instanceId,
+    });
   }
 
   const updatedState = { ...state, space: updatedSpace };
   return GameProcessing.Result.success(
     updatedState,
     `Sent ${instanceIds.length} card${instanceIds.length > 1 ? "s" : ""} to graveyard`,
+    events,
   );
 };
 

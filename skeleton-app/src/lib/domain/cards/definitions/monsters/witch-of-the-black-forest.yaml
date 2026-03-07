@@ -26,8 +26,8 @@ data:
 effect-chainable-actions:
   triggers:
     - triggers: ["sentToGraveyard"]
-      triggerTiming: "if"
-      isMandatory: false
+      triggerTiming: "when"
+      isMandatory: true
       selfOnly: true
       resolutions:
         - step: "SEARCH_MONSTER_BY_STAT"
