@@ -25,6 +25,7 @@ describe("ActivateIgnitionEffectCommand", () => {
             jaName: "サンプルカード",
             type: "spell" as const,
             frameType: "spell" as const,
+            edition: "latest" as const,
             location: "mainDeck" as const,
           },
         ],
@@ -39,6 +40,7 @@ describe("ActivateIgnitionEffectCommand", () => {
             jaName: "チキンゲーム",
             type: "spell" as const,
             frameType: "spell" as const,
+            edition: "latest" as const,
             spellType: "field" as const,
             location: "fieldZone" as const,
             stateOnField: {
@@ -86,6 +88,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
+              edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
                 position: "faceDown" as const,
@@ -119,6 +122,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "チキンゲーム",
               type: "spell" as const,
               frameType: "spell" as const,
+              edition: "latest" as const,
               spellType: "field" as const,
               location: "hand" as const,
             },
@@ -159,6 +163,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
+              edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
                 position: "faceUp" as const,
@@ -195,6 +200,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
+              edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
                 position: "faceUp" as const,
@@ -254,6 +260,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
+              edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
                 position: "faceUp" as const,
@@ -341,6 +348,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "サンプルカード",
               type: "spell" as const,
               frameType: "spell" as const,
+              edition: "latest" as const,
               location: "mainDeck" as const,
             },
             {
@@ -349,6 +357,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "サンプルカード2",
               type: "spell" as const,
               frameType: "spell" as const,
+              edition: "latest" as const,
               location: "mainDeck" as const,
             },
           ],
@@ -361,6 +370,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "王立魔法図書館",
               type: "monster" as const,
               frameType: "effect" as const,
+              edition: "latest" as const,
               location: "mainMonsterZone" as const,
               stateOnField: {
                 position: "faceUp" as const,
@@ -401,6 +411,7 @@ describe("ActivateIgnitionEffectCommand", () => {
                 jaName: "王立魔法図書館",
                 type: "monster" as const,
                 frameType: "effect" as const,
+                edition: "latest" as const,
                 location: "mainMonsterZone" as const,
                 stateOnField: {
                   position: "faceUp" as const,
@@ -515,6 +526,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "サンプルカード",
               type: "spell" as const,
               frameType: "spell" as const,
+              edition: "latest" as const,
               location: "mainDeck" as const,
             },
           ],
@@ -527,6 +539,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               jaName: "王立魔法図書館",
               type: "monster" as const,
               frameType: "effect" as const,
+              edition: "latest" as const,
               location: "mainMonsterZone" as const,
               stateOnField: {
                 position: "faceUp" as const,
@@ -546,6 +559,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               type: "spell" as const,
               frameType: "spell" as const,
               spellType: "field" as const,
+              edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
                 position: "faceUp" as const,

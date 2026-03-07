@@ -6,9 +6,10 @@
 
 /** イベント種別 */
 export type EventType =
-  | "spellActivated" // 魔法カード発動時
-  | "monsterSummoned" // モンスター召喚時
-  | "cardDestroyed"; // カード破壊時
+  | "spellActivated" // 魔法カードが発動された
+  | "monsterSummoned" // モンスターが召喚された
+  | "cardDestroyed" // カードが破壊された
+  | "sentToGraveyard"; // 墓地へ送られた
 
 /**
  * イベントのコンテキスト情報

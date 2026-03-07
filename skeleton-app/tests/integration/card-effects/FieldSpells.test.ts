@@ -51,6 +51,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
               jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
+              edition: "latest",
               spellType: "field",
               location: "hand",
             },
@@ -88,6 +89,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
       type: "spell",
       frameType: "spell",
       spellType: "field",
+      edition: "latest",
       location: "fieldZone",
       stateOnField: {
         position: "faceUp",
@@ -152,6 +154,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         type: "spell",
         frameType: "spell",
         spellType: "field",
+        edition: "latest",
         location: "fieldZone",
         stateOnField: {
           position: "faceUp",
@@ -220,6 +223,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
         type: "spell",
         frameType: "spell",
         spellType: "field",
+        edition: "latest",
         location: "fieldZone",
         stateOnField: {
           position: "faceUp",
@@ -242,6 +246,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
               jaName: "サンプルカード",
               type: "spell",
               frameType: "spell",
+              edition: "latest",
               location: "hand",
             },
           ],
@@ -291,6 +296,7 @@ describe("Chicken Game (67616300) - Integration Tests", () => {
               jaName: "チキンゲーム",
               type: "spell",
               frameType: "spell",
+              edition: "latest",
               spellType: "field",
               location: "hand",
             },

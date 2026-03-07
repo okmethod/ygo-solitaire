@@ -15,6 +15,8 @@ export type FrameSubType = MainMonsterSubType | ExtraMonsterSubType | "spell" | 
 export type SpellSubType = "normal" | "quick-play" | "continuous" | "field" | "equip" | "ritual";
 /** 罠カードサブタイプ */
 export type TrapSubType = "normal" | "continuous" | "counter";
+/** エディション */
+export type Edition = "latest" | "legacy"; // latest: 最新, legacy: エラッタ前
 
 /**
  * 1種類のカードデータ（定義情報）
@@ -30,10 +32,13 @@ export interface CardData {
   readonly spellType?: SpellSubType;
   readonly trapType?: TrapSubType;
 
+  // エディション
+  readonly edition: Edition; // "legacy" | "latest"(デフォルト)
+
   // モンスターカードのみ
   readonly level?: number; // レベル
-  // readonly attack?: number;
-  // readonly defense?: number;
+  readonly attack?: number;
+  readonly defense?: number;
 }
 
 /** モンスターカードかどうか */
@@ -64,6 +69,11 @@ export const isFieldSpellCard = (card: CardData): boolean => {
 /** 罠カードかどうか */
 export const isTrapCard = (card: CardData): boolean => {
   return card.type === "trap";
+};
+
+/** レガシー版かどうか */
+export const isLegacyEdition = (card: CardData): boolean => {
+  return card.edition === "legacy";
 };
 
 /** カードタイプの日本語変換 */

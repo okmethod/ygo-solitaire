@@ -36,16 +36,44 @@ const TEST_CARD_IDS = [
 registerCardDataWithEffectsByIds(TEST_CARD_IDS);
 
 // テスト用カードデータも登録
-CardDataRegistry.register(12345678, { jaName: "Test Monster A", type: "monster", frameType: "normal" });
-CardDataRegistry.register(87654321, { jaName: "Test Monster B", type: "monster", frameType: "normal" });
+CardDataRegistry.register(12345678, {
+  jaName: "Test Monster A",
+  type: "monster",
+  frameType: "normal",
+  edition: "latest",
+});
+CardDataRegistry.register(87654321, {
+  jaName: "Test Monster B",
+  type: "monster",
+  frameType: "normal",
+  edition: "latest",
+});
 
-CardDataRegistry.register(1001, { jaName: "Test Spell 1", type: "spell", frameType: "spell", spellType: "normal" });
+CardDataRegistry.register(1001, {
+  jaName: "Test Spell 1",
+  type: "spell",
+  frameType: "spell",
+  spellType: "normal",
+  edition: "latest",
+});
 ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));
 
-CardDataRegistry.register(1002, { jaName: "Test Spell 2", type: "spell", frameType: "spell", spellType: "normal" });
+CardDataRegistry.register(1002, {
+  jaName: "Test Spell 2",
+  type: "spell",
+  frameType: "spell",
+  spellType: "normal",
+  edition: "latest",
+});
 ChainableActionRegistry.registerActivation(1002, NormalSpellActivation.createNoOp(1002));
 
-CardDataRegistry.register(1003, { jaName: "Test Spell 3", type: "spell", frameType: "spell", spellType: "normal" });
+CardDataRegistry.register(1003, {
+  jaName: "Test Spell 3",
+  type: "spell",
+  frameType: "spell",
+  spellType: "normal",
+  edition: "latest",
+});
 ChainableActionRegistry.registerActivation(1003, NormalSpellActivation.createNoOp(1003));
 
 CardDataRegistry.register(1004, {
@@ -53,6 +81,7 @@ CardDataRegistry.register(1004, {
   type: "spell",
   frameType: "spell",
   spellType: "quick-play",
+  edition: "latest",
 });
 ChainableActionRegistry.registerActivation(1004, QuickPlaySpellActivation.createNoOp(1004));
 
@@ -61,10 +90,17 @@ CardDataRegistry.register(1005, {
   type: "spell",
   frameType: "spell",
   spellType: "continuous",
+  edition: "latest",
 });
 ChainableActionRegistry.registerActivation(1005, ContinuousSpellActivation.createNoOp(1005));
 
-CardDataRegistry.register(1006, { jaName: "Test Spell 6", type: "spell", frameType: "spell", spellType: "field" });
+CardDataRegistry.register(1006, {
+  jaName: "Test Spell 6",
+  type: "spell",
+  frameType: "spell",
+  spellType: "field",
+  edition: "latest",
+});
 ChainableActionRegistry.registerActivation(1006, FieldSpellActivation.createNoOp(1006));
 
 // LocalStorageのモック

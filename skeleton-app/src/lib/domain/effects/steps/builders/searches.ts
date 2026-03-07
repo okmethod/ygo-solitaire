@@ -187,6 +187,38 @@ export const searchFromDeckTopStep = (cardId: number, count: number, selectCount
   };
 };
 
+/** モンスターをATK/DEFでフィルタしてサーチするステップ */
+export const searchMonsterByStatStep = (
+  cardId: number,
+  statType: "attack" | "defense",
+  maxValue: number,
+  count: number,
+): AtomicStep => {
+  const statJa = statType === "attack" ? "攻撃力" : "守備力";
+  const filter = (card: CardInstance): boolean => {
+    if (card.type !== "monster") return false;
+    const statValue = card[statType];
+    if (statValue === undefined) return false;
+    return statValue <= maxValue;
+  };
+  const summary = `${statJa}${maxValue}以下のモンスター${count}体をサーチ`;
+  const description = `デッキから${statJa}${maxValue}以下のモンスター${count}体を選択し、手札に加えます`;
+
+  return internalSearchStep(
+    {
+      id: `${cardId}-search-monster-by-${statType}-${maxValue}`,
+      summary,
+      description,
+      filter,
+      minCards: count,
+      maxCards: count,
+      cancelable: false,
+    },
+    "mainDeck",
+    true,
+  );
+};
+
 /** 墓地からサルベージするステップ */
 export const salvageFromGraveyardStep = (
   cardId: number,
@@ -276,6 +308,26 @@ export const searchFromDeckTopStepBuilder: StepBuilder = (args, context) => {
     throw new Error("SEARCH_FROM_DECK_TOP step requires a positive selectCount argument");
   }
   return searchFromDeckTopStep(context.cardId, count, selectCount);
+};
+
+/**
+ * SEARCH_MONSTER_BY_STAT - モンスターをATK/DEFでサーチ
+ * args: { statType: "attack" | "defense", maxValue: number, count: number }
+ */
+export const searchMonsterByStatStepBuilder: StepBuilder = (args, context) => {
+  const statType = args.statType as "attack" | "defense";
+  const maxValue = args.maxValue as number;
+  const count = args.count as number;
+  if (!statType || (statType !== "attack" && statType !== "defense")) {
+    throw new Error("SEARCH_MONSTER_BY_STAT step requires statType argument ('attack' or 'defense')");
+  }
+  if (typeof maxValue !== "number" || maxValue < 0) {
+    throw new Error("SEARCH_MONSTER_BY_STAT step requires a non-negative maxValue argument");
+  }
+  if (typeof count !== "number" || count < 1) {
+    throw new Error("SEARCH_MONSTER_BY_STAT step requires a positive count argument");
+  }
+  return searchMonsterByStatStep(context.cardId, statType, maxValue, count);
 };
 
 /**

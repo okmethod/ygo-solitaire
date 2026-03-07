@@ -116,6 +116,7 @@ describe("NormalSpellActivation", () => {
       type: "spell",
       frameType: "spell",
       spellType: "normal",
+      edition: "latest" as const,
       location: "hand",
     });
 

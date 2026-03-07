@@ -26,13 +26,13 @@ type RegistrationEntry = [number, () => void];
 /** モンスターカードのエントリを生成 */
 const monster = (frameType: FrameSubType, id: number, jaName: string): RegistrationEntry => [
   id,
-  () => CardDataRegistry.register(id, { jaName, type: "monster", frameType }),
+  () => CardDataRegistry.register(id, { jaName, type: "monster", frameType, edition: "latest" }),
 ];
 
 /** 罠カードのエントリを生成 */
 const trap = (trapType: TrapSubType, id: number, jaName: string): RegistrationEntry => [
   id,
-  () => CardDataRegistry.register(id, { jaName, type: "trap", frameType: "trap", trapType }),
+  () => CardDataRegistry.register(id, { jaName, type: "trap", frameType: "trap", trapType, edition: "latest" }),
 ];
 
 /** DSL未対応カードの定義マップ */

@@ -131,6 +131,7 @@ describe("BaseSpellActivation", () => {
       jaName: "Test Monster A",
       type: "spell",
       frameType: "spell",
+      edition: "latest" as const,
       location: "hand",
     });
 

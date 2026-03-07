@@ -19,6 +19,7 @@ function createNormalSpellCard(instanceId: string): CardInstance {
     jaName: "Upstart Goblin",
     type: "spell" as const,
     frameType: "spell",
+    edition: "latest",
     spellType: "normal",
     location: "hand" as const,
   };
@@ -32,6 +33,7 @@ function createQuickPlaySpellCard(instanceId: string): CardInstance {
     jaName: "Raigeki Break",
     type: "spell" as const,
     frameType: "spell",
+    edition: "latest",
     spellType: "quick-play",
     location: "hand" as const,
   };
@@ -45,6 +47,7 @@ function createFieldSpellCard(instanceId: string): CardInstance {
     jaName: "Chicken Game",
     type: "spell" as const,
     frameType: "spell",
+    edition: "latest",
     spellType: "field",
     location: "hand" as const,
   };
@@ -58,6 +61,7 @@ function createContinuousSpellCard(instanceId: string): CardInstance {
     jaName: "Test Continuous",
     type: "spell" as const,
     frameType: "spell",
+    edition: "latest",
     spellType: "continuous",
     location: "hand" as const,
   };
@@ -220,6 +224,7 @@ describe("SetSpellTrapCommand", () => {
         jaName: "Exodia the Forbidden One",
         type: "monster" as const,
         frameType: "effect",
+        edition: "latest",
         location: "hand" as const,
       };
       const state = createMockGameState({

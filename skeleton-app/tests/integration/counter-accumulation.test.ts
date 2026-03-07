@@ -36,6 +36,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
     jaName: "王立魔法図書館",
     type: "monster",
     frameType: "effect",
+    edition: "latest",
     instanceId,
     location: "mainMonsterZone",
     stateOnField: {
@@ -53,6 +54,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
     type: "spell",
     frameType: "spell",
     spellType: "normal",
+    edition: "latest",
     instanceId,
     location: "hand",
   });
@@ -64,6 +66,7 @@ describe("Counter Accumulation - Royal Magical Library", () => {
       jaName: `デッキカード${i + 1}`,
       type: "monster" as const,
       frameType: "normal" as const,
+      edition: "latest" as const,
       desc: "テスト用カード",
       instanceId: `deck-${i}`,
       location: "mainDeck" as const,

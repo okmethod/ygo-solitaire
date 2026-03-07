@@ -114,6 +114,7 @@ describe("FieldSpellActivation", () => {
       type: "spell",
       frameType: "spell",
       spellType: "field",
+      edition: "latest" as const,
       location: "hand",
     });
 

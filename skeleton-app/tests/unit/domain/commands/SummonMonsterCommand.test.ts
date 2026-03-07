@@ -10,6 +10,7 @@ describe("SummonMonsterCommand", () => {
     jaName: "Test Monster",
     type: "monster",
     frameType: "normal",
+    edition: "latest",
     location: "hand",
   });
 
@@ -190,6 +191,7 @@ describe("SummonMonsterCommand", () => {
         jaName: "Test Spell",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         location: "hand",
       };
 
@@ -444,6 +446,7 @@ describe("SummonMonsterCommand", () => {
         jaName: "Test Spell",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         location: "hand",
       };
 

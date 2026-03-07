@@ -1,0 +1,34 @@
+# 《クリッター》 (Sangan)
+# Card ID: 26202165 | Type: Monster | Subtype: Effect
+#
+# 誘発効果:
+# - CONDITIONS: このカードが墓地へ送られた時
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: デッキから攻撃力1500以下のモンスター1体を手札に加える
+#
+# Note: レガシー版（エラッタ前）
+# - 1ターンに1度制限なし
+# - フィールド以外から墓地の送られても発動可能
+# - サーチしたカードの発動制限なし
+
+id: 26202165
+data:
+  jaName: "クリッター"
+  type: "monster"
+  frameType: "effect"
+  edition: "legacy"
+  attribute: "DARK"
+  race: "Fiend"
+  level: 3
+  attack: 1000
+  defense: 600
+
+effect-chainable-actions:
+  triggers:
+    - triggers: ["sentToGraveyard"]
+      triggerTiming: "if"
+      isMandatory: false
+      selfOnly: true
+      resolutions:
+        - step: "SEARCH_MONSTER_BY_STAT"
+          args: { statType: "attack", maxValue: 1500, count: 1 }

@@ -32,6 +32,7 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
     jaName: "王立魔法図書館",
     type: "monster",
     frameType: "effect",
+    edition: "latest",
     instanceId,
     location: "mainMonsterZone",
     stateOnField: {
@@ -50,6 +51,7 @@ describe("Counter Consumption Draw - Royal Magical Library Ignition Effect", () 
       jaName: `デッキカード${i + 1}`,
       type: "monster" as const,
       frameType: "normal" as const,
+      edition: "latest" as const,
       desc: "テスト用カード",
       instanceId: `deck-${i}`,
       location: "mainDeck" as const,

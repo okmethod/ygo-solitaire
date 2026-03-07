@@ -18,6 +18,7 @@ function createMonsterCard(instanceId: string): CardInstance {
     jaName: "Test Monster",
     type: "monster" as const,
     frameType: "effect",
+    edition: "latest",
     location: "hand" as const,
   };
 }
@@ -190,6 +191,7 @@ describe("SetMonsterCommand", () => {
         jaName: "Test Spell",
         type: "spell" as const,
         frameType: "normal",
+        edition: "latest",
         location: "hand" as const,
       };
       const state = createMockGameState({
@@ -427,6 +429,7 @@ describe("SetMonsterCommand", () => {
         jaName: "Test Spell",
         type: "spell" as const,
         frameType: "normal",
+        edition: "latest",
         location: "hand" as const,
       };
       const state = createMockGameState({

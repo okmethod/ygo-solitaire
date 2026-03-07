@@ -108,6 +108,7 @@ export function createCardInstances(
       frameType,
       spellType,
       jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
+      edition: registeredCard?.edition ?? ("latest" as const),
       location,
     };
     // フィールドロケーションの場合は stateOnField を設定
@@ -147,6 +148,7 @@ export function createFieldCardInstance(options: {
     jaName: options.jaName,
     type: options.type,
     frameType: options.frameType,
+    edition: "latest",
     location: options.location,
     spellType: options.spellType as CardInstance["spellType"],
     stateOnField: {
@@ -181,6 +183,7 @@ export function createSpellCard(
     type: registeredCard?.type ?? "spell",
     frameType: registeredCard?.frameType ?? "spell",
     spellType: registeredCard?.spellType,
+    edition: registeredCard?.edition ?? "latest",
     location,
   };
 }
@@ -209,6 +212,7 @@ export function createSetCard(
     type: registeredCard?.type ?? "spell",
     frameType: registeredCard?.frameType ?? "spell",
     spellType: registeredCard?.spellType,
+    edition: registeredCard?.edition ?? "latest",
     location,
     stateOnField: {
       position: "faceDown",

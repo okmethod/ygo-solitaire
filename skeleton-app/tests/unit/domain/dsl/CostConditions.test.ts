@@ -22,6 +22,7 @@ const createMockCardInstance = (cardId: number = 12345): CardInstance => ({
   jaName: "テストカード",
   type: "spell",
   frameType: "spell",
+  edition: "latest" as const,
   location: "hand",
 });
 
@@ -38,6 +39,7 @@ const createMockGameState = (options: {
       jaName: `手札カード${i}`,
       type: "monster" as const,
       frameType: "normal" as const,
+      edition: "latest" as const,
       location: "hand" as const,
     }));
 
@@ -49,6 +51,7 @@ const createMockGameState = (options: {
       jaName: `墓地魔法${i}`,
       type: "spell" as const,
       frameType: "spell" as const,
+      edition: "latest" as const,
       location: "graveyard" as const,
     }));
 
@@ -61,6 +64,7 @@ const createMockGameState = (options: {
       type: "spell" as const,
       frameType: "spell" as const,
       spellType: "field" as const,
+      edition: "latest" as const,
       location: "mainDeck" as const,
     }));
 

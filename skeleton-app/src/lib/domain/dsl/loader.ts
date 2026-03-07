@@ -34,7 +34,10 @@ function registerCardData(definition: CardDSLDefinition): void {
     frameType: data.frameType,
     spellType: data.spellType,
     trapType: data.trapType,
+    edition: data.edition ?? "latest",
     level: data.level,
+    attack: data.attack,
+    defense: data.defense,
   });
 }
 

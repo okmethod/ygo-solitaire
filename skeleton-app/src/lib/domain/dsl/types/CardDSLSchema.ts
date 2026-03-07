@@ -55,7 +55,7 @@ const RuleCategorySchema = z.enum([
 ]);
 
 /** EventType スキーマ */
-const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestroyed"]);
+const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestroyed", "sentToGraveyard"]);
 
 // =============================================================================
 // DSL構造のスキーマ
@@ -185,19 +185,23 @@ const CardDataDSLSchema = z.object({
   type: CardTypeSchema,
   /** カードフレームタイプ */
   frameType: FrameSubTypeSchema,
-  /** エディション（latest: 最新, legacy: エラッタ前） */
+  /** エディション */
   edition: z.enum(["latest", "legacy"]).optional(),
   /** 魔法カードサブタイプ */
   spellType: SpellSubTypeSchema.optional(),
   /** 罠カードサブタイプ */
   trapType: TrapSubTypeSchema.optional(),
-  // モンスター用（将来拡張）
+  // モンスター用
   /** モンスター種族 */
   race: z.string().optional(),
   /** モンスター属性 */
   attribute: z.string().optional(),
   /** モンスターレベル */
   level: z.number().int().min(0).max(12).optional(),
+  /** モンスター攻撃力 */
+  attack: z.number().int().min(0).optional(),
+  /** モンスター守備力 */
+  defense: z.number().int().min(0).optional(),
 });
 
 /** カードデータのDSL表現 */

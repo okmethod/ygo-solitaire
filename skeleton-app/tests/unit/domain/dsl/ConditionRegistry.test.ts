@@ -22,6 +22,7 @@ const createMockCardInstance = (cardId: number = 12345): CardInstance => ({
   jaName: "テストカード",
   type: "spell",
   frameType: "spell",
+  edition: "latest" as const,
   location: "hand",
 });
 
@@ -147,6 +148,7 @@ const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "b
     jaName: "テストモンスター",
     type: "monster",
     frameType: "effect",
+    edition: "latest" as const,
     location: "mainMonsterZone",
     stateOnField: {
       position: "faceUp",

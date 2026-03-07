@@ -395,6 +395,7 @@ describe("ChainableActionRegistry", () => {
       jaName: `速攻魔法${id}`,
       type: "spell",
       frameType: "spell",
+      edition: "latest",
       spellType: "quick-play",
       location,
       stateOnField:
@@ -419,6 +420,7 @@ describe("ChainableActionRegistry", () => {
       jaName: `罠カード${id}`,
       type: "trap",
       frameType: "trap",
+      edition: "latest",
       trapType: "normal",
       location: "spellTrapZone",
       stateOnField: {
@@ -436,6 +438,7 @@ describe("ChainableActionRegistry", () => {
       jaName: `通常魔法${id}`,
       type: "spell",
       frameType: "spell",
+      edition: "latest",
       spellType: "normal",
       location: "hand",
     });

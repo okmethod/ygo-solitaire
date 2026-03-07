@@ -20,6 +20,7 @@ import {
   searchFromDeckStepBuilder,
   searchFromDeckByNameStepBuilder,
   searchFromDeckTopStepBuilder,
+  searchMonsterByStatStepBuilder,
   salvageFromGraveyardStepBuilder,
 } from "./builders/searches";
 import { placeCounterStepBuilder, removeCounterStepBuilder } from "./builders/counters";
@@ -53,6 +54,7 @@ AtomicStepRegistry.register(S.DISCARD_ALL_HAND_END_PHASE, discardAllHandEndPhase
 AtomicStepRegistry.register(S.SEARCH_FROM_DECK, searchFromDeckStepBuilder);
 AtomicStepRegistry.register(S.SEARCH_FROM_DECK_BY_NAME, searchFromDeckByNameStepBuilder);
 AtomicStepRegistry.register(S.SEARCH_FROM_DECK_TOP, searchFromDeckTopStepBuilder);
+AtomicStepRegistry.register(S.SEARCH_MONSTER_BY_STAT, searchMonsterByStatStepBuilder);
 AtomicStepRegistry.register(S.SALVAGE_FROM_GRAVEYARD, salvageFromGraveyardStepBuilder);
 
 // ライフポイント関連

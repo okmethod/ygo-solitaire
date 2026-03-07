@@ -31,6 +31,7 @@ beforeEach(() => {
     type: "spell",
     frameType: "spell",
     spellType: "normal",
+    edition: "latest",
   });
 });
 
@@ -45,6 +46,7 @@ const createMockCardInstance = (cardId: number): CardInstance => ({
   type: "spell",
   frameType: "spell",
   spellType: "normal",
+  edition: "latest",
   location: "hand",
 });
 
@@ -57,6 +59,7 @@ const createMockGameState = (deckCount: number, handCount: number = 0): GameSnap
       jaName: "デッキカード",
       type: "monster" as const,
       frameType: "normal" as const,
+      edition: "latest" as const,
       location: "mainDeck" as const,
     }));
 
@@ -68,6 +71,7 @@ const createMockGameState = (deckCount: number, handCount: number = 0): GameSnap
       jaName: "手札カード",
       type: "monster" as const,
       frameType: "normal" as const,
+      edition: "latest" as const,
       location: "hand" as const,
     }));
 

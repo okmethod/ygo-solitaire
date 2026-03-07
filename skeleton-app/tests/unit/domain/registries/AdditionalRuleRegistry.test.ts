@@ -221,6 +221,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "Chicken Game",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         instanceId: "fieldZone-0",
         location: "fieldZone",
         stateOnField: {
@@ -273,6 +274,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "Test Card",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         instanceId: "fieldZone-0",
         location: "fieldZone",
         stateOnField: {
@@ -329,6 +331,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "Test Card",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         instanceId: "fieldZone-0",
         location: "fieldZone",
         stateOnField: {
@@ -382,6 +385,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "Test Card",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         instanceId: "fieldZone-0",
         location: "fieldZone",
         stateOnField: {
@@ -441,6 +445,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "Card 1",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         instanceId: "fieldZone-0",
         location: "fieldZone",
         stateOnField: {
@@ -456,6 +461,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "Card 2",
         type: "spell",
         frameType: "spell",
+        edition: "latest",
         instanceId: "fieldZone-1",
         location: "fieldZone",
         stateOnField: {
@@ -623,6 +629,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -676,6 +683,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -727,6 +735,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -778,6 +787,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -793,6 +803,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-1",
         location: "mainMonsterZone",
         stateOnField: {
@@ -908,6 +919,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -963,6 +975,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -1018,6 +1031,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-0",
         location: "mainMonsterZone",
         stateOnField: {
@@ -1033,6 +1047,7 @@ describe("AdditionalRuleRegistry", () => {
         jaName: "王立魔法図書館",
         type: "monster",
         frameType: "effect",
+        edition: "latest",
         instanceId: "mainMonsterZone-1",
         location: "mainMonsterZone",
         stateOnField: {
