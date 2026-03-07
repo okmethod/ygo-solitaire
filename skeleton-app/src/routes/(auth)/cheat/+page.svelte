@@ -1,5 +1,23 @@
 <script lang="ts">
-  import { SoundEffects } from "$lib/presentation/sounds/soundEffects";
+  import Icon from "@iconify/svelte";
+  import { Accordion } from "@skeletonlabs/skeleton-svelte";
+  import {
+    sineSoundEffects,
+    squareSoundEffects,
+    sawtoothSoundEffects,
+    triangleSoundEffects,
+    gameSoundEffects,
+  } from "$lib/presentation/sounds/soundEffects";
+
+  let value = $state(["all", "game"]);
+
+  // 各セクションの定義をデータ化
+  const waveSections = [
+    { id: "sine", label: "正弦波パターン", icon: "mdi:sine-wave", effects: sineSoundEffects },
+    { id: "square", label: "方形波パターン", icon: "mdi:square-wave", effects: squareSoundEffects },
+    { id: "sawtooth", label: "ノコギリ波パターン", icon: "mdi:sawtooth-wave", effects: sawtoothSoundEffects },
+    { id: "triangle", label: "三角波パターン", icon: "mdi:triangle-wave", effects: triangleSoundEffects },
+  ];
 </script>
 
 <div class="container mx-auto p-4">
@@ -7,15 +25,43 @@
     <h1 class="h2 opacity-75">Sound Test</h1>
   </header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-    {#each SoundEffects as { name, description, play } (name)}
-      <button
-        class="btn preset-tonal-primary rounded-lg shadow p-4 flex flex-col items-start text-left"
-        on:click={play}
-      >
-        <span class="font-mono text-sm opacity-60">{name}</span>
-        <span class="text-base">{description}</span>
-      </button>
+  <Accordion {value} onValueChange={(e) => (value = e.value)} multiple>
+    <!-- 各波形セクションをループで生成 -->
+    {#each waveSections as { id, label, icon, effects } (id)}
+      <Accordion.Item value={id}>
+        {#snippet lead()}<Icon {icon} class="size-4" />{/snippet}
+        {#snippet control()}{label}{/snippet}
+        {#snippet panel()}
+          <div class="grid grid-cols-8 gap-4">
+            {#each effects as { name, play } (name)}
+              <button class="btn preset-tonal-primary rounded-lg shadow p-3 flex flex-col items-start" onclick={play}>
+                <span class="font-mono text-xs opacity-75">{name.split("_").slice(1).join("_") || name}</span>
+              </button>
+            {/each}
+          </div>
+        {/snippet}
+      </Accordion.Item>
     {/each}
-  </div>
+
+    <!-- ゲーム用SEセクション -->
+    <Accordion.Item value="game">
+      <!-- Control -->
+      {#snippet lead()}<Icon icon="mdi:music-note" class="size-4" />{/snippet}
+      {#snippet control()}ゲーム用SEパターン{/snippet}
+      <!-- Panel -->
+      {#snippet panel()}
+        <div class="grid grid-cols-1 grid-cols-3 gap-4 max-w-4xl mx-auto">
+          {#each gameSoundEffects as { name, description, play } (name)}
+            <button
+              class="btn preset-tonal-primary rounded-lg shadow p-4 flex flex-col items-start text-left"
+              onclick={play}
+            >
+              <span class="font-mono text-sm opacity-60">{name}</span>
+              <span class="text-base">{description}</span>
+            </button>
+          {/each}
+        </div>
+      {/snippet}
+    </Accordion.Item>
+  </Accordion>
 </div>

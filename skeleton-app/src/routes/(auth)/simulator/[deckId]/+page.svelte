@@ -59,7 +59,7 @@
   let isGameOverModalOpen = $state(false);
   $effect(() => {
     if ($gameResult.isGameOver) {
-      playSE.win();
+      playSE.attention();
       isGameOverModalOpen = true;
     }
   });

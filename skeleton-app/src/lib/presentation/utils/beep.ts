@@ -1,7 +1,41 @@
-export const waveTypes: OscillatorType[] = ["sine", "square", "sawtooth", "triangle"];
+export const WAVE_TYPES: readonly OscillatorType[] = ["sine", "square", "sawtooth", "triangle"] as const;
 
-export const labelTypes = ["none", "ja", "en"] as const;
-export type LabelType = (typeof labelTypes)[number];
+export const LABEL_TYPES = ["none", "ja", "en"] as const;
+export type LabelType = (typeof LABEL_TYPES)[number];
+
+/** 最小単位の音（単一周波数・一定） */
+export interface BeepPattern {
+  startFreq: number;
+  duration: number; // 秒単位
+}
+
+/** 単音パターン（周波数の推移を許容） */
+export interface NotePattern extends BeepPattern {
+  endFreq?: number;
+}
+
+/** 和音パターン（複数周波数とアルペジオ） */
+export interface ChordPattern {
+  frequencies: number[];
+  duration: number;
+  arpeggio?: number;
+}
+
+/** 再生時設定 */
+interface PlaybackSettings {
+  waveType: OscillatorType;
+  volume?: number; // 0.0 ~ 1.0
+  delay?: number; // 再生開始までの遅延
+}
+
+/** playBeep用設定（基本音） */
+export interface BeepOptions extends BeepPattern, PlaybackSettings {}
+
+/** playNote用設定（単音・スライド対応） */
+export interface NoteOptions extends NotePattern, PlaybackSettings {}
+
+/** playChord用設定（和音） */
+export interface ChordOptions extends ChordPattern, Omit<PlaybackSettings, "delay"> {}
 
 export function startBeep(
   audioContextProvider: () => AudioContext | null,
@@ -35,25 +69,13 @@ export function startBeep(
   };
 }
 
-/** playBeep用のオプション */
-export interface BeepOptions {
-  waveType: OscillatorType;
-  startFreq: number;
-  duration: number; // 秒単位
-}
-
+/** 単純なビープ音再生関数（周波数と持続時間のみ） */
 export function playBeep(audioContextProvider: () => AudioContext | null, options: BeepOptions) {
   const { waveType, startFreq, duration } = options;
   const stopBeep = startBeep(audioContextProvider, waveType, startFreq);
   setTimeout(() => stopBeep(), duration * 1000);
 }
 
-/** playNote用の拡張オプション */
-export interface NoteOptions extends BeepOptions {
-  endFreq?: number; // 周波数を変化させる場合の終了周波数
-  volume?: number; // 0.0 ~ 1.0（デフォルト: 0.1）
-  delay?: number; // 再生開始までの遅延（秒単位、デフォルト: 0）
-}
 /**
  * 高機能な音再生関数
  * - エンベロープ（余韻）付き
@@ -64,6 +86,11 @@ export function playNote(audioContextProvider: () => AudioContext | null, option
   const { waveType, startFreq, endFreq, duration, volume = 0.1, delay = 0 } = options;
   const audioCtx = audioContextProvider();
   if (!audioCtx) return;
+
+  // レジューム処理（これがないと最初の音が鳴らない場合がある）
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
 
   const oscillator = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
@@ -87,11 +114,6 @@ export function playNote(audioContextProvider: () => AudioContext | null, option
 
   oscillator.start(startTime);
   oscillator.stop(startTime + duration);
-}
-
-/** playChord用のオプション */
-export interface ChordOptions extends Omit<NoteOptions, "startFreq" | "delay"> {
-  arpeggio?: number; // 各音間の遅延（秒単位）。0または未指定で同時再生
 }
 
 /**
