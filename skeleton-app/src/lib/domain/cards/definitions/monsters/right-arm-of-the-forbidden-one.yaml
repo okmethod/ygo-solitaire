@@ -1,0 +1,13 @@
+# 《封印されし者の右腕》 (Right Arm of the Forbidden One)
+# Card ID: 70903634 | Type: Monster | Subtype: Normal
+
+id: 70903634
+data:
+  jaName: "封印されし者の右腕"
+  type: "monster"
+  frameType: "normal"
+  attribute: "DARK"
+  race: "Spellcaster"
+  level: 1
+  attack: 200
+  defense: 300

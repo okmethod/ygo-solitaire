@@ -19,15 +19,9 @@ export { CardDataRegistry };
 // DSL未対応カードのフォールバック
 // ===========================
 
-import type { FrameSubType, TrapSubType } from "$lib/domain/models/Card";
+import type { TrapSubType } from "$lib/domain/models/Card";
 
 type RegistrationEntry = [number, () => void];
-
-/** モンスターカードのエントリを生成 */
-const monster = (frameType: FrameSubType, id: number, jaName: string): RegistrationEntry => [
-  id,
-  () => CardDataRegistry.register(id, { jaName, type: "monster", frameType, edition: "latest" }),
-];
 
 /** 罠カードのエントリを生成 */
 const trap = (trapType: TrapSubType, id: number, jaName: string): RegistrationEntry => [
@@ -37,13 +31,6 @@ const trap = (trapType: TrapSubType, id: number, jaName: string): RegistrationEn
 
 /** DSL未対応カードの定義マップ */
 const cardDataRegistrations = new Map<number, () => void>([
-  // モンスターカード
-  monster("effect", 33396948, "封印されしエクゾディア"),
-  monster("normal", 7902349, "封印されし者の右腕"),
-  monster("normal", 70903634, "封印されし者の左腕"),
-  monster("normal", 44519536, "封印されし者の左足"),
-  monster("normal", 8124921, "封印されし者の右足"),
-
   // 罠カード
   trap("normal", 83968380, "強欲な瓶"),
 ]);

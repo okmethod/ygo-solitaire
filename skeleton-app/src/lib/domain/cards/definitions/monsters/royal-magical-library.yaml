@@ -17,6 +17,8 @@ data:
   attribute: "LIGHT"
   race: "Spellcaster"
   level: 4
+  attack: 0
+  defense: 2000
 
 effect-additional-rules:
   continuous:

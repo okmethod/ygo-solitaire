@@ -6,6 +6,17 @@
  * @module domain/cards/definitions
  */
 
+// Monsters
+import exodiaTheForbiddenOneYaml from "./monsters/exodia-the-forbidden-one.yaml?raw";
+import rightArmOfTheForbiddenOneYaml from "./monsters/right-arm-of-the-forbidden-one.yaml?raw";
+import leftArmOfTheForbiddenOneYaml from "./monsters/left-arm-of-the-forbidden-one.yaml?raw";
+import rightLegOfTheForbiddenOneYaml from "./monsters/right-leg-of-the-forbidden-one.yaml?raw";
+import leftLegOfTheForbiddenOneYaml from "./monsters/left-leg-of-the-forbidden-one.yaml?raw";
+import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
+import summonerMonkYaml from "./monsters/summoner-monk.yaml?raw";
+import sanganYaml from "./monsters/sangan.yaml?raw";
+import witchOfTheBlackForestYaml from "./monsters/witch-of-the-black-forest.yaml?raw";
+
 // Spells
 import potOfGreedYaml from "./spells/pot-of-greed.yaml?raw";
 import upstartGoblinYaml from "./spells/upstart-goblin.yaml?raw";
@@ -23,18 +34,25 @@ import cardDestructionYaml from "./spells/card-destruction.yaml?raw";
 import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 
-// Monsters
-import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
-import summonerMonkYaml from "./monsters/summoner-monk.yaml?raw";
-import sanganYaml from "./monsters/sangan.yaml?raw";
-import witchOfTheBlackForestYaml from "./monsters/witch-of-the-black-forest.yaml?raw";
-
 /**
  * カードID → YAML定義文字列のマップ
  *
  * DSL定義が存在するカードのみを含む。
  */
 export const dslDefinitions: ReadonlyMap<number, string> = new Map([
+  // 通常モンスター
+  [70903634, rightArmOfTheForbiddenOneYaml], // 封印されし者の右腕
+  [7902349, leftArmOfTheForbiddenOneYaml], // 封印されし者の左腕
+  [8124921, rightLegOfTheForbiddenOneYaml], // 封印されし者の右足
+  [44519536, leftLegOfTheForbiddenOneYaml], // 封印されし者の左足
+
+  // 効果モンスター
+  [33396948, exodiaTheForbiddenOneYaml], // 封印されしエクゾディア
+  [70791313, royalMagicalLibraryYaml], // 王立魔法図書館
+  [423585, summonerMonkYaml], // 召喚僧サモンプリースト
+  [26202165, sanganYaml], // クリッター
+  [78010363, witchOfTheBlackForestYaml], // 黒き森のウィッチ
+
   // 通常魔法
   [55144522, potOfGreedYaml], // 強欲な壺
   [70368879, upstartGoblinYaml], // 成金ゴブリン
@@ -57,12 +75,6 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // フィールド魔法
   [67616300, chickenGameYaml], // チキンレース
-
-  // 効果モンスター
-  [70791313, royalMagicalLibraryYaml], // 王立魔法図書館
-  [423585, summonerMonkYaml], // 召喚僧サモンプリースト
-  [26202165, sanganYaml], // クリッター
-  [78010363, witchOfTheBlackForestYaml], // 黒き森のウィッチ
 ]);
 
 /**

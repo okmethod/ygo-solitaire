@@ -11,10 +11,10 @@ import type { GameResult } from "./GameResult";
 const checkExodiaVictory = (state: GameSnapshot): boolean => {
   const EXODIA_PIECE_IDS = [
     33396948, // 本体
-    7902349, // 左腕
     70903634, // 右腕
-    44519536, // 左足
+    7902349, // 左腕
     8124921, // 右足
+    44519536, // 左足
   ] as const;
 
   const handCardIds = state.space.hand.map((card) => card.id);

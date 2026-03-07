@@ -24,6 +24,8 @@ data:
   attribute: "DARK"
   race: "Spellcaster"
   level: 4
+  attack: 800
+  defense: 1600
 
 effect-chainable-actions:
   triggers:

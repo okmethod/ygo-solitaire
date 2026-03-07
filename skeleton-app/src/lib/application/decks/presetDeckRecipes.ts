@@ -11,8 +11,9 @@ const deckRecipeExodia: DeckRecipe = {
   mainDeck: [
     // モンスターカード
     { id: 33396948, quantity: 1 }, // 封印されしエクゾディア
-    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
     { id: 70903634, quantity: 1 }, // 封印されし者の右腕
+    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
+    { id: 8124921, quantity: 1 }, // 封印されし者の右腕
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
     { id: 8124921, quantity: 1 }, // 封印されし者の右足
 
@@ -41,10 +42,10 @@ const deckRecipeLegacyExodia: DeckRecipe = {
   mainDeck: [
     // モンスターカード
     { id: 33396948, quantity: 1 }, // 封印されしエクゾディア
-    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
     { id: 70903634, quantity: 1 }, // 封印されし者の右腕
+    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
+    { id: 8124921, quantity: 1 }, // 封印されし者の右腕
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
-    { id: 8124921, quantity: 1 }, // 封印されし者の右足
     { id: 26202165, quantity: 3 }, // クリッター
     { id: 78010363, quantity: 3 }, // 黒き森のウィッチ
 
@@ -71,10 +72,10 @@ const deckRecipeLibrary: DeckRecipe = {
   mainDeck: [
     // モンスターカード
     { id: 33396948, quantity: 1 }, // 封印されしエクゾディア
-    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
     { id: 70903634, quantity: 1 }, // 封印されし者の右腕
+    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
+    { id: 8124921, quantity: 1 }, // 封印されし者の右腕
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
-    { id: 8124921, quantity: 1 }, // 封印されし者の右足
     { id: 70791313, quantity: 3 }, // 王立魔法図書館
     { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
 
