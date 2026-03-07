@@ -13,7 +13,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { CardDataRegistry } from "$lib/domain/cards";
+import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry"; // 循環インポートに注意
 
 /** 発動を通知するステップ */
 export const notifyActivationStep = (cardId: number): AtomicStep => {
