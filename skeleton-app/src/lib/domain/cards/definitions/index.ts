@@ -30,7 +30,7 @@ import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
 import toonTableOfContentsYaml from "./spells/toon-table-of-contents.yaml?raw";
 import potOfDualityYaml from "./spells/pot-of-duality.yaml?raw";
 import magicalMalletYaml from "./spells/magical-mallet.yaml?raw";
-import cardDestructionYaml from "./spells/card-destruction.yaml?raw";
+import handDestructionYaml from "./spells/hand-destruction.yaml?raw";
 import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 
@@ -68,7 +68,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [85852291, magicalMalletYaml], // 打ち出の小槌
 
   // 速攻魔法
-  [74519184, cardDestructionYaml], // 手札断殺
+  [74519184, handDestructionYaml], // 手札断殺
 
   // 永続魔法
   [15259703, toonWorldYaml], // トゥーン・ワールド

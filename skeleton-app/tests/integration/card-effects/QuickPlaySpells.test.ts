@@ -15,7 +15,7 @@
  *   - BaseSpellActivation.test.ts: Game-over check
  *   - QuickPlaySpellActivation.test.ts: spellSpeed=2, Main1 phase check
  * - **Card scenarios**: Tested here
- *   - Card Destruction: Hand >= 3 → Discard all → Draw same amount
+ *   - Hand Destruction: Hand >= 3 → Discard all → Draw same amount
  *
  * Rationale:
  * - Card-specific canActivate() (e.g., hand.length >= 3) is implementation mirror
@@ -31,17 +31,17 @@ import { createMockGameState, createCardInstances } from "../../__testUtils__/ga
 // Note: ChainableActionRegistry は setup.ts で初期化済み
 
 describe("Quick-Play Spell Card Effects", () => {
-  describe("Card Destruction (74519184) - Scenario Tests", () => {
-    const cardDestructionCardId = "74519184";
+  describe("Hand Destruction (74519184) - Scenario Tests", () => {
+    const handDestructionCardId = "74519184";
 
-    it("Scenario: Activate Card Destruction → Both players discard all → Both draw same amount", () => {
-      // Arrange: Initial state - 5 cards in deck, 4 cards in hand (Card Destruction + 3 others)
+    it("Scenario: Activate Hand Destruction → Both players discard all → Both draw same amount", () => {
+      // Arrange: Initial state - 5 cards in deck, 4 cards in hand (Hand Destruction + 3 others)
       const state = createMockGameState({
         phase: "main1",
         space: {
           mainDeck: createCardInstances(["card1", "card2", "card3", "card4", "card5"], "mainDeck"),
           extraDeck: [],
-          hand: createCardInstances([cardDestructionCardId, "hand1", "hand2", "hand3"], "hand", "destruction"),
+          hand: createCardInstances([handDestructionCardId, "hand1", "hand2", "hand3"], "hand", "destruction"),
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -50,7 +50,7 @@ describe("Quick-Play Spell Card Effects", () => {
         },
       });
 
-      // Act: Activate Card Destruction (new system - returns activationSteps)
+      // Act: Activate Hand Destruction (new system - returns activationSteps)
       const command = new ActivateSpellCommand("destruction-0");
       const result = command.execute(state);
 
@@ -84,13 +84,13 @@ describe("Quick-Play Spell Card Effects", () => {
     });
 
     it("Scenario: Cannot activate when hand has only 2 cards (insufficient)", () => {
-      // Arrange: Hand with only 2 cards (Card Destruction + 1 other)
+      // Arrange: Hand with only 2 cards (Hand Destruction + 1 other)
       const state = createMockGameState({
         phase: "main1",
         space: {
           mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
           extraDeck: [],
-          hand: createCardInstances([cardDestructionCardId, "hand1"], "hand", "destruction"),
+          hand: createCardInstances([handDestructionCardId, "hand1"], "hand", "destruction"),
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -108,13 +108,13 @@ describe("Quick-Play Spell Card Effects", () => {
     });
 
     it("Scenario: Can activate when hand has exactly 3 cards", () => {
-      // Arrange: Hand with exactly 3 cards (Card Destruction + 2 others)
+      // Arrange: Hand with exactly 3 cards (Hand Destruction + 2 others)
       const state = createMockGameState({
         phase: "main1",
         space: {
           mainDeck: createCardInstances(["card1", "card2", "card3"], "mainDeck"),
           extraDeck: [],
-          hand: createCardInstances([cardDestructionCardId, "hand1", "hand2"], "hand", "destruction"),
+          hand: createCardInstances([handDestructionCardId, "hand1", "hand2"], "hand", "destruction"),
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
