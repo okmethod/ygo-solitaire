@@ -5,10 +5,9 @@
  *
  * ## カードインスタンスファクトリ
  * - createTestMonsterCard: テスト用モンスター
- * - createTestSpellCard: テスト用魔法（spellType指定可）
+ * - createTestSpellCard: テスト用魔法
  * - createTestTrapCard: テスト用罠
  * - createFieldCardInstance: フィールド上のカード（stateOnField付き）
- * - createSpellCard: 魔法カード単体
  * - createSetCard: セット状態のカード
  * - createCardInstances: カードID配列から複数インスタンス生成
  *
@@ -169,33 +168,6 @@ export function createFieldCardInstance(options: {
       counters: options.counters ?? [],
       activatedEffects: new Set(),
     },
-  };
-}
-
-/**
- * 魔法カードインスタンスを作成
- *
- * CardDataRegistry からカード情報を取得し、指定の location に配置。
- *
- * @param instanceId - カードインスタンスID
- * @param cardId - カードID（デフォルト: 1001）
- * @param location - 配置位置（デフォルト: "hand"）
- */
-export function createSpellCard(
-  instanceId: string,
-  cardId: number = TEST_CARD_IDS.SPELL_NORMAL,
-  location: keyof CardSpace = "hand",
-): CardInstance {
-  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
-  return {
-    instanceId,
-    id: cardId,
-    jaName: registeredCard?.jaName ?? `Test Card ${cardId}`,
-    type: registeredCard?.type ?? "spell",
-    frameType: registeredCard?.frameType ?? "spell",
-    spellType: registeredCard?.spellType,
-    edition: registeredCard?.edition ?? "latest",
-    location,
   };
 }
 
