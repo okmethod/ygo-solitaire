@@ -5,7 +5,7 @@ import { gameFacade } from "$lib/application/GameFacade";
 describe("deckLoader - Deck Recipe Loading Test", () => {
   it("should load deck via GameFacade.initializeGame", () => {
     // GameFacade経由でデッキをロード
-    const { deckData, uniqueCardIds } = gameFacade.initializeGame("greedy-exodia-deck");
+    const { deckData, uniqueCardIds } = gameFacade.initializeGame("exodia-deck");
 
     // 基本検証
     expect(deckData).toBeDefined();
@@ -16,7 +16,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
   });
 
   it("should return CardData in LoadedCardEntry", () => {
-    const { deckData } = gameFacade.initializeGame("greedy-exodia-deck");
+    const { deckData } = gameFacade.initializeGame("exodia-deck");
 
     // メインデッキのカードを確認
     const allCards = [...deckData.mainDeck.monsters, ...deckData.mainDeck.spells, ...deckData.mainDeck.traps];
@@ -38,7 +38,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
   });
 
   it("should calculate deck stats correctly", () => {
-    const { deckData } = gameFacade.initializeGame("greedy-exodia-deck");
+    const { deckData } = gameFacade.initializeGame("exodia-deck");
 
     // 統計情報が計算されていることを確認
     expect(deckData.stats).toBeDefined();
@@ -59,7 +59,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
   });
 
   it("should classify cards by type correctly", () => {
-    const { deckData } = gameFacade.initializeGame("greedy-exodia-deck");
+    const { deckData } = gameFacade.initializeGame("exodia-deck");
 
     // モンスターカードの検証
     for (const entry of deckData.mainDeck.monsters) {
@@ -80,7 +80,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
 
 describe("deckLoader - Helper Functions", () => {
   it("getDeckRecipe should return deck recipe", () => {
-    const deckRecipe = getDeckRecipe("greedy-exodia-deck");
+    const deckRecipe = getDeckRecipe("exodia-deck");
 
     expect(deckRecipe).toBeDefined();
     expect(deckRecipe.name).toBeDefined();
@@ -93,7 +93,7 @@ describe("deckLoader - Helper Functions", () => {
   });
 
   it("extractUniqueCardIds should return unique card IDs", () => {
-    const deckRecipe = getDeckRecipe("greedy-exodia-deck");
+    const deckRecipe = getDeckRecipe("exodia-deck");
     const uniqueCardIds = extractUniqueCardIds(deckRecipe);
 
     expect(uniqueCardIds.length).toBeGreaterThan(0);
@@ -104,9 +104,9 @@ describe("deckLoader - Helper Functions", () => {
 
   it("buildDeckData should build deck data from recipe and registry", () => {
     // GameFacadeで先に初期化（レジストリを準備）
-    gameFacade.initializeGame("greedy-exodia-deck");
+    gameFacade.initializeGame("exodia-deck");
 
-    const deckRecipe = getDeckRecipe("greedy-exodia-deck");
+    const deckRecipe = getDeckRecipe("exodia-deck");
     const uniqueCardIds = extractUniqueCardIds(deckRecipe);
     const deckData = buildDeckData(deckRecipe, uniqueCardIds);
 
