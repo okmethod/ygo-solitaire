@@ -71,7 +71,10 @@
       {#if $selectedCardForDisplay.type === "monster" && $selectedCardForDisplay.monsterAttributes}
         {@const monsterData: MonsterAttributes = $selectedCardForDisplay.monsterAttributes}
         <div class="flex justify-between">
-          <span class="text-surface-600-300-token"> ⭐︎{monsterData.level} </span>
+          <span class="text-surface-600-300-token inline-flex items-center gap-1">
+            <Icon icon="mdi:star-circle" class="size-4" />
+            {monsterData.level}
+          </span>
           <span class="text-surface-600-300-token"> ATK / {monsterData.attack} </span>
           <span class="text-surface-600-300-token"> DEF / {monsterData.defense} </span>
         </div>
