@@ -41,6 +41,15 @@ export interface CardData {
   readonly defense?: number;
 }
 
+/**
+ * 《》付きでカード名を取得する
+ *
+ * @example 《強欲な壺》
+ */
+export const nameWithBrackets = (card: CardData): string => {
+  return `《${card.jaName}》`;
+};
+
 /** モンスターカードかどうか */
 export const isMonsterCard = (card: CardData): boolean => {
   return card.type === "monster";

@@ -87,7 +87,7 @@ export class AdvancePhaseCommand implements GameCommand {
     // TODO: エンドフェイズ効果の解決ステップを生成する必要がある
     return Command.Result.success(
       updatedState,
-      `Advanced to ${GameState.Phase.displayName(nextPhase)}`,
+      `${GameState.Phase.displayName(nextPhase)} です`,
       // 効果がある場合のみ、解決ステップを配列として付与する
       // hasPendingEffects ? [...state.queuedEndPhaseEffectIds] : undefined,
     );

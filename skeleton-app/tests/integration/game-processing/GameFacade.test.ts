@@ -172,7 +172,8 @@ describe("GameFacade", () => {
 
       const result = facade.summonMonster(monsterInstanceId);
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Monster summoned");
+      expect(result.message).toContain("《Test Monster ");
+      expect(result.message).toContain("》を召喚します");
 
       const updatedState = get(gameStateStore);
       expect(updatedState.space.hand.length).toBe(initialHandSize - 1); // 1 card summoned
@@ -286,7 +287,8 @@ describe("GameFacade", () => {
 
       const result = facade.setMonster(monsterInstanceId);
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Monster set");
+      expect(result.message).toContain("《Test Monster ");
+      expect(result.message).toContain("》をセットします");
 
       const updatedState = get(gameStateStore);
       expect(updatedState.space.hand.length).toBe(initialHandSize - 1);
@@ -363,7 +365,7 @@ describe("GameFacade", () => {
 
       const result = facade.setSpellTrap(spellInstanceId);
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Card set");
+      expect(result.message).toContain("《成金ゴブリン》をセットします");
 
       const updatedState = get(gameStateStore);
       expect(updatedState.space.hand.length).toBe(initialHandSize - 1);
@@ -512,7 +514,6 @@ describe("GameFacade", () => {
 
       const result = facade.activateSpell(cardInstanceId);
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Spell card activated");
 
       const updatedState = get(gameStateStore);
       // Card is removed from hand and placed on spellTrapZone

@@ -231,7 +231,6 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(result.updatedState).toBeDefined();
       expect(result.activationSteps).toBeDefined();
       expect(result.activationSteps!.length).toBeGreaterThan(0);
-      expect(result.message).toContain("Ignition effect activated");
     });
 
     it("should return failure when card does not exist", () => {
@@ -461,7 +460,6 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.updatedState).toBeDefined();
         expect(result.activationSteps).toBeDefined();
         expect(result.activationSteps!.length).toBeGreaterThan(0);
-        expect(result.message).toContain("Ignition effect activated");
       });
 
       it("should include notify, counter removal, and resolution steps", () => {

@@ -101,7 +101,6 @@ describe("ActivateSpellCommand", () => {
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
-      expect(result.message).toContain("Spell card activated");
 
       // Check card moved from hand
       expect(result.updatedState.space.hand.length).toBe(1);

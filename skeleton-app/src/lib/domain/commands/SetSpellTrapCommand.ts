@@ -90,7 +90,7 @@ export class SetSpellTrapCommand implements GameCommand {
     };
 
     // 3. 戻り値の構築
-    return Command.Result.success(updatedState, `Card set: ${cardInstance.jaName}`);
+    return Command.Result.success(updatedState, `${Card.nameWithBrackets(cardInstance)}をセットします`);
   }
 
   // セットする魔法・罠カードを適切なゾーンに裏向きで配置する

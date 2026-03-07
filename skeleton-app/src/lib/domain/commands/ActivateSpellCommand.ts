@@ -120,13 +120,7 @@ export class ActivateSpellCommand implements GameCommand {
         }
       : undefined;
 
-    return Command.Result.success(
-      updatedState,
-      `Spell card activated: ${this.cardInstanceId}`,
-      [],
-      activationSteps,
-      chainBlock,
-    );
+    return Command.Result.success(updatedState, undefined, [], activationSteps, chainBlock);
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

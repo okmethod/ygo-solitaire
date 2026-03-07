@@ -72,16 +72,14 @@
   }
 
   // ゲームアクション実行の共通ヘルパー
-  function _executeGameAction(
-    action: () => { success: boolean; message?: string; error?: string },
-    successMessage: string,
-    errorMessage: string,
-  ): boolean {
+  function _executeGameAction(action: () => { success: boolean; message?: string; error?: string }): boolean {
     const result = action();
     if (result.success) {
-      showSuccessToast(result.message || successMessage);
+      if (result.message) {
+        showSuccessToast(result.message);
+      }
     } else {
-      showErrorToast(result.error || errorMessage);
+      showErrorToast(result.error || "失敗しました");
     }
     return result.success;
   }
@@ -110,23 +108,19 @@
   // モンスター召喚ハンドラー
   function handleSummonMonster(card: DisplayCardData, instanceId: string) {
     playSE.summon();
-    _executeGameAction(() => gameFacade.summonMonster(instanceId), `${card.name}を召喚しました`, "召喚に失敗しました");
+    _executeGameAction(() => gameFacade.summonMonster(instanceId));
   }
 
   // モンスターセットハンドラー
   function handleSetMonster(card: DisplayCardData, instanceId: string) {
     playSE.set();
-    _executeGameAction(() => gameFacade.setMonster(instanceId), `${card.name}をセットしました`, "セットに失敗しました");
+    _executeGameAction(() => gameFacade.setMonster(instanceId));
   }
 
   // 魔法・罠セットハンドラー
   function handleSetSpellTrap(card: DisplayCardData, instanceId: string) {
     playSE.set();
-    _executeGameAction(
-      () => gameFacade.setSpellTrap(instanceId),
-      `${card.name}をセットしました`,
-      "セットに失敗しました",
-    );
+    _executeGameAction(() => gameFacade.setSpellTrap(instanceId));
   }
 
   // フィールドカードクリックで効果発動 - 手札選択をクリア
@@ -151,18 +145,14 @@
   // セット魔法カードの発動ハンドラー
   function handleActivateSetSpell(card: DisplayCardData, instanceId: string) {
     playSE.activate();
-    _executeGameAction(() => gameFacade.activateSpell(instanceId), `${card.name}を発動しました`, "発動に失敗しました");
+    _executeGameAction(() => gameFacade.activateSpell(instanceId));
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
   // 起動効果発動ハンドラー
   function handleActivateIgnitionEffect(card: DisplayCardData, instanceId: string) {
     playSE.activate();
-    _executeGameAction(
-      () => gameFacade.activateIgnitionEffect(instanceId),
-      `${card.name}の効果を発動しました`,
-      "効果発動に失敗しました",
-    );
+    _executeGameAction(() => gameFacade.activateIgnitionEffect(instanceId));
     selectedFieldCardInstanceId = null; // 選択解除
   }
 

@@ -80,7 +80,7 @@ export class SetMonsterCommand implements GameCommand {
     const updatedState: GameSnapshot = executeNormalSummon(state, this.cardInstanceId, "defense");
 
     // 3. 戻り値の構築
-    return Command.Result.success(updatedState, `Monster set: ${cardInstance.jaName}`);
+    return Command.Result.success(updatedState, `${Card.nameWithBrackets(cardInstance)}をセットします`);
   }
 
   /** セット対象のカードインスタンスIDを取得する */

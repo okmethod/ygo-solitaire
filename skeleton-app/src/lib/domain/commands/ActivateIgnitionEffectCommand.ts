@@ -131,13 +131,7 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
       isNegated: false,
     };
 
-    return Command.Result.success(
-      updatedState,
-      `Ignition effect activated: ${this.cardInstanceId}`,
-      [],
-      activationSteps,
-      chainBlock,
-    );
+    return Command.Result.success(updatedState, undefined, [], activationSteps, chainBlock);
   }
 
   /** 発動対象のカードインスタンスIDを取得する */

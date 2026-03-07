@@ -89,7 +89,7 @@ export class SummonMonsterCommand implements GameCommand {
     // 4. 戻り値の構築
     return Command.Result.success(
       updatedState,
-      `Monster summoned: ${cardInstance.jaName}`,
+      `${Card.nameWithBrackets(cardInstance)}を召喚します`,
       undefined, // emittedEvents
       activationSteps,
     );

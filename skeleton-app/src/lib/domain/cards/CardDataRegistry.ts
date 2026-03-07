@@ -12,6 +12,7 @@
  */
 
 import type { CardData } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
 
 /**
  * 登録用のカードデータ（id を除いた型）
@@ -77,7 +78,7 @@ export class CardDataRegistry {
    */
   static getCardNameWithBrackets(cardId: number): string {
     const card = this.get(cardId);
-    return `《${card.jaName}》`;
+    return Card.nameWithBrackets(card);
   }
 
   /** カードが登録されているか判定する */
