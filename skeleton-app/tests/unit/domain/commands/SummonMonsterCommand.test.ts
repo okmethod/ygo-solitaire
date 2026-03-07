@@ -1,23 +1,16 @@
 import { describe, it, expect } from "vitest";
 import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
-import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
-import type { CardInstance } from "$lib/domain/models/Card";
+import {
+  createMockGameState,
+  createTestMonsterCard,
+  createTestSpellCard,
+} from "../../../__testUtils__/gameStateFactory";
 
 describe("SummonMonsterCommand", () => {
-  const createMonsterCard = (instanceId: string): CardInstance => ({
-    instanceId,
-    id: 12345678,
-    jaName: "Test Monster",
-    type: "monster",
-    frameType: "normal",
-    edition: "latest",
-    location: "hand",
-  });
-
   describe("canExecute", () => {
     it("should return true when all conditions are met", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -45,7 +38,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if game is over", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -74,7 +67,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if not in main1 phase", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "draw",
         normalSummonLimit: 1,
@@ -102,7 +95,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if summon limit reached", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -157,7 +150,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if card is not in hand", () => {
       // Arrange
-      const monsterCard = { ...createMonsterCard("monster-1"), location: "mainDeck" as const };
+      const monsterCard = { ...createTestMonsterCard("monster-1"), location: "mainDeck" as const };
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -185,16 +178,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if card is not a monster", () => {
       // Arrange
-      const spellCard: CardInstance = {
-        instanceId: "spell-1",
-        id: 67616300,
-        jaName: "Test Spell",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        location: "hand",
-      };
-
+      const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -222,9 +206,9 @@ describe("SummonMonsterCommand", () => {
 
     it("should return false if mainMonsterZone is full", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-new");
+      const monsterCard = createTestMonsterCard("monster-new");
       const fullMonsterZone = Array.from({ length: 5 }, (_, i) => ({
-        ...createMonsterCard(`monster-${i}`),
+        ...createTestMonsterCard(`monster-${i}`),
         location: "mainMonsterZone" as const,
         position: "faceUp" as const,
         battlePosition: "attack" as const,
@@ -259,7 +243,7 @@ describe("SummonMonsterCommand", () => {
   describe("execute", () => {
     it("should successfully summon monster to mainMonsterZone in attack position", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -296,7 +280,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should increment normalSummonUsed", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -325,7 +309,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should fail if not in main1 phase", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "draw",
         normalSummonLimit: 1,
@@ -354,7 +338,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should fail if summon limit reached", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
+      const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -411,7 +395,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const monsterCard = { ...createMonsterCard("monster-1"), location: "mainDeck" as const };
+      const monsterCard = { ...createTestMonsterCard("monster-1"), location: "mainDeck" as const };
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -440,16 +424,7 @@ describe("SummonMonsterCommand", () => {
 
     it("should fail if card is not a monster", () => {
       // Arrange
-      const spellCard: CardInstance = {
-        instanceId: "spell-1",
-        id: 67616300,
-        jaName: "Test Spell",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        location: "hand",
-      };
-
+      const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
         phase: "main1",
         normalSummonLimit: 1,
@@ -478,9 +453,9 @@ describe("SummonMonsterCommand", () => {
 
     it("should preserve other zones when summoning", () => {
       // Arrange
-      const monsterCard = createMonsterCard("monster-1");
-      const existingDeckCard = createMonsterCard("deck-card");
-      const existingGraveyardCard = createMonsterCard("gy-card");
+      const monsterCard = createTestMonsterCard("monster-1");
+      const existingDeckCard = createTestMonsterCard("deck-card");
+      const existingGraveyardCard = createTestMonsterCard("gy-card");
 
       const state = createMockGameState({
         phase: "main1",

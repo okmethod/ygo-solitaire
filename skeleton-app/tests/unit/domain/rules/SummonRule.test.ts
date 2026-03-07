@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { canNormalSummon } from "$lib/domain/rules/SummonRule";
-import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createTestMonsterCard } from "../../../__testUtils__/gameStateFactory";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
@@ -66,23 +66,8 @@ describe("SummonRule", () => {
     it("should fail if mainMonsterZone is full (5 cards)", () => {
       // Arrange
       const fullMonsterZone = Array.from({ length: 5 }, (_, i) => ({
-        instanceId: `monster-${i}`,
-        id: 1000 + i,
-        name: `Monster ${i}`,
-        jaName: `モンスター ${i}`,
-        type: "monster" as const,
-        frameType: "normal" as const,
-        edition: "latest" as const,
-        desc: "Test monster",
-        atk: 1000,
-        def: 1000,
-        level: 4,
-        race: "Warrior",
-        attribute: "LIGHT",
+        ...createTestMonsterCard(`monster-${i}`),
         location: "mainMonsterZone" as const,
-        position: "faceUp" as const,
-        battlePosition: "attack" as const,
-        placedThisTurn: false,
       }));
 
       const state = createMockGameState({
@@ -158,23 +143,8 @@ describe("SummonRule", () => {
     it("should allow summon when mainMonsterZone has 4 cards", () => {
       // Arrange
       const monsterZone = Array.from({ length: 4 }, (_, i) => ({
-        instanceId: `monster-${i}`,
-        id: 1000 + i,
-        name: `Monster ${i}`,
-        jaName: `モンスター ${i}`,
-        type: "monster" as const,
-        frameType: "normal" as const,
-        edition: "latest" as const,
-        desc: "Test monster",
-        atk: 1000,
-        def: 1000,
-        level: 4,
-        race: "Warrior",
-        attribute: "LIGHT",
+        ...createTestMonsterCard(`monster-${i}`),
         location: "mainMonsterZone" as const,
-        position: "faceUp" as const,
-        battlePosition: "attack" as const,
-        placedThisTurn: false,
       }));
 
       const state = createMockGameState({
