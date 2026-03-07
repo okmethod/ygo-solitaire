@@ -145,12 +145,12 @@ const SE_ASSIGNMENTS = {
 
   // === カード操作 ===
   activate: { sound: SE.sine.SWIPE, desc: "発動: ピュン" },
+  summon: { sound: SE.triangle.GLIDE, desc: "召喚: ピョイーン" },
   set: { sound: SE.sine.STAB, desc: "セット: トッ" },
   discard: { sound: SE.sine.DESCEND, desc: "捨てる: ヒュン" },
 
   // === イベント ===
   attention: { sound: SE.triangle.CHIME, desc: "アテンション: コリン" },
-  special: { sound: SE.triangle.GLIDE, desc: "特殊: ピョイーン" },
   damage: { sound: SE.square.THUD, desc: "ダメージ: ズッ" },
 } as const;
 

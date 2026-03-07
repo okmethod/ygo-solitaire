@@ -1,12 +1,14 @@
 <script lang="ts">
   import Icon from "@iconify/svelte";
   import { getAudioOn, setAudioOn } from "$lib/presentation/stores/audioStore";
+  import { playSE } from "$lib/presentation/sounds/soundEffects";
 
   let currentAudioOn: boolean = $state(getAudioOn());
 
   function toggleAudio() {
     currentAudioOn = !currentAudioOn;
     setAudioOn(currentAudioOn);
+    playSE.attention();
   }
 </script>
 

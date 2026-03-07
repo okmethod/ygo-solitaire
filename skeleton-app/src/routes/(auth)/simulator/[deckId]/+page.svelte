@@ -50,6 +50,7 @@
     gameFacade.autoAdvanceToMainPhase(
       () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
       (message) => {
+        playSE.attention();
         showSuccessToast(message);
       }, // 通知のコールバック
     );
@@ -98,24 +99,29 @@
   // 手札のカードクリックで効果発動
   function handleHandCardClick(_card: DisplayCardData, instanceId: string) {
     // ドメイン層で全ての判定を実施（フェーズチェック、発動可否など）
+    playSE.activate();
     const result = gameFacade.activateSpell(instanceId);
     if (!result.success) {
+      playSE.error();
       showErrorToast(result.error || "発動に失敗しました");
     }
   }
 
   // モンスター召喚ハンドラー
   function handleSummonMonster(card: DisplayCardData, instanceId: string) {
+    playSE.summon();
     _executeGameAction(() => gameFacade.summonMonster(instanceId), `${card.name}を召喚しました`, "召喚に失敗しました");
   }
 
   // モンスターセットハンドラー
   function handleSetMonster(card: DisplayCardData, instanceId: string) {
+    playSE.set();
     _executeGameAction(() => gameFacade.setMonster(instanceId), `${card.name}をセットしました`, "セットに失敗しました");
   }
 
   // 魔法・罠セットハンドラー
   function handleSetSpellTrap(card: DisplayCardData, instanceId: string) {
+    playSE.set();
     _executeGameAction(
       () => gameFacade.setSpellTrap(instanceId),
       `${card.name}をセットしました`,
@@ -127,6 +133,7 @@
   function handleFieldCardClick(_card: DisplayCardData, instanceId: string) {
     const fieldCard = gameFacade.findCardOnField(instanceId);
     if (!fieldCard) {
+      playSE.error();
       showErrorToast("カードが見つかりませんでした");
       return;
     }
@@ -143,12 +150,14 @@
 
   // セット魔法カードの発動ハンドラー
   function handleActivateSetSpell(card: DisplayCardData, instanceId: string) {
+    playSE.activate();
     _executeGameAction(() => gameFacade.activateSpell(instanceId), `${card.name}を発動しました`, "発動に失敗しました");
     selectedFieldCardInstanceId = null; // 選択解除
   }
 
   // 起動効果発動ハンドラー
   function handleActivateIgnitionEffect(card: DisplayCardData, instanceId: string) {
+    playSE.activate();
     _executeGameAction(
       () => gameFacade.activateIgnitionEffect(instanceId),
       `${card.name}の効果を発動しました`,
