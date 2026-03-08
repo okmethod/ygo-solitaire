@@ -1,0 +1,13 @@
+# 《金色の魔象》 (Great Mammoth of Goldfine)
+
+id: 54622031
+
+data:
+  jaName: "金色の魔象"
+  type: "monster"
+  frameType: "fusion"
+  attribute: "DARK"
+  race: "Zombie"
+  level: 6
+  attack: 2200
+  defense: 1800

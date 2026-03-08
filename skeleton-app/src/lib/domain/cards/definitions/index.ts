@@ -16,6 +16,10 @@ import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
 import summonerMonkYaml from "./monsters/summoner-monk.yaml?raw";
 import sanganYaml from "./monsters/sangan.yaml?raw";
 import witchOfTheBlackForestYaml from "./monsters/witch-of-the-black-forest.yaml?raw";
+import magicalScientistYaml from "./monsters/magical-scientist.yaml?raw";
+import crimsonSunbirdYaml from "./monsters/crimson-sunbird.yaml?raw";
+import aquaDragonYaml from "./monsters/aqua-dragon.yaml?raw";
+import greatMammothOfGoldfineYaml from "./monsters/great-mammoth-of-goldfine.yaml?raw";
 
 // Spells
 import potOfGreedYaml from "./spells/pot-of-greed.yaml?raw";
@@ -52,6 +56,12 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [423585, summonerMonkYaml], // 召喚僧サモンプリースト
   [26202165, sanganYaml], // クリッター
   [78010363, witchOfTheBlackForestYaml], // 黒き森のウィッチ
+  [34206604, magicalScientistYaml], // 魔導サイエンティスト
+
+  // 融合モンスター
+  [46696593, crimsonSunbirdYaml], // 紅陽鳥
+  [86164529, aquaDragonYaml], // アクア・ドラゴン
+  [54622031, greatMammothOfGoldfineYaml], // 金色の魔象
 
   // 通常魔法
   [55144522, potOfGreedYaml], // 強欲な壺

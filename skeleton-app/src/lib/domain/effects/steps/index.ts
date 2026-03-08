@@ -27,7 +27,7 @@ import { placeCounterStepBuilder, removeCounterStepBuilder } from "./builders/co
 import { shuffleDeckStepBuilder } from "./builders/deckOperations";
 import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
-import { specialSummonFromDeckStepBuilder } from "./builders/summons";
+import { specialSummonFromDeckStepBuilder, specialSummonFromExtraDeckStepBuilder } from "./builders/summons";
 
 // ===========================
 // エクスポート
@@ -68,6 +68,7 @@ AtomicStepRegistry.register(S.REMOVE_COUNTER, removeCounterStepBuilder);
 // モンスター関連
 AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
+AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
 
 // デッキ操作関連
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);

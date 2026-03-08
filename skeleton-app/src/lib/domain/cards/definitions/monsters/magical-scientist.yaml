@@ -1,0 +1,33 @@
+# 《魔導サイエンティスト》 (Magical Scientist)
+#
+# 起動効果:
+# - CONDITIONS: LP>1000
+# - ACTIVATIONS: 1000LP支払い
+# - RESOLUTIONS: レベル6以下の融合モンスター1体をEXデッキから特殊召喚
+#
+# Note: 特殊召喚したモンスターが直接攻撃できない制約、ターン終了時にEXデッキに戻る処理は未実装
+
+id: 34206604
+
+data:
+  jaName: "魔導サイエンティスト"
+  type: "monster"
+  frameType: "effect"
+  attribute: "DARK"
+  race: "Spellcaster"
+  level: 1
+  attack: 300
+  defense: 300
+
+effectChainableActions:
+  ignitions:
+    - conditions:
+        requirements:
+          - step: "LP_GREATER_THAN"
+            args: { amount: 1000 }
+      activations:
+        - step: "PAY_LP"
+          args: { amount: 1000 }
+      resolutions:
+        - step: "SPECIAL_SUMMON_FROM_EXTRA_DECK"
+          args: { filterMaxLevel: 6, filterFrameType: "fusion" }

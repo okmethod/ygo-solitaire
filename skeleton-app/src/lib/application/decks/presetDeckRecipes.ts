@@ -95,8 +95,27 @@ const deckRecipeLibrary: DeckRecipe = {
   extraDeck: [],
 };
 
+const deckScienceCatapult: DeckRecipe = {
+  name: "サイエンカタパ",
+  description: "魔導サイエンティストで特殊召喚した融合モンスターを、カタパルトタートルで射出するデッキです",
+  category: "フルバーン",
+  mainDeck: [
+    // モンスターカード
+    { id: 34206604, quantity: 3 }, // 魔導サイエンティスト
+
+    // 魔法カード
+    { id: 55144522, quantity: 3 }, // 強欲な壺
+  ],
+  extraDeck: [
+    { id: 46696593, quantity: 3 }, // 紅陽鳥
+    { id: 86164529, quantity: 3 }, // アクア・ドラゴン
+    { id: 54622031, quantity: 3 }, // 金色の魔象
+  ],
+};
+
 export const presetDeckRecipes: Record<string, DeckRecipe> = {
   "exodia-deck": deckRecipeExodia,
   "legacy-exodia-deck": deckRecipeLegacyExodia,
   "library-exodia-deck": deckRecipeLibrary,
+  "scientist-catapult-deck": deckScienceCatapult,
 };

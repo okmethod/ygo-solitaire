@@ -1,0 +1,13 @@
+# 《紅陽鳥》 (Crimson Sunbird)
+
+id: 46696593
+
+data:
+  jaName: "紅陽鳥"
+  type: "monster"
+  frameType: "fusion"
+  attribute: "FIRE"
+  race: "Winged Beast"
+  level: 6
+  attack: 2300
+  defense: 1800

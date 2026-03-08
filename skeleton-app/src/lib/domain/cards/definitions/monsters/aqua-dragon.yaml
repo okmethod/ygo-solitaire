@@ -1,0 +1,13 @@
+# 《アクア・ドラゴン》 (Aqua Dragon)
+
+id: 86164529
+
+data:
+  jaName: "アクア・ドラゴン"
+  type: "monster"
+  frameType: "fusion"
+  attribute: "WATER"
+  race: "Sea Serpent"
+  level: 6
+  attack: 2250
+  defense: 1900
