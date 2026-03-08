@@ -2,15 +2,121 @@
  * releases.ts - リリース系ステップビルダー
  *
  * StepBuilder:
- * - releaseAndBurnStepBuilder: フィールドのモンスターをリリースし攻撃力の半分をダメージ
+ * - releaseAndBurnStepBuilder: フィールドのモンスターをリリースし攻撃力に応じたダメージ
+ *
+ * 公開関数:
+ * - selectAndReleaseStep: フィールドのモンスターを選択してリリース
+ *
+ * @module domain/effects/steps/builders/releases
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
+import type { GameSnapshot, Player, CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { selectCardsStep } from "./userInteractions";
+
+// ===========================
+// 共通リリース処理
+// ===========================
+
+/**
+ * リリース処理の結果
+ */
+export type ReleaseResult = {
+  space: CardSpace;
+  events: GameEvent[];
+};
+
+/** 指定されたモンスターをリリース（墓地へ送る）する共通処理 */
+function releaseMonsters(space: CardSpace, instanceIds: string[]): ReleaseResult {
+  let updatedSpace = space;
+  const events: GameEvent[] = [];
+
+  for (const instanceId of instanceIds) {
+    const card = GameState.Space.findCard(updatedSpace, instanceId);
+    if (card) {
+      updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
+      events.push({
+        type: "sentToGraveyard",
+        sourceCardId: card.id,
+        sourceInstanceId: card.instanceId,
+      });
+    }
+  }
+
+  return { space: updatedSpace, events };
+}
+
+// ===========================
+// 選択＋リリース共通ステップ
+// ===========================
+
+/**
+ * selectAndReleaseStep の設定
+ */
+type SelectAndReleaseConfig = {
+  /** ステップID生成用のカードID */
+  cardId: number;
+  /** リリースするモンスターの数 */
+  count: number;
+  /** カスタムサマリー（省略時はデフォルト） */
+  summary?: string;
+  /** カスタム説明（省略時はデフォルト） */
+  description?: string;
+  /** モンスターのフィルター条件（省略時は全モンスター） */
+  filter?: (card: CardInstance) => boolean;
+  /** リリース完了後のコールバック */
+  onReleased: (
+    state: GameSnapshot,
+    releasedCards: readonly CardInstance[],
+    releaseEvents: GameEvent[],
+  ) => GameStateUpdateResult;
+};
+
+/**
+ * フィールドのモンスターを選択してリリースする共通ステップ
+ *
+ * 処理:
+ * 1. フィールドからモンスターを選択（UI表示）
+ * 2. 選択したモンスターをリリース（墓地へ送る）
+ * 3. onReleased コールバックを実行
+ */
+export const selectAndReleaseStep = (config: SelectAndReleaseConfig): AtomicStep => {
+  const defaultFilter = (_card: CardInstance): boolean => true; // デフォルトは全てのカードを対象
+  const filter = config.filter ?? defaultFilter;
+  const summary = config.summary ?? "リリース対象を選択";
+  const description = config.description ?? `フィールドのモンスター${config.count}体をリリースします`;
+
+  return selectCardsStep({
+    id: `${config.cardId}-select-release`,
+    summary,
+    description,
+    availableCards: null,
+    _sourceZone: "mainMonsterZone",
+    _filter: filter,
+    minCards: config.count,
+    maxCards: config.count,
+    cancelable: false,
+    onSelect: (currentState: GameSnapshot, selectedIds: string[]): GameStateUpdateResult => {
+      // リリース前にカード情報を取得（ダメージ計算等に使用）
+      const releasedCards = selectedIds.map((id) => GameState.Space.findCard(currentState.space, id)!);
+
+      // リリース実行
+      const { space, events } = releaseMonsters(currentState.space, selectedIds);
+      const updatedState: GameSnapshot = { ...currentState, space };
+
+      // 後続処理をコールバックに委譲
+      return config.onReleased(updatedState, releasedCards, events);
+    },
+  });
+};
+
+// ===========================
+// ステップビルダー
+// ===========================
 
 /**
  * フィールドのモンスターを選択してリリースし、攻撃力の指定倍率でダメージを与えるステップ
@@ -26,76 +132,35 @@ export const releaseAndBurnStep = (
   damageTarget: Player = "opponent",
 ): AtomicStep => {
   const multiplierPercent = Math.round(damageMultiplier * 100);
-  const summary = `モンスターをリリースしてダメージ`;
-  const description = `フィールドのモンスター1体をリリースし、攻撃力の${multiplierPercent}%のダメージを与えます`;
 
-  const filter = (card: CardInstance): boolean => {
-    return card.type === "monster";
-  };
-
-  return {
-    id: `${cardId}-release-and-burn`,
-    summary,
-    description,
-    notificationLevel: "interactive",
-    cardSelectionConfig: {
-      availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
-      minCards: 1,
-      maxCards: 1,
-      summary,
-      description,
-      cancelable: false,
-      _sourceZone: "mainMonsterZone",
-      _filter: filter,
-    },
-    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
-      // フィールドからフィルター条件に合うカードを取得
-      const availableCards = currentState.space.mainMonsterZone.filter(filter);
-
-      // 条件に合うカードが存在しない場合はエラー
-      if (availableCards.length === 0) {
-        return GameProcessing.Result.failure(currentState, "No monsters available on field to release");
-      }
-
-      // まだ選択が行われていない場合（UIが選択モーダルを表示する）
-      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-        return GameProcessing.Result.failure(currentState, "No monster selected");
-      }
-
-      // 選択されたモンスターを取得
-      const instanceId = selectedInstanceIds[0];
-      const monster = GameState.Space.findCard(currentState.space, instanceId)!;
+  return selectAndReleaseStep({
+    cardId,
+    count: 1,
+    summary: "モンスターをリリースしてダメージ",
+    description: `フィールドのモンスター1体をリリースし、攻撃力の${multiplierPercent}%のダメージを与えます`,
+    onReleased: (state, releasedCards, releaseEvents) => {
+      const monster = releasedCards[0];
       const monsterAtk = monster.attack ?? 0;
       const damage = Math.floor(monsterAtk * damageMultiplier);
 
-      // モンスターを墓地へ送る（リリース）
-      const updatedSpace = GameState.Space.moveCard(currentState.space, monster, "graveyard");
-
       // ダメージを適用
       const updatedLp = {
-        ...currentState.lp,
-        [damageTarget]: currentState.lp[damageTarget] - damage,
+        ...state.lp,
+        [damageTarget]: state.lp[damageTarget] - damage,
       };
 
       const updatedState: GameSnapshot = {
-        ...currentState,
-        space: updatedSpace,
+        ...state,
         lp: updatedLp,
       };
 
       return GameProcessing.Result.success(
         updatedState,
         `Released ${monster.jaName} (ATK ${monsterAtk}) and dealt ${damage} damage`,
-        [
-          {
-            type: "sentToGraveyard",
-            sourceCardId: monster.id,
-            sourceInstanceId: monster.instanceId,
-          },
-        ],
+        releaseEvents,
       );
     },
-  };
+  });
 };
 
 // ===========================
