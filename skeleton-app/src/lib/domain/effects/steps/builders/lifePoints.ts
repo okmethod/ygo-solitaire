@@ -98,3 +98,19 @@ export const payLpStepBuilder: StepBuilder = (args) => {
   }
   return payLpStep(amount, target);
 };
+
+/**
+ * BURN_DAMAGE - 相手にダメージを与える（効果ダメージ）
+ * args: { amount: number, target?: "player" | "opponent" }
+ */
+export const burnDamageStepBuilder: StepBuilder = (args) => {
+  const amount = args.amount as number;
+  const target = (args.target as Player) ?? "opponent";
+  if (typeof amount !== "number" || amount < 1) {
+    throw new Error("BURN_DAMAGE step requires a positive amount argument");
+  }
+  if (target !== "player" && target !== "opponent") {
+    throw new Error('BURN_DAMAGE step requires target to be "player" or "opponent"');
+  }
+  return damageLpStep(amount, target);
+};

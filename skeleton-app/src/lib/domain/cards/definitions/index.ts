@@ -17,6 +17,7 @@ import summonerMonkYaml from "./monsters/summoner-monk.yaml?raw";
 import sanganYaml from "./monsters/sangan.yaml?raw";
 import witchOfTheBlackForestYaml from "./monsters/witch-of-the-black-forest.yaml?raw";
 import magicalScientistYaml from "./monsters/magical-scientist.yaml?raw";
+import CatapultTurtleYaml from "./monsters/catapult-turtle.yaml?raw";
 import crimsonSunbirdYaml from "./monsters/crimson-sunbird.yaml?raw";
 import aquaDragonYaml from "./monsters/aqua-dragon.yaml?raw";
 import greatMammothOfGoldfineYaml from "./monsters/great-mammoth-of-goldfine.yaml?raw";
@@ -57,6 +58,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [26202165, sanganYaml], // クリッター
   [78010363, witchOfTheBlackForestYaml], // 黒き森のウィッチ
   [34206604, magicalScientistYaml], // 魔導サイエンティスト
+  [95727991, CatapultTurtleYaml], // カタパルト・タートル
 
   // 融合モンスター
   [46696593, crimsonSunbirdYaml], // 紅陽鳥

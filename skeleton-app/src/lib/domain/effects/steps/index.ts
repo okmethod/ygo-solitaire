@@ -15,7 +15,7 @@ import { STEP_NAMES, type StepName } from "./StepNames";
 import { drawStepBuilder, fillHandsStepBuilder } from "./builders/draws";
 import { selectAndDiscardStepBuilder, discardAllHandEndPhaseStepBuilder } from "./builders/discards";
 import { thenStepBuilder } from "./builders/timing";
-import { gainLpStepBuilder, payLpStepBuilder } from "./builders/lifePoints";
+import { gainLpStepBuilder, payLpStepBuilder, burnDamageStepBuilder } from "./builders/lifePoints";
 import {
   searchFromDeckStepBuilder,
   searchFromDeckByNameStepBuilder,
@@ -28,6 +28,7 @@ import { shuffleDeckStepBuilder } from "./builders/deckOperations";
 import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import { specialSummonFromDeckStepBuilder, specialSummonFromExtraDeckStepBuilder } from "./builders/summons";
+import { releaseAndBurnStepBuilder } from "./builders/releases";
 
 // ===========================
 // エクスポート
@@ -60,6 +61,7 @@ AtomicStepRegistry.register(S.SALVAGE_FROM_GRAVEYARD, salvageFromGraveyardStepBu
 // ライフポイント関連
 AtomicStepRegistry.register(S.GAIN_LP, gainLpStepBuilder);
 AtomicStepRegistry.register(S.PAY_LP, payLpStepBuilder);
+AtomicStepRegistry.register(S.BURN_DAMAGE, burnDamageStepBuilder);
 
 // カウンター関連
 AtomicStepRegistry.register(S.PLACE_COUNTER, placeCounterStepBuilder);
@@ -69,6 +71,9 @@ AtomicStepRegistry.register(S.REMOVE_COUNTER, removeCounterStepBuilder);
 AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
+
+// リリース関連
+AtomicStepRegistry.register(S.RELEASE_AND_BURN, releaseAndBurnStepBuilder);
 
 // デッキ操作関連
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);

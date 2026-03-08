@@ -102,6 +102,7 @@ const deckScienceCatapult: DeckRecipe = {
   mainDeck: [
     // モンスターカード
     { id: 34206604, quantity: 3 }, // 魔導サイエンティスト
+    { id: 95727991, quantity: 3 }, // カタパルト・タートル
 
     // 魔法カード
     { id: 55144522, quantity: 3 }, // 強欲な壺

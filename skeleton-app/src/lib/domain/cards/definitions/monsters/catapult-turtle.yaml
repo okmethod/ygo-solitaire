@@ -1,0 +1,24 @@
+# 《カタパルト・タートル》 (Catapult Turtle)
+#
+# 起動効果:
+# - CONDITIONS: なし（レガシー版: 1ターンに1度制限なし）
+# - ACTIVATIONS: 自分フィールドのモンスター1体をリリース
+# - RESOLUTIONS: リリースしたモンスターの攻撃力の半分のバーンダメージ
+
+id: 95727991
+
+data:
+  jaName: "カタパルト・タートル"
+  type: "monster"
+  frameType: "effect"
+  attribute: "WATER"
+  race: "Aqua"
+  level: 5
+  attack: 1000
+  defense: 2000
+
+effectChainableActions:
+  ignitions:
+    - resolutions:
+        - step: "RELEASE_AND_BURN"
+          args: { damageMultiplier: 0.5, damageTarget: "opponent" }
