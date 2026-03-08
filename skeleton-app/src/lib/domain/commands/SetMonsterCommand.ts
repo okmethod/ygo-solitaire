@@ -3,17 +3,16 @@
  *
  * 手札からモンスターカードをセットする Command パターン実装。
  * 召喚権を1消費し、モンスターを裏側守備表示でメインモンスターゾーンに配置する。
+ * アドバンスセット: レベルに応じて、必要な場合はリリース選択ステップを返す。
  *
  * @module domain/commands/SetMonsterCommand
  */
 
-import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
-import { canNormalSummon, executeNormalSummon } from "$lib/domain/rules/SummonRule";
+import { canNormalSummon, performNormalSummon } from "$lib/domain/rules/SummonRule";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** モンスターセットコマンドクラス */
@@ -29,34 +28,13 @@ export class SetMonsterCommand implements GameCommand {
    *
    * チェック項目:
    * 1. ゲーム終了状態でないこと
-   * 2. 通常召喚ルールを満たしていること
-   * 3. 指定カードがモンスターカードであり、手札に存在すること
+   * 2. 召喚ルールを満たしていること（レベルに応じたリリース要件を含む）
    */
   canExecute(state: GameSnapshot): ValidationResult {
-    // 1. ゲーム終了状態でないこと
     if (state.result.isGameOver) {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.GAME_OVER);
     }
-
-    // 2. 通常召喚ルールを満たしていること
-    const validationResult = canNormalSummon(state);
-    if (!validationResult.isValid) {
-      return validationResult;
-    }
-
-    // 3. 指定カードがモンスターカードであり、手札に存在すること
-    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId);
-    if (!cardInstance) {
-      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_FOUND);
-    }
-    if (!Card.isMonster(cardInstance)) {
-      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MONSTER_CARD);
-    }
-    if (!Card.Instance.inHand(cardInstance)) {
-      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
-    }
-
-    return GameProcessing.Validation.success();
+    return canNormalSummon(state, this.cardInstanceId);
   }
 
   /**
@@ -64,8 +42,7 @@ export class SetMonsterCommand implements GameCommand {
    *
    * 処理フロー:
    * 1. 実行可能性判定
-   * 2. 更新後状態の構築
-   * 3. 戻り値の構築
+   * 2. セット処理の実行（レベルに応じて即時実行またはリリース選択ステップを返す）
    */
   execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
@@ -73,14 +50,16 @@ export class SetMonsterCommand implements GameCommand {
     if (!validationResult.isValid) {
       return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
-    // cardInstance は canExecute で存在が保証されている
-    const cardInstance = GameState.Space.findCard(state.space, this.cardInstanceId)!;
 
-    // 2. 更新後状態の構築
-    const updatedState: GameSnapshot = executeNormalSummon(state, this.cardInstanceId, "defense");
-
-    // 3. 戻り値の構築
-    return Command.Result.success(updatedState, `${Card.nameWithBrackets(cardInstance)}をセットします`);
+    // 2. セット処理の実行
+    const result = performNormalSummon(state, this.cardInstanceId, "defense");
+    if (result.type === "immediate") {
+      // 即時セットが可能な場合、状態を更新して成功を返す
+      return Command.Result.success(result.state, result.message, undefined, result.activationSteps);
+    } else {
+      // リリース選択が必要な場合、状態は変更せずにリリース選択ステップを返す
+      return Command.Result.success(state, result.message, undefined, [result.step]);
+    }
   }
 
   /** セット対象のカードインスタンスIDを取得する */

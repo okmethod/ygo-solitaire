@@ -25,6 +25,9 @@ export const ERROR_CODES = {
   SPELL_TRAP_ZONE_FULL: "SPELL_TRAP_ZONE_FULL",
   MONSTER_ZONE_FULL: "MONSTER_ZONE_FULL",
 
+  // リリース関連
+  NOT_ENOUGH_TRIBUTES: "NOT_ENOUGH_TRIBUTES",
+
   // デッキ関連
   INSUFFICIENT_DECK: "INSUFFICIENT_DECK",
 
@@ -70,6 +73,9 @@ const ERROR_MESSAGES: Record<ValidationErrorCode, string> = {
   // ゾーン関連
   SPELL_TRAP_ZONE_FULL: "魔法・罠ゾーンに空きがありません",
   MONSTER_ZONE_FULL: "モンスターゾーンに空きがありません",
+
+  // リリース関連
+  NOT_ENOUGH_TRIBUTES: "リリースするモンスターが不足しています",
 
   // デッキ関連
   INSUFFICIENT_DECK: "デッキのカードが不足しています",
