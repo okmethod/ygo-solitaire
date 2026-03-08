@@ -46,7 +46,7 @@ function registerCardData(definition: CardDSLDefinition): void {
  */
 function registerChainableAction(definition: CardDSLDefinition): void {
   const { id, data } = definition;
-  const chainableActions = definition["effect-chainable-actions"];
+  const chainableActions = definition["effectChainableActions"];
 
   // チェーンブロックを作る処理がない場合はスキップ
   if (!chainableActions) {
@@ -98,7 +98,7 @@ function registerChainableAction(definition: CardDSLDefinition): void {
  */
 function registerAdditionalRules(definition: CardDSLDefinition): void {
   const { id } = definition;
-  const additionalRules = definition["effect-additional-rules"];
+  const additionalRules = definition["effectAdditionalRules"];
 
   // 追加適用するルールがない場合はスキップ
   if (!additionalRules) {

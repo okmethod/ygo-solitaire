@@ -15,7 +15,7 @@ data:
   frameType: "spell"
   spellType: "quick-play"
 
-effect-chainable-actions:
+effectChainableActions:
   activations:
     conditions:
       requirements:

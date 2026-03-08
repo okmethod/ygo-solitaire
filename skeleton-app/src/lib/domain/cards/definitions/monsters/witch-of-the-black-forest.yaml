@@ -23,7 +23,7 @@ data:
   attack: 1100
   defense: 1200
 
-effect-chainable-actions:
+effectChainableActions:
   triggers:
     - conditions:
         trigger:

@@ -23,7 +23,7 @@ data:
   type: "spell"
   frameType: "spell"
   spellType: "normal"
-effect-chainable-actions:
+effectChainableActions:
   activations:
     conditions:
       requirements:
@@ -58,7 +58,7 @@ data:
   level: 4
   attack: 0
   defense: 2000
-effect-additional-rules:
+effectAdditionalRules:
   continuous:
     - category: "TriggerRule"
       conditions:
@@ -112,8 +112,8 @@ describe("parseCardDSL - 正常系", () => {
     expect(result.data.frameType).toBe("spell");
     expect(result.data.spellType).toBe("normal");
 
-    // effect-chainable-actions の検証
-    const actions = result["effect-chainable-actions"];
+    // effectChainableActions の検証
+    const actions = result["effectChainableActions"];
     expect(actions).toBeDefined();
     expect(actions?.activations?.conditions?.requirements).toHaveLength(1);
     expect(actions?.activations?.conditions?.requirements?.[0].step).toBe("CAN_DRAW");
@@ -130,7 +130,7 @@ describe("parseCardDSL - 正常系", () => {
 
     // オプションフィールドはundefined
     expect(result.data.spellType).toBeUndefined();
-    expect(result["effect-chainable-actions"]).toBeUndefined();
+    expect(result["effectChainableActions"]).toBeUndefined();
   });
 
   it("モンスターカード定義（永続効果付き）をパースできる", () => {
@@ -144,8 +144,8 @@ describe("parseCardDSL - 正常系", () => {
     expect(result.data.attribute).toBe("light");
     expect(result.data.level).toBe(4);
 
-    // effect-additional-rules の検証（PSCT準拠構造）
-    const rules = result["effect-additional-rules"];
+    // effectAdditionalRules の検証（PSCT準拠構造）
+    const rules = result["effectAdditionalRules"];
     expect(rules).toBeDefined();
     expect(rules?.continuous).toHaveLength(1);
     expect(rules?.continuous?.[0].category).toBe("TriggerRule");

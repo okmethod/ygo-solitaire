@@ -18,9 +18,9 @@ describe("DSLErrors - Error Messages", () => {
     });
 
     it("エラーメッセージにフィールドパスが含まれる", () => {
-      const error = new DSLParseError("test error", 12345, "effect-chainable-actions.activations");
-      expect(error.message).toContain("Field: effect-chainable-actions.activations");
-      expect(error.field).toBe("effect-chainable-actions.activations");
+      const error = new DSLParseError("test error", 12345, "effectChainableActions.activations");
+      expect(error.message).toContain("Field: effectChainableActions.activations");
+      expect(error.field).toBe("effectChainableActions.activations");
     });
 
     it("カードIDなしでもエラーが作成できる", () => {
@@ -100,14 +100,14 @@ data:
       }
     });
 
-    it("不正なeffect-chainable-actionsでフィールドパスが正しく設定される", () => {
+    it("不正なeffectChainableActionsでフィールドパスが正しく設定される", () => {
       const invalidEffectYaml = `
 id: 88888
 data:
   jaName: "test"
   type: "spell"
   frameType: "spell"
-effect-chainable-actions:
+effectChainableActions:
   activations:
     conditions:
       - step: "UNKNOWN_STEP"

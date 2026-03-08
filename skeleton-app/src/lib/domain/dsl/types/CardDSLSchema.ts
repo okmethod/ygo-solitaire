@@ -5,6 +5,15 @@
  */
 
 import { z } from "zod";
+import {
+  CARD_TYPES,
+  FRAME_SUB_TYPES,
+  SPELL_SUB_TYPES,
+  TRAP_SUB_TYPES,
+  EDITIONS,
+} from "$lib/domain/models/Card/CardData";
+import { EVENT_TYPES } from "$lib/domain/models/GameProcessing/GameEvent";
+import { RULE_CATEGORIES, TRIGGER_TIMINGS } from "$lib/domain/models/Effect/AdditionalRule";
 import { CONDITION_NAMES, type ConditionName } from "$lib/domain/effects/conditions";
 import { STEP_NAMES, type StepName } from "$lib/domain/effects/steps";
 
@@ -16,30 +25,16 @@ const stepValues = Object.values(STEP_NAMES) as [StepName, ...StepName[]];
 // =============================================================================
 
 /** CardType スキーマ */
-const CardTypeSchema = z.enum(["monster", "spell", "trap"]);
+const CardTypeSchema = z.enum(CARD_TYPES);
 
 /** FrameSubType スキーマ */
-const FrameSubTypeSchema = z.enum([
-  // MainMonsterSubType
-  "normal",
-  "effect",
-  "ritual",
-  "pendulum",
-  // ExtraMonsterSubType
-  "fusion",
-  "synchro",
-  "xyz",
-  "link",
-  // Spell/Trap
-  "spell",
-  "trap",
-]);
+const FrameSubTypeSchema = z.enum(FRAME_SUB_TYPES);
 
 /** SpellSubType スキーマ */
-const SpellSubTypeSchema = z.enum(["normal", "quick-play", "continuous", "field", "equip", "ritual"]);
+const SpellSubTypeSchema = z.enum(SPELL_SUB_TYPES);
 
 /** TrapSubType スキーマ */
-const TrapSubTypeSchema = z.enum(["normal", "continuous", "counter"]);
+const TrapSubTypeSchema = z.enum(TRAP_SUB_TYPES);
 
 /**
  * カードデータのDSL表現スキーマ
@@ -52,7 +47,7 @@ const CardDataDSLSchema = z.object({
   /** カードフレームタイプ */
   frameType: FrameSubTypeSchema,
   /** エディション */
-  edition: z.enum(["latest", "legacy"]).optional(),
+  edition: z.enum(EDITIONS).optional(),
   /** 魔法カードサブタイプ */
   spellType: SpellSubTypeSchema.optional(),
   /** 罠カードサブタイプ */
@@ -78,7 +73,7 @@ export type CardDataDSL = z.infer<typeof CardDataDSLSchema>;
 // =============================================================================
 
 /** EventType スキーマ */
-const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestroyed", "sentToGraveyard"]);
+const EventTypeSchema = z.enum(EVENT_TYPES);
 
 /**
  * トリガー情報のスキーマ（PSCT「:」の前のトリガー部分）
@@ -88,12 +83,8 @@ const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestro
 const TriggerDSLSchema = z.object({
   /** トリガーイベント */
   events: z.array(EventTypeSchema),
-  /**
-   * トリガータイミング種別
-   * - "when": タイミングを逃す可能性あり
-   * - "if": タイミングを逃さない（デフォルト）
-   */
-  timing: z.enum(["when", "if"]).optional(),
+  /** トリガータイミング種別 */
+  timing: z.enum(TRIGGER_TIMINGS).optional(),
   /** 強制効果かどうか（デフォルト: true） */
   isMandatory: z.boolean().optional(),
   /**
@@ -111,7 +102,7 @@ export type TriggerDSL = z.infer<typeof TriggerDSLSchema>;
  * 発動要件のDSL表現スキーマ
  *
  * ConditionRegistryのキーと引数をマッピングする。
- * 状態ベースの条件チェック（例: 手札枚数、LP残量）を定義する。
+ * 状態ベースの条件チェック（手札枚数、LP残量、ターン1制限、等）を定義する。
  *
  * 例: { step: "CAN_DRAW", args: { count: 3 } }
  */
@@ -126,19 +117,6 @@ const RequirementDSLSchema = z.object({
 export type RequirementDSL = z.infer<typeof RequirementDSLSchema>;
 
 /**
- * 使用制限のスキーマ
- *
- * ターン1制限などの発動回数制限を定義する。
- */
-const UsageLimitDSLSchema = z.object({
-  /** 制限タイプ */
-  type: z.enum(["oncePerTurn", "oncePerDuel"]),
-});
-
-/** 使用制限のDSL表現 */
-export type UsageLimitDSL = z.infer<typeof UsageLimitDSLSchema>;
-
-/**
  * 発動条件のスキーマ（PSCT「:」の前の全要素）
  *
  * トリガー、要件、使用制限を統合した発動条件全体を定義する。
@@ -148,8 +126,6 @@ const ConditionsDSLSchema = z.object({
   trigger: TriggerDSLSchema.optional(),
   /** 発動要件（状態ベースの条件チェック） */
   requirements: z.array(RequirementDSLSchema).optional(),
-  /** 使用制限（ターン1等） */
-  usageLimit: UsageLimitDSLSchema.optional(),
 });
 
 /** 発動条件のDSL表現 */
@@ -202,17 +178,7 @@ export type ChainableActionDSL = z.infer<typeof ChainableActionDSLSchema>;
 // =============================================================================
 
 /** RuleCategory スキーマ */
-const RuleCategorySchema = z.enum([
-  "NameOverride",
-  "StatusModifier",
-  "SummonCondition",
-  "SummonPermission",
-  "ActionPermission",
-  "VictoryCondition",
-  "ActionReplacement",
-  "SelfDestruction",
-  "TriggerRule",
-]);
+const RuleCategorySchema = z.enum(RULE_CATEGORIES);
 
 /**
  * 追加適用するルールのDSL表現スキーマ（PSCT準拠）
@@ -236,8 +202,7 @@ export type AdditionalRuleDSL = z.infer<typeof AdditionalRuleDSLSchema>;
 /**
  * YAMLカード定義のZodスキーマ
  *
- * カードデータと効果定義を一元管理する。
- * 1枚のカードの全情報を1箇所で管理（SSOT原則）。
+ * 1枚のカードのカードデータと効果定義を一元管理する。
  */
 export const CardDSLDefinitionSchema = z.object({
   /** カードID */
@@ -250,7 +215,7 @@ export const CardDSLDefinitionSchema = z.object({
    * - ignitions: 起動効果（モンスター・魔法）
    * - triggers: 誘発効果（モンスター）
    */
-  "effect-chainable-actions": z
+  effectChainableActions: z
     .object({
       activations: ChainableActionDSLSchema.optional(),
       ignitions: z.array(ChainableActionDSLSchema).optional(),
@@ -261,17 +226,12 @@ export const CardDSLDefinitionSchema = z.object({
    * 追加適用するルール
    * - continuous: 永続効果（モンスター・魔法・罠）
    */
-  "effect-additional-rules": z
+  effectAdditionalRules: z
     .object({
       continuous: z.array(AdditionalRuleDSLSchema).optional(),
     })
     .optional(),
 });
 
-/**
- * YAMLカード定義の型
- *
- * カードデータと効果定義を一元管理する。
- * 1枚のカードの全情報を1箇所で管理（SSOT原則）。
- */
+/** YAMLカード定義のDSL表現 */
 export type CardDSLDefinition = z.infer<typeof CardDSLDefinitionSchema>;

@@ -17,20 +17,25 @@ import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
 export type RuleEffectCategory = "continuous";
 
 /** 追加適用するルールのカテゴリ */
-export type RuleCategory =
+export const RULE_CATEGORIES = [
   // データ書き換え系
-  | "NameOverride" // カード名変更（例: ハーピィ・レディ3姉妹）
-  | "StatusModifier" // 攻撃力/守備力変更（例: 団結の力）
+  "NameOverride", // カード名変更（例: ハーピィ・レディ3姉妹）
+  "StatusModifier", // 攻撃力/守備力変更（例: 団結の力）
   // 判定追加・制限追加系
-  | "SummonCondition" // 特殊召喚条件（例: 青眼の究極竜）
-  | "SummonPermission" // 召喚回数制限（例: マジェスペクター）
-  | "ActionPermission" // 行動制限（例: 攻撃不可、効果発動不可、ダメージ無効化）
-  | "VictoryCondition" // 特殊勝利判定（例: エクゾディア）
+  "SummonCondition", // 特殊召喚条件（例: 青眼の究極竜）
+  "SummonPermission", // 召喚回数制限（例: マジェスペクター）
+  "ActionPermission", // 行動制限（例: 攻撃不可、効果発動不可、ダメージ無効化）
+  "VictoryCondition", // 特殊勝利判定（例: エクゾディア）
   // 処理置換・処理フック系
-  | "ActionReplacement" // 破壊耐性、身代わり効果（例: スターダスト・ドラゴン）
-  | "SelfDestruction" // 維持コスト、自壊（例: ペンデュラム地帯）
+  "ActionReplacement", // 破壊耐性、身代わり効果（例: スターダスト・ドラゴン）
+  "SelfDestruction", // 維持コスト、自壊（例: ペンデュラム地帯）
   // イベント駆動系
-  | "TriggerRule"; // イベント発生時に自動実行（例: 王立魔法図書館）
+  "TriggerRule", // イベント発生時に自動実行（例: 王立魔法図書館）
+] as const;
+export type RuleCategory = (typeof RULE_CATEGORIES)[number];
+
+export const TRIGGER_TIMINGS = ["when", "if"] as const;
+export type TriggerTiming = (typeof TRIGGER_TIMINGS)[number];
 
 /**
  * 追加適用するルール
@@ -125,7 +130,7 @@ export interface AdditionalRule {
    *
    * 未指定の場合は "if" として扱う（タイミングを逃さない）
    */
-  readonly triggerTiming?: "when" | "if";
+  readonly triggerTiming?: TriggerTiming;
 
   /**
    * 強制効果かどうか（TriggerRule用）

@@ -27,7 +27,7 @@ data:
   attack: 800
   defense: 1600
 
-effect-chainable-actions:
+effectChainableActions:
   triggers:
     - conditions:
         trigger:
@@ -42,7 +42,8 @@ effect-chainable-actions:
   ignitions:
     - conditions:
         requirements:
-          - step: "ONCE_PER_TURN"
+          - step: "ONCE_PER_TURN_EFFECT"
+            args: { effectIndex: 1 }
           - step: "HAND_HAS_SPELL"
             args: { minCount: 1 }
       activations:

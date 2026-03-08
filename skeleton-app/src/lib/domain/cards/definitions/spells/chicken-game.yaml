@@ -15,14 +15,14 @@ data:
   frameType: "spell"
   spellType: "field"
 
-effect-chainable-actions:
+effectChainableActions:
   ignitions:
     - conditions:
         requirements:
-          - step: "LP_GREATER_THAN"
-            args: { amount: 1000 }
           - step: "ONCE_PER_TURN_EFFECT"
             args: { effectIndex: 1 }
+          - step: "LP_GREATER_THAN"
+            args: { amount: 1000 }
       activations:
         - step: "PAY_LP"
           args: { amount: 1000 }

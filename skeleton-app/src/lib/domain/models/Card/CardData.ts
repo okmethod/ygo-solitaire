@@ -3,20 +3,32 @@
  */
 
 /** カードタイプ */
-export type CardType = "monster" | "spell" | "trap";
+export const CARD_TYPES = ["monster", "spell", "trap"] as const;
+export type CardType = (typeof CARD_TYPES)[number];
 
 /** メインデッキ向けモンスターサブタイプ */
-export type MainMonsterSubType = "normal" | "effect" | "ritual" | "pendulum";
+export const MAIN_MONSTER_SUB_TYPES = ["normal", "effect", "ritual", "pendulum"] as const;
+export type MainMonsterSubType = (typeof MAIN_MONSTER_SUB_TYPES)[number];
+
 /** エクストラデッキ向けモンスターサブタイプ */
-export type ExtraMonsterSubType = "fusion" | "synchro" | "xyz" | "link";
+export const EXTRA_MONSTER_SUB_TYPES = ["fusion", "synchro", "xyz", "link"] as const;
+export type ExtraMonsterSubType = (typeof EXTRA_MONSTER_SUB_TYPES)[number];
+
 /** カードフレームタイプ */
-export type FrameSubType = MainMonsterSubType | ExtraMonsterSubType | "spell" | "trap";
+export const FRAME_SUB_TYPES = [...MAIN_MONSTER_SUB_TYPES, ...EXTRA_MONSTER_SUB_TYPES, "spell", "trap"] as const;
+export type FrameSubType = (typeof FRAME_SUB_TYPES)[number];
+
 /** 魔法カードサブタイプ */
-export type SpellSubType = "normal" | "quick-play" | "continuous" | "field" | "equip" | "ritual";
+export const SPELL_SUB_TYPES = ["normal", "quick-play", "continuous", "field", "equip", "ritual"] as const;
+export type SpellSubType = (typeof SPELL_SUB_TYPES)[number];
+
 /** 罠カードサブタイプ */
-export type TrapSubType = "normal" | "continuous" | "counter";
+export const TRAP_SUB_TYPES = ["normal", "continuous", "counter"] as const;
+export type TrapSubType = (typeof TRAP_SUB_TYPES)[number];
+
 /** エディション */
-export type Edition = "latest" | "legacy"; // latest: 最新, legacy: エラッタ前
+export const EDITIONS = ["latest", "legacy"] as const;
+export type Edition = (typeof EDITIONS)[number]; // latest: 最新, legacy: エラッタ前
 
 /**
  * 1種類のカードデータ（定義情報）

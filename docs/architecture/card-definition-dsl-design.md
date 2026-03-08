@@ -107,7 +107,7 @@ data:
   frameType: "spell"
   spellType: "normal"
 
-effect-chainable-actions:
+effectChainableActions:
   activations:
     conditions:
       - step: "CAN_DRAW"
@@ -132,7 +132,7 @@ data:
   race: "Spellcaster"
   level: 4
 
-effect-additional-rules:
+effectAdditionalRules:
   continuous:
     - category: "TriggerRule"
       triggers: ["spellActivated"]
@@ -142,7 +142,7 @@ effect-additional-rules:
         - step: "PLACE_COUNTER"
           args: { counterType: "spell", count: 1, limit: 3 }
 
-effect-chainable-actions:
+effectChainableActions:
   ignitions:
     - conditions:
         - step: "HAS_COUNTER"

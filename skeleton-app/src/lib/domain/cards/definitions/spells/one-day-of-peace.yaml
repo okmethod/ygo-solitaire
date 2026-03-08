@@ -15,7 +15,7 @@ data:
   frameType: "spell"
   spellType: "normal"
 
-effect-chainable-actions:
+effectChainableActions:
   activations:
     conditions:
       requirements:

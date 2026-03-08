@@ -5,11 +5,13 @@
  */
 
 /** イベント種別 */
-export type EventType =
-  | "spellActivated" // 魔法カードが発動された
-  | "monsterSummoned" // モンスターが召喚された
-  | "cardDestroyed" // カードが破壊された
-  | "sentToGraveyard"; // 墓地へ送られた
+export const EVENT_TYPES = [
+  "spellActivated", // 魔法カードが発動された
+  "monsterSummoned", // モンスターが召喚された
+  "cardDestroyed", // カードが破壊された
+  "sentToGraveyard", // 墓地へ送られた
+] as const;
+export type EventType = (typeof EVENT_TYPES)[number];
 
 /**
  * イベントのコンテキスト情報
