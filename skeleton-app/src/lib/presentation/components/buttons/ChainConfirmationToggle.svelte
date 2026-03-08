@@ -16,6 +16,14 @@
     setChainConfirmationEnabled(currentEnabled);
   }}
 >
-  <Segment.Item value="true">確認する</Segment.Item>
-  <Segment.Item value="false">確認しない</Segment.Item>
+  <Segment.Item value="true">
+    <div class="text-xs md:text-base">
+      <span class="hidden md:inline">確認</span>する
+    </div>
+  </Segment.Item>
+  <Segment.Item value="false">
+    <div class="text-xs md:text-base">
+      <span class="hidden md:inline">確認</span>しない
+    </div>
+  </Segment.Item>
 </Segment>

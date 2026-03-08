@@ -16,6 +16,14 @@
     setCardDetailDisplayEnabled(currentEnabled);
   }}
 >
-  <Segment.Item value="true">表示する</Segment.Item>
-  <Segment.Item value="false">表示しない</Segment.Item>
+  <Segment.Item value="true">
+    <div class="text-xs md:text-base">
+      <span class="hidden md:inline">表示</span>する
+    </div>
+  </Segment.Item>
+  <Segment.Item value="false">
+    <div class="text-xs md:text-base">
+      <span class="hidden md:inline">表示</span>しない
+    </div>
+  </Segment.Item>
 </Segment>

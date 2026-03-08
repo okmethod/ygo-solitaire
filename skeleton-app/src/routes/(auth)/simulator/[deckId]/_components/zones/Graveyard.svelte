@@ -86,7 +86,7 @@
 >
   {#if topCard}
     <!-- カードがある場合、最後に置かれたカードを表示 -->
-    <div class="absolute inset-1">
+    <div class="absolute inset-0 flex">
       <CardComponent card={topCard} {size} clickable={false} />
     </div>
     <CountBadge count={displayCount} />

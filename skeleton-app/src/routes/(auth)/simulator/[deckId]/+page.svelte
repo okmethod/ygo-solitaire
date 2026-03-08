@@ -375,7 +375,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Left Column: Deck Title -->
       <div class="card px-4">
-        <h1 class="text-2xl font-bold">Deck: {deckName}</h1>
+        <h1 class="text-xl md:text-2xl font-bold">Deck: {deckName}</h1>
       </div>
 
       <!-- Right Column: Game Info -->
@@ -414,7 +414,7 @@
 
     <!-- 手札UI -->
     <div class="card px-4 space-y-4">
-      <h2 class="text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
+      <h2 class="text-lg md:text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
       <Hands
         cards={handCardsWithInstanceId}
         {selectedHandCardInstanceId}
@@ -429,7 +429,7 @@
 
     <!-- Debug Info -->
     <details class="card p-4">
-      <summary class="cursor-pointer font-bold">Debug Info</summary>
+      <summary class="cursor-pointer text-sm text-gray-400 font-bold">Debug Info</summary>
 
       <div class="mt-4 space-y-4">
         <pre class="text-xs overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>

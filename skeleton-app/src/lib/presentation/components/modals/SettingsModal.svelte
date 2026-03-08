@@ -3,7 +3,7 @@
   import Icon from "@iconify/svelte";
   import CardDetailToggle from "$lib/presentation/components/buttons/CardDetailToggle.svelte";
   import ChainConfirmationToggle from "$lib/presentation/components/buttons/ChainConfirmationToggle.svelte";
-  import ThemeSwitch from "$lib/presentation/components/atoms/ThemeSwitch.svelte";
+  import ThemeSwitch from "$lib/presentation/components/buttons/ThemeSwitch.svelte";
 
   let openState = $state(false);
 
@@ -31,24 +31,28 @@
     </header>
 
     <!-- カード詳細表示設定 -->
-    <div class="flex items-center justify-between py-2 border-b border-surface-300-700">
-      <div class="flex items-center gap-2">
+    <div class="flex items-center justify-between py-2 border-b border-surface-300-700 gap-2">
+      <div class="flex items-center gap-1 md:gap-2">
         <Icon icon="mdi:card-text" class="size-5" />
-        <span>カード詳細表示</span>
+        <div class="text-sm md:text-base">
+          <span class="hidden md:inline">カード</span>詳細表示
+        </div>
       </div>
       <CardDetailToggle />
     </div>
 
     <!-- チェーン確認設定 -->
-    <div class="flex items-center justify-between py-2 border-b border-surface-300-700">
-      <div class="flex items-center gap-2">
+    <div class="flex items-center justify-between py-2 border-b border-surface-300-700 gap-2">
+      <div class="flex items-center gap-1 md:gap-2">
         <Icon icon="mdi:link-variant" class="size-5" />
-        <span>チェーン確認</span>
+        <div class="text-sm md:text-base">チェーン確認</div>
       </div>
       <ChainConfirmationToggle />
     </div>
 
     <!-- テーマ設定 -->
-    <ThemeSwitch />
+    <div class="flex items-center justify-between py-2 gap-2">
+      <ThemeSwitch />
+    </div>
   {/snippet}
 </Modal>

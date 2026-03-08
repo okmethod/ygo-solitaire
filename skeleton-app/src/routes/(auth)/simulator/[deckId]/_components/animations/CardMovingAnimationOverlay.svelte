@@ -7,8 +7,13 @@
    */
   import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import { isMobile } from "$lib/presentation/utils/mobile";
+  import type { ComponentSize } from "$lib/presentation/constants/sizes";
 
   const ANIMATION_DURATION_MS = 300 as const;
+
+  // 画面サイズに応じたカードサイズ（元のカードと一致させる）
+  const cardSize: ComponentSize = isMobile() ? "small" : "medium";
 
   // アニメーション状態を購読
   const animationState = $derived($cardAnimationStore);
@@ -71,7 +76,7 @@
         "
         ontransitionend={() => handleTransitionEnd(animation.instanceId)}
       >
-        <CardComponent card={animation.cardData} size="medium" clickable={false} animate={false} />
+        <CardComponent card={animation.cardData} size={cardSize} clickable={false} animate={false} />
       </div>
     {/each}
   </div>

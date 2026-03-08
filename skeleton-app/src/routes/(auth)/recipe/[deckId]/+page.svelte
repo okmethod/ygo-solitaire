@@ -37,7 +37,7 @@
   <header class="my-6">
     <div class="flex items-center space-x-8 mb-4">
       <h2 class="h3">{deckName}</h2>
-      <button class="btn preset-tonal rounded-full shadow-lg text-lg px-4 py-2" onclick={navigateToSimulator}>
+      <button class="btn preset-tonal rounded-full shadow-lg md:text-lg px-4 py-2" onclick={navigateToSimulator}>
         決闘開始
       </button>
     </div>
