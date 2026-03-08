@@ -1,7 +1,7 @@
 # 《封印されし者の左足》 (Left Leg of the Forbidden One)
-# Card ID: 44519536 | Type: Monster | Subtype: Normal
 
 id: 44519536
+
 data:
   jaName: "封印されし者の左足"
   type: "monster"

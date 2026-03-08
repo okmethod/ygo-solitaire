@@ -26,8 +26,9 @@ data:
 effect-chainable-actions:
   activations:
     conditions:
-      - step: "CAN_DRAW"
-        args: { count: 3 }
+      requirements:
+        - step: "CAN_DRAW"
+          args: { count: 3 }
     resolutions:
       - step: "DRAW"
         args: { count: 3 }
@@ -45,7 +46,7 @@ data:
   frameType: "spell"
 `;
 
-/** モンスターカード定義（永続効果付き） */
+/** モンスターカード定義（永続効果付き） - PSCT準拠構造 */
 const VALID_MONSTER_YAML = `
 id: 70791313
 data:
@@ -55,11 +56,15 @@ data:
   race: "spellcaster"
   attribute: "light"
   level: 4
+  attack: 0
+  defense: 2000
 effect-additional-rules:
   continuous:
     - category: "TriggerRule"
-      triggers:
-        - "spellActivated"
+      conditions:
+        trigger:
+          events:
+            - "spellActivated"
       resolutions:
         - step: "PLACE_COUNTER"
           args: { count: 1, counterType: "SPELL_COUNTER" }
@@ -110,8 +115,8 @@ describe("parseCardDSL - 正常系", () => {
     // effect-chainable-actions の検証
     const actions = result["effect-chainable-actions"];
     expect(actions).toBeDefined();
-    expect(actions?.activations?.conditions).toHaveLength(1);
-    expect(actions?.activations?.conditions?.[0].step).toBe("CAN_DRAW");
+    expect(actions?.activations?.conditions?.requirements).toHaveLength(1);
+    expect(actions?.activations?.conditions?.requirements?.[0].step).toBe("CAN_DRAW");
     expect(actions?.activations?.resolutions).toHaveLength(3);
   });
 
@@ -139,12 +144,12 @@ describe("parseCardDSL - 正常系", () => {
     expect(result.data.attribute).toBe("light");
     expect(result.data.level).toBe(4);
 
-    // effect-additional-rules の検証
+    // effect-additional-rules の検証（PSCT準拠構造）
     const rules = result["effect-additional-rules"];
     expect(rules).toBeDefined();
     expect(rules?.continuous).toHaveLength(1);
     expect(rules?.continuous?.[0].category).toBe("TriggerRule");
-    expect(rules?.continuous?.[0].triggers).toContain("spellActivated");
+    expect(rules?.continuous?.[0].conditions?.trigger?.events).toContain("spellActivated");
   });
 });
 

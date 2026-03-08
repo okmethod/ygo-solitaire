@@ -1,14 +1,14 @@
 # 《手札断殺》 (Hand Destruction)
-# Card ID: 74519184 | Type: Spell | Subtype: Quick-Play
 #
 # カードの発動:
 # - CONDITIONS: 捨てられる手札が2枚以上、デッキに2枚以上
-# - ACTIVATION: 無し
-# - RESOLUTION: 手札を2枚捨てる、2枚ドロー
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 手札を2枚捨てる、2枚ドロー
 #
 # Note: 相手の捨てる処理・ドロー処理は未実装
 
 id: 74519184
+
 data:
   jaName: "手札断殺"
   type: "spell"
@@ -18,10 +18,11 @@ data:
 effect-chainable-actions:
   activations:
     conditions:
-      - step: "HAND_COUNT_EXCLUDING_SELF"
-        args: { minCount: 2 }
-      - step: "CAN_DRAW"
-        args: { count: 2 }
+      requirements:
+        - step: "HAND_COUNT_EXCLUDING_SELF"
+          args: { minCount: 2 }
+        - step: "CAN_DRAW"
+          args: { count: 2 }
     resolutions:
       - step: "SELECT_AND_DISCARD"
         args: { count: 2 }

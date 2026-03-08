@@ -1,22 +1,22 @@
 # 《召喚僧サモンプリースト》 (Summoner Monk)
-# Card ID: 423585 | Type: Monster | Subtype: Effect
 #
 # 永続効果:
 # - このカードはリリースできない（未実装）
 #
 # 誘発効果:
 # - CONDITIONS: このカードが召喚に成功した場合
-# - ACTIVATION: 無し
-# - RESOLUTION: このカードを守備表示にする
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: このカードを守備表示にする
 #
 # 起動効果:
 # - CONDITIONS: 1ターンに1度制限、捨てられる魔法カードが1枚以上
-# - ACTIVATION: 手札から魔法カード1枚を捨てる
-# - RESOLUTION: デッキからレベル4モンスター1体を特殊召喚
+# - ACTIVATIONS: 手札から魔法カード1枚を捨てる
+# - RESOLUTIONS: デッキからレベル4モンスター1体を特殊召喚
 #
 # Note: 反転召喚時の誘発効果、特殊召喚したモンスターがこのターン攻撃できない制約は未実装
 
 id: 423585
+
 data:
   jaName: "召喚僧サモンプリースト"
   type: "monster"
@@ -29,23 +29,22 @@ data:
 
 effect-chainable-actions:
   triggers:
-    # 誘発効果: 召喚成功時、守備表示にする
-    - triggers: ["monsterSummoned"]
-      triggerTiming: "if"
-      isMandatory: true
-      selfOnly: true
+    - conditions:
+        trigger:
+          events: ["monsterSummoned"]
+          timing: "if"
+          isMandatory: true
+          selfOnly: true
       spellSpeed: 1
-      conditions: []
-      activations: []
       resolutions:
         - step: "CHANGE_BATTLE_POSITION"
           args: { position: "defense" }
   ignitions:
-    # 起動効果: 手札魔法1枚捨て → デッキからLv4モンスター特殊召喚
     - conditions:
-        - step: "ONCE_PER_TURN"
-        - step: "HAND_HAS_SPELL"
-          args: { minCount: 1 }
+        requirements:
+          - step: "ONCE_PER_TURN"
+          - step: "HAND_HAS_SPELL"
+            args: { minCount: 1 }
       activations:
         - step: "SELECT_AND_DISCARD"
           args: { count: 1, filterType: "spell" }

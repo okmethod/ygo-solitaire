@@ -1,5 +1,4 @@
 # 《クリッター》 (Sangan)
-# Card ID: 26202165 | Type: Monster | Subtype: Effect
 #
 # 誘発効果:
 # - CONDITIONS: このカードが墓地へ送られた時
@@ -12,6 +11,7 @@
 # - サーチしたカードの発動制限なし
 
 id: 26202165
+
 data:
   jaName: "クリッター"
   type: "monster"
@@ -25,10 +25,12 @@ data:
 
 effect-chainable-actions:
   triggers:
-    - triggers: ["sentToGraveyard"]
-      triggerTiming: "when"
-      isMandatory: true
-      selfOnly: true
+    - conditions:
+        trigger:
+          events: ["sentToGraveyard"]
+          timing: "when"
+          isMandatory: true
+          selfOnly: true
       resolutions:
         - step: "SEARCH_MONSTER_BY_STAT"
           args: { statType: "attack", maxValue: 1500, count: 1 }

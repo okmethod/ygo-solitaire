@@ -60,12 +60,12 @@ export class GenericQuickPlaySpellActivation extends QuickPlaySpellActivation {
     const conditions = this.dslDefinition.conditions;
 
     // 条件が定義されていない場合は常に発動可能
-    if (!conditions || conditions.length === 0) {
+    if (!conditions || !conditions.requirements || conditions.requirements.length === 0) {
       return GameProcessing.Validation.success();
     }
 
     // すべての条件をチェック
-    for (const conditionDef of conditions) {
+    for (const conditionDef of conditions.requirements) {
       const result = checkCondition(conditionDef.step, state, sourceInstance, conditionDef.args ?? {});
 
       if (!result.isValid) {

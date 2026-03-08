@@ -70,7 +70,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("TriggerRule カテゴリとして生成される", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -82,7 +84,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("triggers 配列が正しく設定される", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -93,7 +97,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("canApply がフィールドにカードが存在する場合 true を返す", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const cardId = 70791313;
@@ -107,7 +113,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("canApply がフィールドにカードが存在しない場合 false を返す", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -119,7 +127,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("createTriggerSteps が DSL定義に基づいてステップを生成する", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const cardId = 70791313;
@@ -136,8 +146,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("triggerTiming が正しく設定される", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
-      triggerTiming: "if",
+      conditions: {
+        trigger: { events: ["spellActivated"], timing: "if" },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -148,7 +159,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("triggerTiming がデフォルトで 'if'", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -159,7 +172,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("isMandatory がデフォルトで true", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
+      conditions: {
+        trigger: { events: ["spellActivated"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -170,8 +185,9 @@ describe("GenericContinuousTriggerRule", () => {
   it("isMandatory を false に設定できる", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated"],
-      isMandatory: false,
+      conditions: {
+        trigger: { events: ["spellActivated"], isMandatory: false },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
@@ -188,7 +204,9 @@ describe("GenericContinuousTriggerRule - Multiple Triggers", () => {
   it("複数のトリガーイベントに対応できる", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
-      triggers: ["spellActivated", "monsterSummoned"],
+      conditions: {
+        trigger: { events: ["spellActivated", "monsterSummoned"] },
+      },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1 } }],
     };
     const rule = new GenericContinuousTriggerRule(12345, dslDefinition);

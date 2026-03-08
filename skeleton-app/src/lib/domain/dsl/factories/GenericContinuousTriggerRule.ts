@@ -24,6 +24,10 @@ import { BaseContinuousEffect } from "$lib/domain/effects/rules";
  *
  * BaseContinuousEffectを継承し、DSL定義からトリガールールを生成する。
  * フィールドで表側表示の場合のみ適用される永続効果のトリガーを扱う。
+ *
+ * PSCT準拠の構造:
+ * - conditions.trigger: イベント駆動の発火点
+ * - conditions.requirements: 状態ベースの条件チェック（将来対応）
  */
 export class GenericContinuousTriggerRule extends BaseContinuousEffect {
   /** カテゴリ: トリガールール */
@@ -56,10 +60,13 @@ export class GenericContinuousTriggerRule extends BaseContinuousEffect {
 
     // DSL定義からプロパティを設定
     this.category = dslDefinition.category;
-    this.triggers = dslDefinition.triggers ?? [];
-    this.triggerTiming = dslDefinition.triggerTiming ?? "if";
-    this.isMandatory = dslDefinition.isMandatory ?? true;
-    this.selfOnly = dslDefinition.selfOnly ?? false;
+
+    // PSCT準拠構造からトリガー情報を読み取り
+    const trigger = dslDefinition.conditions?.trigger;
+    this.triggers = trigger?.events ?? [];
+    this.triggerTiming = trigger?.timing ?? "if";
+    this.isMandatory = trigger?.isMandatory ?? true;
+    this.selfOnly = trigger?.selfOnly ?? false;
   }
 
   /**

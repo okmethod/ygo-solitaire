@@ -14,16 +14,20 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseTriggerEffect } from "$lib/domain/effects/actions/triggers/BaseTriggerEffect";
-import type { TriggerEffectDSL, StepDSL } from "$lib/domain/dsl/types";
+import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
 import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
 import { checkCondition } from "$lib/domain/effects/conditions";
 
 /**
  * GenericTriggerEffect - DSL定義ベースの誘発効果
  *
- * DSLの triggers セクションから conditions, activations, resolutions,
- * triggers, triggerTiming, isMandatory, selfOnly を読み取り、
- * 既存のBaseTriggerEffect継承構造に適合させる。
+ * DSLの triggers セクションから conditions（trigger, requirements, usageLimit）,
+ * activations, resolutions を読み取り、既存のBaseTriggerEffect継承構造に適合させる。
+ *
+ * PSCT準拠の構造:
+ * - conditions.trigger: イベント駆動の発火点
+ * - conditions.requirements: 状態ベースの条件チェック
+ * - conditions.usageLimit: 使用制限
  */
 export class GenericTriggerEffect extends BaseTriggerEffect {
   /** トリガーイベント */
@@ -39,23 +43,24 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
   readonly selfOnly: boolean;
 
   /** DSL定義（内部保持） */
-  private readonly dslDefinition: TriggerEffectDSL;
+  private readonly dslDefinition: ChainableActionDSL;
 
   /**
    * @param cardId - カードID
    * @param effectIndex - 同一カードの誘発効果の番号（1始まり）
    * @param dslDefinition - DSLのtriggersセクションの1要素
    */
-  constructor(cardId: number, effectIndex: number, dslDefinition: TriggerEffectDSL) {
+  constructor(cardId: number, effectIndex: number, dslDefinition: ChainableActionDSL) {
     // spellSpeed をDSL定義から取得（デフォルト: 1）
     super(cardId, effectIndex, dslDefinition.spellSpeed ?? 1);
     this.dslDefinition = dslDefinition;
 
-    // DSL定義からプロパティを設定
-    this.triggers = dslDefinition.triggers;
-    this.triggerTiming = dslDefinition.triggerTiming ?? "if";
-    this.isMandatory = dslDefinition.isMandatory ?? true;
-    this.selfOnly = dslDefinition.selfOnly ?? false;
+    // DSL定義からプロパティを設定（PSCT準拠構造から読み取り）
+    const trigger = dslDefinition.conditions?.trigger;
+    this.triggers = trigger?.events ?? [];
+    this.triggerTiming = trigger?.timing ?? "if";
+    this.isMandatory = trigger?.isMandatory ?? true;
+    this.selfOnly = trigger?.selfOnly ?? false;
   }
 
   /**
@@ -77,19 +82,21 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
   /**
    * CONDITIONS: 発動条件チェック（カード固有）
    *
-   * DSL定義のconditionsセクションを評価する。
+   * DSL定義のconditions.requirementsを評価する。
    * すべての条件がパスした場合のみ発動可能。
+   *
+   * 注: usageLimitは将来的にここで評価する予定。
    */
   protected individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult {
-    const conditions = this.dslDefinition.conditions;
+    const requirements = this.dslDefinition.conditions?.requirements;
 
     // 条件が定義されていない場合は常に発動可能
-    if (!conditions || conditions.length === 0) {
+    if (!requirements || requirements.length === 0) {
       return GameProcessing.Validation.success();
     }
 
     // すべての条件をチェック
-    for (const conditionDef of conditions) {
+    for (const conditionDef of requirements) {
       const result = checkCondition(conditionDef.step, state, sourceInstance, conditionDef.args ?? {});
 
       if (!result.isValid) {
@@ -132,7 +139,7 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
 export function createGenericTriggerEffect(
   cardId: number,
   effectIndex: number,
-  dslDefinition: TriggerEffectDSL,
+  dslDefinition: ChainableActionDSL,
 ): GenericTriggerEffect {
   return new GenericTriggerEffect(cardId, effectIndex, dslDefinition);
 }

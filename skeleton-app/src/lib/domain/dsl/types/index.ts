@@ -7,7 +7,7 @@
 // 型定義
 export type {
   StepDSL,
-  TriggerEffectDSL,
+  RequirementDSL,
   ChainableActionDSL,
   AdditionalRuleDSL,
   CardDataDSL,
@@ -15,14 +15,7 @@ export type {
 } from "./CardDSLSchema";
 
 // Zodスキーマ
-export {
-  CardDSLDefinitionSchema,
-  StepDSLSchema,
-  ChainableActionDSLSchema,
-  TriggerEffectDSLSchema,
-  AdditionalRuleDSLSchema,
-  CardDataDSLSchema,
-} from "./CardDSLSchema";
+export { CardDSLDefinitionSchema } from "./CardDSLSchema";
 
 // エラークラス
 export { DSLParseError, DSLValidationError, DSLStepResolutionError, DSLConditionResolutionError } from "./DSLErrors";

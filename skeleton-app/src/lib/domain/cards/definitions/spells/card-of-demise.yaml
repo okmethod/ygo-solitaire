@@ -1,10 +1,9 @@
 # 《命削りの宝札》 (Card of Demise)
-# Card ID: 59750328 | Type: Spell | Subtype: Normal
 #
 # カードの発動:
 # - CONDITIONS: 1ターンに1度制限
-# - ACTIVATION: 無し
-# - RESOLUTION: 手札が3枚になるようにドロー、エンドフェイズに手札を全て捨てる
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 手札が3枚になるようにドロー、エンドフェイズに手札を全て捨てる
 
 id: 59750328
 
@@ -17,7 +16,8 @@ data:
 effect-chainable-actions:
   activations:
     conditions:
-      - step: "ONCE_PER_TURN"
+      requirements:
+        - step: "ONCE_PER_TURN"
     resolutions:
       - step: "FILL_HANDS"
         args: { count: 3 }

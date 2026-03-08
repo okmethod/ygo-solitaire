@@ -1,5 +1,4 @@
 # 《封印されしエクゾディア》 (Exodia the Forbidden One)
-# Card ID: 33396948 | Type: Monster | Subtype: Effect
 #
 # 効果外テキスト:
 # - エクゾディアパーツが全て手札に揃った時、デュエルに勝利する
@@ -7,6 +6,7 @@
 # Note: 特殊勝利は DSL の対象外のため、yamlに定義していない
 
 id: 33396948
+
 data:
   jaName: "封印されしエクゾディア"
   type: "monster"

@@ -12,7 +12,7 @@ const conditionValues = Object.values(CONDITION_NAMES) as [ConditionName, ...Con
 const stepValues = Object.values(STEP_NAMES) as [StepName, ...StepName[]];
 
 // =============================================================================
-// 基本型のスキーマ
+// CardData スキーマ
 // =============================================================================
 
 /** CardType スキーマ */
@@ -40,140 +40,6 @@ const SpellSubTypeSchema = z.enum(["normal", "quick-play", "continuous", "field"
 
 /** TrapSubType スキーマ */
 const TrapSubTypeSchema = z.enum(["normal", "continuous", "counter"]);
-
-/** RuleCategory スキーマ */
-const RuleCategorySchema = z.enum([
-  "NameOverride",
-  "StatusModifier",
-  "SummonCondition",
-  "SummonPermission",
-  "ActionPermission",
-  "VictoryCondition",
-  "ActionReplacement",
-  "SelfDestruction",
-  "TriggerRule",
-]);
-
-/** EventType スキーマ */
-const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestroyed", "sentToGraveyard"]);
-
-// =============================================================================
-// DSL構造のスキーマ
-// =============================================================================
-
-/**
- * Condition のDSL表現スキーマ
- *
- * ConditionRegistryのキーと引数をマッピングする。
- * 例: { step: "DRAW", args: { count: 3 } }
- */
-const ConditionDSLSchema = z.object({
-  /** ConditionRegistryのキー */
-  step: z.enum(conditionValues),
-  /** ステップに渡す引数（オプション） */
-  args: z.record(z.string(), z.any()).optional(),
-});
-
-/**
- * Step のDSL表現スキーマ
- *
- * StepRegistryのキーと引数をマッピングする。
- * 例: { step: "DRAW", args: { count: 3 } }
- */
-const StepDSLSchema = z.object({
-  /** StepRegistryのキー */
-  step: z.enum(stepValues),
-  /** ステップに渡す引数（オプション） */
-  args: z.record(z.string(), z.any()).optional(),
-});
-
-/** ステップのDSL表現 */
-export type StepDSL = z.infer<typeof StepDSLSchema>;
-
-/**
- * チェーンブロックを作る処理のDSL表現スキーマ
- *
- * 発動条件、発動時処理（コスト）、効果処理を定義する。
- */
-const ChainableActionDSLSchema = z.object({
-  /** 発動条件のステップリスト */
-  conditions: z.array(ConditionDSLSchema).optional(),
-  /** 発動時処理（コスト支払い等）のステップリスト */
-  activations: z.array(StepDSLSchema).optional(),
-  /** 効果処理のステップリスト */
-  resolutions: z.array(StepDSLSchema).optional(),
-});
-
-/** チェーンブロックを作る処理のDSL表現 */
-export type ChainableActionDSL = z.infer<typeof ChainableActionDSLSchema>;
-
-/**
- * 誘発効果のDSL表現スキーマ
- *
- * ChainableActionDSL を拡張し、誘発効果固有のプロパティを追加する。
- */
-const TriggerEffectDSLSchema = z.object({
-  /** トリガーイベント */
-  triggers: z.array(EventTypeSchema),
-  /**
-   * トリガータイミング種別
-   * - "when": タイミングを逃す可能性あり
-   * - "if": タイミングを逃さない（デフォルト）
-   */
-  triggerTiming: z.enum(["when", "if"]).optional(),
-  /** 強制効果かどうか（デフォルト: true） */
-  isMandatory: z.boolean().optional(),
-  /**
-   * 自身が発生源のイベントのみに反応するか
-   * - true: イベントの sourceInstanceId がこのカード自身の場合のみ反応
-   * - false: すべての該当イベントに反応（デフォルト）
-   */
-  selfOnly: z.boolean().optional(),
-  /** スペルスピード（通常1、一部のカードで2） */
-  spellSpeed: z.literal(1).or(z.literal(2)).optional(),
-  /** 発動条件のステップリスト */
-  conditions: z.array(ConditionDSLSchema).optional(),
-  /** 発動時処理（コスト支払い等）のステップリスト */
-  activations: z.array(StepDSLSchema).optional(),
-  /** 効果処理のステップリスト */
-  resolutions: z.array(StepDSLSchema).optional(),
-});
-
-/** 誘発効果のDSL表現 */
-export type TriggerEffectDSL = z.infer<typeof TriggerEffectDSLSchema>;
-
-/**
- * 追加適用するルールのDSL表現スキーマ
- *
- * 永続効果などのAdditionalRuleをDSLで定義する。
- */
-const AdditionalRuleDSLSchema = z.object({
-  /** ルールのカテゴリ */
-  category: RuleCategorySchema,
-  /** トリガーイベント（TriggerRuleの場合） */
-  triggers: z.array(EventTypeSchema).optional(),
-  /**
-   * トリガータイミング種別
-   * - "when": タイミングを逃す可能性あり
-   * - "if": タイミングを逃さない（デフォルト）
-   */
-  triggerTiming: z.enum(["when", "if"]).optional(),
-  /** 強制効果かどうか（デフォルト: true） */
-  isMandatory: z.boolean().optional(),
-  /**
-   * 自身が発生源のイベントのみに反応するか
-   * - true: イベントの sourceInstanceId がこのカード自身の場合のみ反応
-   * - false: すべての該当イベントに反応（デフォルト）
-   *
-   * 例: 「このカードが召喚に成功した時」→ selfOnly: true
-   */
-  selfOnly: z.boolean().optional(),
-  /** 効果処理のステップリスト */
-  resolutions: z.array(StepDSLSchema).optional(),
-});
-
-/** 追加適用するルールのDSL表現 */
-export type AdditionalRuleDSL = z.infer<typeof AdditionalRuleDSLSchema>;
 
 /**
  * カードデータのDSL表現スキーマ
@@ -208,6 +74,162 @@ const CardDataDSLSchema = z.object({
 export type CardDataDSL = z.infer<typeof CardDataDSLSchema>;
 
 // =============================================================================
+// ChainableAction + AdditionalRule 共通スキーマ
+// =============================================================================
+
+/** EventType スキーマ */
+const EventTypeSchema = z.enum(["spellActivated", "monsterSummoned", "cardDestroyed", "sentToGraveyard"]);
+
+/**
+ * トリガー情報のスキーマ（PSCT「:」の前のトリガー部分）
+ *
+ * イベント駆動の発火点を定義する。
+ */
+const TriggerDSLSchema = z.object({
+  /** トリガーイベント */
+  events: z.array(EventTypeSchema),
+  /**
+   * トリガータイミング種別
+   * - "when": タイミングを逃す可能性あり
+   * - "if": タイミングを逃さない（デフォルト）
+   */
+  timing: z.enum(["when", "if"]).optional(),
+  /** 強制効果かどうか（デフォルト: true） */
+  isMandatory: z.boolean().optional(),
+  /**
+   * 自身が発生源のイベントのみに反応するか
+   * - true: イベントの sourceInstanceId がこのカード自身の場合のみ反応
+   * - false: すべての該当イベントに反応（デフォルト）
+   */
+  selfOnly: z.boolean().optional(),
+});
+
+/** トリガー情報のDSL表現 */
+export type TriggerDSL = z.infer<typeof TriggerDSLSchema>;
+
+/**
+ * 発動要件のDSL表現スキーマ
+ *
+ * ConditionRegistryのキーと引数をマッピングする。
+ * 状態ベースの条件チェック（例: 手札枚数、LP残量）を定義する。
+ *
+ * 例: { step: "CAN_DRAW", args: { count: 3 } }
+ */
+const RequirementDSLSchema = z.object({
+  /** ConditionRegistryのキー */
+  step: z.enum(conditionValues),
+  /** ステップに渡す引数（オプション） */
+  args: z.record(z.string(), z.any()).optional(),
+});
+
+/** 発動要件のDSL表現 */
+export type RequirementDSL = z.infer<typeof RequirementDSLSchema>;
+
+/**
+ * 使用制限のスキーマ
+ *
+ * ターン1制限などの発動回数制限を定義する。
+ */
+const UsageLimitDSLSchema = z.object({
+  /** 制限タイプ */
+  type: z.enum(["oncePerTurn", "oncePerDuel"]),
+});
+
+/** 使用制限のDSL表現 */
+export type UsageLimitDSL = z.infer<typeof UsageLimitDSLSchema>;
+
+/**
+ * 発動条件のスキーマ（PSCT「:」の前の全要素）
+ *
+ * トリガー、要件、使用制限を統合した発動条件全体を定義する。
+ */
+const ConditionsDSLSchema = z.object({
+  /** トリガー情報（いつ発動するか）- 誘発効果・誘発即時効果のみ */
+  trigger: TriggerDSLSchema.optional(),
+  /** 発動要件（状態ベースの条件チェック） */
+  requirements: z.array(RequirementDSLSchema).optional(),
+  /** 使用制限（ターン1等） */
+  usageLimit: UsageLimitDSLSchema.optional(),
+});
+
+/** 発動条件のDSL表現 */
+export type TriggerConditionsDSL = z.infer<typeof ConditionsDSLSchema>;
+
+/**
+ * Step のDSL表現スキーマ
+ *
+ * StepRegistryのキーと引数をマッピングする。
+ * 例: { step: "DRAW", args: { count: 3 } }
+ */
+const StepDSLSchema = z.object({
+  /** StepRegistryのキー */
+  step: z.enum(stepValues),
+  /** ステップに渡す引数（オプション） */
+  args: z.record(z.string(), z.any()).optional(),
+});
+
+/** ステップのDSL表現 */
+export type StepDSL = z.infer<typeof StepDSLSchema>;
+
+// =============================================================================
+// ChainableAction スキーマ
+// =============================================================================
+
+/**
+ * チェーンブロックを作る処理のDSL表現スキーマ
+ *
+ * PSCT構造に準拠した誘発効果の定義:
+ * - conditions: 「:」の前（トリガー + 要件 + 使用制限）
+ * - activations: 「;」の前（コスト・対象選択）
+ * - resolutions: 「.」で終わる効果処理
+ */
+const ChainableActionDSLSchema = z.object({
+  /** 発動条件（PSCT「:」の前の全要素） */
+  conditions: ConditionsDSLSchema.optional(),
+  /** スペルスピード（通常1、一部のカードで2） */
+  spellSpeed: z.literal(1).or(z.literal(2)).optional(),
+  /** 発動時処理（コスト支払い等）のステップリスト */
+  activations: z.array(StepDSLSchema).optional(),
+  /** 効果処理のステップリスト */
+  resolutions: z.array(StepDSLSchema).optional(),
+});
+
+/** チェーンブロックを作る処理のDSL表現 */
+export type ChainableActionDSL = z.infer<typeof ChainableActionDSLSchema>;
+
+// =============================================================================
+// AdditionalRule スキーマ
+// =============================================================================
+
+/** RuleCategory スキーマ */
+const RuleCategorySchema = z.enum([
+  "NameOverride",
+  "StatusModifier",
+  "SummonCondition",
+  "SummonPermission",
+  "ActionPermission",
+  "VictoryCondition",
+  "ActionReplacement",
+  "SelfDestruction",
+  "TriggerRule",
+]);
+
+/**
+ * 追加適用するルールのDSL表現スキーマ（PSCT準拠）
+ */
+const AdditionalRuleDSLSchema = z.object({
+  /** ルールのカテゴリ */
+  category: RuleCategorySchema,
+  /** 発動条件 */
+  conditions: ConditionsDSLSchema.optional(),
+  /** 効果処理のステップリスト */
+  resolutions: z.array(StepDSLSchema).optional(),
+});
+
+/** 追加適用するルールのDSL表現 */
+export type AdditionalRuleDSL = z.infer<typeof AdditionalRuleDSLSchema>;
+
+// =============================================================================
 // メインスキーマ
 // =============================================================================
 
@@ -218,26 +240,26 @@ export type CardDataDSL = z.infer<typeof CardDataDSLSchema>;
  * 1枚のカードの全情報を1箇所で管理（SSOT原則）。
  */
 export const CardDSLDefinitionSchema = z.object({
-  /** カードID（YGOProDeck APIと同じ値） */
+  /** カードID */
   id: z.number().int().positive(),
   /** カードデータ */
   data: CardDataDSLSchema,
   /**
    * チェーンブロックを作る処理
    * - activations: カードの発動（魔法・罠）
-   * - ignitions: 起動効果（モンスター）
+   * - ignitions: 起動効果（モンスター・魔法）
    * - triggers: 誘発効果（モンスター）
    */
   "effect-chainable-actions": z
     .object({
       activations: ChainableActionDSLSchema.optional(),
       ignitions: z.array(ChainableActionDSLSchema).optional(),
-      triggers: z.array(TriggerEffectDSLSchema).optional(),
+      triggers: z.array(ChainableActionDSLSchema).optional(),
     })
     .optional(),
   /**
    * 追加適用するルール
-   * - continuous: 永続効果
+   * - continuous: 永続効果（モンスター・魔法・罠）
    */
   "effect-additional-rules": z
     .object({
@@ -253,21 +275,3 @@ export const CardDSLDefinitionSchema = z.object({
  * 1枚のカードの全情報を1箇所で管理（SSOT原則）。
  */
 export type CardDSLDefinition = z.infer<typeof CardDSLDefinitionSchema>;
-
-// =============================================================================
-// エクスポート（サブスキーマも必要に応じて公開）
-// =============================================================================
-
-export {
-  StepDSLSchema,
-  ChainableActionDSLSchema,
-  TriggerEffectDSLSchema,
-  AdditionalRuleDSLSchema,
-  CardDataDSLSchema,
-  CardTypeSchema,
-  FrameSubTypeSchema,
-  SpellSubTypeSchema,
-  TrapSubTypeSchema,
-  RuleCategorySchema,
-  EventTypeSchema,
-};

@@ -1,12 +1,12 @@
 # 《テラ・フォーミング》 (Terraforming)
-# Card ID: 73628505 | Type: Spell | Subtype: Normal
 #
 # カードの発動:
 # - CONDITIONS: デッキにフィールド魔法が1枚以上
-# - ACTIVATION: 無し
-# - RESOLUTION: フィールド魔法1枚をサーチ
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: フィールド魔法1枚をサーチ
 
 id: 73628505
+
 data:
   jaName: "テラ・フォーミング"
   type: "spell"
@@ -16,8 +16,9 @@ data:
 effect-chainable-actions:
   activations:
     conditions:
-      - step: "DECK_HAS_CARD"
-        args: { filterType: "spell", filterSpellType: "field", minCount: 1 }
+      requirements:
+        - step: "DECK_HAS_CARD"
+          args: { filterType: "spell", filterSpellType: "field", minCount: 1 }
     resolutions:
       - step: "SEARCH_FROM_DECK"
         args: { filterType: "spell", filterSpellType: "field", count: 1 }

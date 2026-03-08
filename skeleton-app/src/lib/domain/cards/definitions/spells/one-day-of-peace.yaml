@@ -1,14 +1,14 @@
 # 《一時休戦》 (One Day of Peace)
-# Card ID: 33782437 | Type: Spell | Subtype: Normal
 #
 # カードの発動:
 # - CONDITIONS: デッキに1枚以上
-# - ACTIVATION: 無し
-# - RESOLUTION: 1枚ドロー
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 1枚ドロー
 #
 # Note: 相手のドロー処理・ダメージ無効化フラグは未実装
 
 id: 33782437
+
 data:
   jaName: "一時休戦"
   type: "spell"
@@ -18,8 +18,9 @@ data:
 effect-chainable-actions:
   activations:
     conditions:
-      - step: "CAN_DRAW"
-        args: { count: 1 }
+      requirements:
+        - step: "CAN_DRAW"
+          args: { count: 1 }
     resolutions:
       - step: "DRAW"
         args: { count: 1 }

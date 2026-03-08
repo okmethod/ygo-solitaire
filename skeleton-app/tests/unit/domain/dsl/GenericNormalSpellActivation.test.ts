@@ -104,7 +104,9 @@ const createMockGameState = (deckCount: number, handCount: number = 0): GameSnap
 describe("GenericNormalSpellActivation - インスタンス生成", () => {
   it("createGenericNormalSpellActivation でインスタンスを生成できる", () => {
     const dsl: ChainableActionDSL = {
-      conditions: [{ step: "CAN_DRAW", args: { count: 2 } }],
+      conditions: {
+        requirements: [{ step: "CAN_DRAW", args: { count: 2 } }],
+      },
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
@@ -131,7 +133,7 @@ describe("GenericNormalSpellActivation - インスタンス生成", () => {
 describe("GenericNormalSpellActivation - 条件チェック", () => {
   it("条件を満たす場合は canActivate が true を返す", () => {
     const dsl: ChainableActionDSL = {
-      conditions: [{ step: "CAN_DRAW", args: { count: 2 } }],
+      conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
@@ -146,7 +148,7 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
 
   it("条件を満たさない場合は canActivate が false を返す", () => {
     const dsl: ChainableActionDSL = {
-      conditions: [{ step: "CAN_DRAW", args: { count: 3 } }],
+      conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 3 } }] },
       resolutions: [{ step: "DRAW", args: { count: 3 } }],
     };
 
