@@ -17,6 +17,7 @@ export type {
   ExtraMonsterSubType,
   SpellSubType,
   TrapSubType,
+  Edition,
   CardImages,
   MonsterAttributes,
   DisplayCardData,

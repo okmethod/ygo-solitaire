@@ -108,4 +108,4 @@
 </div>
 
 <!-- 墓地モーダル -->
-<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="墓地" borderColor="border-gray-400" />
+<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="墓地" />

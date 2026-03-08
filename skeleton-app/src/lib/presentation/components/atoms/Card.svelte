@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { DisplayCardData } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
-  import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
+  import { getFrameBackgroundClass, getEditionBorderClass } from "$lib/presentation/constants/colors";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
 
@@ -103,10 +103,9 @@
   // 回転スタイル
   const rotationStyle = $derived(rotation !== 0 ? `transform: rotate(${rotation}deg);` : "");
 
-  // フレームタイプ別の背景色
-  const typeClasses = $derived(() => {
-    return getFrameBackgroundClass(card?.frameType);
-  });
+  // カード種別に応じた色クラス
+  const bgClass = $derived(getFrameBackgroundClass(card?.frameType));
+  const borderClass = $derived(getEditionBorderClass(card?.edition));
 
   // 共通クラス
   const commonClasses = $derived(() => {
@@ -115,8 +114,9 @@
       ${animationClasses}
       ${hoverClasses}
       ${selectedClasses}
-      ${typeClasses()}
-      border border-surface-300 rounded aspect-[3/4] flex flex-col justify-between
+      ${bgClass}
+      ${borderClass}
+      border rounded aspect-[3/4] flex flex-col justify-between
       relative overflow-hidden
     `;
   });

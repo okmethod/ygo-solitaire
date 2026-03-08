@@ -18,17 +18,9 @@
     onOpenChange: (open: boolean) => void;
     title: string;
     emptyMessage?: string;
-    borderColor?: string;
   }
 
-  let {
-    cards,
-    open,
-    onOpenChange,
-    title,
-    emptyMessage = "カードがありません",
-    borderColor = "border-gray-400",
-  }: CardStackModalProps = $props();
+  let { cards, open, onOpenChange, title, emptyMessage = "カードがありません" }: CardStackModalProps = $props();
 
   // 直近に捨てたカードが先頭に来るよう反転したリスト
   const reverseCards = $derived(cards.slice().reverse());
@@ -103,9 +95,7 @@
           <!-- 集約表示モード -->
           {#each aggregatedCards as { card, instanceId, quantity } (instanceId)}
             <div class="relative">
-              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-                <CardComponent {card} size="medium" showDetailOnClick={true} />
-              </div>
+              <CardComponent {card} size="medium" showDetailOnClick={true} />
               {#if quantity > 1}
                 <CountBadge count={quantity} colorClasses="bg-primary-200 text-primary-900" />
               {/if}
@@ -115,9 +105,7 @@
           <!-- 個別表示モード（順序保持） -->
           {#each reverseCards as { card, instanceId } (instanceId)}
             <div class="relative">
-              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-                <CardComponent {card} size="medium" showDetailOnClick={true} />
-              </div>
+              <CardComponent {card} size="medium" showDetailOnClick={true} />
             </div>
           {/each}
         {/if}

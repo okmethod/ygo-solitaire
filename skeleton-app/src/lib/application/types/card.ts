@@ -42,6 +42,7 @@ export interface DisplayCardData {
   jaName: string; // 日本語版カード名
   type: CardType;
   frameType: FrameSubType;
+  edition: "legacy" | "latest"; // レガシー版か最新版か
   description: string; // カードテキスト
   archetype?: string; // アーキタイプ（テーマ名）
   monsterAttributes?: MonsterAttributes;
@@ -85,6 +86,7 @@ export type {
   ExtraMonsterSubType,
   SpellSubType,
   TrapSubType,
+  Edition,
 } from "$lib/domain/models/Card";
 
 /** 固定値の再エクスポート */

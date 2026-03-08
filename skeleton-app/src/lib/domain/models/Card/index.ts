@@ -18,6 +18,7 @@ export type {
   ExtraMonsterSubType,
   SpellSubType,
   TrapSubType,
+  Edition,
 } from "./CardData";
 export type { CardInstance } from "./CardInstance";
 export type { StateOnField, Position, BattlePosition } from "./StateOnField";

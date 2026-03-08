@@ -1,4 +1,4 @@
-import type { FrameSubType } from "$lib/presentation/types";
+import type { FrameSubType, Edition } from "$lib/presentation/types";
 
 /**
  * フレームタイプ別の背景色クラス
@@ -54,4 +54,25 @@ export function getFrameBackgroundClass(
 ): string {
   if (!frameType) return fallback;
   return FRAME_TYPE_BACKGROUND_CLASSES[frameType] || fallback;
+}
+
+/**
+ * エディション別の枠線色クラス
+ *
+ * エディションごとの配色:
+ * - latest（最新版）: グレー
+ * - legacy（レガシー版）: 黄色
+ */
+const EDITION_BORDER_CLASSES: Record<Edition, string> = {
+  // light: gray-400 #9CA3AF / dark: gray-700 #374151
+  latest: "border-gray-400 dark:border-gray-700",
+
+  // light: yellow-500 #F59E0B / dark: yellow-400 #FBBF24
+  legacy: "border-yellow-500 dark:border-yellow-400",
+};
+
+/** エディションに応じた枠線色クラスを取得する */
+export function getEditionBorderClass(edition?: Edition, fallback: string = EDITION_BORDER_CLASSES.latest): string {
+  if (!edition) return fallback;
+  return EDITION_BORDER_CLASSES[edition] || fallback;
 }

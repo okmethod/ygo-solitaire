@@ -66,10 +66,4 @@
 </div>
 
 <!-- エクストラデッキモーダル -->
-<CardStackModal
-  {cards}
-  open={modalOpen}
-  onOpenChange={handleModalChange}
-  title="EXデッキ"
-  borderColor="border-purple-400"
-/>
+<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="EXデッキ" />

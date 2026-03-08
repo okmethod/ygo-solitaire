@@ -16,10 +16,9 @@
     title?: string;
     cardCount?: number;
     cards: LoadedCardEntry[];
-    borderColor?: string;
   }
 
-  let { title, cardCount, cards, borderColor = "border-gray-400" }: CardListProps = $props();
+  let { title, cardCount, cards }: CardListProps = $props();
 
   // キャッシュの状態を購読してリアクティブに更新
   let cacheState = $state<{ isInitialized: boolean }>({ isInitialized: false });
@@ -59,9 +58,7 @@
           {@const displayData = getDisplayData(cardEntry.cardData.id)}
           {#if displayData}
             <div class="relative">
-              <div class="border-2 {borderColor} rounded-lg shadow-md overflow-hidden">
-                <CardComponent card={displayData} size="medium" showDetailOnClick={true} />
-              </div>
+              <CardComponent card={displayData} size="medium" showDetailOnClick={true} />
               {#if cardEntry.quantity > 1}
                 <CountBadge count={cardEntry.quantity} colorClasses="bg-primary-200 text-primary-900" />
               {/if}

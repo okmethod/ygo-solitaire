@@ -3,7 +3,7 @@
   import Icon from "@iconify/svelte";
   import type { MonsterAttributes } from "$lib/presentation/types";
   import { selectedCardForDisplay, hideCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
-  import { getFrameBackgroundClass } from "$lib/presentation/constants/frameTypes";
+  import { getFrameBackgroundClass, getEditionBorderClass } from "$lib/presentation/constants/colors";
 
   const isVisible = $derived(!!$selectedCardForDisplay);
 
@@ -24,21 +24,17 @@
     };
   });
 
-  // フレームタイプに応じた背景色
-  const backgroundClass = $derived(() => {
-    if (!$selectedCardForDisplay) return "bg-gray-100 dark:bg-gray-800";
-    const typeClass = getFrameBackgroundClass($selectedCardForDisplay.frameType, "bg-gray-100 dark:bg-gray-800");
-    return typeClass;
-  });
+  const bgClass = $derived(getFrameBackgroundClass($selectedCardForDisplay?.frameType));
+  const borderClass = $derived(getEditionBorderClass($selectedCardForDisplay?.edition));
 </script>
 
 {#if isVisible && $selectedCardForDisplay}
   <div
     class="
       fixed top-10 left-4 z-50 p-4 w-80
-      {backgroundClass()}
-      rounded-lg shadow-lg
-      border border-4 border-gray-400 dark:border-gray-700
+      {bgClass}
+      {borderClass}
+      border border-4 rounded-lg shadow-lg
       transition-all duration-300 ease-in-out
     "
     role="dialog"
@@ -47,6 +43,7 @@
   >
     <div class="flex justify-between items-center mb-3">
       <h3 id="card-image-title" class="text-lg font-semibold truncate">
+        {$selectedCardForDisplay.edition === "legacy" ? "L" : ""}
         《{$selectedCardForDisplay.jaName}》
       </h3>
       <button

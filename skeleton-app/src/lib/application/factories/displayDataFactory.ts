@@ -89,6 +89,7 @@ function buildDisplayCardData(externalData: ExternalCardData, domainData: CardDa
     type: domainData.type,
     description: externalData.desc, // 外部データ
     frameType: domainData.frameType,
+    edition: domainData.edition,
     archetype: externalData.archetype, // 外部データ
     monsterAttributes, // 外部データ
     images: externalData.images ?? undefined, // 外部データ
