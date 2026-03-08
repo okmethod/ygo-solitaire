@@ -1,6 +1,8 @@
 /**
  * SummonRule - 召喚ルール
  *
+ * TODO: アドバンス召喚に対応する
+ *
  * @module domain/rules/SummonRule
  */
 
@@ -9,6 +11,10 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+
+// ===========================
+// 通常召喚
+// ===========================
 
 /**
  * 通常召喚が可能かをチェックする
@@ -58,4 +64,42 @@ export function executeNormalSummon(
     // 召喚権を1消費
     normalSummonUsed: state.normalSummonUsed + 1,
   };
+}
+
+// ===========================
+// 特殊召喚
+// ===========================
+
+/**
+ * 特殊召喚が可能かをチェックする
+ *
+ * チェック項目:
+ * 1. モンスターゾーンに空きがあること
+ *
+ * Note: フェイズ制限なし、召喚権不要
+ */
+export function canSpecialSummon(state: GameSnapshot): ValidationResult {
+  if (GameState.Space.isMainMonsterZoneFull(state.space)) {
+    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.MONSTER_ZONE_FULL);
+  }
+  return GameProcessing.Validation.success();
+}
+
+/**
+ * モンスターを特殊召喚する
+ *
+ * Note: 召喚権を消費しない
+ */
+export function executeSpecialSummon(
+  state: GameSnapshot,
+  cardInstanceId: string,
+  battlePosition: BattlePosition,
+): GameSnapshot {
+  // モンスターカードを、メインモンスターゾーンに表側攻撃表示 or 表側守備表示で配置する
+  const card = GameState.Space.findCard(state.space, cardInstanceId)!;
+  const updatedSpace = GameState.Space.moveCard(state.space, card, "mainMonsterZone", {
+    position: "faceUp",
+    battlePosition,
+  });
+  return { ...state, space: updatedSpace };
 }

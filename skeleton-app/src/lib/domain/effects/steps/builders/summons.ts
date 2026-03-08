@@ -11,6 +11,70 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
+import { validationErrorMessage } from "$lib/domain/models/GameProcessing/UpdateValidation";
+import type { DeckLocationName } from "$lib/domain/models/Location";
+
+// ===========================
+// 内部ヘルパー
+// ===========================
+
+type SpecialSummonActionConfig = {
+  sourceZone: DeckLocationName;
+  filter: (card: CardInstance) => boolean;
+  battlePosition: BattlePosition;
+  shuffleAfter?: boolean;
+};
+
+/**
+ * 特殊召喚アクションを生成する内部ヘルパー
+ */
+const createSpecialSummonAction = (config: SpecialSummonActionConfig) => {
+  return (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+    // ソースゾーンからフィルター条件に合うカードを取得
+    const source = currentState.space[config.sourceZone] as CardInstance[];
+    const availableCards = source.filter(config.filter);
+    if (availableCards.length === 0) {
+      return GameProcessing.Result.failure(
+        currentState,
+        `No cards available in ${config.sourceZone} matching the criteria`,
+      );
+    }
+
+    // 特殊召喚可能かチェック
+    const validation = canSpecialSummon(currentState);
+    if (!validation.isValid) {
+      return GameProcessing.Result.failure(currentState, validationErrorMessage(validation));
+    }
+
+    // まだ選択が行われていない場合（UIが選択モーダルを表示する）
+    if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+      return GameProcessing.Result.failure(currentState, "No cards selected");
+    }
+
+    // 特殊召喚を実行
+    const instanceId = selectedInstanceIds[0];
+    const card = GameState.Space.findCard(currentState.space, instanceId)!;
+    let updatedState = executeSpecialSummon(currentState, instanceId, config.battlePosition);
+
+    // 必要ならシャッフル
+    if (config.shuffleAfter) {
+      updatedState = {
+        ...updatedState,
+        space: GameState.Space.shuffleMainDeck(updatedState.space),
+      };
+    }
+
+    return GameProcessing.Result.success(
+      updatedState,
+      `Special summoned ${card.jaName} in ${config.battlePosition} position`,
+    );
+  };
+};
+
+// ===========================
+// AtomicStep 生成関数
+// ===========================
 
 /**
  * デッキから指定レベルのモンスターを選択し、フィールドに特殊召喚するステップ
@@ -51,62 +115,13 @@ export const specialSummonFromDeckStep = (
       _sourceZone: "mainDeck",
       _filter: filter,
     },
-    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
-      // デッキからフィルター条件に合うカードを取得
-      const availableCards = currentState.space.mainDeck.filter(filter);
-
-      // 条件に合うカードが存在しない場合はエラー
-      if (availableCards.length === 0) {
-        return GameProcessing.Result.failure(currentState, "No cards available in deck matching the criteria");
-      }
-
-      // モンスターゾーンに空きがあるかチェック
-      if (GameState.Space.isMainMonsterZoneFull(currentState.space)) {
-        return GameProcessing.Result.failure(currentState, "Monster zone is full");
-      }
-
-      // まだ選択が行われていない場合（UIが選択モーダルを表示する）
-      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-        return GameProcessing.Result.failure(currentState, "No cards selected");
-      }
-
-      // 選択されたカードをデッキからモンスターゾーンへ移動
-      const instanceId = selectedInstanceIds[0];
-      const card = GameState.Space.findCard(currentState.space, instanceId)!;
-
-      let updatedSpace = GameState.Space.moveCard(currentState.space, card, "mainMonsterZone", {
-        position: "faceUp",
-        battlePosition: battlePosition,
-      });
-
-      // デッキをシャッフル
-      updatedSpace = GameState.Space.shuffleMainDeck(updatedSpace);
-
-      const updatedState: GameSnapshot = { ...currentState, space: updatedSpace };
-      return GameProcessing.Result.success(
-        updatedState,
-        `Special summoned ${card.jaName} from deck in ${battlePosition} position`,
-      );
-    },
+    action: createSpecialSummonAction({
+      sourceZone: "mainDeck",
+      filter,
+      battlePosition,
+      shuffleAfter: true,
+    }),
   };
-};
-
-// ===========================
-// StepBuilder（DSL用ファクトリ）
-// ===========================
-
-/**
- * SPECIAL_SUMMON_FROM_DECK - デッキからモンスターを特殊召喚
- * args: { filterType: "monster", filterLevel?: number, battlePosition?: BattlePosition }
- */
-export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => {
-  const filterType = args.filterType as string;
-  const filterLevel = args.filterLevel as number | undefined;
-  const battlePosition = (args.battlePosition as BattlePosition) ?? "attack";
-  if (filterType !== "monster") {
-    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster"');
-  }
-  return specialSummonFromDeckStep(context.cardId, filterLevel, battlePosition);
 };
 
 /**
@@ -149,41 +164,30 @@ export const specialSummonFromExtraDeckStep = (
       _sourceZone: "extraDeck",
       _filter: filter,
     },
-    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
-      // EXデッキからフィルター条件に合うカードを取得
-      const availableCards = currentState.space.extraDeck.filter(filter);
-
-      // 条件に合うカードが存在しない場合はエラー
-      if (availableCards.length === 0) {
-        return GameProcessing.Result.failure(currentState, "No cards available in extra deck matching the criteria");
-      }
-
-      // モンスターゾーンに空きがあるかチェック
-      if (GameState.Space.isMainMonsterZoneFull(currentState.space)) {
-        return GameProcessing.Result.failure(currentState, "Monster zone is full");
-      }
-
-      // まだ選択が行われていない場合（UIが選択モーダルを表示する）
-      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
-        return GameProcessing.Result.failure(currentState, "No cards selected");
-      }
-
-      // 選択されたカードをEXデッキからモンスターゾーンへ移動
-      const instanceId = selectedInstanceIds[0];
-      const card = GameState.Space.findCard(currentState.space, instanceId)!;
-
-      const updatedSpace = GameState.Space.moveCard(currentState.space, card, "mainMonsterZone", {
-        position: "faceUp",
-        battlePosition: battlePosition,
-      });
-
-      const updatedState: GameSnapshot = { ...currentState, space: updatedSpace };
-      return GameProcessing.Result.success(
-        updatedState,
-        `Special summoned ${card.jaName} from extra deck in ${battlePosition} position`,
-      );
-    },
+    action: createSpecialSummonAction({
+      sourceZone: "extraDeck",
+      filter,
+      battlePosition,
+    }),
   };
+};
+
+// ===========================
+// StepBuilder（DSL用ファクトリ）
+// ===========================
+
+/**
+ * SPECIAL_SUMMON_FROM_DECK - デッキからモンスターを特殊召喚
+ * args: { filterType: "monster", filterLevel?: number, battlePosition?: BattlePosition }
+ */
+export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => {
+  const filterType = args.filterType as string;
+  const filterLevel = args.filterLevel as number | undefined;
+  const battlePosition = (args.battlePosition as BattlePosition) ?? "attack";
+  if (filterType !== "monster") {
+    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster"');
+  }
+  return specialSummonFromDeckStep(context.cardId, filterLevel, battlePosition);
 };
 
 /**
