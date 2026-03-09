@@ -49,7 +49,7 @@ function createInitialState(): ChainState {
 /**
  * チェーンスタックストアのインターフェース
  */
-export interface chainStackStore {
+export interface ChainStackStore {
   subscribe: (run: (value: ChainState) => void) => () => void;
 
   /** チェーン構築を開始する */
@@ -67,18 +67,6 @@ export interface chainStackStore {
   /** 指定のスペルスピードでチェーン可能か判定する */
   canChain: (spellSpeed: 1 | 2 | 3) => boolean;
 
-  /** スタックが空かどうか */
-  isEmpty: () => boolean;
-
-  /** チェーン構築中かどうか */
-  isBuilding: () => boolean;
-
-  /** 現在のスタックサイズを取得する */
-  getStackSize: () => number;
-
-  /** 現在の状態を取得する */
-  getState: () => ChainState;
-
   /** スタックに積まれているインスタンスIDのセットを取得する */
   getStackedInstanceIds: () => Set<string>;
 
@@ -92,10 +80,10 @@ export interface chainStackStore {
 /**
  * チェーンスタックストアを生成する
  */
-function createchainStackStore(): chainStackStore {
+function createchainStackStore(): ChainStackStore {
   const { subscribe, update, set } = writable<ChainState>(createInitialState());
 
-  const store: chainStackStore = {
+  const self: ChainStackStore = {
     subscribe,
 
     startChain: () => {
@@ -129,7 +117,7 @@ function createchainStackStore(): chainStackStore {
     },
 
     popChainBlock: (): ChainBlock | undefined => {
-      const state = getStoreValue(store);
+      const state = getStoreValue(self);
       if (state.stack.length === 0) return undefined;
 
       const block = state.stack[state.stack.length - 1];
@@ -141,7 +129,7 @@ function createchainStackStore(): chainStackStore {
     },
 
     canChain: (spellSpeed: 1 | 2 | 3): boolean => {
-      const state = getStoreValue(store);
+      const state = getStoreValue(self);
 
       // チェーン構築中でない場合、SS1 以上なら新規チェーン開始可能
       if (!state.isBuilding) {
@@ -152,32 +140,13 @@ function createchainStackStore(): chainStackStore {
       return spellSpeed >= (state.lastSpellSpeed ?? 1);
     },
 
-    isEmpty: (): boolean => {
-      const state = getStoreValue(store);
-      return state.stack.length === 0;
-    },
-
-    isBuilding: (): boolean => {
-      const state = getStoreValue(store);
-      return state.isBuilding;
-    },
-
-    getStackSize: (): number => {
-      const state = getStoreValue(store);
-      return state.stack.length;
-    },
-
-    getState: (): ChainState => {
-      return getStoreValue(store);
-    },
-
     getStackedInstanceIds: (): Set<string> => {
-      const state = getStoreValue(store);
+      const state = getStoreValue(self);
       return new Set(state.stack.map((block) => block.sourceInstanceId));
     },
 
     getRequiredSpellSpeed: (): 1 | 2 | 3 => {
-      const state = getStoreValue(store);
+      const state = getStoreValue(self);
       // チェーン 1（スタックが空）: SS1 以上が候補
       if (state.stack.length === 0) {
         return 1;
@@ -195,7 +164,7 @@ function createchainStackStore(): chainStackStore {
     },
   };
 
-  return store;
+  return self;
 }
 
 export const chainStackStore = createchainStackStore();

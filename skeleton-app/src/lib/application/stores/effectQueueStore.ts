@@ -418,8 +418,9 @@ function createEffectQueueStore(): EffectQueueStore {
     }));
 
     // チェーンスタックに残りがあれば処理を継続
-    if (!chainStackStore.isEmpty()) {
-      if (chainStackStore.isBuilding()) {
+    const chainState = getStoreValue(chainStackStore);
+    if (chainState.stack.length > 0) {
+      if (chainState.isBuilding) {
         // チェーン構築中: チェーン可能なカードを収集して確認UIを表示
         const gameState = getStoreValue(gameStateStore);
         const requiredSpellSpeed = chainStackStore.getRequiredSpellSpeed();
@@ -515,8 +516,9 @@ function createEffectQueueStore(): EffectQueueStore {
     handleEffectQueues: (chainBlock, activationSteps) => {
       // チェーンブロックがある場合は chainStackStore に登録
       if (chainBlock) {
+        const chainState = getStoreValue(chainStackStore);
         // まだ構築中でない場合、新しいチェーンを開始
-        if (chainStackStore.getStackSize() === 0) {
+        if (chainState.stack.length === 0) {
           chainStackStore.startChain();
         }
         chainStackStore.pushChainBlock(chainBlock);
@@ -534,6 +536,11 @@ function createEffectQueueStore(): EffectQueueStore {
 
     /** チェーン発動する */
     activateChain: (instance: CardInstance, action: ChainableAction) => {
+      if (!chainStackStore.canChain(action.spellSpeed)) {
+        console.warn("Invalid chain attempt: Spell speed too low.");
+        return;
+      }
+
       // チェーン確認モーダルを閉じる
       update((s) => ({ ...s, chainConfirmationConfig: null }));
 
