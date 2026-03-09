@@ -7,7 +7,7 @@
  * Test Responsibility:
  * - Normal Spell card activation scenarios (end-to-end gameplay flow)
  * - Registry integration (cardId → Effect retrieval → Effect execution)
- * - Side effects (effectQueueStore.startProcessing calls)
+ * - Side effects (effectQueueStore.beginSequence calls)
  * - Actual game state changes (deck → hand, hand → graveyard)
  *
  * Test Strategy (from docs/architecture/testing-strategy.md):

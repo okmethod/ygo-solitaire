@@ -16,7 +16,7 @@ export interface GameCommandResult extends GameStateUpdateResult {
    *
    * ドメイン層がアプリ層に効果処理を委譲する際に使用。
    * - ActivateSpellCommand.execute() が activationSteps を返す
-   * - GameFacade.activateSpell() が effectQueueStore.startProcessing() を呼ぶ
+   * - GameFacade.activateSpell() が effectQueueStore.beginSequence() を呼ぶ
    *
    * 発動時処理（コスト支払い、対象選択等）のみを含む。
    * 解決時処理（resolutionSteps）は chainBlock に含まれる。
@@ -30,7 +30,7 @@ export interface GameCommandResult extends GameStateUpdateResult {
    * - chainStackStore.pushChainBlock() で使用される
    * - resolutionSteps はチェーン解決時に処理される
    *
-   * チェーンブロックを作らない処理（召喚、セット等）の場合は undefined。
+   * チェーンブロックを作らない処理（召喚、セット等）の場合は undefined となる。
    */
   readonly chainBlock?: ChainBlockParams;
 }
