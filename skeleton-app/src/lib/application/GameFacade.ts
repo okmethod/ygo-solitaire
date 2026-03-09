@@ -11,7 +11,7 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { GameCommand } from "$lib/domain/models/Command";
+import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { NormalSummonCommand } from "$lib/domain/commands/NormalSummonCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
@@ -22,19 +22,9 @@ import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
 import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
-import { chainStackStore } from "$lib/application/stores/chainStackStore";
 
-/**
- * GameFacadeのメソッドが返す結果型（プレゼン層への公開用）
- *
- * GameStateUpdateResult から、一部のフィールドのみを公開する。
- */
-export type FacadeResult = {
-  success: boolean;
-  message?: string;
-  error?: string;
-  // アプリ層で消化される効果処理ステップ等は公開しない
-};
+/** GameFacadeのメソッドが返す結果型（プレゼン層への公開用） */
+export type FacadeResult = Readonly<Pick<GameCommandResult, "success" | "message" | "error">>;
 
 /**
  * 全ゲーム操作の唯一の入り口（Single Entry Point）
@@ -61,32 +51,16 @@ export class GameFacade {
     const result = command.execute(currentState);
 
     if (result.success) {
-      gameStateStore.set(result.updatedState);
-
-      // チェーンブロックがある場合は chainStackStore に登録
-      if (result.chainBlock) {
-        // 新しいチェーンを開始（まだ構築中でない場合）
-        if (chainStackStore.getStackSize() === 0) {
-          chainStackStore.startChain();
-        }
-        chainStackStore.pushChainBlock(result.chainBlock);
-      }
-
-      // activationSteps（発動時処理）を即座に実行
-      // チェーン解決は effectQueueStore 内で処理完了後に行われる
-      if (result.activationSteps && result.activationSteps.length > 0) {
-        effectQueueStore.startProcessing(result.activationSteps);
-      } else if (result.chainBlock) {
-        // 発動時処理がない場合は即座にチェーン解決を開始
-        effectQueueStore.resolveChain();
-      }
+      this.applyCommandResult(result);
     }
 
-    return {
-      success: result.success,
-      message: result.message,
-      error: result.error,
-    };
+    return result;
+  }
+
+  /** コマンド結果を適用する */
+  private applyCommandResult(result: GameCommandResult) {
+    gameStateStore.set(result.updatedState);
+    effectQueueStore.handleEffectQueues(result.chainBlock, result.activationSteps);
   }
 
   /**

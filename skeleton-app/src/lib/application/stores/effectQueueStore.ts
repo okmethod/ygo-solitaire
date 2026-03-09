@@ -32,6 +32,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction } from "$lib/domain/models/Effect";
+import type { ChainBlockParams } from "$lib/domain/models/Chain/ChainBlock";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
@@ -346,6 +347,9 @@ export interface EffectQueueStore {
   /** 通知ハンドラを登録する（Dependency Injection） */
   registerNotificationHandler: (handler: NotificationHandler) => void;
 
+  /** 効果処理ステップキューを処理する */
+  handleEffectQueues: (chainBlock: ChainBlockParams | undefined, activationSteps: AtomicStep[]) => void;
+
   /** 効果処理シーケンスを開始する */
   startProcessing: (steps: AtomicStep[]) => void;
 
@@ -387,6 +391,26 @@ function createEffectQueueStore(): EffectQueueStore {
 
     registerNotificationHandler: (handler: NotificationHandler) => {
       update((state) => ({ ...state, notificationHandler: handler }));
+    },
+
+    handleEffectQueues: (chainBlock, activationSteps) => {
+      // チェーンブロックがある場合は chainStackStore に登録
+      if (chainBlock) {
+        // まだ構築中でない場合、新しいチェーンを開始
+        if (chainStackStore.getStackSize() === 0) {
+          chainStackStore.startChain();
+        }
+        chainStackStore.pushChainBlock(chainBlock);
+      }
+
+      // activationSteps（発動時処理）を即座に実行
+      // チェーン解決は effectQueueStore 内で処理完了後に行われる
+      if (activationSteps && activationSteps.length > 0) {
+        effectQueueStore.startProcessing(activationSteps);
+      } else if (chainBlock) {
+        // 発動時処理がない場合は即座にチェーン解決を開始
+        effectQueueStore.resolveChain();
+      }
     },
 
     startProcessing: (steps: AtomicStep[]) => {
