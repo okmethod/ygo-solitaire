@@ -13,8 +13,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { GameCommand } from "$lib/domain/models/Command";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
-import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
-import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
+import { NormalSummonCommand } from "$lib/domain/commands/NormalSummonCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
@@ -37,20 +36,14 @@ export type FacadeResult = {
   // アプリ層で消化される効果処理ステップ等は公開しない
 };
 
-// 許容される GameCommand のコンストラクタ引数パターンの定義
-type GameCommandArgs = [] | [string] | [number];
-
 /**
  * 全ゲーム操作の唯一の入り口（Single Entry Point）
  */
 export class GameFacade {
   /** 各種 GameCommand の実行可否チェックのヘルパー */
-  private canExecuteCommand<T extends GameCommand>(CommandClass: new () => T): boolean;
-  private canExecuteCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): boolean;
-  private canExecuteCommand<T extends GameCommand>(CommandClass: new (param: number) => T, param: number): boolean;
-  private canExecuteCommand<T extends GameCommand>(
-    CommandClass: new (...args: GameCommandArgs) => T,
-    ...params: GameCommandArgs
+  private canExecuteCommand<T extends GameCommand, Args extends unknown[]>(
+    CommandClass: new (...args: Args) => T,
+    ...params: Args
   ): boolean {
     const currentState = getCurrentGameState();
     const command = new CommandClass(...params);
@@ -59,12 +52,9 @@ export class GameFacade {
   }
 
   /** 各種 GameCommand の実行およびストア更新のヘルパー */
-  private executeCommand<T extends GameCommand>(CommandClass: new () => T): FacadeResult;
-  private executeCommand<T extends GameCommand>(CommandClass: new (param: string) => T, param: string): FacadeResult;
-  private executeCommand<T extends GameCommand>(CommandClass: new (param: number) => T, param: number): FacadeResult;
-  private executeCommand<T extends GameCommand>(
-    CommandClass: new (...args: GameCommandArgs) => T,
-    ...params: GameCommandArgs
+  private executeCommand<T extends GameCommand, Args extends unknown[]>(
+    CommandClass: new (...args: Args) => T,
+    ...params: Args
   ): FacadeResult {
     const currentState = getCurrentGameState();
     const command = new CommandClass(...params);
@@ -76,8 +66,7 @@ export class GameFacade {
       // チェーンブロックがある場合は chainStackStore に登録
       if (result.chainBlock) {
         // 新しいチェーンを開始（まだ構築中でない場合）
-        const chainState = chainStackStore.getStackSize();
-        if (chainState === 0) {
+        if (chainStackStore.getStackSize() === 0) {
           chainStackStore.startChain();
         }
         chainStackStore.pushChainBlock(result.chainBlock);
@@ -207,22 +196,22 @@ export class GameFacade {
 
   /** 指定したモンスターカードインスタンスを通常召喚可能かどうかチェックして返す */
   canSummonMonster(cardInstanceId: string): boolean {
-    return this.canExecuteCommand(SummonMonsterCommand, cardInstanceId);
+    return this.canExecuteCommand(NormalSummonCommand, cardInstanceId, "summon");
   }
 
   /** 指定したモンスターカードインスタンスを表側攻撃表示で通常召喚する */
   summonMonster(cardInstanceId: string): FacadeResult {
-    return this.executeCommand(SummonMonsterCommand, cardInstanceId);
+    return this.executeCommand(NormalSummonCommand, cardInstanceId, "summon");
   }
 
   /** 指定したモンスターカードインスタンスをセット可能かどうかチェックして返す */
   canSetMonster(cardInstanceId: string): boolean {
-    return this.canExecuteCommand(SetMonsterCommand, cardInstanceId);
+    return this.canExecuteCommand(NormalSummonCommand, cardInstanceId, "set");
   }
 
   /** 指定したモンスターカードインスタンスを裏側守備表示でセットする */
   setMonster(cardInstanceId: string): FacadeResult {
-    return this.executeCommand(SetMonsterCommand, cardInstanceId);
+    return this.executeCommand(NormalSummonCommand, cardInstanceId, "set");
   }
 
   /** 指定した魔法・罠カードインスタンスをセット可能かどうかチェックして返す */

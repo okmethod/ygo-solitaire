@@ -1,11 +1,13 @@
 /**
- * SummonMonsterCommand - モンスター召喚コマンド
+ * NormalSummonCommand - 通常召喚コマンド（召喚・セット統合）
  *
- * 手札からモンスターカードを通常召喚する Command パターン実装。
- * 召喚権を1消費し、モンスターを表側攻撃表示でメインモンスターゾーンに配置する。
- * アドバンス召喚: レベルに応じて、必要な場合はリリース選択ステップを返す。
+ * 手札からモンスターカードを通常召喚またはセットする Command パターン実装。
+ * 召喚権を1消費し、モンスターをメインモンスターゾーンに配置する。
+ * - 召喚: 表側攻撃表示
+ * - セット: 裏側守備表示
+ * レベルに応じて、アドバンス召喚になる場合はリリース選択ステップを返す。
  *
- * @module domain/commands/SummonMonsterCommand
+ * @module domain/commands/NormalSummonCommand
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
@@ -15,12 +17,18 @@ import { Command } from "$lib/domain/models/Command";
 import { canNormalSummon, performNormalSummon } from "$lib/domain/rules/SummonRule";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
-/** モンスター通常召喚コマンドクラス */
-export class SummonMonsterCommand implements GameCommand {
+/** 通常召喚モード: 召喚（表側攻撃表示）またはセット（裏側守備表示） */
+type NormalSummonMode = "summon" | "set";
+
+/** 通常召喚コマンドクラス（召喚・セット統合） */
+export class NormalSummonCommand implements GameCommand {
   readonly description: string;
 
-  constructor(private readonly cardInstanceId: string) {
-    this.description = `Summon monster ${cardInstanceId}`;
+  constructor(
+    private readonly cardInstanceId: string,
+    private readonly mode: NormalSummonMode,
+  ) {
+    this.description = mode === "summon" ? `Summon monster ${cardInstanceId}` : `Set monster ${cardInstanceId}`;
   }
 
   /**
@@ -38,11 +46,11 @@ export class SummonMonsterCommand implements GameCommand {
   }
 
   /**
-   * 指定カードを通常召喚する
+   * 指定カードを通常召喚（召喚またはセット）する
    *
    * 処理フロー:
    * 1. 実行可能性判定
-   * 2. 召喚処理の実行（レベルに応じて即時実行またはリリース選択ステップを返す）
+   * 2. 召喚またはセット処理の実行（レベルに応じて即時実行またはリリース選択ステップを返す）
    */
   execute(state: GameSnapshot): GameCommandResult {
     // 1. 実行可能性判定
@@ -51,10 +59,11 @@ export class SummonMonsterCommand implements GameCommand {
       return Command.Result.failure(state, GameProcessing.Validation.errorMessage(validationResult));
     }
 
-    // 2. 召喚処理の実行
-    const result = performNormalSummon(state, this.cardInstanceId, "attack");
+    // 2. 召喚またはセット処理の実行
+    const battlePosition = this.mode === "summon" ? "attack" : "defense";
+    const result = performNormalSummon(state, this.cardInstanceId, battlePosition);
     if (result.type === "immediate") {
-      // 即時召喚が可能な場合、状態を更新して成功を返す
+      // リリース不要の場合、状態を更新して成功を返す
       return Command.Result.success(result.state, result.message, undefined, result.activationSteps);
     } else {
       // リリース選択が必要な場合、状態は変更せずにリリース選択ステップを返す
@@ -62,8 +71,13 @@ export class SummonMonsterCommand implements GameCommand {
     }
   }
 
-  /** 召喚対象のカードインスタンスIDを取得する */
+  /** 通常召喚対象のカードインスタンスIDを取得する */
   getCardInstanceId(): string {
     return this.cardInstanceId;
+  }
+
+  /** 通常召喚モードを取得する */
+  getMode(): NormalSummonMode {
+    return this.mode;
   }
 }

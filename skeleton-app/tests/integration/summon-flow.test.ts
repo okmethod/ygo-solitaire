@@ -8,8 +8,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import { SummonMonsterCommand } from "$lib/domain/commands/SummonMonsterCommand";
-import { SetMonsterCommand } from "$lib/domain/commands/SetMonsterCommand";
+import { NormalSummonCommand } from "$lib/domain/commands/NormalSummonCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
 import { CardDataRegistry } from "$lib/domain/cards";
@@ -75,7 +74,7 @@ describe("Summon Flow Integration", () => {
 
       // Act: Summon the monster
       const monsterInstanceId = state.space.hand[0].instanceId;
-      const summonCommand = new SummonMonsterCommand(monsterInstanceId);
+      const summonCommand = new NormalSummonCommand(monsterInstanceId, "summon");
       const result = summonCommand.execute(state);
 
       // Assert
@@ -99,7 +98,7 @@ describe("Summon Flow Integration", () => {
 
       // Act: Set the monster
       const monsterInstanceId = state.space.hand[0].instanceId;
-      const setCommand = new SetMonsterCommand(monsterInstanceId);
+      const setCommand = new NormalSummonCommand(monsterInstanceId, "set");
       const result = setCommand.execute(state);
 
       // Assert
@@ -128,14 +127,14 @@ describe("Summon Flow Integration", () => {
       expect(state.space.hand[1].type).toBe("monster");
 
       const monster1Id = state.space.hand[0].instanceId;
-      const summonCommand1 = new SummonMonsterCommand(monster1Id);
+      const summonCommand1 = new NormalSummonCommand(monster1Id, "summon");
       state = summonCommand1.execute(state).updatedState;
 
       expect(state.normalSummonUsed).toBe(1);
 
       // Act: Try to summon second monster
       const monster2Id = state.space.hand[0].instanceId; // Now first card in hand
-      const summonCommand2 = new SummonMonsterCommand(monster2Id);
+      const summonCommand2 = new NormalSummonCommand(monster2Id, "summon");
       const result = summonCommand2.execute(state);
 
       // Assert
@@ -155,12 +154,12 @@ describe("Summon Flow Integration", () => {
       state = advanceToMain1.execute(state).updatedState;
 
       const monster1Id = state.space.hand[0].instanceId;
-      const setCommand = new SetMonsterCommand(monster1Id);
+      const setCommand = new NormalSummonCommand(monster1Id, "set");
       state = setCommand.execute(state).updatedState;
 
       // Act: Try to summon second monster
       const monster2Id = state.space.hand[0].instanceId;
-      const summonCommand = new SummonMonsterCommand(monster2Id);
+      const summonCommand = new NormalSummonCommand(monster2Id, "summon");
       const result = summonCommand.execute(state);
 
       // Assert
@@ -215,7 +214,7 @@ describe("Summon Flow Integration", () => {
       state = setSpellCommand.execute(state).updatedState;
 
       // Act: Then summon monster
-      const summonCommand = new SummonMonsterCommand(monsterCard!.instanceId);
+      const summonCommand = new NormalSummonCommand(monsterCard!.instanceId, "summon");
       const result = summonCommand.execute(state);
 
       // Assert
@@ -315,7 +314,7 @@ describe("Summon Flow Integration", () => {
       const spellCard = state.space.hand.find((card) => card.type === "spell");
 
       // Act: Step 1 - Summon monster
-      const summonCommand = new SummonMonsterCommand(monsterCard!.instanceId);
+      const summonCommand = new NormalSummonCommand(monsterCard!.instanceId, "summon");
       state = summonCommand.execute(state).updatedState;
 
       expect(state.space.mainMonsterZone.length).toBe(1);
