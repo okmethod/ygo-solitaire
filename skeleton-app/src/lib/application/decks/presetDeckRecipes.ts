@@ -96,6 +96,43 @@ const deckLibraryExodia: DeckRecipe = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const deckPandaExodia: DeckRecipe = {
+  name: "パンダエクゾ - WIP",
+  description: "トレジャーパンダと通常モンスターを活用してドローするエクゾディアデッキです",
+  category: "エクゾディア",
+  mainDeck: [
+    // モンスターカード
+    { id: 33396948, quantity: 1 }, // 封印されしエクゾディア
+    { id: 70903634, quantity: 1 }, // 封印されし者の右腕
+    { id: 7902349, quantity: 1 }, // 封印されし者の左腕
+    { id: 8124921, quantity: 1 }, // 封印されし者の右足
+    { id: 44519536, quantity: 1 }, // 封印されし者の左足
+    // { id: 45221020, quantity: 3 }, // トレジャー・パンダ
+    { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
+    // ガード・オブ・フレムベル
+    // 千眼の邪教神
+
+    // 魔法カード
+    { id: 70368879, quantity: 3 }, // 成金ゴブリン
+    { id: 33782437, quantity: 3 }, // 一時休戦
+    { id: 93946239, quantity: 3 }, // 無の煉獄
+    { id: 90928333, quantity: 3 }, // 闇の量産工場
+    { id: 85852291, quantity: 3 }, // 打ち出の小槌
+    { id: 89997728, quantity: 3 }, // トゥーンのもくじ
+    { id: 15259703, quantity: 1 }, // トゥーン・ワールド
+    { id: 73628505, quantity: 3 }, // テラ・フォーミング
+    { id: 67616300, quantity: 3 }, // チキンレース
+    // 馬の骨の対価
+    // ワンダー・ワンド
+    // 貪欲な壺
+  ],
+  extraDeck: [
+    // シンクロモンスター
+    // フォーミュラ・シンクロン
+  ],
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const deckScienceCatapult: DeckRecipe = {
   name: "サイエンカタパ - WIP",
   description: "魔導サイエンティストで特殊召喚した融合モンスターを、カタパルトタートルで射出するデッキです",
@@ -119,5 +156,6 @@ export const presetDeckRecipes: Record<string, DeckRecipe> = {
   "exodia-deck": deckExodia,
   "legacy-exodia-deck": deckLegacyExodia,
   "library-exodia-deck": deckLibraryExodia,
+  // "panda-exodia-deck": deckPandaExodia,
   // "scientist-catapult-deck": deckScienceCatapult,
 };
