@@ -45,8 +45,8 @@ const deckLegacyExodia: DeckRecipe = {
     { id: 7902349, quantity: 1 }, // 封印されし者の左腕
     { id: 8124921, quantity: 1 }, // 封印されし者の右足
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
-    { id: 26202165, quantity: 3 }, // クリッター
-    { id: 78010363, quantity: 3 }, // 黒き森のウィッチ
+    { id: 26202165, quantity: 3 }, // クリッター[L]
+    { id: 78010363, quantity: 3 }, // 黒き森のウィッチ[L]
 
     // 魔法カード
     { id: 55144522, quantity: 3 }, // 強欲な壺
@@ -140,10 +140,19 @@ const deckScienceCatapult: DeckRecipe = {
   mainDeck: [
     // モンスターカード
     { id: 34206604, quantity: 3 }, // 魔導サイエンティスト
-    { id: 95727991, quantity: 3 }, // カタパルト・タートル
+    { id: 95727991, quantity: 3 }, // カタパルト・タートル[L]
+    // 混沌の黒魔術師[L]
+    // トゥーン・キャノン・ソルジャー
 
     // 魔法カード
-    { id: 55144522, quantity: 3 }, // 強欲な壺
+    { id: 55144522, quantity: 1 }, // 強欲な壺
+    { id: 79571449, quantity: 1 }, // 天使の施し
+    // 死者蘇生
+    // 早すぎた埋葬
+    { id: 74519184, quantity: 3 }, // 手札断殺
+    // モンスタゲート
+    // デビルズ・サンクチュアリ
+    { id: 89997728, quantity: 3 }, // トゥーンのもくじ
   ],
   extraDeck: [
     { id: 46696593, quantity: 3 }, // 紅陽鳥
