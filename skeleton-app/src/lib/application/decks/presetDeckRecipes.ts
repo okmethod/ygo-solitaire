@@ -4,7 +4,7 @@
 
 import type { DeckRecipe } from "$lib/application/types/deck";
 
-const deckRecipeExodia: DeckRecipe = {
+const deckExodia: DeckRecipe = {
   name: "封印されしエクゾディア",
   description: "魔法カード主体のエクゾディアデッキです",
   category: "エクゾディア",
@@ -34,7 +34,7 @@ const deckRecipeExodia: DeckRecipe = {
   extraDeck: [],
 };
 
-const deckRecipeLegacyExodia: DeckRecipe = {
+const deckLegacyExodia: DeckRecipe = {
   name: "レガシー・エクゾディア",
   description: "往年のクリッター・黒き森のウィッチを使えるエクゾディアデッキです",
   category: "エクゾディア",
@@ -64,7 +64,7 @@ const deckRecipeLegacyExodia: DeckRecipe = {
   extraDeck: [],
 };
 
-const deckRecipeLibrary: DeckRecipe = {
+const deckLibraryExodia: DeckRecipe = {
   name: "図書館エクゾ",
   description: "王立魔法図書館に魔力カウンターに置いてドローするエクゾディアデッキです",
   category: "エクゾディア",
@@ -95,8 +95,9 @@ const deckRecipeLibrary: DeckRecipe = {
   extraDeck: [],
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const deckScienceCatapult: DeckRecipe = {
-  name: "サイエンカタパ",
+  name: "サイエンカタパ - WIP",
   description: "魔導サイエンティストで特殊召喚した融合モンスターを、カタパルトタートルで射出するデッキです",
   category: "フルバーン",
   mainDeck: [
@@ -115,8 +116,8 @@ const deckScienceCatapult: DeckRecipe = {
 };
 
 export const presetDeckRecipes: Record<string, DeckRecipe> = {
-  "exodia-deck": deckRecipeExodia,
-  "legacy-exodia-deck": deckRecipeLegacyExodia,
-  "library-exodia-deck": deckRecipeLibrary,
-  "scientist-catapult-deck": deckScienceCatapult,
+  "exodia-deck": deckExodia,
+  "legacy-exodia-deck": deckLegacyExodia,
+  "library-exodia-deck": deckLibraryExodia,
+  // "scientist-catapult-deck": deckScienceCatapult,
 };
