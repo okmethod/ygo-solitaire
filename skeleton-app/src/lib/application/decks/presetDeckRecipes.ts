@@ -76,7 +76,7 @@ const deckLibraryExodia: DeckRecipe = {
     { id: 8124921, quantity: 1 }, // 封印されし者の右足
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
     { id: 70791313, quantity: 3 }, // 王立魔法図書館
-    { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
+    { id: 423585, quantity: 1 }, // 召喚僧サモンプリースト
 
     // 魔法カード
     { id: 89997728, quantity: 3 }, // トゥーンのもくじ
@@ -87,8 +87,9 @@ const deckLibraryExodia: DeckRecipe = {
     { id: 33782437, quantity: 3 }, // 一時休戦
     { id: 93946239, quantity: 3 }, // 無の煉獄
     { id: 41587307, quantity: 3 }, // 折れ竹光
+    { id: 74029853, quantity: 3 }, // 黄金色の竹光
     { id: 74519184, quantity: 3 }, // 手札断殺
-    { id: 90928333, quantity: 2 }, // 闇の量産工場
+    { id: 90928333, quantity: 1 }, // 闇の量産工場
     { id: 85852291, quantity: 1 }, // 打ち出の小槌
     { id: 98645731, quantity: 1 }, // 強欲で謙虚な壺
   ],

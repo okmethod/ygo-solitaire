@@ -39,6 +39,7 @@ import handDestructionYaml from "./spells/hand-destruction.yaml?raw";
 import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 import brokenBambooSwordYaml from "./spells/broken-bamboo-sword.yaml?raw";
+import goldenBambooSwordYaml from "./spells/golden-bamboo-sword.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -79,6 +80,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [89997728, toonTableOfContentsYaml], // トゥーンのもくじ
   [98645731, potOfDualityYaml], // 強欲で謙虚な壺
   [85852291, magicalMalletYaml], // 打ち出の小槌
+  [74029853, goldenBambooSwordYaml], // 黄金色の竹光
 
   // 速攻魔法
   [74519184, handDestructionYaml], // 手札断殺

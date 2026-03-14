@@ -1,0 +1,26 @@
+# 《黄金色の竹光》 (Golden Bamboo Sword)
+#
+# カードの発動:
+# - CONDITIONS: 自分フィールドに「竹光」装備魔法カードが存在、デッキに2枚以上
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 2枚ドロー
+
+id: 74029853
+
+data:
+  jaName: "黄金色の竹光"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "CAN_DRAW"
+          args: { count: 2 }
+        - step: "FIELD_HAS_EQUIPPED_NAME_INCLUDES"
+          args: { namePattern: "竹光" }
+    resolutions:
+      - step: "DRAW"
+        args: { count: 2 }
