@@ -15,12 +15,14 @@ export type { Player } from "./Player";
 export type { GamePhase } from "./Phase";
 export type { GameResult } from "./GameResult";
 export type { CardSpace } from "./CardSpace";
+export type { EffectActivationContext } from "./ActivationContext";
 
 import * as GameSnapshotFuncs from "./GameSnapshot";
 import * as GameStateConsistencyFuncs from "./GameStateConsistency";
 import * as GameStateVictoryFuncs from "./VictoryCondition";
 import * as PhaseFuncs from "./Phase";
 import * as CardSpaceFuncs from "./CardSpace";
+import * as ActivationContextFuncs from "./ActivationContext";
 
 /* GameState 名前空間
  *
@@ -53,5 +55,11 @@ export const GameState = {
     drawCards: CardSpaceFuncs.drawCards,
     shuffleMainDeck: CardSpaceFuncs.shuffleMainDeck,
     sendExistingFieldSpellToGraveyard: CardSpaceFuncs.sendExistingFieldSpellToGraveyard,
+  },
+
+  ActivationContext: {
+    setTargets: ActivationContextFuncs.setActivationTargets,
+    getTargets: ActivationContextFuncs.getActivationTargets,
+    clear: ActivationContextFuncs.clearActivationContext,
   },
 };

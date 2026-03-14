@@ -3,10 +3,12 @@
  */
 
 import type { CardData } from "$lib/domain/models/Card";
+import type { EffectId } from "$lib/domain/models/Effect";
 import type { CardSpace } from "./CardSpace";
 import type { Player } from "./Player";
 import type { GamePhase } from "./Phase";
 import type { GameResult } from "./GameResult";
+import type { EffectActivationContext } from "./ActivationContext";
 import { shuffleMainDeck, drawCards } from "./CardSpace";
 
 /** 初期ライフポイント */
@@ -38,6 +40,14 @@ export interface GameSnapshot {
    * - 先行1ターン目のみのため、「1 デュエルに 1度」制限も兼ねる
    */
   readonly activatedCardIds: ReadonlySet<number>;
+
+  /**
+   * 発動時コンテキスト
+   *
+   * ACTIVATIONS で選択した対象などの情報をeffectIdごとに保持。
+   * RESOLUTIONS にて参照し、効果解決後にクリアされる。
+   */
+  readonly activationContexts: Readonly<Record<EffectId, EffectActivationContext>>;
 
   /**
    * エンドフェイズに実行される遅延効果のID群
@@ -115,6 +125,7 @@ export function createInitialGameSnapshot(
     normalSummonLimit: 1,
     normalSummonUsed: 0,
     activatedCardIds: new Set<number>(),
+    activationContexts: {},
     queuedEndPhaseEffectIds: [],
   };
 }

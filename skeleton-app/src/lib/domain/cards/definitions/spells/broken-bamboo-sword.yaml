@@ -1,0 +1,14 @@
+# 《折れ竹光》 (Broken Bamboo Sword)
+#
+# カードの発動:
+# - CONDITIONS: 条件を満たすモンスターが存在する
+# - ACTIVATIONS: フィールド上のモンスター1体を対象に取る
+# - RESOLUTIONS: 装備モンスターの攻撃力0アップ
+
+id: 41587307
+
+data:
+  jaName: "折れ竹光"
+  type: "spell"
+  frameType: "spell"
+  spellType: "equip"

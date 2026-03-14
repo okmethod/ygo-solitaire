@@ -21,6 +21,8 @@ import {
 } from "$lib/domain/dsl/factories";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
+import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
+import { ContinuousSpellActivation } from "../effects/actions/activations/ContinuousSpellActivation";
 
 /**
  * DSL定義をCardDataRegistryに登録する
@@ -47,16 +49,10 @@ function registerCardData(definition: CardDSLDefinition): void {
 function registerChainableAction(definition: CardDSLDefinition): void {
   const { id, data } = definition;
   const chainableActions = definition["effectChainableActions"];
-
-  // チェーンブロックを作る処理がない場合はスキップ
-  if (!chainableActions) {
-    return;
-  }
-
-  // activations セクション（カードの発動）
   const spellType = data.spellType;
 
-  if (chainableActions.activations) {
+  // activations セクション（カードの発動）
+  if (chainableActions?.activations) {
     // spellTypeに応じて適切なファクトリを使用
     if (spellType === "normal") {
       const activation = createGenericNormalSpellActivation(id, chainableActions.activations);
@@ -67,17 +63,30 @@ function registerChainableAction(definition: CardDSLDefinition): void {
     } else if (spellType === "continuous") {
       const activation = createGenericContinuousSpellActivation(id, chainableActions.activations);
       ChainableActionRegistry.registerActivation(id, activation);
+    } else if (spellType === "equip") {
+      // 装備魔法: activations指定がある場合はcreateWithConfigを使用
+      // TODO: DSLでtargetConfig, resolutionStepsを指定できるようにする
+      const activation = EquipSpellActivation.createNoOp(id);
+      ChainableActionRegistry.registerActivation(id, activation);
     } else {
       throw new Error(`Unsupported spell type "${spellType}" for card ID ${id}`);
     }
+  } else if (spellType === "continuous") {
+    // 永続魔法はactivationsがなくてもNoOpで発動可能
+    const activation = ContinuousSpellActivation.createNoOp(id);
+    ChainableActionRegistry.registerActivation(id, activation);
   } else if (spellType === "field") {
     // フィールド魔法はactivationsがなくてもNoOpで発動可能
     const activation = FieldSpellActivation.createNoOp(id);
     ChainableActionRegistry.registerActivation(id, activation);
+  } else if (spellType === "equip") {
+    // 装備魔法はactivationsがなくてもNoOpで発動可能（対象選択と装備関係確立のみ）
+    const activation = EquipSpellActivation.createNoOp(id);
+    ChainableActionRegistry.registerActivation(id, activation);
   }
 
   // ignitions セクション（起動効果）
-  if (chainableActions.ignitions) {
+  if (chainableActions?.ignitions) {
     chainableActions.ignitions.forEach((ignitionDef, index) => {
       const ignition = createGenericIgnitionEffect(id, index + 1, ignitionDef);
       ChainableActionRegistry.registerIgnition(id, ignition);
@@ -85,7 +94,7 @@ function registerChainableAction(definition: CardDSLDefinition): void {
   }
 
   // triggers セクション（誘発効果）
-  if (chainableActions.triggers) {
+  if (chainableActions?.triggers) {
     chainableActions.triggers.forEach((triggerDef, index) => {
       const trigger = createGenericTriggerEffect(id, index + 1, triggerDef);
       ChainableActionRegistry.registerTrigger(id, trigger);

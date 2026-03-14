@@ -38,6 +38,7 @@ import magicalMalletYaml from "./spells/magical-mallet.yaml?raw";
 import handDestructionYaml from "./spells/hand-destruction.yaml?raw";
 import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
+import brokenBambooSwordYaml from "./spells/broken-bamboo-sword.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -87,6 +88,9 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // フィールド魔法
   [67616300, chickenGameYaml], // チキンレース
+
+  // 装備魔法
+  [41587307, brokenBambooSwordYaml], // 折れ竹光
 ]);
 
 /**

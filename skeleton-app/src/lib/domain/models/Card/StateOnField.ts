@@ -26,15 +26,19 @@ export interface StateOnField {
 
   /** このインスタンスで発動済みの起動効果ID (effectId) */
   readonly activatedEffects: ReadonlySet<string>;
+
+  /** 装備対象モンスターの instanceId（装備カード用） */
+  readonly equippedTo?: string;
 }
 
 /** StateOnField の初期値を生成する */
 export const createInitialStateOnField = (
-  options?: Partial<Pick<StateOnField, "position" | "battlePosition" | "placedThisTurn">>,
+  options?: Partial<Pick<StateOnField, "position" | "battlePosition" | "placedThisTurn" | "equippedTo">>,
 ): StateOnField => ({
   position: options?.position ?? "faceDown",
   battlePosition: options?.battlePosition,
   placedThisTurn: options?.placedThisTurn ?? false,
   counters: [],
   activatedEffects: new Set(),
+  equippedTo: options?.equippedTo,
 });
