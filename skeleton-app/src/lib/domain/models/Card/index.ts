@@ -40,7 +40,9 @@ export const Card = {
   isTrap: CardDataFuncs.isTrapCard,
   isNormalSpell: CardDataFuncs.isNormalSpellCard,
   isQuickPlaySpell: CardDataFuncs.isQuickPlaySpellCard,
+  isContinuousSpell: CardDataFuncs.isContinuousSpellCard,
   isFieldSpell: CardDataFuncs.isFieldSpellCard,
+  isEquipSpell: CardDataFuncs.isEquipSpellCard,
 
   Instance: {
     inHand: CardInstanceFuncs.inHand,

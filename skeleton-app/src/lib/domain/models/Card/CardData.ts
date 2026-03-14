@@ -74,17 +74,27 @@ export const isSpellCard = (card: CardData): boolean => {
 
 /** 通常魔法カードかどうか */
 export const isNormalSpellCard = (card: CardData): boolean => {
-  return card.type === "spell" && card.spellType === "normal";
+  return isSpellCard(card) && card.spellType === "normal";
 };
 
 /** 速攻魔法カードかどうか */
 export const isQuickPlaySpellCard = (card: CardData): boolean => {
-  return card.type === "spell" && card.spellType === "quick-play";
+  return isSpellCard(card) && card.spellType === "quick-play";
+};
+
+/** 永続魔法カードかどうか */
+export const isContinuousSpellCard = (card: CardData): boolean => {
+  return isSpellCard(card) && card.spellType === "continuous";
 };
 
 /** フィールド魔法カードかどうか */
 export const isFieldSpellCard = (card: CardData): boolean => {
-  return card.type === "spell" && card.spellType === "field";
+  return isSpellCard(card) && card.spellType === "field";
+};
+
+/** 装備魔法カードかどうか */
+export const isEquipSpellCard = (card: CardData): boolean => {
+  return isSpellCard(card) && card.spellType === "equip";
 };
 
 /** 罠カードかどうか */
