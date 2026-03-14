@@ -29,6 +29,8 @@
     faceDown?: boolean; // 裏側表示フラグ (T033-T034)
     rotation?: number; // 回転角度（守備表示用）
     spellCounterCount?: number; // 魔力カウンター数
+    isEquipped?: boolean; // 装備カードが付いているかどうか
+    isEquipmentHovered?: boolean; // 装備カードがホバーされているかどうか
   }
 
   let {
@@ -44,6 +46,8 @@
     faceDown = false,
     rotation = 0,
     spellCounterCount = 0,
+    isEquipped = false,
+    isEquipmentHovered = false,
   }: ActivatableCardProps = $props();
 
   function handleSelect() {
@@ -102,6 +106,8 @@
       {size}
       {faceDown}
       {rotation}
+      {isEquipped}
+      {isEquipmentHovered}
       clickable={true}
       {isSelected}
       onClick={handleSelect}

@@ -30,6 +30,7 @@ export function toDisplayCardInstanceOnField(
     faceDown: instanceOnFieldRef.position === "faceDown",
     rotation: instanceOnFieldRef.battlePosition === "defense" ? 270 : 0,
     spellCounterCount: spellCounter?.count ?? 0,
+    equippedTo: instanceOnFieldRef.equippedTo,
   };
 }
 

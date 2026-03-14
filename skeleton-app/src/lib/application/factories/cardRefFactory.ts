@@ -33,5 +33,6 @@ export function toInstanceOnFieldRef(instance: CardInstance): CardInstanceOnFiel
     position: instance.stateOnField?.position ?? "faceDown",
     battlePosition: instance.stateOnField?.battlePosition,
     counters: instance.stateOnField?.counters ?? [],
+    equippedTo: instance.stateOnField?.equippedTo,
   };
 }

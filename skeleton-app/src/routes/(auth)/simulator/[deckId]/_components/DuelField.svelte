@@ -59,6 +59,23 @@
   const ZONE_COUNT = 5;
   const zones = [...Array(ZONE_COUNT).keys()];
 
+  // 装備対象のモンスター instanceId を抽出（装備カードが付いているモンスター）
+  const equippedMonsterIds = $derived(
+    new Set(
+      spellTrapCards
+        .filter((card): card is DisplayCardInstanceOnField => card !== null && !!card.equippedTo)
+        .map((card) => card.equippedTo!),
+    ),
+  );
+
+  // 現在ホバー中の装備カードの装備対象モンスター instanceId
+  let hoveredEquipTargetId = $state<string | null>(null);
+
+  // 装備カードのホバー処理
+  function handleEquipCardHover(equippedTo: string | null) {
+    hoveredEquipTargetId = equippedTo;
+  }
+
   // スマホではカードサイズを小さく
   const _isMobile = isMobile();
   const cardSize: ComponentSize = _isMobile ? "small" : "medium";
@@ -239,6 +256,8 @@
   {@const card = monsterCards[i]}
   {@const instanceId = card?.instanceId}
   {@const isAnimating = instanceId ? animatingInstanceIds.has(instanceId) : false}
+  {@const isEquipped = instanceId ? equippedMonsterIds.has(instanceId) : false}
+  {@const isEquipmentHovered = instanceId === hoveredEquipTargetId}
   <div class="flex justify-center">
     {#if card && instanceId && !isAnimating}
       <div bind:this={fieldCardElements[instanceId]}>
@@ -255,6 +274,8 @@
           size={cardSize}
           showDetailOnClick={true}
           spellCounterCount={card.spellCounterCount || 0}
+          {isEquipped}
+          {isEquipmentHovered}
         />
       </div>
     {:else}
@@ -277,6 +298,8 @@
               onCancel={() => {}}
               size={cardSize}
               spellCounterCount={card.spellCounterCount || 0}
+              {isEquipped}
+              {isEquipmentHovered}
             />
           </div>
         {/if}
@@ -313,6 +336,7 @@
             clickable={true}
             showDetailOnClick={true}
             onClick={() => handleCardClick(card.card, instanceId)}
+            onHover={(hoveredCard) => handleEquipCardHover(hoveredCard ? (card.equippedTo ?? null) : null)}
           />
         {/if}
       </div>

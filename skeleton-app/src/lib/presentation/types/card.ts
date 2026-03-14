@@ -29,6 +29,7 @@ export interface DisplayCardInstanceOnField extends DisplayCardInstance {
   faceDown: boolean;
   rotation?: number; // カードの向き（守備表示等）
   spellCounterCount?: number; // 魔力カウンター数（全ゾーン共通）
+  equippedTo?: string; // 装備対象モンスターの instanceId
 }
 
 /**

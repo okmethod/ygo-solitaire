@@ -70,6 +70,7 @@ export interface CardInstanceOnFieldRef extends CardInstanceRef {
   position: "faceUp" | "faceDown";
   battlePosition?: "attack" | "defense";
   counters: readonly { type: string; count: number }[];
+  equippedTo?: string; // 装備対象モンスターの instanceId
 }
 
 /**

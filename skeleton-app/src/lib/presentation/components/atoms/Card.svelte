@@ -4,6 +4,7 @@
   import { getFrameBackgroundClass, getEditionBorderClass } from "$lib/presentation/constants/colors";
   import { showCardDetailDisplay } from "$lib/presentation/stores/cardDetailDisplayStore";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
+  import Icon from "@iconify/svelte";
 
   interface CardComponentProps {
     card?: DisplayCardData;
@@ -17,6 +18,8 @@
     animate?: boolean;
     showDetailOnClick?: boolean;
     faceDown?: boolean; // 裏側表示フラグ (T033-T034)
+    isEquipped?: boolean; // 装備カードが付いているかどうか
+    isEquipmentHovered?: boolean; // 装備カードがホバーされているかどうか
     onClick?: (card: DisplayCardData) => void;
     onHover?: (card: DisplayCardData | null) => void;
   }
@@ -33,6 +36,8 @@
     animate = true,
     showDetailOnClick = false,
     faceDown = false, // デフォルトは表側
+    isEquipped = false,
+    isEquipmentHovered = false,
     onClick,
     onHover,
   }: CardComponentProps = $props();
@@ -179,6 +184,18 @@
   <!-- 選択状態インジケーター -->
   {#if selectedState}
     <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
+  {/if}
+
+  <!-- 装備カードインジケーター（このカードに装備カードが付いている） -->
+  {#if isEquipped}
+    <div
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-md z-10 transition-opacity duration-200 {isEquipmentHovered
+        ? 'opacity-100'
+        : 'opacity-75'}"
+      title="装備カード付き"
+    >
+      <Icon icon="mdi:plus-circle-outline" class="size-8 md:size-12 text-white" />
+    </div>
   {/if}
 
   <!-- フェードアニメーション用オーバーレイ -->
