@@ -16,7 +16,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
+import { BaseSpellActivation } from "./BaseSpellActivation";
 
 /**
  * FieldSpellActivation - フィールド魔法カードの抽象基底クラス

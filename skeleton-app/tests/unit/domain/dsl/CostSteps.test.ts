@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildStep, AtomicStepRegistry, type StepBuildContext } from "$lib/domain/effects/steps";
+import { buildStep, AtomicStepRegistry, type StepBuildContext } from "$lib/domain/dsl/steps";
 
 /**
  * CostSteps Tests - コスト関連ステップのテスト

@@ -15,9 +15,9 @@ import type { GameSnapshot, Player, CardSpace } from "$lib/domain/models/GameSta
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
-import { ArgValidators } from "../../shared/argValidators";
 
 // ===========================
 // 共通リリース処理

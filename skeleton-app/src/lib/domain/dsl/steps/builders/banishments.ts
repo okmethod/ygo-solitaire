@@ -10,10 +10,10 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
-import type { StepBuilder } from "../AtomicStepRegistry";
 import type { EffectId } from "$lib/domain/models/Effect";
-import { ArgValidators } from "../../shared/argValidators";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
+import type { StepBuilder } from "../AtomicStepRegistry";
+import { selectCardsStep } from "./userInteractions";
 
 // ===========================
 // 内部ヘルパー

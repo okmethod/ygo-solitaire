@@ -15,7 +15,7 @@ import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseTriggerEffect } from "$lib/domain/effects/actions/triggers/BaseTriggerEffect";
 import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
-import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
+import { buildStep, type StepBuildContext } from "$lib/domain/dsl/steps";
 import { checkCondition } from "$lib/domain/dsl/conditions";
 
 /**

@@ -22,8 +22,8 @@ import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProces
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
 import { Effect } from "$lib/domain/models/Effect";
-import { notifyActivationStep } from "$lib/domain/effects/steps/builders/userInteractions";
-import { emitSpellActivatedEventStep } from "$lib/domain/effects/steps/builders/eventEmitters";
+import { notifyActivationStep } from "$lib/domain/dsl/steps/builders/userInteractions";
+import { emitSpellActivatedEventStep } from "$lib/domain/dsl/steps/builders/eventEmitters";
 
 /**
  * BaseSpellActivation - 魔法カード発動の抽象基底クラス

@@ -15,7 +15,7 @@ import {
 import { EVENT_TYPES } from "$lib/domain/models/GameProcessing/GameEvent";
 import { RULE_CATEGORIES, TRIGGER_TIMINGS } from "$lib/domain/models/Effect/AdditionalRule";
 import { CONDITION_NAMES, type ConditionName } from "$lib/domain/dsl/conditions";
-import { STEP_NAMES, type StepName } from "$lib/domain/effects/steps";
+import { STEP_NAMES, type StepName } from "$lib/domain/dsl/steps";
 
 const conditionValues = Object.values(CONDITION_NAMES) as [ConditionName, ...ConditionName[]];
 const stepValues = Object.values(STEP_NAMES) as [StepName, ...StepName[]];

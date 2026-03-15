@@ -5,17 +5,16 @@
  * - specialSummonFromDeckStepBuilder: デッキからモンスターを特殊召喚
  */
 
+import type { DeckLocationName } from "$lib/domain/models/Location";
 import type { CardInstance, BattlePosition } from "$lib/domain/models/Card";
 import type { GameSnapshot, EffectActivationContext } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { StepBuilder } from "../AtomicStepRegistry";
-import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
-import { validationErrorMessage } from "$lib/domain/models/GameProcessing/UpdateValidation";
-import type { DeckLocationName } from "$lib/domain/models/Location";
 import type { EffectId } from "$lib/domain/models/Effect";
-import { ArgValidators } from "../../shared/argValidators";
+import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
+import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** フィルタータイプ（monster または normal_monster） */
 type MonsterFilterType = "monster" | "normal_monster";
@@ -84,7 +83,7 @@ const createSpecialSummonAction = (config: SpecialSummonActionConfig) => {
     // 特殊召喚可能かチェック
     const validation = canSpecialSummon(currentState);
     if (!validation.isValid) {
-      return GameProcessing.Result.failure(currentState, validationErrorMessage(validation));
+      return GameProcessing.Result.failure(currentState, GameProcessing.Validation.errorMessage(validation));
     }
 
     // まだ選択が行われていない場合（UIが選択モーダルを表示する）
@@ -237,7 +236,7 @@ export const specialSummonFromDeckWithDynamicLevelStep = (
 
       const validation = canSpecialSummon(currentState);
       if (!validation.isValid) {
-        return GameProcessing.Result.failure(currentState, validationErrorMessage(validation));
+        return GameProcessing.Result.failure(currentState, GameProcessing.Validation.errorMessage(validation));
       }
 
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {

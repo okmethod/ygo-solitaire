@@ -9,7 +9,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
+import { selectCardsStep } from "$lib/domain/dsl/steps/builders/userInteractions";
 import type { StepBuilder } from "../AtomicStepRegistry";
 
 /**

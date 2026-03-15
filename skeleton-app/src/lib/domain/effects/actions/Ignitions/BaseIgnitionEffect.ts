@@ -19,10 +19,10 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
 import { Effect } from "$lib/domain/models/Effect";
-import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { notifyActivationStep } from "$lib/domain/effects/steps/builders/userInteractions";
+import { notifyActivationStep } from "$lib/domain/dsl/steps/builders/userInteractions";
 
 /**
  * BaseIgnitionEffect - 起動効果アクションの抽象基底クラス

@@ -10,8 +10,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { emitMonsterSummonedEventStep } from "$lib/domain/effects/steps/builders/eventEmitters";
-import { selectAndReleaseStep } from "$lib/domain/effects/steps/builders/releases";
+import { emitMonsterSummonedEventStep } from "$lib/domain/dsl/steps/builders/eventEmitters";
+import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
 
 // ===========================
 // 通常召喚（アドバンス召喚含む）

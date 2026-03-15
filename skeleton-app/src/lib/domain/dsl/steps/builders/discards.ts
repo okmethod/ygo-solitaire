@@ -12,10 +12,10 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/builders/endPhase";
-import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
-import { ArgValidators } from "../../shared/argValidators";
+import { selectCardsStep } from "./userInteractions";
+import { queueEndPhaseEffectStep } from "./endPhase";
 
 /**
  * 指定カードを墓地に送るステップ

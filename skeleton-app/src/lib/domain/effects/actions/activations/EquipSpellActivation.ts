@@ -16,17 +16,17 @@
  * @module domain/effects/actions/spells/EquipSpellActivation
  */
 
+import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
-import type { LocationName } from "$lib/domain/models/Location";
-import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
-import { saveTargetsToContextStep } from "$lib/domain/effects/steps/builders/contextOperations";
-import { establishEquipStep } from "$lib/domain/effects/steps/builders/equipOperations";
+import { selectCardsStep } from "$lib/domain/dsl/steps/builders/userInteractions";
+import { saveTargetsToContextStep } from "$lib/domain/dsl/steps/builders/contextOperations";
+import { establishEquipStep } from "$lib/domain/dsl/steps/builders/equipOperations";
+import { BaseSpellActivation } from "./BaseSpellActivation";
 
 /**
  * 装備対象の設定
