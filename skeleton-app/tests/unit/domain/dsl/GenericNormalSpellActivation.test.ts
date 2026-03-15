@@ -5,8 +5,8 @@ import {
 } from "$lib/domain/dsl/factories/GenericNormalSpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
 import { CardDataRegistry } from "$lib/domain/cards";
+import { createMockGameState, createCardInstances } from "../../../__testUtils__/gameStateFactory";
 
 /**
  * GenericNormalSpellActivation Tests
@@ -50,52 +50,14 @@ const createMockCardInstance = (cardId: number): CardInstance => ({
   location: "hand",
 });
 
-const createMockGameState = (deckCount: number, handCount: number = 0): GameSnapshot => {
-  const deckCards = Array(deckCount)
-    .fill(null)
-    .map((_, i) => ({
-      instanceId: `deck-card-${i}`,
-      id: 1,
-      jaName: "デッキカード",
-      type: "monster" as const,
-      frameType: "normal" as const,
-      edition: "latest" as const,
-      location: "mainDeck" as const,
-    }));
-
-  const handCards = Array(handCount)
-    .fill(null)
-    .map((_, i) => ({
-      instanceId: `hand-card-${i}`,
-      id: 2,
-      jaName: "手札カード",
-      type: "monster" as const,
-      frameType: "normal" as const,
-      edition: "latest" as const,
-      location: "hand" as const,
-    }));
-
-  return {
-    phase: "main1", // GamePhase型（メインフェイズ1）
-    turn: 1,
-    lp: { player: 8000, opponent: 8000 },
+/** デッキ枚数と手札枚数を指定してゲーム状態を生成 */
+const createSpellTestState = (deckCount: number, handCount: number = 0) =>
+  createMockGameState({
     space: {
-      mainDeck: deckCards,
-      hand: handCards,
-      extraDeck: [],
-      mainMonsterZone: [],
-      spellTrapZone: [],
-      fieldZone: [],
-      graveyard: [],
-      banished: [],
-    } as CardSpace,
-    result: { isGameOver: false },
-    normalSummonLimit: 1,
-    normalSummonUsed: 0,
-    activatedCardIds: new Set<number>(),
-    queuedEndPhaseEffectIds: [],
-  };
-};
+      mainDeck: createCardInstances(Array(deckCount).fill(12345678), "mainDeck"),
+      hand: createCardInstances(Array(handCount).fill(12345678), "hand"),
+    },
+  });
 
 // =============================================================================
 // 生成テスト
@@ -138,7 +100,7 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
     };
 
     const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createMockGameState(5); // デッキ5枚
+    const state = createSpellTestState(5); // デッキ5枚
     const sourceInstance = createMockCardInstance(12345);
 
     const result = activation.canActivate(state, sourceInstance);
@@ -153,7 +115,7 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
     };
 
     const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createMockGameState(2); // デッキ2枚（3枚必要）
+    const state = createSpellTestState(2); // デッキ2枚（3枚必要）
     const sourceInstance = createMockCardInstance(12345);
 
     const result = activation.canActivate(state, sourceInstance);
@@ -167,7 +129,7 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
     };
 
     const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createMockGameState(0); // デッキ0枚でも条件なしなのでOK
+    const state = createSpellTestState(0); // デッキ0枚でも条件なしなのでOK
     const sourceInstance = createMockCardInstance(12345);
 
     // Note: メインフェイズのみ発動可能という基底クラスの条件があるため、
@@ -193,7 +155,7 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createMockGameState(5);
+    const state = createSpellTestState(5);
     const sourceInstance = createMockCardInstance(12345);
 
     const steps = activation.createResolutionSteps(state, sourceInstance);
@@ -212,7 +174,7 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createMockGameState(5);
+    const state = createSpellTestState(5);
     const sourceInstance = createMockCardInstance(12345);
 
     const steps = activation.createActivationSteps(state, sourceInstance);
@@ -227,7 +189,7 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createMockGameState(5);
+    const state = createSpellTestState(5);
     const sourceInstance = createMockCardInstance(12345);
 
     const steps = activation.createActivationSteps(state, sourceInstance);

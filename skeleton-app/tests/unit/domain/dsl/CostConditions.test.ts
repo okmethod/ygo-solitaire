@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/effects/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 
 /**
  * CostConditions Tests - コスト関連条件のテスト
@@ -26,11 +26,12 @@ const createMockCardInstance = (cardId: number = 12345): CardInstance => ({
   location: "hand",
 });
 
-const createMockGameState = (options: {
+/** 手札・墓地・デッキを指定してゲーム状態を生成 */
+const createCostTestState = (options: {
   handCount?: number;
   graveyardSpellCount?: number;
   deckFieldSpellCount?: number;
-}): GameSnapshot => {
+}) => {
   const handCards = Array(options.handCount ?? 0)
     .fill(null)
     .map((_, i) => ({
@@ -68,26 +69,13 @@ const createMockGameState = (options: {
       location: "mainDeck" as const,
     }));
 
-  return {
-    phase: "main1",
-    turn: 1,
-    lp: { player: 8000, opponent: 8000 },
+  return createMockGameState({
     space: {
       mainDeck: deckFieldSpells,
       hand: handCards,
-      extraDeck: [],
-      mainMonsterZone: [],
-      spellTrapZone: [],
-      fieldZone: [],
       graveyard: graveyardSpells,
-      banished: [],
     },
-    result: { isGameOver: false },
-    normalSummonLimit: 1,
-    normalSummonUsed: 0,
-    activatedCardIds: new Set<number>(),
-    queuedEndPhaseEffectIds: [],
-  };
+  });
 };
 
 // =============================================================================
@@ -96,7 +84,7 @@ const createMockGameState = (options: {
 
 describe("ConditionRegistry - HAND_COUNT_EXCLUDING_SELF", () => {
   it("手札が必要枚数以上ある場合は成功を返す", () => {
-    const state = createMockGameState({ handCount: 3 });
+    const state = createCostTestState({ handCount: 3 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("HAND_COUNT_EXCLUDING_SELF", state, sourceInstance, {
@@ -109,7 +97,7 @@ describe("ConditionRegistry - HAND_COUNT_EXCLUDING_SELF", () => {
   it("手札がちょうど必要枚数の場合は成功を返す", () => {
     // sourceInstance.location === "hand" のため、手札カウントから1引かれる
     // 3枚 - 1 = 2枚 で minCount: 2 を満たす
-    const state = createMockGameState({ handCount: 3 });
+    const state = createCostTestState({ handCount: 3 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("HAND_COUNT_EXCLUDING_SELF", state, sourceInstance, {
@@ -120,7 +108,7 @@ describe("ConditionRegistry - HAND_COUNT_EXCLUDING_SELF", () => {
   });
 
   it("手札が不足している場合は失敗を返す", () => {
-    const state = createMockGameState({ handCount: 1 });
+    const state = createCostTestState({ handCount: 1 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("HAND_COUNT_EXCLUDING_SELF", state, sourceInstance, {
@@ -131,7 +119,7 @@ describe("ConditionRegistry - HAND_COUNT_EXCLUDING_SELF", () => {
   });
 
   it("minCount引数が無効な場合は失敗を返す", () => {
-    const state = createMockGameState({ handCount: 3 });
+    const state = createCostTestState({ handCount: 3 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("HAND_COUNT_EXCLUDING_SELF", state, sourceInstance, {});
@@ -150,7 +138,7 @@ describe("ConditionRegistry - HAND_COUNT_EXCLUDING_SELF", () => {
 
 describe("ConditionRegistry - GRAVEYARD_HAS_SPELL", () => {
   it("墓地に魔法カードがある場合は成功を返す", () => {
-    const state = createMockGameState({ graveyardSpellCount: 2 });
+    const state = createCostTestState({ graveyardSpellCount: 2 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("GRAVEYARD_HAS_SPELL", state, sourceInstance, {
@@ -161,7 +149,7 @@ describe("ConditionRegistry - GRAVEYARD_HAS_SPELL", () => {
   });
 
   it("墓地に魔法カードがちょうど必要枚数の場合は成功を返す", () => {
-    const state = createMockGameState({ graveyardSpellCount: 1 });
+    const state = createCostTestState({ graveyardSpellCount: 1 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("GRAVEYARD_HAS_SPELL", state, sourceInstance, {
@@ -172,7 +160,7 @@ describe("ConditionRegistry - GRAVEYARD_HAS_SPELL", () => {
   });
 
   it("墓地に魔法カードが不足している場合は失敗を返す", () => {
-    const state = createMockGameState({ graveyardSpellCount: 0 });
+    const state = createCostTestState({ graveyardSpellCount: 0 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("GRAVEYARD_HAS_SPELL", state, sourceInstance, {
@@ -183,7 +171,7 @@ describe("ConditionRegistry - GRAVEYARD_HAS_SPELL", () => {
   });
 
   it("minCountがない場合はデフォルト1として判定する", () => {
-    const state = createMockGameState({ graveyardSpellCount: 1 });
+    const state = createCostTestState({ graveyardSpellCount: 1 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("GRAVEYARD_HAS_SPELL", state, sourceInstance, {});
@@ -202,7 +190,7 @@ describe("ConditionRegistry - GRAVEYARD_HAS_SPELL", () => {
 
 describe("ConditionRegistry - DECK_HAS_CARD", () => {
   it("デッキに条件に合うカードがある場合は成功を返す", () => {
-    const state = createMockGameState({ deckFieldSpellCount: 1 });
+    const state = createCostTestState({ deckFieldSpellCount: 1 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("DECK_HAS_CARD", state, sourceInstance, {
@@ -215,7 +203,7 @@ describe("ConditionRegistry - DECK_HAS_CARD", () => {
   });
 
   it("デッキに条件に合うカードがない場合は失敗を返す", () => {
-    const state = createMockGameState({ deckFieldSpellCount: 0 });
+    const state = createCostTestState({ deckFieldSpellCount: 0 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("DECK_HAS_CARD", state, sourceInstance, {
@@ -228,7 +216,7 @@ describe("ConditionRegistry - DECK_HAS_CARD", () => {
   });
 
   it("filterType が無い場合は失敗を返す", () => {
-    const state = createMockGameState({ deckFieldSpellCount: 1 });
+    const state = createCostTestState({ deckFieldSpellCount: 1 });
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("DECK_HAS_CARD", state, sourceInstance, {

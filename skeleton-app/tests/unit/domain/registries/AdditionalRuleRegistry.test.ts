@@ -21,6 +21,18 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
+import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+
+// =============================================================================
+// テストヘルパー
+// =============================================================================
+
+/** フィールドゾーンにカードを配置した状態を生成 */
+const createStateWithFieldZone = (cards: CardInstance[]) => createMockGameState({ space: { fieldZone: cards } });
+
+/** モンスターゾーンにカードを配置した状態を生成 */
+const createStateWithMonsterZone = (cards: CardInstance[]) =>
+  createMockGameState({ space: { mainMonsterZone: cards } });
 
 /**
  * Mock AdditionalRule for testing
@@ -232,26 +244,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [chickenGameCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithFieldZone([chickenGameCard]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -285,26 +278,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [faceDownCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithFieldZone([faceDownCard]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -342,26 +316,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [faceUpCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithFieldZone([faceUpCard]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -396,27 +351,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [faceUpCard],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithFieldZone([faceUpCard]);
 
       // Act
       const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -472,27 +407,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [card1, card2],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithFieldZone([card1, card2]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -640,27 +555,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -694,27 +589,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "monsterSummoned");
@@ -746,27 +621,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -814,27 +669,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard1, monsterCard2],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -930,27 +765,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
@@ -986,27 +801,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
@@ -1058,27 +853,7 @@ describe("AdditionalRuleRegistry", () => {
         },
       };
 
-      const state: GameSnapshot = {
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [monsterCard1, monsterCard2],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        lp: { player: 8000, opponent: 8000 },
-        phase: "main1",
-        turn: 1,
-
-        result: { isGameOver: false },
-        normalSummonLimit: 1,
-        normalSummonUsed: 0,
-        activatedCardIds: new Set(),
-        queuedEndPhaseEffectIds: [],
-      };
+      const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };

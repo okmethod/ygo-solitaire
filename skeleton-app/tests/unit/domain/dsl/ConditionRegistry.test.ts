@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/effects/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { createMockGameState, createCardInstances } from "../../../__testUtils__/gameStateFactory";
 
 /**
  * ConditionRegistry Tests
@@ -26,29 +26,13 @@ const createMockCardInstance = (cardId: number = 12345): CardInstance => ({
   location: "hand",
 });
 
-const createMockGameState = (deckCount: number): GameSnapshot => ({
-  turn: 1,
-  phase: "main1",
-  lp: { player: 8000, opponent: 8000 },
-  space: {
-    mainDeck: Array(deckCount).fill({
-      instanceId: "deck-card",
-      cardData: { id: 1, jaName: "デッキカード", type: "monster", frameType: "normal" },
-    }),
-    extraDeck: [],
-    hand: [],
-    mainMonsterZone: [],
-    spellTrapZone: [],
-    fieldZone: [],
-    graveyard: [],
-    banished: [],
-  },
-  result: { isGameOver: false },
-  normalSummonLimit: 1,
-  normalSummonUsed: 0,
-  activatedCardIds: new Set(),
-  queuedEndPhaseEffectIds: [],
-});
+/** デッキ枚数を指定してゲーム状態を生成 */
+const createStateWithDeck = (deckCount: number) =>
+  createMockGameState({
+    space: {
+      mainDeck: createCardInstances(Array(deckCount).fill(12345678), "mainDeck"),
+    },
+  });
 
 // =============================================================================
 // CAN_DRAW 条件のテスト
@@ -56,7 +40,7 @@ const createMockGameState = (deckCount: number): GameSnapshot => ({
 
 describe("ConditionRegistry - CAN_DRAW", () => {
   it("デッキに十分なカードがある場合は成功を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("CAN_DRAW", state, sourceInstance, { count: 3 });
@@ -65,7 +49,7 @@ describe("ConditionRegistry - CAN_DRAW", () => {
   });
 
   it("デッキにちょうど必要枚数がある場合は成功を返す", () => {
-    const state = createMockGameState(3);
+    const state = createStateWithDeck(3);
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("CAN_DRAW", state, sourceInstance, { count: 3 });
@@ -74,7 +58,7 @@ describe("ConditionRegistry - CAN_DRAW", () => {
   });
 
   it("デッキが不足している場合は失敗を返す", () => {
-    const state = createMockGameState(2);
+    const state = createStateWithDeck(2);
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("CAN_DRAW", state, sourceInstance, { count: 3 });
@@ -83,7 +67,7 @@ describe("ConditionRegistry - CAN_DRAW", () => {
   });
 
   it("デッキが空の場合は失敗を返す", () => {
-    const state = createMockGameState(0);
+    const state = createStateWithDeck(0);
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("CAN_DRAW", state, sourceInstance, { count: 1 });
@@ -92,7 +76,7 @@ describe("ConditionRegistry - CAN_DRAW", () => {
   });
 
   it("count引数が無効な場合は失敗を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockCardInstance();
 
     const result = checkCondition("CAN_DRAW", state, sourceInstance, {});
@@ -107,7 +91,7 @@ describe("ConditionRegistry - CAN_DRAW", () => {
 
 describe("ConditionRegistry - エラーケース", () => {
   it("未登録条件でエラーをスローする", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockCardInstance();
 
     expect(() => {
@@ -161,7 +145,7 @@ const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "b
 
 describe("ConditionRegistry - HAS_COUNTER", () => {
   it("カウンターが十分にある場合は成功を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
@@ -173,7 +157,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
   });
 
   it("カウンターが多い場合も成功を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 5);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
@@ -185,7 +169,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
   });
 
   it("カウンターが不足している場合は失敗を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 2);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
@@ -197,7 +181,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
   });
 
   it("カウンターが0の場合は失敗を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 0);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
@@ -209,7 +193,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
   });
 
   it("異なるタイプのカウンターでは失敗を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "bushido", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
@@ -221,7 +205,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
   });
 
   it("counterType引数が無い場合は失敗を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
@@ -232,7 +216,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
   });
 
   it("minCount引数が無効な場合は失敗を返す", () => {
-    const state = createMockGameState(5);
+    const state = createStateWithDeck(5);
     const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {

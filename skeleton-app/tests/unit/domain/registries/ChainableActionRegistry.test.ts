@@ -22,10 +22,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { CardSpace } from "$lib/domain/models/GameState/CardSpace";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
+import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 
 /**
  * Mock ChainableAction for testing
@@ -443,30 +443,8 @@ describe("ChainableActionRegistry", () => {
       location: "hand",
     });
 
-    /** テスト用空のCardSpaceを作成 */
-    const createEmptyCardSpace = (): CardSpace => ({
-      mainDeck: [],
-      extraDeck: [],
-      hand: [],
-      mainMonsterZone: [],
-      spellTrapZone: [],
-      fieldZone: [],
-      graveyard: [],
-      banished: [],
-    });
-
-    /** テスト用GameSnapshotを作成 */
-    const createTestGameSnapshot = (space: Partial<CardSpace> = {}): GameSnapshot => ({
-      space: { ...createEmptyCardSpace(), ...space },
-      lp: { player: 8000, opponent: 8000 },
-      phase: "main1",
-      turn: 1,
-      result: { isGameOver: false },
-      normalSummonLimit: 1,
-      normalSummonUsed: 0,
-      activatedCardIds: new Set<number>(),
-      queuedEndPhaseEffectIds: [],
-    });
+    /** テスト用GameSnapshotを作成（共通ファクトリのラッパー） */
+    const createTestGameSnapshot = (space: Partial<GameSnapshot["space"]> = {}) => createMockGameState({ space });
 
     /** canActivateがfalseを返すMockChainableAction */
     class MockInvalidChainableAction extends MockChainableAction {

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
+import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
 
 /**
  * GenericContinuousTriggerRule Tests - DSL定義の永続効果トリガールールのテスト
@@ -41,26 +41,13 @@ const createMockCardInstance = (
         : undefined,
   }) as CardInstance;
 
-const createMockGameState = (config: { monsterOnField?: CardInstance }): GameSnapshot => ({
-  phase: "main1",
-  turn: 1,
-  lp: { player: 8000, opponent: 8000 },
-  space: {
-    mainDeck: [],
-    hand: [],
-    extraDeck: [],
-    mainMonsterZone: config.monsterOnField ? [config.monsterOnField] : [],
-    spellTrapZone: [],
-    fieldZone: [],
-    graveyard: [],
-    banished: [],
-  },
-  result: { isGameOver: false },
-  normalSummonLimit: 1,
-  normalSummonUsed: 0,
-  activatedCardIds: new Set<number>(),
-  queuedEndPhaseEffectIds: [],
-});
+/** モンスターゾーンにモンスターを配置した状態を生成 */
+const createStateWithMonster = (monsterOnField?: CardInstance) =>
+  createMockGameState({
+    space: {
+      mainMonsterZone: monsterOnField ? [monsterOnField] : [],
+    },
+  });
 
 // =============================================================================
 // GenericContinuousTriggerRule のテスト
@@ -105,7 +92,7 @@ describe("GenericContinuousTriggerRule", () => {
     const cardId = 70791313;
     const rule = new GenericContinuousTriggerRule(cardId, dslDefinition);
     const monster = createMockCardInstance(cardId, "mainMonsterZone");
-    const state = createMockGameState({ monsterOnField: monster });
+    const state = createStateWithMonster(monster);
 
     expect(rule.canApply(state)).toBe(true);
   });
@@ -119,7 +106,7 @@ describe("GenericContinuousTriggerRule", () => {
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
     const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
-    const state = createMockGameState({});
+    const state = createStateWithMonster();
 
     expect(rule.canApply(state)).toBe(false);
   });
@@ -135,7 +122,7 @@ describe("GenericContinuousTriggerRule", () => {
     const cardId = 70791313;
     const rule = new GenericContinuousTriggerRule(cardId, dslDefinition);
     const monster = createMockCardInstance(cardId, "mainMonsterZone");
-    const state = createMockGameState({ monsterOnField: monster });
+    const state = createStateWithMonster(monster);
 
     const steps = rule.createTriggerSteps(state, monster);
 
