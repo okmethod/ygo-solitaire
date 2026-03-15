@@ -4,8 +4,6 @@
  * 公開関数:
  * - notifyActivationStep: 発動通知
  * - selectCardsStep: カード選択モーダル表示
- *
- * @module domain/effects/steps/interaction
  */
 
 import type { LocationName } from "$lib/domain/models/Location";

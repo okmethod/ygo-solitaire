@@ -10,7 +10,7 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
-import { selectCardsStep } from "$lib/domain/dsl/steps/builders/userInteractions";
+import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
 
 /**
  * 手札から任意枚数を選択してデッキに戻し、シャッフルして同じ枚数ドローするステップ

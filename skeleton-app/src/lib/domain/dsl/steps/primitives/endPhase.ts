@@ -1,10 +1,8 @@
 /**
  * endPhase.ts - エンドフェイズ系ステップビルダー
  *
- * 純粋関数:
+ * 公開関数:
  * - queueEndPhaseEffectStep: エンドフェイズ効果を登録
- *
- * @module domain/effects/steps/endPhase
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";

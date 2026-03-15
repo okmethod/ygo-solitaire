@@ -23,7 +23,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { selectCardsStep } from "$lib/domain/dsl/steps/builders/userInteractions";
+import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
 import { saveTargetsToContextStep } from "$lib/domain/dsl/steps/builders/contextOperations";
 import { establishEquipStep } from "$lib/domain/dsl/steps/builders/equipOperations";
 import { BaseSpellActivation } from "./BaseSpellActivation";

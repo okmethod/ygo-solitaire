@@ -17,7 +17,7 @@ import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/m
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import { selectCardsStep } from "./userInteractions";
+import { selectCardsStep } from "../primitives/userInteractions";
 
 // ===========================
 // 共通リリース処理

@@ -10,7 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { emitMonsterSummonedEventStep } from "$lib/domain/dsl/steps/builders/eventEmitters";
+import { emitMonsterSummonedEventStep } from "$lib/domain/dsl/steps/primitives/eventEmitters";
 import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
 
 // ===========================

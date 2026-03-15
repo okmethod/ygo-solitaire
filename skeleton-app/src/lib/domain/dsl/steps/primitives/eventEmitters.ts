@@ -4,7 +4,7 @@
  * effectQueueStore がイベントを検出し、トリガールールを自動挿入するための
  * イベント発行ステップを定義する。
  *
- * 純粋関数:
+ * 公開関数:
  * - emitSpellActivatedEventStep: 魔法カード発動イベントを発行
  * - emitMonsterSummonedEventStep: モンスター召喚イベントを発行
  * - emitSentToGraveyardEventStep: 墓地送りイベントを発行

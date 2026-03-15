@@ -13,7 +13,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import { selectCardsStep } from "./userInteractions";
+import { selectCardsStep } from "../primitives/userInteractions";
 
 // ===========================
 // 内部ヘルパー

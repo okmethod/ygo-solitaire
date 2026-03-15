@@ -14,8 +14,8 @@ import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameP
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import { selectCardsStep } from "./userInteractions";
-import { queueEndPhaseEffectStep } from "./endPhase";
+import { selectCardsStep } from "../primitives/userInteractions";
+import { queueEndPhaseEffectStep } from "../primitives/endPhase";
 
 /**
  * 指定カードを墓地に送るステップ
