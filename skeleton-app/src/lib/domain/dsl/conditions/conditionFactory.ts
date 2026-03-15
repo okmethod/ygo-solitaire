@@ -19,51 +19,12 @@ const { success, failure, ERROR_CODES } = GameProcessing.Validation;
  * 条件チェッカーファクトリ
  *
  * 引数バリデーションと純粋なチェック関数を組み合わせて、ConditionChecker を生成する。
+ * @param errorCode - 条件不成立時のエラーコード（デフォルト: ACTIVATION_CONDITIONS_NOT_MET）
  */
 export function createConditionChecker<TArgs>(
   validateArgsFn: ArgsValidatorFn<TArgs>,
   checkFn: PureConditionFn<TArgs>,
-): ConditionCheckerFn {
-  return (state: GameSnapshot, sourceInstance: CardInstance, args: DSLArgs): ValidationResult => {
-    try {
-      const validatedArgs = validateArgsFn(args);
-      if (validatedArgs === null) {
-        return failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-      }
-      return checkFn(state, sourceInstance, validatedArgs)
-        ? success()
-        : failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-    } catch (error) {
-      if (error instanceof ArgValidationError) {
-        // バリデーションエラーは条件不成立として扱う
-        return failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-      }
-      throw error;
-    }
-  };
-}
-
-/**
- * sourceInstance を使用しない条件チェッカーファクトリ
- *
- * 多くの条件は sourceInstance を必要としないため、シンプルなシグネチャで定義できるようにする。
- */
-export function createSimpleConditionChecker<TArgs>(
-  validateArgsFn: ArgsValidatorFn<TArgs>,
-  checkFn: (state: GameSnapshot, args: TArgs) => boolean,
-): ConditionCheckerFn {
-  return createConditionChecker(validateArgsFn, (state, _sourceInstance, args) => checkFn(state, args));
-}
-
-/**
- * カスタムエラーコード付き条件チェッカーファクトリ
- *
- * 条件不成立時に ACTIVATION_CONDITIONS_NOT_MET 以外のエラーコードを返したい場合に使用する。
- */
-export function createConditionCheckerWithErrorCode<TArgs>(
-  errorCode: ValidationErrorCode,
-  validateArgsFn: ArgsValidatorFn<TArgs>,
-  checkFn: PureConditionFn<TArgs>,
+  errorCode: ValidationErrorCode = ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET,
 ): ConditionCheckerFn {
   return (state: GameSnapshot, sourceInstance: CardInstance, args: DSLArgs): ValidationResult => {
     try {
@@ -79,4 +40,18 @@ export function createConditionCheckerWithErrorCode<TArgs>(
       throw error;
     }
   };
+}
+
+/**
+ * sourceInstance を使用しない条件チェッカーファクトリ
+ *
+ * 多くの条件は sourceInstance を必要としないため、シンプルなシグネチャで定義できるようにする。
+ * @param errorCode - 条件不成立時のエラーコード（デフォルト: ACTIVATION_CONDITIONS_NOT_MET）
+ */
+export function createSimpleConditionChecker<TArgs>(
+  validateArgsFn: ArgsValidatorFn<TArgs>,
+  checkFn: (state: GameSnapshot, args: TArgs) => boolean,
+  errorCode?: ValidationErrorCode,
+): ConditionCheckerFn {
+  return createConditionChecker(validateArgsFn, (state, _sourceInstance, args) => checkFn(state, args), errorCode);
 }
