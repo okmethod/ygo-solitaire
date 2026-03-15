@@ -16,7 +16,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseTriggerEffect } from "$lib/domain/effects/actions/triggers/BaseTriggerEffect";
 import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
 import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
-import { checkCondition } from "$lib/domain/effects/conditions";
+import { checkCondition } from "$lib/domain/dsl/conditions";
 
 /**
  * GenericTriggerEffect - DSL定義ベースの誘発効果

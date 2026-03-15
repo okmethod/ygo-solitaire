@@ -14,7 +14,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
 import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
 import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
-import { checkCondition } from "$lib/domain/effects/conditions";
+import { checkCondition } from "$lib/domain/dsl/conditions";
 
 /**
  * GenericContinuousSpellActivation - DSL定義ベースの永続魔法効果

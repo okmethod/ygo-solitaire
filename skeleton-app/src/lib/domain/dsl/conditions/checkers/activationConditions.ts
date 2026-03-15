@@ -8,8 +8,8 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Effect } from "$lib/domain/models/Effect";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
 import { createConditionChecker } from "../conditionFactory";
-import { ArgValidators } from "../../shared/argValidators";
 
 // ===========================
 // 純粋関数（private）

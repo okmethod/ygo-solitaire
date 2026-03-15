@@ -14,7 +14,7 @@ import {
 } from "$lib/domain/models/Card/CardData";
 import { EVENT_TYPES } from "$lib/domain/models/GameProcessing/GameEvent";
 import { RULE_CATEGORIES, TRIGGER_TIMINGS } from "$lib/domain/models/Effect/AdditionalRule";
-import { CONDITION_NAMES, type ConditionName } from "$lib/domain/effects/conditions";
+import { CONDITION_NAMES, type ConditionName } from "$lib/domain/dsl/conditions";
 import { STEP_NAMES, type StepName } from "$lib/domain/effects/steps";
 
 const conditionValues = Object.values(CONDITION_NAMES) as [ConditionName, ...ConditionName[]];

@@ -16,7 +16,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseIgnitionEffect } from "$lib/domain/effects/actions/ignitions/BaseIgnitionEffect";
 import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
 import { buildStep, type StepBuildContext } from "$lib/domain/effects/steps";
-import { checkCondition } from "$lib/domain/effects/conditions";
+import { checkCondition } from "$lib/domain/dsl/conditions";
 
 /**
  * GenericIgnitionEffect - DSL定義ベースの起動効果

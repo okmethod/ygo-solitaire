@@ -9,8 +9,8 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import { GameState } from "$lib/domain/models/GameState";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
 import { createConditionChecker, createSimpleConditionChecker } from "../conditionFactory";
-import { ArgValidators } from "../../shared/argValidators";
 
 // ===========================
 // 純粋関数（private）

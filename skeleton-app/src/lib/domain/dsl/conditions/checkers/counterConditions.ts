@@ -8,8 +8,8 @@
 import type { CounterType, CounterState } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
 import { createConditionCheckerWithErrorCode } from "../conditionFactory";
-import { ArgValidators } from "../../shared/argValidators";
 
 const { ERROR_CODES } = GameProcessing.Validation;
 
