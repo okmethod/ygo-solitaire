@@ -21,6 +21,10 @@ const { success, failure, ERROR_CODES } = GameProcessing.Validation;
 const graveyardHasSpell = (state: GameSnapshot, minCount: number): boolean =>
   state.space.graveyard.filter((card) => card.type === "spell").length >= minCount;
 
+/** 墓地に魔法・罠カードが指定枚数以上あるか */
+const graveyardHasSpellOrTrap = (state: GameSnapshot, minCount: number): boolean =>
+  state.space.graveyard.filter((card) => card.type === "spell" || card.type === "trap").length >= minCount;
+
 /** 墓地にモンスターカードが指定枚数以上あるか */
 const graveyardHasMonster = (
   state: GameSnapshot,
@@ -58,4 +62,13 @@ export const graveyardHasMonsterCondition: ConditionChecker = (state, _sourceIns
   const filter = frameType ? (card: CardInstance) => card.frameType === frameType : undefined;
 
   return graveyardHasMonster(state, minCount, filter) ? success() : failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
+};
+
+/**
+ * GRAVEYARD_HAS_SPELL_OR_TRAP - 墓地に魔法・罠カードが指定枚数以上あるか
+ * args: { minCount?: number } (デフォルト: 1)
+ */
+export const graveyardHasSpellOrTrapCondition: ConditionChecker = (state, _sourceInstance, args) => {
+  const minCount = (args.minCount as number) ?? 1;
+  return graveyardHasSpellOrTrap(state, minCount) ? success() : failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
 };

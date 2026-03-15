@@ -21,6 +21,7 @@ import CatapultTurtleYaml from "./monsters/catapult-turtle.yaml?raw";
 import crimsonSunbirdYaml from "./monsters/crimson-sunbird.yaml?raw";
 import aquaDragonYaml from "./monsters/aqua-dragon.yaml?raw";
 import greatMammothOfGoldfineYaml from "./monsters/great-mammoth-of-goldfine.yaml?raw";
+import treasurePandaYaml from "./monsters/treasure-panda.yaml?raw";
 
 // Spells
 import potOfGreedYaml from "./spells/pot-of-greed.yaml?raw";
@@ -61,6 +62,8 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [78010363, witchOfTheBlackForestYaml], // 黒き森のウィッチ
   [34206604, magicalScientistYaml], // 魔導サイエンティスト
   [95727991, CatapultTurtleYaml], // カタパルト・タートル
+
+  [45221020, treasurePandaYaml], // トレジャー・パンダー
 
   // 融合モンスター
   [46696593, crimsonSunbirdYaml], // 紅陽鳥

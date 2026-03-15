@@ -137,7 +137,13 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
       return { shouldContinue: false };
     }
     const sourceZone = gameState.space[config._sourceZone];
-    availableCards = config._filter ? sourceZone.filter((card, index) => config._filter!(card, index)) : sourceZone;
+
+    // EffectActivationContext を解決（_effectId が指定されている場合）
+    const activationContext = config._effectId ? gameState.activationContexts[config._effectId] : undefined;
+
+    availableCards = config._filter
+      ? sourceZone.filter((card, index) => config._filter!(card, index, activationContext))
+      : sourceZone;
   }
 
   // イベント情報をキャプチャするための変数

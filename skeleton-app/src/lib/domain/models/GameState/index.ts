@@ -60,6 +60,8 @@ export const GameState = {
   ActivationContext: {
     setTargets: ActivationContextFuncs.setActivationTargets,
     getTargets: ActivationContextFuncs.getActivationTargets,
+    setPaidCosts: ActivationContextFuncs.setPaidCosts,
+    getPaidCosts: ActivationContextFuncs.getPaidCosts,
     clear: ActivationContextFuncs.clearActivationContext,
   },
 };

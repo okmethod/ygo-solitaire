@@ -37,6 +37,9 @@ export const STEP_NAMES = {
   // リリース
   RELEASE_AND_BURN: "RELEASE_AND_BURN",
 
+  // 除外
+  SELECT_AND_BANISH_FROM_GRAVEYARD: "SELECT_AND_BANISH_FROM_GRAVEYARD",
+
   // デッキ操作・その他
   SHUFFLE_DECK: "SHUFFLE_DECK",
   THEN: "THEN", // タイミング進行

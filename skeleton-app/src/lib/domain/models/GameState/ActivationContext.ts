@@ -12,6 +12,8 @@ import type { EffectId } from "$lib/domain/models/Effect";
 export interface EffectActivationContext {
   /** 対象に取ったカードのinstanceId配列 */
   readonly targets: readonly string[];
+  /** 支払ったコストの数*/
+  readonly paidCosts?: number;
 }
 
 /** 発動時コンテキストに対象を設定する */
@@ -20,9 +22,10 @@ export function setActivationTargets(
   effectId: EffectId,
   targets: readonly string[],
 ): Record<EffectId, EffectActivationContext> {
+  const existing = currentContexts[effectId] ?? { targets: [] };
   return {
     ...currentContexts,
-    [effectId]: { targets },
+    [effectId]: { ...existing, targets },
   };
 }
 
@@ -32,6 +35,27 @@ export function getActivationTargets(
   effectId: EffectId,
 ): readonly string[] {
   return currentContexts?.[effectId]?.targets ?? [];
+}
+
+/** 発動時コンテキストに支払ったコストの数を設定する */
+export function setPaidCosts(
+  currentContexts: Record<EffectId, EffectActivationContext>,
+  effectId: EffectId,
+  paidCosts: number,
+): Record<EffectId, EffectActivationContext> {
+  const existing = currentContexts[effectId] ?? { targets: [] };
+  return {
+    ...currentContexts,
+    [effectId]: { ...existing, paidCosts },
+  };
+}
+
+/** 発動時コンテキストから支払ったコストの数を取得する */
+export function getPaidCosts(
+  currentContexts: Record<EffectId, EffectActivationContext>,
+  effectId: EffectId,
+): number | undefined {
+  return currentContexts?.[effectId]?.paidCosts;
 }
 
 /** 発動時コンテキストから、ある効果に指定された対象をクリアする */

@@ -10,6 +10,7 @@
  */
 
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
+import type { EffectId } from "$lib/domain/models/Effect";
 
 /**
  * ステップビルドコンテキスト
@@ -19,6 +20,8 @@ import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 export interface StepBuildContext {
   /** カードID */
   readonly cardId: number;
+  /** 効果ID（オプション） - EffectActivationContext へのアクセスに使用 */
+  readonly effectId?: EffectId;
   /** 発動元カードインスタンスID（オプション） */
   readonly sourceInstanceId?: string;
 }

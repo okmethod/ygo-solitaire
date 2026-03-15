@@ -47,6 +47,7 @@ export class GenericIgnitionEffect extends BaseIgnitionEffect {
 
     const context: StepBuildContext = {
       cardId: this.cardId,
+      effectId: this.effectId,
       sourceInstanceId: sourceInstance.instanceId,
     };
 

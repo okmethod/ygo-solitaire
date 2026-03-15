@@ -6,7 +6,7 @@
  */
 
 import type { CardInstance, BattlePosition } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { GameSnapshot, EffectActivationContext } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -14,6 +14,45 @@ import type { StepBuilder } from "../AtomicStepRegistry";
 import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
 import { validationErrorMessage } from "$lib/domain/models/GameProcessing/UpdateValidation";
 import type { DeckLocationName } from "$lib/domain/models/Location";
+import type { EffectId } from "$lib/domain/models/Effect";
+
+/** フィルタータイプ（monster または normal_monster） */
+type MonsterFilterType = "monster" | "normal_monster";
+
+/** filterLevel の動的参照キー */
+type DynamicLevelRef = "paidCosts";
+
+/** filterLevel の型（数値または動的参照） */
+type FilterLevelArg = number | DynamicLevelRef;
+
+/** 動的参照かどうかを判定 */
+const isDynamicLevelRef = (value: unknown): value is DynamicLevelRef => {
+  return value === "paidCosts";
+};
+
+/** 動的参照からレベル値を解決（EffectActivationContext から直接取得） */
+const resolveDynamicLevelFromContext = (
+  ref: DynamicLevelRef,
+  context?: EffectActivationContext,
+): number | undefined => {
+  switch (ref) {
+    case "paidCosts":
+      return context?.paidCosts;
+    default:
+      return undefined;
+  }
+};
+
+/** 動的参照からレベル値を解決（GameSnapshot + effectId から取得、action 用） */
+const resolveDynamicLevelFromState = (
+  ref: DynamicLevelRef,
+  state: GameSnapshot,
+  effectId?: EffectId,
+): number | undefined => {
+  if (!effectId) return undefined;
+  const context = state.activationContexts[effectId];
+  return resolveDynamicLevelFromContext(ref, context);
+};
 
 // ===========================
 // 内部ヘルパー
@@ -125,6 +164,103 @@ export const specialSummonFromDeckStep = (
 };
 
 /**
+ * デッキから動的レベル指定でモンスターを選択し、フィールドに特殊召喚するステップ
+ *
+ * filterLevel が "paidCosts" の場合、EffectActivationContext.paidCosts を参照する。
+ * filterType が "normal_monster" の場合、通常モンスターのみをフィルターする。
+ */
+export const specialSummonFromDeckWithDynamicLevelStep = (
+  cardId: number,
+  filterType: MonsterFilterType,
+  filterLevelArg: FilterLevelArg,
+  battlePosition: BattlePosition = "attack",
+  effectId?: EffectId,
+): AtomicStep => {
+  const isDynamic = isDynamicLevelRef(filterLevelArg);
+  const typeDesc = filterType === "normal_monster" ? "通常" : "";
+  const levelDesc = isDynamic ? "（動的レベル）" : `レベル${filterLevelArg}`;
+  const summary = `${typeDesc}モンスターを特殊召喚`;
+  const description = `デッキから${levelDesc}の${typeDesc}モンスター1体を特殊召喚します`;
+
+  // 動的フィルター: EffectActivationContext を参照してレベルを解決
+  const dynamicFilter = (card: CardInstance, _index?: number, context?: EffectActivationContext): boolean => {
+    if (card.type !== "monster") return false;
+    if (filterType === "normal_monster" && card.frameType !== "normal") return false;
+
+    // レベルフィルター
+    const level = isDynamic ? resolveDynamicLevelFromContext(filterLevelArg, context) : (filterLevelArg as number);
+    if (level !== undefined && card.level !== level) return false;
+
+    return true;
+  };
+
+  // action 用の静的フィルター（動的レベルは action 実行時の state から解決）
+  const createActionFilter =
+    (state: GameSnapshot) =>
+    (card: CardInstance): boolean => {
+      if (card.type !== "monster") return false;
+      if (filterType === "normal_monster" && card.frameType !== "normal") return false;
+
+      const level = isDynamic
+        ? resolveDynamicLevelFromState(filterLevelArg, state, effectId)
+        : (filterLevelArg as number);
+      if (level !== undefined && card.level !== level) return false;
+
+      return true;
+    };
+
+  return {
+    id: `${cardId}-special-summon-from-deck-dynamic-level`,
+    summary,
+    description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: null,
+      minCards: 1,
+      maxCards: 1,
+      summary,
+      description,
+      cancelable: false,
+      _sourceZone: "mainDeck",
+      _effectId: effectId,
+      _filter: dynamicFilter,
+    },
+    action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      const filter = createActionFilter(currentState);
+      const source = currentState.space.mainDeck;
+      const availableCards = source.filter(filter);
+
+      if (availableCards.length === 0) {
+        return GameProcessing.Result.failure(currentState, "No cards available in mainDeck matching the criteria");
+      }
+
+      const validation = canSpecialSummon(currentState);
+      if (!validation.isValid) {
+        return GameProcessing.Result.failure(currentState, validationErrorMessage(validation));
+      }
+
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return GameProcessing.Result.failure(currentState, "No cards selected");
+      }
+
+      const instanceId = selectedInstanceIds[0];
+      const card = GameState.Space.findCard(currentState.space, instanceId)!;
+      let updatedState = executeSpecialSummon(currentState, instanceId, battlePosition);
+
+      updatedState = {
+        ...updatedState,
+        space: GameState.Space.shuffleMainDeck(updatedState.space),
+      };
+
+      return GameProcessing.Result.success(
+        updatedState,
+        `Special summoned ${card.jaName} in ${battlePosition} position`,
+      );
+    },
+  };
+};
+
+/**
  * EXデッキから指定条件のモンスターを選択し、フィールドに特殊召喚するステップ
  *
  * 処理:
@@ -178,16 +314,34 @@ export const specialSummonFromExtraDeckStep = (
 
 /**
  * SPECIAL_SUMMON_FROM_DECK - デッキからモンスターを特殊召喚
- * args: { filterType: "monster", filterLevel?: number, battlePosition?: BattlePosition }
+ * args: {
+ *   filterType: "monster" | "normal_monster",
+ *   filterLevel?: number | "paidCosts",
+ *   battlePosition?: BattlePosition
+ * }
  */
 export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => {
-  const filterType = args.filterType as string;
-  const filterLevel = args.filterLevel as number | undefined;
+  const filterType = args.filterType as MonsterFilterType;
+  const filterLevel = args.filterLevel as FilterLevelArg | undefined;
   const battlePosition = (args.battlePosition as BattlePosition) ?? "attack";
-  if (filterType !== "monster") {
-    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster"');
+
+  if (filterType !== "monster" && filterType !== "normal_monster") {
+    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster" or "normal_monster"');
   }
-  return specialSummonFromDeckStep(context.cardId, filterLevel, battlePosition);
+
+  // 動的レベル参照または normal_monster の場合は動的対応版を使用
+  if (filterLevel !== undefined && (isDynamicLevelRef(filterLevel) || filterType === "normal_monster")) {
+    return specialSummonFromDeckWithDynamicLevelStep(
+      context.cardId,
+      filterType,
+      filterLevel,
+      battlePosition,
+      context.effectId,
+    );
+  }
+
+  // 従来の静的レベル指定
+  return specialSummonFromDeckStep(context.cardId, filterLevel as number | undefined, battlePosition);
 };
 
 /**

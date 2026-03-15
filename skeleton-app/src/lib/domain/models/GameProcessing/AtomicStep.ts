@@ -6,8 +6,9 @@
 
 import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { GameSnapshot, EffectActivationContext } from "$lib/domain/models/GameState";
 import type { GameStateUpdateResult } from "./GameStateUpdate";
+import type { EffectId } from "$lib/domain/models/Effect";
 
 /**
  * 効果処理ステップの通知レベル
@@ -42,7 +43,8 @@ export interface InteractionConfig {
 export interface CardSelectionConfig extends InteractionConfig {
   availableCards: readonly CardInstance[] | null; // 配列: 直接指定, null: 動的指定(_sourceZoneから取得)
   _sourceZone?: LocationName;
-  _filter?: (card: CardInstance, index?: number) => boolean;
+  _effectId?: EffectId; // 動的フィルターで EffectActivationContext を参照するための効果ID
+  _filter?: (card: CardInstance, index?: number, context?: EffectActivationContext) => boolean;
   minCards: number;
   maxCards: number;
 }

@@ -96,7 +96,6 @@ const deckLibraryExodia: DeckRecipe = {
   extraDeck: [],
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const deckPandaExodia: DeckRecipe = {
   name: "パンダエクゾ - WIP",
   description: "トレジャーパンダと通常モンスターを活用してドローするエクゾディアデッキです",
@@ -108,7 +107,7 @@ const deckPandaExodia: DeckRecipe = {
     { id: 7902349, quantity: 1 }, // 封印されし者の左腕
     { id: 8124921, quantity: 1 }, // 封印されし者の右足
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
-    // { id: 45221020, quantity: 3 }, // トレジャー・パンダ
+    { id: 45221020, quantity: 3 }, // トレジャー・パンダ
     { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
     // ガード・オブ・フレムベル
     // 千眼の邪教神
@@ -166,6 +165,6 @@ export const presetDeckRecipes: Record<string, DeckRecipe> = {
   "exodia-deck": deckExodia,
   "legacy-exodia-deck": deckLegacyExodia,
   "library-exodia-deck": deckLibraryExodia,
-  // "panda-exodia-deck": deckPandaExodia,
+  "panda-exodia-deck": deckPandaExodia,
   // "scientist-catapult-deck": deckScienceCatapult,
 };

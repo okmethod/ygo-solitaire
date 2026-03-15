@@ -1,0 +1,31 @@
+# 《トレジャー・パンダー》 (Treasure Panda)
+#
+# 起動効果:
+# - CONDITIONS: 墓地に魔法・罠カードが存在
+# - ACTIVATIONS: 墓地から魔法・罠カードを3枚まで裏側除外
+# - RESOLUTIONS: 除外したカードの数と同じレベルの通常モンスター1体をデッキから特殊召喚
+
+id: 45221020
+
+data:
+  jaName: "トレジャー・パンダー"
+  type: "monster"
+  frameType: "effect"
+  attribute: "EARTH"
+  race: "Beast"
+  level: 4
+  attack: 1100
+  defense: 2000
+
+effectChainableActions:
+  ignitions:
+    - conditions:
+        requirements:
+          - step: "GRAVEYARD_HAS_SPELL_OR_TRAP"
+            args: { minCount: 1 }
+      activations:
+        - step: "SELECT_AND_BANISH_FROM_GRAVEYARD"
+          args: { minCount: 1, maxCount: 3, filterType: "spell_or_trap", faceDown: true }
+      resolutions:
+        - step: "SPECIAL_SUMMON_FROM_DECK"
+          args: { filterType: "normal_monster", filterLevel: "paidCosts", count: 1 }

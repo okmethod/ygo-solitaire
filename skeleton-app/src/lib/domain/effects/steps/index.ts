@@ -29,6 +29,7 @@ import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperatio
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import { specialSummonFromDeckStepBuilder, specialSummonFromExtraDeckStepBuilder } from "./builders/summons";
 import { releaseAndBurnStepBuilder } from "./builders/releases";
+import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
 
 // ===========================
 // エクスポート
@@ -74,6 +75,9 @@ AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromE
 
 // リリース関連
 AtomicStepRegistry.register(S.RELEASE_AND_BURN, releaseAndBurnStepBuilder);
+
+// 除外関連
+AtomicStepRegistry.register(S.SELECT_AND_BANISH_FROM_GRAVEYARD, selectAndBanishFromGraveyardStepBuilder);
 
 // デッキ操作関連
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);

@@ -14,7 +14,11 @@ import { CONDITION_NAMES, type ConditionName } from "./ConditionNames";
 // ConditionChecker 実装
 import { canDrawCondition, deckHasCardCondition, deckHasNameIncludesCondition } from "./checkers/deckConditions";
 import { handCountCondition, handCountExcludingSelfCondition, handHasSpellCondition } from "./checkers/handConditions";
-import { graveyardHasSpellCondition, graveyardHasMonsterCondition } from "./checkers/graveyardConditions";
+import {
+  graveyardHasSpellCondition,
+  graveyardHasMonsterCondition,
+  graveyardHasSpellOrTrapCondition,
+} from "./checkers/graveyardConditions";
 import { fieldHasEquippedNameIncludesCondition } from "./checkers/fieldConditions";
 import { hasCounterCondition } from "./checkers/counterConditions";
 import { oncePerTurnCondition, oncePerTurnEffectCondition } from "./checkers/activationConditions";
@@ -47,6 +51,7 @@ AtomicConditionRegistry.register(C.HAND_HAS_SPELL, handHasSpellCondition);
 // 墓地関連
 AtomicConditionRegistry.register(C.GRAVEYARD_HAS_SPELL, graveyardHasSpellCondition);
 AtomicConditionRegistry.register(C.GRAVEYARD_HAS_MONSTER, graveyardHasMonsterCondition);
+AtomicConditionRegistry.register(C.GRAVEYARD_HAS_SPELL_OR_TRAP, graveyardHasSpellOrTrapCondition);
 
 // フィールド関連
 AtomicConditionRegistry.register(C.FIELD_HAS_EQUIPPED_NAME_INCLUDES, fieldHasEquippedNameIncludesCondition);
