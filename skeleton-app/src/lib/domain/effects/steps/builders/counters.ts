@@ -13,6 +13,7 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { ArgValidators } from "../../shared/argValidators";
 
 /** 指定カードにカウンターを置くステップ */
 export const addCounterStep = (
@@ -99,15 +100,9 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
  * args: { counterType: CounterType, count: number, limit?: number }
  */
 export const placeCounterStepBuilder: StepBuilder = (args, context) => {
-  const counterType = args.counterType as CounterType;
-  const count = args.count as number;
-  const limit = args.limit as number | undefined;
-  if (!counterType) {
-    throw new Error("PLACE_COUNTER step requires counterType argument");
-  }
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("PLACE_COUNTER step requires a positive count argument");
-  }
+  const counterType = ArgValidators.nonEmptyString(args, "counterType") as CounterType;
+  const count = ArgValidators.positiveInt(args, "count");
+  const limit = ArgValidators.optionalPositiveInt(args, "limit");
   const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
   return addCounterStep(targetInstanceId, counterType, count, limit);
 };
@@ -117,14 +112,8 @@ export const placeCounterStepBuilder: StepBuilder = (args, context) => {
  * args: { counterType: CounterType, count: number }
  */
 export const removeCounterStepBuilder: StepBuilder = (args, context) => {
-  const counterType = args.counterType as CounterType;
-  const count = args.count as number;
-  if (!counterType) {
-    throw new Error("REMOVE_COUNTER step requires counterType argument");
-  }
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("REMOVE_COUNTER step requires a positive count argument");
-  }
+  const counterType = ArgValidators.nonEmptyString(args, "counterType") as CounterType;
+  const count = ArgValidators.positiveInt(args, "count");
   const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;
   return removeCounterStep(targetInstanceId, counterType, count);
 };

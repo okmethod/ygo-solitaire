@@ -144,6 +144,41 @@ export const ArgValidators = {
   // ===========================
 
   /**
+   * 指定した値のいずれかを取得（必須）
+   * @example
+   * const filterType = ArgValidators.oneOf(args, "filterType", ["monster", "normal_monster"] as const);
+   * @throws ArgValidationError - 指定した値のいずれでもない場合
+   */
+  oneOf<T extends readonly string[]>(args: Args, key: string, validValues: T): T[number] {
+    const value = args[key];
+    if (typeof value !== "string" || !validValues.includes(value)) {
+      const expected = validValues.map((v) => `"${v}"`).join(" or ");
+      throw new ArgValidationError(key, expected, value);
+    }
+    return value as T[number];
+  },
+
+  /**
+   * 指定した値のいずれかを取得（オプション、デフォルト値付き）
+   * @example
+   * const position = ArgValidators.optionalOneOf(args, "position", ["attack", "defense"] as const, "attack");
+   */
+  optionalOneOf<T extends readonly string[]>(
+    args: Args,
+    key: string,
+    validValues: T,
+    defaultValue: T[number],
+  ): T[number] {
+    const value = args[key];
+    if (value === undefined) return defaultValue;
+    if (typeof value !== "string" || !validValues.includes(value)) {
+      const expected = validValues.map((v) => `"${v}"`).join(" or ") + " or undefined";
+      throw new ArgValidationError(key, expected, value);
+    }
+    return value as T[number];
+  },
+
+  /**
    * プレイヤー識別子を取得（必須）
    * @throws ArgValidationError - "player" または "opponent" でない場合
    */

@@ -43,13 +43,13 @@ describe("StepRegistry - PLACE_COUNTER", () => {
   it("PLACE_COUNTER ステップで counterType が無い場合エラー", () => {
     expect(() => {
       buildStep("PLACE_COUNTER", { count: 1 }, createTestContext());
-    }).toThrow("PLACE_COUNTER step requires counterType argument");
+    }).toThrow("Argument 'counterType' must be a non-empty string");
   });
 
   it("PLACE_COUNTER ステップで count が無い場合エラー", () => {
     expect(() => {
       buildStep("PLACE_COUNTER", { counterType: "spell" }, createTestContext());
-    }).toThrow("PLACE_COUNTER step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("PLACE_COUNTER ステップで limit なしでも生成できる", () => {
@@ -99,13 +99,13 @@ describe("StepRegistry - REMOVE_COUNTER", () => {
   it("REMOVE_COUNTER ステップで counterType が無い場合エラー", () => {
     expect(() => {
       buildStep("REMOVE_COUNTER", { count: 3 }, createTestContext());
-    }).toThrow("REMOVE_COUNTER step requires counterType argument");
+    }).toThrow("Argument 'counterType' must be a non-empty string");
   });
 
   it("REMOVE_COUNTER ステップで count が無い場合エラー", () => {
     expect(() => {
       buildStep("REMOVE_COUNTER", { counterType: "spell" }, createTestContext());
-    }).toThrow("REMOVE_COUNTER step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("isRegistered で REMOVE_COUNTER が登録済みであることを確認できる", () => {

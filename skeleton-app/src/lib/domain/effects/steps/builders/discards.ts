@@ -8,7 +8,6 @@
  * TODO: 「墓地の送る」と「捨てる」を区別する
  */
 
-import type { CardType } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
@@ -16,6 +15,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { queueEndPhaseEffectStep } from "$lib/domain/effects/steps/builders/endPhase";
 import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { ArgValidators } from "../../shared/argValidators";
 
 /**
  * 指定カードを墓地に送るステップ
@@ -162,12 +162,9 @@ export const selectAndDiscardStep = (
  * args: { count: number, cancelable?: boolean, filterType?: CardType }
  */
 export const selectAndDiscardStepBuilder: StepBuilder = (args) => {
-  const count = args.count as number;
-  const cancelable = args.cancelable as boolean | undefined;
-  const filterType = args.filterType as CardType | undefined;
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("SELECT_AND_DISCARD step requires a positive count argument");
-  }
+  const count = ArgValidators.positiveInt(args, "count");
+  const cancelable = ArgValidators.optionalBoolean(args, "cancelable", false);
+  const filterType = ArgValidators.optionalCardType(args, "filterType");
   return selectAndDiscardStep(count, cancelable, filterType);
 };
 

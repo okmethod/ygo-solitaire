@@ -11,6 +11,7 @@ import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameP
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { drawCards } from "$lib/domain/models/GameState/CardSpace";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { ArgValidators } from "../../shared/argValidators";
 
 // ドローステップの共通ヘルパー
 const commonDrawStep = (
@@ -81,10 +82,7 @@ export const fillHandsStep = (targetCount: number): AtomicStep =>
  * args: { count: number }
  */
 export const drawStepBuilder: StepBuilder = (args) => {
-  const count = args.count as number;
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("DRAW step requires a positive count argument");
-  }
+  const count = ArgValidators.positiveInt(args, "count");
   return drawStep(count);
 };
 
@@ -93,9 +91,6 @@ export const drawStepBuilder: StepBuilder = (args) => {
  * args: { count: number }
  */
 export const fillHandsStepBuilder: StepBuilder = (args) => {
-  const count = args.count as number;
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("FILL_HANDS step requires a positive count argument");
-  }
+  const count = ArgValidators.positiveInt(args, "count");
   return fillHandsStep(count);
 };

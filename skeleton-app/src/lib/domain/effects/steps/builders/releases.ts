@@ -17,6 +17,7 @@ import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/m
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
+import { ArgValidators } from "../../shared/argValidators";
 
 // ===========================
 // 共通リリース処理
@@ -174,14 +175,11 @@ export const releaseAndBurnStep = (
  * デフォルト: 攻撃力の50%を相手にダメージ
  */
 export const releaseAndBurnStepBuilder: StepBuilder = (args, context) => {
-  const damageMultiplier = (args.damageMultiplier as number) ?? 0.5;
-  const damageTarget = (args.damageTarget as Player) ?? "opponent";
+  const damageMultiplier = (args.damageMultiplier as number | undefined) ?? 0.5;
+  const damageTarget = ArgValidators.optionalPlayer(args, "damageTarget", "opponent");
 
   if (typeof damageMultiplier !== "number" || damageMultiplier <= 0) {
     throw new Error("RELEASE_AND_BURN step requires damageMultiplier to be a positive number");
-  }
-  if (damageTarget !== "player" && damageTarget !== "opponent") {
-    throw new Error('RELEASE_AND_BURN step requires damageTarget to be "player" or "opponent"');
   }
 
   return releaseAndBurnStep(context.cardId, damageMultiplier, damageTarget);

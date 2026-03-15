@@ -10,6 +10,7 @@ import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { ArgValidators } from "../../shared/argValidators";
 
 type LpOperationType = "gain" | "damage" | "payment" | "loss";
 
@@ -72,14 +73,8 @@ export const lossLpStep = (amount: number, target: Player): AtomicStep => {
  * args: { amount: number, target?: "player" | "opponent" }
  */
 export const gainLpStepBuilder: StepBuilder = (args) => {
-  const amount = args.amount as number;
-  const target = (args.target as Player) ?? "player";
-  if (typeof amount !== "number" || amount < 1) {
-    throw new Error("GAIN_LP step requires a positive amount argument");
-  }
-  if (target !== "player" && target !== "opponent") {
-    throw new Error('GAIN_LP step requires target to be "player" or "opponent"');
-  }
+  const amount = ArgValidators.positiveInt(args, "amount");
+  const target = ArgValidators.optionalPlayer(args, "target", "player");
   return gainLpStep(amount, target);
 };
 
@@ -88,14 +83,8 @@ export const gainLpStepBuilder: StepBuilder = (args) => {
  * args: { amount: number, target?: "player" | "opponent" }
  */
 export const payLpStepBuilder: StepBuilder = (args) => {
-  const amount = args.amount as number;
-  const target = (args.target as Player) ?? "player";
-  if (typeof amount !== "number" || amount < 1) {
-    throw new Error("PAY_LP step requires a positive amount argument");
-  }
-  if (target !== "player" && target !== "opponent") {
-    throw new Error('PAY_LP step requires target to be "player" or "opponent"');
-  }
+  const amount = ArgValidators.positiveInt(args, "amount");
+  const target = ArgValidators.optionalPlayer(args, "target", "player");
   return payLpStep(amount, target);
 };
 
@@ -104,13 +93,7 @@ export const payLpStepBuilder: StepBuilder = (args) => {
  * args: { amount: number, target?: "player" | "opponent" }
  */
 export const burnDamageStepBuilder: StepBuilder = (args) => {
-  const amount = args.amount as number;
-  const target = (args.target as Player) ?? "opponent";
-  if (typeof amount !== "number" || amount < 1) {
-    throw new Error("BURN_DAMAGE step requires a positive amount argument");
-  }
-  if (target !== "player" && target !== "opponent") {
-    throw new Error('BURN_DAMAGE step requires target to be "player" or "opponent"');
-  }
+  const amount = ArgValidators.positiveInt(args, "amount");
+  const target = ArgValidators.optionalPlayer(args, "target", "opponent");
   return damageLpStep(amount, target);
 };

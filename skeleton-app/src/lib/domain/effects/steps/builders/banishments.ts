@@ -13,6 +13,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
 import type { StepBuilder } from "../AtomicStepRegistry";
 import type { EffectId } from "$lib/domain/models/Effect";
+import { ArgValidators } from "../../shared/argValidators";
 
 // ===========================
 // 内部ヘルパー
@@ -136,15 +137,12 @@ export const selectAndBanishFromGraveyardStep = (
  * args: { minCount: number, maxCount: number, filterType?: BanishFilterType, faceDown?: boolean }
  */
 export const selectAndBanishFromGraveyardStepBuilder: StepBuilder = (args, context) => {
-  const minCount = args.minCount as number;
-  const maxCount = args.maxCount as number;
-  const filterType = args.filterType as BanishFilterType | undefined;
-  const faceDown = (args.faceDown as boolean) ?? false;
+  const minCount = ArgValidators.positiveInt(args, "minCount");
+  const maxCount = ArgValidators.positiveInt(args, "maxCount");
+  const filterType = ArgValidators.optionalString(args, "filterType") as BanishFilterType | undefined;
+  const faceDown = ArgValidators.optionalBoolean(args, "faceDown", false);
 
-  if (typeof minCount !== "number" || minCount < 1) {
-    throw new Error("SELECT_AND_BANISH_FROM_GRAVEYARD step requires a positive minCount argument");
-  }
-  if (typeof maxCount !== "number" || maxCount < minCount) {
+  if (maxCount < minCount) {
     throw new Error("SELECT_AND_BANISH_FROM_GRAVEYARD step requires maxCount >= minCount");
   }
 

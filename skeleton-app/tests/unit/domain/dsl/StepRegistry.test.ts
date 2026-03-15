@@ -76,31 +76,31 @@ describe("StepRegistry - エラーケース", () => {
   it("DRAW ステップで count が無い場合エラー", () => {
     expect(() => {
       buildStep("DRAW", {}, createTestContext());
-    }).toThrow("DRAW step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("DRAW ステップで count が0以下の場合エラー", () => {
     expect(() => {
       buildStep("DRAW", { count: 0 }, createTestContext());
-    }).toThrow("DRAW step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("SELECT_AND_DISCARD ステップで count が無い場合エラー", () => {
     expect(() => {
       buildStep("SELECT_AND_DISCARD", {}, createTestContext());
-    }).toThrow("SELECT_AND_DISCARD step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("GAIN_LP ステップで amount が無い場合エラー", () => {
     expect(() => {
       buildStep("GAIN_LP", { target: "player" }, createTestContext());
-    }).toThrow("GAIN_LP step requires a positive amount argument");
+    }).toThrow("Argument 'amount' must be a positive integer");
   });
 
   it("GAIN_LP ステップで target が無効な場合エラー", () => {
     expect(() => {
       buildStep("GAIN_LP", { amount: 1000, target: "invalid" }, createTestContext());
-    }).toThrow('GAIN_LP step requires target to be "player" or "opponent"');
+    }).toThrow('Argument \'target\' must be "player" or "opponent"');
   });
 });
 

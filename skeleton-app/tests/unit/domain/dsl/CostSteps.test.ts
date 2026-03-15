@@ -43,13 +43,13 @@ describe("StepRegistry - SEARCH_FROM_DECK", () => {
   it("SEARCH_FROM_DECK ステップで filterType が無い場合エラー", () => {
     expect(() => {
       buildStep("SEARCH_FROM_DECK", { count: 1 }, createTestContext());
-    }).toThrow("SEARCH_FROM_DECK step requires filterType argument");
+    }).toThrow("Argument 'filterType' must be a non-empty string");
   });
 
   it("SEARCH_FROM_DECK ステップで count が無い場合エラー", () => {
     expect(() => {
       buildStep("SEARCH_FROM_DECK", { filterType: "spell" }, createTestContext());
-    }).toThrow("SEARCH_FROM_DECK step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("isRegistered で SEARCH_FROM_DECK が登録済みであることを確認できる", () => {
@@ -85,13 +85,13 @@ describe("StepRegistry - SALVAGE_FROM_GRAVEYARD", () => {
   it("SALVAGE_FROM_GRAVEYARD ステップで filterType が無い場合エラー", () => {
     expect(() => {
       buildStep("SALVAGE_FROM_GRAVEYARD", { count: 1 }, createTestContext());
-    }).toThrow("SALVAGE_FROM_GRAVEYARD step requires filterType argument");
+    }).toThrow("Argument 'filterType' must be a non-empty string");
   });
 
   it("SALVAGE_FROM_GRAVEYARD ステップで count が無い場合エラー", () => {
     expect(() => {
       buildStep("SALVAGE_FROM_GRAVEYARD", { filterType: "spell" }, createTestContext());
-    }).toThrow("SALVAGE_FROM_GRAVEYARD step requires a positive count argument");
+    }).toThrow("Argument 'count' must be a positive integer");
   });
 
   it("isRegistered で SALVAGE_FROM_GRAVEYARD が登録済みであることを確認できる", () => {

@@ -15,6 +15,7 @@ import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/Summon
 import { validationErrorMessage } from "$lib/domain/models/GameProcessing/UpdateValidation";
 import type { DeckLocationName } from "$lib/domain/models/Location";
 import type { EffectId } from "$lib/domain/models/Effect";
+import { ArgValidators } from "../../shared/argValidators";
 
 /** フィルタータイプ（monster または normal_monster） */
 type MonsterFilterType = "monster" | "normal_monster";
@@ -321,13 +322,9 @@ export const specialSummonFromExtraDeckStep = (
  * }
  */
 export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => {
-  const filterType = args.filterType as MonsterFilterType;
+  const filterType = ArgValidators.oneOf(args, "filterType", ["monster", "normal_monster"] as const);
   const filterLevel = args.filterLevel as FilterLevelArg | undefined;
-  const battlePosition = (args.battlePosition as BattlePosition) ?? "attack";
-
-  if (filterType !== "monster" && filterType !== "normal_monster") {
-    throw new Error('SPECIAL_SUMMON_FROM_DECK step requires filterType to be "monster" or "normal_monster"');
-  }
+  const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
 
   // 動的レベル参照または normal_monster の場合は動的対応版を使用
   if (filterLevel !== undefined && (isDynamicLevelRef(filterLevel) || filterType === "normal_monster")) {
@@ -349,8 +346,8 @@ export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => 
  * args: { filterMaxLevel?: number, filterFrameType?: string, battlePosition?: BattlePosition }
  */
 export const specialSummonFromExtraDeckStepBuilder: StepBuilder = (args, context) => {
-  const filterMaxLevel = args.filterMaxLevel as number | undefined;
-  const filterFrameType = args.filterFrameType as string | undefined;
-  const battlePosition = (args.battlePosition as BattlePosition) ?? "attack";
+  const filterMaxLevel = ArgValidators.optionalPositiveInt(args, "filterMaxLevel");
+  const filterFrameType = ArgValidators.optionalString(args, "filterFrameType");
+  const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
   return specialSummonFromExtraDeckStep(context.cardId, filterMaxLevel, filterFrameType, battlePosition);
 };

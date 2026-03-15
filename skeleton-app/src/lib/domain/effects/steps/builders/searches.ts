@@ -15,6 +15,7 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilder } from "../AtomicStepRegistry";
+import { ArgValidators } from "../../shared/argValidators";
 
 // カードを検索して手札に加える処理の共通ステップ
 const internalSearchStep = (
@@ -266,15 +267,9 @@ export const salvageFromGraveyardStep = (
  * args: { filterType: CardType, count: number, filterSpellType?: SpellSubType }
  */
 export const searchFromDeckStepBuilder: StepBuilder = (args, context) => {
-  const filterType = args.filterType as CardType;
-  const filterSpellType = args.filterSpellType as SpellSubType | undefined;
-  const count = args.count as number;
-  if (!filterType) {
-    throw new Error("SEARCH_FROM_DECK step requires filterType argument");
-  }
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("SEARCH_FROM_DECK step requires a positive count argument");
-  }
+  const filterType = ArgValidators.nonEmptyString(args, "filterType") as CardType;
+  const filterSpellType = ArgValidators.optionalSpellSubType(args, "filterSpellType");
+  const count = ArgValidators.positiveInt(args, "count");
   return searchFromDeckByTypeStep(context.cardId, filterType, count, filterSpellType);
 };
 
@@ -283,14 +278,8 @@ export const searchFromDeckStepBuilder: StepBuilder = (args, context) => {
  * args: { namePattern: string, count: number }
  */
 export const searchFromDeckByNameStepBuilder: StepBuilder = (args, context) => {
-  const namePattern = args.namePattern as string;
-  const count = args.count as number;
-  if (!namePattern) {
-    throw new Error("SEARCH_FROM_DECK_BY_NAME step requires namePattern argument");
-  }
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("SEARCH_FROM_DECK_BY_NAME step requires a positive count argument");
-  }
+  const namePattern = ArgValidators.nonEmptyString(args, "namePattern");
+  const count = ArgValidators.positiveInt(args, "count");
   return searchFromDeckByNameStep(context.cardId, namePattern, count);
 };
 
@@ -299,14 +288,8 @@ export const searchFromDeckByNameStepBuilder: StepBuilder = (args, context) => {
  * args: { count: number, selectCount: number }
  */
 export const searchFromDeckTopStepBuilder: StepBuilder = (args, context) => {
-  const count = args.count as number;
-  const selectCount = args.selectCount as number;
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("SEARCH_FROM_DECK_TOP step requires a positive count argument");
-  }
-  if (typeof selectCount !== "number" || selectCount < 1) {
-    throw new Error("SEARCH_FROM_DECK_TOP step requires a positive selectCount argument");
-  }
+  const count = ArgValidators.positiveInt(args, "count");
+  const selectCount = ArgValidators.positiveInt(args, "selectCount");
   return searchFromDeckTopStep(context.cardId, count, selectCount);
 };
 
@@ -315,18 +298,9 @@ export const searchFromDeckTopStepBuilder: StepBuilder = (args, context) => {
  * args: { statType: "attack" | "defense", maxValue: number, count: number }
  */
 export const searchMonsterByStatStepBuilder: StepBuilder = (args, context) => {
-  const statType = args.statType as "attack" | "defense";
-  const maxValue = args.maxValue as number;
-  const count = args.count as number;
-  if (!statType || (statType !== "attack" && statType !== "defense")) {
-    throw new Error("SEARCH_MONSTER_BY_STAT step requires statType argument ('attack' or 'defense')");
-  }
-  if (typeof maxValue !== "number" || maxValue < 0) {
-    throw new Error("SEARCH_MONSTER_BY_STAT step requires a non-negative maxValue argument");
-  }
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("SEARCH_MONSTER_BY_STAT step requires a positive count argument");
-  }
+  const statType = ArgValidators.oneOf(args, "statType", ["attack", "defense"] as const);
+  const maxValue = ArgValidators.nonNegativeInt(args, "maxValue");
+  const count = ArgValidators.positiveInt(args, "count");
   return searchMonsterByStatStep(context.cardId, statType, maxValue, count);
 };
 
@@ -335,15 +309,9 @@ export const searchMonsterByStatStepBuilder: StepBuilder = (args, context) => {
  * args: { filterType: CardType, count: number, filterSpellType?: SpellSubType, filterFrameType?: FrameSubType }
  */
 export const salvageFromGraveyardStepBuilder: StepBuilder = (args, context) => {
-  const filterType = args.filterType as CardType;
-  const filterSpellType = args.filterSpellType as SpellSubType | undefined;
-  const filterFrameType = args.filterFrameType as FrameSubType | undefined;
-  const count = args.count as number;
-  if (!filterType) {
-    throw new Error("SALVAGE_FROM_GRAVEYARD step requires filterType argument");
-  }
-  if (typeof count !== "number" || count < 1) {
-    throw new Error("SALVAGE_FROM_GRAVEYARD step requires a positive count argument");
-  }
+  const filterType = ArgValidators.nonEmptyString(args, "filterType") as CardType;
+  const filterSpellType = ArgValidators.optionalSpellSubType(args, "filterSpellType");
+  const filterFrameType = ArgValidators.optionalString(args, "filterFrameType") as FrameSubType | undefined;
+  const count = ArgValidators.positiveInt(args, "count");
   return salvageFromGraveyardStep(context.cardId, filterType, count, filterSpellType, filterFrameType);
 };
