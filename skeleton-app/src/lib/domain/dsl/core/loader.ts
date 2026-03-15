@@ -151,38 +151,3 @@ export function loadCardDataWithEffectsFromYaml(yamlContent: string): void {
   registerChainableAction(definition);
   registerAdditionalRules(definition);
 }
-
-/**
- * 複数のYAML文字列からカードを一括登録する
- *
- * @param yamlContents - YAMLファイル内容の配列
- */
-export function loadCardsFromYaml(yamlContents: readonly string[]): void {
-  for (const content of yamlContents) {
-    loadCardDataWithEffectsFromYaml(content);
-  }
-}
-
-/**
- * DSL定義オブジェクトからカードを登録する
- *
- * すでにパース済みのCardDSLDefinitionを登録する場合に使用。
- *
- * @param definition - パース済みのDSL定義
- */
-export function loadCardFromDefinition(definition: CardDSLDefinition): void {
-  registerCardData(definition);
-  registerChainableAction(definition);
-  registerAdditionalRules(definition);
-}
-
-/**
- * 複数のDSL定義オブジェクトからカードを一括登録する
- *
- * @param definitions - パース済みのDSL定義の配列
- */
-export function loadCardsFromDefinitions(definitions: readonly CardDSLDefinition[]): void {
-  for (const definition of definitions) {
-    loadCardFromDefinition(definition);
-  }
-}
