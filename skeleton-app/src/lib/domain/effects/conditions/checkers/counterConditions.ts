@@ -5,20 +5,20 @@
  * - hasCounterCondition: カードに指定タイプのカウンターが指定枚数以上あるか
  */
 
-import type { CardInstance, CounterType } from "$lib/domain/models/Card";
+import type { CounterType, CounterState } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { ConditionChecker } from "../AtomicConditionRegistry";
+import { createConditionCheckerWithErrorCode } from "../conditionFactory";
+import { ArgValidators } from "../../shared/argValidators";
 
-const { success, failure, ERROR_CODES } = GameProcessing.Validation;
+const { ERROR_CODES } = GameProcessing.Validation;
 
 // ===========================
 // 純粋関数（private）
 // ===========================
 
 /** カードに指定タイプのカウンターが指定枚数以上あるか */
-const hasCounter = (sourceInstance: CardInstance, counterType: CounterType, minCount: number): boolean => {
-  const counters = sourceInstance.stateOnField?.counters ?? [];
+const hasCounter = (counters: readonly CounterState[], counterType: CounterType, minCount: number): boolean => {
   const currentCount = Card.Counter.get(counters, counterType);
   return currentCount >= minCount;
 };
@@ -31,16 +31,14 @@ const hasCounter = (sourceInstance: CardInstance, counterType: CounterType, minC
  * HAS_COUNTER - 発動元カードに指定タイプのカウンターが指定枚数以上あるか
  * args: { counterType: CounterType, minCount: number }
  */
-export const hasCounterCondition: ConditionChecker = (_state, sourceInstance, args) => {
-  const counterType = args.counterType as CounterType;
-  const minCount = args.minCount as number;
-
-  if (!counterType) {
-    return failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-  if (typeof minCount !== "number" || minCount < 1) {
-    return failure(ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  return hasCounter(sourceInstance, counterType, minCount) ? success() : failure(ERROR_CODES.INSUFFICIENT_COUNTERS);
-};
+export const hasCounterCondition = createConditionCheckerWithErrorCode(
+  ERROR_CODES.INSUFFICIENT_COUNTERS,
+  (args) => ({
+    counterType: ArgValidators.nonEmptyString(args, "counterType") as CounterType,
+    minCount: ArgValidators.positiveInt(args, "minCount"),
+  }),
+  (_state, sourceInstance, { counterType, minCount }) => {
+    const counters = sourceInstance.stateOnField?.counters ?? [];
+    return hasCounter(counters, counterType, minCount);
+  },
+);
