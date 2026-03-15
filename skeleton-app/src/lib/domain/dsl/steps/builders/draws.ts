@@ -10,7 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { drawCards } from "$lib/domain/models/GameState/CardSpace";
-import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
 
 // ドローステップの共通ヘルパー

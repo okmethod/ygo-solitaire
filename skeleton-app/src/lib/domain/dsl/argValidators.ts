@@ -1,9 +1,9 @@
 /**
- * argValidators.ts - ステップビルダー/条件チェッカー用の引数バリデーションユーティリティ
+ * argValidators - ステップビルダー/条件チェッカー用の引数バリデーションユーティリティ
  *
  * 共通のバリデーションパターンを抽象化し、ボイラープレートを削減する。
  *
- * @module domain/effects/shared/argValidators
+ * @module domain/dsl/argValidators
  */
 
 import type { CardType, SpellSubType } from "$lib/domain/models/Card";

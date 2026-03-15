@@ -9,7 +9,7 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import { GameState } from "$lib/domain/models/GameState";
-import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/argValidators";
 import { createConditionChecker, createSimpleConditionChecker } from "../conditionFactory";
 
 // ===========================

@@ -13,7 +13,7 @@ import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameP
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { EffectId } from "$lib/domain/models/Effect";
 import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
-import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** フィルタータイプ（monster または normal_monster） */

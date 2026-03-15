@@ -15,7 +15,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { ArgValidators } from "$lib/domain/effects/shared/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
 
 // ===========================
