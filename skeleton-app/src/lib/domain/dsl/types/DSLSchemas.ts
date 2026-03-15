@@ -129,7 +129,7 @@ const ConditionsDSLSchema = z.object({
 });
 
 /** 発動条件のDSL表現 */
-export type TriggerConditionsDSL = z.infer<typeof ConditionsDSLSchema>;
+export type ConditionsDSL = z.infer<typeof ConditionsDSLSchema>;
 
 /**
  * Step のDSL表現スキーマ

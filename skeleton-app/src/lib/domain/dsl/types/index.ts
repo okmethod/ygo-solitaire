@@ -1,21 +1,31 @@
 /**
  * DSL Types - DSL関連の型定義とスキーマをエクスポート
- *
- * 型はZodスキーマから導出される（Single Source of Truth）。
  */
 
-// 型定義
+// 共通型
 export type {
-  StepDSL,
-  RequirementDSL,
-  ChainableActionDSL,
-  AdditionalRuleDSL,
-  CardDataDSL,
-  CardDSLDefinition,
-} from "./CardDSLSchema";
+  DSLArgs,
+  ArgsValidatorFn,
+  PureConditionFn,
+  ConditionCheckerFn,
+  StepBuildContext,
+  StepBuilderFn,
+} from "./DSLTypes";
 
 // Zodスキーマ
-export { CardDSLDefinitionSchema } from "./CardDSLSchema";
+export { CardDSLDefinitionSchema } from "./DSLSchemas";
+
+// Zodスキーマから導出される型
+export type {
+  CardDataDSL,
+  StepDSL,
+  TriggerDSL,
+  RequirementDSL,
+  ConditionsDSL,
+  ChainableActionDSL,
+  AdditionalRuleDSL,
+  CardDSLDefinition,
+} from "./DSLSchemas";
 
 // エラークラス
 export {
