@@ -154,3 +154,46 @@ effectChainableActions:
         - step: "DRAW"
           args: { count: 1 }
 ```
+
+---
+
+## DSL によるカード実装フロー
+
+### 計画フェーズ
+
+1. YAML定義(WIP)を確認し内容を把握する
+   - id
+   - カードタイプ
+   - 条件・効果等
+2. Generic ファクトリを選定する
+   - 既存のファクトリと yaml パーサー/ローダーで実装可能か確認する
+   - できない場合、参考にするべき既存のファクトリがあるかを確認する
+   - 明確でない場合、設計案を検討してユーザーと合意形成する
+3. ConditionChecker と StepBuilder を選定する
+   - 既存の条件/ステップで実装可能か確認する
+   - できない場合、参考にするべき既存の条件/ステップがあるかを確認する
+   - 既存の条件/ステップから実装方針が明確な場合、追加実装する
+   - 明確でない場合、設計案を検討してユーザーと合意形成する
+
+### 実装フェーズ
+
+1. Generic ファクトリを追加実装する
+   - ファクトリを実装する
+   - yaml パーサー/ローダーを実装する
+   - `lib/domain/dsl/index.ts` に登録する
+   - テスト・Lint実行
+2. ConditionChecker を追加実装する
+   - 純粋関数を実装する（既存関数の流用もOK）
+   - `ConditionNames.ts` に名前を登録する
+   - `lib/domain/effects/conditions/index.ts` に登録する
+   - テスト・Lint実行
+3. StepBuilder を追加実装する
+   - 純粋関数を実装する（既存関数の流用もOK）
+   - `StepNames.ts` に名前を登録する
+   - `lib/domain/effects/steps/index.ts` に登録する
+   - テスト・Lint実行
+4. カード実装する
+   - YAML定義を更新する
+   - `lib/domain/cards/index.ts` に登録する
+   - テスト・Lint実行
+5. ブラウザで動作確認する
