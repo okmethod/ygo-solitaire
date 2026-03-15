@@ -25,6 +25,8 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
 import type { LocationName } from "$lib/domain/models/Location";
 import { selectCardsStep } from "$lib/domain/effects/steps/builders/userInteractions";
+import { saveTargetsToContextStep } from "$lib/domain/effects/steps/builders/contextOperations";
+import { establishEquipStep } from "$lib/domain/effects/steps/builders/equipOperations";
 
 /**
  * 装備対象の設定
@@ -148,6 +150,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
    */
   protected subTypePreResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     const config = this.getEquipTargetConfig();
+    const effectId = this.effectId;
     const filter = (card: CardInstance) => {
       if (card.type !== "monster") return false;
       if (config.sourceZone === "mainMonsterZone" && !Card.Instance.isFaceUp(card)) return false;
@@ -169,15 +172,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
           if (selectedIds.length === 0) {
             return GameProcessing.Result.failure(state, "No target selected");
           }
-          // 選択結果を activationContext に保存（後続のステップで使用）
-          const targetInstanceId = selectedIds[0];
-          const updatedState: GameSnapshot = {
-            ...state,
-            activationContexts: GameState.ActivationContext.setTargets(state.activationContexts, this.effectId, [
-              targetInstanceId,
-            ]),
-          };
-          return GameProcessing.Result.success(updatedState, `Selected equip target: ${targetInstanceId}`);
+          return saveTargetsToContextStep(effectId, "装備対象を保存").action(state, selectedIds);
         },
       }),
     ];
@@ -200,44 +195,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
    * @final このメソッドはオーバーライドしない
    */
   protected subTypePostResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
-    const effectId = this.effectId;
-
-    return [
-      {
-        id: `${this.cardId}-establish-equip`,
-        summary: "装備関係確立",
-        description: "装備魔法をモンスターに装備します",
-        notificationLevel: "silent",
-        action: (currentState: GameSnapshot) => {
-          // activationContext から対象を取得
-          const targets = GameState.ActivationContext.getTargets(currentState.activationContexts, effectId);
-          if (targets.length === 0) {
-            return GameProcessing.Result.failure(currentState, "No equip target found");
-          }
-          const targetInstanceId = targets[0];
-
-          // 装備魔法カードを見つける
-          const equipCard = GameState.Space.findCard(currentState.space, sourceInstance.instanceId);
-          if (!equipCard || !equipCard.stateOnField) {
-            return GameProcessing.Result.failure(currentState, "Equip spell card not found on field");
-          }
-
-          // 装備魔法カードの stateOnField.equippedTo を更新
-          const updatedSpace = GameState.Space.updateCardStateInPlace(currentState.space, equipCard, {
-            equippedTo: targetInstanceId,
-          });
-
-          // activationContext をクリア
-          const updatedState: GameSnapshot = {
-            ...currentState,
-            space: updatedSpace,
-            activationContexts: GameState.ActivationContext.clear(currentState.activationContexts, effectId),
-          };
-
-          return GameProcessing.Result.success(updatedState, `Equipped to ${targetInstanceId}`);
-        },
-      },
-    ];
+    return [establishEquipStep(this.effectId, sourceInstance.instanceId)];
   }
 
   /**

@@ -30,6 +30,8 @@ import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import { specialSummonFromDeckStepBuilder, specialSummonFromExtraDeckStepBuilder } from "./builders/summons";
 import { releaseAndBurnStepBuilder } from "./builders/releases";
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
+import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
+import { establishEquipStepBuilder, unequipStepBuilder } from "./builders/equipOperations";
 
 // ===========================
 // エクスポート
@@ -81,6 +83,14 @@ AtomicStepRegistry.register(S.SELECT_AND_BANISH_FROM_GRAVEYARD, selectAndBanishF
 
 // デッキ操作関連
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);
+
+// コンテキスト操作関連
+AtomicStepRegistry.register(S.SAVE_TARGETS_TO_CONTEXT, saveTargetsToContextStepBuilder);
+AtomicStepRegistry.register(S.CLEAR_CONTEXT, clearContextStepBuilder);
+
+// 装備関連
+AtomicStepRegistry.register(S.ESTABLISH_EQUIP, establishEquipStepBuilder);
+AtomicStepRegistry.register(S.UNEQUIP, unequipStepBuilder);
 
 // その他
 AtomicStepRegistry.register(S.THEN, thenStepBuilder);

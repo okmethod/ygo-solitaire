@@ -43,6 +43,14 @@ export const STEP_NAMES = {
   // デッキ操作・その他
   SHUFFLE_DECK: "SHUFFLE_DECK",
   THEN: "THEN", // タイミング進行
+
+  // コンテキスト操作
+  SAVE_TARGETS_TO_CONTEXT: "SAVE_TARGETS_TO_CONTEXT",
+  CLEAR_CONTEXT: "CLEAR_CONTEXT",
+
+  // 装備操作
+  ESTABLISH_EQUIP: "ESTABLISH_EQUIP",
+  UNEQUIP: "UNEQUIP",
 } as const;
 
 /** 登録済みステップ名の Union 型 */
