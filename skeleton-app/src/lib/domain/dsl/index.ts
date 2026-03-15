@@ -18,7 +18,7 @@ export {
 } from "./types";
 
 // Parsers
-export { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationError } from "./parsers";
+export { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationError } from "./core/parsers";
 
 // Factories
 export { GenericNormalSpellActivation, createGenericNormalSpellActivation } from "./factories";
@@ -29,4 +29,4 @@ export {
   loadCardsFromYaml,
   loadCardFromDefinition,
   loadCardsFromDefinitions,
-} from "./loader";
+} from "./core/loader";

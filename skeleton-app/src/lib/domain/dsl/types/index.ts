@@ -18,4 +18,10 @@ export type {
 export { CardDSLDefinitionSchema } from "./CardDSLSchema";
 
 // エラークラス
-export { DSLParseError, DSLValidationError, DSLStepResolutionError, DSLConditionResolutionError } from "./DSLErrors";
+export {
+  DSLParseError,
+  DSLConditionResolutionError,
+  DSLValidationError,
+  DSLStepResolutionError,
+  ArgValidationError,
+} from "./DSLErrors";

@@ -8,7 +8,7 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Effect } from "$lib/domain/models/Effect";
-import { ArgValidators } from "$lib/domain/dsl/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createConditionChecker } from "../conditionFactory";
 
 // ===========================

@@ -10,7 +10,7 @@
 
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
 import { dslDefinitions } from "$lib/domain/cards/definitions";
-import { loadCardDataFromYaml, loadCardDataWithEffectsFromYaml } from "$lib/domain/dsl/loader";
+import { loadCardDataFromYaml, loadCardDataWithEffectsFromYaml } from "$lib/domain/dsl/core/loader";
 import { ChainableActionRegistry, registerChainableActionFromMap } from "$lib/domain/effects/actions";
 import { AdditionalRuleRegistry, registerAdditionalRuleFromMap } from "$lib/domain/effects/rules";
 export { CardDataRegistry };

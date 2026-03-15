@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { parseCardDSL, parseMultipleCardDSL, isDSLParseError, isDSLValidationError } from "$lib/domain/dsl/parsers";
+import {
+  parseCardDSL,
+  parseMultipleCardDSL,
+  isDSLParseError,
+  isDSLValidationError,
+} from "$lib/domain/dsl/core/parsers";
 import { DSLParseError, DSLValidationError } from "$lib/domain/dsl/types";
 
 /**

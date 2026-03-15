@@ -6,7 +6,7 @@
  * - lpGreaterThanCondition: LPが指定値を超えているかチェック
  */
 
-import { ArgValidators } from "$lib/domain/dsl/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createSimpleConditionChecker } from "../conditionFactory";
 
 type LifePoints = { readonly player: number; readonly opponent: number };

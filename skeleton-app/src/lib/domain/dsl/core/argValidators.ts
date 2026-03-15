@@ -8,22 +8,9 @@
 
 import type { CardType, SpellSubType } from "$lib/domain/models/Card";
 import type { Player } from "$lib/domain/models/GameState";
+import { ArgValidationError } from "../types";
 
 type Args = Readonly<Record<string, unknown>>;
-
-/**
- * 引数バリデーションエラー
- */
-export class ArgValidationError extends Error {
-  constructor(
-    public readonly argName: string,
-    public readonly expected: string,
-    public readonly actual: unknown,
-  ) {
-    super(`Argument '${argName}' must be ${expected}, got ${typeof actual}`);
-    this.name = "ArgValidationError";
-  }
-}
 
 /**
  * 引数バリデーションユーティリティ

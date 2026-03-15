@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCardDSL } from "$lib/domain/dsl/parsers";
+import { parseCardDSL } from "$lib/domain/dsl/core/parsers";
 import { DSLParseError, DSLValidationError } from "$lib/domain/dsl/types/DSLErrors";
 
 /**

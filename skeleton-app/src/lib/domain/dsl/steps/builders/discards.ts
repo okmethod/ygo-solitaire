@@ -12,7 +12,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { ArgValidators } from "$lib/domain/dsl/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
 import { queueEndPhaseEffectStep } from "./endPhase";

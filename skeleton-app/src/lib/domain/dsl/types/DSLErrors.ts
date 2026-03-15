@@ -42,6 +42,21 @@ export class DSLValidationError extends Error {
 }
 
 /**
+ * DSL条件解決エラー
+ *
+ * ConditionRegistryに存在しない条件名が指定された場合に投げる。
+ */
+export class DSLConditionResolutionError extends Error {
+  constructor(
+    public readonly conditionName: string,
+    public readonly cardId: number,
+  ) {
+    super(`DSL Condition Resolution Error (Card ID: ${cardId}): Unknown condition "${conditionName}"`);
+    this.name = "DSLConditionResolutionError";
+  }
+}
+
+/**
  * DSLステップ解決エラー
  *
  * StepRegistryに存在しないステップ名が指定された場合に投げる。
@@ -57,16 +72,17 @@ export class DSLStepResolutionError extends Error {
 }
 
 /**
- * DSL条件解決エラー
+ * 引数バリデーションエラー
  *
- * ConditionRegistryに存在しない条件名が指定された場合に投げる。
+ * ステップや条件の引数が期待される型や値の範囲を満たさない場合に投げる。
  */
-export class DSLConditionResolutionError extends Error {
+export class ArgValidationError extends Error {
   constructor(
-    public readonly conditionName: string,
-    public readonly cardId: number,
+    public readonly argName: string,
+    public readonly expected: string,
+    public readonly actual: unknown,
   ) {
-    super(`DSL Condition Resolution Error (Card ID: ${cardId}): Unknown condition "${conditionName}"`);
-    this.name = "DSLConditionResolutionError";
+    super(`Argument '${argName}' must be ${expected}, got ${typeof actual}`);
+    this.name = "ArgValidationError";
   }
 }

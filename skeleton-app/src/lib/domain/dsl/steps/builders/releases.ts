@@ -15,7 +15,7 @@ import type { GameSnapshot, Player, CardSpace } from "$lib/domain/models/GameSta
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { ArgValidators } from "$lib/domain/dsl/argValidators";
+import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
 

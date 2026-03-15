@@ -8,9 +8,12 @@
  */
 
 import type { CardDSLDefinition } from "$lib/domain/dsl/types";
-import { parseCardDSL } from "$lib/domain/dsl/parsers";
+import { parseCardDSL } from "$lib/domain/dsl/core/parsers";
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
+import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
+import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
+import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
 import {
   createGenericNormalSpellActivation,
@@ -20,9 +23,6 @@ import {
   createGenericTriggerEffect,
 } from "$lib/domain/dsl/factories";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
-import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
-import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
-import { ContinuousSpellActivation } from "../effects/actions/activations/ContinuousSpellActivation";
 
 /**
  * DSL定義をCardDataRegistryに登録する
