@@ -10,8 +10,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { drawCards } from "$lib/domain/models/GameState/CardSpace";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 // ドローステップの共通ヘルパー
 const commonDrawStep = (
@@ -81,7 +81,7 @@ export const fillHandsStep = (targetCount: number): AtomicStep =>
  * DRAW - 指定枚数ドロー
  * args: { count: number }
  */
-export const drawStepBuilder: StepBuilder = (args) => {
+export const drawStepBuilder: StepBuilderFn = (args) => {
   const count = ArgValidators.positiveInt(args, "count");
   return drawStep(count);
 };
@@ -90,7 +90,7 @@ export const drawStepBuilder: StepBuilder = (args) => {
  * FILL_HANDS - 手札が指定枚数になるまでドロー
  * args: { count: number }
  */
-export const fillHandsStepBuilder: StepBuilder = (args) => {
+export const fillHandsStepBuilder: StepBuilderFn = (args) => {
   const count = ArgValidators.positiveInt(args, "count");
   return fillHandsStep(count);
 };

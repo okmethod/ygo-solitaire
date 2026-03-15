@@ -9,8 +9,8 @@
 import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 type LpOperationType = "gain" | "damage" | "payment" | "loss";
 
@@ -72,7 +72,7 @@ export const lossLpStep = (amount: number, target: Player): AtomicStep => {
  * GAIN_LP - ライフポイント回復
  * args: { amount: number, target?: "player" | "opponent" }
  */
-export const gainLpStepBuilder: StepBuilder = (args) => {
+export const gainLpStepBuilder: StepBuilderFn = (args) => {
   const amount = ArgValidators.positiveInt(args, "amount");
   const target = ArgValidators.optionalPlayer(args, "target", "player");
   return gainLpStep(amount, target);
@@ -82,7 +82,7 @@ export const gainLpStepBuilder: StepBuilder = (args) => {
  * PAY_LP - ライフポイント支払い（コスト）
  * args: { amount: number, target?: "player" | "opponent" }
  */
-export const payLpStepBuilder: StepBuilder = (args) => {
+export const payLpStepBuilder: StepBuilderFn = (args) => {
   const amount = ArgValidators.positiveInt(args, "amount");
   const target = ArgValidators.optionalPlayer(args, "target", "player");
   return payLpStep(amount, target);
@@ -92,7 +92,7 @@ export const payLpStepBuilder: StepBuilder = (args) => {
  * BURN_DAMAGE - 相手にダメージを与える（効果ダメージ）
  * args: { amount: number, target?: "player" | "opponent" }
  */
-export const burnDamageStepBuilder: StepBuilder = (args) => {
+export const burnDamageStepBuilder: StepBuilderFn = (args) => {
   const amount = ArgValidators.positiveInt(args, "amount");
   const target = ArgValidators.optionalPlayer(args, "target", "opponent");
   return damageLpStep(amount, target);

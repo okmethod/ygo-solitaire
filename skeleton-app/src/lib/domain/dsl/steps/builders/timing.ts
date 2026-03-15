@@ -10,7 +10,7 @@
 
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { StepBuilder } from "../AtomicStepRegistry";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 
 /** THEN マーカーの step ID */
 const THEN_MARKER_ID = "then-marker";
@@ -39,4 +39,4 @@ export function isThenMarker(step: AtomicStep): boolean {
  * THEN - 「その後」タイミングマーカー
  * args: none
  */
-export const thenStepBuilder: StepBuilder = () => markThenStep();
+export const thenStepBuilder: StepBuilderFn = () => markThenStep();

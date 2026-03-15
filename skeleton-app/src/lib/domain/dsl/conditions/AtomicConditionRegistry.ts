@@ -12,18 +12,8 @@
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { ConditionCheckerFn } from "$lib/domain/dsl/types";
 import type { ConditionName } from "./ConditionNames";
-
-/**
- * 条件チェック関数の型
- *
- * ゲーム状態とカードインスタンスから条件の成否を判定する。
- */
-export type ConditionChecker = (
-  state: GameSnapshot,
-  sourceInstance: CardInstance,
-  args: Readonly<Record<string, unknown>>,
-) => ValidationResult;
 
 /**
  * AtomicConditionRegistry - 条件のレジストリ（クラス）
@@ -33,7 +23,7 @@ export type ConditionChecker = (
  */
 export class AtomicConditionRegistry {
   /** 登録済み条件のマップ (Condition Name → ConditionChecker) */
-  private static conditions = new Map<ConditionName, ConditionChecker>();
+  private static conditions = new Map<ConditionName, ConditionCheckerFn>();
 
   // ===========================
   // 登録API
@@ -46,7 +36,7 @@ export class AtomicConditionRegistry {
    * @param checker - 条件チェック関数
    * @throws Error - 既に登録済みの場合
    */
-  static register(conditionName: ConditionName, checker: ConditionChecker): void {
+  static register(conditionName: ConditionName, checker: ConditionCheckerFn): void {
     if (this.conditions.has(conditionName)) {
       throw new Error(`Condition "${conditionName}" is already registered`);
     }

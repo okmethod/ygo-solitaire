@@ -11,8 +11,8 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { EffectId } from "$lib/domain/models/Effect";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
 
 // ===========================
@@ -136,7 +136,7 @@ export const selectAndBanishFromGraveyardStep = (
  * SELECT_AND_BANISH_FROM_GRAVEYARD - 墓地からカードを選んで除外
  * args: { minCount: number, maxCount: number, filterType?: BanishFilterType, faceDown?: boolean }
  */
-export const selectAndBanishFromGraveyardStepBuilder: StepBuilder = (args, context) => {
+export const selectAndBanishFromGraveyardStepBuilder: StepBuilderFn = (args, context) => {
   const minCount = ArgValidators.positiveInt(args, "minCount");
   const maxCount = ArgValidators.positiveInt(args, "maxCount");
   const filterType = ArgValidators.optionalString(args, "filterType") as BanishFilterType | undefined;

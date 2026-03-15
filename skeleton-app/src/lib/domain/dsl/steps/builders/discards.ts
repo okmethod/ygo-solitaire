@@ -12,8 +12,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
 import { queueEndPhaseEffectStep } from "./endPhase";
 
@@ -161,7 +161,7 @@ export const selectAndDiscardStep = (
  * SELECT_AND_DISCARD - 手札から指定枚数選んで捨てる
  * args: { count: number, cancelable?: boolean, filterType?: CardType }
  */
-export const selectAndDiscardStepBuilder: StepBuilder = (args) => {
+export const selectAndDiscardStepBuilder: StepBuilderFn = (args) => {
   const count = ArgValidators.positiveInt(args, "count");
   const cancelable = ArgValidators.optionalBoolean(args, "cancelable", false);
   const filterType = ArgValidators.optionalCardType(args, "filterType");
@@ -172,4 +172,4 @@ export const selectAndDiscardStepBuilder: StepBuilder = (args) => {
  * DISCARD_ALL_HAND_END_PHASE - エンドフェイズに手札を全て捨てる
  * args: none
  */
-export const discardAllHandEndPhaseStepBuilder: StepBuilder = () => discardAllHandEndPhaseStep();
+export const discardAllHandEndPhaseStepBuilder: StepBuilderFn = () => discardAllHandEndPhaseStep();

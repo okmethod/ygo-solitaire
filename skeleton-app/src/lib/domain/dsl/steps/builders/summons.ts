@@ -13,8 +13,8 @@ import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameP
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { EffectId } from "$lib/domain/models/Effect";
 import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** フィルタータイプ（monster または normal_monster） */
 type MonsterFilterType = "monster" | "normal_monster";
@@ -320,7 +320,7 @@ export const specialSummonFromExtraDeckStep = (
  *   battlePosition?: BattlePosition
  * }
  */
-export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => {
+export const specialSummonFromDeckStepBuilder: StepBuilderFn = (args, context) => {
   const filterType = ArgValidators.oneOf(args, "filterType", ["monster", "normal_monster"] as const);
   const filterLevel = args.filterLevel as FilterLevelArg | undefined;
   const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
@@ -344,7 +344,7 @@ export const specialSummonFromDeckStepBuilder: StepBuilder = (args, context) => 
  * SPECIAL_SUMMON_FROM_EXTRA_DECK - EXデッキからモンスターを特殊召喚
  * args: { filterMaxLevel?: number, filterFrameType?: string, battlePosition?: BattlePosition }
  */
-export const specialSummonFromExtraDeckStepBuilder: StepBuilder = (args, context) => {
+export const specialSummonFromExtraDeckStepBuilder: StepBuilderFn = (args, context) => {
   const filterMaxLevel = ArgValidators.optionalPositiveInt(args, "filterMaxLevel");
   const filterFrameType = ArgValidators.optionalString(args, "filterFrameType");
   const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");

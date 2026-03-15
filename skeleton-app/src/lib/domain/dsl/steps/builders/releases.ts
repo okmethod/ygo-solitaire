@@ -15,8 +15,8 @@ import type { GameSnapshot, Player, CardSpace } from "$lib/domain/models/GameSta
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 import { selectCardsStep } from "./userInteractions";
 
 // ===========================
@@ -116,7 +116,7 @@ export const selectAndReleaseStep = (config: SelectAndReleaseConfig): AtomicStep
 };
 
 // ===========================
-// ステップビルダー
+// ステップビルダー（DSL用ファクトリ）
 // ===========================
 
 /**
@@ -174,7 +174,7 @@ export const releaseAndBurnStep = (
  *
  * デフォルト: 攻撃力の50%を相手にダメージ
  */
-export const releaseAndBurnStepBuilder: StepBuilder = (args, context) => {
+export const releaseAndBurnStepBuilder: StepBuilderFn = (args, context) => {
   const damageMultiplier = (args.damageMultiplier as number | undefined) ?? 0.5;
   const damageTarget = ArgValidators.optionalPlayer(args, "damageTarget", "opponent");
 

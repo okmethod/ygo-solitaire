@@ -8,7 +8,7 @@
  */
 
 // レジストリAPI
-import { AtomicStepRegistry, type StepBuilder, type StepBuildContext } from "./AtomicStepRegistry";
+import { AtomicStepRegistry } from "./AtomicStepRegistry";
 import { STEP_NAMES, type StepName } from "./StepNames";
 
 // StepBuilder 実装
@@ -37,7 +37,7 @@ import { establishEquipStepBuilder, unequipStepBuilder } from "./builders/equipO
 // エクスポート
 // ===========================
 
-export { AtomicStepRegistry, type StepBuilder, type StepBuildContext };
+export { AtomicStepRegistry };
 export { STEP_NAMES, type StepName };
 export const buildStep = AtomicStepRegistry.build.bind(AtomicStepRegistry);
 

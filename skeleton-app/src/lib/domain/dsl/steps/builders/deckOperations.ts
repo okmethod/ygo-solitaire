@@ -9,7 +9,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { StepBuilder } from "../AtomicStepRegistry";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 
 /** デッキをシャッフルするステップ*/
 export const shuffleDeckStep = (): AtomicStep => {
@@ -36,4 +36,4 @@ export const shuffleDeckStep = (): AtomicStep => {
  * SHUFFLE_DECK - デッキシャッフル
  * args: none
  */
-export const shuffleDeckStepBuilder: StepBuilder = () => shuffleDeckStep();
+export const shuffleDeckStepBuilder: StepBuilderFn = () => shuffleDeckStep();

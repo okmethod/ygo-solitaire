@@ -14,8 +14,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 // カードを検索して手札に加える処理の共通ステップ
 const internalSearchStep = (
@@ -266,7 +266,7 @@ export const salvageFromGraveyardStep = (
  * SEARCH_FROM_DECK - デッキからカードタイプでサーチ
  * args: { filterType: CardType, count: number, filterSpellType?: SpellSubType }
  */
-export const searchFromDeckStepBuilder: StepBuilder = (args, context) => {
+export const searchFromDeckStepBuilder: StepBuilderFn = (args, context) => {
   const filterType = ArgValidators.nonEmptyString(args, "filterType") as CardType;
   const filterSpellType = ArgValidators.optionalSpellSubType(args, "filterSpellType");
   const count = ArgValidators.positiveInt(args, "count");
@@ -277,7 +277,7 @@ export const searchFromDeckStepBuilder: StepBuilder = (args, context) => {
  * SEARCH_FROM_DECK_BY_NAME - デッキからカード名でサーチ
  * args: { namePattern: string, count: number }
  */
-export const searchFromDeckByNameStepBuilder: StepBuilder = (args, context) => {
+export const searchFromDeckByNameStepBuilder: StepBuilderFn = (args, context) => {
   const namePattern = ArgValidators.nonEmptyString(args, "namePattern");
   const count = ArgValidators.positiveInt(args, "count");
   return searchFromDeckByNameStep(context.cardId, namePattern, count);
@@ -287,7 +287,7 @@ export const searchFromDeckByNameStepBuilder: StepBuilder = (args, context) => {
  * SEARCH_FROM_DECK_TOP - デッキトップから選んでサーチ
  * args: { count: number, selectCount: number }
  */
-export const searchFromDeckTopStepBuilder: StepBuilder = (args, context) => {
+export const searchFromDeckTopStepBuilder: StepBuilderFn = (args, context) => {
   const count = ArgValidators.positiveInt(args, "count");
   const selectCount = ArgValidators.positiveInt(args, "selectCount");
   return searchFromDeckTopStep(context.cardId, count, selectCount);
@@ -297,7 +297,7 @@ export const searchFromDeckTopStepBuilder: StepBuilder = (args, context) => {
  * SEARCH_MONSTER_BY_STAT - モンスターをATK/DEFでサーチ
  * args: { statType: "attack" | "defense", maxValue: number, count: number }
  */
-export const searchMonsterByStatStepBuilder: StepBuilder = (args, context) => {
+export const searchMonsterByStatStepBuilder: StepBuilderFn = (args, context) => {
   const statType = ArgValidators.oneOf(args, "statType", ["attack", "defense"] as const);
   const maxValue = ArgValidators.nonNegativeInt(args, "maxValue");
   const count = ArgValidators.positiveInt(args, "count");
@@ -308,7 +308,7 @@ export const searchMonsterByStatStepBuilder: StepBuilder = (args, context) => {
  * SALVAGE_FROM_GRAVEYARD - 墓地からサルベージ
  * args: { filterType: CardType, count: number, filterSpellType?: SpellSubType, filterFrameType?: FrameSubType }
  */
-export const salvageFromGraveyardStepBuilder: StepBuilder = (args, context) => {
+export const salvageFromGraveyardStepBuilder: StepBuilderFn = (args, context) => {
   const filterType = ArgValidators.nonEmptyString(args, "filterType") as CardType;
   const filterSpellType = ArgValidators.optionalSpellSubType(args, "filterSpellType");
   const filterFrameType = ArgValidators.optionalString(args, "filterFrameType") as FrameSubType | undefined;

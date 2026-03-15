@@ -9,8 +9,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { selectCardsStep } from "$lib/domain/dsl/steps/builders/userInteractions";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 /**
  * 手札から任意枚数を選択してデッキに戻し、シャッフルして同じ枚数ドローするステップ
@@ -67,7 +67,7 @@ export const selectReturnShuffleDrawStep = (options: { min: number; max?: number
  * SELECT_RETURN_SHUFFLE_DRAW - 手札をデッキに戻してシャッフル後、同数ドロー
  * args: { min: number, max?: number }
  */
-export const selectReturnShuffleDrawStepBuilder: StepBuilder = (args) => {
+export const selectReturnShuffleDrawStepBuilder: StepBuilderFn = (args) => {
   const min = (args.min as number) ?? 0;
   const max = args.max as number | undefined;
   if (typeof min !== "number" || min < 0) {

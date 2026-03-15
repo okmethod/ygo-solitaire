@@ -15,9 +15,9 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
 import type { RuleCategory } from "$lib/domain/models/Effect";
-import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
-import { buildStep, type StepBuildContext } from "$lib/domain/dsl/steps";
 import { BaseContinuousEffect } from "$lib/domain/effects/rules";
+import type { AdditionalRuleDSL, StepBuildContext } from "$lib/domain/dsl/types";
+import { buildStep } from "$lib/domain/dsl/steps";
 
 /**
  * GenericContinuousTriggerRule - DSL定義に基づく永続効果のトリガールール実装

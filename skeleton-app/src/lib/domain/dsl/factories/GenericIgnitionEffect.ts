@@ -14,8 +14,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { BaseIgnitionEffect } from "$lib/domain/effects/actions/ignitions/BaseIgnitionEffect";
-import type { ChainableActionDSL, StepDSL } from "$lib/domain/dsl/types";
-import { buildStep, type StepBuildContext } from "$lib/domain/dsl/steps";
+import type { ChainableActionDSL, StepDSL, StepBuildContext } from "$lib/domain/dsl/types";
+import { buildStep } from "$lib/domain/dsl/steps";
 import { checkCondition } from "$lib/domain/dsl/conditions";
 
 /**

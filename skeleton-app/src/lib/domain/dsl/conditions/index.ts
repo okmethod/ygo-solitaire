@@ -8,7 +8,7 @@
  */
 
 // レジストリAPI
-import { AtomicConditionRegistry, type ConditionChecker } from "./AtomicConditionRegistry";
+import { AtomicConditionRegistry } from "./AtomicConditionRegistry";
 import { CONDITION_NAMES, type ConditionName } from "./ConditionNames";
 
 // ConditionChecker 実装
@@ -28,7 +28,7 @@ import { lpAtLeastCondition, lpGreaterThanCondition } from "./checkers/lpConditi
 // エクスポート
 // ===========================
 
-export { AtomicConditionRegistry, type ConditionChecker };
+export { AtomicConditionRegistry };
 export { CONDITION_NAMES, type ConditionName };
 export const checkCondition = AtomicConditionRegistry.check.bind(AtomicConditionRegistry);
 

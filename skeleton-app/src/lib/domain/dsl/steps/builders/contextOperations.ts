@@ -16,8 +16,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 // ===========================
 // ステップ関数（export）
@@ -101,7 +101,7 @@ export const clearContextStep = (effectId: EffectId): AtomicStep => ({
  *
  * effectId が省略された場合は context.effectId を使用する。
  */
-export const saveTargetsToContextStepBuilder: StepBuilder = (args, context) => {
+export const saveTargetsToContextStepBuilder: StepBuilderFn = (args, context) => {
   const effectIdFromArgs = ArgValidators.optionalString(args, "effectId");
   const effectId = effectIdFromArgs ? (effectIdFromArgs as EffectId) : context.effectId;
   if (!effectId) {
@@ -117,7 +117,7 @@ export const saveTargetsToContextStepBuilder: StepBuilder = (args, context) => {
  *
  * effectId が省略された場合は context.effectId を使用する。
  */
-export const clearContextStepBuilder: StepBuilder = (args, context) => {
+export const clearContextStepBuilder: StepBuilderFn = (args, context) => {
   const effectIdFromArgs = ArgValidators.optionalString(args, "effectId");
   const effectId = effectIdFromArgs ? (effectIdFromArgs as EffectId) : context.effectId;
   if (!effectId) {

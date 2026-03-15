@@ -10,28 +10,7 @@
  */
 
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
-import type { EffectId } from "$lib/domain/models/Effect";
-
-/**
- * ステップビルドコンテキスト
- *
- * ステップ生成時に必要なコンテキスト情報。
- */
-export interface StepBuildContext {
-  /** カードID */
-  readonly cardId: number;
-  /** 効果ID（オプション） - EffectActivationContext へのアクセスに使用 */
-  readonly effectId?: EffectId;
-  /** 発動元カードインスタンスID（オプション） */
-  readonly sourceInstanceId?: string;
-}
-
-/**
- * ステップビルダー関数の型
- *
- * 引数とコンテキストからAtomicStepを生成する。
- */
-export type StepBuilder = (args: Readonly<Record<string, unknown>>, context: StepBuildContext) => AtomicStep;
+import type { StepBuildContext, StepBuilderFn } from "$lib/domain/dsl/types";
 
 /**
  * AtomicStepRegistry - ステップのレジストリ（クラス）
@@ -41,7 +20,7 @@ export type StepBuilder = (args: Readonly<Record<string, unknown>>, context: Ste
  */
 export class AtomicStepRegistry {
   /** 登録済みステップのマップ (Step Name → StepBuilder) */
-  private static steps = new Map<string, StepBuilder>();
+  private static steps = new Map<string, StepBuilderFn>();
 
   // ===========================
   // 登録API
@@ -54,7 +33,7 @@ export class AtomicStepRegistry {
    * @param builder - ステップビルダー関数
    * @throws Error - 既に登録済みの場合
    */
-  static register(stepName: string, builder: StepBuilder): void {
+  static register(stepName: string, builder: StepBuilderFn): void {
     if (this.steps.has(stepName)) {
       throw new Error(`Step "${stepName}" is already registered`);
     }

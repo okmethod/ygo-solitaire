@@ -7,22 +7,22 @@
  * @module domain/dsl/loader
  */
 
-import type { CardDSLDefinition } from "$lib/domain/dsl/types";
-import { parseCardDSL } from "$lib/domain/dsl/core/parsers";
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
 import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
 import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules/AdditionalRuleRegistry";
+import type { CardDSLDefinition } from "$lib/domain/dsl/types";
 import {
   createGenericNormalSpellActivation,
   createGenericQuickPlaySpellActivation,
   createGenericContinuousSpellActivation,
   createGenericIgnitionEffect,
   createGenericTriggerEffect,
+  GenericContinuousTriggerRule,
 } from "$lib/domain/dsl/factories";
-import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
+import { parseCardDSL } from "./parsers";
 
 /**
  * DSL定義をCardDataRegistryに登録する

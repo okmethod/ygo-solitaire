@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { buildStep, AtomicStepRegistry, type StepBuildContext } from "$lib/domain/dsl/steps";
+import type { StepBuildContext } from "$lib/domain/dsl/types";
+import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 
 /**
  * CounterSteps Tests - カウンター関連ステップのテスト

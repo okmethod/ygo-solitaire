@@ -12,8 +12,8 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
-import type { StepBuilder } from "../AtomicStepRegistry";
 
 /** 指定カードにカウンターを置くステップ */
 export const addCounterStep = (
@@ -99,7 +99,7 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
  * PLACE_COUNTER - カウンターを置く
  * args: { counterType: CounterType, count: number, limit?: number }
  */
-export const placeCounterStepBuilder: StepBuilder = (args, context) => {
+export const placeCounterStepBuilder: StepBuilderFn = (args, context) => {
   const counterType = ArgValidators.nonEmptyString(args, "counterType") as CounterType;
   const count = ArgValidators.positiveInt(args, "count");
   const limit = ArgValidators.optionalPositiveInt(args, "limit");
@@ -111,7 +111,7 @@ export const placeCounterStepBuilder: StepBuilder = (args, context) => {
  * REMOVE_COUNTER - カウンターを取り除く
  * args: { counterType: CounterType, count: number }
  */
-export const removeCounterStepBuilder: StepBuilder = (args, context) => {
+export const removeCounterStepBuilder: StepBuilderFn = (args, context) => {
   const counterType = ArgValidators.nonEmptyString(args, "counterType") as CounterType;
   const count = ArgValidators.positiveInt(args, "count");
   const targetInstanceId = context.sourceInstanceId ?? `instance-${context.cardId}`;

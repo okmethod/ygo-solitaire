@@ -10,7 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { StepBuilder } from "../AtomicStepRegistry";
+import type { StepBuilderFn } from "$lib/domain/dsl/types";
 
 /**
  * 表示形式変更ステップ
@@ -63,7 +63,7 @@ export const changeBattlePositionStep = (instanceId: string, targetPosition: Bat
  * CHANGE_BATTLE_POSITION - 表示形式変更
  * args: { position: "attack" | "defense" }
  */
-export const changeBattlePositionStepBuilder: StepBuilder = (args, context) => {
+export const changeBattlePositionStepBuilder: StepBuilderFn = (args, context) => {
   const position = args.position as BattlePosition;
   if (position !== "attack" && position !== "defense") {
     throw new Error('CHANGE_BATTLE_POSITION step requires position to be "attack" or "defense"');
