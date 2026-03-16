@@ -7,21 +7,10 @@
  * - handHasSpellCondition: 手札に魔法カードが指定枚数以上あるか（自身を除く）
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
 import { GameState } from "$lib/domain/models/GameState";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createConditionChecker, createSimpleConditionChecker } from "../conditionFactory";
-
-// ===========================
-// 純粋関数（private）
-// ===========================
-
-/** 手札が指定枚数以上あるか */
-const handCount = (hand: readonly CardInstance[], minCount: number): boolean => hand.length >= minCount;
-
-/** 手札に魔法カードが指定枚数以上あるか（自身を除く） */
-const handHasSpell = (hand: readonly CardInstance[], selfInstanceId: string, minCount: number): boolean =>
-  hand.filter((card) => card.type === "spell" && card.instanceId !== selfInstanceId).length >= minCount;
+import { hasAtLeast, isSpell, and, excludingInstance } from "../primitives/cardPredicates";
 
 // ===========================
 // ConditionChecker（export）
@@ -33,7 +22,7 @@ const handHasSpell = (hand: readonly CardInstance[], selfInstanceId: string, min
  */
 export const handCountCondition = createSimpleConditionChecker(
   (args) => ({ minCount: ArgValidators.positiveInt(args, "minCount") }),
-  (state, { minCount }) => handCount(state.space.hand, minCount),
+  (state, { minCount }) => state.space.hand.length >= minCount,
 );
 
 /**
@@ -52,5 +41,6 @@ export const handCountExcludingSelfCondition = createConditionChecker(
  */
 export const handHasSpellCondition = createConditionChecker(
   (args) => ({ minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1 }),
-  (state, sourceInstance, { minCount }) => handHasSpell(state.space.hand, sourceInstance.instanceId, minCount),
+  (state, sourceInstance, { minCount }) =>
+    hasAtLeast(state.space.hand, and(isSpell, excludingInstance(sourceInstance.instanceId)), minCount),
 );

@@ -7,34 +7,10 @@
  * - graveyardHasSpellOrTrapCondition: 墓地に魔法・罠カードが指定枚数以上あるか
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { FrameSubType } from "$lib/domain/models/Card";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createSimpleConditionChecker } from "../conditionFactory";
-
-// ===========================
-// 純粋関数（private）
-// ===========================
-
-/** 墓地に魔法カードが指定枚数以上あるか */
-const graveyardHasSpell = (graveyard: readonly CardInstance[], minCount: number): boolean =>
-  graveyard.filter((card) => card.type === "spell").length >= minCount;
-
-/** 墓地にモンスターカードが指定枚数以上あるか */
-const graveyardHasMonster = (
-  graveyard: readonly CardInstance[],
-  minCount: number,
-  frameType: string | undefined,
-): boolean => {
-  let monsters = graveyard.filter((card) => card.type === "monster");
-  if (frameType) {
-    monsters = monsters.filter((card) => card.frameType === frameType);
-  }
-  return monsters.length >= minCount;
-};
-
-/** 墓地に魔法・罠カードが指定枚数以上あるか */
-const graveyardHasSpellOrTrap = (graveyard: readonly CardInstance[], minCount: number): boolean =>
-  graveyard.filter((card) => card.type === "spell" || card.type === "trap").length >= minCount;
+import { hasAtLeast, isSpell, isMonster, isSpellOrTrap, and, byFrameType } from "../primitives/cardPredicates";
 
 // ===========================
 // ConditionChecker（export）
@@ -46,7 +22,7 @@ const graveyardHasSpellOrTrap = (graveyard: readonly CardInstance[], minCount: n
  */
 export const graveyardHasSpellCondition = createSimpleConditionChecker(
   (args) => ({ minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1 }),
-  (state, { minCount }) => graveyardHasSpell(state.space.graveyard, minCount),
+  (state, { minCount }) => hasAtLeast(state.space.graveyard, isSpell, minCount),
 );
 
 /**
@@ -56,9 +32,12 @@ export const graveyardHasSpellCondition = createSimpleConditionChecker(
 export const graveyardHasMonsterCondition = createSimpleConditionChecker(
   (args) => ({
     minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1,
-    frameType: ArgValidators.optionalString(args, "frameType"),
+    frameType: ArgValidators.optionalString(args, "frameType") as FrameSubType | undefined,
   }),
-  (state, { minCount, frameType }) => graveyardHasMonster(state.space.graveyard, minCount, frameType),
+  (state, { minCount, frameType }) => {
+    const predicate = frameType ? and(isMonster, byFrameType(frameType)) : isMonster;
+    return hasAtLeast(state.space.graveyard, predicate, minCount);
+  },
 );
 
 /**
@@ -67,5 +46,5 @@ export const graveyardHasMonsterCondition = createSimpleConditionChecker(
  */
 export const graveyardHasSpellOrTrapCondition = createSimpleConditionChecker(
   (args) => ({ minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1 }),
-  (state, { minCount }) => graveyardHasSpellOrTrap(state.space.graveyard, minCount),
+  (state, { minCount }) => hasAtLeast(state.space.graveyard, isSpellOrTrap, minCount),
 );

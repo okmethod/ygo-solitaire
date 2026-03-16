@@ -7,35 +7,10 @@
  * - deckHasNameIncludesCondition: デッキに名前パターンを含むカードが指定枚数以上あるか
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
+import type { CardType, SpellSubType } from "$lib/domain/models/Card";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createSimpleConditionChecker } from "../conditionFactory";
-
-// ===========================
-// 純粋関数（private）
-// ===========================
-
-/** デッキに指定枚数以上のカードがあるか */
-const canDraw = (deck: readonly CardInstance[], count: number): boolean => deck.length >= count;
-
-/** デッキに条件に合うカードが指定枚数以上あるか */
-const deckHasCard = (
-  deck: readonly CardInstance[],
-  filterType: string,
-  filterSpellType: string | undefined,
-  minCount: number,
-): boolean => {
-  const filter = (card: CardInstance): boolean => {
-    if (card.type !== filterType) return false;
-    if (filterSpellType && card.spellType !== filterSpellType) return false;
-    return true;
-  };
-  return deck.filter(filter).length >= minCount;
-};
-
-/** デッキに名前パターンを含むカードが指定枚数以上あるか */
-const deckHasNameIncludes = (deck: readonly CardInstance[], namePattern: string, minCount: number): boolean =>
-  deck.filter((card) => card.jaName.includes(namePattern)).length >= minCount;
+import { hasAtLeast, byType, bySpellType, byNameIncludes, and } from "../primitives/cardPredicates";
 
 // ===========================
 // ConditionChecker（export）
@@ -47,7 +22,7 @@ const deckHasNameIncludes = (deck: readonly CardInstance[], namePattern: string,
  */
 export const canDrawCondition = createSimpleConditionChecker(
   (args) => ({ count: ArgValidators.positiveInt(args, "count") }),
-  (state, { count }) => canDraw(state.space.mainDeck, count),
+  (state, { count }) => state.space.mainDeck.length >= count,
 );
 
 /**
@@ -56,12 +31,14 @@ export const canDrawCondition = createSimpleConditionChecker(
  */
 export const deckHasCardCondition = createSimpleConditionChecker(
   (args) => ({
-    filterType: ArgValidators.nonEmptyString(args, "filterType"),
-    filterSpellType: ArgValidators.optionalString(args, "filterSpellType"),
+    filterType: ArgValidators.nonEmptyString(args, "filterType") as CardType,
+    filterSpellType: ArgValidators.optionalString(args, "filterSpellType") as SpellSubType | undefined,
     minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1,
   }),
-  (state, { filterType, filterSpellType, minCount }) =>
-    deckHasCard(state.space.mainDeck, filterType, filterSpellType, minCount),
+  (state, { filterType, filterSpellType, minCount }) => {
+    const predicate = filterSpellType ? and(byType(filterType), bySpellType(filterSpellType)) : byType(filterType);
+    return hasAtLeast(state.space.mainDeck, predicate, minCount);
+  },
 );
 
 /**
@@ -73,5 +50,5 @@ export const deckHasNameIncludesCondition = createSimpleConditionChecker(
     namePattern: ArgValidators.nonEmptyString(args, "namePattern"),
     minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1,
   }),
-  (state, { namePattern, minCount }) => deckHasNameIncludes(state.space.mainDeck, namePattern, minCount),
+  (state, { namePattern, minCount }) => hasAtLeast(state.space.mainDeck, byNameIncludes(namePattern), minCount),
 );

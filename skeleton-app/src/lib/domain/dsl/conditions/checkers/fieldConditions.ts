@@ -5,18 +5,17 @@
  * - fieldHasEquippedNameIncludesCondition: フィールドに名前パターンを含む装備カードがあるか
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createSimpleConditionChecker } from "../conditionFactory";
+import { hasAtLeast, byNameIncludes, and, type CardPredicate } from "../primitives/cardPredicates";
 
 // ===========================
-// 純粋関数（private）
+// 追加フィルター（fieldConditions固有）
 // ===========================
 
-/** フィールドに名前パターンを含む装備カードがあるか */
-const fieldHasEquippedNameIncludes = (spellTrapZone: readonly CardInstance[], namePattern: string): boolean =>
-  spellTrapZone.filter((card) => Card.isEquipSpell(card) && card.jaName.includes(namePattern)).length >= 1;
+/** 装備魔法カードか */
+const isEquipSpell: CardPredicate = (card) => Card.isEquipSpell(card);
 
 // ===========================
 // ConditionChecker（export）
@@ -28,5 +27,5 @@ const fieldHasEquippedNameIncludes = (spellTrapZone: readonly CardInstance[], na
  */
 export const fieldHasEquippedNameIncludesCondition = createSimpleConditionChecker(
   (args) => ({ namePattern: ArgValidators.nonEmptyString(args, "namePattern") }),
-  (state, { namePattern }) => fieldHasEquippedNameIncludes(state.space.spellTrapZone, namePattern),
+  (state, { namePattern }) => hasAtLeast(state.space.spellTrapZone, and(isEquipSpell, byNameIncludes(namePattern)), 1),
 );
