@@ -27,7 +27,12 @@ import { placeCounterStepBuilder, removeCounterStepBuilder } from "./builders/co
 import { shuffleDeckStepBuilder } from "./builders/deckOperations";
 import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
-import { specialSummonFromDeckStepBuilder, specialSummonFromExtraDeckStepBuilder } from "./builders/summons";
+import {
+  specialSummonFromDeckStepBuilder,
+  specialSummonFromExtraDeckStepBuilder,
+  selectTargetFromGraveyardStepBuilder,
+  specialSummonFromContextStepBuilder,
+} from "./builders/summons";
 import { releaseAndBurnStepBuilder } from "./builders/releases";
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
 import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
@@ -74,6 +79,8 @@ AtomicStepRegistry.register(S.REMOVE_COUNTER, removeCounterStepBuilder);
 AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
+AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
+AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 
 // リリース関連
 AtomicStepRegistry.register(S.RELEASE_AND_BURN, releaseAndBurnStepBuilder);

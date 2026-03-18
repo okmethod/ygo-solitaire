@@ -18,6 +18,7 @@ import {
   createGenericNormalSpellActivation,
   createGenericQuickPlaySpellActivation,
   createGenericContinuousSpellActivation,
+  createGenericEquipSpellActivation,
   createGenericIgnitionEffect,
   createGenericTriggerEffect,
   GenericContinuousTriggerRule,
@@ -64,9 +65,7 @@ function registerChainableAction(definition: CardDSLDefinition): void {
       const activation = createGenericContinuousSpellActivation(id, chainableActions.activations);
       ChainableActionRegistry.registerActivation(id, activation);
     } else if (spellType === "equip") {
-      // 装備魔法: activations指定がある場合はcreateWithConfigを使用
-      // TODO: DSLでtargetConfig, resolutionStepsを指定できるようにする
-      const activation = EquipSpellActivation.createNoOp(id);
+      const activation = createGenericEquipSpellActivation(id, chainableActions.activations);
       ChainableActionRegistry.registerActivation(id, activation);
     } else {
       throw new Error(`Unsupported spell type "${spellType}" for card ID ${id}`);

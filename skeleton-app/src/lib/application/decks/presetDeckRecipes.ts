@@ -132,7 +132,6 @@ const deckPandaExodia: DeckRecipe = {
   ],
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const deckScienceCatapult: DeckRecipe = {
   name: "サイエンカタパ - WIP",
   description: "魔導サイエンティストで特殊召喚した融合モンスターを、カタパルトタートルで射出するデッキです",
@@ -147,8 +146,8 @@ const deckScienceCatapult: DeckRecipe = {
     // 魔法カード
     { id: 55144522, quantity: 1 }, // 強欲な壺
     { id: 79571449, quantity: 1 }, // 天使の施し
-    // 死者蘇生
-    // 早すぎた埋葬
+    { id: 83764719, quantity: 1 }, // 死者蘇生
+    { id: 70828912, quantity: 1 }, // 早すぎた埋葬
     { id: 74519184, quantity: 3 }, // 手札断殺
     // モンスタゲート
     // デビルズ・サンクチュアリ
@@ -166,5 +165,5 @@ export const presetDeckRecipes: Record<string, DeckRecipe> = {
   "legacy-exodia-deck": deckLegacyExodia,
   "library-exodia-deck": deckLibraryExodia,
   "panda-exodia-deck": deckPandaExodia,
-  // "scientist-catapult-deck": deckScienceCatapult,
+  "scientist-catapult-deck": deckScienceCatapult,
 };

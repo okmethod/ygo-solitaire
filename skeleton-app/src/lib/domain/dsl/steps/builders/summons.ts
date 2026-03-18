@@ -3,6 +3,9 @@
  *
  * StepBuilder:
  * - specialSummonFromDeckStepBuilder: デッキからモンスターを特殊召喚
+ * - specialSummonFromExtraDeckStepBuilder: EXデッキからモンスターを特殊召喚
+ * - selectTargetFromGraveyardStepBuilder: 墓地からモンスターを対象に取る
+ * - specialSummonFromContextStepBuilder: コンテキストから対象を特殊召喚
  */
 
 import type { DeckLocationName } from "$lib/domain/models/Location";
@@ -308,6 +311,118 @@ export const specialSummonFromExtraDeckStep = (
   };
 };
 
+/**
+ * 墓地からモンスターを選択し、対象としてコンテキストに保存するステップ（発動時に使用）
+ *
+ * @param cardId - カードID
+ * @param effectId - 効果ID（コンテキストのキー）
+ */
+export const selectTargetFromGraveyardStep = (cardId: number, effectId: EffectId): AtomicStep => {
+  const summary = "蘇生対象を選択";
+  const description = "墓地からモンスター1体を対象に取ります";
+  const filter = (card: CardInstance): boolean => card.type === "monster";
+
+  return {
+    id: `${cardId}-select-target-from-graveyard`,
+    summary,
+    description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
+      minCards: 1,
+      maxCards: 1,
+      summary,
+      description,
+      cancelable: false,
+      _sourceZone: "graveyard",
+      _filter: filter,
+    },
+    action: (state: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return GameProcessing.Result.failure(state, "No target selected");
+      }
+
+      // 対象をコンテキストに保存
+      const updatedState: GameSnapshot = {
+        ...state,
+        activationContexts: GameState.ActivationContext.setTargets(
+          state.activationContexts,
+          effectId,
+          selectedInstanceIds,
+        ),
+      };
+
+      const targetCard = GameState.Space.findCard(state.space, selectedInstanceIds[0]);
+      return GameProcessing.Result.success(
+        updatedState,
+        `Selected ${targetCard?.jaName ?? selectedInstanceIds[0]} as target`,
+      );
+    },
+  };
+};
+
+/**
+ * コンテキストから対象を取得し、特殊召喚するステップ（解決時に使用）
+ *
+ * @param cardId - カードID
+ * @param effectId - 効果ID（コンテキストのキー）
+ * @param battlePosition - 表示形式（デフォルト: 攻撃表示）
+ * @param clearContext - 処理後にコンテキストをクリアするか（デフォルト: true）
+ *                       装備魔法など後続処理でコンテキストを使う場合は false を指定
+ */
+export const specialSummonFromContextStep = (
+  cardId: number,
+  effectId: EffectId,
+  battlePosition: BattlePosition = "attack",
+  clearContext: boolean = true,
+): AtomicStep => {
+  return {
+    id: `${cardId}-special-summon-from-context`,
+    summary: "モンスターを特殊召喚",
+    description: "対象のモンスターを特殊召喚します",
+    notificationLevel: "silent",
+    action: (state: GameSnapshot): GameStateUpdateResult => {
+      // 1. コンテキストから対象を取得
+      const targets = GameState.ActivationContext.getTargets(state.activationContexts, effectId);
+      if (targets.length === 0) {
+        return GameProcessing.Result.failure(state, "No target found in context");
+      }
+      const targetInstanceId = targets[0];
+
+      // 2. 対象がまだ墓地にいるか確認
+      const targetCard = state.space.graveyard.find((c) => c.instanceId === targetInstanceId);
+      if (!targetCard) {
+        // 対象が墓地にいない場合は処理失敗（不発）
+        // コンテキストをクリアして終了
+        const clearedState: GameSnapshot = {
+          ...state,
+          activationContexts: GameState.ActivationContext.clear(state.activationContexts, effectId),
+        };
+        return GameProcessing.Result.success(clearedState, "Target no longer in graveyard - effect fizzles");
+      }
+
+      // 3. 特殊召喚可能かチェック
+      const validation = canSpecialSummon(state);
+      if (!validation.isValid) {
+        return GameProcessing.Result.failure(state, GameProcessing.Validation.errorMessage(validation));
+      }
+
+      // 4. 特殊召喚を実行
+      let updatedState = executeSpecialSummon(state, targetInstanceId, battlePosition);
+
+      // 5. コンテキストをクリア（オプション）
+      if (clearContext) {
+        updatedState = {
+          ...updatedState,
+          activationContexts: GameState.ActivationContext.clear(updatedState.activationContexts, effectId),
+        };
+      }
+
+      return GameProcessing.Result.success(updatedState, `Special summoned ${targetCard.jaName} from graveyard`);
+    },
+  };
+};
+
 // ===========================
 // StepBuilder（DSL用ファクトリ）
 // ===========================
@@ -349,4 +464,28 @@ export const specialSummonFromExtraDeckStepBuilder: StepBuilderFn = (args, conte
   const filterFrameType = ArgValidators.optionalString(args, "filterFrameType");
   const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
   return specialSummonFromExtraDeckStep(context.cardId, filterMaxLevel, filterFrameType, battlePosition);
+};
+
+/**
+ * SELECT_TARGET_FROM_GRAVEYARD - 墓地からモンスターを選択し対象に取る
+ * args: なし
+ */
+export const selectTargetFromGraveyardStepBuilder: StepBuilderFn = (_args, context) => {
+  if (!context.effectId) {
+    throw new Error("SELECT_TARGET_FROM_GRAVEYARD step requires effectId in context");
+  }
+  return selectTargetFromGraveyardStep(context.cardId, context.effectId);
+};
+
+/**
+ * SPECIAL_SUMMON_FROM_CONTEXT - コンテキストから対象を特殊召喚
+ * args: { battlePosition?: BattlePosition, clearContext?: boolean }
+ */
+export const specialSummonFromContextStepBuilder: StepBuilderFn = (args, context) => {
+  if (!context.effectId) {
+    throw new Error("SPECIAL_SUMMON_FROM_CONTEXT step requires effectId in context");
+  }
+  const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
+  const clearContext = ArgValidators.optionalBoolean(args, "clearContext", true);
+  return specialSummonFromContextStep(context.cardId, context.effectId, battlePosition, clearContext);
 };

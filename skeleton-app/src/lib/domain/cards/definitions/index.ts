@@ -41,6 +41,8 @@ import toonWorldYaml from "./spells/toon-world.yaml?raw";
 import chickenGameYaml from "./spells/chicken-game.yaml?raw";
 import brokenBambooSwordYaml from "./spells/broken-bamboo-sword.yaml?raw";
 import goldenBambooSwordYaml from "./spells/golden-bamboo-sword.yaml?raw";
+import monsterRebornYaml from "./spells/monster-reborn.yaml?raw";
+import prematureBurialYaml from "./spells/premature-burial.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -71,6 +73,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [54622031, greatMammothOfGoldfineYaml], // 金色の魔象
 
   // 通常魔法
+  [83764719, monsterRebornYaml], // 死者蘇生
   [55144522, potOfGreedYaml], // 強欲な壺
   [70368879, upstartGoblinYaml], // 成金ゴブリン
   [79571449, gracefulCharityYaml], // 天使の施し
@@ -96,6 +99,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // 装備魔法
   [41587307, brokenBambooSwordYaml], // 折れ竹光
+  [70828912, prematureBurialYaml], // 早すぎた埋葬
 ]);
 
 /**

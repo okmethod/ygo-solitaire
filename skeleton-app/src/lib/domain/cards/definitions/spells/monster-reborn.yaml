@@ -1,0 +1,24 @@
+# 《死者蘇生》 (Monster Reborn)
+#
+# カードの発動:
+# - CONDITIONS: 墓地にモンスターが存在する
+# - ACTIVATIONS: 自分の墓地のモンスター1体を対象に取る
+# - RESOLUTIONS: 対象のモンスターを特殊召喚する
+
+id: 83764719
+
+data:
+  jaName: "死者蘇生"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "GRAVEYARD_HAS_MONSTER"
+    activations:
+      - step: "SELECT_TARGET_FROM_GRAVEYARD"
+    resolutions:
+      - step: "SPECIAL_SUMMON_FROM_CONTEXT"

@@ -1,0 +1,30 @@
+# 《早すぎた埋葬》 (Premature Burial)
+#
+# カードの発動:
+# - CONDITIONS: 墓地にモンスターが存在する、LP800以上
+# - ACTIVATIONS: LP800払う、自分の墓地のモンスター1体を対象に取る
+# - RESOLUTIONS: 対象のモンスターを特殊召喚し、このカードを装備する
+
+id: 70828912
+
+data:
+  jaName: "早すぎた埋葬"
+  type: "spell"
+  frameType: "spell"
+  spellType: "equip"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "GRAVEYARD_HAS_MONSTER"
+        - step: "LP_AT_LEAST"
+          args: { minLP: 800 }
+    activations:
+      - step: "PAY_LP"
+        args: { amount: 800 }
+      - step: "SELECT_TARGET_FROM_GRAVEYARD"
+    resolutions:
+      - step: "SPECIAL_SUMMON_FROM_CONTEXT"
+        args: { clearContext: false }
+      - step: "ESTABLISH_EQUIP"
