@@ -5,8 +5,8 @@
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: メインフェイズのみ + 対象候補の存在チェック
- * - ACTIVATION: 発動通知のみ（対象選択はRESOLUTIONで実施）
- * - RESOLUTION: 対象選択 → カード固有処理 → 装備関係確立
+ * - ACTIVATION: 対象選択（発動時に対象を取る）
+ * - RESOLUTION: カード固有処理 → 装備関係確立
  *
  * Note: 対象選択の情報伝達
  * - 対象選択結果は GameSnapshot.activationContext に effectId をキーとして保存
@@ -133,22 +133,12 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   /**
    * ACTIVATION: 発動後処理（装備魔法共通）
    *
+   * 対象選択ステップを生成する（発動時に対象を取る）。
+   *
    * @protected
    * @final このメソッドはオーバーライドしない
    */
   protected subTypePostActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    return [];
-  }
-
-  /**
-   * RESOLUTION: 効果解決前処理（装備魔法共通）
-   *
-   * 対象選択ステップを生成する。
-   *
-   * @protected
-   * @final このメソッドはオーバーライドしない
-   */
-  protected subTypePreResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
     const config = this.getEquipTargetConfig();
     const effectId = this.effectId;
     const filter = (card: CardInstance) => {
@@ -176,6 +166,16 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
         },
       }),
     ];
+  }
+
+  /**
+   * RESOLUTION: 効果解決前処理（装備魔法共通）
+   *
+   * @protected
+   * @final このメソッドはオーバーライドしない
+   */
+  protected subTypePreResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
   }
 
   /**
