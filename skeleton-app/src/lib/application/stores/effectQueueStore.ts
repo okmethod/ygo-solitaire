@@ -319,10 +319,9 @@ function createEffectQueueStore(): EffectQueueStore {
 
     const firstStep = steps[0];
     if (firstStep) {
-      const level = firstStep.notificationLevel || "info";
-      if (level === "info" || level === "silent") {
-        processCurrentStep();
-      }
+      // すべての notificationLevel で processCurrentStep() を呼ぶ
+      // （interactiveの場合も cardSelectionConfig を設定するために必要）
+      processCurrentStep();
     }
   };
 
