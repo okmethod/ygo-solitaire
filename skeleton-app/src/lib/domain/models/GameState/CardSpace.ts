@@ -131,11 +131,18 @@ export function moveCardInstance(
 
   // 異なるゾーンへの移動
   const filteredSource = sourceList.filter((c) => c.instanceId !== card.instanceId);
-  return {
+  let resultSpace: CardSpace = {
     ...currentSpace,
     [from]: filteredSource,
     [to]: [...currentSpace[to], updatedCard],
   };
+
+  // モンスターがフィールドを離れる場合、装備カードも墓地へ送る
+  if (leavingFromField && card.type === "monster") {
+    resultSpace = sendOrphanedEquipCardsToGraveyard(resultSpace, card.instanceId);
+  }
+
+  return resultSpace;
 }
 
 /** カードインスタンスをその場で更新する */
@@ -177,4 +184,26 @@ export function shuffleMainDeck(space: CardSpace): CardSpace {
 export function sendExistingFieldSpellToGraveyard(space: CardSpace): CardSpace {
   if (!isFieldZoneFull(space)) return space;
   return moveCardInstance(space, space.fieldZone[0], "graveyard");
+}
+
+/**
+ * 装備対象がフィールドを離れた装備カードを墓地へ送る
+ *
+ * 遊戯王OCGの基本ルール:
+ * 装備対象のモンスターがフィールドを離れた場合、装備カードは墓地へ送られる
+ */
+export function sendOrphanedEquipCardsToGraveyard(space: CardSpace, leftMonsterInstanceId: string): CardSpace {
+  let updatedSpace = space;
+
+  // spellTrapZone から装備対象が離脱したモンスターと一致する装備カードを検出
+  const orphanedEquipCards = space.spellTrapZone.filter(
+    (card) => card.stateOnField?.equippedTo === leftMonsterInstanceId,
+  );
+
+  // 検出した装備カードを墓地へ送る
+  for (const equipCard of orphanedEquipCards) {
+    updatedSpace = moveCardInstance(updatedSpace, equipCard, "graveyard");
+  }
+
+  return updatedSpace;
 }
