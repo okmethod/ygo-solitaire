@@ -107,6 +107,7 @@ export const selectAndReleaseStep = (config: SelectAndReleaseConfig): AtomicStep
 
       // リリース実行
       const { space, events } = releaseMonsters(currentState.space, selectedIds);
+
       const updatedState: GameSnapshot = { ...currentState, space };
 
       // 後続処理をコールバックに委譲

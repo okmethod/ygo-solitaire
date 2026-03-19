@@ -22,6 +22,9 @@
   // （初期位置でレンダリング後、次フレームでトランジション開始）
   let startedAnimations = $state<Set<string>>(new Set());
 
+  // フォールバックタイマーを個別に管理（キーはinstanceId、値はtimeoutId）
+  let fallbackTimers = $state<Map<string, number>>(new Map());
+
   // 新しいアニメーションが追加されたら、次フレームでトランジション開始
   // 複数のアニメーションが同時に追加された場合も一度の更新で処理する（競合状態を防ぐ）
   $effect(() => {
@@ -36,8 +39,40 @@
       startedAnimations = new Set([...startedAnimations, ...newIds]);
     });
 
-    // cleanup: コンポーネントのアンマウント時やeffect再実行前にキャンセル
-    return () => cancelAnimationFrame(frameId);
+    // フォールバック: transitionend が発火しない場合に備えて、タイムアウトで完了させる
+    // （sourceRect と targetRect が同じ位置の場合、トランジションが発生しない）
+    newIds.forEach((id) => {
+      const timerId = setTimeout(() => {
+        if (animationState.activeAnimations.some((a) => a.instanceId === id)) {
+          cardAnimationStore.completeAnimation(id);
+          startedAnimations = new Set([...startedAnimations].filter((sid) => sid !== id));
+          fallbackTimers.delete(id);
+        }
+      }, ANIMATION_DURATION_MS + 100);
+
+      fallbackTimers.set(id, timerId);
+    });
+
+    // cleanup: コンポーネントのアンマウント時のみ
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  });
+
+  // アニメーションが削除されたら、対応するフォールバックタイマーをキャンセル
+  $effect(() => {
+    const activeIds = new Set(animationState.activeAnimations.map((a) => a.instanceId));
+
+    // 削除されたアニメーションのタイマーをキャンセル
+    Array.from(fallbackTimers.keys()).forEach((id) => {
+      if (!activeIds.has(id)) {
+        const timerId = fallbackTimers.get(id);
+        if (timerId !== undefined) {
+          clearTimeout(timerId);
+          fallbackTimers.delete(id);
+        }
+      }
+    });
   });
 
   // アニメーション完了時のハンドラー

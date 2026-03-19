@@ -101,6 +101,7 @@ function executeStepAction(step: AtomicStep, gameState: GameSnapshot, selectedId
       emittedEvents: result.emittedEvents || [],
     };
   }
+  console.error("[executeStepAction] Step action failed:", step.id, result.message);
   return { updatedState: gameState, emittedEvents: [] };
 }
 
@@ -161,7 +162,9 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
         description: config.description,
         cancelable: config.cancelable,
         onConfirm: (selectedInstanceIds: string[]) => {
-          const result = executeStepAction(step, gameState, selectedInstanceIds);
+          // モーダル表示中に状態が変わっている可能性があるため、最新の状態を取得
+          const latestGameState = getStoreValue(gameStateStore);
+          const result = executeStepAction(step, latestGameState, selectedInstanceIds);
           emittedEvents = result.emittedEvents;
           updateState((s) => ({ ...s, cardSelectionConfig: null }));
           resolve();
@@ -178,7 +181,7 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
 };
 
 // Strategy: "interactive"レベル（カード選択なし） - モーダル表示、ユーザー入力待ち
-const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, gameState, _handlers, updateState) => {
+const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, _gameState, _handlers, updateState) => {
   // イベント情報をキャプチャするための変数
   let emittedEvents: GameEvent[] = [];
 
@@ -190,7 +193,9 @@ const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, g
         summary: step.summary,
         description: step.description,
         onConfirm: () => {
-          const result = executeStepAction(step, gameState);
+          // モーダル表示中に状態が変わっている可能性があるため、最新の状態を取得
+          const latestGameState = getStoreValue(gameStateStore);
+          const result = executeStepAction(step, latestGameState);
           emittedEvents = result.emittedEvents;
           updateState((s) => ({ ...s, confirmationConfig: null }));
           resolve();
