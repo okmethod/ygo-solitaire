@@ -108,7 +108,7 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
   }
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * DSL定義のactivationsセクションからステップを生成する。
    * 主にコスト支払い処理に使用される。
@@ -118,7 +118,7 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
   }
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * DSL定義のresolutionsセクションからステップを生成する。
    * メインの効果処理を定義する。

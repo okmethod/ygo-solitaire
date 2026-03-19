@@ -84,7 +84,7 @@ export class GenericEquipSpellActivation extends EquipSpellActivation {
   }
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * DSL定義のactivationsセクションからステップを生成する。
    * コスト支払い処理に使用される。
@@ -95,7 +95,7 @@ export class GenericEquipSpellActivation extends EquipSpellActivation {
   }
 
   /**
-   * ACTIVATION: 発動後処理（装備魔法共通）をオーバーライド
+   * ACTIVATIONS: 発動後処理（装備魔法共通）をオーバーライド
    *
    * DSLで対象選択を定義している場合は、自動的な対象選択をスキップする。
    * 対象選択は individualActivationSteps で行われる。
@@ -110,7 +110,7 @@ export class GenericEquipSpellActivation extends EquipSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * DSL定義のresolutionsセクションからステップを生成する。
    * メインの効果処理を定義する。

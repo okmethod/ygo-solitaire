@@ -5,10 +5,10 @@
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: メインフェイズのみ
- * - ACTIVATION: 特になし（サブクラスで実装）
- * - RESOLUTION: 特になし（サブクラスで実装）
+ * - ACTIVATIONS: 特になし（サブクラスで実装）
+ * - RESOLUTIONS: 特になし（サブクラスで実装）
  *
- * @module domain/effects/actions/spells/FieldSpellActivation
+ * @module domain/effects/actions/activations/FieldSpellActivation
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -54,7 +54,7 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
-   * ACTIVATION: 発動前処理（フィールド魔法共通）
+   * ACTIVATIONS: 発動前処理（フィールド魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -64,7 +64,7 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * @protected
    * @abstract
@@ -72,7 +72,7 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * ACTIVATION: 発動後処理（フィールド魔法共通）
+   * ACTIVATIONS: 発動後処理（フィールド魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -82,7 +82,7 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決前処理（フィールド魔法共通）
+   * RESOLUTIONS: 効果解決前処理（フィールド魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -92,7 +92,7 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * @protected
    * @abstract
@@ -100,7 +100,7 @@ export abstract class FieldSpellActivation extends BaseSpellActivation {
   protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決後処理（フィールド魔法共通）
+   * RESOLUTIONS: 効果解決後処理（フィールド魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない

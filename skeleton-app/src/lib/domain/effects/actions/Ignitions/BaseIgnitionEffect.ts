@@ -5,14 +5,14 @@
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: メインフェイズであること（共通）、カード固有条件（サブクラス）
- * - ACTIVATION: 発動通知（共通）、カード固有の発動処理（サブクラス）
- * - RESOLUTION: カード固有の解決処理（サブクラス）
+ * - ACTIVATIONS: 発動通知（共通）、カード固有の発動処理（サブクラス）
+ * - RESOLUTIONS: カード固有の解決処理（サブクラス）
  *
  * 補足: ActivateIgnitionEffectCommandが事前にチェックする前提条件:
  * - ゲーム終了状態でないこと
  * - カードがフィールドに表側表示で存在すること
  *
- * @module domain/effects/actions/BaseIgnitionEffect
+ * @module domain/effects/actions/ignitions/BaseIgnitionEffect
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -91,7 +91,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
-   * ACTIVATION: 発動時の処理
+   * ACTIVATIONS: 発動時の処理
    *
    * Template Method パターン
    * - このメソッドは final として扱う。
@@ -111,7 +111,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   }
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * @protected
    * @abstract
@@ -119,7 +119,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決時の処理
+   * RESOLUTIONS: 効果解決時の処理
    *
    * Template Method パターン
    * - このメソッドは final として扱う。
@@ -135,7 +135,7 @@ export abstract class BaseIgnitionEffect implements ChainableAction {
   }
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * @protected
    * @abstract

@@ -5,15 +5,15 @@
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: 特になし（コマンド側でチェック済み、サブクラスで実装）
- * - ACTIVATION: 発動通知
- * - RESOLUTION: 特になし（サブクラスで実装）
+ * - ACTIVATIONS: 発動通知
+ * - RESOLUTIONS: 特になし（サブクラスで実装）
  *
  * 補足: ActivateSpellCommandが事前にチェックする前提条件:
  * - ゲーム終了状態でないこと
  * - カードが存在し、魔法カードであること
  * - 魔法・罠ゾーンに空きがあること（フィールド魔法除く）
  *
- * @module domain/effects/actions/spells/BaseSpellActivation
+ * @module domain/effects/actions/activations/BaseSpellActivation
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -104,7 +104,7 @@ export abstract class BaseSpellActivation implements ChainableAction {
   protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
-   * ACTIVATION: 発動時の処理
+   * ACTIVATIONS: 発動時の処理
    *
    * Template Method パターン
    * - このメソッドは final として扱う。
@@ -129,28 +129,28 @@ export abstract class BaseSpellActivation implements ChainableAction {
   }
 
   /**
-   * ACTIVATION: 発動前処理（魔法カードサブタイプ共通）
+   * ACTIVATIONS: 発動前処理（魔法カードサブタイプ共通）
    *
    * @protected
    */
   protected abstract subTypePreActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * @protected
    */
   protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * ACTIVATION: 発動後処理（魔法カードサブタイプ共通）
+   * ACTIVATIONS: 発動後処理（魔法カードサブタイプ共通）
    *
    * @protected
    */
   protected abstract subTypePostActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決時の処理
+   * RESOLUTIONS: 効果解決時の処理
    *
    * Template Method パターン
    * - このメソッドは final として扱う。
@@ -172,7 +172,7 @@ export abstract class BaseSpellActivation implements ChainableAction {
   }
 
   /**
-   * RESOLUTION: 効果解決前処理（魔法カードサブタイプ共通）
+   * RESOLUTIONS: 効果解決前処理（魔法カードサブタイプ共通）
    *
    * @protected
    * @abstract
@@ -180,7 +180,7 @@ export abstract class BaseSpellActivation implements ChainableAction {
   protected abstract subTypePreResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * @protected
    * @abstract
@@ -188,7 +188,7 @@ export abstract class BaseSpellActivation implements ChainableAction {
   protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決後処理（魔法カードサブタイプ共通）
+   * RESOLUTIONS: 効果解決後処理（魔法カードサブタイプ共通）
    *
    * @protected
    * @abstract

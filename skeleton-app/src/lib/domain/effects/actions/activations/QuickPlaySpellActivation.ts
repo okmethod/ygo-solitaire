@@ -5,10 +5,10 @@
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: セットしたターンではない
- * - ACTIVATION: 特になし（サブクラスで実装）
- * - RESOLUTION: 効果解決後に墓地に送られる
+ * - ACTIVATIONS: 特になし（サブクラスで実装）
+ * - RESOLUTIONS: 効果解決後に墓地に送られる
  *
- * @module domain/effects/actions/spells/QuickPlaySpellActivation
+ * @module domain/effects/actions/activations/QuickPlaySpellActivation
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -55,7 +55,7 @@ export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
-   * ACTIVATION: 発動前処理（速攻魔法共通）
+   * ACTIVATIONS: 発動前処理（速攻魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -65,14 +65,14 @@ export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * @protected
    */
   protected abstract individualActivationSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * ACTIVATION: 発動後処理（速攻魔法共通）
+   * ACTIVATIONS: 発動後処理（速攻魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -82,7 +82,7 @@ export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決前処理（速攻魔法共通）
+   * RESOLUTIONS: 効果解決前処理（速攻魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -92,7 +92,7 @@ export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * @protected
    * @abstract
@@ -100,7 +100,7 @@ export abstract class QuickPlaySpellActivation extends BaseSpellActivation {
   protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決後処理（速攻魔法共通）
+   * RESOLUTIONS: 効果解決後処理（速攻魔法共通）
    *
    * 速攻魔法は効果解決後に墓地へ送られる。
    *

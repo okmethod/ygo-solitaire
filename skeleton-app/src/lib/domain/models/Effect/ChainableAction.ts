@@ -61,7 +61,7 @@ export interface ChainableAction {
   canActivate(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
-   * ACTIVATION: 発動時の処理
+   * ACTIVATIONS: 発動時の処理
    *
    * 発動後即座に実行される処理。無効化されても取り消されない。
    * - コスト支払い（LPコスト、手札捨て等）
@@ -71,7 +71,7 @@ export interface ChainableAction {
   createActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決時の処理
+   * RESOLUTIONS: 効果解決時の処理
    *
    * チェーン解決時に実行される処理。無効化される可能性がある。
    * （狭義の「効果」）

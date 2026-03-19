@@ -5,15 +5,15 @@
  *
  * Implementation using ChainableAction model:
  * - CONDITIONS: メインフェイズのみ + 対象候補の存在チェック
- * - ACTIVATION: 対象選択（発動時に対象を取る）
- * - RESOLUTION: カード固有処理 → 装備関係確立
+ * - ACTIVATIONS: 対象選択（発動時に対象を取る）
+ * - RESOLUTIONS: カード固有処理 → 装備関係確立
  *
  * Note: 対象選択の情報伝達
  * - 対象選択結果は GameSnapshot.activationContext に effectId をキーとして保存
- * - RESOLUTION 時に activationContext から対象を取得して使用
+ * - RESOLUTIONS 時に activationContext から対象を取得して使用
  * - 効果解決後に activationContext をクリア
  *
- * @module domain/effects/actions/spells/EquipSpellActivation
+ * @module domain/effects/actions/activations/EquipSpellActivation
  */
 
 import type { LocationName } from "$lib/domain/models/Location";
@@ -113,7 +113,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   protected abstract individualConditions(state: GameSnapshot, sourceInstance: CardInstance): ValidationResult;
 
   /**
-   * ACTIVATION: 発動前処理（装備魔法共通）
+   * ACTIVATIONS: 発動前処理（装備魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -123,7 +123,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * ACTIVATION: 発動処理（カード固有）
+   * ACTIVATIONS: 発動処理（カード固有）
    *
    * @protected
    * @abstract
@@ -131,7 +131,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   protected abstract individualActivationSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * ACTIVATION: 発動後処理（装備魔法共通）
+   * ACTIVATIONS: 発動後処理（装備魔法共通）
    *
    * 対象選択ステップを生成する（発動時に対象を取る）。
    *
@@ -169,7 +169,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決前処理（装備魔法共通）
+   * RESOLUTIONS: 効果解決前処理（装備魔法共通）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -179,7 +179,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   }
 
   /**
-   * RESOLUTION: 効果解決処理（カード固有）
+   * RESOLUTIONS: 効果解決処理（カード固有）
    *
    * @protected
    * @abstract
@@ -187,7 +187,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   protected abstract individualResolutionSteps(state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[];
 
   /**
-   * RESOLUTION: 効果解決後処理（装備魔法共通）
+   * RESOLUTIONS: 効果解決後処理（装備魔法共通）
    *
    * 装備関係を確立する。
    *
