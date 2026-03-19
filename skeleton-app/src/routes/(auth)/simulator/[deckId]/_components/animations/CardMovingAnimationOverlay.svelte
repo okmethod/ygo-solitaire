@@ -23,7 +23,7 @@
   let startedAnimations = $state<Set<string>>(new Set());
 
   // フォールバックタイマーを個別に管理（キーはinstanceId、値はtimeoutId）
-  let fallbackTimers = $state<Map<string, number>>(new Map());
+  let fallbackTimers = $state<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // 新しいアニメーションが追加されたら、次フレームでトランジション開始
   // 複数のアニメーションが同時に追加された場合も一度の更新で処理する（競合状態を防ぐ）
