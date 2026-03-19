@@ -19,7 +19,7 @@ effectChainableActions:
       requirements:
         - step: "GRAVEYARD_HAS_MONSTER"
         - step: "LP_AT_LEAST"
-          args: { minLP: 800 }
+          args: { amount: 800 }
     activations:
       - step: "PAY_LP"
         args: { amount: 800 }

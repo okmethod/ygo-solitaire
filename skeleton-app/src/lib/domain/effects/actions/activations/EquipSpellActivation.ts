@@ -13,10 +13,13 @@
  * - RESOLUTIONS 時に activationContext から対象を取得して使用
  * - 効果解決後に activationContext をクリア
  *
+ * Note: 装備対象のデフォルト
+ * - デフォルト: mainMonsterZoneの表側表示モンスターを対象に取る
+ * - 装備モンスターの条件や、墓地や除外ゾーンから対象を取る場合は、SELECT_TARGET_* ステップで明示的に選択する
+ *
  * @module domain/effects/actions/activations/EquipSpellActivation
  */
 
-import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
@@ -29,18 +32,6 @@ import { establishEquipStep } from "$lib/domain/dsl/steps/builders/equipOperatio
 import { BaseSpellActivation } from "./BaseSpellActivation";
 
 /**
- * 装備対象の設定
- *
- * 各装備魔法カードが対象を取るゾーンとフィルター条件を定義する。
- */
-export interface EquipTargetConfig {
-  /** 対象を取るゾーン */
-  readonly sourceZone: LocationName;
-  /** 対象の追加フィルター条件（省略時は全モンスター） */
-  readonly filter?: (card: CardInstance) => boolean;
-}
-
-/**
  * EquipSpellActivation - 装備魔法カードの抽象基底クラス
  *
  * @abstract
@@ -50,33 +41,17 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   readonly spellSpeed = 1 as const;
 
   /**
-   * 装備対象の設定を取得する
+   * デフォルトの装備対象選択機能を使用するかどうか
    *
-   * サブクラスでオーバーライドして、対象を取るゾーンとフィルターを指定する。
-   * デフォルト: メインモンスターゾーンの全モンスター
+   * サブクラスでオーバーライドして、デフォルト対象選択機能の使用を制御する。
+   * - true: mainMonsterZone の表側表示モンスターから自動選択
+   * - false: SELECT_TARGET_* ステップで明示的に対象選択
+   *
+   * @protected
+   * @returns true: デフォルト機能を使用（デフォルト）, false: 明示的に選択
    */
-  protected getEquipTargetConfig(): EquipTargetConfig {
-    return {
-      sourceZone: "mainMonsterZone",
-    };
-  }
-
-  /**
-   * 装備対象候補のカードを取得する
-   */
-  protected getEquipTargetCandidates(state: GameSnapshot): CardInstance[] {
-    const config = this.getEquipTargetConfig();
-    const zone = state.space[config.sourceZone] as readonly CardInstance[];
-
-    return zone.filter((card) => {
-      // モンスターカードのみ
-      if (card.type !== "monster") return false;
-      // フィールドの場合は表側表示のみ
-      if (config.sourceZone === "mainMonsterZone" && !Card.Instance.isFaceUp(card)) return false;
-      // 追加フィルター
-      if (config.filter && !config.filter(card)) return false;
-      return true;
-    });
+  protected useDefaultEquipTargetSelection(): boolean {
+    return true;
   }
 
   /**
@@ -84,7 +59,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
    *
    * チェック項目:
    * 1. メインフェイズであること
-   * 2. 装備対象のモンスターが存在すること
+   * 2. 装備対象のモンスターが存在すること（フックで制御可能）
    *
    * @protected
    * @final このメソッドはオーバーライドしない
@@ -95,10 +70,15 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
       return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     }
 
-    // 2. 装備対象のモンスターが存在すること
-    const candidates = this.getEquipTargetCandidates(state);
-    if (candidates.length === 0) {
-      return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NO_VALID_TARGET);
+    // 2. 装備対象のモンスターが存在すること（フックで制御可能）
+    if (this.useDefaultEquipTargetSelection()) {
+      // mainMonsterZone の表側表示モンスターをチェック
+      const candidates = state.space.mainMonsterZone.filter(
+        (card) => card.type === "monster" && Card.Instance.isFaceUp(card),
+      );
+      if (candidates.length === 0) {
+        return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.NO_VALID_TARGET);
+      }
     }
 
     return GameProcessing.Validation.success();
@@ -134,17 +114,21 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
    * ACTIVATIONS: 発動後処理（装備魔法共通）
    *
    * 対象選択ステップを生成する（発動時に対象を取る）。
+   * フックで制御可能: DSL定義で明示的な対象選択を行う場合はスキップ。
    *
    * @protected
    * @final このメソッドはオーバーライドしない
    */
   protected subTypePostActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    const config = this.getEquipTargetConfig();
+    // デフォルト対象選択を使用しない場合は空配列を返す
+    if (!this.useDefaultEquipTargetSelection()) {
+      return [];
+    }
+
     const effectId = this.effectId;
     const filter = (card: CardInstance) => {
       if (card.type !== "monster") return false;
-      if (config.sourceZone === "mainMonsterZone" && !Card.Instance.isFaceUp(card)) return false;
-      if (config.filter && !config.filter(card)) return false;
+      if (!Card.Instance.isFaceUp(card)) return false;
       return true;
     };
 
@@ -154,7 +138,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
         summary: "装備対象を選択",
         description: "装備するモンスターを1体選択してください",
         availableCards: null, // 動的に取得
-        _sourceZone: config.sourceZone,
+        _sourceZone: "mainMonsterZone",
         _filter: filter,
         minCards: 1,
         maxCards: 1,
@@ -207,19 +191,6 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
   static createNoOp(cardId: number): EquipSpellActivation {
     return new NoOpEquipSpellActivation(cardId);
   }
-
-  /**
-   * 装備魔法発動効果を設定付きで生成する
-   *
-   * DSLから呼び出され、対象設定とカード固有処理を持つ装備魔法を生成する。
-   */
-  static createWithConfig(
-    cardId: number,
-    targetConfig: EquipTargetConfig,
-    individualResolutionSteps: AtomicStep[] = [],
-  ): EquipSpellActivation {
-    return new ConfigurableEquipSpellActivation(cardId, targetConfig, individualResolutionSteps);
-  }
 }
 
 /** 装備魔法発動効果の空実装クラス */
@@ -238,33 +209,5 @@ class NoOpEquipSpellActivation extends EquipSpellActivation {
 
   protected individualResolutionSteps(): AtomicStep[] {
     return [];
-  }
-}
-
-/** 設定可能な装備魔法発動効果クラス（DSL用） */
-class ConfigurableEquipSpellActivation extends EquipSpellActivation {
-  private readonly targetConfig: EquipTargetConfig;
-  private readonly resolutionSteps: AtomicStep[];
-
-  constructor(cardId: number, targetConfig: EquipTargetConfig, resolutionSteps: AtomicStep[]) {
-    super(cardId);
-    this.targetConfig = targetConfig;
-    this.resolutionSteps = resolutionSteps;
-  }
-
-  protected override getEquipTargetConfig(): EquipTargetConfig {
-    return this.targetConfig;
-  }
-
-  protected individualConditions(): ValidationResult {
-    return GameProcessing.Validation.success();
-  }
-
-  protected individualActivationSteps(): AtomicStep[] {
-    return [];
-  }
-
-  protected individualResolutionSteps(): AtomicStep[] {
-    return this.resolutionSteps;
   }
 }

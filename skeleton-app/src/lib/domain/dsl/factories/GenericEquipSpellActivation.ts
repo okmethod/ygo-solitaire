@@ -5,7 +5,9 @@
  * 個別のTypeScriptクラスを作成せずに装備魔法カードの効果を定義できる。
  *
  * 早すぎた埋葬のような「墓地からモンスターを対象に取り、蘇生して装備する」カードに対応。
- * DSLのactivationsで対象選択を定義し、resolutionsで蘇生・装備を定義する。
+ * DSL定義に SELECT_TARGET_* ステップがあれば明示的な対象選択を使用し、
+ * ない場合は親クラスの自動対象選択機能を使用する。
+ * 装備関係確立は親クラスで自動的に処理される。
  *
  * @module domain/dsl/factories/GenericEquipSpellActivation
  */
@@ -25,8 +27,11 @@ import { checkCondition } from "$lib/domain/dsl/conditions";
  * DSLの activations セクションから conditions, activations, resolutions を読み取り、
  * 既存のEquipSpellActivation継承構造に適合させる。
  *
- * 通常の装備魔法（フィールドのモンスターを対象に取る）とは異なり、
- * DSLで対象選択処理を完全にカスタマイズできる。
+ * 特徴:
+ * - DSL定義に明示的な対象選択ステップ（SELECT_TARGET_*）がある場合は、
+ *   親クラスの自動対象選択と対象候補チェックを無効化する。
+ * - フィールドのモンスターを対象に取る装備魔法も、墓地や除外ゾーンから
+ *   対象を取る装備魔法も、同じ仕組みで定義できる。
  */
 export class GenericEquipSpellActivation extends EquipSpellActivation {
   private readonly dslDefinition: ChainableActionDSL;
@@ -55,6 +60,24 @@ export class GenericEquipSpellActivation extends EquipSpellActivation {
     };
 
     return stepDefs.map((stepDef) => buildStep(stepDef.step, stepDef.args ?? {}, context));
+  }
+
+  /**
+   * DSL定義に明示的な対象選択ステップがあるかチェック
+   *
+   * SELECT_TARGET_* で始まるステップ名があれば true を返す。
+   */
+  private hasExplicitTargetSelection(): boolean {
+    return this.dslDefinition.activations?.some((stepDef) => stepDef.step.startsWith("SELECT_TARGET_")) ?? false;
+  }
+
+  /**
+   * デフォルトの装備対象選択機能を使用するかどうか
+   *
+   * DSL定義で明示的な対象選択を行う場合は、親クラスのデフォルト機能を無効化する。
+   */
+  protected override useDefaultEquipTargetSelection(): boolean {
+    return !this.hasExplicitTargetSelection();
   }
 
   /**
@@ -87,26 +110,13 @@ export class GenericEquipSpellActivation extends EquipSpellActivation {
    * ACTIVATIONS: 発動処理（カード固有）
    *
    * DSL定義のactivationsセクションからステップを生成する。
-   * コスト支払い処理に使用される。
-   * 対象選択もここで行う（DSLで明示的に定義）。
+   * コスト支払い、明示的な対象選択などの処理を含む。
+   *
+   * - SELECT_TARGET_* ステップがある場合: 明示的な対象選択を実行
+   * - SELECT_TARGET_* ステップがない場合: 親クラスの自動対象選択が有効
    */
   protected individualActivationSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
     return this.buildSteps(this.dslDefinition.activations, sourceInstance);
-  }
-
-  /**
-   * ACTIVATIONS: 発動後処理（装備魔法共通）をオーバーライド
-   *
-   * DSLで対象選択を定義している場合は、自動的な対象選択をスキップする。
-   * 対象選択は individualActivationSteps で行われる。
-   */
-  protected override subTypePostActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    // DSLのactivationsで対象選択を定義している場合は、自動対象選択をスキップ
-    if (this.dslDefinition.activations && this.dslDefinition.activations.length > 0) {
-      return [];
-    }
-    // activationsが空の場合は親クラスの処理（フィールドのモンスターから選択）を使用
-    return super.subTypePostActivationSteps(_state, _sourceInstance);
   }
 
   /**
