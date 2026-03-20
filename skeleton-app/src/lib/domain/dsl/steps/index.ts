@@ -40,7 +40,7 @@ import {
   establishEquipStepBuilder,
   sendEquippedAndSelfToGraveyardStepBuilder,
   unequipStepBuilder,
-} from "./builders/equipOperations";
+} from "./builders/equips";
 
 // ===========================
 // エクスポート

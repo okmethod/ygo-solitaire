@@ -28,7 +28,7 @@ import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProces
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
 import { saveTargetsToContextStep } from "$lib/domain/dsl/steps/builders/contextOperations";
-import { establishEquipStep } from "$lib/domain/dsl/steps/builders/equipOperations";
+import { establishEquipStep } from "$lib/domain/dsl/steps/builders/equips";
 import { BaseSpellActivation } from "./BaseSpellActivation";
 
 /**

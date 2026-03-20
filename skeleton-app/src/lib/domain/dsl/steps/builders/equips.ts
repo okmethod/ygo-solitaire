@@ -1,13 +1,11 @@
 /**
- * equipOperations.ts - 装備関連ステップビルダー
+ * equips.ts - 装備関連ステップビルダー
  *
  * 装備カードの装備関係確立を行うステップ。
  * EquipSpellActivation のインライン実装を共通ステップ化したもの。
  *
  * StepBuilder:
  * - establishEquipStepBuilder: 装備関係を確立
- *
- * @module domain/effects/steps/builders/equipOperations
  */
 
 import type { EffectId } from "$lib/domain/models/Effect";
