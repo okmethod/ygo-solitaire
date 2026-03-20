@@ -7,6 +7,7 @@
  */
 
 import type { GameSnapshot, Player } from "$lib/domain/models/GameState";
+import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
@@ -96,4 +97,51 @@ export const burnDamageStepBuilder: StepBuilderFn = (args) => {
   const amount = ArgValidators.positiveInt(args, "amount");
   const target = ArgValidators.optionalPlayer(args, "target", "opponent");
   return damageLpStep(amount, target);
+};
+
+/**
+ * BURN_FROM_CONTEXT - resolutions用: コンテキストからダメージを取得して適用
+ * args: { damageTarget?: "player" | "opponent" }
+ *
+ * activationsでRELEASE_FOR_BURNと組み合わせて使用。
+ * ActivationContextに保存されたダメージを取得して適用し、コンテキストをクリア。
+ */
+export const burnFromContextStepBuilder: StepBuilderFn = (args, context) => {
+  const damageTarget = ArgValidators.optionalPlayer(args, "damageTarget", "opponent");
+
+  if (!context.effectId) {
+    throw new Error("BURN_FROM_CONTEXT step requires effectId in context");
+  }
+
+  const effectId = context.effectId;
+  const targetJa = damageTarget === "player" ? "プレイヤー" : "相手";
+
+  return {
+    id: `${context.cardId}-burn-from-context`,
+    summary: `${targetJa}にダメージ`,
+    description: `リリースしたモンスターの攻撃力に基づくダメージを${targetJa}に与えます`,
+    notificationLevel: "info",
+    action: (state: GameSnapshot): GameStateUpdateResult => {
+      const damage = GameState.ActivationContext.getDamage(state.activationContexts, effectId);
+
+      if (damage === undefined) {
+        return GameProcessing.Result.failure(state, "No damage value in activation context");
+      }
+
+      // ダメージを適用
+      const updatedLp = {
+        ...state.lp,
+        [damageTarget]: state.lp[damageTarget] - damage,
+      };
+
+      // コンテキストをクリア
+      const updatedState: GameSnapshot = {
+        ...state,
+        lp: updatedLp,
+        activationContexts: GameState.ActivationContext.clear(state.activationContexts, effectId),
+      };
+
+      return GameProcessing.Result.success(updatedState, `Dealt ${damage} damage to ${damageTarget}`);
+    },
+  };
 };

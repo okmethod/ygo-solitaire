@@ -4,6 +4,8 @@
 # - CONDITIONS: なし（レガシー版: 1ターンに1度制限なし）
 # - ACTIVATIONS: 自分フィールドのモンスター1体をリリース
 # - RESOLUTIONS: リリースしたモンスターの攻撃力の半分のバーンダメージ
+#
+# Note: 自身をリリースできるため、CONDITIONSでのモンスター存在チェックは不要
 
 id: 95727991
 
@@ -19,6 +21,9 @@ data:
 
 effectChainableActions:
   ignitions:
-    - resolutions:
-        - step: "RELEASE_AND_BURN"
-          args: { damageMultiplier: 0.5, damageTarget: "opponent" }
+    - activations:
+        - step: "RELEASE_FOR_BURN"
+          args: { damageMultiplier: 0.5 }
+      resolutions:
+        - step: "BURN_FROM_CONTEXT"
+          args: { damageTarget: "opponent" }

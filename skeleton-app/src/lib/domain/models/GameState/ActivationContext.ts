@@ -14,6 +14,8 @@ export interface EffectActivationContext {
   readonly targets: readonly string[];
   /** 支払ったコストの数*/
   readonly paidCosts?: number;
+  /** 計算済みダメージ */
+  readonly calculatedDamage?: number;
 }
 
 /** 発動時コンテキストに対象を設定する */
@@ -69,4 +71,25 @@ export function clearActivationContext(
 
   const { [effectId]: _, ...remainingContext } = currentContexts;
   return remainingContext;
+}
+
+/** 発動時コンテキストに計算済みダメージを設定する */
+export function setCalculatedDamage(
+  currentContexts: Record<EffectId, EffectActivationContext>,
+  effectId: EffectId,
+  calculatedDamage: number,
+): Record<EffectId, EffectActivationContext> {
+  const existing = currentContexts[effectId] ?? { targets: [] };
+  return {
+    ...currentContexts,
+    [effectId]: { ...existing, calculatedDamage },
+  };
+}
+
+/** 発動時コンテキストから計算済みダメージを取得する */
+export function getCalculatedDamage(
+  currentContexts: Record<EffectId, EffectActivationContext>,
+  effectId: EffectId,
+): number | undefined {
+  return currentContexts?.[effectId]?.calculatedDamage;
 }

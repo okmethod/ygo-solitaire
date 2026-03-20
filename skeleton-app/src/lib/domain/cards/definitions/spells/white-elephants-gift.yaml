@@ -21,7 +21,7 @@ effectChainableActions:
         - step: "CAN_DRAW"
           args: { count: 2 }
     activations:
-      - step: "SEND_MONSTER_TO_GRAVEYARD"
+      - step: "RELEASE"
         args: { count: 1, excludeEffect: true }
     resolutions:
       - step: "DRAW"

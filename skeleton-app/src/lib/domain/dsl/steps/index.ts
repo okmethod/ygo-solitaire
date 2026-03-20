@@ -15,7 +15,12 @@ import { STEP_NAMES, type StepName } from "./StepNames";
 import { drawStepBuilder, fillHandsStepBuilder } from "./builders/draws";
 import { selectAndDiscardStepBuilder, discardAllHandEndPhaseStepBuilder } from "./builders/discards";
 import { thenStepBuilder } from "./builders/timing";
-import { gainLpStepBuilder, payLpStepBuilder, burnDamageStepBuilder } from "./builders/lifePoints";
+import {
+  gainLpStepBuilder,
+  payLpStepBuilder,
+  burnDamageStepBuilder,
+  burnFromContextStepBuilder,
+} from "./builders/lifePoints";
 import {
   searchFromDeckStepBuilder,
   searchFromDeckByNameStepBuilder,
@@ -33,7 +38,7 @@ import {
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
 import { selectTargetFromFieldByRaceStepBuilder, selectTargetFromGraveyardStepBuilder } from "./builders/targeting";
-import { releaseAndBurnStepBuilder, sendMonsterToGraveyardStepBuilder } from "./builders/releases";
+import { selectAndReleaseForBurnStepBuilder, selectAndReleaseStepBuilder } from "./builders/releases";
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
 import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
 import {
@@ -74,6 +79,7 @@ AtomicStepRegistry.register(S.SALVAGE_FROM_GRAVEYARD, salvageFromGraveyardStepBu
 AtomicStepRegistry.register(S.GAIN_LP, gainLpStepBuilder);
 AtomicStepRegistry.register(S.PAY_LP, payLpStepBuilder);
 AtomicStepRegistry.register(S.BURN_DAMAGE, burnDamageStepBuilder);
+AtomicStepRegistry.register(S.BURN_FROM_CONTEXT, burnFromContextStepBuilder);
 
 // カウンター関連
 AtomicStepRegistry.register(S.PLACE_COUNTER, placeCounterStepBuilder);
@@ -86,8 +92,8 @@ AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromE
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 
 // リリース関連
-AtomicStepRegistry.register(S.RELEASE_AND_BURN, releaseAndBurnStepBuilder);
-AtomicStepRegistry.register(S.SEND_MONSTER_TO_GRAVEYARD, sendMonsterToGraveyardStepBuilder);
+AtomicStepRegistry.register(S.RELEASE, selectAndReleaseStepBuilder);
+AtomicStepRegistry.register(S.RELEASE_FOR_BURN, selectAndReleaseForBurnStepBuilder);
 
 // 除外関連
 AtomicStepRegistry.register(S.SELECT_AND_BANISH_FROM_GRAVEYARD, selectAndBanishFromGraveyardStepBuilder);

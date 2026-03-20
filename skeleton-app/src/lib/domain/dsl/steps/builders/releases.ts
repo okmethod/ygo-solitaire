@@ -2,14 +2,15 @@
  * releases.ts - リリース系ステップビルダー
  *
  * StepBuilder:
- * - releaseAndBurnStepBuilder: フィールドのモンスターをリリースし攻撃力に応じたダメージ
+ * - selectAndReleaseStepBuilder: RELEASE - モンスターを選択して墓地へ送る
+ * - selectAndReleaseForBurnStepBuilder: RELEASE_FOR_BURN - リリースしてダメージをコンテキストに保存
  *
  * 公開関数:
- * - selectAndReleaseStep: フィールドのモンスターを選択してリリース
+ * - selectAndReleaseStep: フィールドのモンスターを選択してリリース（共通処理）
  */
 
 import { Card, type CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, Player, CardSpace } from "$lib/domain/models/GameState";
+import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
@@ -115,85 +116,17 @@ export const selectAndReleaseStep = (config: SelectAndReleaseConfig): AtomicStep
 };
 
 // ===========================
-// ステップビルダー（DSL用ファクトリ）
-// ===========================
-
-/**
- * フィールドのモンスターを選択してリリースし、攻撃力の指定倍率でダメージを与えるステップ
- *
- * 処理:
- * 1. フィールドからモンスターを選択（UI表示）
- * 2. 選択したモンスターをリリース（墓地へ送る）
- * 3. リリースしたモンスターの攻撃力×倍率のダメージを相手に与える
- */
-export const releaseAndBurnStep = (
-  cardId: number,
-  damageMultiplier: number = 0.5,
-  damageTarget: Player = "opponent",
-): AtomicStep => {
-  const multiplierPercent = Math.round(damageMultiplier * 100);
-
-  return selectAndReleaseStep({
-    cardId,
-    count: 1,
-    summary: "モンスターをリリースしてダメージ",
-    description: `フィールドのモンスター1体をリリースし、攻撃力の${multiplierPercent}%のダメージを与えます`,
-    onReleased: (state, releasedCards, releaseEvents) => {
-      const monster = releasedCards[0];
-      const monsterAtk = monster.attack ?? 0;
-      const damage = Math.floor(monsterAtk * damageMultiplier);
-
-      // ダメージを適用
-      const updatedLp = {
-        ...state.lp,
-        [damageTarget]: state.lp[damageTarget] - damage,
-      };
-
-      const updatedState: GameSnapshot = {
-        ...state,
-        lp: updatedLp,
-      };
-
-      return GameProcessing.Result.success(
-        updatedState,
-        `Released ${monster.jaName} (ATK ${monsterAtk}) and dealt ${damage} damage`,
-        releaseEvents,
-      );
-    },
-  });
-};
-
-// ===========================
 // StepBuilder（DSL用ファクトリ）
 // ===========================
 
 /**
- * RELEASE_AND_BURN - フィールドのモンスターをリリースし攻撃力ベースでダメージ
- * args: { damageMultiplier?: number, damageTarget?: "player" | "opponent" }
- *
- * デフォルト: 攻撃力の50%を相手にダメージ
- */
-export const releaseAndBurnStepBuilder: StepBuilderFn = (args, context) => {
-  const damageMultiplier = (args.damageMultiplier as number | undefined) ?? 0.5;
-  const damageTarget = ArgValidators.optionalPlayer(args, "damageTarget", "opponent");
-
-  if (typeof damageMultiplier !== "number" || damageMultiplier <= 0) {
-    throw new Error("RELEASE_AND_BURN step requires damageMultiplier to be a positive number");
-  }
-
-  return releaseAndBurnStep(context.cardId, damageMultiplier, damageTarget);
-};
-
-/**
- * SEND_MONSTER_TO_GRAVEYARD - フィールドのモンスターを選択して墓地へ送る
+ * RELEASE - フィールドのモンスターを選択して墓地へ送る
  * args: {
  *   count?: number (デフォルト: 1),
  *   excludeEffect?: boolean (デフォルト: false) - trueの場合、効果モンスターを除外
  * }
- *
- * 馬の骨の対価などのコスト処理に使用
  */
-export const sendMonsterToGraveyardStepBuilder: StepBuilderFn = (args, context) => {
+export const selectAndReleaseStepBuilder: StepBuilderFn = (args, context) => {
   const count = ArgValidators.optionalPositiveInt(args, "count") ?? 1;
   const excludeEffect = ArgValidators.optionalBoolean(args, "excludeEffect", false);
 
@@ -210,12 +143,58 @@ export const sendMonsterToGraveyardStepBuilder: StepBuilderFn = (args, context) 
   return selectAndReleaseStep({
     cardId: context.cardId,
     count,
-    summary: "墓地へ送るモンスターを選択",
-    description: `フィールドの${filterDesc}モンスター${count}体を墓地へ送ります`,
+    summary: "リリース対象を選択",
+    description: `フィールドの${filterDesc}モンスター${count}体をリリースします`,
     filter,
     onReleased: (state, releasedCards, releaseEvents) => {
       const names = releasedCards.map((c) => c.jaName).join("、");
-      return GameProcessing.Result.success(state, `${names}を墓地へ送りました`, releaseEvents);
+      return GameProcessing.Result.success(state, `${names}をリリースしました`, releaseEvents);
+    },
+  });
+};
+
+/**
+ * RELEASE_FOR_BURN - activations用: リリースしてダメージをコンテキストに保存
+ * args: { damageMultiplier?: number }
+ *
+ * activationsでリリースを行い、計算したダメージをActivationContextに保存。
+ * resolutionsでBURN_FROM_CONTEXTと組み合わせて使用。
+ */
+export const selectAndReleaseForBurnStepBuilder: StepBuilderFn = (args, context) => {
+  const damageMultiplier = (args.damageMultiplier as number | undefined) ?? 0.5;
+  const multiplierPercent = Math.round(damageMultiplier * 100);
+
+  if (typeof damageMultiplier !== "number" || damageMultiplier <= 0) {
+    throw new Error("RELEASE_FOR_BURN step requires damageMultiplier to be a positive number");
+  }
+
+  if (!context.effectId) {
+    throw new Error("RELEASE_FOR_BURN step requires effectId in context");
+  }
+
+  const effectId = context.effectId;
+
+  return selectAndReleaseStep({
+    cardId: context.cardId,
+    count: 1,
+    summary: "リリース対象を選択",
+    description: `フィールドのモンスター1体をリリースし、攻撃力の${multiplierPercent}%のダメージを与えます`,
+    onReleased: (state, releasedCards, releaseEvents) => {
+      const monster = releasedCards[0];
+      const monsterAtk = monster.attack ?? 0;
+      const damage = Math.floor(monsterAtk * damageMultiplier);
+
+      // ダメージをコンテキストに保存（resolutionsで使用）
+      const updatedState: GameSnapshot = {
+        ...state,
+        activationContexts: GameState.ActivationContext.setDamage(state.activationContexts, effectId, damage),
+      };
+
+      return GameProcessing.Result.success(
+        updatedState,
+        `Released ${monster.jaName} (ATK ${monsterAtk}, ${damage} damage stored)`,
+        releaseEvents,
+      );
     },
   });
 };
