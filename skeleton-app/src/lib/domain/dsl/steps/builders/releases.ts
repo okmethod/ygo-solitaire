@@ -10,7 +10,7 @@
  * @module domain/effects/steps/builders/releases
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
+import { Card, type CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, Player, CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
@@ -184,4 +184,40 @@ export const releaseAndBurnStepBuilder: StepBuilderFn = (args, context) => {
   }
 
   return releaseAndBurnStep(context.cardId, damageMultiplier, damageTarget);
+};
+
+/**
+ * SEND_MONSTER_TO_GRAVEYARD - フィールドのモンスターを選択して墓地へ送る
+ * args: {
+ *   count?: number (デフォルト: 1),
+ *   excludeEffect?: boolean (デフォルト: false) - trueの場合、効果モンスターを除外
+ * }
+ *
+ * 馬の骨の対価などのコスト処理に使用
+ */
+export const sendMonsterToGraveyardStepBuilder: StepBuilderFn = (args, context) => {
+  const count = ArgValidators.optionalPositiveInt(args, "count") ?? 1;
+  const excludeEffect = ArgValidators.optionalBoolean(args, "excludeEffect", false);
+
+  const filter = (card: CardInstance): boolean => {
+    // 表側表示モンスターのみ
+    if (card.type !== "monster" || !Card.Instance.isFaceUp(card)) return false;
+    // excludeEffectがtrueの場合、効果モンスター以外のみ
+    if (excludeEffect && card.frameType === "effect") return false;
+    return true;
+  };
+
+  const filterDesc = excludeEffect ? "効果モンスター以外の" : "";
+
+  return selectAndReleaseStep({
+    cardId: context.cardId,
+    count,
+    summary: "墓地へ送るモンスターを選択",
+    description: `フィールドの${filterDesc}モンスター${count}体を墓地へ送ります`,
+    filter,
+    onReleased: (state, releasedCards, releaseEvents) => {
+      const names = releasedCards.map((c) => c.jaName).join("、");
+      return GameProcessing.Result.success(state, `${names}を墓地へ送りました`, releaseEvents);
+    },
+  });
 };

@@ -44,6 +44,7 @@ import goldenBambooSwordYaml from "./spells/golden-bamboo-sword.yaml?raw";
 import monsterRebornYaml from "./spells/monster-reborn.yaml?raw";
 import prematureBurialYaml from "./spells/premature-burial.yaml?raw";
 import wonderWandYaml from "./spells/wonder-wand.yaml?raw";
+import whiteElephantsGiftYaml from "./spells/white-elephants-gift.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -88,6 +89,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [98645731, potOfDualityYaml], // 強欲で謙虚な壺
   [85852291, magicalMalletYaml], // 打ち出の小槌
   [74029853, goldenBambooSwordYaml], // 黄金色の竹光
+  [18756904, whiteElephantsGiftYaml], // 馬の骨の対価
 
   // 速攻魔法
   [74519184, handDestructionYaml], // 手札断殺
