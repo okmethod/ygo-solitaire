@@ -30,10 +30,9 @@ import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import {
   specialSummonFromDeckStepBuilder,
   specialSummonFromExtraDeckStepBuilder,
-  selectTargetFromFieldByRaceStepBuilder,
-  selectTargetFromGraveyardStepBuilder,
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
+import { selectTargetFromFieldByRaceStepBuilder, selectTargetFromGraveyardStepBuilder } from "./builders/targeting";
 import { releaseAndBurnStepBuilder, sendMonsterToGraveyardStepBuilder } from "./builders/releases";
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
 import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
@@ -84,8 +83,6 @@ AtomicStepRegistry.register(S.REMOVE_COUNTER, removeCounterStepBuilder);
 AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
-AtomicStepRegistry.register(S.SELECT_TARGET_FROM_FIELD_BY_RACE, selectTargetFromFieldByRaceStepBuilder);
-AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 
 // リリース関連
@@ -99,6 +96,8 @@ AtomicStepRegistry.register(S.SELECT_AND_BANISH_FROM_GRAVEYARD, selectAndBanishF
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);
 
 // コンテキスト操作関連
+AtomicStepRegistry.register(S.SELECT_TARGET_FROM_FIELD_BY_RACE, selectTargetFromFieldByRaceStepBuilder);
+AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
 AtomicStepRegistry.register(S.SAVE_TARGETS_TO_CONTEXT, saveTargetsToContextStepBuilder);
 AtomicStepRegistry.register(S.CLEAR_CONTEXT, clearContextStepBuilder);
 
