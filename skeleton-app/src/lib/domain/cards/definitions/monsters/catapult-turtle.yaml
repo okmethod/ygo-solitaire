@@ -13,6 +13,8 @@ data:
   jaName: "カタパルト・タートル"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
+  edition: "legacy"
   attribute: "WATER"
   race: "Aqua"
   level: 5

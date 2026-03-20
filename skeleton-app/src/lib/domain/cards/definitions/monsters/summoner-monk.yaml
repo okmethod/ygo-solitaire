@@ -21,6 +21,7 @@ data:
   jaName: "召喚僧サモンプリースト"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
   attribute: "DARK"
   race: "Spellcaster"
   level: 4

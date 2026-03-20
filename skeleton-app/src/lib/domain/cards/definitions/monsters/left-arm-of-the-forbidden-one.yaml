@@ -6,6 +6,7 @@ data:
   jaName: "封印されし者の左腕"
   type: "monster"
   frameType: "normal"
+  monsterTypeList: ["normal"]
   attribute: "DARK"
   race: "Spellcaster"
   level: 1

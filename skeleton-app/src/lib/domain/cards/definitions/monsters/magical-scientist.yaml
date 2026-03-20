@@ -13,6 +13,7 @@ data:
   jaName: "魔導サイエンティスト"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
   attribute: "DARK"
   race: "Spellcaster"
   level: 1

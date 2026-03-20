@@ -6,6 +6,7 @@ data:
   jaName: "金色の魔象"
   type: "monster"
   frameType: "fusion"
+  monsterTypeList: []
   attribute: "DARK"
   race: "Zombie"
   level: 6

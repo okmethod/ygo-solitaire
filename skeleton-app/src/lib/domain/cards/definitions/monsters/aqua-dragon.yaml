@@ -6,6 +6,7 @@ data:
   jaName: "アクア・ドラゴン"
   type: "monster"
   frameType: "fusion"
+  monsterTypeList: []
   attribute: "WATER"
   race: "Sea Serpent"
   level: 6

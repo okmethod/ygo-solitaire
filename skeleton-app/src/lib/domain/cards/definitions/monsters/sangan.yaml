@@ -16,6 +16,7 @@ data:
   jaName: "クリッター"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
   edition: "legacy"
   attribute: "DARK"
   race: "Fiend"

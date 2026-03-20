@@ -6,6 +6,7 @@ data:
   jaName: "紅陽鳥"
   type: "monster"
   frameType: "fusion"
+  monsterTypeList: []
   attribute: "FIRE"
   race: "Winged Beast"
   level: 6

@@ -11,6 +11,7 @@ data:
   jaName: "封印されしエクゾディア"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
   attribute: "DARK"
   race: "Spellcaster"
   level: 3

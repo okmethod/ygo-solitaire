@@ -19,6 +19,7 @@ data:
   jaName: "トゥーン・キャノン・ソルジャー"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect", "toon"]
   attribute: "DARK"
   race: "Machine"
   level: 4

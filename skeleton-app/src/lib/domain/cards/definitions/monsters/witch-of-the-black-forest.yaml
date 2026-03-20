@@ -16,6 +16,7 @@ data:
   jaName: "黒き森のウィッチ"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
   edition: "legacy"
   attribute: "DARK"
   race: "Spellcaster"

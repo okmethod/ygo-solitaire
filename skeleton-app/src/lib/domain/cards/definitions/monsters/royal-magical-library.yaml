@@ -14,6 +14,7 @@ data:
   jaName: "王立魔法図書館"
   type: "monster"
   frameType: "effect"
+  monsterTypeList: ["effect"]
   attribute: "LIGHT"
   race: "Spellcaster"
   level: 4
