@@ -39,6 +39,7 @@ export default ts.config(
     languageOptions: {
       parserOptions: {
         projectService: true,
+        tsconfigRootDir: fileURLToPath(new URL(".", import.meta.url)),
         extraFileExtensions: [".svelte"],
         parser: ts.parser,
         svelteConfig,
