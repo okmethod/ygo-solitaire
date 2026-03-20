@@ -13,6 +13,7 @@
     gameResult,
     handCardRefs,
     graveyardCardRefs,
+    extraDeckCardRefs,
     monsterZoneInstanceOnFieldRefs,
     spellTrapZoneInstanceOnFieldRefs,
     fieldZoneInstanceOnFieldRefs,
@@ -363,6 +364,13 @@
       .filter((item): item is DisplayCardInstance => item.card !== undefined),
   );
 
+  // エクストラデッキカードマップ
+  const extraDeckCardsWithInstanceId = $derived(
+    $extraDeckCardRefs
+      .map((ref) => ({ card: getDisplayCardData(ref.cardId), instanceId: ref.instanceId }))
+      .filter((item): item is DisplayCardInstance => item.card !== undefined),
+  );
+
   // フィールド上の各種ゾーン用のカードマップ
   const fieldSpellZoneCards = $derived(toFixedSlotZone($fieldZoneInstanceOnFieldRefs, ZONE_CAPACITY.fieldZone));
   const monsterZoneCards = $derived(toFixedSlotZone($monsterZoneInstanceOnFieldRefs, ZONE_CAPACITY.mainMonsterZone));
@@ -399,7 +407,7 @@
     <!-- デュエルフィールドUI -->
     <DuelField
       deckCards={$deckCardCount}
-      extraDeckCards={[]}
+      extraDeckCards={extraDeckCardsWithInstanceId}
       graveyardCards={graveyardCardsWithInstanceId}
       fieldCards={fieldSpellZoneCards}
       monsterCards={monsterZoneCards}

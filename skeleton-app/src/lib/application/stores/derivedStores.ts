@@ -59,6 +59,9 @@ export const graveyardCardRefs = derived(gameStateStore, ($state) => $state.spac
 /** 除外ゾーンの CardInstanceRef 配列 */
 export const banishedCardRefs = derived(gameStateStore, ($state) => $state.space.banished.map(toInstanceRef));
 
+/** エクストラデッキの CardInstanceRef 配列 */
+export const extraDeckCardRefs = derived(gameStateStore, ($state) => $state.space.extraDeck.map(toInstanceRef));
+
 /** モンスターゾーンの CardInstanceOnFieldRef 配列 */
 export const monsterZoneInstanceOnFieldRefs = derived(gameStateStore, ($state) =>
   $state.space.mainMonsterZone.map(toInstanceOnFieldRef),
