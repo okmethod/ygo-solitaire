@@ -6,47 +6,59 @@
  * @module domain/cards/definitions
  */
 
-// Monsters
-import exodiaTheForbiddenOneYaml from "./monsters/exodia-the-forbidden-one.yaml?raw";
-import rightArmOfTheForbiddenOneYaml from "./monsters/right-arm-of-the-forbidden-one.yaml?raw";
-import leftArmOfTheForbiddenOneYaml from "./monsters/left-arm-of-the-forbidden-one.yaml?raw";
-import rightLegOfTheForbiddenOneYaml from "./monsters/right-leg-of-the-forbidden-one.yaml?raw";
-import leftLegOfTheForbiddenOneYaml from "./monsters/left-leg-of-the-forbidden-one.yaml?raw";
-import royalMagicalLibraryYaml from "./monsters/royal-magical-library.yaml?raw";
-import summonerMonkYaml from "./monsters/summoner-monk.yaml?raw";
-import sanganYaml from "./monsters/sangan.yaml?raw";
-import witchOfTheBlackForestYaml from "./monsters/witch-of-the-black-forest.yaml?raw";
-import magicalScientistYaml from "./monsters/magical-scientist.yaml?raw";
-import CatapultTurtleYaml from "./monsters/catapult-turtle.yaml?raw";
-import toonCannonSoldierYaml from "./monsters/toon-cannon-soldier.yaml?raw";
-import crimsonSunbirdYaml from "./monsters/crimson-sunbird.yaml?raw";
-import aquaDragonYaml from "./monsters/aqua-dragon.yaml?raw";
-import greatMammothOfGoldfineYaml from "./monsters/great-mammoth-of-goldfine.yaml?raw";
-import treasurePandaYaml from "./monsters/treasure-panda.yaml?raw";
-import flamvellGuardYaml from "./monsters/flamvell-guard.yaml?raw";
+// 通常モンスター
+import rightArmOfTheForbiddenOneYaml from "./monsters/normals/right-arm-of-the-forbidden-one.yaml?raw";
+import leftArmOfTheForbiddenOneYaml from "./monsters/normals/left-arm-of-the-forbidden-one.yaml?raw";
+import rightLegOfTheForbiddenOneYaml from "./monsters/normals/right-leg-of-the-forbidden-one.yaml?raw";
+import leftLegOfTheForbiddenOneYaml from "./monsters/normals/left-leg-of-the-forbidden-one.yaml?raw";
+import flamvellGuardYaml from "./monsters/normals/flamvell-guard.yaml?raw";
 
-// Spells
-import potOfGreedYaml from "./spells/pot-of-greed.yaml?raw";
-import upstartGoblinYaml from "./spells/upstart-goblin.yaml?raw";
-import gracefulCharityYaml from "./spells/graceful-charity.yaml?raw";
-import terraformingYaml from "./spells/terraforming.yaml?raw";
-import magicalStoneExcavationYaml from "./spells/magical-stone-excavation.yaml?raw";
-import intoTheVoidYaml from "./spells/into-the-void.yaml?raw";
-import cardOfDemiseYaml from "./spells/card-of-demise.yaml?raw";
-import darkFactoryYaml from "./spells/dark-factory.yaml?raw";
-import oneDayOfPeaceYaml from "./spells/one-day-of-peace.yaml?raw";
-import toonTableOfContentsYaml from "./spells/toon-table-of-contents.yaml?raw";
-import potOfDualityYaml from "./spells/pot-of-duality.yaml?raw";
-import magicalMalletYaml from "./spells/magical-mallet.yaml?raw";
-import handDestructionYaml from "./spells/hand-destruction.yaml?raw";
-import toonWorldYaml from "./spells/toon-world.yaml?raw";
-import chickenGameYaml from "./spells/chicken-game.yaml?raw";
-import brokenBambooSwordYaml from "./spells/broken-bamboo-sword.yaml?raw";
-import goldenBambooSwordYaml from "./spells/golden-bamboo-sword.yaml?raw";
-import monsterRebornYaml from "./spells/monster-reborn.yaml?raw";
-import prematureBurialYaml from "./spells/premature-burial.yaml?raw";
-import wonderWandYaml from "./spells/wonder-wand.yaml?raw";
-import whiteElephantsGiftYaml from "./spells/white-elephants-gift.yaml?raw";
+// 効果モンスター
+import exodiaTheForbiddenOneYaml from "./monsters/effects/exodia-the-forbidden-one.yaml?raw";
+import royalMagicalLibraryYaml from "./monsters/effects/royal-magical-library.yaml?raw";
+import summonerMonkYaml from "./monsters/effects/summoner-monk.yaml?raw";
+import sanganYaml from "./monsters/effects/sangan.yaml?raw";
+import witchOfTheBlackForestYaml from "./monsters/effects/witch-of-the-black-forest.yaml?raw";
+import magicalScientistYaml from "./monsters/effects/magical-scientist.yaml?raw";
+import CatapultTurtleYaml from "./monsters/effects/catapult-turtle.yaml?raw";
+import toonCannonSoldierYaml from "./monsters/effects/toon-cannon-soldier.yaml?raw";
+import treasurePandaYaml from "./monsters/effects/treasure-panda.yaml?raw";
+
+// 融合モンスター
+import crimsonSunbirdYaml from "./monsters/fusions/crimson-sunbird.yaml?raw";
+import aquaDragonYaml from "./monsters/fusions/aqua-dragon.yaml?raw";
+import greatMammothOfGoldfineYaml from "./monsters/fusions/great-mammoth-of-goldfine.yaml?raw";
+
+// 通常魔法
+import monsterRebornYaml from "./spells/normals/monster-reborn.yaml?raw";
+import potOfGreedYaml from "./spells/normals/pot-of-greed.yaml?raw";
+import upstartGoblinYaml from "./spells/normals/upstart-goblin.yaml?raw";
+import gracefulCharityYaml from "./spells/normals/graceful-charity.yaml?raw";
+import terraformingYaml from "./spells/normals/terraforming.yaml?raw";
+import magicalStoneExcavationYaml from "./spells/normals/magical-stone-excavation.yaml?raw";
+import intoTheVoidYaml from "./spells/normals/into-the-void.yaml?raw";
+import cardOfDemiseYaml from "./spells/normals/card-of-demise.yaml?raw";
+import darkFactoryYaml from "./spells/normals/dark-factory.yaml?raw";
+import oneDayOfPeaceYaml from "./spells/normals/one-day-of-peace.yaml?raw";
+import toonTableOfContentsYaml from "./spells/normals/toon-table-of-contents.yaml?raw";
+import potOfDualityYaml from "./spells/normals/pot-of-duality.yaml?raw";
+import magicalMalletYaml from "./spells/normals/magical-mallet.yaml?raw";
+import goldenBambooSwordYaml from "./spells/normals/golden-bamboo-sword.yaml?raw";
+import whiteElephantsGiftYaml from "./spells/normals/white-elephants-gift.yaml?raw";
+
+// 速攻魔法
+import handDestructionYaml from "./spells/quick-plays/hand-destruction.yaml?raw";
+
+// 永続魔法
+import toonWorldYaml from "./spells/continuouses/toon-world.yaml?raw";
+
+// フィールド魔法
+import chickenGameYaml from "./spells/fields/chicken-game.yaml?raw";
+
+// 装備魔法
+import brokenBambooSwordYaml from "./spells/equips/broken-bamboo-sword.yaml?raw";
+import wonderWandYaml from "./spells/equips/wonder-wand.yaml?raw";
+import prematureBurialYaml from "./spells/equips/premature-burial.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -70,7 +82,6 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [34206604, magicalScientistYaml], // 魔導サイエンティスト
   [95727991, CatapultTurtleYaml], // カタパルト・タートル
   [79875176, toonCannonSoldierYaml], // トゥーン・キャノン・ソルジャー
-
   [45221020, treasurePandaYaml], // トレジャー・パンダー
 
   // 融合モンスター
@@ -106,8 +117,8 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // 装備魔法
   [41587307, brokenBambooSwordYaml], // 折れ竹光
-  [70828912, prematureBurialYaml], // 早すぎた埋葬
   [67775894, wonderWandYaml], // ワンダー・ワンド
+  [70828912, prematureBurialYaml], // 早すぎた埋葬
 ]);
 
 /**
