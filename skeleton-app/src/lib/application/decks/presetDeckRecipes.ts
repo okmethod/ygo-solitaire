@@ -138,8 +138,8 @@ const deckScienceCatapult: DeckRecipe = {
     // モンスターカード
     { id: 34206604, quantity: 3 }, // 魔導サイエンティスト
     { id: 95727991, quantity: 3 }, // カタパルト・タートル[L]
+    { id: 79875176, quantity: 1 }, // トゥーン・キャノン・ソルジャー
     // 混沌の黒魔術師[L]
-    // トゥーン・キャノン・ソルジャー
 
     // 魔法カード
     { id: 55144522, quantity: 1 }, // 強欲な壺

@@ -1,0 +1,35 @@
+# 《トゥーン・キャノン・ソルジャー》 (Toon Cannon Soldier)
+#
+# 起動効果:
+# - CONDITIONS: 無し
+# - ACTIVATIONS: 自分フィールド上のモンスター1体をリリース
+# - RESOLUTIONS: 500のバーンダメージ
+#
+# 永続効果:
+# - フィールド上の「トゥーン・ワールド」が破壊された時、自壊（未実装）
+#
+# Note:
+# - 自身をリリースできるため、CONDITIONSでのモンスター存在チェックは不要
+# - 召喚・反転召喚・特殊召喚したターンに攻撃できない制約は未実装
+# - 直接攻撃できる効果は未実装
+
+id: 79875176
+
+data:
+  jaName: "トゥーン・キャノン・ソルジャー"
+  type: "monster"
+  frameType: "effect"
+  attribute: "DARK"
+  race: "Machine"
+  level: 4
+  attack: 1400
+  defense: 1300
+
+effectChainableActions:
+  ignitions:
+    - activations:
+        - step: "RELEASE"
+          args: { count: 1 }
+      resolutions:
+        - step: "BURN_DAMAGE"
+          args: { amount: 500 }
