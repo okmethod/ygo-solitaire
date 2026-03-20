@@ -6,7 +6,7 @@ const _isMobile = isMobile();
 export const toaster = createToaster({
   placement: "top-end",
   duration: _isMobile ? 1000 : 5000,
-  max: _isMobile ? 3 : 10,
+  max: _isMobile ? 3 : 5,
 });
 
 export function showSuccessToast(title: string) {
