@@ -19,7 +19,7 @@ import {
   graveyardHasMonsterCondition,
   graveyardHasSpellOrTrapCondition,
 } from "./checkers/graveyardConditions";
-import { fieldHasEquippedNameIncludesCondition } from "./checkers/fieldConditions";
+import { fieldHasEquippedNameIncludesCondition, fieldHasMonsterWithRaceCondition } from "./checkers/fieldConditions";
 import { hasCounterCondition } from "./checkers/counterConditions";
 import { oncePerTurnCondition, oncePerTurnEffectCondition } from "./checkers/activationConditions";
 import { lpAtLeastCondition, lpGreaterThanCondition } from "./checkers/lpConditions";
@@ -55,6 +55,7 @@ AtomicConditionRegistry.register(C.GRAVEYARD_HAS_SPELL_OR_TRAP, graveyardHasSpel
 
 // フィールド関連
 AtomicConditionRegistry.register(C.FIELD_HAS_EQUIPPED_NAME_INCLUDES, fieldHasEquippedNameIncludesCondition);
+AtomicConditionRegistry.register(C.FIELD_HAS_MONSTER_WITH_RACE, fieldHasMonsterWithRaceCondition);
 
 // カウンター関連
 AtomicConditionRegistry.register(C.HAS_COUNTER, hasCounterCondition);

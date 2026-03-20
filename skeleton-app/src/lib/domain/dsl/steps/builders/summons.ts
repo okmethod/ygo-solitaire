@@ -312,6 +312,64 @@ export const specialSummonFromExtraDeckStep = (
 };
 
 /**
+ * フィールドから種族指定でモンスターを選択し、対象としてコンテキストに保存するステップ（発動時に使用）
+ *
+ * 装備魔法など、特定種族のモンスターを対象に取る場合に使用。
+ *
+ * @param cardId - カードID
+ * @param effectId - 効果ID（コンテキストのキー）
+ * @param race - 種族（例: "Spellcaster"）
+ */
+export const selectTargetFromFieldByRaceStep = (cardId: number, effectId: EffectId, race: string): AtomicStep => {
+  const summary = "装備対象を選択";
+  const description = `フィールドの${race}モンスター1体を対象に取ります`;
+  const filter = (card: CardInstance): boolean => {
+    if (card.type !== "monster") return false;
+    if (card.race !== race) return false;
+    if (!card.stateOnField || card.stateOnField.position !== "faceUp") return false;
+    return true;
+  };
+
+  return {
+    id: `${cardId}-select-target-from-field-by-race-${race}`,
+    summary,
+    description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
+      minCards: 1,
+      maxCards: 1,
+      summary,
+      description,
+      cancelable: false,
+      _sourceZone: "mainMonsterZone",
+      _filter: filter,
+    },
+    action: (state: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return GameProcessing.Result.failure(state, "No target selected");
+      }
+
+      // 対象をコンテキストに保存
+      const updatedState: GameSnapshot = {
+        ...state,
+        activationContexts: GameState.ActivationContext.setTargets(
+          state.activationContexts,
+          effectId,
+          selectedInstanceIds,
+        ),
+      };
+
+      const targetCard = GameState.Space.findCard(state.space, selectedInstanceIds[0]);
+      return GameProcessing.Result.success(
+        updatedState,
+        `Selected ${targetCard?.jaName ?? selectedInstanceIds[0]} as equip target`,
+      );
+    },
+  };
+};
+
+/**
  * 墓地からモンスターを選択し、対象としてコンテキストに保存するステップ（発動時に使用）
  *
  * @param cardId - カードID
@@ -464,6 +522,18 @@ export const specialSummonFromExtraDeckStepBuilder: StepBuilderFn = (args, conte
   const filterFrameType = ArgValidators.optionalString(args, "filterFrameType");
   const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
   return specialSummonFromExtraDeckStep(context.cardId, filterMaxLevel, filterFrameType, battlePosition);
+};
+
+/**
+ * SELECT_TARGET_FROM_FIELD_BY_RACE - フィールドから種族指定でモンスターを対象に取る
+ * args: { race: string }
+ */
+export const selectTargetFromFieldByRaceStepBuilder: StepBuilderFn = (args, context) => {
+  if (!context.effectId) {
+    throw new Error("SELECT_TARGET_FROM_FIELD_BY_RACE step requires effectId in context");
+  }
+  const race = ArgValidators.nonEmptyString(args, "race");
+  return selectTargetFromFieldByRaceStep(context.cardId, context.effectId, race);
 };
 
 /**

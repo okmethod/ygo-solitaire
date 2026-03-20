@@ -43,6 +43,12 @@ export const byNameIncludes =
   (card) =>
     card.jaName.includes(pattern);
 
+/** 種族でフィルター */
+export const byRace =
+  (race: string): CardPredicate =>
+  (card) =>
+    card.race === race;
+
 /** 指定インスタンスIDを除外 */
 export const excludingInstance =
   (instanceId: string): CardPredicate =>

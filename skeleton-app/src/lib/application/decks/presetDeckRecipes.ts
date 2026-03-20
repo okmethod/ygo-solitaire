@@ -122,8 +122,8 @@ const deckPandaExodia: DeckRecipe = {
     { id: 15259703, quantity: 1 }, // トゥーン・ワールド
     { id: 73628505, quantity: 3 }, // テラ・フォーミング
     { id: 67616300, quantity: 3 }, // チキンレース
+    { id: 67775894, quantity: 3 }, // ワンダー・ワンド
     // 馬の骨の対価
-    // ワンダー・ワンド
     // 貪欲な壺
   ],
   extraDeck: [

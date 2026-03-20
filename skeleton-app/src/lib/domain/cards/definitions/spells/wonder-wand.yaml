@@ -1,0 +1,41 @@
+# 《ワンダー・ワンド》 (Wonder Wand)
+#
+# カードの発動:
+# - CONDITIONS: 魔法使い族モンスターが存在する
+# - ACTIVATIONS: フィールド上の魔法使い族モンスター1体を対象に取る
+# - RESOLUTIONS: 装備モンスターの攻撃力500アップ（未実装）
+#
+# 起動効果:
+# - CONDITIONS: デッキに2枚以上
+# - ACTIVATIONS: 装備モンスターとこのカードを自分フィールドから墓地へ送る
+# - RESOLUTIONS: 2枚ドロー
+
+id: 67775894
+
+data:
+  jaName: "ワンダー・ワンド"
+  type: "spell"
+  frameType: "spell"
+  spellType: "equip"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "FIELD_HAS_MONSTER_WITH_RACE"
+          args: { race: "Spellcaster" }
+    activations:
+      - step: "SELECT_TARGET_FROM_FIELD_BY_RACE"
+        args: { race: "Spellcaster" }
+    resolutions: []
+
+  ignitions:
+    - conditions:
+        requirements:
+          - step: "CAN_DRAW"
+            args: { count: 2 }
+      activations:
+        - step: "SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD"
+      resolutions:
+        - step: "DRAW"
+          args: { count: 2 }

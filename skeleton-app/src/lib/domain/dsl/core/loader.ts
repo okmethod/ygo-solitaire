@@ -38,6 +38,7 @@ function registerCardData(definition: CardDSLDefinition): void {
     spellType: data.spellType,
     trapType: data.trapType,
     edition: data.edition ?? "latest",
+    race: data.race,
     level: data.level,
     attack: data.attack,
     defense: data.defense,

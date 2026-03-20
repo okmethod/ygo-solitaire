@@ -203,6 +203,21 @@
       },
     ];
   }
+
+  // 表側表示の魔法罠カード用のアクション定義（装備魔法の起動効果など）
+  function getFaceUpSpellTrapActions(instanceId: string): CardActionButton[] {
+    if (!canActivateIgnitionEffect(instanceId)) {
+      return [];
+    }
+    return [
+      {
+        label: "効果発動",
+        style: "filled",
+        color: "primary",
+        onClick: onActivateIgnitionEffect || (() => {}),
+      },
+    ];
+  }
 </script>
 
 <!-- ゾーン用 Snippets -->
@@ -329,13 +344,17 @@
             showDetailOnClick={true}
           />
         {:else}
-          <CardComponent
+          <ActivatableCard
             card={card.card}
+            {instanceId}
             faceDown={false}
+            isSelected={selectedFieldCardInstanceId === instanceId}
+            isActivatable={getFaceUpSpellTrapActions(instanceId).length > 0}
+            onSelect={handleCardClick}
+            actionButtons={getFaceUpSpellTrapActions(instanceId)}
+            onCancel={onCancelFieldCardSelection || (() => {})}
             size={cardSize}
-            clickable={true}
             showDetailOnClick={true}
-            onClick={() => handleCardClick(card.card, instanceId)}
             onHover={(hoveredCard) => handleEquipCardHover(hoveredCard ? (card.equippedTo ?? null) : null)}
           />
         {/if}

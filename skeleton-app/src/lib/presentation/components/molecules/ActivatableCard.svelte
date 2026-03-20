@@ -31,6 +31,7 @@
     spellCounterCount?: number; // 魔力カウンター数
     isEquipped?: boolean; // 装備カードが付いているかどうか
     isEquipmentHovered?: boolean; // 装備カードがホバーされているかどうか
+    onHover?: (card: DisplayCardData | null) => void; // ホバー時のコールバック（装備対象ハイライト用）
   }
 
   let {
@@ -48,6 +49,7 @@
     spellCounterCount = 0,
     isEquipped = false,
     isEquipmentHovered = false,
+    onHover,
   }: ActivatableCardProps = $props();
 
   function handleSelect() {
@@ -113,6 +115,7 @@
       onClick={handleSelect}
       {showDetailOnClick}
       animate={false}
+      {onHover}
     />
 
     <!-- 魔力カウンター表示 -->

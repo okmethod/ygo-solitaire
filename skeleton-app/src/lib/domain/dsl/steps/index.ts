@@ -30,13 +30,18 @@ import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import {
   specialSummonFromDeckStepBuilder,
   specialSummonFromExtraDeckStepBuilder,
+  selectTargetFromFieldByRaceStepBuilder,
   selectTargetFromGraveyardStepBuilder,
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
 import { releaseAndBurnStepBuilder } from "./builders/releases";
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
 import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
-import { establishEquipStepBuilder, unequipStepBuilder } from "./builders/equipOperations";
+import {
+  establishEquipStepBuilder,
+  sendEquippedAndSelfToGraveyardStepBuilder,
+  unequipStepBuilder,
+} from "./builders/equipOperations";
 
 // ===========================
 // エクスポート
@@ -79,6 +84,7 @@ AtomicStepRegistry.register(S.REMOVE_COUNTER, removeCounterStepBuilder);
 AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
+AtomicStepRegistry.register(S.SELECT_TARGET_FROM_FIELD_BY_RACE, selectTargetFromFieldByRaceStepBuilder);
 AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 
@@ -97,6 +103,7 @@ AtomicStepRegistry.register(S.CLEAR_CONTEXT, clearContextStepBuilder);
 
 // 装備関連
 AtomicStepRegistry.register(S.ESTABLISH_EQUIP, establishEquipStepBuilder);
+AtomicStepRegistry.register(S.SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD, sendEquippedAndSelfToGraveyardStepBuilder);
 AtomicStepRegistry.register(S.UNEQUIP, unequipStepBuilder);
 
 // その他

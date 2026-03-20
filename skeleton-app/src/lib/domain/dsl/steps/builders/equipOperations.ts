@@ -76,6 +76,56 @@ export const establishEquipStep = (effectId: EffectId, equipCardInstanceId: stri
 });
 
 /**
+ * 装備モンスターと装備カード自身を墓地に送るステップ
+ *
+ * ワンダー・ワンドの起動効果のコストなど、装備モンスターと装備カード自身を
+ * 墓地に送って効果を発動する場合に使用。
+ *
+ * @param equipCardInstanceId - 装備カードのインスタンスID
+ */
+export const sendEquippedAndSelfToGraveyardStep = (equipCardInstanceId: string): AtomicStep => ({
+  id: `send-equipped-and-self-to-graveyard-${equipCardInstanceId}`,
+  summary: "装備モンスターとこのカードを墓地へ",
+  description: "装備モンスターとこのカードを墓地へ送ります",
+  notificationLevel: "silent",
+  action: (state: GameSnapshot): GameStateUpdateResult => {
+    // 1. 装備カードを見つける
+    const equipCard = GameState.Space.findCard(state.space, equipCardInstanceId);
+    if (!equipCard) {
+      return GameProcessing.Result.failure(state, `Equip card not found: ${equipCardInstanceId}`);
+    }
+    if (!equipCard.stateOnField) {
+      return GameProcessing.Result.failure(state, "Equip card is not on the field");
+    }
+
+    // 2. 装備モンスターを取得
+    const equippedToId = equipCard.stateOnField.equippedTo;
+    if (!equippedToId) {
+      return GameProcessing.Result.failure(state, "Equip card is not equipped to any monster");
+    }
+
+    const equippedMonster = GameState.Space.findCard(state.space, equippedToId);
+    if (!equippedMonster) {
+      return GameProcessing.Result.failure(state, `Equipped monster not found: ${equippedToId}`);
+    }
+
+    // 3. 両方を墓地に送る
+    let updatedSpace = GameState.Space.moveCard(state.space, equippedMonster, "graveyard");
+    updatedSpace = GameState.Space.moveCard(updatedSpace, equipCard, "graveyard");
+
+    const updatedState: GameSnapshot = {
+      ...state,
+      space: updatedSpace,
+    };
+
+    return GameProcessing.Result.success(
+      updatedState,
+      `Sent ${equippedMonster.jaName} and ${equipCard.jaName} to graveyard`,
+    );
+  },
+});
+
+/**
  * 装備を外すステップ
  *
  * 装備カードの equippedTo をクリアする。
@@ -134,6 +184,22 @@ export const establishEquipStepBuilder: StepBuilderFn = (args, context) => {
   }
 
   return establishEquipStep(effectId, equipCardInstanceId);
+};
+
+/**
+ * SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD - 装備モンスターと自身を墓地へ送る
+ * args: { equipCardInstanceId?: string }
+ *
+ * equipCardInstanceId が省略された場合は context.sourceInstanceId を使用する。
+ */
+export const sendEquippedAndSelfToGraveyardStepBuilder: StepBuilderFn = (args, context) => {
+  const equipCardInstanceId = ArgValidators.optionalString(args, "equipCardInstanceId") ?? context.sourceInstanceId;
+
+  if (!equipCardInstanceId) {
+    throw new Error("SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD step requires equipCardInstanceId (via args or context)");
+  }
+
+  return sendEquippedAndSelfToGraveyardStep(equipCardInstanceId);
 };
 
 /**

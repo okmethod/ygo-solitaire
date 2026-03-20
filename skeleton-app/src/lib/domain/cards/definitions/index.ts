@@ -43,6 +43,7 @@ import brokenBambooSwordYaml from "./spells/broken-bamboo-sword.yaml?raw";
 import goldenBambooSwordYaml from "./spells/golden-bamboo-sword.yaml?raw";
 import monsterRebornYaml from "./spells/monster-reborn.yaml?raw";
 import prematureBurialYaml from "./spells/premature-burial.yaml?raw";
+import wonderWandYaml from "./spells/wonder-wand.yaml?raw";
 
 /**
  * カードID → YAML定義文字列のマップ
@@ -100,6 +101,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   // 装備魔法
   [41587307, brokenBambooSwordYaml], // 折れ竹光
   [70828912, prematureBurialYaml], // 早すぎた埋葬
+  [67775894, wonderWandYaml], // ワンダー・ワンド
 ]);
 
 /**

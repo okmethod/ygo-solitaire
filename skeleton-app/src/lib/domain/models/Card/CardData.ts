@@ -48,6 +48,7 @@ export interface CardData {
   readonly edition: Edition; // "legacy" | "latest"(デフォルト)
 
   // モンスターカードのみ
+  readonly race?: string; // 種族（例: "Spellcaster", "Warrior"）
   readonly level?: number; // レベル
   readonly attack?: number;
   readonly defense?: number;
