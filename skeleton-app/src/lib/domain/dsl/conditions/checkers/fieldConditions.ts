@@ -6,20 +6,18 @@
  * - fieldHasMonsterWithRaceCondition: フィールドに指定種族のモンスターがあるか
  */
 
-import { Card } from "$lib/domain/models/Card";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createSimpleConditionChecker } from "../conditionFactory";
-import { hasAtLeast, byNameIncludes, byRace, and, isMonster, type CardPredicate } from "../primitives/cardPredicates";
-
-// ===========================
-// 追加フィルター（fieldConditions固有）
-// ===========================
-
-/** 装備魔法カードか */
-const isEquipSpell: CardPredicate = (card) => Card.isEquipSpell(card);
-
-/** 表側表示か */
-const isFaceUp: CardPredicate = (card) => Card.Instance.isFaceUp(card);
+import {
+  hasAtLeast,
+  byNameIncludes,
+  byRace,
+  and,
+  isMonster,
+  isNonEffectMonster,
+  isEquipSpell,
+  isFaceUp,
+} from "../primitives/cardPredicates";
 
 // ===========================
 // ConditionChecker（export）
@@ -44,12 +42,6 @@ export const fieldHasMonsterWithRaceCondition = createSimpleConditionChecker(
   (args) => ({ race: ArgValidators.nonEmptyString(args, "race") }),
   (state, { race }) => hasAtLeast(state.space.mainMonsterZone, and(isMonster, isFaceUp, byRace(race)), 1),
 );
-
-/**
- * 効果モンスター以外のモンスターか（通常・儀式・融合・シンクロ・エクシーズ・リンク・ペンデュラム）
- * monsterTypeList に "effect" が含まれていなければ「効果モンスターでない」と判断
- */
-const isNonEffectMonster: CardPredicate = (card) => Card.isNonEffectMonster(card);
 
 /**
  * FIELD_HAS_NON_EFFECT_MONSTER - フィールドに効果モンスター以外の表側表示モンスターがあるか

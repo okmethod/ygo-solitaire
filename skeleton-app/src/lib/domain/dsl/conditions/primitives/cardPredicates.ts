@@ -2,18 +2,17 @@
  * cardPredicates.ts - カードフィルタリングのプリミティブ関数
  *
  * 条件チェッカーで共通して使われるカードフィルタリングパターンを提供する。
- *
- * @module domain/dsl/conditions/primitives/cardPredicates
  */
 
 import type { CardInstance, CardType, SpellSubType, FrameSubType } from "$lib/domain/models/Card";
+import { Card } from "$lib/domain/models/Card";
 
 // ===========================
 // 型定義
 // ===========================
 
 /** カードの述語関数 */
-export type CardPredicate = (card: CardInstance) => boolean;
+type CardPredicate = (card: CardInstance) => boolean;
 
 // ===========================
 // 基本フィルター
@@ -87,14 +86,23 @@ export const hasAtLeast = (cards: readonly CardInstance[], predicate: CardPredic
 // よく使う組み合わせ（プリセット）
 // ===========================
 
-/** 魔法カード */
-export const isSpell = byType("spell");
-
 /** モンスターカード */
-export const isMonster = byType("monster");
+export const isMonster: CardPredicate = Card.isMonster;
+
+/** 効果モンスター以外のモンスターか */
+export const isNonEffectMonster: CardPredicate = (card) => Card.isNonEffectMonster(card);
+
+/** 魔法カード */
+export const isSpell: CardPredicate = Card.isSpell;
+
+/** 装備魔法カードか */
+export const isEquipSpell: CardPredicate = (card) => Card.isEquipSpell(card);
 
 /** 罠カード */
-export const isTrap = byType("trap");
+export const isTrap: CardPredicate = Card.isTrap;
 
 /** 魔法または罠カード */
 export const isSpellOrTrap = or(isSpell, isTrap);
+
+/** 表側表示か */
+export const isFaceUp: CardPredicate = (card) => Card.Instance.isFaceUp(card);
