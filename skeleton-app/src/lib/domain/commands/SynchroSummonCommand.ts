@@ -12,7 +12,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { ValidationResult } from "$lib/domain/models/GameProcessing";
 import type { GameCommand, GameCommandResult } from "$lib/domain/models/Command";
 import { Command } from "$lib/domain/models/Command";
-import { canSynchroSummon, performSynchroSummon } from "$lib/domain/rules/SummonRule";
+import { canSynchroSummon, performSynchroSummon } from "$lib/domain/rules/SynchroSummonRule";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 /** シンクロ召喚コマンドクラス */
