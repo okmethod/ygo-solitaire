@@ -10,6 +10,7 @@ import {
   FRAME_SUB_TYPES,
   SPELL_SUB_TYPES,
   TRAP_SUB_TYPES,
+  OTHER_MONSTER_SUB_TYPES,
   EDITIONS,
 } from "$lib/domain/models/Card/CardData";
 import { EVENT_TYPES } from "$lib/domain/models/GameProcessing/GameEvent";
@@ -36,6 +37,9 @@ const SpellSubTypeSchema = z.enum(SPELL_SUB_TYPES);
 /** TrapSubType スキーマ */
 const TrapSubTypeSchema = z.enum(TRAP_SUB_TYPES);
 
+/** OtherMonsterSubType スキーマ */
+const OtherMonsterSubTypeSchema = z.enum(OTHER_MONSTER_SUB_TYPES);
+
 /**
  * カードデータのDSL表現スキーマ
  */
@@ -52,6 +56,8 @@ const CardDataDSLSchema = z.object({
   spellType: SpellSubTypeSchema.optional(),
   /** 罠カードサブタイプ */
   trapType: TrapSubTypeSchema.optional(),
+  /** モンスターサブタイプリスト（チューナー等の複合属性対応） */
+  monsterTypeList: z.array(OtherMonsterSubTypeSchema).optional(),
   // モンスター用
   /** モンスター種族 */
   race: z.string().optional(),

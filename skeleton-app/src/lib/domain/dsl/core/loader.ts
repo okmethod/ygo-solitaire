@@ -35,6 +35,7 @@ function registerCardData(definition: CardDSLDefinition): void {
     jaName: data.jaName,
     type: data.type,
     frameType: data.frameType,
+    monsterTypeList: data.monsterTypeList,
     spellType: data.spellType,
     trapType: data.trapType,
     edition: data.edition ?? "latest",

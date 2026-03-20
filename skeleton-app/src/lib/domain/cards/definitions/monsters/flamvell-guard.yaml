@@ -1,0 +1,14 @@
+# 《ガード・オブ・フレムベル》 (Flamvell Guard)
+
+id: 21615956
+
+data:
+  jaName: "ガード・オブ・フレムベル"
+  type: "monster"
+  frameType: "normal"
+  monsterTypeList: ["normal", "tuner"]
+  attribute: "FIRE"
+  race: "Dragon"
+  level: 1
+  attack: 100
+  defense: 2000

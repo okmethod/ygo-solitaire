@@ -109,7 +109,7 @@ const deckPandaExodia: DeckRecipe = {
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
     { id: 45221020, quantity: 3 }, // トレジャー・パンダ
     { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
-    // ガード・オブ・フレムベル
+    { id: 21615956, quantity: 1 }, // ガード・オブ・フレムベル
     // 千眼の邪教神
 
     // 魔法カード

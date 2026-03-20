@@ -14,6 +14,10 @@ export type MainMonsterSubType = (typeof MAIN_MONSTER_SUB_TYPES)[number];
 export const EXTRA_MONSTER_SUB_TYPES = ["fusion", "synchro", "xyz", "link"] as const;
 export type ExtraMonsterSubType = (typeof EXTRA_MONSTER_SUB_TYPES)[number];
 
+/** その他モンスターサブタイプ（複数共存可能） */
+export const OTHER_MONSTER_SUB_TYPES = ["normal", "effect", "tuner", "toon", "spirit"] as const;
+export type OtherMonsterSubType = (typeof OTHER_MONSTER_SUB_TYPES)[number];
+
 /** カードフレームタイプ */
 export const FRAME_SUB_TYPES = [...MAIN_MONSTER_SUB_TYPES, ...EXTRA_MONSTER_SUB_TYPES, "spell", "trap"] as const;
 export type FrameSubType = (typeof FRAME_SUB_TYPES)[number];
@@ -41,6 +45,7 @@ export interface CardData {
   readonly jaName: string; // 日本語カード名（YGOProDeck APIの name は英語名）
   readonly type: CardType;
   readonly frameType: FrameSubType;
+  readonly monsterTypeList?: OtherMonsterSubType[];
   readonly spellType?: SpellSubType;
   readonly trapType?: TrapSubType;
 

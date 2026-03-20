@@ -23,6 +23,7 @@ import crimsonSunbirdYaml from "./monsters/crimson-sunbird.yaml?raw";
 import aquaDragonYaml from "./monsters/aqua-dragon.yaml?raw";
 import greatMammothOfGoldfineYaml from "./monsters/great-mammoth-of-goldfine.yaml?raw";
 import treasurePandaYaml from "./monsters/treasure-panda.yaml?raw";
+import flamvellGuardYaml from "./monsters/flamvell-guard.yaml?raw";
 
 // Spells
 import potOfGreedYaml from "./spells/pot-of-greed.yaml?raw";
@@ -58,6 +59,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [7902349, leftArmOfTheForbiddenOneYaml], // 封印されし者の左腕
   [8124921, rightLegOfTheForbiddenOneYaml], // 封印されし者の右足
   [44519536, leftLegOfTheForbiddenOneYaml], // 封印されし者の左足
+  [21615956, flamvellGuardYaml], // ガード・オブ・フレムベル
 
   // 効果モンスター
   [33396948, exodiaTheForbiddenOneYaml], // 封印されしエクゾディア
