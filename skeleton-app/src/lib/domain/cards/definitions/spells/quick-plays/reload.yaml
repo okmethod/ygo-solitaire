@@ -1,0 +1,19 @@
+# 《リロード》 (Reload)
+#
+# カードの発動:
+# - CONDITIONS: 無し
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 手札を全てデッキに戻してシャッフル、同じ枚数ドロー
+
+id: 22589918
+
+data:
+  jaName: "リロード"
+  type: "spell"
+  frameType: "spell"
+  spellType: "quick-play"
+
+effectChainableActions:
+  activations:
+    resolutions:
+      - step: "RETURN_ALL_HAND_SHUFFLE_DRAW"

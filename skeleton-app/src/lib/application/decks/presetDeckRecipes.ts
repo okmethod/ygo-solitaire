@@ -97,7 +97,7 @@ const deckLibraryExodia: DeckRecipe = {
 };
 
 const deckPandaExodia: DeckRecipe = {
-  name: "パンダエクゾ - WIP",
+  name: "パンダエクゾ",
   description: "トレジャーパンダと通常モンスターを活用してドローするエクゾディアデッキです",
   category: "エクゾディア",
   mainDeck: [
@@ -116,13 +116,12 @@ const deckPandaExodia: DeckRecipe = {
     { id: 70368879, quantity: 3 }, // 成金ゴブリン
     { id: 33782437, quantity: 3 }, // 一時休戦
     { id: 93946239, quantity: 3 }, // 無の煉獄
-    { id: 90928333, quantity: 3 }, // 闇の量産工場
-    { id: 85852291, quantity: 3 }, // 打ち出の小槌
-    { id: 73628505, quantity: 3 }, // テラ・フォーミング
     { id: 67616300, quantity: 3 }, // チキンレース
     { id: 67775894, quantity: 3 }, // ワンダー・ワンド
     { id: 18756904, quantity: 3 }, // 馬の骨の対価
-    // 貪欲な壺
+    { id: 90928333, quantity: 3 }, // 闇の量産工場
+    { id: 85852291, quantity: 3 }, // 打ち出の小槌
+    { id: 22589918, quantity: 3 }, // リロード
   ],
   extraDeck: [
     // シンクロモンスター

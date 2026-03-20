@@ -49,6 +49,7 @@ import whiteElephantsGiftYaml from "./spells/normals/white-elephants-gift.yaml?r
 
 // 速攻魔法
 import handDestructionYaml from "./spells/quick-plays/hand-destruction.yaml?raw";
+import reloadYaml from "./spells/quick-plays/reload.yaml?raw";
 
 // 永続魔法
 import toonWorldYaml from "./spells/continuouses/toon-world.yaml?raw";
@@ -110,6 +111,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // 速攻魔法
   [74519184, handDestructionYaml], // 手札断殺
+  [22589918, reloadYaml], // リロード
 
   // 永続魔法
   [15259703, toonWorldYaml], // トゥーン・ワールド

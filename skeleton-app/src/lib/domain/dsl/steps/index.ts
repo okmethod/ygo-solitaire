@@ -14,7 +14,10 @@ import { STEP_NAMES, type StepName } from "./StepNames";
 // StepBuilder 実装
 import { drawStepBuilder, fillHandsStepBuilder } from "./builders/draws";
 import { selectAndDiscardStepBuilder, discardAllHandEndPhaseStepBuilder } from "./builders/discards";
-import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
+import {
+  selectReturnShuffleDrawStepBuilder,
+  returnAllHandShuffleDrawStepBuilder,
+} from "./builders/compositeOperations";
 import {
   searchFromDeckStepBuilder,
   searchFromDeckByNameStepBuilder,
@@ -66,6 +69,7 @@ AtomicStepRegistry.register(S.DRAW, drawStepBuilder);
 AtomicStepRegistry.register(S.FILL_HANDS, fillHandsStepBuilder);
 AtomicStepRegistry.register(S.SELECT_AND_DISCARD, selectAndDiscardStepBuilder);
 AtomicStepRegistry.register(S.SELECT_RETURN_SHUFFLE_DRAW, selectReturnShuffleDrawStepBuilder);
+AtomicStepRegistry.register(S.RETURN_ALL_HAND_SHUFFLE_DRAW, returnAllHandShuffleDrawStepBuilder);
 AtomicStepRegistry.register(S.DISCARD_ALL_HAND_END_PHASE, discardAllHandEndPhaseStepBuilder);
 
 // サーチ・サルベージ関連
