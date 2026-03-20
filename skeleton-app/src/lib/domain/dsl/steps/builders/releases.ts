@@ -6,8 +6,6 @@
  *
  * 公開関数:
  * - selectAndReleaseStep: フィールドのモンスターを選択してリリース
- *
- * @module domain/effects/steps/builders/releases
  */
 
 import { Card, type CardInstance } from "$lib/domain/models/Card";

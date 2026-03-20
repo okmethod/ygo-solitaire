@@ -7,8 +7,6 @@
  * StepBuilder:
  * - saveTargetsToContextStepBuilder: 選択対象をコンテキストに保存
  * - clearContextStepBuilder: コンテキストをクリア
- *
- * @module domain/effects/steps/builders/contextOperations
  */
 
 import type { EffectId } from "$lib/domain/models/Effect";
