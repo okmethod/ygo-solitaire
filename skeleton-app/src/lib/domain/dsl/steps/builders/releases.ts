@@ -133,8 +133,8 @@ export const selectAndReleaseStepBuilder: StepBuilderFn = (args, context) => {
   const filter = (card: CardInstance): boolean => {
     // 表側表示モンスターのみ
     if (card.type !== "monster" || !Card.Instance.isFaceUp(card)) return false;
-    // excludeEffectがtrueの場合、効果モンスター以外のみ
-    if (excludeEffect && card.frameType === "effect") return false;
+    // excludeEffectがtrueの場合、効果モンスター以外のみ（monsterTypeListで判定）
+    if (excludeEffect && Card.isEffectMonster(card)) return false;
     return true;
   };
 

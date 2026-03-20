@@ -45,8 +45,11 @@ export const fieldHasMonsterWithRaceCondition = createSimpleConditionChecker(
   (state, { race }) => hasAtLeast(state.space.mainMonsterZone, and(isMonster, isFaceUp, byRace(race)), 1),
 );
 
-/** 効果モンスター以外のモンスターか（通常・儀式・融合・シンクロ・エクシーズ・リンク・ペンデュラム） */
-const isNonEffectMonster: CardPredicate = (card) => card.frameType !== "effect";
+/**
+ * 効果モンスター以外のモンスターか（通常・儀式・融合・シンクロ・エクシーズ・リンク・ペンデュラム）
+ * monsterTypeList に "effect" が含まれていなければ「効果モンスターでない」と判断
+ */
+const isNonEffectMonster: CardPredicate = (card) => Card.isNonEffectMonster(card);
 
 /**
  * FIELD_HAS_NON_EFFECT_MONSTER - フィールドに効果モンスター以外の表側表示モンスターがあるか

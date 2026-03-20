@@ -36,13 +36,15 @@ export const Card = {
   nameWithBrackets: CardDataFuncs.nameWithBrackets,
   TypeJaName: CardDataFuncs.buildJapaneseCardTypeDesc,
   isMonster: CardDataFuncs.isMonsterCard,
+  isEffectMonster: CardDataFuncs.isEffectMonster,
+  isNonEffectMonster: CardDataFuncs.isNonEffectMonster,
   isSpell: CardDataFuncs.isSpellCard,
-  isTrap: CardDataFuncs.isTrapCard,
   isNormalSpell: CardDataFuncs.isNormalSpellCard,
   isQuickPlaySpell: CardDataFuncs.isQuickPlaySpellCard,
   isContinuousSpell: CardDataFuncs.isContinuousSpellCard,
   isFieldSpell: CardDataFuncs.isFieldSpellCard,
   isEquipSpell: CardDataFuncs.isEquipSpellCard,
+  isTrap: CardDataFuncs.isTrapCard,
 
   Instance: {
     inHand: CardInstanceFuncs.inHand,

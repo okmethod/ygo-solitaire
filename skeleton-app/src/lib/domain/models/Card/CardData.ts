@@ -73,6 +73,21 @@ export const isMonsterCard = (card: CardData): boolean => {
   return card.type === "monster";
 };
 
+/**
+ * 効果モンスターかどうか（フレームタイプは問わない）
+ *
+ * monsterTypeList に "effect" が含まれているかで判定。
+ * （frameType では「融合モンスター・効果」のようなパターンを判定できないため注意）
+ */
+export const isEffectMonster = (card: CardData): boolean => {
+  return card.monsterTypeList?.includes("effect") ?? false;
+};
+
+/** 効果モンスター以外かどうか（フレームタイプは問わない） */
+export const isNonEffectMonster = (card: CardData): boolean => {
+  return !isEffectMonster(card);
+};
+
 /** 魔法カードかどうか */
 export const isSpellCard = (card: CardData): boolean => {
   return card.type === "spell";
