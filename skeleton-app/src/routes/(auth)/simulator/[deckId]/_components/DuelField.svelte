@@ -24,6 +24,7 @@
   import Graveyard from "./zones/Graveyard.svelte";
   import ExtraDeck from "./zones/ExtraDeck.svelte";
   import MainDeck from "./zones/MainDeck.svelte";
+  import type { CardAction } from "./modals/CardStackModal.svelte";
 
   interface DuelFieldProps {
     deckCards: number;
@@ -38,6 +39,7 @@
     onActivateSetSpell?: (card: DisplayCardData, instanceId: string) => void; // セット魔法カード発動
     onActivateIgnitionEffect?: (card: DisplayCardData, instanceId: string) => void; // 起動効果発動
     onCancelFieldCardSelection?: () => void; // 選択キャンセル
+    onSynchroSummon?: (card: DisplayCardData, instanceId: string) => void; // シンクロ召喚
   }
 
   let {
@@ -53,6 +55,7 @@
     onActivateSetSpell,
     onActivateIgnitionEffect,
     onCancelFieldCardSelection,
+    onSynchroSummon,
   }: DuelFieldProps = $props();
 
   // ゾーン数の定数
@@ -140,6 +143,23 @@
   // 起動効果の発動可能性をチェック
   function canActivateIgnitionEffect(instanceId: string): boolean {
     return gameFacade.canActivateIgnitionEffect(instanceId);
+  }
+
+  // シンクロ召喚の可能性をチェック
+  function canSynchroSummon(instanceId: string): boolean {
+    return gameFacade.canSynchroSummon(instanceId);
+  }
+
+  // EXデッキ用のカードアクション定義
+  function getExtraDeckCardActions(): CardAction[] {
+    if (!onSynchroSummon) return [];
+    return [
+      {
+        canExecute: (_card, instanceId) => canSynchroSummon(instanceId),
+        label: "シンクロ召喚",
+        onAction: onSynchroSummon,
+      },
+    ];
   }
 
   // セット魔法カード用のアクション定義
@@ -397,7 +417,7 @@
 
 {#snippet extraDeckZone()}
   <div class="flex justify-center">
-    <ExtraDeck cards={extraDeckCards} size={cardSize} />
+    <ExtraDeck cards={extraDeckCards} size={cardSize} cardActions={getExtraDeckCardActions()} />
   </div>
 {/snippet}
 

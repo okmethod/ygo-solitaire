@@ -161,6 +161,7 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
         summary: config.summary,
         description: config.description,
         cancelable: config.cancelable,
+        canConfirm: config.canConfirm,
         onConfirm: (selectedInstanceIds: string[]) => {
           // モーダル表示中に状態が変わっている可能性があるため、最新の状態を取得
           const latestGameState = getStoreValue(gameStateStore);

@@ -44,6 +44,11 @@ export const ERROR_CODES = {
 
   // フェイズ関連
   PHASE_TRANSITION_NOT_ALLOWED: "PHASE_TRANSITION_NOT_ALLOWED",
+
+  // シンクロ召喚関連
+  NOT_SYNCHRO_MONSTER: "NOT_SYNCHRO_MONSTER",
+  CARD_NOT_IN_EXTRA_DECK: "CARD_NOT_IN_EXTRA_DECK",
+  NO_VALID_SYNCHRO_MATERIALS: "NO_VALID_SYNCHRO_MATERIALS",
 } as const;
 
 export type ValidationErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -94,6 +99,11 @@ const ERROR_MESSAGES: Record<ValidationErrorCode, string> = {
 
   // フェイズ関連
   PHASE_TRANSITION_NOT_ALLOWED: "フェイズ遷移が許可されていません",
+
+  // シンクロ召喚関連
+  NOT_SYNCHRO_MONSTER: "シンクロモンスターではありません",
+  CARD_NOT_IN_EXTRA_DECK: "EXデッキにありません",
+  NO_VALID_SYNCHRO_MATERIALS: "有効なシンクロ素材がありません",
 };
 
 /** 成功した ValidationResult */

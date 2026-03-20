@@ -38,6 +38,8 @@ export const selectCardsStep = (config: {
   minCards: number;
   maxCards: number;
   cancelable?: boolean;
+  /** 選択中のカードで確定可能かを判定（未指定時は minCards/maxCards のみでチェック） */
+  canConfirm?: (selectedCards: readonly CardInstance[]) => boolean;
   onSelect: (state: GameSnapshot, selectedIds: string[]) => GameStateUpdateResult;
 }): AtomicStep => {
   return {
@@ -54,6 +56,7 @@ export const selectCardsStep = (config: {
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
+      canConfirm: config.canConfirm,
     } satisfies CardSelectionConfig,
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // カードが選択されていない場合（minCards = 0の場合に発生しうる）

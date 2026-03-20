@@ -30,6 +30,9 @@ import crimsonSunbirdYaml from "./monsters/fusions/crimson-sunbird.yaml?raw";
 import aquaDragonYaml from "./monsters/fusions/aqua-dragon.yaml?raw";
 import greatMammothOfGoldfineYaml from "./monsters/fusions/great-mammoth-of-goldfine.yaml?raw";
 
+// シンクロモンスター
+import formulaSynchronYaml from "./monsters/synchroes/formula-synchron.yaml?raw";
+
 // 通常魔法
 import monsterRebornYaml from "./spells/normals/monster-reborn.yaml?raw";
 import potOfGreedYaml from "./spells/normals/pot-of-greed.yaml?raw";
@@ -91,6 +94,9 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [46696593, crimsonSunbirdYaml], // 紅陽鳥
   [86164529, aquaDragonYaml], // アクア・ドラゴン
   [54622031, greatMammothOfGoldfineYaml], // 金色の魔象
+
+  // シンクロモンスター
+  [50091196, formulaSynchronYaml], // フォーミュラ・シンクロン
 
   // 通常魔法
   [83764719, monsterRebornYaml], // 死者蘇生

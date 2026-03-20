@@ -34,9 +34,21 @@
   const selectedCount = $derived(selectedIds.size);
   const cancelable = $derived(config?.cancelable ?? false);
 
+  // 選択中のカードインスタンス配列
+  const selectedCards = $derived(() => {
+    if (!config) return [];
+    return config.availableCards.filter((c) => selectedIds.has(c.instanceId));
+  });
+
   const isValidSelection = $derived(() => {
     if (!config) return false;
-    return selectedCount >= config.minCards && selectedCount <= config.maxCards;
+    const countValid = selectedCount >= config.minCards && selectedCount <= config.maxCards;
+    if (!countValid) return false;
+    // canConfirm が設定されている場合は追加チェック
+    if (config.canConfirm) {
+      return config.canConfirm(selectedCards());
+    }
+    return true;
   });
 
   // カードが選択されているかチェック

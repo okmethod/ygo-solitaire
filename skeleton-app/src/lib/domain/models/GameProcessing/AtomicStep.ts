@@ -47,6 +47,8 @@ export interface CardSelectionConfig extends InteractionConfig {
   _filter?: (card: CardInstance, index?: number, context?: EffectActivationContext) => boolean;
   minCards: number;
   maxCards: number;
+  /** 選択中のカードで確定可能かを判定（未指定時は minCards/maxCards のみでチェック） */
+  canConfirm?: (selectedCards: readonly CardInstance[]) => boolean;
 }
 
 /**

@@ -3,14 +3,15 @@
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
-  import CardStackModal from "../modals/CardStackModal.svelte";
+  import CardStackModal, { type CardAction } from "../modals/CardStackModal.svelte";
 
   interface ExtraDeckProps {
     cards: DisplayCardInstance[];
     size?: ComponentSize;
+    cardActions?: CardAction[];
   }
 
-  let { cards, size = "medium" }: ExtraDeckProps = $props();
+  let { cards, size = "medium", cardActions = [] }: ExtraDeckProps = $props();
 
   // モーダル状態管理
   let modalOpen = $state(false);
@@ -66,4 +67,4 @@
 </div>
 
 <!-- エクストラデッキモーダル -->
-<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="EXデッキ" />
+<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="EXデッキ" {cardActions} />

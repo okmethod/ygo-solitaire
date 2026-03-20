@@ -1,0 +1,32 @@
+# 《フォーミュラ・シンクロン》 (Formula Synchron)
+#
+# 誘発効果:
+# - CONDITIONS: このカードがシンクロ召喚に成功した時
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 1枚ドローする
+#
+# Note: 相手ターンにシンクロ召喚できる効果は未実装
+
+id: 50091196
+
+data:
+  jaName: "フォーミュラ・シンクロン"
+  type: "monster"
+  frameType: "synchro"
+  monsterTypeList: ["effect"]
+  attribute: "LIGHT"
+  race: "Machine"
+  level: 2
+  attack: 200
+  defense: 1500
+#effectChainableActions:
+#  triggers:
+#    - conditions:
+#        trigger:
+#          events: ["synchroSummoned"]
+#          timing: "when"
+#          isMandatory: false
+#          selfOnly: true
+#      resolutions:
+#        - step: "DRAW"
+#          args: { count: 1 }

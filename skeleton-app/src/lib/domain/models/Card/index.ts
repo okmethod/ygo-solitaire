@@ -45,6 +45,9 @@ export const Card = {
   isFieldSpell: CardDataFuncs.isFieldSpellCard,
   isEquipSpell: CardDataFuncs.isEquipSpellCard,
   isTrap: CardDataFuncs.isTrapCard,
+  isTuner: CardDataFuncs.isTunerMonster,
+  isNonTuner: CardDataFuncs.isNonTunerMonster,
+  isSynchro: CardDataFuncs.isSynchroMonster,
 
   Instance: {
     inHand: CardInstanceFuncs.inHand,

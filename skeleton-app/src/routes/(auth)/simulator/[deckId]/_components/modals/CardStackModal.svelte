@@ -5,12 +5,21 @@
    * 墓地やエクストラデッキなど、カードの一覧を表示するモーダル。
    * - デフォルト: 順序保持の個別表示（墓地のLIFO順序を反映）
    * - オプション: 集約表示（同名カードをまとめて枚数表示）
+   * - オプション: カードアクション（シンクロ召喚など）
    */
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import type { DisplayCardInstance, DisplayCardInstanceAggregated } from "$lib/presentation/types";
+  import type { DisplayCardData } from "$lib/application/types/card";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
+
+  /** カードアクション定義 */
+  export interface CardAction {
+    canExecute: (card: DisplayCardData, instanceId: string) => boolean;
+    label: string;
+    onAction: (card: DisplayCardData, instanceId: string) => void;
+  }
 
   interface CardStackModalProps {
     cards: DisplayCardInstance[];
@@ -18,9 +27,17 @@
     onOpenChange: (open: boolean) => void;
     title: string;
     emptyMessage?: string;
+    cardActions?: CardAction[];
   }
 
-  let { cards, open, onOpenChange, title, emptyMessage = "カードがありません" }: CardStackModalProps = $props();
+  let {
+    cards,
+    open,
+    onOpenChange,
+    title,
+    emptyMessage = "カードがありません",
+    cardActions = [],
+  }: CardStackModalProps = $props();
 
   // 直近に捨てたカードが先頭に来るよう反転したリスト
   const reverseCards = $derived(cards.slice().reverse());
@@ -104,8 +121,29 @@
         {:else}
           <!-- 個別表示モード（順序保持） -->
           {#each reverseCards as { card, instanceId } (instanceId)}
-            <div class="relative">
+            <div class="relative group">
               <CardComponent {card} size="medium" showDetailOnClick={true} />
+              {#if cardActions.length > 0}
+                {@const availableActions = cardActions.filter((a) => a.canExecute(card, instanceId))}
+                {#if availableActions.length > 0}
+                  <div
+                    class="absolute bottom-0 left-0 right-0 p-1 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    {#each availableActions as action (action.label)}
+                      <button
+                        type="button"
+                        class="btn btn-sm preset-filled-primary-500 w-full text-xs"
+                        onclick={() => {
+                          action.onAction(card, instanceId);
+                          modalClose();
+                        }}
+                      >
+                        {action.label}
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              {/if}
             </div>
           {/each}
         {/if}

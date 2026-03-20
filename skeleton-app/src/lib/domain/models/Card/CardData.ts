@@ -88,6 +88,25 @@ export const isNonEffectMonster = (card: CardData): boolean => {
   return !isEffectMonster(card);
 };
 
+/**
+ * チューナーモンスターかどうか
+ *
+ * monsterTypeList に "tuner" が含まれているかで判定。
+ */
+export const isTunerMonster = (card: CardData): boolean => {
+  return card.monsterTypeList?.includes("tuner") ?? false;
+};
+
+/* 非チューナーモンスターかどうか */
+export const isNonTunerMonster = (card: CardData): boolean => {
+  return isMonsterCard(card) && !isTunerMonster(card);
+};
+
+/** シンクロモンスターかどうか */
+export const isSynchroMonster = (card: CardData): boolean => {
+  return card.frameType === "synchro";
+};
+
 /** 魔法カードかどうか */
 export const isSpellCard = (card: CardData): boolean => {
   return card.type === "spell";

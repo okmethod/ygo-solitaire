@@ -162,6 +162,12 @@
     selectedFieldCardInstanceId = null;
   }
 
+  // シンクロ召喚ハンドラー
+  function handleSynchroSummon(_card: DisplayCardData, instanceId: string) {
+    playSE.summon();
+    _executeGameAction(() => gameFacade.synchroSummon(instanceId));
+  }
+
   // カード移動アニメーション用の差分検出
   // 前回の状態を記憶（通常変数 - リアクティブ追跡不要）
   let previousHandIds: Set<string> = new Set();
@@ -418,6 +424,7 @@
       onActivateSetSpell={handleActivateSetSpell}
       onActivateIgnitionEffect={handleActivateIgnitionEffect}
       onCancelFieldCardSelection={handleCancelFieldCardSelection}
+      onSynchroSummon={handleSynchroSummon}
     />
 
     <!-- 手札UI -->

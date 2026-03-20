@@ -17,6 +17,7 @@ import { NormalSummonCommand } from "$lib/domain/commands/NormalSummonCommand";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
+import { SynchroSummonCommand } from "$lib/domain/commands/SynchroSummonCommand";
 import { registerCardDataByIds, registerCardDataWithEffectsByIds } from "$lib/domain/cards";
 import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
 import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
@@ -216,6 +217,16 @@ export class GameFacade {
   /** 指定したカードインスタンスの起動効果を発動する */
   activateIgnitionEffect(cardInstanceId: string): FacadeResult {
     return this.executeCommand(ActivateIgnitionEffectCommand, cardInstanceId);
+  }
+
+  /** 指定したシンクロモンスターをシンクロ召喚可能かどうかチェックして返す */
+  canSynchroSummon(cardInstanceId: string): boolean {
+    return this.canExecuteCommand(SynchroSummonCommand, cardInstanceId);
+  }
+
+  /** 指定したシンクロモンスターをシンクロ召喚する */
+  synchroSummon(cardInstanceId: string): FacadeResult {
+    return this.executeCommand(SynchroSummonCommand, cardInstanceId);
   }
 }
 
