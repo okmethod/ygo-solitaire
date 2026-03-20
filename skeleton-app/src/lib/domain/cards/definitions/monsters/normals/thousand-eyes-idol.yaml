@@ -1,0 +1,14 @@
+# 《千眼の邪教神》 (Thousand-Eyes Idol)
+
+id: 27125110
+
+data:
+  jaName: "千眼の邪教神"
+  type: "monster"
+  frameType: "normal"
+  monsterTypeList: ["normal"]
+  attribute: "DARK"
+  race: "Spellcaster"
+  level: 1
+  attack: 0
+  defense: 0

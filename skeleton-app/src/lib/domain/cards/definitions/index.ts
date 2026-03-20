@@ -11,6 +11,7 @@ import rightArmOfTheForbiddenOneYaml from "./monsters/normals/right-arm-of-the-f
 import leftArmOfTheForbiddenOneYaml from "./monsters/normals/left-arm-of-the-forbidden-one.yaml?raw";
 import rightLegOfTheForbiddenOneYaml from "./monsters/normals/right-leg-of-the-forbidden-one.yaml?raw";
 import leftLegOfTheForbiddenOneYaml from "./monsters/normals/left-leg-of-the-forbidden-one.yaml?raw";
+import thousandEyesIdolYaml from "./monsters/normals/thousand-eyes-idol.yaml?raw";
 import flamvellGuardYaml from "./monsters/normals/flamvell-guard.yaml?raw";
 
 // 効果モンスター
@@ -71,6 +72,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [7902349, leftArmOfTheForbiddenOneYaml], // 封印されし者の左腕
   [8124921, rightLegOfTheForbiddenOneYaml], // 封印されし者の右足
   [44519536, leftLegOfTheForbiddenOneYaml], // 封印されし者の左足
+  [27125110, thousandEyesIdolYaml], // 千眼の邪教神
   [21615956, flamvellGuardYaml], // ガード・オブ・フレムベル
 
   // 効果モンスター
