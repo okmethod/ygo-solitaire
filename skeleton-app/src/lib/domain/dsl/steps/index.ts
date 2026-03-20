@@ -14,13 +14,7 @@ import { STEP_NAMES, type StepName } from "./StepNames";
 // StepBuilder 実装
 import { drawStepBuilder, fillHandsStepBuilder } from "./builders/draws";
 import { selectAndDiscardStepBuilder, discardAllHandEndPhaseStepBuilder } from "./builders/discards";
-import { thenStepBuilder } from "./builders/timing";
-import {
-  gainLpStepBuilder,
-  payLpStepBuilder,
-  burnDamageStepBuilder,
-  burnFromContextStepBuilder,
-} from "./builders/lifePoints";
+import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
 import {
   searchFromDeckStepBuilder,
   searchFromDeckByNameStepBuilder,
@@ -28,24 +22,30 @@ import {
   searchMonsterByStatStepBuilder,
   salvageFromGraveyardStepBuilder,
 } from "./builders/searches";
+import {
+  gainLpStepBuilder,
+  payLpStepBuilder,
+  burnDamageStepBuilder,
+  burnFromContextStepBuilder,
+} from "./builders/lifePoints";
 import { placeCounterStepBuilder, removeCounterStepBuilder } from "./builders/counters";
-import { shuffleDeckStepBuilder } from "./builders/deckOperations";
-import { selectReturnShuffleDrawStepBuilder } from "./builders/compositeOperations";
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import {
   specialSummonFromDeckStepBuilder,
   specialSummonFromExtraDeckStepBuilder,
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
-import { selectTargetFromFieldByRaceStepBuilder, selectTargetFromGraveyardStepBuilder } from "./builders/targeting";
-import { selectAndReleaseForBurnStepBuilder, selectAndReleaseStepBuilder } from "./builders/releases";
-import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
-import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
 import {
   establishEquipStepBuilder,
   sendEquippedAndSelfToGraveyardStepBuilder,
   unequipStepBuilder,
 } from "./builders/equips";
+import { selectAndReleaseStepBuilder, selectAndReleaseForBurnStepBuilder } from "./builders/releases";
+import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
+import { shuffleDeckStepBuilder } from "./builders/deckOperations";
+import { selectTargetFromFieldByRaceStepBuilder, selectTargetFromGraveyardStepBuilder } from "./builders/targeting";
+import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
+import { thenStepBuilder } from "./builders/timing";
 
 // ===========================
 // エクスポート
@@ -91,6 +91,11 @@ AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckSte
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 
+// 装備操作関連
+AtomicStepRegistry.register(S.ESTABLISH_EQUIP, establishEquipStepBuilder);
+AtomicStepRegistry.register(S.SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD, sendEquippedAndSelfToGraveyardStepBuilder);
+AtomicStepRegistry.register(S.UNEQUIP, unequipStepBuilder);
+
 // リリース関連
 AtomicStepRegistry.register(S.RELEASE, selectAndReleaseStepBuilder);
 AtomicStepRegistry.register(S.RELEASE_FOR_BURN, selectAndReleaseForBurnStepBuilder);
@@ -106,11 +111,6 @@ AtomicStepRegistry.register(S.SELECT_TARGET_FROM_FIELD_BY_RACE, selectTargetFrom
 AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
 AtomicStepRegistry.register(S.SAVE_TARGETS_TO_CONTEXT, saveTargetsToContextStepBuilder);
 AtomicStepRegistry.register(S.CLEAR_CONTEXT, clearContextStepBuilder);
-
-// 装備関連
-AtomicStepRegistry.register(S.ESTABLISH_EQUIP, establishEquipStepBuilder);
-AtomicStepRegistry.register(S.SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD, sendEquippedAndSelfToGraveyardStepBuilder);
-AtomicStepRegistry.register(S.UNEQUIP, unequipStepBuilder);
 
 // その他
 AtomicStepRegistry.register(S.THEN, thenStepBuilder);
