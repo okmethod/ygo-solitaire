@@ -1,0 +1,34 @@
+# 《スターダスト・チャージ・ウォリアー》 (Stardust Charge Warrior)
+#
+# 誘発効果:
+# - CONDITIONS: このカードがシンクロ召喚に成功した時
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 1枚ドローする
+# TODO: 同名ターン1回制限を実装する
+#
+# Note: 特殊召喚された相手モンスター全てに攻撃できる効果は未実装
+# 本来は任意効果だが、一旦強制効果としている
+
+id: 64880894
+
+data:
+  jaName: "スターダスト・チャージ・ウォリアー"
+  type: "monster"
+  frameType: "synchro"
+  monsterTypeList: ["effect"]
+  attribute: "WIND"
+  race: "Warrior"
+  level: 6
+  attack: 2000
+  defense: 1300
+effectChainableActions:
+  triggers:
+    - conditions:
+        trigger:
+          events: ["synchroSummoned"]
+          timing: "when"
+          isMandatory: true
+          selfOnly: true
+      resolutions:
+        - step: "DRAW"
+          args: { count: 1 }
