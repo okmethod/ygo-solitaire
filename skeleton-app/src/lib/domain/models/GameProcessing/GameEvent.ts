@@ -8,6 +8,7 @@
 export const EVENT_TYPES = [
   "spellActivated", // 魔法カードが発動された
   "monsterSummoned", // モンスターが召喚された
+  "synchroSummoned", // シンクロ召喚に成功した
   "cardDestroyed", // カードが破壊された
   "sentToGraveyard", // 墓地へ送られた
 ] as const;

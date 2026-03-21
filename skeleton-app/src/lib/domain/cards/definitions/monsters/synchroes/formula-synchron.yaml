@@ -6,6 +6,7 @@
 # - RESOLUTIONS: 1枚ドローする
 #
 # Note: 相手ターンにシンクロ召喚できる効果は未実装
+# 本来は任意効果だが、一旦強制効果としている
 
 id: 50091196
 
@@ -19,14 +20,14 @@ data:
   level: 2
   attack: 200
   defense: 1500
-#effectChainableActions:
-#  triggers:
-#    - conditions:
-#        trigger:
-#          events: ["synchroSummoned"]
-#          timing: "when"
-#          isMandatory: false
-#          selfOnly: true
-#      resolutions:
-#        - step: "DRAW"
-#          args: { count: 1 }
+effectChainableActions:
+  triggers:
+    - conditions:
+        trigger:
+          events: ["synchroSummoned"]
+          timing: "when"
+          isMandatory: true
+          selfOnly: true
+      resolutions:
+        - step: "DRAW"
+          args: { count: 1 }

@@ -7,9 +7,9 @@
 import { Card, type CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import type { ValidationResult, AtomicStep } from "$lib/domain/models/GameProcessing";
+import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { selectSynchroMaterialsStep } from "$lib/domain/dsl/steps/builders/synchroMaterials";
+import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
 
 // ===========================
 // シンクロ召喚判定
@@ -102,6 +102,26 @@ function canSumToLevel(cards: CardInstance[], target: number): boolean {
   return dp.has(target);
 }
 
+/**
+ * 選択中のカードがシンクロ召喚条件を満たすかチェック
+ *
+ * 条件:
+ * - チューナー1体以上
+ * - 非チューナー1体以上
+ * - レベル合計がシンクロモンスターのレベルと一致
+ */
+function isValidSynchroMaterialSelection(selectedCards: readonly CardInstance[], targetLevel: number): boolean {
+  if (selectedCards.length < 2) return false;
+
+  const hasTuner = selectedCards.some((c) => Card.isTuner(c));
+  const hasNonTuner = selectedCards.some((c) => Card.isNonTuner(c));
+
+  if (!hasTuner || !hasNonTuner) return false;
+
+  const totalLevel = selectedCards.reduce((sum, c) => sum + (c.level ?? 0), 0);
+  return totalLevel === targetLevel;
+}
+
 // ===========================
 // シンクロ召喚実行
 // ===========================
@@ -127,11 +147,60 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
   const targetLevel = synchroMonster.level ?? 0;
 
   // 素材選択ステップを生成
-  const materialSelectionStep = selectSynchroMaterialsStep({
-    synchroMonsterId: synchroMonster.id,
-    synchroMonsterInstanceId: cardInstanceId,
-    synchroMonsterName: synchroMonster.jaName,
-    targetLevel,
+  const materialSelectionStep = selectCardsStep({
+    id: `${synchroMonster.id}-select-synchro-materials`,
+    summary: "シンクロ素材を選択",
+    description: `チューナー＋非チューナーを選び、レベル合計が ${targetLevel} になるようにしてください`,
+    availableCards: null,
+    _sourceZone: "mainMonsterZone",
+    _filter: (card) => Card.Instance.isFaceUp(card),
+    minCards: 2,
+    maxCards: 5, // 最大5体まで選択可能
+    cancelable: true,
+    canConfirm: (selectedCards) => isValidSynchroMaterialSelection(selectedCards, targetLevel),
+    onSelect: (currentState, selectedIds) => {
+      if (selectedIds.length === 0) {
+        return GameProcessing.Result.failure(currentState, "シンクロ召喚をキャンセルしました");
+      }
+
+      // 素材を墓地へ送る
+      let updatedSpace = currentState.space;
+      const releaseEvents: GameEvent[] = [];
+
+      for (const instanceId of selectedIds) {
+        const card = GameState.Space.findCard(updatedSpace, instanceId);
+        if (card) {
+          updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
+          releaseEvents.push({
+            type: "sentToGraveyard",
+            sourceCardId: card.id,
+            sourceInstanceId: card.instanceId,
+          });
+        }
+      }
+
+      // シンクロモンスターを特殊召喚
+      const summonedMonster = GameState.Space.findCard(updatedSpace, cardInstanceId)!;
+      updatedSpace = GameState.Space.moveCard(updatedSpace, summonedMonster, "mainMonsterZone", {
+        position: "faceUp",
+        battlePosition: "attack",
+      });
+
+      const emittedEvents: GameEvent[] = [
+        ...releaseEvents,
+        {
+          type: "synchroSummoned" as const,
+          sourceCardId: summonedMonster.id,
+          sourceInstanceId: summonedMonster.instanceId,
+        },
+      ];
+
+      return GameProcessing.Result.success(
+        { ...currentState, space: updatedSpace },
+        `${Card.nameWithBrackets(summonedMonster)}をシンクロ召喚しました`,
+        emittedEvents,
+      );
+    },
   });
 
   return {
