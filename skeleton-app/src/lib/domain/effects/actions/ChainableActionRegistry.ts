@@ -138,6 +138,9 @@ export class ChainableActionRegistry {
           // selfOnly チェック
           if (effect.selfOnly && event.sourceInstanceId !== card.instanceId) continue;
 
+          // excludeSelf チェック
+          if (effect.excludeSelf && event.sourceInstanceId === card.instanceId) continue;
+
           // 発動条件チェック
           const canActivate = effect.canActivate(state, card);
           if (!canActivate.isValid) continue;

@@ -56,6 +56,9 @@ export abstract class BaseTriggerEffect implements ChainableAction {
   /** 自身が発生源のイベントのみに反応するか（サブクラスで定義） */
   abstract readonly selfOnly: boolean;
 
+  /** 自身が発生源のイベントを除外するか（サブクラスで定義） */
+  abstract readonly excludeSelf: boolean;
+
   /**
    * コンストラクタ
    * @param cardId - カードID（数値）
