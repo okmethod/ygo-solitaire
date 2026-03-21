@@ -36,8 +36,12 @@ export const Card = {
   nameWithBrackets: CardDataFuncs.nameWithBrackets,
   TypeJaName: CardDataFuncs.buildJapaneseCardTypeDesc,
   isMonster: CardDataFuncs.isMonsterCard,
+  isToken: CardDataFuncs.isToken,
   isEffectMonster: CardDataFuncs.isEffectMonster,
   isNonEffectMonster: CardDataFuncs.isNonEffectMonster,
+  isTuner: CardDataFuncs.isTunerMonster,
+  isNonTuner: CardDataFuncs.isNonTunerMonster,
+  isSynchro: CardDataFuncs.isSynchroMonster,
   isSpell: CardDataFuncs.isSpellCard,
   isNormalSpell: CardDataFuncs.isNormalSpellCard,
   isQuickPlaySpell: CardDataFuncs.isQuickPlaySpellCard,
@@ -45,9 +49,6 @@ export const Card = {
   isFieldSpell: CardDataFuncs.isFieldSpellCard,
   isEquipSpell: CardDataFuncs.isEquipSpellCard,
   isTrap: CardDataFuncs.isTrapCard,
-  isTuner: CardDataFuncs.isTunerMonster,
-  isNonTuner: CardDataFuncs.isNonTunerMonster,
-  isSynchro: CardDataFuncs.isSynchroMonster,
 
   Instance: {
     inHand: CardInstanceFuncs.inHand,

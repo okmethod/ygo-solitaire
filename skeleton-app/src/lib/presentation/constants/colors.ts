@@ -45,6 +45,9 @@ const FRAME_TYPE_BACKGROUND_CLASSES: Record<FrameSubType, string> = {
 
   // light: purple-200 #E9D5FF / dark: purple-800 #6B21A8
   trap: "!bg-purple-200 dark:!bg-purple-800",
+
+  // light: gray-300 #D1D5DB / dark: gray-500 #6B7280
+  token: "!bg-gray-300 dark:!bg-gray-500",
 } as const;
 
 /** フレームタイプに応じた背景色クラスを取得する */

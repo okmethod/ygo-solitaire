@@ -18,7 +18,7 @@ import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
 import { SynchroSummonCommand } from "$lib/domain/commands/SynchroSummonCommand";
-import { registerCardDataByIds, registerCardDataWithEffectsByIds } from "$lib/domain/cards";
+import { registerCardDataByIds, registerCardDataWithEffectsByIds, TOKEN_CARD_IDS } from "$lib/domain/cards";
 import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
 import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
 import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
@@ -90,16 +90,19 @@ export class GameFacade {
    */
   initializeGame(deckId: string): { deckData: DeckData; uniqueCardIds: number[] } {
     const deckRecipe = getDeckRecipe(deckId);
-    const uniqueCardIds = extractUniqueCardIds(deckRecipe);
+    const deckCardIds = extractUniqueCardIds(deckRecipe);
 
     // 全レジストリに必要なカードを登録（CardData + 効果一括、DSL優先）
-    registerCardDataWithEffectsByIds(uniqueCardIds);
+    registerCardDataWithEffectsByIds(deckCardIds);
 
     // デッキデータを構築
-    const deckData = buildDeckData(deckRecipe, uniqueCardIds);
+    const deckData = buildDeckData(deckRecipe, deckCardIds);
 
     // ゲーム開始
     this.startGame(deckRecipe);
+
+    // トークンIDも含めた全カードIDを返す（DisplayCardDataのキャッシュ用）
+    const uniqueCardIds = [...deckCardIds, ...TOKEN_CARD_IDS];
 
     return { deckData, uniqueCardIds };
   }

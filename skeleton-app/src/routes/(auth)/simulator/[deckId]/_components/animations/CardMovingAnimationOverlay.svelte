@@ -69,6 +69,7 @@
   }
 
   // アニメーション開始のヘルパー（座標登録を待機）
+  // 位置登録は await tick() を使うため、複数フレーム待つ必要がある
   function startAnimationWithRetry(
     instanceId: string,
     cardId: number,
@@ -84,13 +85,22 @@
       const targetRect = getTargetRect();
 
       if (cardData && sourceRect && targetRect) {
-        cardAnimationStore.startAnimation({
-          instanceId,
-          cardData,
-          sourceRect,
-          targetRect,
-        });
-      } else if (retryCount < maxRetries) {
+        // 位置が同じ（1px以内）の場合はまだ新しい位置が登録されていない可能性
+        const isSamePosition =
+          Math.abs(sourceRect.left - targetRect.left) < 1 && Math.abs(sourceRect.top - targetRect.top) < 1;
+
+        if (!isSamePosition) {
+          cardAnimationStore.startAnimation({
+            instanceId,
+            cardData,
+            sourceRect,
+            targetRect,
+          });
+          return;
+        }
+      }
+
+      if (retryCount < maxRetries) {
         retryCount++;
         requestAnimationFrame(tryStart);
       }
@@ -116,6 +126,19 @@
       return;
     }
 
+    // 移動前の位置を即座にキャプチャ（$effect発火時の位置を保存）
+    // これにより、リトライ中も移動前の正しい位置が使える
+    const capturedHandPositions = new Map<string, DOMRect>();
+    for (const id of previousHandIds) {
+      const rect = cardAnimationStore.getCardPosition(id);
+      if (rect) capturedHandPositions.set(id, rect);
+    }
+    const capturedFieldPositions = new Map<string, DOMRect>();
+    for (const id of previousFieldIds) {
+      const rect = cardAnimationStore.getCardPosition(id);
+      if (rect) capturedFieldPositions.set(id, rect);
+    }
+
     // デッキ→手札の移動検出
     if (currentDeckCount < previousDeckCount) {
       for (const instanceId of currentHandIds) {
@@ -138,12 +161,13 @@
       if (!currentHandIds.has(instanceId) && currentGraveyardIds.has(instanceId)) {
         const cardRef = $graveyardCardRefs.find((r) => r.instanceId === instanceId);
         if (cardRef) {
-          const sourceRect = cardAnimationStore.getCardPosition(instanceId);
-          const targetRect = cardAnimationStore.getZonePosition("graveyard");
-          const cardData = getDisplayCardData(cardRef.cardId);
-          if (cardData && sourceRect && targetRect) {
-            cardAnimationStore.startAnimation({ instanceId, cardData, sourceRect, targetRect });
-          }
+          const capturedSourceRect = capturedHandPositions.get(instanceId);
+          startAnimationWithRetry(
+            instanceId,
+            cardRef.cardId,
+            () => capturedSourceRect,
+            () => cardAnimationStore.getZonePosition("graveyard"),
+          );
         }
       }
     }
@@ -153,12 +177,12 @@
       if (!currentHandIds.has(instanceId) && currentFieldIds.has(instanceId)) {
         const cardRef = getFieldCardRef(instanceId);
         if (cardRef) {
-          const sourceRect = cardAnimationStore.getCardPosition(instanceId);
+          const capturedSourceRect = capturedHandPositions.get(instanceId);
           // フィールド魔法ゾーンへの移動の場合はゾーン位置を使用
           const getTargetRect = isFieldZoneCard(instanceId)
             ? () => cardAnimationStore.getZonePosition("fieldZone")
             : () => cardAnimationStore.getCardPosition(instanceId);
-          startAnimationWithRetry(instanceId, cardRef.cardId, () => sourceRect, getTargetRect);
+          startAnimationWithRetry(instanceId, cardRef.cardId, () => capturedSourceRect, getTargetRect);
         }
       }
     }
@@ -168,12 +192,14 @@
       if (!currentFieldIds.has(instanceId) && currentGraveyardIds.has(instanceId)) {
         const cardRef = $graveyardCardRefs.find((r) => r.instanceId === instanceId);
         if (cardRef) {
-          const sourceRect = cardAnimationStore.getCardPosition(instanceId);
-          const targetRect = cardAnimationStore.getZonePosition("graveyard");
-          const cardData = getDisplayCardData(cardRef.cardId);
-          if (cardData && sourceRect && targetRect) {
-            cardAnimationStore.startAnimation({ instanceId, cardData, sourceRect, targetRect });
-          }
+          const capturedSourceRect = capturedFieldPositions.get(instanceId);
+          // キャプチャ済み位置がない場合、リトライ時に cardAnimationStore から取得
+          startAnimationWithRetry(
+            instanceId,
+            cardRef.cardId,
+            () => capturedSourceRect ?? cardAnimationStore.getCardPosition(instanceId),
+            () => cardAnimationStore.getZonePosition("graveyard"),
+          );
         }
       }
     }

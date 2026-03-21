@@ -68,15 +68,27 @@ export function registerCardDataByIds(cardIds: number[]): void {
   }
 }
 
+/** トークンカードID（デッキに含まれないが効果で参照される） */
+export const TOKEN_CARD_IDS: readonly number[] = [24874631]; // メタルデビル・トークン
+
 /**
  * レジストリをクリアし、指定されたカードIDの CardData と効果を登録する
  *
  * DSL定義を優先し、なければマップから登録する。
+ * トークンカードも事前登録する（デッキに含まれないが効果で参照されるため）。
  */
 export function registerCardDataWithEffectsByIds(cardIds: number[]): void {
   CardDataRegistry.clear();
   ChainableActionRegistry.clear();
   AdditionalRuleRegistry.clear();
+
+  // トークンカードを事前登録
+  for (const tokenId of TOKEN_CARD_IDS) {
+    const yamlContent = dslDefinitions.get(tokenId);
+    if (yamlContent) {
+      loadCardDataFromYaml(yamlContent);
+    }
+  }
 
   for (const cardId of cardIds) {
     // DSL定義があれば優先（CardData + 効果を一括登録）

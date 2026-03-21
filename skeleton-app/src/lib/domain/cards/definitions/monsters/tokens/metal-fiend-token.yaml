@@ -1,0 +1,14 @@
+# 《メタルデビル・トークン》 (Metal Fiend Token)
+
+id: 24874631
+
+data:
+  jaName: "メタルデビル・トークン"
+  type: "monster"
+  frameType: "token"
+  monsterTypeList: ["normal", "token"]
+  attribute: "DARK"
+  race: "Fiend"
+  level: 1
+  attack: 0
+  defense: 0

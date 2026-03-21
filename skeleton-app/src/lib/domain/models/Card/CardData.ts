@@ -15,11 +15,17 @@ export const EXTRA_MONSTER_SUB_TYPES = ["fusion", "synchro", "xyz", "link"] as c
 export type ExtraMonsterSubType = (typeof EXTRA_MONSTER_SUB_TYPES)[number];
 
 /** その他モンスターサブタイプ（複数共存可能） */
-export const OTHER_MONSTER_SUB_TYPES = ["normal", "effect", "tuner", "toon", "spirit"] as const;
+export const OTHER_MONSTER_SUB_TYPES = ["normal", "effect", "tuner", "token", "toon", "spirit"] as const;
 export type OtherMonsterSubType = (typeof OTHER_MONSTER_SUB_TYPES)[number];
 
 /** カードフレームタイプ */
-export const FRAME_SUB_TYPES = [...MAIN_MONSTER_SUB_TYPES, ...EXTRA_MONSTER_SUB_TYPES, "spell", "trap"] as const;
+export const FRAME_SUB_TYPES = [
+  ...MAIN_MONSTER_SUB_TYPES,
+  ...EXTRA_MONSTER_SUB_TYPES,
+  "spell",
+  "trap",
+  "token",
+] as const;
 export type FrameSubType = (typeof FRAME_SUB_TYPES)[number];
 
 /** 魔法カードサブタイプ */
@@ -88,16 +94,17 @@ export const isNonEffectMonster = (card: CardData): boolean => {
   return !isEffectMonster(card);
 };
 
-/**
- * チューナーモンスターかどうか
- *
- * monsterTypeList に "tuner" が含まれているかで判定。
- */
+/** トークンかどうか */
+export const isToken = (card: CardData): boolean => {
+  return card.monsterTypeList?.includes("token") ?? false;
+};
+
+/** チューナーモンスターかどうか */
 export const isTunerMonster = (card: CardData): boolean => {
   return card.monsterTypeList?.includes("tuner") ?? false;
 };
 
-/* 非チューナーモンスターかどうか */
+/** 非チューナーモンスターかどうか */
 export const isNonTunerMonster = (card: CardData): boolean => {
   return isMonsterCard(card) && !isTunerMonster(card);
 };
@@ -166,6 +173,7 @@ const FRAME_TYPE_NAMES: Record<FrameSubType, string> = {
   link: "リンク",
   spell: "魔法",
   trap: "罠",
+  token: "トークン",
 };
 
 /** 魔法カード種別の日本語変換 */

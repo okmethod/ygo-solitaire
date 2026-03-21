@@ -131,6 +131,15 @@ export function moveCardInstance(
 
   // 異なるゾーンへの移動
   const filteredSource = sourceList.filter((c) => c.instanceId !== card.instanceId);
+
+  // トークンがフィールドを離れる場合は消滅（どのゾーンにも移動しない）
+  if (leavingFromField && Card.isToken(card)) {
+    return {
+      ...currentSpace,
+      [from]: filteredSource,
+    };
+  }
+
   let resultSpace: CardSpace = {
     ...currentSpace,
     [from]: filteredSource,

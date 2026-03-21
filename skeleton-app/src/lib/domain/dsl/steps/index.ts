@@ -38,6 +38,7 @@ import {
   specialSummonFromExtraDeckStepBuilder,
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
+import { createTokenMonsterStepBuilder } from "./builders/tokens";
 import {
   establishEquipStepBuilder,
   sendEquippedAndSelfToGraveyardStepBuilder,
@@ -94,6 +95,7 @@ AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBu
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
+AtomicStepRegistry.register(S.CREATE_TOKEN_MONSTER, createTokenMonsterStepBuilder);
 
 // 装備操作関連
 AtomicStepRegistry.register(S.ESTABLISH_EQUIP, establishEquipStepBuilder);

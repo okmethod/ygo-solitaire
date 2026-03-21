@@ -1,0 +1,28 @@
+# 《デビルズ・サンクチュアリ》 (Fiend's Sanctuary)
+#
+# カードの発動:
+# - CONDITIONS: モンスターゾーンに空きがある
+# - ACTIVATIONS: なし
+# - RESOLUTIONS: メタルデビル・トークン1体を特殊召喚
+#
+# メタルデビル・トークン:
+# - id: 24874631
+# - 悪魔族・闇・星１・攻／守０
+#
+# Note: 戦闘ダメージを相手が受ける効果。スタンバイフェイズにLPを払うかトークンを破壊する効果は未実装
+
+id: 24874630
+
+data:
+  jaName: "デビルズ・サンクチュアリ"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    resolutions:
+      - step: "CREATE_TOKEN_MONSTER"
+        args:
+          tokenCardId: 24874631
+          battlePosition: "attack"

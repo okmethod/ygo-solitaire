@@ -59,10 +59,16 @@ function createCardAnimationStore() {
 
     // アニメーション開始
     startAnimation(animation: Omit<CardAnimation, "status">): void {
-      update((state) => ({
-        activeAnimations: [...state.activeAnimations, { ...animation, status: "animating" }],
-        isAnimating: true,
-      }));
+      update((state) => {
+        // 同じ instanceId のアニメーションが既に存在する場合は追加しない
+        if (state.activeAnimations.some((a) => a.instanceId === animation.instanceId)) {
+          return state;
+        }
+        return {
+          activeAnimations: [...state.activeAnimations, { ...animation, status: "animating" }],
+          isAnimating: true,
+        };
+      });
     },
 
     // アニメーション完了

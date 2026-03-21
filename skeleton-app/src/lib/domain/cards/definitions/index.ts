@@ -36,6 +36,9 @@ import formulaSynchronYaml from "./monsters/synchroes/formula-synchron.yaml?raw"
 import tgHyperLibrarianYaml from "./monsters/synchroes/tg-hyper-librarian.yaml?raw";
 import stardustChargeWarriorYaml from "./monsters/synchroes/stardust-charge-warrior.yaml?raw";
 
+// トークン
+import metalFiendTokenYaml from "./monsters/tokens/metal-fiend-token.yaml?raw";
+
 // 通常魔法
 import monsterRebornYaml from "./spells/normals/monster-reborn.yaml?raw";
 import potOfGreedYaml from "./spells/normals/pot-of-greed.yaml?raw";
@@ -52,6 +55,7 @@ import potOfDualityYaml from "./spells/normals/pot-of-duality.yaml?raw";
 import magicalMalletYaml from "./spells/normals/magical-mallet.yaml?raw";
 import goldenBambooSwordYaml from "./spells/normals/golden-bamboo-sword.yaml?raw";
 import whiteElephantsGiftYaml from "./spells/normals/white-elephants-gift.yaml?raw";
+import fiendsSanctuaryYaml from "./spells/normals/fiends-sanctuary.yaml?raw";
 
 // 速攻魔法
 import handDestructionYaml from "./spells/quick-plays/hand-destruction.yaml?raw";
@@ -104,6 +108,9 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [90953320, tgHyperLibrarianYaml], // ＴＧ ハイパー・ライブラリアン
   [64880894, stardustChargeWarriorYaml], // スターダスト・チャージ・ウォリアー
 
+  // トークン
+  [24874631, metalFiendTokenYaml], // メタルデビル・トークン
+
   // 通常魔法
   [83764719, monsterRebornYaml], // 死者蘇生
   [55144522, potOfGreedYaml], // 強欲な壺
@@ -120,6 +127,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [85852291, magicalMalletYaml], // 打ち出の小槌
   [74029853, goldenBambooSwordYaml], // 黄金色の竹光
   [18756904, whiteElephantsGiftYaml], // 馬の骨の対価
+  [24874630, fiendsSanctuaryYaml], // デビルズ・サンクチュアリ
 
   // 速攻魔法
   [74519184, handDestructionYaml], // 手札断殺
