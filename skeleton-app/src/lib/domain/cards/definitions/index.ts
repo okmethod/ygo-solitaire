@@ -13,6 +13,7 @@ import rightLegOfTheForbiddenOneYaml from "./monsters/normals/right-leg-of-the-f
 import leftLegOfTheForbiddenOneYaml from "./monsters/normals/left-leg-of-the-forbidden-one.yaml?raw";
 import thousandEyesIdolYaml from "./monsters/normals/thousand-eyes-idol.yaml?raw";
 import flamvellGuardYaml from "./monsters/normals/flamvell-guard.yaml?raw";
+import lunarRabbitOmajinaiYaml from "./monsters/normals/lunar-rabbit-omajinai.yaml?raw";
 
 // 効果モンスター
 import exodiaTheForbiddenOneYaml from "./monsters/effects/exodia-the-forbidden-one.yaml?raw";
@@ -78,6 +79,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [44519536, leftLegOfTheForbiddenOneYaml], // 封印されし者の左足
   [27125110, thousandEyesIdolYaml], // 千眼の邪教神
   [21615956, flamvellGuardYaml], // ガード・オブ・フレムベル
+  [47643326, lunarRabbitOmajinaiYaml], // スペース・オマジナイ・ウサギ
 
   // 効果モンスター
   [33396948, exodiaTheForbiddenOneYaml], // 封印されしエクゾディア

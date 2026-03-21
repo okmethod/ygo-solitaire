@@ -109,8 +109,7 @@ const deckPandaExodia: DeckRecipe = {
     { id: 44519536, quantity: 1 }, // 封印されし者の左足
     { id: 45221020, quantity: 3 }, // トレジャー・パンダ
     { id: 423585, quantity: 3 }, // 召喚僧サモンプリースト
-    { id: 27125110, quantity: 1 }, // 千眼の邪教神
-    { id: 21615956, quantity: 1 }, // ガード・オブ・フレムベル
+    { id: 47643326, quantity: 2 }, // スペース・オマジナイ・ウサギ
 
     // 魔法カード
     { id: 70368879, quantity: 3 }, // 成金ゴブリン

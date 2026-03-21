@@ -1,0 +1,14 @@
+# 《スペース・オマジナイ・ウサギ》 (Lunar Rabbit Omajinai)
+
+id: 47643326
+
+data:
+  jaName: "スペース・オマジナイ・ウサギ"
+  type: "monster"
+  frameType: "normal"
+  monsterTypeList: ["normal", "tuner"]
+  attribute: "LIGHT"
+  race: "Spellcaster"
+  level: 1
+  attack: 0
+  defense: 1500
