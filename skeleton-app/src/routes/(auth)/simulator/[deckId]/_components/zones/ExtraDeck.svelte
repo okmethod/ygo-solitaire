@@ -6,7 +6,7 @@
   import { playSE } from "$lib/presentation/sounds/soundEffects";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
-  import CardStackModal, { type CardAction } from "../modals/CardStackModal.svelte";
+  import CardStackModal, { type CardActionDefinition } from "../modals/CardStackModal.svelte";
 
   interface ExtraDeckProps {
     cards: DisplayCardInstance[];
@@ -41,11 +41,12 @@
   }
 
   // EXデッキ用のカードアクション定義
-  const cardActions: CardAction[] = [
+  // TODO: 他の召喚方法も追加できるよう拡張が必要
+  const cardActions: CardActionDefinition[] = [
     {
-      canExecute: (instanceId) => canSynchroSummon(instanceId),
       label: "シンクロ召喚",
-      onAction: handleSynchroSummon,
+      canExecute: (instanceId) => canSynchroSummon(instanceId),
+      onExecute: handleSynchroSummon,
     },
   ];
 

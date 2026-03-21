@@ -17,10 +17,10 @@
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
 
   /** カードアクション定義 */
-  export interface CardAction {
-    canExecute: (instanceId: string) => boolean;
+  export interface CardActionDefinition {
     label: string;
-    onAction: (instanceId: string) => void;
+    canExecute: (instanceId: string) => boolean;
+    onExecute: (instanceId: string) => void;
   }
 
   interface CardStackModalProps {
@@ -29,7 +29,7 @@
     onOpenChange: (open: boolean) => void;
     title: string;
     emptyMessage?: string;
-    cardActions?: CardAction[];
+    cardActions?: CardActionDefinition[];
   }
 
   let {
@@ -87,12 +87,12 @@
     isAggregated = !isAggregated;
   }
 
-  // CardAction を CardActionButton に変換（モーダルクローズ処理を含む）
-  function convertToActionButtons(actions: CardAction[], instanceId: string): CardActionButton[] {
+  // CardActionDefinition を CardActionButton に変換（モーダルクローズ処理を含む）
+  function convertToActionButtons(actions: CardActionDefinition[], instanceId: string): CardActionButton[] {
     return actions.map((action) => ({
       label: action.label,
       onClick: () => {
-        action.onAction(instanceId);
+        action.onExecute(instanceId);
         modalClose();
       },
     }));
