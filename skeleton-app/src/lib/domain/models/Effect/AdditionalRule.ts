@@ -156,6 +156,18 @@ export interface AdditionalRule {
   readonly selfOnly?: boolean;
 
   /**
+   * 自身が発生源のイベントを除外するか（TriggerRule用）
+   *
+   * - true: イベントの sourceInstanceId がこのカード自身の場合は反応しない
+   * - false: 自身が発生源のイベントにも反応する
+   *
+   * 例: 「他のモンスターがシンクロ召喚に成功した時」→ excludeSelf: true
+   *
+   * 未指定の場合は false として扱う
+   */
+  readonly excludeSelf?: boolean;
+
+  /**
    * トリガー発動時のステップ生成（TriggerRule用）
    *
    * 指定したトリガーイベントが発生した際に実行されるステップを生成する。

@@ -99,6 +99,14 @@ const TriggerDSLSchema = z.object({
    * - false: すべての該当イベントに反応（デフォルト）
    */
   selfOnly: z.boolean().optional(),
+  /**
+   * 自身が発生源のイベントを除外するか
+   * - true: イベントの sourceInstanceId がこのカード自身の場合は反応しない
+   * - false: 自身が発生源のイベントにも反応する（デフォルト）
+   *
+   * 例: 「他のモンスターがシンクロ召喚に成功した時」→ excludeSelf: true
+   */
+  excludeSelf: z.boolean().optional(),
 });
 
 /** トリガー情報のDSL表現 */

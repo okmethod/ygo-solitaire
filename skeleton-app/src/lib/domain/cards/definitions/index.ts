@@ -33,6 +33,7 @@ import greatMammothOfGoldfineYaml from "./monsters/fusions/great-mammoth-of-gold
 
 // シンクロモンスター
 import formulaSynchronYaml from "./monsters/synchroes/formula-synchron.yaml?raw";
+import tgHyperLibrarianYaml from "./monsters/synchroes/tg-hyper-librarian.yaml?raw";
 
 // 通常魔法
 import monsterRebornYaml from "./spells/normals/monster-reborn.yaml?raw";
@@ -99,6 +100,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
 
   // シンクロモンスター
   [50091196, formulaSynchronYaml], // フォーミュラ・シンクロン
+  [90953320, tgHyperLibrarianYaml], // ＴＧ ハイパー・ライブラリアン
 
   // 通常魔法
   [83764719, monsterRebornYaml], // 死者蘇生

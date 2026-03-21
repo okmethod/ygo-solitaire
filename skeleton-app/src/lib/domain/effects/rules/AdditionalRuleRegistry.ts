@@ -122,6 +122,11 @@ export class AdditionalRuleRegistry {
         continue;
       }
 
+      // excludeSelf の場合、イベントの発生源が自身であれば除外
+      if (rule.excludeSelf && event.sourceInstanceId === sourceInstance.instanceId) {
+        continue;
+      }
+
       // 各ルールにステップ生成を委譲
       const ruleSteps = rule.createTriggerSteps(state, sourceInstance);
       steps.push(...ruleSteps);

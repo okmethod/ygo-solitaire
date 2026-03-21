@@ -42,6 +42,9 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
   /** 自身が発生源のイベントのみに反応するか（デフォルト: false） */
   readonly selfOnly: boolean;
 
+  /** 自身が発生源のイベントを除外するか（デフォルト: false） */
+  readonly excludeSelf: boolean;
+
   /** DSL定義（内部保持） */
   private readonly dslDefinition: ChainableActionDSL;
 
@@ -61,6 +64,7 @@ export class GenericTriggerEffect extends BaseTriggerEffect {
     this.triggerTiming = trigger?.timing ?? "if";
     this.isMandatory = trigger?.isMandatory ?? true;
     this.selfOnly = trigger?.selfOnly ?? false;
+    this.excludeSelf = trigger?.excludeSelf ?? false;
   }
 
   /**

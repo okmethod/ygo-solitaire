@@ -1,0 +1,33 @@
+# 《ＴＧ ハイパー・ライブラリアン》 (T.G. Hyper Librarian)
+#
+# 誘発効果:
+# - CONDITIONS: 他のカードがシンクロ召喚に成功した時
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 1枚ドローする
+#
+# 本来は任意効果だが、一旦強制効果としている
+
+id: 90953320
+
+data:
+  jaName: "ＴＧ ハイパー・ライブラリアン"
+  type: "monster"
+  frameType: "synchro"
+  monsterTypeList: ["effect"]
+  attribute: "DARK"
+  race: "Spellcaster"
+  level: 5
+  attack: 2400
+  defense: 1800
+effectChainableActions:
+  triggers:
+    - conditions:
+        trigger:
+          events: ["synchroSummoned"]
+          timing: "if"
+          isMandatory: true
+          selfOnly: false
+          excludeSelf: true
+      resolutions:
+        - step: "DRAW"
+          args: { count: 1 }

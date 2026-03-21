@@ -125,6 +125,7 @@ const deckPandaExodia: DeckRecipe = {
   extraDeck: [
     // シンクロモンスター
     { id: 50091196, quantity: 3 }, // フォーミュラ・シンクロン
+    { id: 90953320, quantity: 1 }, // ＴＧ ハイパー・ライブラリアン
   ],
 };
 
