@@ -17,7 +17,7 @@
     rotation?: number;
     animate?: boolean;
     showDetailOnClick?: boolean;
-    faceDown?: boolean; // 裏側表示フラグ (T033-T034)
+    faceUp?: boolean; // 表側表示フラグ
     isEquipped?: boolean; // 装備カードが付いているかどうか
     isEquipmentHovered?: boolean; // 装備カードがホバーされているかどうか
     onClick?: (card: DisplayCardData) => void;
@@ -35,7 +35,7 @@
     rotation = 0,
     animate = true,
     showDetailOnClick = false,
-    faceDown = false, // デフォルトは表側
+    faceUp = true, // デフォルトは表側
     isEquipped = false,
     isEquipmentHovered = false,
     onClick,
@@ -137,8 +137,8 @@
 
 <!-- 共通コンテンツテンプレート -->
 {#snippet cardContent()}
-  <!-- 裏側表示の場合はカード裏面のみ表示 (T033-T034) -->
-  {#if faceDown}
+  <!-- 裏側表示の場合はカード裏面のみ表示 -->
+  {#if !faceUp}
     <div class="w-full h-full flex items-center justify-center p-1">
       <img src={placeholderImageUrl} alt="裏向きカード" class="w-full h-full object-cover rounded-sm" />
     </div>

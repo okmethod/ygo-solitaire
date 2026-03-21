@@ -26,7 +26,7 @@
     onCancel: () => void;
     size?: ComponentSize;
     showDetailOnClick?: boolean;
-    faceDown?: boolean; // 裏側表示フラグ (T033-T034)
+    faceUp?: boolean; // 表側表示フラグ
     rotation?: number; // 回転角度（守備表示用）
     spellCounterCount?: number; // 魔力カウンター数
     isEquipped?: boolean; // 装備カードが付いているかどうか
@@ -44,7 +44,7 @@
     onCancel,
     size = "medium",
     showDetailOnClick = true,
-    faceDown = false,
+    faceUp = true,
     rotation = 0,
     spellCounterCount = 0,
     isEquipped = false,
@@ -106,7 +106,7 @@
     <CardComponent
       {card}
       {size}
-      {faceDown}
+      {faceUp}
       {rotation}
       {isEquipped}
       {isEquipmentHovered}

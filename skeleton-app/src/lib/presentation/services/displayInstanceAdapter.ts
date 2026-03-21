@@ -27,7 +27,7 @@ export function toDisplayCardInstanceOnField(
   return {
     card,
     instanceId: instanceOnFieldRef.instanceId,
-    faceDown: instanceOnFieldRef.position === "faceDown",
+    faceUp: instanceOnFieldRef.position === "faceUp",
     rotation: instanceOnFieldRef.battlePosition === "defense" ? 270 : 0,
     spellCounterCount: spellCounter?.count ?? 0,
     equippedTo: instanceOnFieldRef.equippedTo,
