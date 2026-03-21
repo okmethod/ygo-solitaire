@@ -18,6 +18,8 @@
   import { gameFacade } from "$lib/application/GameFacade";
   import { isMobile } from "$lib/presentation/utils/mobile";
   import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
+  import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
+  import { playSE } from "$lib/presentation/sounds/soundEffects";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
@@ -26,24 +28,13 @@
   interface HandZoneProps {
     cards: Array<{ card: DisplayCardData | null; instanceId: string }>;
     selectedHandCardInstanceId: string | null; // 選択された手札カードのインスタンスID
-    animatingInstanceIds: Set<string>; // アニメーション中のカードのインスタンスID
-    onCardClick: (card: DisplayCardData, instanceId: string) => void;
-    onSummonMonster: (card: DisplayCardData, instanceId: string) => void;
-    onSetMonster: (card: DisplayCardData, instanceId: string) => void;
-    onSetSpellTrap: (card: DisplayCardData, instanceId: string) => void;
-    onHandCardSelect: (instanceId: string | null) => void; // 手札カード選択変更の通知
+    onHandCardClick: (instanceId: string | null) => void; // 手札カード選択変更の通知
   }
 
-  let {
-    cards,
-    selectedHandCardInstanceId,
-    animatingInstanceIds,
-    onCardClick,
-    onSummonMonster,
-    onSetMonster,
-    onSetSpellTrap,
-    onHandCardSelect,
-  }: HandZoneProps = $props();
+  let { cards, selectedHandCardInstanceId, onHandCardClick }: HandZoneProps = $props();
+
+  // アニメーション中のカードのインスタンスID（cardAnimationStore から直接取得）
+  const animatingInstanceIds = $derived(new Set($cardAnimationStore.activeAnimations.map((a) => a.instanceId)));
 
   // スマホではカードサイズを小さく
   const _isMobile = isMobile();
@@ -124,40 +115,58 @@
     return gridClassMap[handCount];
   }
 
-  // カードクリック時：選択状態をトグルして親に通知
-  function handleSelect(card: DisplayCardData, instanceId: string) {
-    // 同じカードをクリックしたら選択解除、違うカードなら選択
-    const newSelection = selectedHandCardInstanceId === instanceId ? null : instanceId;
-    onHandCardSelect(newSelection);
+  // ゲームアクション実行の共通ヘルパー
+  function executeGameAction(action: () => { success: boolean; message?: string; error?: string }): boolean {
+    const result = action();
+    if (result.success) {
+      if (result.message) {
+        showSuccessToast(result.message);
+      }
+    } else {
+      playSE.error();
+      showErrorToast(result.error || "失敗しました");
+    }
+    return result.success;
   }
 
-  // 発動ボタンクリック時：親コンポーネントのonCardClickを呼び出して選択解除
-  function handleActivate(card: DisplayCardData, instanceId: string) {
-    onCardClick(card, instanceId);
-    onHandCardSelect(null);
+  // カードクリック時：選択状態をトグルして親に通知
+  function handleSelect(instanceId: string) {
+    // 同じカードをクリックしたら選択解除、違うカードなら選択
+    const newSelection = selectedHandCardInstanceId === instanceId ? null : instanceId;
+    onHandCardClick(newSelection);
+  }
+
+  // 発動ボタンクリック時
+  function handleActivate(instanceId: string) {
+    playSE.activate();
+    executeGameAction(() => gameFacade.activateSpell(instanceId));
+    onHandCardClick(null);
   }
 
   // 召喚ボタンクリック時
-  function handleSummon(card: DisplayCardData, instanceId: string) {
-    onSummonMonster(card, instanceId);
-    onHandCardSelect(null);
+  function handleSummon(instanceId: string) {
+    playSE.summon();
+    executeGameAction(() => gameFacade.summonMonster(instanceId));
+    onHandCardClick(null);
   }
 
   // モンスターセットボタンクリック時
-  function handleSetMonster(card: DisplayCardData, instanceId: string) {
-    onSetMonster(card, instanceId);
-    onHandCardSelect(null);
+  function handleSetMonster(instanceId: string) {
+    playSE.set();
+    executeGameAction(() => gameFacade.setMonster(instanceId));
+    onHandCardClick(null);
   }
 
   // 魔法・罠セットボタンクリック時
-  function handleSetSpellTrap(card: DisplayCardData, instanceId: string) {
-    onSetSpellTrap(card, instanceId);
-    onHandCardSelect(null);
+  function handleSetSpellTrap(instanceId: string) {
+    playSE.set();
+    executeGameAction(() => gameFacade.setSpellTrap(instanceId));
+    onHandCardClick(null);
   }
 
   // キャンセルボタンクリック時：選択解除
   function handleCancel() {
-    onHandCardSelect(null);
+    onHandCardClick(null);
   }
 
   // カードタイプに応じたアクション定義

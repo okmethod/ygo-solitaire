@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
-  import type { DisplayCardData, DisplayCardInstance } from "$lib/presentation/types";
+  import type { DisplayCardInstance } from "$lib/presentation/types";
   import { ZONE_CAPACITY } from "$lib/presentation/types";
   import { gameFacade } from "$lib/application/GameFacade";
   import {
@@ -19,7 +19,6 @@
     fieldZoneInstanceOnFieldRefs,
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
-  import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
   import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
   import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
@@ -72,289 +71,32 @@
     return $currentPhaseDisplayName;
   }
 
-  // ゲームアクション実行の共通ヘルパー
-  function _executeGameAction(action: () => { success: boolean; message?: string; error?: string }): boolean {
-    const result = action();
-    if (result.success) {
-      if (result.message) {
-        showSuccessToast(result.message);
-      }
-    } else {
-      showErrorToast(result.error || "失敗しました");
-    }
-    return result.success;
-  }
-
-  // カード選択状態管理 - 一元管理
+  // カード選択状態（複数コンポーネントに影響するため親側で一元管理）
   let selectedHandCardInstanceId = $state<string | null>(null); // 手札カード選択
   let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択（セット魔法・罠・モンスター）
 
-  // 手札カード選択変更ハンドラー - フィールドカード選択をクリア
-  function handleHandCardSelect(instanceId: string | null) {
+  // 手札カードクリック
+  function handleHandCardClick(instanceId: string | null) {
     selectedHandCardInstanceId = instanceId;
     selectedFieldCardInstanceId = null; // フィールドカード選択をクリア
   }
 
-  // 手札のカードクリックで効果発動
-  function handleHandCardClick(_card: DisplayCardData, instanceId: string) {
-    // ドメイン層で全ての判定を実施（フェーズチェック、発動可否など）
-    playSE.activate();
-    const result = gameFacade.activateSpell(instanceId);
-    if (!result.success) {
-      playSE.error();
-      showErrorToast(result.error || "発動に失敗しました");
-    }
-  }
-
-  // モンスター召喚ハンドラー
-  function handleSummonMonster(card: DisplayCardData, instanceId: string) {
-    playSE.summon();
-    _executeGameAction(() => gameFacade.summonMonster(instanceId));
-  }
-
-  // モンスターセットハンドラー
-  function handleSetMonster(card: DisplayCardData, instanceId: string) {
-    playSE.set();
-    _executeGameAction(() => gameFacade.setMonster(instanceId));
-  }
-
-  // 魔法・罠セットハンドラー
-  function handleSetSpellTrap(card: DisplayCardData, instanceId: string) {
-    playSE.set();
-    _executeGameAction(() => gameFacade.setSpellTrap(instanceId));
-  }
-
-  // フィールドカードクリックで効果発動 - 手札選択をクリア
-  function handleFieldCardClick(_card: DisplayCardData, instanceId: string) {
+  // フィールドカードクリック
+  function handleFieldCardClick(instanceId: string) {
     const fieldCard = gameFacade.findCardOnField(instanceId);
     if (!fieldCard) {
       playSE.error();
       showErrorToast("カードが見つかりませんでした");
       return;
     }
-
-    // 手札選択をクリア
-    selectedHandCardInstanceId = null;
-
-    // フィールドカードは選択状態をトグル
-    // - セット魔法・罠: 発動メニュー表示用
-    // - モンスター: 選択表示用
-    // - フィールド魔法: 選択表示用（起動効果がある場合も同様）
     selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
-  }
-
-  // セット魔法カードの発動ハンドラー
-  function handleActivateSetSpell(card: DisplayCardData, instanceId: string) {
-    playSE.activate();
-    _executeGameAction(() => gameFacade.activateSpell(instanceId));
-    selectedFieldCardInstanceId = null; // 選択解除
-  }
-
-  // 起動効果発動ハンドラー
-  function handleActivateIgnitionEffect(card: DisplayCardData, instanceId: string) {
-    playSE.activate();
-    _executeGameAction(() => gameFacade.activateIgnitionEffect(instanceId));
-    selectedFieldCardInstanceId = null; // 選択解除
+    selectedHandCardInstanceId = null; // 手札カード選択をクリア
   }
 
   // フィールドカード選択キャンセル
   function handleCancelFieldCardSelection() {
     selectedFieldCardInstanceId = null;
   }
-
-  // シンクロ召喚ハンドラー
-  function handleSynchroSummon(_card: DisplayCardData, instanceId: string) {
-    playSE.summon();
-    _executeGameAction(() => gameFacade.synchroSummon(instanceId));
-  }
-
-  // カード移動アニメーション用の差分検出
-  // 前回の状態を記憶（通常変数 - リアクティブ追跡不要）
-  let previousHandIds: Set<string> = new Set();
-  let previousFieldIds: Set<string> = new Set();
-  let previousGraveyardIds: Set<string> = new Set();
-  let previousDeckCount: number = 0;
-  let isAnimationInitialized = false;
-
-  // フィールド上の全カードIDを取得するヘルパー
-  function getAllFieldCardIds(): Set<string> {
-    const ids = new Set<string>();
-    for (const ref of $monsterZoneInstanceOnFieldRefs) {
-      ids.add(ref.instanceId);
-    }
-    for (const ref of $spellTrapZoneInstanceOnFieldRefs) {
-      ids.add(ref.instanceId);
-    }
-    for (const ref of $fieldZoneInstanceOnFieldRefs) {
-      ids.add(ref.instanceId);
-    }
-    return ids;
-  }
-
-  // フィールドカードのcardIdを取得するヘルパー
-  function getFieldCardRef(instanceId: string): { cardId: number } | undefined {
-    const allRefs = [
-      ...$monsterZoneInstanceOnFieldRefs,
-      ...$spellTrapZoneInstanceOnFieldRefs,
-      ...$fieldZoneInstanceOnFieldRefs,
-    ];
-    return allRefs.find((r) => r.instanceId === instanceId);
-  }
-
-  // フィールド魔法ゾーンへの移動かどうかを判定
-  function isFieldZoneCard(instanceId: string): boolean {
-    return $fieldZoneInstanceOnFieldRefs.some((r) => r.instanceId === instanceId);
-  }
-
-  // アニメーション開始のヘルパー（座標登録を待機）
-  function startAnimationWithRetry(
-    instanceId: string,
-    cardId: number,
-    getSourceRect: () => DOMRect | undefined,
-    getTargetRect: () => DOMRect | undefined,
-  ) {
-    let retryCount = 0;
-    const maxRetries = 5;
-
-    function tryStart() {
-      const cardData = getDisplayCardData(cardId);
-      const sourceRect = getSourceRect();
-      const targetRect = getTargetRect();
-
-      if (cardData && sourceRect && targetRect) {
-        cardAnimationStore.startAnimation({
-          instanceId,
-          cardData,
-          sourceRect,
-          targetRect,
-        });
-      } else if (retryCount < maxRetries) {
-        retryCount++;
-        requestAnimationFrame(tryStart);
-      }
-    }
-
-    requestAnimationFrame(tryStart);
-  }
-
-  // 状態変化を検出してアニメーションをトリガー
-  $effect(() => {
-    const currentHandIds = new Set($handCardRefs.map((r) => r.instanceId));
-    const currentGraveyardIds = new Set($graveyardCardRefs.map((r) => r.instanceId));
-    const currentFieldIds = getAllFieldCardIds();
-    const currentDeckCount = $deckCardCount;
-
-    // 初回は状態を記録するのみ（アニメーションなし）
-    if (!isAnimationInitialized) {
-      previousHandIds = currentHandIds;
-      previousFieldIds = currentFieldIds;
-      previousGraveyardIds = currentGraveyardIds;
-      previousDeckCount = currentDeckCount;
-      isAnimationInitialized = true;
-      return;
-    }
-
-    // デッキ→手札の移動検出
-    if (currentDeckCount < previousDeckCount) {
-      for (const instanceId of currentHandIds) {
-        if (!previousHandIds.has(instanceId)) {
-          const cardRef = $handCardRefs.find((r) => r.instanceId === instanceId);
-          if (cardRef) {
-            startAnimationWithRetry(
-              instanceId,
-              cardRef.cardId,
-              () => cardAnimationStore.getZonePosition("mainDeck"),
-              () => cardAnimationStore.getCardPosition(instanceId),
-            );
-          }
-        }
-      }
-    }
-
-    // 手札→墓地の移動検出
-    for (const instanceId of previousHandIds) {
-      if (!currentHandIds.has(instanceId) && currentGraveyardIds.has(instanceId)) {
-        const cardRef = $graveyardCardRefs.find((r) => r.instanceId === instanceId);
-        if (cardRef) {
-          const sourceRect = cardAnimationStore.getCardPosition(instanceId);
-          const targetRect = cardAnimationStore.getZonePosition("graveyard");
-          const cardData = getDisplayCardData(cardRef.cardId);
-          if (cardData && sourceRect && targetRect) {
-            cardAnimationStore.startAnimation({ instanceId, cardData, sourceRect, targetRect });
-          }
-        }
-      }
-    }
-
-    // 手札→フィールドの移動検出
-    for (const instanceId of previousHandIds) {
-      if (!currentHandIds.has(instanceId) && currentFieldIds.has(instanceId)) {
-        const cardRef = getFieldCardRef(instanceId);
-        if (cardRef) {
-          const sourceRect = cardAnimationStore.getCardPosition(instanceId);
-          // フィールド魔法ゾーンへの移動の場合はゾーン位置を使用
-          const getTargetRect = isFieldZoneCard(instanceId)
-            ? () => cardAnimationStore.getZonePosition("fieldZone")
-            : () => cardAnimationStore.getCardPosition(instanceId);
-          startAnimationWithRetry(instanceId, cardRef.cardId, () => sourceRect, getTargetRect);
-        }
-      }
-    }
-
-    // フィールド→墓地の移動検出
-    for (const instanceId of previousFieldIds) {
-      if (!currentFieldIds.has(instanceId) && currentGraveyardIds.has(instanceId)) {
-        const cardRef = $graveyardCardRefs.find((r) => r.instanceId === instanceId);
-        if (cardRef) {
-          const sourceRect = cardAnimationStore.getCardPosition(instanceId);
-          const targetRect = cardAnimationStore.getZonePosition("graveyard");
-          const cardData = getDisplayCardData(cardRef.cardId);
-          if (cardData && sourceRect && targetRect) {
-            cardAnimationStore.startAnimation({ instanceId, cardData, sourceRect, targetRect });
-          }
-        }
-      }
-    }
-
-    // 墓地→手札の移動検
-    for (const instanceId of previousGraveyardIds) {
-      if (!currentGraveyardIds.has(instanceId) && currentHandIds.has(instanceId)) {
-        const cardRef = $handCardRefs.find((r) => r.instanceId === instanceId);
-        if (cardRef) {
-          startAnimationWithRetry(
-            instanceId,
-            cardRef.cardId,
-            () => cardAnimationStore.getZonePosition("graveyard"),
-            () => cardAnimationStore.getCardPosition(instanceId),
-          );
-        }
-      }
-    }
-
-    // 墓地→フィールドの移動検出
-    for (const instanceId of previousGraveyardIds) {
-      if (!currentGraveyardIds.has(instanceId) && currentFieldIds.has(instanceId)) {
-        const cardRef = getFieldCardRef(instanceId);
-        if (cardRef) {
-          startAnimationWithRetry(
-            instanceId,
-            cardRef.cardId,
-            () => cardAnimationStore.getZonePosition("graveyard"),
-            () => cardAnimationStore.getCardPosition(instanceId),
-          );
-        }
-      }
-    }
-
-    // 状態を更新
-    previousHandIds = currentHandIds;
-    previousFieldIds = currentFieldIds;
-    previousGraveyardIds = currentGraveyardIds;
-    previousDeckCount = currentDeckCount;
-  });
-
-  // アニメーション中のカードのインスタンスID
-  const animatingInstanceIds = $derived(new Set($cardAnimationStore.activeAnimations.map((a) => a.instanceId)));
 
   // 手札カードマップ
   const handCardsWithInstanceId = $derived(
@@ -419,27 +161,14 @@
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
       {selectedFieldCardInstanceId}
-      {animatingInstanceIds}
       onFieldCardClick={handleFieldCardClick}
-      onActivateSetSpell={handleActivateSetSpell}
-      onActivateIgnitionEffect={handleActivateIgnitionEffect}
       onCancelFieldCardSelection={handleCancelFieldCardSelection}
-      onSynchroSummon={handleSynchroSummon}
     />
 
     <!-- 手札UI -->
     <div class="card px-4 space-y-4">
       <h2 class="text-lg md:text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
-      <Hands
-        cards={handCardsWithInstanceId}
-        {selectedHandCardInstanceId}
-        {animatingInstanceIds}
-        onCardClick={handleHandCardClick}
-        onSummonMonster={handleSummonMonster}
-        onSetMonster={handleSetMonster}
-        onSetSpellTrap={handleSetSpellTrap}
-        onHandCardSelect={handleHandCardSelect}
-      />
+      <Hands cards={handCardsWithInstanceId} {selectedHandCardInstanceId} onHandCardClick={handleHandCardClick} />
     </div>
 
     <!-- Debug Info -->

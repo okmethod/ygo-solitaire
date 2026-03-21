@@ -13,7 +13,7 @@
     label: string; // ボタンラベル（例: "発動", "セット", "召喚"）
     style?: ButtonStyle; // ボタンスタイル（デフォルト: "filled"）
     color?: ButtonColor; // ボタンカラー（デフォルト: "primary"）
-    onClick: (card: DisplayCardData, instanceId: string) => void; // アクション実行時のコールバック
+    onClick: (instanceId: string) => void; // アクション実行時のコールバック
   }
 
   interface ActivatableCardProps {
@@ -21,7 +21,7 @@
     instanceId: string;
     isSelected: boolean;
     isActivatable: boolean; // 発動可能条件（フェーズ、ゲーム状態など）
-    onSelect: (card: DisplayCardData, instanceId: string) => void;
+    onSelect: (instanceId: string) => void;
     actionButtons: CardActionButton[]; // アクション定義の配列
     onCancel: () => void;
     size?: ComponentSize;
@@ -53,11 +53,11 @@
   }: ActivatableCardProps = $props();
 
   function handleSelect() {
-    onSelect(card, instanceId);
+    onSelect(instanceId);
   }
 
   function handleAction(action: CardActionButton) {
-    action.onClick(card, instanceId);
+    action.onClick(instanceId);
   }
 
   function getButtonClass(style?: ButtonStyle, color?: ButtonColor): string {

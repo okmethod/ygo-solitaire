@@ -10,15 +10,14 @@
   import { Modal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import type { DisplayCardInstance, DisplayCardInstanceAggregated } from "$lib/presentation/types";
-  import type { DisplayCardData } from "$lib/application/types/card";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
 
   /** カードアクション定義 */
   export interface CardAction {
-    canExecute: (card: DisplayCardData, instanceId: string) => boolean;
+    canExecute: (instanceId: string) => boolean;
     label: string;
-    onAction: (card: DisplayCardData, instanceId: string) => void;
+    onAction: (instanceId: string) => void;
   }
 
   interface CardStackModalProps {
@@ -124,7 +123,7 @@
             <div class="relative group">
               <CardComponent {card} size="medium" showDetailOnClick={true} />
               {#if cardActions.length > 0}
-                {@const availableActions = cardActions.filter((a) => a.canExecute(card, instanceId))}
+                {@const availableActions = cardActions.filter((a) => a.canExecute(instanceId))}
                 {#if availableActions.length > 0}
                   <div
                     class="absolute bottom-0 left-0 right-0 p-1 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -134,7 +133,7 @@
                         type="button"
                         class="btn btn-sm preset-filled-primary-500 w-full text-xs"
                         onclick={() => {
-                          action.onAction(card, instanceId);
+                          action.onAction(instanceId);
                           modalClose();
                         }}
                       >

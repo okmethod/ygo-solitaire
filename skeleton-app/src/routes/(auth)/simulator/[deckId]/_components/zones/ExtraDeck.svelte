@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { DisplayCardInstance } from "$lib/presentation/types";
   import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import { gameFacade } from "$lib/application/GameFacade";
+  import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
+  import { playSE } from "$lib/presentation/sounds/soundEffects";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
   import cardBackImage from "$lib/presentation/assets/CardBack.jpg";
   import CardStackModal, { type CardAction } from "../modals/CardStackModal.svelte";
@@ -8,10 +11,43 @@
   interface ExtraDeckProps {
     cards: DisplayCardInstance[];
     size?: ComponentSize;
-    cardActions?: CardAction[];
   }
 
-  let { cards, size = "medium", cardActions = [] }: ExtraDeckProps = $props();
+  let { cards, size = "medium" }: ExtraDeckProps = $props();
+
+  // ゲームアクション実行の共通ヘルパー
+  function executeGameAction(action: () => { success: boolean; message?: string; error?: string }): boolean {
+    const result = action();
+    if (result.success) {
+      if (result.message) {
+        showSuccessToast(result.message);
+      }
+    } else {
+      playSE.error();
+      showErrorToast(result.error || "失敗しました");
+    }
+    return result.success;
+  }
+
+  // シンクロ召喚の可能性をチェック
+  function canSynchroSummon(instanceId: string): boolean {
+    return gameFacade.canSynchroSummon(instanceId);
+  }
+
+  // シンクロ召喚ハンドラー
+  function handleSynchroSummon(instanceId: string) {
+    playSE.summon();
+    executeGameAction(() => gameFacade.synchroSummon(instanceId));
+  }
+
+  // EXデッキ用のカードアクション定義
+  const cardActions: CardAction[] = [
+    {
+      canExecute: (instanceId) => canSynchroSummon(instanceId),
+      label: "シンクロ召喚",
+      onAction: handleSynchroSummon,
+    },
+  ];
 
   // モーダル状態管理
   let modalOpen = $state(false);

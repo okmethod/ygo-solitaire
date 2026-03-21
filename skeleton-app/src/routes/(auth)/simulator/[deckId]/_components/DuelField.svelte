@@ -12,11 +12,13 @@
    * @module presentation/components/organisms/board/DuelField
    */
   import { tick, onMount } from "svelte";
-  import type { DisplayCardData, DisplayCardInstance, DisplayCardInstanceOnField } from "$lib/presentation/types";
+  import type { DisplayCardInstance, DisplayCardInstanceOnField } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
-  import { isMobile } from "$lib/presentation/utils/mobile";
   import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
+  import { isMobile } from "$lib/presentation/utils/mobile";
+  import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
+  import { playSE } from "$lib/presentation/sounds/soundEffects";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import ActivatableCard, {
     type CardActionButton,
@@ -24,7 +26,6 @@
   import Graveyard from "./zones/Graveyard.svelte";
   import ExtraDeck from "./zones/ExtraDeck.svelte";
   import MainDeck from "./zones/MainDeck.svelte";
-  import type { CardAction } from "./modals/CardStackModal.svelte";
 
   interface DuelFieldProps {
     deckCards: number;
@@ -34,12 +35,8 @@
     monsterCards: (DisplayCardInstanceOnField | null)[];
     spellTrapCards: (DisplayCardInstanceOnField | null)[];
     selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのインスタンスID
-    animatingInstanceIds?: Set<string>; // アニメーション中のカードのインスタンスID
-    onFieldCardClick?: (card: DisplayCardData, instanceId: string) => void;
-    onActivateSetSpell?: (card: DisplayCardData, instanceId: string) => void; // セット魔法カード発動
-    onActivateIgnitionEffect?: (card: DisplayCardData, instanceId: string) => void; // 起動効果発動
+    onFieldCardClick?: (instanceId: string) => void;
     onCancelFieldCardSelection?: () => void; // 選択キャンセル
-    onSynchroSummon?: (card: DisplayCardData, instanceId: string) => void; // シンクロ召喚
   }
 
   let {
@@ -50,13 +47,12 @@
     monsterCards,
     spellTrapCards,
     selectedFieldCardInstanceId,
-    animatingInstanceIds = new Set<string>(),
     onFieldCardClick,
-    onActivateSetSpell,
-    onActivateIgnitionEffect,
     onCancelFieldCardSelection,
-    onSynchroSummon,
   }: DuelFieldProps = $props();
+
+  // アニメーション中のカードのインスタンスID（cardAnimationStore から直接取得）
+  const animatingInstanceIds = $derived(new Set($cardAnimationStore.activeAnimations.map((a) => a.instanceId)));
 
   // ゾーン数の定数
   const ZONE_COUNT = 5;
@@ -128,164 +124,129 @@
     }
   });
 
-  // カードクリック処理
-  function handleCardClick(card: DisplayCardData, instanceId: string) {
-    if (onFieldCardClick) {
-      onFieldCardClick(card, instanceId);
-    }
-  }
-
-  // セット魔法・罠の発動可能性をチェック
-  function canActivateSpell(instanceId: string): boolean {
+  // セットカードを発動可能か
+  function canActivateSetCard(instanceId: string): boolean {
+    // 現状、魔法カードのみ
     return gameFacade.canActivateSpell(instanceId);
   }
 
-  // 起動効果の発動可能性をチェック
+  // 起動効果を発動可能か
   function canActivateIgnitionEffect(instanceId: string): boolean {
     return gameFacade.canActivateIgnitionEffect(instanceId);
   }
 
-  // シンクロ召喚の可能性をチェック
-  function canSynchroSummon(instanceId: string): boolean {
-    return gameFacade.canSynchroSummon(instanceId);
-  }
-
-  // EXデッキ用のカードアクション定義
-  function getExtraDeckCardActions(): CardAction[] {
-    if (!onSynchroSummon) return [];
-    return [
-      {
-        canExecute: (_card, instanceId) => canSynchroSummon(instanceId),
-        label: "シンクロ召喚",
-        onAction: onSynchroSummon,
-      },
-    ];
-  }
-
-  // セット魔法カード用のアクション定義
-  function getSetSpellActions(instanceId: string): CardActionButton[] {
-    // 発動条件を満たしていない場合は空配列を返す（ボタンを表示しない）
-    if (!canActivateSpell(instanceId)) {
-      return [];
+  // ゲームアクション実行の共通ヘルパー
+  function executeGameAction(action: () => { success: boolean; message?: string; error?: string }): boolean {
+    const result = action();
+    if (result.success) {
+      if (result.message) {
+        showSuccessToast(result.message);
+      }
+    } else {
+      playSE.error();
+      showErrorToast(result.error || "失敗しました");
     }
-    return [
-      {
-        label: "発動",
-        style: "filled",
-        color: "primary",
-        onClick: onActivateSetSpell || (() => {}),
-      },
-    ];
+    return result.success;
+  }
+
+  // カードクリック処理
+  function handleCardClick(instanceId: string) {
+    if (onFieldCardClick) {
+      onFieldCardClick(instanceId);
+    }
+  }
+
+  // セットカード発動ボタンクリック時
+  function handleActivateSetCard(instanceId: string) {
+    playSE.activate();
+    // 現状、魔法カードのみ
+    executeGameAction(() => gameFacade.activateSpell(instanceId));
+    onCancelFieldCardSelection?.();
+  }
+
+  // 起動効果発動ボタンクリック時
+  function handleActivateIgnitionEffect(instanceId: string) {
+    playSE.activate();
+    executeGameAction(() => gameFacade.activateIgnitionEffect(instanceId));
+    onCancelFieldCardSelection?.();
+  }
+
+  // モンスターカード用のアクション定義
+  function getMonsterActions(instanceId: string, faceDown: boolean): CardActionButton[] {
+    const actionButtons: CardActionButton[] = [];
+
+    if (faceDown) {
+      // 裏側表示: 現状、反転召喚はないのでアクションなし
+    } else {
+      // 表側表示: 起動効果の発動
+      if (canActivateIgnitionEffect(instanceId)) {
+        actionButtons.push({
+          label: "効果発動",
+          style: "filled",
+          color: "primary",
+          onClick: handleActivateIgnitionEffect,
+        });
+      }
+    }
+    return actionButtons;
+  }
+
+  // 魔法罠ゾーンのカード用のアクション定義
+  function getSpellTrapActions(instanceId: string, faceDown: boolean): CardActionButton[] {
+    const actionButtons: CardActionButton[] = [];
+
+    if (faceDown) {
+      // 裏側表示: カードの発動
+      if (canActivateSetCard(instanceId)) {
+        actionButtons.push({
+          label: "発動",
+          style: "filled",
+          color: "primary",
+          onClick: handleActivateSetCard,
+        });
+      }
+    } else {
+      // 表側表示: 起動効果の発動
+      if (canActivateIgnitionEffect(instanceId)) {
+        actionButtons.push({
+          label: "効果発動",
+          style: "filled",
+          color: "primary",
+          onClick: handleActivateIgnitionEffect,
+        });
+      }
+    }
+    return actionButtons;
   }
 
   // フィールド魔法カード用のアクション定義
   function getFieldSpellActions(instanceId: string, faceDown: boolean): CardActionButton[] {
+    const actionButtons: CardActionButton[] = [];
+
     if (faceDown) {
       // 裏側表示: カードの発動
-      if (!canActivateSpell(instanceId)) {
-        return [];
-      }
-      return [
-        {
+      if (canActivateSetCard(instanceId)) {
+        actionButtons.push({
           label: "発動",
           style: "filled",
           color: "primary",
-          onClick: onActivateSetSpell || (() => {}),
-        },
-      ];
+          onClick: handleActivateSetCard,
+        });
+      }
     } else {
       // 表側表示: 起動効果の発動
-      if (!canActivateIgnitionEffect(instanceId)) {
-        return [];
-      }
-      return [
-        {
+      if (canActivateIgnitionEffect(instanceId)) {
+        actionButtons.push({
           label: "効果発動",
           style: "filled",
           color: "primary",
-          onClick: onActivateIgnitionEffect || (() => {}),
-        },
-      ];
+          onClick: handleActivateIgnitionEffect,
+        });
+      }
     }
-  }
-
-  // モンスターカード用のアクション定義（起動効果）
-  function getMonsterActions(instanceId: string): CardActionButton[] {
-    if (!canActivateIgnitionEffect(instanceId)) {
-      return [];
-    }
-    return [
-      {
-        label: "効果発動",
-        style: "filled",
-        color: "primary",
-        onClick: onActivateIgnitionEffect || (() => {}),
-      },
-    ];
-  }
-
-  // 表側表示の魔法罠カード用のアクション定義（装備魔法の起動効果など）
-  function getFaceUpSpellTrapActions(instanceId: string): CardActionButton[] {
-    if (!canActivateIgnitionEffect(instanceId)) {
-      return [];
-    }
-    return [
-      {
-        label: "効果発動",
-        style: "filled",
-        color: "primary",
-        onClick: onActivateIgnitionEffect || (() => {}),
-      },
-    ];
+    return actionButtons;
   }
 </script>
-
-<!-- ゾーン用 Snippets -->
-{#snippet fieldZone(placeholderText: string)}
-  {@const card = fieldCards[0]}
-  {@const instanceId = card?.instanceId}
-  {@const isAnimating = instanceId ? animatingInstanceIds.has(instanceId) : false}
-  <div bind:this={fieldZoneElement} class="flex justify-center">
-    {#if card && instanceId && !isAnimating}
-      <div bind:this={fieldCardElements[instanceId]}>
-        <ActivatableCard
-          card={card.card}
-          {instanceId}
-          faceDown={card.faceDown}
-          isSelected={selectedFieldCardInstanceId === instanceId}
-          isActivatable={getFieldSpellActions(instanceId, card.faceDown).length > 0}
-          onSelect={handleCardClick}
-          actionButtons={getFieldSpellActions(instanceId, card.faceDown)}
-          onCancel={onCancelFieldCardSelection || (() => {})}
-          size={cardSize}
-          showDetailOnClick={true}
-        />
-      </div>
-    {:else}
-      <div class="relative">
-        <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
-          <CardComponent placeholder={true} {placeholderText} size={cardSize} />
-        </div>
-        <!-- アニメーション中: 位置取得用の透明要素 -->
-        {#if card && instanceId && isAnimating}
-          <div bind:this={fieldCardElements[instanceId]} class="absolute inset-0 opacity-0 pointer-events-none">
-            <ActivatableCard
-              card={card.card}
-              {instanceId}
-              faceDown={card.faceDown}
-              isSelected={false}
-              isActivatable={false}
-              onSelect={() => {}}
-              actionButtons={[]}
-              onCancel={() => {}}
-              size={cardSize}
-            />
-          </div>
-        {/if}
-      </div>
-    {/if}
-  </div>
-{/snippet}
 
 {#snippet monsterZone(i: number)}
   {@const card = monsterCards[i]}
@@ -302,9 +263,9 @@
           faceDown={card.faceDown}
           rotation={card.rotation || 0}
           isSelected={selectedFieldCardInstanceId === instanceId}
-          isActivatable={getMonsterActions(instanceId).length > 0}
+          isActivatable={getMonsterActions(instanceId, card.faceDown).length > 0}
           onSelect={handleCardClick}
-          actionButtons={getMonsterActions(instanceId)}
+          actionButtons={getMonsterActions(instanceId, card.faceDown)}
           onCancel={onCancelFieldCardSelection || (() => {})}
           size={cardSize}
           showDetailOnClick={true}
@@ -356,9 +317,9 @@
             {instanceId}
             faceDown={true}
             isSelected={selectedFieldCardInstanceId === instanceId}
-            isActivatable={getSetSpellActions(instanceId).length > 0}
+            isActivatable={getSpellTrapActions(instanceId, true).length > 0}
             onSelect={handleCardClick}
-            actionButtons={getSetSpellActions(instanceId)}
+            actionButtons={getSpellTrapActions(instanceId, true)}
             onCancel={onCancelFieldCardSelection || (() => {})}
             size={cardSize}
             showDetailOnClick={true}
@@ -369,9 +330,9 @@
             {instanceId}
             faceDown={false}
             isSelected={selectedFieldCardInstanceId === instanceId}
-            isActivatable={getFaceUpSpellTrapActions(instanceId).length > 0}
+            isActivatable={getSpellTrapActions(instanceId, false).length > 0}
             onSelect={handleCardClick}
-            actionButtons={getFaceUpSpellTrapActions(instanceId)}
+            actionButtons={getSpellTrapActions(instanceId, false)}
             onCancel={onCancelFieldCardSelection || (() => {})}
             size={cardSize}
             showDetailOnClick={true}
@@ -409,6 +370,53 @@
   </div>
 {/snippet}
 
+<!-- ゾーン用 Snippets -->
+{#snippet fieldZone(placeholderText: string)}
+  {@const card = fieldCards[0]}
+  {@const instanceId = card?.instanceId}
+  {@const isAnimating = instanceId ? animatingInstanceIds.has(instanceId) : false}
+  <div bind:this={fieldZoneElement} class="flex justify-center">
+    {#if card && instanceId && !isAnimating}
+      <div bind:this={fieldCardElements[instanceId]}>
+        <ActivatableCard
+          card={card.card}
+          {instanceId}
+          faceDown={card.faceDown}
+          isSelected={selectedFieldCardInstanceId === instanceId}
+          isActivatable={getFieldSpellActions(instanceId, card.faceDown).length > 0}
+          onSelect={handleCardClick}
+          actionButtons={getFieldSpellActions(instanceId, card.faceDown)}
+          onCancel={onCancelFieldCardSelection || (() => {})}
+          size={cardSize}
+          showDetailOnClick={true}
+        />
+      </div>
+    {:else}
+      <div class="relative">
+        <div style="filter: sepia(0.3) hue-rotate(90deg) saturate(1.5) brightness(0.9);">
+          <CardComponent placeholder={true} {placeholderText} size={cardSize} />
+        </div>
+        <!-- アニメーション中: 位置取得用の透明要素 -->
+        {#if card && instanceId && isAnimating}
+          <div bind:this={fieldCardElements[instanceId]} class="absolute inset-0 opacity-0 pointer-events-none">
+            <ActivatableCard
+              card={card.card}
+              {instanceId}
+              faceDown={card.faceDown}
+              isSelected={false}
+              isActivatable={false}
+              onSelect={() => {}}
+              actionButtons={[]}
+              onCancel={() => {}}
+              size={cardSize}
+            />
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+{/snippet}
+
 {#snippet graveyardZone()}
   <div class="flex justify-center">
     <Graveyard cards={graveyardCards} size={cardSize} {animatingInstanceIds} />
@@ -417,7 +425,7 @@
 
 {#snippet extraDeckZone()}
   <div class="flex justify-center">
-    <ExtraDeck cards={extraDeckCards} size={cardSize} cardActions={getExtraDeckCardActions()} />
+    <ExtraDeck cards={extraDeckCards} size={cardSize} />
   </div>
 {/snippet}
 
