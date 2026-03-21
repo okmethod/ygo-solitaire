@@ -12,6 +12,9 @@
   import type { DisplayCardInstance, DisplayCardInstanceAggregated } from "$lib/presentation/types";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import CountBadge from "$lib/presentation/components/atoms/CountBadge.svelte";
+  import ActivatableCard, {
+    type CardActionButton,
+  } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
 
   /** カードアクション定義 */
   export interface CardAction {
@@ -60,8 +63,20 @@
     return Array.from(cardMap.values());
   });
 
+  // 選択中のカードのinstanceId（クリックで選択→アクション表示）
+  let selectedInstanceId = $state<string | null>(null);
+
+  function handleCardClick(instanceId: string) {
+    // 同じカードをクリックしたら選択解除、違うカードなら選択
+    selectedInstanceId = selectedInstanceId === instanceId ? null : instanceId;
+  }
+
   function handleOpenChange(details: { open: boolean }) {
     onOpenChange(details.open);
+    // モーダルを閉じるときは選択状態をリセット
+    if (!details.open) {
+      selectedInstanceId = null;
+    }
   }
 
   function modalClose() {
@@ -70,6 +85,17 @@
 
   function toggleAggregation() {
     isAggregated = !isAggregated;
+  }
+
+  // CardAction を CardActionButton に変換（モーダルクローズ処理を含む）
+  function convertToActionButtons(actions: CardAction[], instanceId: string): CardActionButton[] {
+    return actions.map((action) => ({
+      label: action.label,
+      onClick: () => {
+        action.onAction(instanceId);
+        modalClose();
+      },
+    }));
   }
 </script>
 
@@ -120,30 +146,25 @@
         {:else}
           <!-- 個別表示モード（順序保持） -->
           {#each reverseCards as { card, instanceId } (instanceId)}
-            <div class="relative group">
+            {@const availableActions = cardActions.filter((a) => a.canExecute(instanceId))}
+            {@const hasActions = availableActions.length > 0}
+            {#if hasActions}
+              <!-- アクションがある場合: ActivatableCard -->
+              <ActivatableCard
+                {card}
+                {instanceId}
+                isSelected={selectedInstanceId === instanceId}
+                isActivatable={true}
+                onSelect={handleCardClick}
+                actionButtons={convertToActionButtons(availableActions, instanceId)}
+                onCancel={() => (selectedInstanceId = null)}
+                size="medium"
+                showDetailOnClick={false}
+              />
+            {:else}
+              <!-- アクションがない場合: 通常のCardComponent -->
               <CardComponent {card} size="medium" showDetailOnClick={true} />
-              {#if cardActions.length > 0}
-                {@const availableActions = cardActions.filter((a) => a.canExecute(instanceId))}
-                {#if availableActions.length > 0}
-                  <div
-                    class="absolute bottom-0 left-0 right-0 p-1 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    {#each availableActions as action (action.label)}
-                      <button
-                        type="button"
-                        class="btn btn-sm preset-filled-primary-500 w-full text-xs"
-                        onclick={() => {
-                          action.onAction(instanceId);
-                          modalClose();
-                        }}
-                      >
-                        {action.label}
-                      </button>
-                    {/each}
-                  </div>
-                {/if}
-              {/if}
-            </div>
+            {/if}
           {/each}
         {/if}
       </div>
