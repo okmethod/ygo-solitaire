@@ -287,5 +287,179 @@ describe("SynchroSummonRule", () => {
       // Assert - the step should have properties for selection
       expect(result.step.id).toContain("select-synchro-materials");
     });
+
+    describe("material selection callback", () => {
+      it("should return failure when selection is cancelled (empty selection)", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+
+        // Act - call the action with empty selection (cancel)
+        const updateResult = result.step.action(state, []);
+
+        // Assert
+        expect(updateResult.success).toBe(false);
+        expect(updateResult.error).toContain("キャンセル");
+      });
+
+      it("should send materials to graveyard and summon synchro monster on valid selection", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+
+        // Act - select the tuner and non-tuner
+        const updateResult = result.step.action(state, ["tuner-0", "nontuner-0"]);
+
+        // Assert
+        expect(updateResult.success).toBe(true);
+        expect(updateResult.message).toContain("シンクロ召喚");
+
+        // Verify materials are sent to graveyard
+        const graveyardCards = updateResult.updatedState.space.graveyard;
+        expect(graveyardCards.some((c) => c.instanceId === "tuner-0")).toBe(true);
+        expect(graveyardCards.some((c) => c.instanceId === "nontuner-0")).toBe(true);
+
+        // Verify synchro monster is on the field
+        const fieldMonsters = updateResult.updatedState.space.mainMonsterZone;
+        const synchro = fieldMonsters.find((c) => c.instanceId === "synchro-0");
+        expect(synchro).toBeDefined();
+        expect(synchro?.stateOnField?.position).toBe("faceUp");
+        expect(synchro?.stateOnField?.battlePosition).toBe("attack");
+      });
+
+      it("should emit sentToGraveyard and synchroSummoned events", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+
+        // Act
+        const updateResult = result.step.action(state, ["tuner-0", "nontuner-0"]);
+
+        // Assert
+        expect(updateResult.emittedEvents).toBeDefined();
+        expect(updateResult.emittedEvents?.some((e) => e.type === "sentToGraveyard")).toBe(true);
+        expect(updateResult.emittedEvents?.some((e) => e.type === "synchroSummoned")).toBe(true);
+      });
+    });
+
+    describe("canConfirm validation", () => {
+      it("should have canConfirm function that validates material selection", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+
+        // Assert - step should have cardSelectionConfig with canConfirm
+        expect(result.step.cardSelectionConfig).toBeDefined();
+        expect(result.step.cardSelectionConfig?.canConfirm).toBeDefined();
+      });
+
+      it("canConfirm should return false for single card selection", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+        const config = result.step.cardSelectionConfig;
+        expect(config).toBeDefined();
+        const canConfirm = config!.canConfirm!;
+        const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
+
+        // Act & Assert
+        expect(canConfirm([tuner])).toBe(false);
+      });
+
+      it("canConfirm should return false for tuner-only selection", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        // Add another tuner for this test
+        const tuner1 = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
+        const tuner2 = { ...tuner1, instanceId: "tuner-1" };
+
+        const result = performSynchroSummon(state, "synchro-0");
+        const config = result.step.cardSelectionConfig;
+        expect(config).toBeDefined();
+        const canConfirm = config!.canConfirm!;
+
+        // Act & Assert - two tuners, no non-tuner
+        expect(canConfirm([tuner1, tuner2])).toBe(false);
+      });
+
+      it("canConfirm should return false for wrong level total", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [3], // 2+3=5, but synchro is Lv6
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+        const config = result.step.cardSelectionConfig;
+        expect(config).toBeDefined();
+        const canConfirm = config!.canConfirm!;
+        const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
+        const nonTuner = state.space.mainMonsterZone.find((c) => c.instanceId === "nontuner-0")!;
+
+        // Act & Assert
+        expect(canConfirm([tuner, nonTuner])).toBe(false);
+      });
+
+      it("canConfirm should return true for valid material selection", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 2,
+          nonTunerLevels: [4],
+          synchroLevel: 6,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+        const config = result.step.cardSelectionConfig;
+        expect(config).toBeDefined();
+        const canConfirm = config!.canConfirm!;
+        const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
+        const nonTuner = state.space.mainMonsterZone.find((c) => c.instanceId === "nontuner-0")!;
+
+        // Act & Assert
+        expect(canConfirm([tuner, nonTuner])).toBe(true);
+      });
+
+      it("canConfirm should return true for multiple non-tuners with correct level", () => {
+        // Arrange
+        const state = createSynchroSummonReadyState({
+          tunerLevel: 1,
+          nonTunerLevels: [2, 2], // 1+2+2=5
+          synchroLevel: 5,
+        });
+        const result = performSynchroSummon(state, "synchro-0");
+        const config = result.step.cardSelectionConfig;
+        expect(config).toBeDefined();
+        const canConfirm = config!.canConfirm!;
+        const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
+        const nonTuner0 = state.space.mainMonsterZone.find((c) => c.instanceId === "nontuner-0")!;
+        const nonTuner1 = state.space.mainMonsterZone.find((c) => c.instanceId === "nontuner-1")!;
+
+        // Act & Assert
+        expect(canConfirm([tuner, nonTuner0, nonTuner1])).toBe(true);
+      });
+    });
   });
 });

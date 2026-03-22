@@ -145,7 +145,7 @@ export function createTestSpellCard(
     "quick-play": TEST_CARD_IDS.SPELL_QUICK,
     continuous: TEST_CARD_IDS.SPELL_CONTINUOUS,
     field: TEST_CARD_IDS.SPELL_FIELD,
-    equip: TEST_CARD_IDS.SPELL_NORMAL,
+    equip: TEST_CARD_IDS.SPELL_EQUIP,
     ritual: TEST_CARD_IDS.SPELL_NORMAL,
   };
   const cardId = options?.cardId ?? defaultCardIds[spellType];
@@ -320,6 +320,7 @@ export const EXODIA_PIECE_IDS = {
 export const TEST_CARD_IDS = {
   DUMMY: 12345678,
   SPELL_NORMAL: 1001,
+  SPELL_EQUIP: 1002,
   SPELL_QUICK: 1004,
   SPELL_CONTINUOUS: 1005,
   SPELL_FIELD: 1006,
