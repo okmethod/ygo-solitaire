@@ -25,7 +25,7 @@ export const changeBattlePositionStep = (instanceId: string, targetPosition: Bat
     id: `change-battle-position-${instanceId}-${targetPosition}`,
     summary: `${positionJa}にする`,
     description: `表示形式を${positionJa}に変更します`,
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (currentState: GameSnapshot): GameStateUpdateResult => {
       const card = GameState.Space.findCard(currentState.space, instanceId);
       if (!card) {

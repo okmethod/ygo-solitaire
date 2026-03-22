@@ -25,7 +25,7 @@ const commonDrawStep = (
   id: options.id,
   summary: options.summary,
   description: options.description,
-  notificationLevel: "info",
+  notificationLevel: "static",
   action: (state: GameSnapshot): GameStateUpdateResult => {
     const { drawCount, message } = calculateActualDrawCount(state);
 

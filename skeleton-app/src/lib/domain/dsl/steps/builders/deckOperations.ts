@@ -17,7 +17,7 @@ export const shuffleDeckStep = (): AtomicStep => {
     id: "shuffle-deck",
     summary: "デッキシャッフル",
     description: "デッキをシャッフルします",
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (currentState: GameSnapshot): GameStateUpdateResult => {
       const updatedState: GameSnapshot = {
         ...currentState,

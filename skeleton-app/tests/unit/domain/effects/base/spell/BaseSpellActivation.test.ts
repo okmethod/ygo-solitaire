@@ -151,7 +151,7 @@ describe("BaseSpellActivation", () => {
       expect(steps[0].id).toBe("12345678-activation-notification");
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します"); // Uses getCardNameWithBrackets from registry
-      expect(steps[0].notificationLevel).toBe("info");
+      expect(steps[0].notificationLevel).toBe("static");
       // イベント発行ステップの検証
       expect(steps[1].id).toBe("emit-spell-activated-test-instance-1");
       expect(steps[1].notificationLevel).toBe("silent");

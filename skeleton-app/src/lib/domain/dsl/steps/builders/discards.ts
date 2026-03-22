@@ -27,7 +27,7 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
     id: `send-${instanceId}-to-graveyard`,
     summary: "墓地へ送る",
     description: `《${cardName}》を墓地に送ります`,
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (currentState: GameSnapshot): GameStateUpdateResult => {
       const card = GameState.Space.findCard(currentState.space, instanceId)!;
       const updatedState: GameSnapshot = {
@@ -95,7 +95,7 @@ export const discardAllHandStep = (): AtomicStep => {
     id: "discard-all-hand",
     summary: "手札を全て捨てる",
     description: "手札を全て捨てます",
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (state: GameSnapshot): GameStateUpdateResult => {
       return discardAllHandResult(state);
     },

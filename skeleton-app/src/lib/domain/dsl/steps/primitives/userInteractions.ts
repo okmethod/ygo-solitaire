@@ -20,7 +20,7 @@ export const notifyActivationStep = (cardId: number): AtomicStep => {
     id: `${cardId}-activation-notification`,
     summary: "カード発動",
     description: `${cardName}を発動します`,
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (currentState: GameSnapshot): GameStateUpdateResult => {
       return GameProcessing.Result.success(currentState, `${cardName} activated`);
     },

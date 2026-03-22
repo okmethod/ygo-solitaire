@@ -34,7 +34,7 @@ const commonLpStep = (type: LpOperationType, amount: number, target: Player): At
     id: `${labels.id}-${target}-${amount}`,
     summary: `${targetJa}のLP${labels.action}`,
     description: `${targetJa}に${amount}の${labels.action}が発生します`,
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (state: GameSnapshot): GameStateUpdateResult => {
       const updatedState: GameSnapshot = {
         ...state,
@@ -120,7 +120,7 @@ export const burnFromContextStepBuilder: StepBuilderFn = (args, context) => {
     id: `${context.cardId}-burn-from-context`,
     summary: `${targetJa}にダメージ`,
     description: `リリースしたモンスターの攻撃力に基づくダメージを${targetJa}に与えます`,
-    notificationLevel: "info",
+    notificationLevel: "static",
     action: (state: GameSnapshot): GameStateUpdateResult => {
       const damage = GameState.ActivationContext.getDamage(state.activationContexts, effectId);
 

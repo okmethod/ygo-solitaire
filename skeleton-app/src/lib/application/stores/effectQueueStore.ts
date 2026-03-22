@@ -113,8 +113,8 @@ const silentStrategy: NotificationStrategy = async (step, gameState) => {
   return { shouldContinue: true, emittedEvents: result.emittedEvents };
 };
 
-// Strategy: "info"レベル - トースト通知を表示、自動で次へ進む
-const infoStrategy: NotificationStrategy = async (step, gameState, handlers) => {
+// Strategy: "static"レベル - 静的メッセージをトースト通知、自動で次へ進む
+const staticStrategy: NotificationStrategy = async (step, gameState, handlers) => {
   const result = executeStepAction(step, gameState);
 
   if (handlers.notification) {
@@ -224,10 +224,10 @@ const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, _
 
 // 通知レベルに応じた Strategyを選択する
 function selectInteractiveStrategy(step: AtomicStep): NotificationStrategy {
-  const level = step.notificationLevel || "info";
+  const level = step.notificationLevel || "static";
 
   if (level === "silent") return silentStrategy;
-  if (level === "info") return infoStrategy;
+  if (level === "static") return staticStrategy;
   if (level === "dynamic") return dynamicStrategy;
 
   return step.cardSelectionConfig ? interactiveWithSelectionStrategy : interactiveWithoutSelectionStrategy;

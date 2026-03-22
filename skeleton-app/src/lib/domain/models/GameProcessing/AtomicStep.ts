@@ -15,11 +15,11 @@ import type { EffectId } from "$lib/domain/models/Effect";
  *
  * ドメイン層で定義され、プレゼン層が表示方法を決定する：
  * - silent: 通知なし（内部状態変更のみ、即座に実行）
- * - info: 情報通知（トースト、非ブロッキング、自動進行）
+ * - static: 静的メッセージ通知（step定義時のsummary/descriptionをトースト表示、自動進行）
  * - dynamic: 動的メッセージ通知（actionが返すmessageをトースト表示、自動進行）
  * - interactive: ユーザー入力要求（モーダル、ブロッキング）
  */
-export type NotificationLevel = "silent" | "info" | "dynamic" | "interactive";
+export type NotificationLevel = "silent" | "static" | "dynamic" | "interactive";
 
 /**
  * ユーザーインタラクション設定の基底クラス
@@ -75,7 +75,7 @@ export interface AtomicStep {
   id: string;
   summary: string; // UIに表示される要約
   description: string; // UIに表示される詳細説明
-  notificationLevel?: NotificationLevel; // Default: "info"
+  notificationLevel?: NotificationLevel; // Default: "static"
   cardSelectionConfig?: CardSelectionConfig;
 
   /**

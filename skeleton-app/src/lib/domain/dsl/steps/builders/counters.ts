@@ -60,7 +60,7 @@ export const removeCounterStep = (targetInstanceId: string, counterType: Counter
   id: `remove-counter-${counterType}-${amount}-${targetInstanceId}`,
   summary: "カウンターを取り除く",
   description: `${counterType === "spell" ? "魔力" : counterType}カウンターを${amount}つ取り除きます`,
-  notificationLevel: "info",
+  notificationLevel: "static",
   action: (state: GameSnapshot) => {
     const targetCard = GameState.Space.findCard(state.space, targetInstanceId);
 
