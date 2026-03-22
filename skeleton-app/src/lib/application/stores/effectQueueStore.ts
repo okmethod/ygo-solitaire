@@ -143,7 +143,7 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
     const activationContext = config._effectId ? gameState.activationContexts[config._effectId] : undefined;
 
     availableCards = config._filter
-      ? sourceZone.filter((card, index) => config._filter!(card, index, activationContext))
+      ? sourceZone.filter((card, index) => config._filter!(card, index, activationContext, sourceZone))
       : sourceZone;
   }
 

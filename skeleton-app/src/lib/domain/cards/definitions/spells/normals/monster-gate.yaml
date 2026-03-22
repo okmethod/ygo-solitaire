@@ -1,0 +1,31 @@
+# 《モンスターゲート》 (Monster Gate)
+#
+# カードの発動:
+# - CONDITIONS: 通常召喚可能なモンスターがデッキに存在する、フィールドにモンスターが存在する
+# - ACTIVATIONS: 自分フィールドのモンスター1体をリリース
+# - RESOLUTIONS:
+#    - 通常召喚可能なモンスターが出るまで自分のデッキの上からカードをめくる
+#    - そのモンスターを特殊召喚する
+#    - 残りのめくったカードは全て墓地へ送る
+
+id: 43040603
+
+data:
+  jaName: "モンスターゲート"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "DECK_HAS_CARD"
+          args: { filterType: "monster", minCount: 1 }
+        - step: "FIELD_HAS_CARD"
+          args: { filterType: "monster", minCount: 1 }
+    activations:
+      - step: "RELEASE"
+        args: { count: 1 }
+    resolutions:
+      - step: "EXCAVATE_UNTIL_MONSTER"

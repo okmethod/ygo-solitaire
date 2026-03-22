@@ -44,7 +44,12 @@ export interface CardSelectionConfig extends InteractionConfig {
   availableCards: readonly CardInstance[] | null; // 配列: 直接指定, null: 動的指定(_sourceZoneから取得)
   _sourceZone?: LocationName;
   _effectId?: EffectId; // 動的フィルターで EffectActivationContext を参照するための効果ID
-  _filter?: (card: CardInstance, index?: number, context?: EffectActivationContext) => boolean;
+  _filter?: (
+    card: CardInstance,
+    index?: number,
+    context?: EffectActivationContext,
+    sourceZone?: readonly CardInstance[],
+  ) => boolean;
   minCards: number;
   maxCards: number;
   /** 選択中のカードで確定可能かを判定（未指定時は minCards/maxCards のみでチェック） */

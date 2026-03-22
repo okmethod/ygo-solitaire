@@ -6,12 +6,14 @@
  * - fieldHasMonsterWithRaceCondition: フィールドに指定種族のモンスターがあるか
  */
 
+import type { CardType } from "$lib/domain/models/Card";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { createSimpleConditionChecker } from "../conditionFactory";
 import {
   hasAtLeast,
   byNameIncludes,
   byRace,
+  byType,
   and,
   isMonster,
   isNonEffectMonster,
@@ -22,6 +24,23 @@ import {
 // ===========================
 // ConditionChecker（export）
 // ===========================
+
+/**
+ * FIELD_HAS_CARD - フィールドに条件に合うカードが指定枚数以上あるか
+ * args: { filterType: string, minCount?: number }
+ *
+ * filterType: "monster" の場合はモンスターゾーンを、それ以外は魔法・罠ゾーンをチェック
+ */
+export const fieldHasCardCondition = createSimpleConditionChecker(
+  (args) => ({
+    filterType: ArgValidators.nonEmptyString(args, "filterType") as CardType,
+    minCount: ArgValidators.optionalPositiveInt(args, "minCount") ?? 1,
+  }),
+  (state, { filterType, minCount }) => {
+    const zone = filterType === "monster" ? state.space.mainMonsterZone : state.space.spellTrapZone;
+    return hasAtLeast(zone, byType(filterType), minCount);
+  },
+);
 
 /**
  * FIELD_HAS_EQUIPPED_NAME_INCLUDES - フィールドに名前パターンを含む装備カードがあるか

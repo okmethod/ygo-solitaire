@@ -20,6 +20,7 @@ import {
   graveyardHasSpellOrTrapCondition,
 } from "./checkers/graveyardConditions";
 import {
+  fieldHasCardCondition,
   fieldHasEquippedNameIncludesCondition,
   fieldHasMonsterWithRaceCondition,
   fieldHasNonEffectMonsterCondition,
@@ -58,6 +59,7 @@ AtomicConditionRegistry.register(C.GRAVEYARD_HAS_MONSTER, graveyardHasMonsterCon
 AtomicConditionRegistry.register(C.GRAVEYARD_HAS_SPELL_OR_TRAP, graveyardHasSpellOrTrapCondition);
 
 // フィールド関連
+AtomicConditionRegistry.register(C.FIELD_HAS_CARD, fieldHasCardCondition);
 AtomicConditionRegistry.register(C.FIELD_HAS_EQUIPPED_NAME_INCLUDES, fieldHasEquippedNameIncludesCondition);
 AtomicConditionRegistry.register(C.FIELD_HAS_MONSTER_WITH_RACE, fieldHasMonsterWithRaceCondition);
 AtomicConditionRegistry.register(C.FIELD_HAS_NON_EFFECT_MONSTER, fieldHasNonEffectMonsterCondition);

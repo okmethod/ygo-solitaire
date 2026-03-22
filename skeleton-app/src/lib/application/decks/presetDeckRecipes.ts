@@ -147,7 +147,7 @@ const deckScienceCatapult: DeckRecipe = {
     { id: 83764719, quantity: 1 }, // 死者蘇生
     { id: 70828912, quantity: 1 }, // 早すぎた埋葬
     { id: 74519184, quantity: 3 }, // 手札断殺
-    // モンスタゲート
+    { id: 43040603, quantity: 3 }, // モンスターゲート
     { id: 24874630, quantity: 3 }, // デビルズ・サンクチュアリ
     { id: 89997728, quantity: 3 }, // トゥーンのもくじ
   ],
