@@ -1,6 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { canNormalSummon, getRequiredTributes } from "$lib/domain/rules/SummonRule";
-import { createMockGameState, createTestMonsterCard } from "../../../__testUtils__/gameStateFactory";
+import {
+  canNormalSummon,
+  getRequiredTributes,
+  performNormalSummon,
+  canSpecialSummon,
+  executeSpecialSummon,
+} from "$lib/domain/rules/SummonRule";
+import {
+  createMockGameState,
+  createTestMonsterCard,
+  createFieldCardInstance,
+} from "../../../__testUtils__/gameStateFactory";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
@@ -252,6 +262,461 @@ describe("SummonRule", () => {
       // Assert
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.NOT_ENOUGH_TRIBUTES);
+    });
+  });
+
+  describe("performNormalSummon", () => {
+    describe("no tribute required (level 4 or below)", () => {
+      it("should return immediate result with updated state when summoning in attack position", () => {
+        // Arrange
+        const monster = {
+          ...createTestMonsterCard("test-monster"),
+          level: 4,
+          location: "hand" as const,
+        };
+        const state = createMockGameState({
+          phase: "main1",
+          normalSummonLimit: 1,
+          normalSummonUsed: 0,
+          space: {
+            mainDeck: [],
+            extraDeck: [],
+            hand: [monster],
+            mainMonsterZone: [],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        // Act
+        const result = performNormalSummon(state, monster.instanceId, "attack");
+
+        // Assert
+        expect(result.type).toBe("immediate");
+        if (result.type === "immediate") {
+          expect(result.state.normalSummonUsed).toBe(1);
+          expect(result.state.space.mainMonsterZone.length).toBe(1);
+          expect(result.state.space.hand.length).toBe(0);
+          expect(result.message).toContain("召喚");
+          expect(result.activationSteps.length).toBe(1); // emitMonsterSummonedEventStep
+        }
+      });
+
+      it("should return immediate result when setting in defense position", () => {
+        // Arrange
+        const monster = {
+          ...createTestMonsterCard("test-monster"),
+          level: 4,
+          location: "hand" as const,
+        };
+        const state = createMockGameState({
+          phase: "main1",
+          normalSummonLimit: 1,
+          normalSummonUsed: 0,
+          space: {
+            mainDeck: [],
+            extraDeck: [],
+            hand: [monster],
+            mainMonsterZone: [],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        // Act
+        const result = performNormalSummon(state, monster.instanceId, "defense");
+
+        // Assert
+        expect(result.type).toBe("immediate");
+        if (result.type === "immediate") {
+          expect(result.state.normalSummonUsed).toBe(1);
+          expect(result.message).toContain("セット");
+          expect(result.activationSteps.length).toBe(0); // No event for set
+        }
+      });
+
+      it("should place monster face up in attack position", () => {
+        // Arrange
+        const monster = {
+          ...createTestMonsterCard("test-monster"),
+          level: 4,
+          location: "hand" as const,
+        };
+        const state = createMockGameState({
+          phase: "main1",
+          normalSummonLimit: 1,
+          normalSummonUsed: 0,
+          space: {
+            mainDeck: [],
+            extraDeck: [],
+            hand: [monster],
+            mainMonsterZone: [],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        // Act
+        const result = performNormalSummon(state, monster.instanceId, "attack");
+
+        // Assert
+        if (result.type === "immediate") {
+          const summonedMonster = result.state.space.mainMonsterZone[0];
+          expect(summonedMonster.stateOnField?.position).toBe("faceUp");
+          expect(summonedMonster.stateOnField?.battlePosition).toBe("attack");
+        }
+      });
+
+      it("should place monster face down in defense position", () => {
+        // Arrange
+        const monster = {
+          ...createTestMonsterCard("test-monster"),
+          level: 4,
+          location: "hand" as const,
+        };
+        const state = createMockGameState({
+          phase: "main1",
+          normalSummonLimit: 1,
+          normalSummonUsed: 0,
+          space: {
+            mainDeck: [],
+            extraDeck: [],
+            hand: [monster],
+            mainMonsterZone: [],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        // Act
+        const result = performNormalSummon(state, monster.instanceId, "defense");
+
+        // Assert
+        if (result.type === "immediate") {
+          const summonedMonster = result.state.space.mainMonsterZone[0];
+          expect(summonedMonster.stateOnField?.position).toBe("faceDown");
+          expect(summonedMonster.stateOnField?.battlePosition).toBe("defense");
+        }
+      });
+    });
+
+    describe("tribute required (level 5 or above)", () => {
+      it("should return needsSelection result for level 5 monster", () => {
+        // Arrange
+        const monster = {
+          ...createTestMonsterCard("high-level-monster"),
+          level: 5,
+          location: "hand" as const,
+        };
+        const tribute = createFieldCardInstance({
+          instanceId: "tribute-0",
+          id: 12345678,
+          jaName: "Tribute Monster",
+          type: "monster",
+          frameType: "normal",
+          location: "mainMonsterZone",
+          position: "faceUp",
+        });
+        const state = createMockGameState({
+          phase: "main1",
+          normalSummonLimit: 1,
+          normalSummonUsed: 0,
+          space: {
+            mainDeck: [],
+            extraDeck: [],
+            hand: [monster],
+            mainMonsterZone: [tribute],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        // Act
+        const result = performNormalSummon(state, monster.instanceId, "attack");
+
+        // Assert
+        expect(result.type).toBe("needsSelection");
+        if (result.type === "needsSelection") {
+          expect(result.step).toBeDefined();
+          expect(result.message).toContain("リリース");
+        }
+      });
+
+      it("should return needsSelection result for level 7 monster (2 tributes)", () => {
+        // Arrange
+        const monster = {
+          ...createTestMonsterCard("high-level-monster"),
+          level: 7,
+          location: "hand" as const,
+        };
+        const tribute1 = createFieldCardInstance({
+          instanceId: "tribute-0",
+          id: 12345678,
+          jaName: "Tribute Monster 1",
+          type: "monster",
+          frameType: "normal",
+          location: "mainMonsterZone",
+          position: "faceUp",
+        });
+        const tribute2 = createFieldCardInstance({
+          instanceId: "tribute-1",
+          id: 12345678,
+          jaName: "Tribute Monster 2",
+          type: "monster",
+          frameType: "normal",
+          location: "mainMonsterZone",
+          position: "faceUp",
+        });
+        const state = createMockGameState({
+          phase: "main1",
+          normalSummonLimit: 1,
+          normalSummonUsed: 0,
+          space: {
+            mainDeck: [],
+            extraDeck: [],
+            hand: [monster],
+            mainMonsterZone: [tribute1, tribute2],
+            spellTrapZone: [],
+            fieldZone: [],
+            graveyard: [],
+            banished: [],
+          },
+        });
+
+        // Act
+        const result = performNormalSummon(state, monster.instanceId, "attack");
+
+        // Assert
+        expect(result.type).toBe("needsSelection");
+        if (result.type === "needsSelection") {
+          expect(result.step).toBeDefined();
+        }
+      });
+    });
+  });
+
+  describe("canSpecialSummon", () => {
+    it("should return success when monster zone is not full", () => {
+      // Arrange
+      const state = createMockGameState({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
+          hand: [],
+          mainMonsterZone: [], // Empty
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = canSpecialSummon(state);
+
+      // Assert
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should return success when monster zone has 4 monsters", () => {
+      // Arrange
+      const monsters = Array.from({ length: 4 }, (_, i) =>
+        createFieldCardInstance({
+          instanceId: `monster-${i}`,
+          id: 12345678,
+          jaName: `Monster ${i}`,
+          type: "monster",
+          frameType: "normal",
+          location: "mainMonsterZone",
+          position: "faceUp",
+        }),
+      );
+      const state = createMockGameState({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
+          hand: [],
+          mainMonsterZone: monsters,
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = canSpecialSummon(state);
+
+      // Assert
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should return MONSTER_ZONE_FULL when monster zone is full (5 monsters)", () => {
+      // Arrange
+      const monsters = Array.from({ length: 5 }, (_, i) =>
+        createFieldCardInstance({
+          instanceId: `monster-${i}`,
+          id: 12345678,
+          jaName: `Monster ${i}`,
+          type: "monster",
+          frameType: "normal",
+          location: "mainMonsterZone",
+          position: "faceUp",
+        }),
+      );
+      const state = createMockGameState({
+        space: {
+          mainDeck: [],
+          extraDeck: [],
+          hand: [],
+          mainMonsterZone: monsters,
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = canSpecialSummon(state);
+
+      // Assert
+      expect(result.isValid).toBe(false);
+      expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.MONSTER_ZONE_FULL);
+    });
+  });
+
+  describe("executeSpecialSummon", () => {
+    it("should move monster from hand to monster zone in attack position", () => {
+      // Arrange
+      const monster = {
+        ...createTestMonsterCard("test-monster"),
+        level: 4,
+        location: "hand" as const,
+      };
+      const state = createMockGameState({
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
+          hand: [monster],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = executeSpecialSummon(state, monster.instanceId, "attack");
+
+      // Assert
+      expect(result.space.hand.length).toBe(0);
+      expect(result.space.mainMonsterZone.length).toBe(1);
+      const summonedMonster = result.space.mainMonsterZone[0];
+      expect(summonedMonster.stateOnField?.position).toBe("faceUp");
+      expect(summonedMonster.stateOnField?.battlePosition).toBe("attack");
+    });
+
+    it("should move monster from hand to monster zone in defense position", () => {
+      // Arrange
+      const monster = {
+        ...createTestMonsterCard("test-monster"),
+        level: 4,
+        location: "hand" as const,
+      };
+      const state = createMockGameState({
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [],
+          hand: [monster],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = executeSpecialSummon(state, monster.instanceId, "defense");
+
+      // Assert
+      const summonedMonster = result.space.mainMonsterZone[0];
+      expect(summonedMonster.stateOnField?.position).toBe("faceUp"); // Special summon is always face up
+      expect(summonedMonster.stateOnField?.battlePosition).toBe("defense");
+    });
+
+    it("should move monster from extra deck to monster zone", () => {
+      // Arrange
+      const synchro = {
+        ...createTestMonsterCard("synchro-monster"),
+        frameType: "synchro" as const,
+        level: 6,
+        location: "extraDeck" as const,
+      };
+      const state = createMockGameState({
+        phase: "main1",
+        space: {
+          mainDeck: [],
+          extraDeck: [synchro],
+          hand: [],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = executeSpecialSummon(state, synchro.instanceId, "attack");
+
+      // Assert
+      expect(result.space.extraDeck.length).toBe(0);
+      expect(result.space.mainMonsterZone.length).toBe(1);
+    });
+
+    it("should not consume normal summon right", () => {
+      // Arrange
+      const monster = {
+        ...createTestMonsterCard("test-monster"),
+        level: 4,
+        location: "hand" as const,
+      };
+      const state = createMockGameState({
+        phase: "main1",
+        normalSummonUsed: 0,
+        normalSummonLimit: 1,
+        space: {
+          mainDeck: [],
+          extraDeck: [],
+          hand: [monster],
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
+        },
+      });
+
+      // Act
+      const result = executeSpecialSummon(state, monster.instanceId, "attack");
+
+      // Assert
+      expect(result.normalSummonUsed).toBe(0); // Should remain 0
     });
   });
 });
