@@ -25,7 +25,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../../../__testUtils__/gameStateFactory";
 
 /**
  * Mock ChainableAction for testing
