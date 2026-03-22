@@ -13,14 +13,14 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import type { ChainableAction } from "$lib/domain/models/Effect";
+import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
 import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__/gameStateFactory";
 
 /**
  * テスト用の具象クラス
  */
 class TestTriggerEffect extends BaseTriggerEffect {
-  readonly triggers: readonly EventType[] = ["draw"];
+  readonly triggers: readonly EventType[] = ["spellActivated"];
   readonly triggerTiming: "when" | "if" = "when";
   readonly isMandatory: boolean = false;
   readonly selfOnly: boolean = false;
@@ -123,7 +123,7 @@ describe("BaseTriggerEffect", () => {
       const effect = new TestTriggerEffect();
 
       // Assert
-      expect(effect.triggers).toContain("draw");
+      expect(effect.triggers).toContain("spellActivated");
     });
 
     it("should have triggerTiming defined", () => {
@@ -285,7 +285,7 @@ describe("isTriggerEffect type guard", () => {
     // Arrange
     const mockIgnitionEffect: ChainableAction = {
       cardId: 12345678,
-      effectId: "ignition-12345678-1",
+      effectId: "ignition-12345678-1" as EffectId,
       effectCategory: "ignition",
       spellSpeed: 1,
       canActivate: () => GameProcessing.Validation.success(),
@@ -301,7 +301,7 @@ describe("isTriggerEffect type guard", () => {
     // Arrange
     const mockActivationEffect: ChainableAction = {
       cardId: 12345678,
-      effectId: "activation-12345678",
+      effectId: "activation-12345678" as EffectId,
       effectCategory: "activation",
       spellSpeed: 1,
       canActivate: () => GameProcessing.Validation.success(),

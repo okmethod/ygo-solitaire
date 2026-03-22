@@ -17,7 +17,7 @@ import { createMockGameState, createFieldCardInstance } from "../../../../__test
  * テスト用の具象クラス
  */
 class TestContinuousEffect extends BaseContinuousEffect {
-  readonly category: RuleCategory = "fieldModification";
+  readonly category: RuleCategory = "StatusModifier";
 
   private shouldPass: boolean;
 
@@ -54,7 +54,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect();
 
       // Assert
-      expect(effect.category).toBe("fieldModification");
+      expect(effect.category).toBe("StatusModifier");
     });
   });
 

@@ -20,13 +20,19 @@ import {
   setDeclaredInteger,
   getDeclaredInteger,
 } from "$lib/domain/models/GameState/ActivationContext";
+import type { EffectId } from "$lib/domain/models/Effect";
+
+// Test helper: EffectId constants
+const EFFECT_1 = "effect-1" as EffectId;
+const EFFECT_2 = "effect-2" as EffectId;
+const NON_EXISTENT = "non-existent" as EffectId;
 
 describe("ActivationContext", () => {
   describe("setActivationTargets / getActivationTargets", () => {
     it("should set targets for a new effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
-      const effectId = "effect-1";
+      const contexts: Record<EffectId, EffectActivationContext> = {};
+      const effectId = EFFECT_1;
       const targets = ["card-1", "card-2"];
 
       // Act
@@ -39,12 +45,12 @@ describe("ActivationContext", () => {
 
     it("should get targets for an existing effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: ["card-1", "card-2"] },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: ["card-1", "card-2"] },
       };
 
       // Act
-      const result = getActivationTargets(contexts, "effect-1");
+      const result = getActivationTargets(contexts, EFFECT_1);
 
       // Assert
       expect(result).toEqual(["card-1", "card-2"]);
@@ -52,10 +58,10 @@ describe("ActivationContext", () => {
 
     it("should return empty array for non-existent effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      const result = getActivationTargets(contexts, "non-existent");
+      const result = getActivationTargets(contexts, NON_EXISTENT);
 
       // Assert
       expect(result).toEqual([]);
@@ -63,50 +69,50 @@ describe("ActivationContext", () => {
 
     it("should preserve existing context properties when setting targets", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: [], paidCosts: 100 },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: [], paidCosts: 100 },
       };
 
       // Act
-      const result = setActivationTargets(contexts, "effect-1", ["card-1"]);
+      const result = setActivationTargets(contexts, EFFECT_1, ["card-1"]);
 
       // Assert
-      expect(result["effect-1"].targets).toEqual(["card-1"]);
-      expect(result["effect-1"].paidCosts).toBe(100);
+      expect(result[EFFECT_1].targets).toEqual(["card-1"]);
+      expect(result[EFFECT_1].paidCosts).toBe(100);
     });
 
     it("should not mutate original contexts", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      setActivationTargets(contexts, "effect-1", ["card-1"]);
+      setActivationTargets(contexts, EFFECT_1, ["card-1"]);
 
       // Assert - original should be unchanged
-      expect(contexts["effect-1"]).toBeUndefined();
+      expect(contexts[EFFECT_1]).toBeUndefined();
     });
   });
 
   describe("setPaidCosts / getPaidCosts", () => {
     it("should set paid costs for a new effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      const result = setPaidCosts(contexts, "effect-1", 1000);
+      const result = setPaidCosts(contexts, EFFECT_1, 1000);
 
       // Assert
-      expect(result["effect-1"].paidCosts).toBe(1000);
+      expect(result[EFFECT_1].paidCosts).toBe(1000);
     });
 
     it("should get paid costs for an existing effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: [], paidCosts: 500 },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: [], paidCosts: 500 },
       };
 
       // Act
-      const result = getPaidCosts(contexts, "effect-1");
+      const result = getPaidCosts(contexts, EFFECT_1);
 
       // Assert
       expect(result).toBe(500);
@@ -114,10 +120,10 @@ describe("ActivationContext", () => {
 
     it("should return undefined for non-existent effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      const result = getPaidCosts(contexts, "non-existent");
+      const result = getPaidCosts(contexts, NON_EXISTENT);
 
       // Assert
       expect(result).toBeUndefined();
@@ -127,23 +133,23 @@ describe("ActivationContext", () => {
   describe("setCalculatedDamage / getCalculatedDamage", () => {
     it("should set calculated damage for an effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      const result = setCalculatedDamage(contexts, "effect-1", 2000);
+      const result = setCalculatedDamage(contexts, EFFECT_1, 2000);
 
       // Assert
-      expect(result["effect-1"].calculatedDamage).toBe(2000);
+      expect(result[EFFECT_1].calculatedDamage).toBe(2000);
     });
 
     it("should get calculated damage for an existing effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: [], calculatedDamage: 1500 },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: [], calculatedDamage: 1500 },
       };
 
       // Act
-      const result = getCalculatedDamage(contexts, "effect-1");
+      const result = getCalculatedDamage(contexts, EFFECT_1);
 
       // Assert
       expect(result).toBe(1500);
@@ -151,12 +157,12 @@ describe("ActivationContext", () => {
 
     it("should return undefined for effect without calculated damage", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: [] },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: [] },
       };
 
       // Act
-      const result = getCalculatedDamage(contexts, "effect-1");
+      const result = getCalculatedDamage(contexts, EFFECT_1);
 
       // Assert
       expect(result).toBeUndefined();
@@ -166,23 +172,23 @@ describe("ActivationContext", () => {
   describe("setDeclaredInteger / getDeclaredInteger", () => {
     it("should set declared integer for an effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      const result = setDeclaredInteger(contexts, "effect-1", 5);
+      const result = setDeclaredInteger(contexts, EFFECT_1, 5);
 
       // Assert
-      expect(result["effect-1"].declaredInteger).toBe(5);
+      expect(result[EFFECT_1].declaredInteger).toBe(5);
     });
 
     it("should get declared integer for an existing effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: [], declaredInteger: 3 },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: [], declaredInteger: 3 },
       };
 
       // Act
-      const result = getDeclaredInteger(contexts, "effect-1");
+      const result = getDeclaredInteger(contexts, EFFECT_1);
 
       // Assert
       expect(result).toBe(3);
@@ -190,10 +196,10 @@ describe("ActivationContext", () => {
 
     it("should return undefined for effect without declared integer", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {};
+      const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
-      const result = getDeclaredInteger(contexts, "non-existent");
+      const result = getDeclaredInteger(contexts, NON_EXISTENT);
 
       // Assert
       expect(result).toBeUndefined();
@@ -203,27 +209,27 @@ describe("ActivationContext", () => {
   describe("clearActivationContext", () => {
     it("should remove context for specified effect", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: ["card-1"] },
-        "effect-2": { targets: ["card-2"] },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: ["card-1"] },
+        [EFFECT_2]: { targets: ["card-2"] },
       };
 
       // Act
-      const result = clearActivationContext(contexts, "effect-1");
+      const result = clearActivationContext(contexts, EFFECT_1);
 
       // Assert
-      expect(result["effect-1"]).toBeUndefined();
-      expect(result["effect-2"]).toBeDefined();
+      expect(result[EFFECT_1]).toBeUndefined();
+      expect(result[EFFECT_2]).toBeDefined();
     });
 
     it("should return same object if effect does not exist", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: [] },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: [] },
       };
 
       // Act
-      const result = clearActivationContext(contexts, "non-existent");
+      const result = clearActivationContext(contexts, NON_EXISTENT);
 
       // Assert
       expect(result).toBe(contexts);
@@ -231,15 +237,15 @@ describe("ActivationContext", () => {
 
     it("should not mutate original contexts", () => {
       // Arrange
-      const contexts: Record<string, EffectActivationContext> = {
-        "effect-1": { targets: ["card-1"] },
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_1]: { targets: ["card-1"] },
       };
 
       // Act
-      clearActivationContext(contexts, "effect-1");
+      clearActivationContext(contexts, EFFECT_1);
 
       // Assert - original should be unchanged
-      expect(contexts["effect-1"]).toBeDefined();
+      expect(contexts[EFFECT_1]).toBeDefined();
     });
   });
 });

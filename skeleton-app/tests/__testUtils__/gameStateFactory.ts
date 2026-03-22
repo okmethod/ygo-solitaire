@@ -54,6 +54,7 @@ export function createTestMonsterCard(
     cardId?: number;
     frameType?: FrameSubType;
     location?: keyof CardSpace;
+    level?: number;
   },
 ): CardInstance {
   const cardId = options?.cardId ?? TEST_CARD_IDS.DUMMY;
@@ -64,9 +65,60 @@ export function createTestMonsterCard(
     jaName: registeredCard?.jaName ?? "Test Monster",
     type: "monster",
     frameType: options?.frameType ?? registeredCard?.frameType ?? "normal",
+    level: options?.level ?? registeredCard?.level,
     edition: registeredCard?.edition ?? "latest",
     location: options?.location ?? "hand",
   };
+}
+
+/**
+ * 手札のモンスターカードを作成（召喚テスト用）
+ *
+ * @param instanceId - インスタンスID
+ * @param level - モンスターレベル（デフォルト: 4）
+ */
+export function createHandMonster(instanceId: string, level: number = 4): CardInstance {
+  return createTestMonsterCard(instanceId, { location: "hand", level });
+}
+
+/**
+ * フィールド上のモンスター配列を作成
+ *
+ * @param count - 作成するモンスター数
+ * @param options - オプション設定
+ */
+export function createMonstersOnField(count: number, options?: { position?: "faceUp" | "faceDown" }): CardInstance[] {
+  return Array.from({ length: count }, (_, i) =>
+    createFieldCardInstance({
+      instanceId: `monster-${i}`,
+      id: TEST_CARD_IDS.DUMMY,
+      jaName: `Monster ${i}`,
+      type: "monster",
+      frameType: "normal",
+      location: "mainMonsterZone",
+      position: options?.position ?? "faceUp",
+    }),
+  );
+}
+
+/**
+ * 魔法・罠ゾーンの魔法カード配列を作成
+ *
+ * @param count - 作成する魔法カード数
+ */
+export function createSpellsOnField(count: number): CardInstance[] {
+  return Array.from({ length: count }, (_, i) =>
+    createFieldCardInstance({
+      instanceId: `spell-${i}`,
+      id: TEST_CARD_IDS.SPELL_NORMAL,
+      jaName: `Spell ${i}`,
+      type: "spell",
+      frameType: "spell",
+      location: "spellTrapZone",
+      position: "faceUp",
+      spellType: "normal",
+    }),
+  );
 }
 
 /**
@@ -253,16 +305,19 @@ export function createCardInstances(
   });
 }
 
-const EXODIA_PIECE_IDS = [
-  33396948, // 本体
-  7902349, // 左腕
-  70903634, // 右腕
-  44519536, // 左足
-  8124921, // 右足
-] as const;
+/** エクゾディアパーツのカードID */
+export const EXODIA_PIECE_IDS = {
+  MAIN: 33396948, // 封印されしエクゾディア（本体）
+  LEFT_ARM: 7902349, // 封印されし者の左腕
+  RIGHT_ARM: 70903634, // 封印されし者の右腕
+  LEFT_LEG: 44519536, // 封印されし者の左足
+  RIGHT_LEG: 8124921, // 封印されし者の右足
+  /** 全パーツのID配列 */
+  ALL: [33396948, 7902349, 70903634, 44519536, 8124921] as readonly number[],
+} as const;
 
 /** テスト用カードID定数 */
-const TEST_CARD_IDS = {
+export const TEST_CARD_IDS = {
   DUMMY: 12345678,
   SPELL_NORMAL: 1001,
   SPELL_QUICK: 1004,
@@ -350,7 +405,7 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
  */
 export function createExodiaDeckState(): GameSnapshot {
   const exodiaDeck = [
-    ...EXODIA_PIECE_IDS, // 5 Exodia pieces
+    ...EXODIA_PIECE_IDS.ALL, // 5 Exodia pieces
     19613556, // Pot of Greed (x3)
     19613556,
     19613556,
@@ -431,7 +486,7 @@ export function createExodiaVictoryState(): GameSnapshot {
   return createMockGameState({
     space: {
       mainDeck: createCardInstances(Array(35).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      hand: createCardInstances([...EXODIA_PIECE_IDS], "hand"),
+      hand: createCardInstances([...EXODIA_PIECE_IDS.ALL], "hand"),
     },
     phase: "main1",
     result: {

@@ -12,6 +12,7 @@ import {
   createMockGameState,
   createTestSpellCard,
   createTestMonsterCard,
+  createSpellsOnField,
 } from "../../../__testUtils__/gameStateFactory";
 
 describe("SetSpellTrapCommand", () => {
@@ -20,17 +21,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -45,18 +36,11 @@ describe("SetSpellTrapCommand", () => {
     it("should allow setting a field spell even if fieldZone is occupied", () => {
       // Arrange
       const fieldSpell1 = createTestSpellCard("field-1", "field");
-      const fieldSpell2 = { ...createTestSpellCard("field-2", "field"), location: "fieldZone" as const };
+      const fieldSpell2 = createTestSpellCard("field-2", "field", { location: "fieldZone" });
       const state = createMockGameState({
-        phase: "main1",
         space: {
-          mainDeck: [],
-          extraDeck: [],
           hand: [fieldSpell1],
-          mainMonsterZone: [],
-          spellTrapZone: [],
           fieldZone: [fieldSpell2],
-          graveyard: [],
-          banished: [],
         },
       });
 
@@ -74,16 +58,7 @@ describe("SetSpellTrapCommand", () => {
       const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
         phase: "draw",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -98,18 +73,10 @@ describe("SetSpellTrapCommand", () => {
     it("should fail if spellTrapZone is full (5 cards)", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
-      const existingSpells = Array.from({ length: 5 }, (_, i) => createTestSpellCard(`existing-${i}`));
       const state = createMockGameState({
-        phase: "main1",
         space: {
-          mainDeck: [],
-          extraDeck: [],
           hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: existingSpells,
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
+          spellTrapZone: createSpellsOnField(5),
         },
       });
 
@@ -124,9 +91,7 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if card not found", () => {
       // Arrange
-      const state = createMockGameState({
-        phase: "main1",
-      });
+      const state = createMockGameState();
 
       const command = new SetSpellTrapCommand("non-existent-id");
 
@@ -139,19 +104,9 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const spellCard = { ...createTestSpellCard("spell-1"), location: "mainDeck" as const };
+      const spellCard = createTestSpellCard("spell-1", "normal", { location: "mainDeck" });
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [spellCard],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { mainDeck: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -167,17 +122,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const monsterCard = createTestMonsterCard("monster-1");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [monsterCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [monsterCard] },
       });
 
       const command = new SetSpellTrapCommand("monster-1");
@@ -193,17 +138,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
         result: { isGameOver: true, winner: "player", reason: "exodia" },
       });
 
@@ -222,17 +157,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -256,17 +181,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createTestSpellCard("quick-1", "quick-play");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("quick-1");
@@ -288,17 +203,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createTestSpellCard("continuous-1", "continuous");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("continuous-1");
@@ -319,17 +224,7 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const fieldSpell = createTestSpellCard("field-1", "field");
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [fieldSpell],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [fieldSpell] },
       });
 
       const command = new SetSpellTrapCommand("field-1");
@@ -363,16 +258,9 @@ describe("SetSpellTrapCommand", () => {
       };
       const newFieldSpell = createTestSpellCard("field-new", "field");
       const state = createMockGameState({
-        phase: "main1",
         space: {
-          mainDeck: [],
-          extraDeck: [],
           hand: [newFieldSpell],
-          mainMonsterZone: [],
-          spellTrapZone: [],
           fieldZone: [oldFieldSpell],
-          graveyard: [],
-          banished: [],
         },
       });
 
@@ -393,18 +281,8 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
-        phase: "main1",
         normalSummonUsed: 0,
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -422,16 +300,7 @@ describe("SetSpellTrapCommand", () => {
       const spellCard = createTestSpellCard("spell-1");
       const state = createMockGameState({
         phase: "draw",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { hand: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -446,9 +315,7 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if card not found", () => {
       // Arrange
-      const state = createMockGameState({
-        phase: "main1",
-      });
+      const state = createMockGameState();
 
       const command = new SetSpellTrapCommand("non-existent-id");
 
@@ -462,19 +329,9 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const spellCard = { ...createTestSpellCard("spell-1"), location: "mainDeck" as const };
+      const spellCard = createTestSpellCard("spell-1", "normal", { location: "mainDeck" });
       const state = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [spellCard],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+        space: { mainDeck: [spellCard] },
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -490,21 +347,14 @@ describe("SetSpellTrapCommand", () => {
     it("should fail if spellTrapZone is full", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
-      const existingSpells = Array.from({ length: 5 }, (_, i) => ({
-        ...createTestSpellCard(`existing-${i}`),
+      const existingSpells = createSpellsOnField(5).map((s) => ({
+        ...s,
         location: "spellTrapZone" as const,
       }));
       const state = createMockGameState({
-        phase: "main1",
         space: {
-          mainDeck: [],
-          extraDeck: [],
           hand: [spellCard],
-          mainMonsterZone: [],
           spellTrapZone: existingSpells,
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
         },
       });
 
@@ -521,20 +371,14 @@ describe("SetSpellTrapCommand", () => {
     it("should preserve other zones when setting", () => {
       // Arrange
       const spellCard = createTestSpellCard("spell-1");
-      const existingDeckCard = createTestSpellCard("deck-card");
-      const existingGraveyardCard = createTestSpellCard("gy-card");
+      const existingDeckCard = createTestSpellCard("deck-card", "normal", { location: "mainDeck" });
+      const existingGraveyardCard = createTestSpellCard("gy-card", "normal", { location: "graveyard" });
 
       const state = createMockGameState({
-        phase: "main1",
         space: {
           mainDeck: [existingDeckCard],
-          extraDeck: [],
           hand: [spellCard],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
           graveyard: [existingGraveyardCard],
-          banished: [],
         },
       });
 
