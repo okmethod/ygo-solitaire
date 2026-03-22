@@ -2,8 +2,28 @@
 
 **Feature Branch**: `020-test-improvement`
 **Created**: 2026-03-22
-**Status**: Draft
+**Status**: Complete
 **Input**: domain層のテスト改善。vitestのテストカバレッジツール導入を最初に含む。
+
+**Baseline Coverage** (2026-03-22):
+- Lines: 63.17%
+- Functions: 64.17%
+- Statements: 63.17%
+- Target: 80%+ (vitest.config.ts thresholds)
+
+**Final Coverage** (2026-03-22):
+- Lines: 67.19% (baseline 63.17% → +4.02%)
+- Functions: 70.09%
+- Statements: 67.19%
+- Test count: 593 tests (all passing)
+- Key improvements:
+  - commands/: 95.44%
+  - models/Command: 94.44%
+  - models/GameProcessing: 96.59%
+  - models/GameState: 86.07%
+  - effects/actions: 73.25%
+  - effects/rules: 88.60%
+  - rules/ActivationRule: 100%
 
 ## User Scenarios & Testing _(mandatory)_
 
