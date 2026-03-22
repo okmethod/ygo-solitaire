@@ -38,7 +38,7 @@ import {
   specialSummonFromExtraDeckStepBuilder,
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
-import { excavateUntilMonsterStepBuilder } from "./builders/excavations";
+import { excavateUntilMonsterStepBuilder, excavateUntilMonsterWithLevelCheckStepBuilder } from "./builders/excavations";
 import { createTokenMonsterStepBuilder } from "./builders/tokens";
 import {
   establishEquipStepBuilder,
@@ -49,7 +49,11 @@ import { selectAndReleaseStepBuilder, selectAndReleaseForBurnStepBuilder } from 
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
 import { shuffleDeckStepBuilder } from "./builders/deckOperations";
 import { selectTargetFromFieldByRaceStepBuilder, selectTargetFromGraveyardStepBuilder } from "./builders/targeting";
-import { saveTargetsToContextStepBuilder, clearContextStepBuilder } from "./builders/contextOperations";
+import {
+  saveTargetsToContextStepBuilder,
+  clearContextStepBuilder,
+  declareRandomIntegerStepBuilder,
+} from "./builders/contextOperations";
 import { thenStepBuilder } from "./builders/timing";
 
 // ===========================
@@ -98,6 +102,7 @@ AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromE
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 AtomicStepRegistry.register(S.CREATE_TOKEN_MONSTER, createTokenMonsterStepBuilder);
 AtomicStepRegistry.register(S.EXCAVATE_UNTIL_MONSTER, excavateUntilMonsterStepBuilder);
+AtomicStepRegistry.register(S.EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK, excavateUntilMonsterWithLevelCheckStepBuilder);
 
 // 装備操作関連
 AtomicStepRegistry.register(S.ESTABLISH_EQUIP, establishEquipStepBuilder);
@@ -119,6 +124,7 @@ AtomicStepRegistry.register(S.SELECT_TARGET_FROM_FIELD_BY_RACE, selectTargetFrom
 AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
 AtomicStepRegistry.register(S.SAVE_TARGETS_TO_CONTEXT, saveTargetsToContextStepBuilder);
 AtomicStepRegistry.register(S.CLEAR_CONTEXT, clearContextStepBuilder);
+AtomicStepRegistry.register(S.DECLARE_RANDOM_INTEGER, declareRandomIntegerStepBuilder);
 
 // その他
 AtomicStepRegistry.register(S.THEN, thenStepBuilder);

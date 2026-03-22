@@ -89,6 +89,7 @@ type NotificationStrategy = (
 interface StepActionResult {
   updatedState: GameSnapshot;
   emittedEvents: GameEvent[];
+  message?: string;
 }
 
 // 1ステップ分のアクションを実行する（共通処理）
@@ -99,6 +100,7 @@ function executeStepAction(step: AtomicStep, gameState: GameSnapshot, selectedId
     return {
       updatedState: result.updatedState,
       emittedEvents: result.emittedEvents || [],
+      message: result.message,
     };
   }
   console.error("[executeStepAction] Step action failed:", step.id, result.message);
@@ -117,6 +119,18 @@ const infoStrategy: NotificationStrategy = async (step, gameState, handlers) => 
 
   if (handlers.notification) {
     handlers.notification.showInfo(step.summary, step.description);
+  }
+
+  return { shouldContinue: true, delay: 300, emittedEvents: result.emittedEvents };
+};
+
+// Strategy: "dynamic"レベル - actionが返す動的メッセージをトースト表示、自動で次へ進む
+const dynamicStrategy: NotificationStrategy = async (step, gameState, handlers) => {
+  const result = executeStepAction(step, gameState);
+
+  if (handlers.notification && result.message) {
+    // UI実装では description（第2引数）をトーストに表示するため、動的メッセージを第2引数に渡す
+    handlers.notification.showInfo("", result.message);
   }
 
   return { shouldContinue: true, delay: 300, emittedEvents: result.emittedEvents };
@@ -214,6 +228,7 @@ function selectInteractiveStrategy(step: AtomicStep): NotificationStrategy {
 
   if (level === "silent") return silentStrategy;
   if (level === "info") return infoStrategy;
+  if (level === "dynamic") return dynamicStrategy;
 
   return step.cardSelectionConfig ? interactiveWithSelectionStrategy : interactiveWithoutSelectionStrategy;
 }

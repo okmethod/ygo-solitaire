@@ -123,3 +123,65 @@ export const clearContextStepBuilder: StepBuilderFn = (args, context) => {
   }
   return clearContextStep(effectId);
 };
+
+/**
+ * ランダムに整数を宣言し、コンテキストに保存するステップ
+ *
+ * 名推理のレベル宣言など、ランダムに値を決定する効果で使用する。
+ *
+ * @param effectId - 効果ID（コンテキストのキー）
+ * @param minValue - 最小値
+ * @param maxValue - 最大値
+ * @param messageTemplate - メッセージテンプレート（{value}がランダム値に置換される）
+ */
+export const declareRandomIntegerStep = (
+  effectId: EffectId,
+  minValue: number,
+  maxValue: number,
+  messageTemplate: string = "レベル{value}を宣言",
+): AtomicStep => {
+  const summary = messageTemplate.replace("{value}", "?");
+
+  return {
+    id: `declare-random-integer-${effectId}`,
+    summary,
+    description: `${minValue}〜${maxValue}の値をランダムに宣言します`,
+    notificationLevel: "dynamic",
+    action: (state: GameSnapshot): GameStateUpdateResult => {
+      const declaredValue = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+
+      const updatedState: GameSnapshot = {
+        ...state,
+        activationContexts: GameState.ActivationContext.setDeclaredInteger(
+          state.activationContexts,
+          effectId,
+          declaredValue,
+        ),
+      };
+
+      const message = messageTemplate.replace("{value}", String(declaredValue));
+      return GameProcessing.Result.success(updatedState, message);
+    },
+  };
+};
+
+/**
+ * DECLARE_RANDOM_INTEGER - ランダム整数を宣言しコンテキストに保存
+ * args: {
+ *   minValue: number (必須、正の整数)
+ *   maxValue: number (必須、正の整数)
+ *   messageTemplate: string (必須、{value}がランダム値に置換される)
+ *   effectId?: string (省略時: context.effectId)
+ * }
+ */
+export const declareRandomIntegerStepBuilder: StepBuilderFn = (args, context) => {
+  const minValue = ArgValidators.positiveInt(args, "minValue");
+  const maxValue = ArgValidators.positiveInt(args, "maxValue");
+  const messageTemplate = ArgValidators.string(args, "messageTemplate");
+  const effectIdFromArgs = ArgValidators.optionalString(args, "effectId");
+  const effectId = effectIdFromArgs ? (effectIdFromArgs as EffectId) : context.effectId;
+  if (!effectId) {
+    throw new Error("DECLARE_RANDOM_INTEGER step requires effectId (via args or context)");
+  }
+  return declareRandomIntegerStep(effectId, minValue, maxValue, messageTemplate);
+};

@@ -16,6 +16,8 @@ export interface EffectActivationContext {
   readonly paidCosts?: number;
   /** 計算済みダメージ */
   readonly calculatedDamage?: number;
+  /** 宣言された整数値 */
+  readonly declaredInteger?: number;
 }
 
 /** 発動時コンテキストに対象を設定する */
@@ -92,4 +94,25 @@ export function getCalculatedDamage(
   effectId: EffectId,
 ): number | undefined {
   return currentContexts?.[effectId]?.calculatedDamage;
+}
+
+/** 発動時コンテキストに宣言された整数値を設定する */
+export function setDeclaredInteger(
+  currentContexts: Record<EffectId, EffectActivationContext>,
+  effectId: EffectId,
+  declaredInteger: number,
+): Record<EffectId, EffectActivationContext> {
+  const existing = currentContexts[effectId] ?? { targets: [] };
+  return {
+    ...currentContexts,
+    [effectId]: { ...existing, declaredInteger },
+  };
+}
+
+/** 発動時コンテキストから宣言された整数値を取得する */
+export function getDeclaredInteger(
+  currentContexts: Record<EffectId, EffectActivationContext>,
+  effectId: EffectId,
+): number | undefined {
+  return currentContexts?.[effectId]?.declaredInteger;
 }

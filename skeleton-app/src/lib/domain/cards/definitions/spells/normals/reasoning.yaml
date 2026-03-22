@@ -1,0 +1,33 @@
+# 《名推理》 (Reasoning)
+#
+# カードの発動:
+# - CONDITIONS: 通常召喚可能なモンスターがデッキに存在する
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS:
+#    - 相手は 1~12 までの任意のレベルを宣言する（ランダム選択で代替）
+#    - 通常召喚可能なモンスターが出るまで自分のデッキの上からカードをめくる
+#    - そのモンスターのレベルが
+#      - 宣言したレベルと異なる場合、特殊召喚する
+#      - 宣言したレベルと同じ場合、墓地へ送る
+#    - 残りのめくったカードは全て墓地へ送る
+#
+# Note: 通常レベル9以上が宣言されることはほぼないため、1~8でランダム選択している。
+
+id: 58577036
+
+data:
+  jaName: "名推理"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "DECK_HAS_CARD"
+          args: { filterType: "monster", minCount: 1 }
+    resolutions:
+      - step: "DECLARE_RANDOM_INTEGER"
+        args: { minValue: 1, maxValue: 8, messageTemplate: "レベル{value}が宣言されました" }
+      - step: "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK"

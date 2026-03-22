@@ -57,6 +57,7 @@ import goldenBambooSwordYaml from "./spells/normals/golden-bamboo-sword.yaml?raw
 import whiteElephantsGiftYaml from "./spells/normals/white-elephants-gift.yaml?raw";
 import fiendsSanctuaryYaml from "./spells/normals/fiends-sanctuary.yaml?raw";
 import monsterGateYaml from "./spells/normals/monster-gate.yaml?raw";
+import reasoningYaml from "./spells/normals/reasoning.yaml?raw";
 
 // 速攻魔法
 import handDestructionYaml from "./spells/quick-plays/hand-destruction.yaml?raw";
@@ -130,6 +131,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [18756904, whiteElephantsGiftYaml], // 馬の骨の対価
   [24874630, fiendsSanctuaryYaml], // デビルズ・サンクチュアリ
   [43040603, monsterGateYaml], // モンスターゲート
+  [58577036, reasoningYaml], // 名推理
 
   // 速攻魔法
   [74519184, handDestructionYaml], // 手札断殺
