@@ -20,7 +20,7 @@ import {
   updateCardStateInPlace,
 } from "$lib/domain/models/Card/CardInstance";
 import type { CardInstance } from "$lib/domain/models/Card/CardInstance";
-import { createTestMonsterCard, createFieldCardInstance, TEST_CARD_IDS } from "../../../__testUtils__/gameStateFactory";
+import { createTestMonsterCard, createFieldCardInstance, TEST_CARD_IDS } from "../../../__testUtils__";
 
 describe("CardInstance", () => {
   // ===========================

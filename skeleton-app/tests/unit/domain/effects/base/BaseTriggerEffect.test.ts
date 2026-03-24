@@ -14,7 +14,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス

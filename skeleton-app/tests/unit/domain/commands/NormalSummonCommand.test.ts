@@ -12,7 +12,7 @@ import {
   createTestMonsterCard,
   createTestSpellCard,
   createMonstersOnField,
-} from "../../../__testUtils__/gameStateFactory";
+} from "../../../__testUtils__";
 
 describe("NormalSummonCommand", () => {
   // ===========================

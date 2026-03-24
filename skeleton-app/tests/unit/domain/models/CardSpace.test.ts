@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import { createCardInstances } from "../../../__testUtils__/gameStateFactory";
+import { createCardInstances } from "../../../__testUtils__";
 
 describe("CardSpace", () => {
   describe("moveCardInstance", () => {

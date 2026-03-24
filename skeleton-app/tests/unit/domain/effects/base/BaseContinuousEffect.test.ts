@@ -11,7 +11,7 @@ import { describe, it, expect } from "vitest";
 import { BaseContinuousEffect } from "$lib/domain/effects/rules/continuouses/BaseContinuousEffect";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { RuleCategory } from "$lib/domain/models/Effect";
-import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス

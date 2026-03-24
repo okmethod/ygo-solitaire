@@ -13,7 +13,7 @@ import {
   createSynchroSummonReadyState,
   createSynchroSummonNoTunerState,
   createSynchroSummonLevelMismatchState,
-} from "../../../__testUtils__/gameStateFactory";
+} from "../../../__testUtils__";
 
 describe("SynchroSummonCommand", () => {
   describe("constructor", () => {

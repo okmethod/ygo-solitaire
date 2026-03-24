@@ -14,7 +14,7 @@ import { GenericTriggerEffect, createGenericTriggerEffect } from "$lib/domain/ds
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createMockGameState, createCardInstances, TEST_CARD_IDS } from "../../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストセットアップ

@@ -13,7 +13,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス

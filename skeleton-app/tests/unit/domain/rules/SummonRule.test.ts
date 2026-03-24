@@ -11,7 +11,7 @@ import {
   createTestMonsterCard,
   createHandMonster,
   createMonstersOnField,
-} from "../../../__testUtils__/gameStateFactory";
+} from "../../../__testUtils__";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {

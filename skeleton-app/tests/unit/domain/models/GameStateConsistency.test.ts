@@ -11,12 +11,7 @@
 import { describe, it, expect } from "vitest";
 import { assertValidGameState } from "$lib/domain/models/GameState/GameStateConsistency";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import {
-  createMockGameState,
-  createCardInstances,
-  createTestMonsterCard,
-  TEST_CARD_IDS,
-} from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances, createTestMonsterCard, TEST_CARD_IDS } from "../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー

@@ -13,7 +13,7 @@ import {
   createTestSpellCard,
   createTestMonsterCard,
   createSpellsOnField,
-} from "../../../__testUtils__/gameStateFactory";
+} from "../../../__testUtils__";
 
 describe("SetSpellTrapCommand", () => {
   describe("canExecute", () => {

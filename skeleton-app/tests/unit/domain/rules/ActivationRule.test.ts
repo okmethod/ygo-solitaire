@@ -14,7 +14,7 @@ import {
   createTestSpellCard,
   createSetCard,
   createFieldCardInstance,
-} from "../../../__testUtils__/gameStateFactory";
+} from "../../../__testUtils__";
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {

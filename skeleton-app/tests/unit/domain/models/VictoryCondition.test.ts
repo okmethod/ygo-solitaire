@@ -9,7 +9,7 @@
 
 import { describe, it, expect } from "vitest";
 import { GameState } from "$lib/domain/models/GameState";
-import { createMockGameState, createCardInstances, EXODIA_PIECE_IDS } from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances, EXODIA_PIECE_IDS } from "../../../__testUtils__";
 
 describe("VictoryCondition", () => {
   describe("Exodia Victory", () => {

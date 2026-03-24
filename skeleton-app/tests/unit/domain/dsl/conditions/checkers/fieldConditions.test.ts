@@ -24,7 +24,7 @@ import {
   createMonstersOnField,
   createSpellsOnField,
   createTestSpellCard,
-} from "../../../../../__testUtils__/gameStateFactory";
+} from "../../../../../__testUtils__";
 
 // =============================================================================
 // テストセットアップ
