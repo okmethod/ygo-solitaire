@@ -16,7 +16,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
 import { loadCardDataWithEffectsFromYaml } from "$lib/domain/dsl/core/loader";
 import { getDSLDefinition } from "$lib/domain/cards/definitions";
-import { createMockGameState } from "../__testUtils__/gameStateFactory";
+import { createMockGameState } from "../__testUtils__";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";

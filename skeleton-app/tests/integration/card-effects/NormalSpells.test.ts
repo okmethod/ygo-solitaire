@@ -28,7 +28,7 @@
 
 import { describe, it, expect } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-import { createMockGameState, createCardInstances } from "../../__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances } from "../../__testUtils__";
 // Note: ChainableActionRegistry は setup.ts で初期化済み
 
 describe("Normal Spell Card Effects", () => {

@@ -119,3 +119,128 @@ Object.defineProperty(window, "localStorage", {
 
 // グローバルにlocalStorageMockを公開
 global.localStorageMock = localStorageMock;
+
+// シンクロ召喚テスト用カードデータ
+// チューナーモンスター
+CardDataRegistry.register(2001, {
+  jaName: "Test Tuner Lv1",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect", "tuner"],
+  race: "Warrior",
+  level: 1,
+  attack: 100,
+  defense: 100,
+  edition: "latest",
+});
+CardDataRegistry.register(2002, {
+  jaName: "Test Tuner Lv2",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect", "tuner"],
+  race: "Warrior",
+  level: 2,
+  attack: 500,
+  defense: 500,
+  edition: "latest",
+});
+CardDataRegistry.register(2003, {
+  jaName: "Test Tuner Lv3",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect", "tuner"],
+  race: "Warrior",
+  level: 3,
+  attack: 1000,
+  defense: 1000,
+  edition: "latest",
+});
+
+// 非チューナーモンスター
+CardDataRegistry.register(3001, {
+  jaName: "Test NonTuner Lv1",
+  type: "monster",
+  frameType: "normal",
+  race: "Warrior",
+  level: 1,
+  attack: 100,
+  defense: 100,
+  edition: "latest",
+});
+CardDataRegistry.register(3002, {
+  jaName: "Test NonTuner Lv2",
+  type: "monster",
+  frameType: "normal",
+  race: "Warrior",
+  level: 2,
+  attack: 500,
+  defense: 500,
+  edition: "latest",
+});
+CardDataRegistry.register(3003, {
+  jaName: "Test NonTuner Lv3",
+  type: "monster",
+  frameType: "normal",
+  race: "Warrior",
+  level: 3,
+  attack: 1000,
+  defense: 1000,
+  edition: "latest",
+});
+CardDataRegistry.register(3004, {
+  jaName: "Test NonTuner Lv4",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect"],
+  race: "Warrior",
+  level: 4,
+  attack: 1500,
+  defense: 1500,
+  edition: "latest",
+});
+
+// シンクロモンスター
+CardDataRegistry.register(4005, {
+  jaName: "Test Synchro Lv5",
+  type: "monster",
+  frameType: "synchro",
+  monsterTypeList: ["effect"],
+  race: "Dragon",
+  level: 5,
+  attack: 2300,
+  defense: 1800,
+  edition: "latest",
+});
+CardDataRegistry.register(4006, {
+  jaName: "Test Synchro Lv6",
+  type: "monster",
+  frameType: "synchro",
+  monsterTypeList: ["effect"],
+  race: "Dragon",
+  level: 6,
+  attack: 2500,
+  defense: 2000,
+  edition: "latest",
+});
+CardDataRegistry.register(4007, {
+  jaName: "Test Synchro Lv7",
+  type: "monster",
+  frameType: "synchro",
+  monsterTypeList: ["effect"],
+  race: "Dragon",
+  level: 7,
+  attack: 2700,
+  defense: 2200,
+  edition: "latest",
+});
+CardDataRegistry.register(4008, {
+  jaName: "Test Synchro Lv8",
+  type: "monster",
+  frameType: "synchro",
+  monsterTypeList: ["effect"],
+  race: "Dragon",
+  level: 8,
+  attack: 3000,
+  defense: 2500,
+  edition: "latest",
+});

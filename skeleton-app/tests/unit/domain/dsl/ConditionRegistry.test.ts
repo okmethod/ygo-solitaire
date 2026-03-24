@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/dsl/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { createMockGameState, createCardInstances } from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState, createCardInstances } from "../../../__testUtils__";
 
 /**
  * ConditionRegistry Tests

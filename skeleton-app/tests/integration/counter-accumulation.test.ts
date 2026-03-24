@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { createMockGameState } from "../__testUtils__/gameStateFactory";
+import { createMockGameState } from "../__testUtils__";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
 import type { GameEvent } from "$lib/domain/models/GameProcessing";

@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { createMockGameState } from "../../../__testUtils__/gameStateFactory";
+import { createMockGameState } from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 // Note: ChainableActionRegistry は setup.ts で初期化済み
 
