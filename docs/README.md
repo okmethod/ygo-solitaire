@@ -83,7 +83,7 @@ specs/
 - **フレームワーク**: SvelteKit + Svelte 5
 - **UI ライブラリ**: Skeleton UI v3
 - **CSS**: TailwindCSS v4
-- **状態管理**: Svelte Stores + Immer.js（不変性保証）
+- **状態管理**: Svelte Stores
 - **型チェック**: TypeScript (Strict mode)
 - **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）
 

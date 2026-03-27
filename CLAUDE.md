@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+---
+
 ## 基本ルール
 
 - **回答は日本語で行う**
@@ -7,6 +9,8 @@
 - **コンテキスト管理のためサブエージェントを活用する**:
   - 広範囲の調査・解析には **Explore/Plan サブエージェントを優先使用** し、メインスレッドを保護する
   - 独立したタスクは適宜サブエージェントへ委譲し、トークン効率化を徹底する
+
+---
 
 ## CLAUDE.md 運用方針
 
@@ -29,6 +33,8 @@
 - **アーキテクチャ**: 4 層 Clean Architecture（詳細: [docs/architecture/overview.md](docs/architecture/overview.md)）
 - **フロントエンド**: SvelteKit + Skeleton UI + TailwindCSS (`skeleton-app/`)
 
+---
+
 ## ドキュメント体系
 
 **重要**: 新規セッション開始時は必ず [docs/README.md](docs/README.md) から読み始める
@@ -38,12 +44,13 @@
 
 必要な情報は都度`docs/`から読み込むこと。CLAUDE.md にすべて記載しない。
 
+---
+
 ## 開発時の重要ルール
 
 - **Svelte 5 Runes モード**: `$state`, `$derived`, `$effect`を活用
+- **レイヤー境界**: ドメイン層 / アプリ層 / インフラ層の責務を常に意識
 - **不変性保持**: 状態は `readonly` のメンバを使用
-- **レイヤー境界**: ドメイン層に Svelte/UI 依存コードを書かない
-- **スタイル**: 可能な限り TailwindCSS を使用
 
 ---
 
@@ -56,62 +63,16 @@
 
 ### コミット前チェックリスト
 
-1. **テスト実行**: `npm run test:run`（残存プロセスは自動クリーンアップ）
+1. **テスト実行**: `npm run test:run`
 2. **Lint/Format**: `npm run lint && npm run format`
-3. **tasks.md 更新**: 完了タスクを`[x]`にマーク（重要！）
-4. コミット・push・PR 作成
-
-**注**: テスト実行後、vitest や playwright の残存プロセスは`posttest`スクリプトで自動的にクリーンアップされます。手動クリーンアップは不要です。
+3. コミット・push・PR 作成
 
 ### よく使うコマンド（skeleton-app/内）
 
 ```bash
-# 開発
-npm run dev           # 開発サーバー起動
-npm run build         # ビルド
-
 # テスト・品質チェック
-npm run test:run      # テスト実行（実行後に自動クリーンアップ）
-npm run test:e2e      # E2Eテスト（実行後に自動クリーンアップ）
-npm run lint          # ESLint + Prettier
-npm run format        # Prettier format
-
-# デプロイ
-npm run deploy        # GitHub Pages
+npm run lint          # prettier check + eslint
+npm run format        # prettier format
+npm run check         # svelte-check --tsconfig
+npm run test:run      # vitest run
 ```
-
----
-
-## spec-kit ワークフロー
-
-次の機能開発では以下のワークフローを試す:
-
-- `/speckit.specify` - 仕様作成（Explore サブエージェントによる既存設計調査を推奨）
-- `/speckit.plan` - 実装計画作成（Plan サブエージェントによる技術的依存関係分析を推奨）
-- `/speckit.tasks` - タスク生成（サブエージェントによる整合性と分割の検証）
-- `/speckit.implement` - タスク実行 + タスク進捗の記録（ tasks.md の更新）
-  - **サブエージェント隔離対象**: テスト・Lint 実行、詳細な型調査、大規模な既存資源調査、外部ライブラリの調査、規約適合性チェック、等
-  - **メインスレッド**: 修正の完了報告と、次に進むべき判断に集中する
-
-### タスク ID 管理ルール
-
-- **spec 実装中**: タスク ID（T0xx）をコメントに記載して作業効率を上げる
-  - **コミットメッセージ**: タスク ID を含めて OK（履歴として有用）
-- **spec 完了後**: ストック情報（ソースコード、`docs/`）から、タスク ID を削除する
-
----
-
-## 直近の作業記録
-
-必要に応じて、`specs/`の番号の大きいものから読み込むこと。
-適宜、git log も参照する。
-
-キャッシュ目的で、直近の作業だけをここに書く。
-すべてを CLAUDE.md に記載することはしない。
-単純追加するのではなく、追加したら古いものを削除するなど。
-
-## Active Technologies
-
-- TypeScript 5.0 (ES2022), Svelte 5 (Runes mode), SvelteKit 2, Immer.js (immutability), Vitest (unit testing), Playwright (E2E testing), TailwindCSS (styling), Skeleton UI
-- Effect Model: ChainableAction (カード効果), AdditionalRule (永続効果)
-- N/A (フロントエンドのみ、状態はメモリ内)

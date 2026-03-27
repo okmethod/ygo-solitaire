@@ -43,7 +43,7 @@ Presentation Layer   : UI（Skeleton v3）
 **技術スタック**:
 
 - **フロントエンド**: Skeleton v3 (Svelte v5 + TailwindCSS v4 + Skeleton UI v3)
-- **状態管理**: Svelte Stores + Immer.js（不変性保証）
+- **状態管理**: Svelte Stores
 - **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）
 
 詳細は [docs/architecture/overview.md](docs/architecture/overview.md) を参照してください。
