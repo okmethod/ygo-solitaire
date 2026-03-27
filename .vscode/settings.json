@@ -1,7 +1,6 @@
 {
   "files.exclude": {
     "docs": true,
-    "specs": true,
     "skeleton-app": true
   },
   "[makefile]": {

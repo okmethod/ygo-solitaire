@@ -20,10 +20,6 @@
       "name": "design-docs",
       "path": "docs",
     },
-    {
-      "name": "speckit-specs",
-      "path": "specs",
-    },
   ],
   "settings": {
     "editor.tabSize": 2,
