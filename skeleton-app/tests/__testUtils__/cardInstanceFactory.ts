@@ -195,6 +195,7 @@ export function createFieldCardInstance(options: {
   placedThisTurn?: boolean;
   counters?: readonly CounterState[];
   spellType?: SpellSubType;
+  equippedTo?: string;
 }): CardInstance {
   return {
     instanceId: options.instanceId,
@@ -211,6 +212,7 @@ export function createFieldCardInstance(options: {
       placedThisTurn: options.placedThisTurn ?? false,
       counters: options.counters ?? [],
       activatedEffects: new Set(),
+      equippedTo: options.equippedTo,
     },
   };
 }

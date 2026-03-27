@@ -62,7 +62,7 @@ describe("assertValidGameState", () => {
       const state = createMockGameState({
         space: {
           mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-          extraDeck: createCardInstances(Array(16).fill(TEST_CARD_IDS.SYNCHRO), "extraDeck"),
+          extraDeck: createCardInstances(Array(16).fill(TEST_CARD_IDS.DUMMY), "extraDeck"),
         },
       });
 

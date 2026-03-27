@@ -26,6 +26,11 @@ export const TEST_CARD_IDS = {
   TRAP_NORMAL: 1007,
 } as const;
 
+/** トークンテスト用カードID定数 */
+export const TOKEN_TEST_CARD_IDS = {
+  BASIC_TOKEN: 5001,
+} as const;
+
 /** シンクロ召喚テスト用カードID定数 */
 export const SYNCHRO_TEST_CARD_IDS = {
   // チューナーモンスター

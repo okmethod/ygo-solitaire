@@ -244,3 +244,24 @@ CardDataRegistry.register(4008, {
   defense: 2500,
   edition: "latest",
 });
+
+// トークンモンスター
+CardDataRegistry.register(5001, {
+  jaName: "Test Token",
+  type: "monster",
+  frameType: "token",
+  race: "Warrior",
+  level: 1,
+  attack: 0,
+  defense: 0,
+  edition: "latest",
+});
+
+// 罠カード
+CardDataRegistry.register(1007, {
+  jaName: "Test Trap 1",
+  type: "trap",
+  frameType: "trap",
+  trapType: "normal",
+  edition: "latest",
+});

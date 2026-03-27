@@ -119,7 +119,7 @@ describe("GenericEquipSpellActivation - インスタンス生成", () => {
 describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
   it("SELECT_TARGET_* ステップがない場合はデフォルト対象選択を使用", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "NOTIFY_ACTIVATION", args: {} }],
+      activations: [{ step: "SHUFFLE_DECK", args: {} }],
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
@@ -153,8 +153,8 @@ describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
 
   it("SELECT_TARGET_FROM_FIELD ステップで明示的対象選択を使用", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "SELECT_TARGET_FROM_FIELD", args: { location: "mainMonsterZone" } }],
-      resolutions: [{ step: "DESTROY", args: {} }],
+      activations: [{ step: "SELECT_TARGET_FROM_FIELD_BY_RACE", args: { race: "spellcaster" } }],
+      resolutions: [{ step: "RELEASE", args: {} }],
     };
 
     const activation = createGenericEquipSpellActivation(TEST_EQUIP_CARD_ID, dsl);
