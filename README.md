@@ -22,8 +22,7 @@ ygo-solitaire/
 │
 ├── docs               # ストック情報（永続的な情報）
 │   ├── domain/        # ドメイン知識: ゲームルール
-│   ├── architecture/  # アーキテクチャ: 技術的な構成・方針
-│   └── adr/           # ADR: 設計判断の記録
+│   └── architecture/  # アーキテクチャ: 技術的な構成・方針
 │
 └── specs              # フロー情報（spec-kit による作業記録）
 ```

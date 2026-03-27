@@ -257,4 +257,3 @@ skeleton-app/src/lib/presentation/
 - [Card モデル設計](./card-model-design.md) - ドメイン内の静的データモデルと外部 API 由来のデータ統合
 - [Effect モデル設計](./effect-model-design.md) - 効果処理の配置設計
 - [テスト戦略](./testing-strategy.md) - テストの方針と実装方法
-- [設計判断記録](../adr/) - アーキテクチャ上の重要な決定を記録
