@@ -10,7 +10,7 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
-import { moveCardFromFieldWithReplacement } from "$lib/domain/effects/helpers/departureReplacement";
+import { moveCardFromFieldOverride } from "$lib/domain/dsl/overrides/handlers/fieldDepartureDestination";
 import { executeSpecialSummon } from "$lib/domain/rules/SummonRule";
 
 // ===========================
@@ -165,7 +165,7 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
         return GameProcessing.Result.failure(currentState, "シンクロ召喚をキャンセルしました");
       }
 
-      // 素材を墓地へ送る（ActionReplacementルールを適用）
+      // 素材を墓地へ送る（ActionOverrideルールを適用）
       let updatedSpace = currentState.space;
       const releaseEvents: GameEvent[] = [];
 
@@ -173,7 +173,7 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
         const card = GameState.Space.findCard(updatedSpace, instanceId);
         if (card) {
           const tempState: GameSnapshot = { ...currentState, space: updatedSpace };
-          updatedSpace = moveCardFromFieldWithReplacement(tempState, card, "graveyard");
+          updatedSpace = moveCardFromFieldOverride(tempState, card, "graveyard");
           releaseEvents.push({
             type: "sentToGraveyard",
             sourceCardId: card.id,

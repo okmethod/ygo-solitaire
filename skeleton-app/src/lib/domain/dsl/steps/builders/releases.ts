@@ -16,6 +16,7 @@ import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/m
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
+import { moveCardFromFieldOverride } from "$lib/domain/dsl/overrides/handlers/fieldDepartureDestination";
 import { selectCardsStep } from "../primitives/userInteractions";
 
 // ===========================
@@ -30,15 +31,20 @@ export type ReleaseResult = {
   events: GameEvent[];
 };
 
-/** 指定されたモンスターをリリース（墓地へ送る）する共通処理 */
-function releaseMonsters(space: CardSpace, instanceIds: string[]): ReleaseResult {
-  let updatedSpace = space;
+/** 指定されたモンスターをリリース（墓地へ送る）する共通処理
+ *
+ * ActionOverrideルール（フィールド離脱時の移動先置換）を適用する。
+ */
+function releaseMonsters(state: GameSnapshot, instanceIds: string[]): ReleaseResult {
+  let updatedSpace = state.space;
   const events: GameEvent[] = [];
 
   for (const instanceId of instanceIds) {
     const card = GameState.Space.findCard(updatedSpace, instanceId);
     if (card) {
-      updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
+      // ActionOverrideルールを適用して移動
+      const currentState: GameSnapshot = { ...state, space: updatedSpace };
+      updatedSpace = moveCardFromFieldOverride(currentState, card, "graveyard");
       events.push({
         type: "sentToGraveyard",
         sourceCardId: card.id,
@@ -104,8 +110,8 @@ export const selectAndReleaseStep = (config: SelectAndReleaseConfig): AtomicStep
       // リリース前にカード情報を取得（ダメージ計算等に使用）
       const releasedCards = selectedIds.map((id) => GameState.Space.findCard(currentState.space, id)!);
 
-      // リリース実行
-      const { space, events } = releaseMonsters(currentState.space, selectedIds);
+      // リリース実行（ActionOverrideルールを適用）
+      const { space, events } = releaseMonsters(currentState, selectedIds);
 
       const updatedState: GameSnapshot = { ...currentState, space };
 
