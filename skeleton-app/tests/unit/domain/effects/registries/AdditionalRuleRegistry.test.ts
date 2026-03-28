@@ -170,7 +170,7 @@ describe("AdditionalRuleRegistry", () => {
       const cardId = 67616300;
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission");
       const modifierRule = new MockAdditionalRule("Modifier", true, "StatusModifier");
-      const replacementRule = new MockAdditionalRule("Replacement", true, "ActionReplacement");
+      const replacementRule = new MockAdditionalRule("Replacement", true, "ActionOverride");
 
       AdditionalRuleRegistry.register(cardId, permissionRule);
       AdditionalRuleRegistry.register(cardId, modifierRule);

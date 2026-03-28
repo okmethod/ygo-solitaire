@@ -11,7 +11,7 @@ import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
 /**
  * AdditionalRule の効果カテゴリ
  * - continuous: 永続効果
- * - unclassified: 分類されない効果（別名ルール効果） TODO: 将来追加
+ * - unclassified: 分類されない効果（別名ルール効果）
  * - nonEffect: 効果外テキスト TODO: 将来追加
  */
 export type RuleEffectCategory = "continuous";
@@ -27,7 +27,7 @@ export const RULE_CATEGORIES = [
   "ActionPermission", // 行動制限（例: 攻撃不可、効果発動不可、ダメージ無効化）
   "VictoryCondition", // 特殊勝利判定（例: エクゾディア）
   // 処理置換・処理フック系
-  "ActionReplacement", // 破壊耐性、身代わり効果（例: スターダスト・ドラゴン）
+  "ActionOverride", // 破壊耐性、身代わり効果（例: スターダスト・ドラゴン）
   "SelfDestruction", // 維持コスト、自壊（例: ペンデュラム地帯）
   // イベント駆動系
   "TriggerRule", // イベント発生時に自動実行（例: 王立魔法図書館）
@@ -102,7 +102,7 @@ export interface AdditionalRule {
   checkPermission?(state: GameSnapshot): boolean;
 
   /**
-   * 処理置換・フック系（ActionReplacement, SelfDestruction）
+   * 処理置換・フック系（ActionOverride, SelfDestruction）
    *
    * 処理を別の処理に置き換える。
    * - 破壊される → 破壊されない

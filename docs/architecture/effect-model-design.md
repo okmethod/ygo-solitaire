@@ -92,17 +92,17 @@ YGO Solitaire の Effect モデルは、Clean Architecture の 3 層構造で設
 
 **RuleCategory の分類**
 
-| カテゴリ            | 用途                     | 使用メソッド           |
-| ------------------- | ------------------------ | ---------------------- |
-| `NameOverride`      | カード名変更             | `apply()`              |
-| `StatusModifier`    | 攻撃力/守備力変更        | `apply()`              |
-| `SummonCondition`   | 特殊召喚条件             | `checkPermission()`    |
-| `SummonPermission`  | 召喚制限                 | `checkPermission()`    |
-| `ActionPermission`  | 行動制限（攻撃不可等）   | `checkPermission()`    |
-| `VictoryCondition`  | 特殊勝利判定             | `checkPermission()`    |
-| `ActionReplacement` | 破壊耐性、身代わり効果   | `replace()`            |
-| `SelfDestruction`   | 維持コスト、自壊         | `replace()`            |
-| `TriggerRule`       | イベント発生時に自動実行 | `createTriggerSteps()` |
+| カテゴリ           | 用途                     | 使用メソッド           |
+| ------------------ | ------------------------ | ---------------------- |
+| `NameOverride`     | カード名変更             | `apply()`              |
+| `StatusModifier`   | 攻撃力/守備力変更        | `apply()`              |
+| `SummonCondition`  | 特殊召喚条件             | `checkPermission()`    |
+| `SummonPermission` | 召喚制限                 | `checkPermission()`    |
+| `ActionPermission` | 行動制限（攻撃不可等）   | `checkPermission()`    |
+| `VictoryCondition` | 特殊勝利判定             | `checkPermission()`    |
+| `ActionOverride`   | 破壊耐性、身代わり効果   | `override()`           |
+| `SelfDestruction`  | 維持コスト、自壊         | `override()`           |
+| `TriggerRule`      | イベント発生時に自動実行 | `createTriggerSteps()` |
 
 ---
 
