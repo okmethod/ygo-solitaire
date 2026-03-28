@@ -1,0 +1,13 @@
+# 《日本語名》 (English Name)
+#
+# カードの発動:
+# - CONDITIONS: {発動条件}
+# - ACTIVATIONS: {発動時の処理(コスト)}
+# - RESOLUTIONS: {解決時の処理(効果)}
+
+id: 99999999
+
+data:
+  jaName: "{日本語名}"
+  type: "{カード種別}"
+  frameType: "{フレームタイプ}"
