@@ -213,11 +213,20 @@ export function executeSpecialSummon(
   state: GameSnapshot,
   cardInstanceId: string,
   battlePosition: BattlePosition,
-): GameSnapshot {
+): { state: GameSnapshot; event: GameEvent } {
   const card = GameState.Space.findCard(state.space, cardInstanceId)!;
   const updatedSpace = GameState.Space.moveCard(state.space, card, "mainMonsterZone", {
     position: "faceUp",
     battlePosition,
   });
-  return { ...state, space: updatedSpace };
+  const updatedState = { ...state, space: updatedSpace };
+  const summonedCard = GameState.Space.findCard(updatedState.space, cardInstanceId)!;
+  return {
+    state: updatedState,
+    event: {
+      type: "specialSummoned",
+      sourceCardId: summonedCard.id,
+      sourceInstanceId: summonedCard.instanceId,
+    },
+  };
 }

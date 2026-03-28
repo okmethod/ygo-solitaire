@@ -105,19 +105,21 @@ const internalSpecialSummonStep = (
       // 特殊召喚を実行
       const instanceId = selectedInstanceIds[0];
       const card = GameState.Space.findCard(currentState.space, instanceId)!;
-      let updatedState = executeSpecialSummon(currentState, instanceId, battlePosition);
+      const { state: summonedState, event: summonEvent } = executeSpecialSummon(
+        currentState,
+        instanceId,
+        battlePosition,
+      );
 
       // 必要ならシャッフル
-      if (shuffleAfter) {
-        updatedState = {
-          ...updatedState,
-          space: GameState.Space.shuffleMainDeck(updatedState.space),
-        };
-      }
+      const updatedState = shuffleAfter
+        ? { ...summonedState, space: GameState.Space.shuffleMainDeck(summonedState.space) }
+        : summonedState;
 
       return GameProcessing.Result.success(
         updatedState,
         `Special summoned ${card.jaName} in ${battlePosition} position`,
+        [summonEvent],
       );
     },
   };
@@ -279,17 +281,24 @@ export const specialSummonFromContextStep = (
       }
 
       // 4. 特殊召喚を実行
-      let updatedState = executeSpecialSummon(state, targetInstanceId, battlePosition);
+      const { state: summonedState, event: summonEvent } = executeSpecialSummon(
+        state,
+        targetInstanceId,
+        battlePosition,
+      );
 
       // 5. コンテキストをクリア（オプション）
-      if (clearContext) {
-        updatedState = {
-          ...updatedState,
-          activationContexts: GameState.ActivationContext.clear(updatedState.activationContexts, effectId),
-        };
-      }
+      const updatedState = clearContext
+        ? {
+            ...summonedState,
+            activationContexts: GameState.ActivationContext.clear(summonedState.activationContexts, effectId),
+          }
+        : summonedState;
 
-      return GameProcessing.Result.success(updatedState, `Special summoned ${targetCard.jaName} from graveyard`);
+      // 6. 特殊召喚成功イベントを発行
+      return GameProcessing.Result.success(updatedState, `Special summoned ${targetCard.jaName} from graveyard`, [
+        summonEvent,
+      ]);
     },
   };
 };

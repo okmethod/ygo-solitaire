@@ -10,6 +10,8 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
+import { moveCardFromFieldWithReplacement } from "$lib/domain/effects/helpers/departureReplacement";
+import { executeSpecialSummon } from "$lib/domain/rules/SummonRule";
 
 // ===========================
 // シンクロ召喚判定
@@ -163,14 +165,15 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
         return GameProcessing.Result.failure(currentState, "シンクロ召喚をキャンセルしました");
       }
 
-      // 素材を墓地へ送る
+      // 素材を墓地へ送る（ActionReplacementルールを適用）
       let updatedSpace = currentState.space;
       const releaseEvents: GameEvent[] = [];
 
       for (const instanceId of selectedIds) {
         const card = GameState.Space.findCard(updatedSpace, instanceId);
         if (card) {
-          updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
+          const tempState: GameSnapshot = { ...currentState, space: updatedSpace };
+          updatedSpace = moveCardFromFieldWithReplacement(tempState, card, "graveyard");
           releaseEvents.push({
             type: "sentToGraveyard",
             sourceCardId: card.id,
@@ -179,15 +182,18 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
         }
       }
 
-      // シンクロモンスターを特殊召喚
-      const summonedMonster = GameState.Space.findCard(updatedSpace, cardInstanceId)!;
-      updatedSpace = GameState.Space.moveCard(updatedSpace, summonedMonster, "mainMonsterZone", {
-        position: "faceUp",
-        battlePosition: "attack",
-      });
+      // シンクロモンスターを特殊召喚（executeSpecialSummon を使用）
+      const tempState: GameSnapshot = { ...currentState, space: updatedSpace };
+      const { state: summonedState, event: specialSummonEvent } = executeSpecialSummon(
+        tempState,
+        cardInstanceId,
+        "attack",
+      );
+      const summonedMonster = GameState.Space.findCard(summonedState.space, cardInstanceId)!;
 
       const emittedEvents: GameEvent[] = [
         ...releaseEvents,
+        specialSummonEvent,
         {
           type: "synchroSummoned" as const,
           sourceCardId: summonedMonster.id,
@@ -196,7 +202,7 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
       ];
 
       return GameProcessing.Result.success(
-        { ...currentState, space: updatedSpace },
+        summonedState,
         `${Card.nameWithBrackets(summonedMonster)}をシンクロ召喚しました`,
         emittedEvents,
       );

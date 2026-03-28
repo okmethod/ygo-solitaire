@@ -126,7 +126,11 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
       const stateAfterGraveyard: GameSnapshot = { ...currentState, space: spaceAfterGraveyard };
 
       // 2. 特殊召喚を実行
-      const finalState = executeSpecialSummon(stateAfterGraveyard, selectedInstanceId, battlePosition);
+      const { state: finalState, event: summonEvent } = executeSpecialSummon(
+        stateAfterGraveyard,
+        selectedInstanceId,
+        battlePosition,
+      );
 
       // メッセージ生成
       const graveyardNames = cardsToGraveyard.map((c) => c.jaName).join("、");
@@ -135,7 +139,7 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
           ? `${graveyardNames}を墓地へ送り、${monsterCard.jaName}を特殊召喚しました`
           : `${monsterCard.jaName}を特殊召喚しました`;
 
-      return GameProcessing.Result.success(finalState, message, graveyardEvents);
+      return GameProcessing.Result.success(finalState, message, [...graveyardEvents, summonEvent]);
     },
   };
 };
@@ -254,7 +258,13 @@ export const excavateUntilMonsterWithLevelCheckStep = (
         if (!validation.isValid) {
           return GameProcessing.Result.failure(stateAfterGraveyard, GameProcessing.Validation.errorMessage(validation));
         }
-        stateAfterGraveyard = executeSpecialSummon(stateAfterGraveyard, selectedInstanceId, battlePosition);
+        const { state: summonedState, event: summonEvent } = executeSpecialSummon(
+          stateAfterGraveyard,
+          selectedInstanceId,
+          battlePosition,
+        );
+        stateAfterGraveyard = summonedState;
+        graveyardEvents.push(summonEvent);
         message = `${graveyardPart}${monsterCard.jaName}（レベル${monsterLevel}）を特殊召喚しました`;
       }
 

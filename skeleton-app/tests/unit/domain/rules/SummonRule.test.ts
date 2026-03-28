@@ -322,7 +322,7 @@ describe("SummonRule", () => {
       });
 
       // Act
-      const result = executeSpecialSummon(state, monster.instanceId, "attack");
+      const { state: result, event } = executeSpecialSummon(state, monster.instanceId, "attack");
 
       // Assert
       expect(result.space.hand.length).toBe(0);
@@ -330,6 +330,8 @@ describe("SummonRule", () => {
       const summonedMonster = result.space.mainMonsterZone[0];
       expect(summonedMonster.stateOnField?.position).toBe("faceUp");
       expect(summonedMonster.stateOnField?.battlePosition).toBe("attack");
+      expect(event.type).toBe("specialSummoned");
+      expect(event.sourceInstanceId).toBe(monster.instanceId);
     });
 
     it("should move monster from hand to monster zone in defense position", () => {
@@ -340,7 +342,7 @@ describe("SummonRule", () => {
       });
 
       // Act
-      const result = executeSpecialSummon(state, monster.instanceId, "defense");
+      const { state: result } = executeSpecialSummon(state, monster.instanceId, "defense");
 
       // Assert
       const summonedMonster = result.space.mainMonsterZone[0];
@@ -360,7 +362,7 @@ describe("SummonRule", () => {
       });
 
       // Act
-      const result = executeSpecialSummon(state, synchro.instanceId, "attack");
+      const { state: result } = executeSpecialSummon(state, synchro.instanceId, "attack");
 
       // Assert
       expect(result.space.extraDeck.length).toBe(0);
@@ -376,7 +378,7 @@ describe("SummonRule", () => {
       });
 
       // Act
-      const result = executeSpecialSummon(state, monster.instanceId, "attack");
+      const { state: result } = executeSpecialSummon(state, monster.instanceId, "attack");
 
       // Assert
       expect(result.normalSummonUsed).toBe(0); // Should remain 0
