@@ -70,6 +70,7 @@ describe("StepRegistry - 登録済みステップ", () => {
 describe("StepRegistry - エラーケース", () => {
   it("未登録ステップでエラーをスローする", () => {
     expect(() => {
+      // @ts-expect-error - 意図的に未知のステップ名を使用
       buildStep("UNKNOWN_STEP", {}, createTestContext());
     }).toThrow('Unknown step "UNKNOWN_STEP"');
   });
@@ -122,6 +123,7 @@ describe("StepRegistry - ユーティリティ", () => {
 
   it("isRegistered で登録状態をチェックできる", () => {
     expect(AtomicStepRegistry.isRegistered("DRAW")).toBe(true);
+    // @ts-expect-error - 意図的に未知のステップ名を使用
     expect(AtomicStepRegistry.isRegistered("UNKNOWN")).toBe(false);
   });
 });

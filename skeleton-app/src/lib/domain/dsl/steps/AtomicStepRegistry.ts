@@ -11,6 +11,7 @@
 
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import type { StepBuildContext, StepBuilderFn } from "$lib/domain/dsl/types";
+import type { StepName } from "./StepNames";
 
 /**
  * AtomicStepRegistry - ステップのレジストリ（クラス）
@@ -20,7 +21,7 @@ import type { StepBuildContext, StepBuilderFn } from "$lib/domain/dsl/types";
  */
 export class AtomicStepRegistry {
   /** 登録済みステップのマップ (Step Name → StepBuilder) */
-  private static steps = new Map<string, StepBuilderFn>();
+  private static steps = new Map<StepName, StepBuilderFn>();
 
   // ===========================
   // 登録API
@@ -33,7 +34,7 @@ export class AtomicStepRegistry {
    * @param builder - ステップビルダー関数
    * @throws Error - 既に登録済みの場合
    */
-  static register(stepName: string, builder: StepBuilderFn): void {
+  static register(stepName: StepName, builder: StepBuilderFn): void {
     if (this.steps.has(stepName)) {
       throw new Error(`Step "${stepName}" is already registered`);
     }
@@ -53,7 +54,11 @@ export class AtomicStepRegistry {
    * @returns 生成されたAtomicStep
    * @throws Error - 未登録のステップ名の場合
    */
-  static build(stepName: string, args: Readonly<Record<string, unknown>> = {}, context: StepBuildContext): AtomicStep {
+  static build(
+    stepName: StepName,
+    args: Readonly<Record<string, unknown>> = {},
+    context: StepBuildContext,
+  ): AtomicStep {
     const builder = this.steps.get(stepName);
     if (!builder) {
       throw new Error(
@@ -66,15 +71,15 @@ export class AtomicStepRegistry {
   /**
    * ステップが登録されているかチェックする
    */
-  static isRegistered(stepName: string): boolean {
+  static isRegistered(stepName: StepName): boolean {
     return this.steps.has(stepName);
   }
 
   /**
    * 登録されているステップ名一覧を取得する
    */
-  static getRegisteredNames(): readonly string[] {
-    return Array.from(this.steps.keys());
+  static getRegisteredNames(): readonly StepName[] {
+    return Array.from(this.steps.keys()) as StepName[];
   }
 
   // ===========================
