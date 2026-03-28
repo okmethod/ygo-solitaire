@@ -25,6 +25,7 @@ import magicalScientistYaml from "./monsters/effects/magical-scientist.yaml?raw"
 import CatapultTurtleYaml from "./monsters/effects/catapult-turtle.yaml?raw";
 import toonCannonSoldierYaml from "./monsters/effects/toon-cannon-soldier.yaml?raw";
 import treasurePandaYaml from "./monsters/effects/treasure-panda.yaml?raw";
+import darkMagicianOfChaosYaml from "./monsters/effects/dark-magician-of-chaos.yaml?raw";
 
 // 融合モンスター
 import crimsonSunbirdYaml from "./monsters/fusions/crimson-sunbird.yaml?raw";
@@ -99,6 +100,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [95727991, CatapultTurtleYaml], // カタパルト・タートル
   [79875176, toonCannonSoldierYaml], // トゥーン・キャノン・ソルジャー
   [45221020, treasurePandaYaml], // トレジャー・パンダー
+  [40737112, darkMagicianOfChaosYaml], // 混沌の黒魔術師
 
   // 融合モンスター
   [46696593, crimsonSunbirdYaml], // 紅陽鳥

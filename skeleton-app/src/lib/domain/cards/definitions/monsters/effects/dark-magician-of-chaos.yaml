@@ -1,0 +1,49 @@
+# 《混沌の黒魔術師》 (Dark Magician of Chaos)
+#
+# 誘発効果:
+# - CONDITIONS: このカードが召喚・特殊召喚に成功した時、自分の墓地に魔法カード1枚以上
+# - ACTIVATIONS: 無し
+# - RESOLUTIONS: 魔法カード1枚をサルベージ
+#
+# 分類されない効果:
+# - 表側表示のこのカードは、フィールドから離れた場合に除外される
+#
+# Note:
+# - レガシー版（エラッタ前）: エンドフェイズではなく、召喚・特殊召喚成功時に発動
+# - 戦闘破壊時除外する効果は未実装
+# - 本来は任意効果だが、一旦強制効果としている
+
+id: 40737112
+
+data:
+  jaName: "混沌の黒魔術師"
+  type: "monster"
+  frameType: "effect"
+  monsterTypeList: ["effect"]
+  edition: "legacy"
+  attribute: "DARK"
+  race: "Spellcaster"
+  level: 8
+  attack: 2800
+  defense: 2600
+
+effectChainableActions:
+  triggers:
+    - conditions:
+        trigger:
+          events: ["normalSummoned", "specialSummoned"]
+          timing: "when"
+          isMandatory: true
+          selfOnly: true
+        requirements:
+          - step: "GRAVEYARD_HAS_SPELL"
+            args: { minCount: 1 }
+      resolutions:
+        - step: "SALVAGE_FROM_GRAVEYARD"
+          args: { filterType: "spell", count: 1 }
+
+effectAdditionalRules:
+  unclassified:
+    - category: "ActionOverride"
+      override: "FIELD_DEPARTURE_DESTINATION"
+      args: { destination: "banished" }
