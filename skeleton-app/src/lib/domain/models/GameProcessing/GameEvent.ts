@@ -7,7 +7,7 @@
 /** イベント種別 */
 export const EVENT_TYPES = [
   "spellActivated", // 魔法カードが発動された
-  "monsterSummoned", // モンスターが通常召喚された
+  "normalSummoned", // モンスターが通常召喚された
   "specialSummoned", // モンスターが特殊召喚された
   "synchroSummoned", // シンクロ召喚に成功した
   "cardDestroyed", // カードが破壊された

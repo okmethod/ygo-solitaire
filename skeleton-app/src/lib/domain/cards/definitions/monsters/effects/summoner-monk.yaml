@@ -32,7 +32,7 @@ effectChainableActions:
   triggers:
     - conditions:
         trigger:
-          events: ["monsterSummoned"]
+          events: ["normalSummoned"]
           timing: "if"
           isMandatory: true
           selfOnly: true

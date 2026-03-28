@@ -192,13 +192,13 @@ describe("GenericContinuousTriggerRule - Multiple Triggers", () => {
     const dslDefinition: AdditionalRuleDSL = {
       category: "TriggerRule",
       conditions: {
-        trigger: { events: ["spellActivated", "monsterSummoned"] },
+        trigger: { events: ["spellActivated", "normalSummoned"] },
       },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1 } }],
     };
     const rule = new GenericContinuousTriggerRule(12345, dslDefinition);
 
     expect(rule.triggers).toContain("spellActivated");
-    expect(rule.triggers).toContain("monsterSummoned");
+    expect(rule.triggers).toContain("normalSummoned");
   });
 });

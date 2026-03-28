@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   emitSpellActivatedEventStep,
-  emitMonsterSummonedEventStep,
+  emitNormalSummonedEventStep,
   emitSentToGraveyardEventStep,
 } from "$lib/domain/dsl/steps/primitives/eventEmitters";
 import { createMockGameState, createTestMonsterCard, createTestSpellCard } from "../../../__testUtils__";
@@ -11,7 +11,7 @@ import { createMockGameState, createTestMonsterCard, createTestSpellCard } from 
  *
  * TEST STRATEGY:
  * - emitSpellActivatedEventStep が正しくイベントを発行すること
- * - emitMonsterSummonedEventStep が正しくイベントを発行すること
+ * - emitNormalSummonedEventStep が正しくイベントを発行すること
  * - emitSentToGraveyardEventStep が正しくイベントを発行すること
  * - イベントがトリガーシステムで検出可能な形式であること
  */
@@ -60,14 +60,14 @@ describe("emitSpellActivatedEventStep", () => {
 });
 
 // =============================================================================
-// emitMonsterSummonedEventStep のテスト
+// emitNormalSummonedEventStep のテスト
 // =============================================================================
 
-describe("emitMonsterSummonedEventStep", () => {
+describe("emitNormalSummonedEventStep", () => {
   it("モンスター召喚イベントを発行するステップを生成できる", () => {
     const monsterCard = createTestMonsterCard("monster-instance-1", { location: "mainMonsterZone" });
 
-    const step = emitMonsterSummonedEventStep(monsterCard);
+    const step = emitNormalSummonedEventStep(monsterCard);
 
     expect(step.id).toContain("emit-monster-summoned");
     expect(step.id).toContain("monster-instance-1");
@@ -75,11 +75,11 @@ describe("emitMonsterSummonedEventStep", () => {
     expect(step.notificationLevel).toBe("silent");
   });
 
-  it("action実行でmonsterSummonedイベントを発行する", () => {
+  it("action実行でnormalSummonedイベントを発行する", () => {
     const monsterCard = createTestMonsterCard("monster-instance-1", { location: "mainMonsterZone" });
     const state = createMockGameState();
 
-    const step = emitMonsterSummonedEventStep(monsterCard);
+    const step = emitNormalSummonedEventStep(monsterCard);
     const result = step.action(state);
 
     expect(result.success).toBe(true);
@@ -87,7 +87,7 @@ describe("emitMonsterSummonedEventStep", () => {
     expect(result.emittedEvents?.length).toBe(1);
 
     const event = result.emittedEvents?.[0];
-    expect(event?.type).toBe("monsterSummoned");
+    expect(event?.type).toBe("normalSummoned");
     expect(event?.sourceInstanceId).toBe("monster-instance-1");
   });
 
@@ -95,7 +95,7 @@ describe("emitMonsterSummonedEventStep", () => {
     const monsterCard = createTestMonsterCard("monster-instance-1", { location: "mainMonsterZone" });
     const state = createMockGameState();
 
-    const step = emitMonsterSummonedEventStep(monsterCard);
+    const step = emitNormalSummonedEventStep(monsterCard);
     const result = step.action(state);
 
     expect(result.updatedState).toEqual(state);
@@ -168,7 +168,7 @@ describe("イベント形式", () => {
     const state = createMockGameState();
 
     const spellStep = emitSpellActivatedEventStep(spell);
-    const monsterStep = emitMonsterSummonedEventStep(monster);
+    const monsterStep = emitNormalSummonedEventStep(monster);
     const graveyardStep = emitSentToGraveyardEventStep(monster);
 
     const spellResult = spellStep.action(state);
@@ -179,7 +179,7 @@ describe("イベント形式", () => {
     expect(spellResult.emittedEvents?.[0]).toHaveProperty("sourceCardId");
     expect(spellResult.emittedEvents?.[0]).toHaveProperty("sourceInstanceId");
 
-    // monsterSummoned
+    // normalSummoned
     expect(monsterResult.emittedEvents?.[0]).toHaveProperty("sourceCardId");
     expect(monsterResult.emittedEvents?.[0]).toHaveProperty("sourceInstanceId");
 
@@ -193,7 +193,7 @@ describe("イベント形式", () => {
     const spell = createTestSpellCard("test-spell", "normal", { location: "spellTrapZone" });
 
     expect(emitSpellActivatedEventStep(spell).notificationLevel).toBe("silent");
-    expect(emitMonsterSummonedEventStep(monster).notificationLevel).toBe("silent");
+    expect(emitNormalSummonedEventStep(monster).notificationLevel).toBe("silent");
     expect(emitSentToGraveyardEventStep(monster).notificationLevel).toBe("silent");
   });
 });

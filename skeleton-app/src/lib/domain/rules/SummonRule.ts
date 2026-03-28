@@ -10,7 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { emitMonsterSummonedEventStep } from "$lib/domain/dsl/steps/primitives/eventEmitters";
+import { emitNormalSummonedEventStep } from "$lib/domain/dsl/steps/primitives/eventEmitters";
 import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
 
 // ===========================
@@ -108,7 +108,7 @@ export function performNormalSummon(
     // 即座に召喚/セット（リリースなし）
     const updatedState = executeNormalSummon(state, cardInstanceId, battlePosition);
     const summonedInstance = GameState.Space.findCard(updatedState.space, cardInstanceId)!;
-    const activationSteps = isSet ? [] : [emitMonsterSummonedEventStep(summonedInstance)];
+    const activationSteps = isSet ? [] : [emitNormalSummonedEventStep(summonedInstance)];
 
     return {
       type: "immediate",
@@ -134,7 +134,7 @@ export function performNormalSummon(
           : [
               ...releaseEvents,
               {
-                type: "monsterSummoned" as const,
+                type: "normalSummoned" as const,
                 sourceCardId: summonedInstance.id,
                 sourceInstanceId: summonedInstance.instanceId,
               },

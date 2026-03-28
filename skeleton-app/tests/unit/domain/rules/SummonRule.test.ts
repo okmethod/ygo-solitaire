@@ -169,7 +169,7 @@ describe("SummonRule", () => {
           expect(result.state.space.mainMonsterZone.length).toBe(1);
           expect(result.state.space.hand.length).toBe(0);
           expect(result.message).toContain("召喚");
-          expect(result.activationSteps.length).toBe(1); // emitMonsterSummonedEventStep
+          expect(result.activationSteps.length).toBe(1); // emitNormalSummonedEventStep
         }
       });
 

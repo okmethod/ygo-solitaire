@@ -6,7 +6,7 @@
  *
  * 公開関数:
  * - emitSpellActivatedEventStep: 魔法カード発動イベントを発行
- * - emitMonsterSummonedEventStep: モンスター召喚イベントを発行
+ * - emitNormalSummonedEventStep: モンスター召喚イベントを発行
  * - emitSentToGraveyardEventStep: 墓地送りイベントを発行
  */
 
@@ -51,7 +51,7 @@ export function emitSpellActivatedEventStep(sourceInstance: CardInstance): Atomi
  * @param summonedInstance - 召喚されたモンスターカードのインスタンス
  * @returns AtomicStep
  */
-export function emitMonsterSummonedEventStep(summonedInstance: CardInstance): AtomicStep {
+export function emitNormalSummonedEventStep(summonedInstance: CardInstance): AtomicStep {
   return {
     id: `emit-monster-summoned-${summonedInstance.instanceId}`,
     summary: "モンスター召喚イベント",
@@ -60,7 +60,7 @@ export function emitMonsterSummonedEventStep(summonedInstance: CardInstance): At
     action: (state) =>
       GameProcessing.Result.success(state, undefined, [
         {
-          type: "monsterSummoned",
+          type: "normalSummoned",
           sourceCardId: summonedInstance.id,
           sourceInstanceId: summonedInstance.instanceId,
         },

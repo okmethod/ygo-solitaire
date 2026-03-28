@@ -128,13 +128,13 @@ describe("EventTimeline", () => {
       timeline = advanceTime(timeline);
 
       // Second event and advance
-      timeline = recordEvent(timeline, { type: "monsterSummoned", sourceCardId: 87654321, sourceInstanceId: "card-2" });
+      timeline = recordEvent(timeline, { type: "normalSummoned", sourceCardId: 87654321, sourceInstanceId: "card-2" });
       timeline = advanceTime(timeline);
 
       // Assert
       expect(timeline.history).toHaveLength(2);
       expect(timeline.history[0].events[0].type).toBe("spellActivated");
-      expect(timeline.history[1].events[0].type).toBe("monsterSummoned");
+      expect(timeline.history[1].events[0].type).toBe("normalSummoned");
       expect(timeline.nextTimestamp).toBe(3);
     });
   });
@@ -220,7 +220,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
       timeline = advanceTime(timeline);
-      timeline = recordEvent(timeline, { type: "monsterSummoned", sourceCardId: 87654321, sourceInstanceId: "card-2" });
+      timeline = recordEvent(timeline, { type: "normalSummoned", sourceCardId: 87654321, sourceInstanceId: "card-2" });
 
       // Act
       const result = clearHistory(timeline);
@@ -228,7 +228,7 @@ describe("EventTimeline", () => {
       // Assert
       expect(result.history).toEqual([]);
       expect(result.current.events).toHaveLength(1);
-      expect(result.current.events[0].type).toBe("monsterSummoned");
+      expect(result.current.events[0].type).toBe("normalSummoned");
     });
 
     it("should not mutate original timeline", () => {

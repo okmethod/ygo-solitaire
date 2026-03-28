@@ -91,7 +91,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
         trigger: {
-          events: ["monsterSummoned"],
+          events: ["normalSummoned"],
           timing: "when",
           isMandatory: false,
           selfOnly: true,
@@ -110,7 +110,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
         trigger: {
-          events: ["monsterSummoned", "synchroSummoned"],
+          events: ["normalSummoned", "synchroSummoned"],
           timing: "when",
           isMandatory: false,
           selfOnly: true,
@@ -121,7 +121,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
 
-    expect(effect.triggers).toEqual(["monsterSummoned", "synchroSummoned"]);
+    expect(effect.triggers).toEqual(["normalSummoned", "synchroSummoned"]);
     expect(effect.triggerTiming).toBe("when");
     expect(effect.isMandatory).toBe(false);
     expect(effect.selfOnly).toBe(true);
@@ -189,7 +189,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
   it("条件を満たす場合は canActivate が true を返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
         requirements: [{ step: "CAN_DRAW", args: { count: 2 } }],
       },
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
@@ -207,7 +207,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
   it("条件を満たさない場合は canActivate が false を返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
         requirements: [{ step: "CAN_DRAW", args: { count: 10 } }],
       },
       resolutions: [{ step: "DRAW", args: { count: 10 } }],
@@ -225,7 +225,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
   it("複数の条件がすべて満たされる場合は canActivate が true を返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
         requirements: [
           { step: "CAN_DRAW", args: { count: 1 } },
           { step: "CAN_DRAW", args: { count: 2 } },
@@ -246,7 +246,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
   it("複数の条件のうち1つでも満たさない場合は canActivate が false を返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
         requirements: [
           { step: "CAN_DRAW", args: { count: 1 } },
           { step: "CAN_DRAW", args: { count: 10 } }, // 満たさない
@@ -267,7 +267,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
   it("条件が定義されていない場合は常に canActivate が true を返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
@@ -290,7 +290,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
   it("createResolutionSteps で効果解決ステップを生成できる", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
       resolutions: [
         { step: "DRAW", args: { count: 2 } },
@@ -314,7 +314,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
   it("createActivationSteps で発動ステップを生成できる", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
@@ -332,7 +332,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
   it("activations が定義されていない場合は基底クラスのステップのみ返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
@@ -350,7 +350,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
   it("resolutions が定義されていない場合は基底クラスのステップのみ返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
     };
 
@@ -373,7 +373,7 @@ describe("GenericTriggerEffect - 基底クラス継承", () => {
   it("effectCategory は 'trigger' を返す", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
     };
 
@@ -385,7 +385,7 @@ describe("GenericTriggerEffect - 基底クラス継承", () => {
   it("effectId は正しい形式で生成される", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
     };
 
@@ -397,7 +397,7 @@ describe("GenericTriggerEffect - 基底クラス継承", () => {
   it("effectIndex が異なれば effectId も異なる", () => {
     const dsl: ChainableActionDSL = {
       conditions: {
-        trigger: { events: ["monsterSummoned"] },
+        trigger: { events: ["normalSummoned"] },
       },
     };
 

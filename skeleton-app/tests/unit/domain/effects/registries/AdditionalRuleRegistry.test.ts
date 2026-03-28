@@ -592,7 +592,7 @@ describe("AdditionalRuleRegistry", () => {
       const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
-      const results = AdditionalRuleRegistry.collectTriggerRules(state, "monsterSummoned");
+      const results = AdditionalRuleRegistry.collectTriggerRules(state, "normalSummoned");
 
       // Assert
       expect(results).toHaveLength(0);
