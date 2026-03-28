@@ -8,8 +8,7 @@
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { LocationName } from "$lib/domain/models/Location";
-import type { ActionOverrideHandler } from "../ActionOverrideRegistry";
-import type { DSLArgs } from "$lib/domain/dsl/types";
+import type { ActionOverrideHandler, DSLArgs } from "$lib/domain/dsl/types";
 import { Card } from "$lib/domain/models/Card";
 
 /** フィールド離脱時の移動先 */

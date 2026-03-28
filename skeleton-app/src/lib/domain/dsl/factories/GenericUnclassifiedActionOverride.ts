@@ -13,10 +13,9 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { RuleCategory } from "$lib/domain/models/Effect";
 import type { OverrideName } from "$lib/domain/dsl/overrides/OverrideNames";
-import type { ActionOverrideHandler } from "$lib/domain/dsl/overrides/ActionOverrideRegistry";
-import type { AdditionalRuleDSL, DSLArgs } from "$lib/domain/dsl/types";
+import type { ActionOverrideHandler, AdditionalRuleDSL, DSLArgs } from "$lib/domain/dsl/types";
 import { BaseUnclassifiedEffect } from "$lib/domain/effects/rules/unclassifieds/BaseUnclassifiedEffect";
-import { ActionOverrideRegistry } from "$lib/domain/dsl/overrides";
+import { createHandler } from "$lib/domain/dsl/overrides";
 
 /**
  * GenericUnclassifiedActionOverride - DSL定義に基づく分類されない効果の処理置換実装
@@ -54,7 +53,7 @@ export class GenericUnclassifiedActionOverride extends BaseUnclassifiedEffect {
 
     this.overrideName = dslDefinition.override;
     this.args = dslDefinition.args ?? {};
-    this.handler = ActionOverrideRegistry.createHandler(this.overrideName, cardId);
+    this.handler = createHandler(this.overrideName, cardId);
   }
 
   /**

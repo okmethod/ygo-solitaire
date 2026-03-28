@@ -18,7 +18,7 @@ import { createFieldDepartureDestinationHandler } from "./handlers/fieldDepartur
 
 export { ActionOverrideRegistry };
 export { OVERRIDE_NAMES, type OverrideName };
-export type { ActionOverrideHandler, OverrideHandlerFactory } from "./ActionOverrideRegistry";
+export const createHandler = ActionOverrideRegistry.create.bind(ActionOverrideRegistry);
 
 // ===========================
 // Override 登録

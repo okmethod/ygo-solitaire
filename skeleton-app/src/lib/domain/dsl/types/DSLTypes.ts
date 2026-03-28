@@ -58,3 +58,35 @@ export interface StepBuildContext {
  * 引数とコンテキストからAtomicStepを生成する。
  */
 export type StepBuilderFn = (args: DSLArgs, context: StepBuildContext) => AtomicStep;
+
+/**
+ * Override ハンドラの共通インターフェース
+ */
+export interface ActionOverrideHandler {
+  /**
+   * このオーバーライドが適用されるべきか判定
+   *
+   * @param state - 現在のゲーム状態
+   * @param card - 対象カード
+   * @param args - DSL で指定された引数
+   * @returns 適用すべきなら true
+   */
+  shouldApply(state: GameSnapshot, sourceInstance: CardInstance, args: DSLArgs): boolean;
+
+  /**
+   * オーバーライド結果を取得
+   *
+   * 戻り値の型はハンドラごとに異なる（unknown で汎用化）
+   *
+   * @param args - DSL で指定された引数
+   * @returns オーバーライド値
+   */
+  getOverrideValue(args: DSLArgs): unknown;
+}
+
+/**
+ * Override ハンドラファクトリ関数の型
+ *
+ * cardId を受け取り、そのカード専用の ActionOverrideHandler を返す。
+ */
+export type OverrideHandlerFactoryFn = (cardId: number) => ActionOverrideHandler;
