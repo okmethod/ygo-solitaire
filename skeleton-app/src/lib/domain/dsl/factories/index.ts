@@ -28,5 +28,8 @@ export { GenericEquipSpellActivation, createGenericEquipSpellActivation } from "
 // 誘発効果
 export { GenericTriggerEffect, createGenericTriggerEffect } from "./GenericTriggerEffect";
 
-// 永続効果（トリガールール）
+// 永続効果（TriggerRule）
 export { GenericContinuousTriggerRule } from "./GenericContinuousTriggerRule";
+
+// 分類されない効果（ActionOverride）
+export { GenericUnclassifiedActionOverride } from "./GenericUnclassifiedActionOverride";

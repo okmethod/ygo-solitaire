@@ -17,9 +17,11 @@ import { EVENT_TYPES } from "$lib/domain/models/GameProcessing/GameEvent";
 import { RULE_CATEGORIES, TRIGGER_TIMINGS } from "$lib/domain/models/Effect/AdditionalRule";
 import { CONDITION_NAMES, type ConditionName } from "$lib/domain/dsl/conditions/ConditionNames";
 import { STEP_NAMES, type StepName } from "$lib/domain/dsl/steps/StepNames";
+import { OVERRIDE_NAMES, type OverrideName } from "$lib/domain/dsl/overrides/OverrideNames";
 
 const conditionValues = Object.values(CONDITION_NAMES) as [ConditionName, ...ConditionName[]];
 const stepValues = Object.values(STEP_NAMES) as [StepName, ...StepName[]];
+const overrideValues = Object.values(OVERRIDE_NAMES) as [OverrideName, ...OverrideName[]];
 
 // =============================================================================
 // CardData スキーマ
@@ -78,6 +80,9 @@ export type CardDataDSL = z.infer<typeof CardDataDSLSchema>;
 // ChainableAction + AdditionalRule 共通スキーマ
 // =============================================================================
 
+/** DSLの引数オブジェクトスキーマ（共通） */
+const ArgsSchema = z.record(z.string(), z.any()).optional();
+
 /** EventType スキーマ */
 const EventTypeSchema = z.enum(EVENT_TYPES);
 
@@ -124,7 +129,7 @@ const RequirementDSLSchema = z.object({
   /** ConditionRegistryのキー */
   step: z.enum(conditionValues),
   /** ステップに渡す引数（オプション） */
-  args: z.record(z.string(), z.any()).optional(),
+  args: ArgsSchema,
 });
 
 /** 発動要件のDSL表現 */
@@ -155,7 +160,7 @@ const StepDSLSchema = z.object({
   /** StepRegistryのキー */
   step: z.enum(stepValues),
   /** ステップに渡す引数（オプション） */
-  args: z.record(z.string(), z.any()).optional(),
+  args: ArgsSchema,
 });
 
 /** ステップのDSL表現 */
@@ -202,8 +207,12 @@ const AdditionalRuleDSLSchema = z.object({
   category: RuleCategorySchema,
   /** 発動条件 */
   conditions: ConditionsDSLSchema.optional(),
-  /** 効果処理のステップリスト */
+  /** 効果処理のステップリスト（continuous用） */
   resolutions: z.array(StepDSLSchema).optional(),
+  /** Override 名（ActionOverride 用） */
+  override: z.enum(overrideValues).optional(),
+  /** ルール固有の引数（ActionOverride等、ステップを使わないルール用） */
+  args: ArgsSchema,
 });
 
 /** 追加適用するルールのDSL表現 */
@@ -239,10 +248,12 @@ export const CardDSLDefinitionSchema = z.object({
   /**
    * 追加適用するルール
    * - continuous: 永続効果（モンスター・魔法・罠）
+   * - unclassified: 分類されない効果（フィールド離脱時除外等）
    */
   effectAdditionalRules: z
     .object({
       continuous: z.array(AdditionalRuleDSLSchema).optional(),
+      unclassified: z.array(AdditionalRuleDSLSchema).optional(),
     })
     .optional(),
 });

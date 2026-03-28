@@ -113,14 +113,21 @@ Task tool を使用:
 - 利用可能なステップ名一覧: `skeleton-app/src/lib/domain/dsl/steps/StepNames.ts`
 - 各ビルダー実装パス: `skeleton-app/src/lib/domain/dsl/steps/builders/`
 
-### 3.4 不足要素の特定
+### 3.4 ActionOverride選定（処理置換が必要な場合）
 
-既存のファクトリ/Checker/Builderで実装できるか判定する。
+処理置換（例：フィールドを離れると除外される）が必要な場合に選定する。
+
+- 利用可能なOverride名一覧: `skeleton-app/src/lib/domain/dsl/overrides/OverrideNames.ts`
+- 各ハンドラ実装パス: `skeleton-app/src/lib/domain/dsl/overrides/handlers/`
+
+### 3.5 不足要素の特定
+
+既存のファクトリ/Checker/Builder/Overrideで実装できるか判定する。
 
 **既存要素で実装可能**: Phase 4へ進む
 **新規実装が必要**: 以下を特定しユーザーに報告
 
-- 必要な新規ファクトリ/Checker/Builder
+- 必要な新規ファクトリ/Checker/Builder/Override
 - 参考になる既存実装
 - 配置先の案（既存ファイルに追加実装 or 新規ファイルを作成して実装）
 - 実装の複雑さの見積もり
@@ -139,7 +146,8 @@ Phase 3の結果をユーザーに報告し、実装方針の合意を取る。
 2. 選定したファクトリ
 3. 選定したConditionChecker一覧
 4. 選定したStepBuilder一覧
-5. 新規実装が必要な要素（あれば）
+5. 選定したActionOverride一覧（処理置換が必要な場合）
+6. 新規実装が必要な要素（あれば）
 
 **ユーザー承認後、Phase 4へ進む**
 
@@ -147,7 +155,7 @@ Phase 3の結果をユーザーに報告し、実装方針の合意を取る。
 
 ## Phase 4: 実装フェーズ
 
-### 4.1 新規Checker/Builder追加（必要な場合のみ）
+### 4.1 新規Checker/Builder/Override追加（必要な場合のみ）
 
 ConditionChecker追加:
 
@@ -160,6 +168,12 @@ StepBuilder追加:
 1. `dsl/steps/builders/` に関数実装
 2. `dsl/steps/StepNames.ts` に名前登録
 3. `dsl/steps/index.ts` でエクスポート
+
+ActionOverrideHandler追加:
+
+1. `dsl/overrides/handlers/` に関数実装
+2. `dsl/overrides/OverrideNames.ts` に名前登録
+3. `dsl/overrides/index.ts` でエクスポート
 
 ### 4.2 YAML定義完成
 

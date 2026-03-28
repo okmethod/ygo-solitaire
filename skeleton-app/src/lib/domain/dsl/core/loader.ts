@@ -22,6 +22,7 @@ import {
   createGenericIgnitionEffect,
   createGenericTriggerEffect,
   GenericContinuousTriggerRule,
+  GenericUnclassifiedActionOverride,
 } from "$lib/domain/dsl/factories";
 import { parseCardDSL } from "./parsers";
 
@@ -120,6 +121,17 @@ function registerAdditionalRules(definition: CardDSLDefinition): void {
     for (const ruleDef of additionalRules.continuous) {
       const rule = new GenericContinuousTriggerRule(id, ruleDef);
       AdditionalRuleRegistry.register(id, rule);
+    }
+  }
+
+  // unclassified セクション（分類されない効果）
+  if (additionalRules.unclassified) {
+    for (const ruleDef of additionalRules.unclassified) {
+      // カテゴリに応じて適切なファクトリを使用
+      if (ruleDef.category === "ActionOverride") {
+        const rule = new GenericUnclassifiedActionOverride(id, ruleDef);
+        AdditionalRuleRegistry.register(id, rule);
+      }
     }
   }
 }
