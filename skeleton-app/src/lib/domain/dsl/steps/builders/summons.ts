@@ -338,6 +338,39 @@ export const specialSummonFromExtraDeckStepBuilder: StepBuilderFn = (args, conte
 };
 
 /**
+ * SPECIAL_SUMMON_FROM_DECK_BY_ATK - デッキから攻撃力フィルタでモンスターを特殊召喚
+ * args: {
+ *   maxAtk: number,
+ *   battlePosition?: BattlePosition
+ * }
+ */
+export const specialSummonFromDeckByAtkStepBuilder: StepBuilderFn = (args, context) => {
+  const maxAtk = ArgValidators.positiveInt(args, "maxAtk");
+  const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
+
+  const summary = `攻撃力${maxAtk}以下のモンスターを特殊召喚`;
+  const description = `デッキから攻撃力${maxAtk}以下のモンスター1体を特殊召喚します`;
+
+  const filter = (card: CardInstance): boolean => {
+    if (card.type !== "monster") return false;
+    if (card.attack === undefined || card.attack === null) return false;
+    return card.attack <= maxAtk;
+  };
+
+  return internalSpecialSummonStep(
+    {
+      id: `${context.cardId}-special-summon-from-deck-by-atk${maxAtk}`,
+      summary,
+      description,
+      filter,
+    },
+    "mainDeck",
+    battlePosition,
+    true,
+  );
+};
+
+/**
  * SPECIAL_SUMMON_FROM_CONTEXT - コンテキストから対象を特殊召喚
  * args: {
  *   battlePosition?: BattlePosition,

@@ -35,6 +35,7 @@ import { placeCounterStepBuilder, removeCounterStepBuilder } from "./builders/co
 import { changeBattlePositionStepBuilder } from "./builders/battlePosition";
 import {
   specialSummonFromDeckStepBuilder,
+  specialSummonFromDeckByAtkStepBuilder,
   specialSummonFromExtraDeckStepBuilder,
   specialSummonFromContextStepBuilder,
 } from "./builders/summons";
@@ -98,6 +99,7 @@ AtomicStepRegistry.register(S.REMOVE_COUNTER, removeCounterStepBuilder);
 // モンスター関連
 AtomicStepRegistry.register(S.CHANGE_BATTLE_POSITION, changeBattlePositionStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK, specialSummonFromDeckStepBuilder);
+AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_DECK_BY_ATK, specialSummonFromDeckByAtkStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_EXTRA_DECK, specialSummonFromExtraDeckStepBuilder);
 AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_CONTEXT, specialSummonFromContextStepBuilder);
 AtomicStepRegistry.register(S.CREATE_TOKEN_MONSTER, createTokenMonsterStepBuilder);
