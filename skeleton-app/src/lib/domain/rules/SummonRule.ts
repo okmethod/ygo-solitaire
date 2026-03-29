@@ -10,6 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { GameEvents } from "$lib/domain/models/GameProcessing/GameEvent";
 import { emitNormalSummonedEventStep } from "$lib/domain/dsl/steps/primitives/eventEmitters";
 import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
 
@@ -131,14 +132,7 @@ export function performNormalSummon(
         // リリースイベントは常に発行する
         const emittedEvents: GameEvent[] = isSet
           ? releaseEvents
-          : [
-              ...releaseEvents,
-              {
-                type: "normalSummoned" as const,
-                sourceCardId: summonedInstance.id,
-                sourceInstanceId: summonedInstance.instanceId,
-              },
-            ];
+          : [...releaseEvents, GameEvents.normalSummoned(summonedInstance)];
 
         return GameProcessing.Result.success(
           updatedState,
@@ -223,10 +217,6 @@ export function executeSpecialSummon(
   const summonedCard = GameState.Space.findCard(updatedState.space, cardInstanceId)!;
   return {
     state: updatedState,
-    event: {
-      type: "specialSummoned",
-      sourceCardId: summonedCard.id,
-      sourceInstanceId: summonedCard.instanceId,
-    },
+    event: GameEvents.specialSummoned(summonedCard),
   };
 }

@@ -11,6 +11,7 @@ import type { CardSpace, GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { GameEvents } from "$lib/domain/models/GameProcessing/GameEvent";
 import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
@@ -35,11 +36,7 @@ const sendCardsToGraveyard = (
 
   for (const card of cards) {
     updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
-    events.push({
-      type: "sentToGraveyard",
-      sourceCardId: card.id,
-      sourceInstanceId: card.instanceId,
-    });
+    events.push(...GameEvents.sentToGraveyard(card));
   }
 
   return { space: updatedSpace, events };

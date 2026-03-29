@@ -10,8 +10,9 @@
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, GameEvent, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { GameEvents } from "$lib/domain/models/GameProcessing/GameEvent";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { selectCardsStep } from "../primitives/userInteractions";
@@ -36,13 +37,11 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
       };
 
       // sentToGraveyard イベントを発行（誘発効果のトリガー用）
-      return GameProcessing.Result.success(updatedState, `Sent ${cardName} to graveyard`, [
-        {
-          type: "sentToGraveyard",
-          sourceCardId: card.id,
-          sourceInstanceId: card.instanceId,
-        },
-      ]);
+      return GameProcessing.Result.success(
+        updatedState,
+        `Sent ${cardName} to graveyard`,
+        GameEvents.sentToGraveyard(card),
+      );
     },
   };
 };
@@ -54,17 +53,12 @@ export const sendToGraveyardStep = (instanceId: string, cardName: string): Atomi
  */
 const sendMultipleToGraveyardResult = (state: GameSnapshot, instanceIds: string[]): GameStateUpdateResult => {
   let updatedSpace = state.space;
-  const events: Array<{ type: "sentToGraveyard"; sourceCardId: number; sourceInstanceId: string }> = [];
+  const events: GameEvent[] = [];
 
   for (const instanceId of instanceIds) {
     const card = GameState.Space.findCard(updatedSpace, instanceId)!;
     updatedSpace = GameState.Space.moveCard(updatedSpace, card, "graveyard");
-    // 各カードに対してイベントを記録
-    events.push({
-      type: "sentToGraveyard",
-      sourceCardId: card.id,
-      sourceInstanceId: card.instanceId,
-    });
+    events.push(...GameEvents.sentToGraveyard(card));
   }
 
   const updatedState = { ...state, space: updatedSpace };

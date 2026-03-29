@@ -14,6 +14,7 @@ import type { GameSnapshot, CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameStateUpdateResult, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { GameEvents } from "$lib/domain/models/GameProcessing/GameEvent";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { moveCardFromFieldOverride } from "$lib/domain/dsl/overrides/handlers/fieldDepartureDestination";
@@ -45,11 +46,7 @@ function releaseMonsters(state: GameSnapshot, instanceIds: string[]): ReleaseRes
       // ActionOverrideルールを適用して移動
       const currentState: GameSnapshot = { ...state, space: updatedSpace };
       updatedSpace = moveCardFromFieldOverride(currentState, card, "graveyard");
-      events.push({
-        type: "sentToGraveyard",
-        sourceCardId: card.id,
-        sourceInstanceId: card.instanceId,
-      });
+      events.push(...GameEvents.sentToGraveyard(card));
     }
   }
 

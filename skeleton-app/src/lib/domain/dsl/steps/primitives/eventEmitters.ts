@@ -7,12 +7,12 @@
  * 公開関数:
  * - emitSpellActivatedEventStep: 魔法カード発動イベントを発行
  * - emitNormalSummonedEventStep: モンスター召喚イベントを発行
- * - emitSentToGraveyardEventStep: 墓地送りイベントを発行
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { AtomicStep } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { GameEvents } from "$lib/domain/models/GameProcessing/GameEvent";
 
 /**
  * 魔法カード発動イベントを発行するステップ
@@ -30,14 +30,7 @@ export function emitSpellActivatedEventStep(sourceInstance: CardInstance): Atomi
     summary: "魔法発動イベント",
     description: "魔法カード発動をトリガーシステムに通知",
     notificationLevel: "silent",
-    action: (state) =>
-      GameProcessing.Result.success(state, undefined, [
-        {
-          type: "spellActivated",
-          sourceCardId: sourceInstance.id,
-          sourceInstanceId: sourceInstance.instanceId,
-        },
-      ]),
+    action: (state) => GameProcessing.Result.success(state, undefined, [GameEvents.spellActivated(sourceInstance)]),
   };
 }
 
@@ -57,40 +50,6 @@ export function emitNormalSummonedEventStep(summonedInstance: CardInstance): Ato
     summary: "モンスター召喚イベント",
     description: "モンスター召喚をトリガーシステムに通知",
     notificationLevel: "silent",
-    action: (state) =>
-      GameProcessing.Result.success(state, undefined, [
-        {
-          type: "normalSummoned",
-          sourceCardId: summonedInstance.id,
-          sourceInstanceId: summonedInstance.instanceId,
-        },
-      ]),
-  };
-}
-
-/**
- * 墓地送りイベントを発行するステップ
- *
- * effectQueueStore がこのステップの実行結果から emittedEvents を検出し、
- * ChainableActionRegistry.collectTriggerSteps() を呼び出して
- * 誘発効果（例: クリッター、黒き森のウィッチのサーチ効果）を自動挿入する。
- *
- * @param sentInstance - 墓地に送られたカードのインスタンス
- * @returns AtomicStep
- */
-export function emitSentToGraveyardEventStep(sentInstance: CardInstance): AtomicStep {
-  return {
-    id: `emit-sent-to-graveyard-${sentInstance.instanceId}`,
-    summary: "墓地送りイベント",
-    description: "墓地送りをトリガーシステムに通知",
-    notificationLevel: "silent",
-    action: (state) =>
-      GameProcessing.Result.success(state, undefined, [
-        {
-          type: "sentToGraveyard",
-          sourceCardId: sentInstance.id,
-          sourceInstanceId: sentInstance.instanceId,
-        },
-      ]),
+    action: (state) => GameProcessing.Result.success(state, undefined, [GameEvents.normalSummoned(summonedInstance)]),
   };
 }

@@ -9,6 +9,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { ValidationResult, AtomicStep, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import { GameEvents } from "$lib/domain/models/GameProcessing/GameEvent";
 import { selectCardsStep } from "$lib/domain/dsl/steps/primitives/userInteractions";
 import { moveCardFromFieldOverride } from "$lib/domain/dsl/overrides/handlers/fieldDepartureDestination";
 import { executeSpecialSummon } from "$lib/domain/rules/SummonRule";
@@ -174,11 +175,7 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
         if (card) {
           const tempState: GameSnapshot = { ...currentState, space: updatedSpace };
           updatedSpace = moveCardFromFieldOverride(tempState, card, "graveyard");
-          releaseEvents.push({
-            type: "sentToGraveyard",
-            sourceCardId: card.id,
-            sourceInstanceId: card.instanceId,
-          });
+          releaseEvents.push(...GameEvents.sentToGraveyard(card));
         }
       }
 
@@ -194,11 +191,7 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
       const emittedEvents: GameEvent[] = [
         ...releaseEvents,
         specialSummonEvent,
-        {
-          type: "synchroSummoned" as const,
-          sourceCardId: summonedMonster.id,
-          sourceInstanceId: summonedMonster.instanceId,
-        },
+        GameEvents.synchroSummoned(summonedMonster),
       ];
 
       return GameProcessing.Result.success(

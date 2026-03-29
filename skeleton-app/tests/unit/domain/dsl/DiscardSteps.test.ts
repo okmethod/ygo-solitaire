@@ -149,8 +149,10 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
 
       expect(result.success).toBe(true);
       expect(result.emittedEvents).toBeDefined();
-      expect(result.emittedEvents?.length).toBe(1);
+      // モンスターの場合: sentToGraveyard + monsterSentToGraveyard の2イベント
+      expect(result.emittedEvents?.length).toBe(2);
       expect(result.emittedEvents?.[0].type).toBe("sentToGraveyard");
+      expect(result.emittedEvents?.[1].type).toBe("monsterSentToGraveyard");
     });
   });
 

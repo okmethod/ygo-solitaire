@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   emitSpellActivatedEventStep,
   emitNormalSummonedEventStep,
-  emitSentToGraveyardEventStep,
 } from "$lib/domain/dsl/steps/primitives/eventEmitters";
 import { createMockGameState, createTestMonsterCard, createTestSpellCard } from "../../../__testUtils__";
 
@@ -12,7 +11,6 @@ import { createMockGameState, createTestMonsterCard, createTestSpellCard } from 
  * TEST STRATEGY:
  * - emitSpellActivatedEventStep が正しくイベントを発行すること
  * - emitNormalSummonedEventStep が正しくイベントを発行すること
- * - emitSentToGraveyardEventStep が正しくイベントを発行すること
  * - イベントがトリガーシステムで検出可能な形式であること
  */
 
@@ -103,61 +101,6 @@ describe("emitNormalSummonedEventStep", () => {
 });
 
 // =============================================================================
-// emitSentToGraveyardEventStep のテスト
-// =============================================================================
-
-describe("emitSentToGraveyardEventStep", () => {
-  it("墓地送りイベントを発行するステップを生成できる", () => {
-    const card = createTestMonsterCard("card-instance-1", { location: "graveyard" });
-
-    const step = emitSentToGraveyardEventStep(card);
-
-    expect(step.id).toContain("emit-sent-to-graveyard");
-    expect(step.id).toContain("card-instance-1");
-    expect(step.summary).toContain("墓地送り");
-    expect(step.notificationLevel).toBe("silent");
-  });
-
-  it("action実行でsentToGraveyardイベントを発行する", () => {
-    const card = createTestMonsterCard("card-instance-1", { location: "graveyard" });
-    const state = createMockGameState();
-
-    const step = emitSentToGraveyardEventStep(card);
-    const result = step.action(state);
-
-    expect(result.success).toBe(true);
-    expect(result.emittedEvents).toBeDefined();
-    expect(result.emittedEvents?.length).toBe(1);
-
-    const event = result.emittedEvents?.[0];
-    expect(event?.type).toBe("sentToGraveyard");
-    expect(event?.sourceInstanceId).toBe("card-instance-1");
-  });
-
-  it("状態は変更されない", () => {
-    const card = createTestMonsterCard("card-instance-1", { location: "graveyard" });
-    const state = createMockGameState();
-
-    const step = emitSentToGraveyardEventStep(card);
-    const result = step.action(state);
-
-    expect(result.updatedState).toEqual(state);
-  });
-
-  it("魔法カードでもイベントを発行できる", () => {
-    const spellCard = createTestSpellCard("spell-instance-1", "normal", { location: "graveyard" });
-    const state = createMockGameState();
-
-    const step = emitSentToGraveyardEventStep(spellCard);
-    const result = step.action(state);
-
-    expect(result.success).toBe(true);
-    expect(result.emittedEvents?.[0]?.type).toBe("sentToGraveyard");
-    expect(result.emittedEvents?.[0]?.sourceInstanceId).toBe("spell-instance-1");
-  });
-});
-
-// =============================================================================
 // イベント形式の共通テスト
 // =============================================================================
 
@@ -169,11 +112,9 @@ describe("イベント形式", () => {
 
     const spellStep = emitSpellActivatedEventStep(spell);
     const monsterStep = emitNormalSummonedEventStep(monster);
-    const graveyardStep = emitSentToGraveyardEventStep(monster);
 
     const spellResult = spellStep.action(state);
     const monsterResult = monsterStep.action(state);
-    const graveyardResult = graveyardStep.action(state);
 
     // spellActivated
     expect(spellResult.emittedEvents?.[0]).toHaveProperty("sourceCardId");
@@ -182,10 +123,6 @@ describe("イベント形式", () => {
     // normalSummoned
     expect(monsterResult.emittedEvents?.[0]).toHaveProperty("sourceCardId");
     expect(monsterResult.emittedEvents?.[0]).toHaveProperty("sourceInstanceId");
-
-    // sentToGraveyard
-    expect(graveyardResult.emittedEvents?.[0]).toHaveProperty("sourceCardId");
-    expect(graveyardResult.emittedEvents?.[0]).toHaveProperty("sourceInstanceId");
   });
 
   it("notificationLevelがsilentに設定されている（トリガー専用）", () => {
@@ -194,6 +131,5 @@ describe("イベント形式", () => {
 
     expect(emitSpellActivatedEventStep(spell).notificationLevel).toBe("silent");
     expect(emitNormalSummonedEventStep(monster).notificationLevel).toBe("silent");
-    expect(emitSentToGraveyardEventStep(monster).notificationLevel).toBe("silent");
   });
 });
