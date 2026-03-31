@@ -1,7 +1,7 @@
 <script lang="ts">
   import "../app.css";
   import { onMount } from "svelte";
-  import { Toaster } from "@skeletonlabs/skeleton-svelte";
+  import { Toast } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import AudioToggle from "$lib/presentation/components/buttons/AudioToggle.svelte";
   import SettingsModal from "$lib/presentation/components/modals/SettingsModal.svelte";
@@ -26,7 +26,13 @@
   <title>Yu-Gi-Oh! ソリティア</title>
 </svelte:head>
 
-<Toaster {toaster} rounded="rounded-lg" width="w-64 md:w-96" />
+<Toast.Group {toaster} class="fixed top-4 right-4 flex flex-col gap-2 z-50">
+  {#snippet children(toast)}
+    <Toast {toast} class="card p-4 rounded-lg w-64 md:w-96 shadow-lg">
+      <Toast.Title>{toast.title}</Toast.Title>
+    </Toast>
+  {/snippet}
+</Toast.Group>
 
 {#if isLoaded}
   <header class="p-2 sm:p-4 shadow-md bg-surface-100-900">

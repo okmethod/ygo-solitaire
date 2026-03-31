@@ -3,7 +3,6 @@
 @plugin "@tailwindcss/typography";
 
 @import "@skeletonlabs/skeleton";
-@import "@skeletonlabs/skeleton/optional/presets";
 
 @import "@skeletonlabs/skeleton/themes/catppuccin";
 @import "@skeletonlabs/skeleton/themes/cerberus";
@@ -29,6 +28,6 @@
 @import "@skeletonlabs/skeleton/themes/wintry";
 @import "./custom-theme.css";
 
-@source "../node_modules/@skeletonlabs/skeleton-svelte/dist";
+@import "@skeletonlabs/skeleton-svelte";
 
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));

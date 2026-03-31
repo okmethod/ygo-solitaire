@@ -8,7 +8,7 @@
    *
    * cancelable=true の場合はキャンセルボタンも表示する。
    */
-  import { Modal } from "@skeletonlabs/skeleton-svelte";
+  import { Dialog, Portal } from "@skeletonlabs/skeleton-svelte";
   import type { DisplayCardData, CardSelectionModalConfig } from "$lib/presentation/types";
   import { getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
@@ -63,7 +63,7 @@
     return selectedIds.size < config.maxCards;
   }
 
-  // Modal の onOpenChange ハンドラー
+  // Dialog の onOpenChange ハンドラー
   function handleOpenChange(event: { open: boolean }) {
     if (!event.open && isOpen && cancelable) {
       handleCancel();
@@ -111,69 +111,74 @@
   }
 </script>
 
-<Modal
+<Dialog
   open={isOpen}
   onOpenChange={handleOpenChange}
-  contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
-  backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}
   closeOnEscape={cancelable}
   preventScroll={true}
 >
-  {#snippet content()}
-    {#if config}
-      <!-- ヘッダー -->
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg">{config.summary}</h3>
-        {#if cancelable}
-          <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
-        {/if}
-      </div>
-
-      <!-- 説明文 -->
-      <p class="text-sm text-surface-600-300-token mb-4">{config.description}</p>
-
-      <!-- 選択状況 -->
-      <div
-        class="flex justify-between items-center mb-4 p-3 bg-surface-200 dark:bg-surface-800 rounded-lg border border-surface-300 dark:border-surface-600"
+  <Portal>
+    <Dialog.Backdrop class="fixed inset-0 bg-black/80 backdrop-blur-md z-40" />
+    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+      <Dialog.Content
+        class="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
       >
-        <span class="text-sm font-semibold">
-          選択中: {selectedCount} / {config.maxCards}枚
-        </span>
-      </div>
-
-      <!-- カード選択エリア -->
-      <div class="min-h-[200px] max-h-[400px] overflow-y-auto mb-6">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {#each config.availableCards as cardInstance (cardInstance.instanceId)}
-            {@const selected = isSelected(cardInstance.instanceId)}
-            {@const canToggle = canToggleCard(cardInstance.instanceId)}
-            {@const cardDisplay = getCardDisplay(cardInstance.instanceId)}
-            {#if cardDisplay}
-              <div class:opacity-50={!canToggle && !selected}>
-                <CardComponent
-                  card={cardDisplay}
-                  size="small"
-                  clickable={true}
-                  selectable={false}
-                  isSelected={selected}
-                  animate={true}
-                  onClick={() => handleCardClick(cardInstance.instanceId)}
-                />
-              </div>
+        {#if config}
+          <!-- ヘッダー -->
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg">{config.summary}</h3>
+            {#if cancelable}
+              <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
             {/if}
-          {/each}
-        </div>
-      </div>
+          </div>
 
-      <!-- ボタンエリア -->
-      <div class="flex justify-end gap-3 mt-6">
-        {#if cancelable}
-          <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
+          <!-- 説明文 -->
+          <p class="text-sm text-surface-600-300-token mb-4">{config.description}</p>
+
+          <!-- 選択状況 -->
+          <div
+            class="flex justify-between items-center mb-4 p-3 bg-surface-200 dark:bg-surface-800 rounded-lg border border-surface-300 dark:border-surface-600"
+          >
+            <span class="text-sm font-semibold">
+              選択中: {selectedCount} / {config.maxCards}枚
+            </span>
+          </div>
+
+          <!-- カード選択エリア -->
+          <div class="min-h-[200px] max-h-[400px] overflow-y-auto mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {#each config.availableCards as cardInstance (cardInstance.instanceId)}
+                {@const selected = isSelected(cardInstance.instanceId)}
+                {@const canToggle = canToggleCard(cardInstance.instanceId)}
+                {@const cardDisplay = getCardDisplay(cardInstance.instanceId)}
+                {#if cardDisplay}
+                  <div class:opacity-50={!canToggle && !selected}>
+                    <CardComponent
+                      card={cardDisplay}
+                      size="small"
+                      clickable={true}
+                      selectable={false}
+                      isSelected={selected}
+                      animate={true}
+                      onClick={() => handleCardClick(cardInstance.instanceId)}
+                    />
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          </div>
+
+          <!-- ボタンエリア -->
+          <div class="flex justify-end gap-3 mt-6">
+            {#if cancelable}
+              <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
+            {/if}
+            <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection()}> 確定 </button>
+          </div>
         {/if}
-        <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection()}> 確定 </button>
-      </div>
-    {/if}
-  {/snippet}
-</Modal>
+      </Dialog.Content>
+    </Dialog.Positioner>
+  </Portal>
+</Dialog>
