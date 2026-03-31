@@ -77,3 +77,10 @@ npm run format        # prettier format
 npm run check         # svelte-check --tsconfig
 npm run test:run      # vitest run
 ```
+
+## Active Technologies
+- TypeScript 5.x → 6.x（`^5.0.0` → `^6.0.0`） + SvelteKit 2.x, Vite 6.x, svelte-check ^4.0.0（→ 4.4.6 以上）, typescript-eslint ^8.20.0 (001-typescript-v6-upgrade)
+- N/A（フロントエンド SPA） (001-typescript-v6-upgrade)
+
+## Recent Changes
+- 001-typescript-v6-upgrade: Added TypeScript 5.x → 6.x（`^5.0.0` → `^6.0.0`） + SvelteKit 2.x, Vite 6.x, svelte-check ^4.0.0（→ 4.4.6 以上）, typescript-eslint ^8.20.0
