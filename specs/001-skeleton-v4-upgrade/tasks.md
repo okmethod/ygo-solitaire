@@ -15,9 +15,9 @@
 
 **Purpose**: Skeleton v4 パッケージのインストール
 
-- [ ] T001 `package.json` の `@skeletonlabs/skeleton` を `^4.13.0` に更新する（`skeleton-app/package.json`）
-- [ ] T002 `package.json` の `@skeletonlabs/skeleton-svelte` を `^4.13.0` に更新する（`skeleton-app/package.json`）
-- [ ] T003 `skeleton-app/` で `npm install` を実行してパッケージをインストールする
+- [x] T001 `package.json` の `@skeletonlabs/skeleton` を `^4.13.0` に更新する（`skeleton-app/package.json`）
+- [x] T002 `package.json` の `@skeletonlabs/skeleton-svelte` を `^4.13.0` に更新する（`skeleton-app/package.json`）
+- [x] T003 `skeleton-app/` で `npm install` を実行してパッケージをインストールする
 
 ---
 
@@ -27,10 +27,10 @@
 
 **⚠️ CRITICAL**: Phase 3 以降の作業はこのフェーズ完了後に開始する
 
-- [ ] T004 `app.css` から `@import "@skeletonlabs/skeleton/optional/presets"` を削除する（`skeleton-app/src/app.css`）
-- [ ] T005 `app.css` の `@source "../node_modules/@skeletonlabs/skeleton-svelte/dist"` を `@import "@skeletonlabs/skeleton-svelte"` に変更する（`skeleton-app/src/app.css`）
-- [ ] T006 `app.html` の `<html>` 要素に `data-theme="cerberus"` を追加する（`skeleton-app/src/app.html`）
-- [ ] T007 `npm run check` を実行してすべてのビルドエラーを把握し、エラー内容を記録する（`skeleton-app/`）
+- [x] T004 `app.css` から `@import "@skeletonlabs/skeleton/optional/presets"` を削除する（`skeleton-app/src/app.css`）
+- [x] T005 `app.css` の `@source "../node_modules/@skeletonlabs/skeleton-svelte/dist"` を `@import "@skeletonlabs/skeleton-svelte"` に変更する（`skeleton-app/src/app.css`）
+- [x] T006 `app.html` の `<html>` 要素に `data-theme="cerberus"` を追加する（`skeleton-app/src/app.html`）
+- [x] T007 `npm run check` を実行してすべてのビルドエラーを把握し、エラー内容を記録する（`skeleton-app/`）
 
 **Checkpoint**: エラー一覧が把握できた状態 → コンポーネント修正作業に進める
 
@@ -44,25 +44,25 @@
 
 ### Modal → Dialog 移行調査
 
-- [ ] T008 [US1] インストール済み `@skeletonlabs/skeleton-svelte@4.13.0` の型定義ファイルを確認し、`Modal` が存在するか `Dialog` に変更されたかを特定する（`skeleton-app/node_modules/@skeletonlabs/skeleton-svelte/dist/`）
+- [x] T008 [US1] インストール済み `@skeletonlabs/skeleton-svelte@4.13.0` の型定義ファイルを確認し、`Modal` が存在するか `Dialog` に変更されたかを特定する（`skeleton-app/node_modules/@skeletonlabs/skeleton-svelte/dist/`）
 
 ### Modal → Dialog 移行（T008 で `Modal` が廃止と確認された場合のみ実施）
 
 > T008 の結果が `Modal` 後方互換あり の場合は T009〜T015 をスキップ
 
-- [ ] T009 [P] [US1] `ThemeSwitchModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/lib/presentation/components/modals/ThemeSwitchModal.svelte`）
-- [ ] T010 [P] [US1] `SettingsModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/lib/presentation/components/modals/SettingsModal.svelte`）
-- [ ] T011 [P] [US1] `CardSelectionModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/CardSelectionModal.svelte`）
-- [ ] T012 [P] [US1] `ConfirmationModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/ConfirmationModal.svelte`）
-- [ ] T013 [P] [US1] `CardStackModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/CardStackModal.svelte`）
-- [ ] T014 [P] [US1] `GameOverModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/GameOverModal.svelte`）
-- [ ] T015 [P] [US1] `ChainConfirmationModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/ChainConfirmationModal.svelte`）
+- [x] T009 [P] [US1] `ThemeSwitchModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/lib/presentation/components/modals/ThemeSwitchModal.svelte`）
+- [x] T010 [P] [US1] `SettingsModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/lib/presentation/components/modals/SettingsModal.svelte`）
+- [x] T011 [P] [US1] `CardSelectionModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/CardSelectionModal.svelte`）
+- [x] T012 [P] [US1] `ConfirmationModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/ConfirmationModal.svelte`）
+- [x] T013 [P] [US1] `CardStackModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/CardStackModal.svelte`）
+- [x] T014 [P] [US1] `GameOverModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/GameOverModal.svelte`）
+- [x] T015 [P] [US1] `ChainConfirmationModal.svelte` を `Dialog` サブコンポーネント構成に移行する（`skeleton-app/src/routes/(auth)/simulator/[deckId]/_components/modals/ChainConfirmationModal.svelte`）
 
 ### Segment / Toaster / カスタムテーマ確認
 
-- [ ] T016 [P] [US1] `Segment` が v4 で `SegmentedControl` 等にリネームされた場合、3 ファイルのインポートを修正する（`ThemeSwitch.svelte`, `CardDetailToggle.svelte`, `ChainConfirmationToggle.svelte`）
-- [ ] T017 [P] [US1] `Toaster` コンポーネントが v4 で `Toast.Group` に変更された場合、`+layout.svelte` と `toaster.ts` を修正する（`skeleton-app/src/routes/+layout.svelte`, `skeleton-app/src/lib/presentation/utils/toaster.ts`）
-- [ ] T018 [US1] `custom-theme.css` の CSS カスタムプロパティが v4 のテーマ変数スキーマと一致するか確認し、変数名の差分を修正する（`skeleton-app/src/custom-theme.css`）
+- [x] T016 [P] [US1] `Segment` が v4 で `SegmentedControl` 等にリネームされた場合、3 ファイルのインポートを修正する（`ThemeSwitch.svelte`, `CardDetailToggle.svelte`, `ChainConfirmationToggle.svelte`）
+- [x] T017 [P] [US1] `Toaster` コンポーネントが v4 で `Toast.Group` に変更された場合、`+layout.svelte` と `toaster.ts` を修正する（`skeleton-app/src/routes/+layout.svelte`, `skeleton-app/src/lib/presentation/utils/toaster.ts`）
+- [x] T018 [US1] `custom-theme.css` の CSS カスタムプロパティが v4 のテーマ変数スキーマと一致するか確認し、変数名の差分を修正する（`skeleton-app/src/custom-theme.css`）
 
 ### 動作確認
 
@@ -92,10 +92,10 @@
 
 **Independent Test**: 以下コマンドがすべて exit code 0 で終了すること
 
-- [ ] T023 [P] [US3] `npm run format` を実行して Prettier フォーマットを適用する（`skeleton-app/`）
-- [ ] T024 [P] [US3] `npm run lint` を実行し、ESLint エラーをすべて解消する（`skeleton-app/`）
-- [ ] T025 [US3] `npm run check` を実行し、Svelte / TypeScript 型エラーをすべて解消する（`skeleton-app/`）
-- [ ] T026 [US3] `npm run test:run` を実行し、全テストが PASS することを確認する（`skeleton-app/`）
+- [x] T023 [P] [US3] `npm run format` を実行して Prettier フォーマットを適用する（`skeleton-app/`）
+- [x] T024 [P] [US3] `npm run lint` を実行し、ESLint エラーをすべて解消する（`skeleton-app/`）
+- [x] T025 [US3] `npm run check` を実行し、Svelte / TypeScript 型エラーをすべて解消する（`skeleton-app/`）
+- [x] T026 [US3] `npm run test:run` を実行し、全テストが PASS することを確認する（`skeleton-app/`）
 
 **Checkpoint**: 品質チェック全通過 → Polish フェーズへ
 

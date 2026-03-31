@@ -7,7 +7,7 @@
    * - オプション: 集約表示（同名カードをまとめて枚数表示）
    * - オプション: カードアクション（シンクロ召喚など）
    */
-  import { Modal } from "@skeletonlabs/skeleton-svelte";
+  import { Dialog, Portal } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import type { DisplayCardInstance, DisplayCardInstanceAggregated } from "$lib/presentation/types";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
@@ -99,79 +99,81 @@
   }
 </script>
 
-<Modal
-  {open}
-  onOpenChange={handleOpenChange}
-  contentBase="card bg-surface-100-900 p-6 mx-auto space-y-4 shadow-xl w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
-  backdropClasses="backdrop-blur-sm"
->
-  {#snippet content()}
-    <header class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl sm:text-3xl font-bold mx-2">{title}</h2>
-      <div class="flex items-center gap-2">
-        <!-- 集約表示トグル -->
-        <button
-          type="button"
-          class="btn btn-sm {isAggregated ? 'preset-filled-primary-500' : 'preset-tonal'}"
-          onclick={toggleAggregation}
-          title={isAggregated ? "個別表示に切り替え" : "集約表示に切り替え"}
-        >
-          <Icon icon={isAggregated ? "mdi:card-multiple" : "mdi:cards"} class="size-4" />
-          <span class="text-xs">{isAggregated ? "集約" : "個別"}</span>
-        </button>
-        <!-- 閉じるボタン -->
-        <button type="button" class="btn preset-tonal rounded-full" onclick={modalClose}>
-          <Icon icon="mdi:close" class="size-4" />
-        </button>
-      </div>
-    </header>
+<Dialog {open} onOpenChange={handleOpenChange}>
+  <Portal>
+    <Dialog.Backdrop class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" />
+    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+      <Dialog.Content
+        class="card bg-surface-100-900 p-6 mx-auto space-y-4 shadow-xl w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
+      >
+        <header class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl sm:text-3xl font-bold mx-2">{title}</h2>
+          <div class="flex items-center gap-2">
+            <!-- 集約表示トグル -->
+            <button
+              type="button"
+              class="btn btn-sm {isAggregated ? 'preset-filled-primary-500' : 'preset-tonal'}"
+              onclick={toggleAggregation}
+              title={isAggregated ? "個別表示に切り替え" : "集約表示に切り替え"}
+            >
+              <Icon icon={isAggregated ? "mdi:card-multiple" : "mdi:cards"} class="size-4" />
+              <span class="text-xs">{isAggregated ? "集約" : "個別"}</span>
+            </button>
+            <!-- 閉じるボタン -->
+            <button type="button" class="btn preset-tonal rounded-full" onclick={modalClose}>
+              <Icon icon="mdi:close" class="size-4" />
+            </button>
+          </div>
+        </header>
 
-    <!-- カード枚数表示 -->
-    <div class="text-sm text-surface-600-300-token mb-2">
-      {cards.length}枚
-    </div>
+        <!-- カード枚数表示 -->
+        <div class="text-sm text-surface-600-300-token mb-2">
+          {cards.length}枚
+        </div>
 
-    {#if cards.length > 0}
-      <div class="flex gap-2 flex-wrap">
-        {#if isAggregated}
-          <!-- 集約表示モード -->
-          {#each aggregatedCards as { card, instanceId, quantity } (instanceId)}
-            <div class="relative">
-              <CardComponent {card} size="medium" showDetailOnClick={true} />
-              {#if quantity > 1}
-                <CountBadge count={quantity} colorClasses="bg-primary-200 text-primary-900" />
-              {/if}
-            </div>
-          {/each}
-        {:else}
-          <!-- 個別表示モード（順序保持） -->
-          {#each reverseCards as { card, instanceId } (instanceId)}
-            {@const availableActions = cardActions.filter((a) => a.canExecute(instanceId))}
-            {@const hasActions = availableActions.length > 0}
-            {#if hasActions}
-              <!-- アクションがある場合: ActivatableCard -->
-              <ActivatableCard
-                {card}
-                {instanceId}
-                isSelected={selectedInstanceId === instanceId}
-                isActivatable={true}
-                onSelect={handleCardClick}
-                actionButtons={convertToActionButtons(availableActions, instanceId)}
-                onCancel={() => (selectedInstanceId = null)}
-                size="medium"
-                showDetailOnClick={false}
-              />
+        {#if cards.length > 0}
+          <div class="flex gap-2 flex-wrap">
+            {#if isAggregated}
+              <!-- 集約表示モード -->
+              {#each aggregatedCards as { card, instanceId, quantity } (instanceId)}
+                <div class="relative">
+                  <CardComponent {card} size="medium" showDetailOnClick={true} />
+                  {#if quantity > 1}
+                    <CountBadge count={quantity} colorClasses="bg-primary-200 text-primary-900" />
+                  {/if}
+                </div>
+              {/each}
             {:else}
-              <!-- アクションがない場合: 通常のCardComponent -->
-              <CardComponent {card} size="medium" showDetailOnClick={true} />
+              <!-- 個別表示モード（順序保持） -->
+              {#each reverseCards as { card, instanceId } (instanceId)}
+                {@const availableActions = cardActions.filter((a) => a.canExecute(instanceId))}
+                {@const hasActions = availableActions.length > 0}
+                {#if hasActions}
+                  <!-- アクションがある場合: ActivatableCard -->
+                  <ActivatableCard
+                    {card}
+                    {instanceId}
+                    isSelected={selectedInstanceId === instanceId}
+                    isActivatable={true}
+                    onSelect={handleCardClick}
+                    actionButtons={convertToActionButtons(availableActions, instanceId)}
+                    onCancel={() => (selectedInstanceId = null)}
+                    size="medium"
+                    showDetailOnClick={false}
+                  />
+                {:else}
+                  <!-- アクションがない場合: 通常のCardComponent -->
+                  <CardComponent {card} size="medium" showDetailOnClick={true} />
+                {/if}
+              {/each}
             {/if}
-          {/each}
+          </div>
+        {:else}
+          <div class="text-center py-8">
+            <p class="text-gray-500">{emptyMessage}</p>
+          </div>
         {/if}
-      </div>
-    {:else}
-      <div class="text-center py-8">
-        <p class="text-gray-500">{emptyMessage}</p>
-      </div>
-    {/if}
-  {/snippet}
-</Modal>
+      </Dialog.Content>
+    </Dialog.Positioner>
+  </Portal>
+</Dialog>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Segment } from "@skeletonlabs/skeleton-svelte";
+  import { SegmentedControl } from "@skeletonlabs/skeleton-svelte";
   import {
     getCardDetailDisplayEnabled,
     setCardDetailDisplayEnabled,
@@ -8,7 +8,7 @@
   let currentEnabled: boolean = getCardDetailDisplayEnabled();
 </script>
 
-<Segment
+<SegmentedControl
   name="cardDetailToggle"
   value={String(currentEnabled)}
   onValueChange={(e) => {
@@ -16,14 +16,21 @@
     setCardDetailDisplayEnabled(currentEnabled);
   }}
 >
-  <Segment.Item value="true">
-    <div class="text-xs md:text-base">
-      <span class="hidden md:inline">表示</span>する
-    </div>
-  </Segment.Item>
-  <Segment.Item value="false">
-    <div class="text-xs md:text-base">
-      <span class="hidden md:inline">表示</span>しない
-    </div>
-  </Segment.Item>
-</Segment>
+  <SegmentedControl.Control>
+    <SegmentedControl.Indicator />
+    <SegmentedControl.Item value="true">
+      <SegmentedControl.ItemText>
+        <div class="text-xs md:text-base">
+          <span class="hidden md:inline">表示</span>する
+        </div>
+      </SegmentedControl.ItemText>
+    </SegmentedControl.Item>
+    <SegmentedControl.Item value="false">
+      <SegmentedControl.ItemText>
+        <div class="text-xs md:text-base">
+          <span class="hidden md:inline">表示</span>しない
+        </div>
+      </SegmentedControl.ItemText>
+    </SegmentedControl.Item>
+  </SegmentedControl.Control>
+</SegmentedControl>

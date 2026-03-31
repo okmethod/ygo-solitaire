@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Segment } from "@skeletonlabs/skeleton-svelte";
+  import { SegmentedControl } from "@skeletonlabs/skeleton-svelte";
   import Icon from "@iconify/svelte";
   import { themeLabels, getTheme, setTheme, applyTheme } from "$lib/presentation/stores/themeStore";
   import { isMobile } from "$lib/presentation/utils/mobile";
@@ -21,7 +21,7 @@
       <Icon icon="mdi:shimmer" class="size-5" />
       UI<span class="hidden md:inline">テーマ</span>
     </div>
-    <Segment
+    <SegmentedControl
       name="toggle-dark-mode"
       value={String(currentTheme.dark)}
       onValueChange={(e) => {
@@ -31,17 +31,24 @@
         applyTheme();
       }}
     >
-      <Segment.Item value="false">
-        <div class="text-xs md:text-base">
-          ライト<span class="hidden md:inline">モード</span>
-        </div>
-      </Segment.Item>
-      <Segment.Item value="true">
-        <div class="text-xs md:text-base">
-          ダーク<span class="hidden md:inline">モード</span>
-        </div>
-      </Segment.Item>
-    </Segment>
+      <SegmentedControl.Control>
+        <SegmentedControl.Indicator />
+        <SegmentedControl.Item value="false">
+          <SegmentedControl.ItemText>
+            <div class="text-xs md:text-base">
+              ライト<span class="hidden md:inline">モード</span>
+            </div>
+          </SegmentedControl.ItemText>
+        </SegmentedControl.Item>
+        <SegmentedControl.Item value="true">
+          <SegmentedControl.ItemText>
+            <div class="text-xs md:text-base">
+              ダーク<span class="hidden md:inline">モード</span>
+            </div>
+          </SegmentedControl.ItemText>
+        </SegmentedControl.Item>
+      </SegmentedControl.Control>
+    </SegmentedControl>
   </div>
   <details class="card p-4" open={!_isMobile}>
     <summary class="cursor-pointer font-bold p-1">テーマ選択</summary>

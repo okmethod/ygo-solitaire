@@ -8,7 +8,7 @@
    *
    * cancelable=true の場合はキャンセルボタンも表示する。
    */
-  import { Modal } from "@skeletonlabs/skeleton-svelte";
+  import { Dialog, Portal } from "@skeletonlabs/skeleton-svelte";
   import type { ConfirmationModalConfig } from "$lib/presentation/types";
 
   interface ConfirmationModalProps {
@@ -35,32 +35,37 @@
   }
 </script>
 
-<Modal
+<Dialog
   open={isOpen}
   onOpenChange={handleOpenChange}
-  contentBase="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-md shadow-2xl border-2 border-surface-300 dark:border-surface-700"
-  backdropClasses="!bg-black/80 backdrop-blur-md"
   modal={true}
   trapFocus={true}
   closeOnEscape={cancelable}
   preventScroll={true}
 >
-  {#snippet content()}
-    {#if config}
-      <header class="text-center">
-        <h2 class="h3 font-bold text-primary-600-300-token">{config.summary}</h2>
-      </header>
+  <Portal>
+    <Dialog.Backdrop class="fixed inset-0 bg-black/80 backdrop-blur-md z-40" />
+    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+      <Dialog.Content
+        class="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-md shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+      >
+        {#if config}
+          <header class="text-center">
+            <h2 class="h3 font-bold text-primary-600-300-token">{config.summary}</h2>
+          </header>
 
-      <article class="text-center">
-        <p class="text-lg">{config.description}</p>
-      </article>
+          <article class="text-center">
+            <p class="text-lg">{config.description}</p>
+          </article>
 
-      <footer class="flex justify-center gap-3">
-        {#if cancelable}
-          <button class="btn variant-ghost" onclick={handleCancel}>キャンセル</button>
+          <footer class="flex justify-center gap-3">
+            {#if cancelable}
+              <button class="btn variant-ghost" onclick={handleCancel}>キャンセル</button>
+            {/if}
+            <button class="btn variant-filled-primary" onclick={handleConfirm}>OK</button>
+          </footer>
         {/if}
-        <button class="btn variant-filled-primary" onclick={handleConfirm}>OK</button>
-      </footer>
-    {/if}
-  {/snippet}
-</Modal>
+      </Dialog.Content>
+    </Dialog.Positioner>
+  </Portal>
+</Dialog>

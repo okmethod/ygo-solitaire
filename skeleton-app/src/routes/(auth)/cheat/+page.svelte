@@ -29,9 +29,11 @@
     <!-- 各波形セクションをループで生成 -->
     {#each waveSections as { id, label, icon, effects } (id)}
       <Accordion.Item value={id}>
-        {#snippet lead()}<Icon {icon} class="size-4" />{/snippet}
-        {#snippet control()}{label}{/snippet}
-        {#snippet panel()}
+        <Accordion.ItemTrigger>
+          <Icon {icon} class="size-4" />
+          {label}
+        </Accordion.ItemTrigger>
+        <Accordion.ItemContent>
           <div class="grid grid-cols-8 gap-4">
             {#each effects as { name, play } (name)}
               <button class="btn preset-tonal-primary rounded-lg shadow p-3 flex flex-col items-start" onclick={play}>
@@ -39,17 +41,17 @@
               </button>
             {/each}
           </div>
-        {/snippet}
+        </Accordion.ItemContent>
       </Accordion.Item>
     {/each}
 
     <!-- ゲーム用SEセクション -->
     <Accordion.Item value="game">
-      <!-- Control -->
-      {#snippet lead()}<Icon icon="mdi:music-note" class="size-4" />{/snippet}
-      {#snippet control()}ゲーム用SEパターン{/snippet}
-      <!-- Panel -->
-      {#snippet panel()}
+      <Accordion.ItemTrigger>
+        <Icon icon="mdi:music-note" class="size-4" />
+        ゲーム用SEパターン
+      </Accordion.ItemTrigger>
+      <Accordion.ItemContent>
         <div class="grid grid-cols-1 grid-cols-3 gap-4 max-w-4xl mx-auto">
           {#each gameSoundEffects as { name, description, play } (name)}
             <button
@@ -61,7 +63,7 @@
             </button>
           {/each}
         </div>
-      {/snippet}
+      </Accordion.ItemContent>
     </Accordion.Item>
   </Accordion>
 </div>
