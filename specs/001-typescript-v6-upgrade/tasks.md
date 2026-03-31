@@ -17,8 +17,8 @@
 
 **Purpose**: 作業開始前の環境確認
 
-- [ ] T001 現在の TypeScript バージョンを確認する（`skeleton-app/` で `npx tsc --version` を実行）
-- [ ] T002 `skeleton-app/` でクリーンな状態であることを確認する（`npm run check` および `npm run test:run` がパスすること）
+- [x] T001 現在の TypeScript バージョンを確認する（`skeleton-app/` で `npx tsc --version` を実行）
+- [x] T002 `skeleton-app/` でクリーンな状態であることを確認する（`npm run check` および `npm run test:run` がパスすること）
 
 **Checkpoint**: 現在の動作が確認でき、アップグレード後の比較基準が明確になっている
 
@@ -30,9 +30,9 @@
 
 **⚠️ CRITICAL**: このフェーズ完了後でないとユーザーストーリーの作業を開始できない
 
-- [ ] T003 `skeleton-app/package.json` の `typescript` を `"^6.0.0"` に更新する（`npm install typescript@^6.0.0 --save-dev`）
-- [ ] T004 `skeleton-app/` で `npm update svelte-check` を実行し TypeScript v6 対応版（4.4.6 以上）に更新する
-- [ ] T005 `skeleton-app/` で `npx svelte-kit sync` を実行し `.svelte-kit/tsconfig.json` を v6 環境向けに再生成する
+- [x] T003 `skeleton-app/package.json` の `typescript` を `"^6.0.0"` に更新する（`npm install typescript@^6.0.0 --save-dev`）
+- [x] T004 `skeleton-app/` で `npm update svelte-check` を実行し TypeScript v6 対応版（4.4.6 以上）に更新する
+- [x] T005 `skeleton-app/` で `npx svelte-kit sync` を実行し `.svelte-kit/tsconfig.json` を v6 環境向けに再生成する
 
 **Checkpoint**: Foundation 完了。`npx tsc --version` で 6.x を確認できること
 
@@ -46,8 +46,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] `skeleton-app/` で `npm run check` を実行し、型エラーが出ないことを確認する（エラーが出た場合は原因を調査して対処）
-- [ ] T007 [US1] `skeleton-app/` で `npm run lint` を実行し、lint エラーが出ないことを確認する（`typescript-eslint` 等が TypeScript v6 未対応の場合は `npm update typescript-eslint` を実行）
+- [x] T006 [US1] `skeleton-app/` で `npm run check` を実行し、型エラーが出ないことを確認する（エラーが出た場合は原因を調査して対処）
+- [x] T007 [US1] `skeleton-app/` で `npm run lint` を実行し、lint エラーが出ないことを確認する（`typescript-eslint` 等が TypeScript v6 未対応の場合は `npm update typescript-eslint` を実行）
 
 **Checkpoint**: US1 完了。TypeScript v6 インストール済みかつ型チェック・lint が通っている
 
@@ -61,8 +61,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] `skeleton-app/tsconfig.json` の `compilerOptions` に `"types": ["node"]` を追加する
-- [ ] T009 [US2] `skeleton-app/` で `npm run check` を再実行し、T008 の変更後もエラーなしに完了することを確認する
+- [x] T008 [US2] `skeleton-app/tsconfig.json` の `compilerOptions` に `"types": ["node"]` を追加する
+- [x] T009 [US2] `skeleton-app/` で `npm run check` を再実行し、T008 の変更後もエラーなしに完了することを確認する
 
 **Checkpoint**: US2 完了。tsconfig.json が v6 対応済みで型チェックが通っている
 
@@ -76,8 +76,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T010 [P] [US3] `skeleton-app/` で `npm run test:run` を実行し、既存テストが全件パスすることを確認する
-- [ ] T011 [P] [US3] `skeleton-app/` で `npm run build` を実行し、SPA ビルド成果物（`build/` ディレクトリ）が正常に生成されることを確認する
+- [x] T010 [P] [US3] `skeleton-app/` で `npm run test:run` を実行し、既存テストが全件パスすることを確認する
+- [x] T011 [P] [US3] `skeleton-app/` で `npm run build` を実行し、SPA ビルド成果物（`build/` ディレクトリ）が正常に生成されることを確認する
 - [ ] T012 [US3] `skeleton-app/` で `npm run dev` を起動し、ブラウザで `http://localhost:5173/<repo-name>/` にアクセスしてアプリが正常に表示されることを手動確認する（確認後 Ctrl+C で停止）
 
 **Checkpoint**: US3 完了。アップグレードの安全性が全面的に確認された
@@ -88,9 +88,9 @@
 
 **Purpose**: コミット・PR 作成
 
-- [ ] T013 `skeleton-app/package.json` と `skeleton-app/package-lock.json` の変更内容を確認する（`typescript: ^6.0.0`、`svelte-check` 更新が反映されていること）
-- [ ] T014 `skeleton-app/tsconfig.json` の変更内容を確認する（`"types": ["node"]` が追加されていること）
-- [ ] T015 変更ファイル（`skeleton-app/package.json`, `skeleton-app/package-lock.json`, `skeleton-app/tsconfig.json`）をステージングしてコミットする（メッセージ例: `chore: upgrade TypeScript to v6 and add types config`）
+- [x] T013 `skeleton-app/package.json` と `skeleton-app/package-lock.json` の変更内容を確認する（`typescript: ^6.0.0`、`svelte-check` 更新が反映されていること）
+- [x] T014 `skeleton-app/tsconfig.json` の変更内容を確認する（`"types": ["node"]` が追加されていること）
+- [x] T015 変更ファイル（`skeleton-app/package.json`, `skeleton-app/package-lock.json`, `skeleton-app/tsconfig.json`）をステージングしてコミットする（メッセージ例: `chore: upgrade TypeScript to v6 and add types config`）
 - [ ] T016 `001-typescript-v6-upgrade` ブランチを push して PR を作成する
 
 ---
