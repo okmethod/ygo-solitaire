@@ -40,3 +40,14 @@ export {
   createSynchroSummonNoTunerState,
   createSynchroSummonLevelMismatchState,
 } from "./synchroTestHelpers";
+
+// インテグレーションテスト共通ヘルパー
+export {
+  createScenarioDeck,
+  createFacade,
+  advanceToMain1,
+  flushEffectQueue,
+  resolveCardSelection,
+  getState,
+  hasCardSelection,
+} from "./integrationHelpers";
