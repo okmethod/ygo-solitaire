@@ -29,7 +29,12 @@
 <Toast.Group {toaster} class="fixed top-4 right-4 flex flex-col gap-2 z-50">
   {#snippet children(toast)}
     <Toast {toast} class="card p-4 rounded-lg w-64 md:w-96 shadow-lg">
-      <Toast.Title>{toast.title}</Toast.Title>
+      <div class="flex items-center gap-2 w-full">
+        <Toast.Title class="flex-1">{toast.title}</Toast.Title>
+        <Toast.CloseTrigger class="btn-icon btn-icon-sm preset-tonal shrink-0 ml-auto">
+          <Icon icon="mdi:close" class="size-4" />
+        </Toast.CloseTrigger>
+      </div>
     </Toast>
   {/snippet}
 </Toast.Group>

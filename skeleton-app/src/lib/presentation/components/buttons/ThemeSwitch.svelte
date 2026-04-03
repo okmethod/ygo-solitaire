@@ -34,6 +34,7 @@
       <SegmentedControl.Control>
         <SegmentedControl.Indicator />
         <SegmentedControl.Item value="false">
+          <SegmentedControl.ItemHiddenInput />
           <SegmentedControl.ItemText>
             <div class="text-xs md:text-base">
               ライト<span class="hidden md:inline">モード</span>
@@ -41,6 +42,7 @@
           </SegmentedControl.ItemText>
         </SegmentedControl.Item>
         <SegmentedControl.Item value="true">
+          <SegmentedControl.ItemHiddenInput />
           <SegmentedControl.ItemText>
             <div class="text-xs md:text-base">
               ダーク<span class="hidden md:inline">モード</span>

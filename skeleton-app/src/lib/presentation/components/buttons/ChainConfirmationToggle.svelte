@@ -19,6 +19,7 @@
   <SegmentedControl.Control>
     <SegmentedControl.Indicator />
     <SegmentedControl.Item value="true">
+      <SegmentedControl.ItemHiddenInput />
       <SegmentedControl.ItemText>
         <div class="text-xs md:text-base">
           <span class="hidden md:inline">確認</span>する
@@ -26,6 +27,7 @@
       </SegmentedControl.ItemText>
     </SegmentedControl.Item>
     <SegmentedControl.Item value="false">
+      <SegmentedControl.ItemHiddenInput />
       <SegmentedControl.ItemText>
         <div class="text-xs md:text-base">
           <span class="hidden md:inline">確認</span>しない

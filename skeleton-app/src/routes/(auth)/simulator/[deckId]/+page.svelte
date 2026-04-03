@@ -21,7 +21,7 @@
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
-  import { showSuccessToast, showErrorToast } from "$lib/presentation/utils/toaster";
+  import { showSuccessToast } from "$lib/presentation/utils/toaster";
   import { playSE } from "$lib/presentation/sounds/soundEffects";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
@@ -69,33 +69,6 @@
   function getNowStatusString(): string {
     if ($gameResult.isGameOver) return "ゲーム終了";
     return $currentPhaseDisplayName;
-  }
-
-  // カード選択状態（複数コンポーネントに影響するため親側で一元管理）
-  let selectedHandCardInstanceId = $state<string | null>(null); // 手札カード選択
-  let selectedFieldCardInstanceId = $state<string | null>(null); // フィールドカード選択（セット魔法・罠・モンスター）
-
-  // 手札カードクリック
-  function handleHandCardClick(instanceId: string | null) {
-    selectedHandCardInstanceId = instanceId;
-    selectedFieldCardInstanceId = null; // フィールドカード選択をクリア
-  }
-
-  // フィールドカードクリック
-  function handleFieldCardClick(instanceId: string) {
-    const fieldCard = gameFacade.findCardOnField(instanceId);
-    if (!fieldCard) {
-      playSE.error();
-      showErrorToast("カードが見つかりませんでした");
-      return;
-    }
-    selectedFieldCardInstanceId = selectedFieldCardInstanceId === instanceId ? null : instanceId;
-    selectedHandCardInstanceId = null; // 手札カード選択をクリア
-  }
-
-  // フィールドカード選択キャンセル
-  function handleCancelFieldCardSelection() {
-    selectedFieldCardInstanceId = null;
   }
 
   // 手札カードマップ
@@ -160,15 +133,12 @@
       fieldCards={fieldSpellZoneCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}
-      {selectedFieldCardInstanceId}
-      onFieldCardClick={handleFieldCardClick}
-      onCancelFieldCardSelection={handleCancelFieldCardSelection}
     />
 
     <!-- 手札UI -->
     <div class="card px-4 space-y-4">
       <h2 class="text-lg md:text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
-      <Hands cards={handCardsWithInstanceId} {selectedHandCardInstanceId} onHandCardClick={handleHandCardClick} />
+      <Hands cards={handCardsWithInstanceId} />
     </div>
 
     <!-- Debug Info -->

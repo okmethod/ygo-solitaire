@@ -34,22 +34,10 @@
     fieldCards: (DisplayCardInstanceOnField | null)[];
     monsterCards: (DisplayCardInstanceOnField | null)[];
     spellTrapCards: (DisplayCardInstanceOnField | null)[];
-    selectedFieldCardInstanceId: string | null; // 選択されたフィールドカードのインスタンスID
-    onFieldCardClick?: (instanceId: string) => void;
-    onCancelFieldCardSelection?: () => void; // 選択キャンセル
   }
 
-  let {
-    deckCards,
-    extraDeckCards,
-    graveyardCards,
-    fieldCards,
-    monsterCards,
-    spellTrapCards,
-    selectedFieldCardInstanceId,
-    onFieldCardClick,
-    onCancelFieldCardSelection,
-  }: DuelFieldProps = $props();
+  let { deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards }: DuelFieldProps =
+    $props();
 
   // アニメーション中のカードのインスタンスID（cardAnimationStore から直接取得）
   const animatingInstanceIds = $derived(new Set($cardAnimationStore.activeAnimations.map((a) => a.instanceId)));
@@ -186,26 +174,17 @@
     return result.success;
   }
 
-  // カードクリック処理
-  function handleCardClick(instanceId: string) {
-    if (onFieldCardClick) {
-      onFieldCardClick(instanceId);
-    }
-  }
-
   // セットカード発動ボタンクリック時
   function handleActivateSetCard(instanceId: string) {
     playSE.activate();
     // 現状、魔法カードのみ
     executeGameAction(() => gameFacade.activateSpell(instanceId));
-    onCancelFieldCardSelection?.();
   }
 
   // 起動効果発動ボタンクリック時
   function handleActivateIgnitionEffect(instanceId: string) {
     playSE.activate();
     executeGameAction(() => gameFacade.activateIgnitionEffect(instanceId));
-    onCancelFieldCardSelection?.();
   }
 
   // モンスターカード用のアクション定義
@@ -300,13 +279,8 @@
             {instanceId}
             faceUp={card.faceUp}
             rotation={card.rotation || 0}
-            isSelected={selectedFieldCardInstanceId === instanceId}
-            isActivatable={getMonsterActions(instanceId, card.faceUp).length > 0}
-            onSelect={handleCardClick}
             actionButtons={getMonsterActions(instanceId, card.faceUp)}
-            onCancel={onCancelFieldCardSelection || (() => {})}
             size={cardSize}
-            showDetailOnClick={true}
             spellCounterCount={card.spellCounterCount || 0}
             {isEquipped}
             {isEquipmentHovered}
@@ -325,11 +299,7 @@
                 {instanceId}
                 faceUp={card.faceUp}
                 rotation={card.rotation || 0}
-                isSelected={false}
-                isActivatable={false}
-                onSelect={() => {}}
                 actionButtons={[]}
-                onCancel={() => {}}
                 size={cardSize}
                 spellCounterCount={card.spellCounterCount || 0}
                 {isEquipped}
@@ -356,13 +326,8 @@
               card={card.card}
               {instanceId}
               faceUp={true}
-              isSelected={selectedFieldCardInstanceId === instanceId}
-              isActivatable={getSpellTrapActions(instanceId, true).length > 0}
-              onSelect={handleCardClick}
               actionButtons={getSpellTrapActions(instanceId, true)}
-              onCancel={onCancelFieldCardSelection || (() => {})}
               size={cardSize}
-              showDetailOnClick={true}
               onHover={(hoveredCard) => handleEquipCardHover(hoveredCard ? (card.equippedTo ?? null) : null)}
             />
           {:else}
@@ -370,13 +335,8 @@
               card={card.card}
               {instanceId}
               faceUp={false}
-              isSelected={selectedFieldCardInstanceId === instanceId}
-              isActivatable={getSpellTrapActions(instanceId, false).length > 0}
-              onSelect={handleCardClick}
               actionButtons={getSpellTrapActions(instanceId, false)}
-              onCancel={onCancelFieldCardSelection || (() => {})}
               size={cardSize}
-              showDetailOnClick={true}
             />
           {/if}
         </div>
@@ -391,17 +351,7 @@
               {#if card.faceUp}
                 <CardComponent card={card.card} faceUp={true} size={cardSize} clickable={false} />
               {:else}
-                <ActivatableCard
-                  card={card.card}
-                  {instanceId}
-                  faceUp={false}
-                  isSelected={false}
-                  isActivatable={false}
-                  onSelect={() => {}}
-                  actionButtons={[]}
-                  onCancel={() => {}}
-                  size={cardSize}
-                />
+                <ActivatableCard card={card.card} {instanceId} faceUp={false} actionButtons={[]} size={cardSize} />
               {/if}
             </div>
           {/if}
@@ -424,13 +374,8 @@
             card={card.card}
             {instanceId}
             faceUp={card.faceUp}
-            isSelected={selectedFieldCardInstanceId === instanceId}
-            isActivatable={getFieldSpellActions(instanceId, card.faceUp).length > 0}
-            onSelect={handleCardClick}
             actionButtons={getFieldSpellActions(instanceId, card.faceUp)}
-            onCancel={onCancelFieldCardSelection || (() => {})}
             size={cardSize}
-            showDetailOnClick={true}
           />
         </div>
       {:else}
@@ -441,17 +386,7 @@
           <!-- アニメーション中: 位置取得用の透明要素 -->
           {#if card && instanceId && isAnimating}
             <div use:registerFieldCardElement={instanceId} class="absolute inset-0 opacity-0 pointer-events-none">
-              <ActivatableCard
-                card={card.card}
-                {instanceId}
-                faceUp={card.faceUp}
-                isSelected={false}
-                isActivatable={false}
-                onSelect={() => {}}
-                actionButtons={[]}
-                onCancel={() => {}}
-                size={cardSize}
-              />
+              <ActivatableCard card={card.card} {instanceId} faceUp={card.faceUp} actionButtons={[]} size={cardSize} />
             </div>
           {/if}
         </div>
