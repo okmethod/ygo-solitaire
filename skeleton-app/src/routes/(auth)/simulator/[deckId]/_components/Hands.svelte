@@ -27,11 +27,9 @@
 
   interface HandZoneProps {
     cards: Array<{ card: DisplayCardData | null; instanceId: string }>;
-    selectedHandCardInstanceId: string | null; // 選択された手札カードのインスタンスID
-    onHandCardClick: (instanceId: string | null) => void; // 手札カード選択変更の通知
   }
 
-  let { cards, selectedHandCardInstanceId, onHandCardClick }: HandZoneProps = $props();
+  let { cards }: HandZoneProps = $props();
 
   // アニメーション中のカードのインスタンスID（cardAnimationStore から直接取得）
   const animatingInstanceIds = $derived(new Set($cardAnimationStore.activeAnimations.map((a) => a.instanceId)));
@@ -68,7 +66,7 @@
     }
   });
 
-  // カードを発動可能か
+  // 魔法カードを発動可能か
   function isActivatable(instanceId: string): boolean {
     return gameFacade.canActivateSpell(instanceId);
   }
@@ -129,44 +127,28 @@
     return result.success;
   }
 
-  // カードクリック時：選択状態をトグルして親に通知
-  function handleSelect(instanceId: string) {
-    // 同じカードをクリックしたら選択解除、違うカードなら選択
-    const newSelection = selectedHandCardInstanceId === instanceId ? null : instanceId;
-    onHandCardClick(newSelection);
-  }
-
   // 発動ボタンクリック時
   function handleActivate(instanceId: string) {
     playSE.activate();
     executeGameAction(() => gameFacade.activateSpell(instanceId));
-    onHandCardClick(null);
   }
 
   // 召喚ボタンクリック時
   function handleSummon(instanceId: string) {
     playSE.summon();
     executeGameAction(() => gameFacade.summonMonster(instanceId));
-    onHandCardClick(null);
   }
 
   // モンスターセットボタンクリック時
   function handleSetMonster(instanceId: string) {
     playSE.set();
     executeGameAction(() => gameFacade.setMonster(instanceId));
-    onHandCardClick(null);
   }
 
   // 魔法・罠セットボタンクリック時
   function handleSetSpellTrap(instanceId: string) {
     playSE.set();
     executeGameAction(() => gameFacade.setSpellTrap(instanceId));
-    onHandCardClick(null);
-  }
-
-  // キャンセルボタンクリック時：選択解除
-  function handleCancel() {
-    onHandCardClick(null);
   }
 
   // カードタイプに応じたアクション定義
@@ -224,16 +206,7 @@
   {#each cards as { card, instanceId } (instanceId)}
     {#if card}
       <div bind:this={cardElements[instanceId]} class={animatingInstanceIds.has(instanceId) ? "opacity-0" : ""}>
-        <ActivatableCard
-          {card}
-          {instanceId}
-          isSelected={selectedHandCardInstanceId === instanceId}
-          isActivatable={getActionsForCard(card, instanceId).length > 0}
-          onSelect={handleSelect}
-          actionButtons={getActionsForCard(card, instanceId)}
-          onCancel={handleCancel}
-          size={cardSize}
-        />
+        <ActivatableCard {card} {instanceId} actionButtons={getActionsForCard(card, instanceId)} size={cardSize} />
       </div>
     {:else}
       <!-- ローディング中のplaceholder -->

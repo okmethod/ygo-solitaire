@@ -63,20 +63,8 @@
     return Array.from(cardMap.values());
   });
 
-  // 選択中のカードのinstanceId（クリックで選択→アクション表示）
-  let selectedInstanceId = $state<string | null>(null);
-
-  function handleCardClick(instanceId: string) {
-    // 同じカードをクリックしたら選択解除、違うカードなら選択
-    selectedInstanceId = selectedInstanceId === instanceId ? null : instanceId;
-  }
-
   function handleOpenChange(details: { open: boolean }) {
     onOpenChange(details.open);
-    // モーダルを閉じるときは選択状態をリセット
-    if (!details.open) {
-      selectedInstanceId = null;
-    }
   }
 
   function modalClose() {
@@ -147,24 +135,13 @@
               <!-- 個別表示モード（順序保持） -->
               {#each reverseCards as { card, instanceId } (instanceId)}
                 {@const availableActions = cardActions.filter((a) => a.canExecute(instanceId))}
-                {@const hasActions = availableActions.length > 0}
-                {#if hasActions}
-                  <!-- アクションがある場合: ActivatableCard -->
-                  <ActivatableCard
-                    {card}
-                    {instanceId}
-                    isSelected={selectedInstanceId === instanceId}
-                    isActivatable={true}
-                    onSelect={handleCardClick}
-                    actionButtons={convertToActionButtons(availableActions, instanceId)}
-                    onCancel={() => (selectedInstanceId = null)}
-                    size="medium"
-                    showDetailOnClick={false}
-                  />
-                {:else}
-                  <!-- アクションがない場合: 通常のCardComponent -->
-                  <CardComponent {card} size="medium" showDetailOnClick={true} />
-                {/if}
+                <ActivatableCard
+                  {card}
+                  {instanceId}
+                  actionButtons={convertToActionButtons(availableActions, instanceId)}
+                  size="medium"
+                  showDetailOnClick={true}
+                />
               {/each}
             {/if}
           </div>
