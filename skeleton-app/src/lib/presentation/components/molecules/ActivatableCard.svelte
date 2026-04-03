@@ -133,7 +133,9 @@
           </Menu.Item>
         {/each}
         {#if showDetailOnClick}
-          <Menu.Item value="詳細表示" class="btn btn-sm preset-tonal-surface" onclick={handleShowDetail}>詳細表示</Menu.Item>
+          <Menu.Item value="詳細表示" class="btn btn-sm preset-tonal-surface" onclick={handleShowDetail}
+            >詳細表示</Menu.Item
+          >
         {/if}
       </Menu.Content>
     </Menu.Positioner>
