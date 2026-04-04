@@ -14,7 +14,7 @@ data:
   jaName: "フォーミュラ・シンクロン"
   type: "monster"
   frameType: "synchro"
-  monsterTypeList: ["effect"]
+  monsterTypeList: ["effect", "tuner"]
   attribute: "LIGHT"
   race: "Machine"
   level: 2
