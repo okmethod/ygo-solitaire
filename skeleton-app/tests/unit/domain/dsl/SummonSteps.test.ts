@@ -187,15 +187,17 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_DECK", () => {
   describe("cardSelectionConfig", () => {
     it("_sourceZone が mainDeck に設定される", () => {
       const step = buildStep("SPECIAL_SUMMON_FROM_DECK", { filterType: "monster" }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("mainDeck");
+      expect(config?._sourceZone).toBe("mainDeck");
     });
 
     it("minCards と maxCards が 1 に設定される", () => {
       const step = buildStep("SPECIAL_SUMMON_FROM_DECK", { filterType: "monster" }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.minCards).toBe(1);
-      expect(step.cardSelectionConfig?.maxCards).toBe(1);
+      expect(config?.minCards).toBe(1);
+      expect(config?.maxCards).toBe(1);
     });
   });
 });
@@ -242,8 +244,9 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_EXTRA_DECK", () => {
   describe("cardSelectionConfig", () => {
     it("_sourceZone が extraDeck に設定される", () => {
       const step = buildStep("SPECIAL_SUMMON_FROM_EXTRA_DECK", {}, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("extraDeck");
+      expect(config?._sourceZone).toBe("extraDeck");
     });
   });
 });

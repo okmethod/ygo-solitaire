@@ -66,10 +66,14 @@ export interface CardSelectionConfig extends InteractionConfig {
  * - ドメイン層：コールバック関数 (state) => GameStateUpdateResult を返す
  * - アプリケーション層：現在の state を注入してコールバックを実行する
  *
- * もし cardSelectionConfig が提供されている場合、アプリケーション層は以下を行う：
- * 1. CardSelectionModal を開き、設定を渡す
- * 2. ユーザーがカードを選択するのを待つ
- * 3. 選択されたインスタンスIDをアクションコールバックに渡す
+ * cardSelectionConfig が提供されている場合、アプリケーション層は以下を行う：
+ * 1. cardSelectionConfig(state) を呼び出してUIの設定を取得する
+ * 2. null が返った場合はUIなしで action を直接実行する（自動選択）
+ * 3. 設定が返った場合は CardSelectionModal を開き、ユーザーの選択を待つ
+ * 4. 選択されたインスタンスIDをアクションコールバックに渡す
+ *
+ * Note: 「ユーザーがどのような意思決定をする必要があるか」はゲームルールであり、
+ * ドメイン層の責務。そのためカード選択設定はドメイン層で定義する。
  */
 export interface AtomicStep {
   id: string;
@@ -77,7 +81,12 @@ export interface AtomicStep {
   summary: string; // UIに表示される要約
   description: string; // UIに表示される詳細説明
   notificationLevel?: NotificationLevel; // Default: "static"
-  cardSelectionConfig?: CardSelectionConfig;
+  /**
+   * 実行時の状態に基づいてカード選択設定を返す関数。
+   * - null を返す場合: UIなし（自動選択・または選択不要）
+   * - CardSelectionConfig を返す場合: カード選択モーダルを表示
+   */
+  cardSelectionConfig?: (state: GameSnapshot) => CardSelectionConfig | null;
 
   /**
    * 効果処理ステップの処理内容定義（アクションコールバック）
@@ -88,4 +97,42 @@ export interface AtomicStep {
    * - 型安全のため同期関数（非async）のみ
    */
   action: (state: GameSnapshot, selectedInstanceIds?: string[]) => GameStateUpdateResult;
+}
+
+/**
+ * AtomicStep のカード選択設定を解決し、利用可能なカード一覧を返す純粋関数
+ *
+ * effectQueueStore など、アプリ層がUIを表示する前に呼び出す。
+ * availableCards の解決（_sourceZone + _filter の適用）はゲームルールの一部であるため
+ * ドメイン層に置く。
+ *
+ * @returns null: UIなし（自動実行）
+ * @returns オブジェクト: { config, availableCards } をモーダルに渡す
+ */
+export function resolveCardSelection(
+  step: AtomicStep,
+  state: GameSnapshot,
+): { config: CardSelectionConfig; availableCards: readonly CardInstance[] } | null {
+  if (!step.cardSelectionConfig) return null;
+
+  const config = step.cardSelectionConfig(state);
+  if (!config) return null;
+
+  let availableCards: readonly CardInstance[];
+  if (config.availableCards !== null) {
+    availableCards = config.availableCards;
+  } else {
+    if (!config._sourceZone) {
+      throw new Error(
+        `[resolveCardSelection] _sourceZone must be specified when availableCards is null (step: ${step.id})`,
+      );
+    }
+    const sourceZone = state.space[config._sourceZone];
+    const activationContext = config._effectId ? state.activationContexts[config._effectId] : undefined;
+    availableCards = config._filter
+      ? sourceZone.filter((card, index) => config._filter!(card, index, activationContext, sourceZone))
+      : sourceZone;
+  }
+
+  return { config, availableCards };
 }

@@ -126,8 +126,9 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
         { race: "Spellcaster" },
         createTestContext(EFFECT_ID_1),
       );
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("mainMonsterZone");
+      expect(config?._sourceZone).toBe("mainMonsterZone");
     });
 
     it("minCards と maxCards が 1 に設定される", () => {
@@ -136,9 +137,10 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
         { race: "Spellcaster" },
         createTestContext(EFFECT_ID_1),
       );
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.minCards).toBe(1);
-      expect(step.cardSelectionConfig?.maxCards).toBe(1);
+      expect(config?.minCards).toBe(1);
+      expect(config?.maxCards).toBe(1);
     });
 
     it("_filter が種族でフィルタリングする", () => {
@@ -147,8 +149,8 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
         { race: "Spellcaster" },
         createTestContext(EFFECT_ID_1),
       );
-
-      const filter = step.cardSelectionConfig?._filter;
+      const config = step.cardSelectionConfig!(createMockGameState());
+      const filter = config?._filter;
       expect(filter).toBeDefined();
 
       // Spellcaster モンスター（表側表示）は通過
@@ -260,14 +262,15 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が graveyard に設定される", () => {
       const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("graveyard");
+      expect(config?._sourceZone).toBe("graveyard");
     });
 
     it("_filter がモンスターのみを対象とする", () => {
       const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
-
-      const filter = step.cardSelectionConfig?._filter;
+      const config = step.cardSelectionConfig!(createMockGameState());
+      const filter = config?._filter;
       expect(filter).toBeDefined();
 
       // モンスターは通過

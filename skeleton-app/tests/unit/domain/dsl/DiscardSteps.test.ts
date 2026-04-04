@@ -159,27 +159,30 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が hand に設定される", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("hand");
+      expect(config?._sourceZone).toBe("hand");
     });
 
     it("minCards と maxCards が count に設定される", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.minCards).toBe(2);
-      expect(step.cardSelectionConfig?.maxCards).toBe(2);
+      expect(config?.minCards).toBe(2);
+      expect(config?.maxCards).toBe(2);
     });
 
     it("cancelable: true を指定できる", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 1, cancelable: true }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.cancelable).toBe(true);
+      expect(config?.cancelable).toBe(true);
     });
 
     it("_filter が filterType でフィルタリングする", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "spell" }, createTestContext());
-
-      const filter = step.cardSelectionConfig?._filter;
+      const config = step.cardSelectionConfig!(createMockGameState());
+      const filter = config?._filter;
       expect(filter).toBeDefined();
 
       const spell = createTestSpellCard("test-spell", "normal", { location: "hand" });
@@ -315,14 +318,16 @@ describe("selectAndDiscardStep", () => {
 
     expect(step.id).toContain("select-and-discard");
     expect(step.id).toContain("2");
-    expect(step.cardSelectionConfig?.minCards).toBe(2);
-    expect(step.cardSelectionConfig?.maxCards).toBe(2);
+    const config1 = step.cardSelectionConfig!(createMockGameState());
+    expect(config1?.minCards).toBe(2);
+    expect(config1?.maxCards).toBe(2);
   });
 
   it("cancelable オプションを指定できる", () => {
     const step = selectAndDiscardStep(1, true);
+    const config = step.cardSelectionConfig!(createMockGameState());
 
-    expect(step.cardSelectionConfig?.cancelable).toBe(true);
+    expect(config?.cancelable).toBe(true);
   });
 
   it("filterType オプションを指定できる", () => {

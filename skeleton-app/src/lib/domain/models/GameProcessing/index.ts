@@ -17,6 +17,7 @@ export type { NotificationLevel, InteractionConfig, CardSelectionConfig, AtomicS
 import * as ValidationResultFuncs from "./UpdateValidation";
 import * as GameStateUpdateFuncs from "./GameStateUpdate";
 import * as EventTimelineFuncs from "./EventTimeline";
+import * as AtomicStepFuncs from "./AtomicStep";
 
 export const GameProcessing = {
   Validation: {
@@ -40,5 +41,9 @@ export const GameProcessing = {
     getCurrentEvents: EventTimelineFuncs.getCurrentEvents,
     hasEventOfType: EventTimelineFuncs.hasEventOfType,
     clearHistory: EventTimelineFuncs.clearHistory,
+  },
+
+  AtomicStep: {
+    resolveCardSelection: AtomicStepFuncs.resolveCardSelection,
   },
 };

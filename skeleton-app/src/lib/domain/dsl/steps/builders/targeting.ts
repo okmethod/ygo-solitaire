@@ -47,8 +47,8 @@ export const selectTargetFromFieldByRaceStep = (cardId: number, effectId: Effect
     summary,
     description,
     notificationLevel: "interactive",
-    cardSelectionConfig: {
-      availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
+    cardSelectionConfig: () => ({
+      availableCards: null,
       minCards: 1,
       maxCards: 1,
       summary,
@@ -56,7 +56,7 @@ export const selectTargetFromFieldByRaceStep = (cardId: number, effectId: Effect
       cancelable: false,
       _sourceZone: "mainMonsterZone",
       _filter: filter,
-    },
+    }),
     action: (state: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return GameProcessing.Result.failure(state, "No target selected");
@@ -100,7 +100,7 @@ export const selectTargetsFromGraveyardStep = (cardId: number, effectId: EffectI
     summary,
     description,
     notificationLevel: "interactive",
-    cardSelectionConfig: {
+    cardSelectionConfig: () => ({
       availableCards: null,
       minCards: count,
       maxCards: count,
@@ -109,7 +109,7 @@ export const selectTargetsFromGraveyardStep = (cardId: number, effectId: EffectI
       cancelable: false,
       _sourceZone: "graveyard",
       _filter: filter,
-    },
+    }),
     action: (state: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return GameProcessing.Result.failure(state, "No targets selected");

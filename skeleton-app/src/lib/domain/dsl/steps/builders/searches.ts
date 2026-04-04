@@ -38,8 +38,8 @@ const internalSearchStep = (
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
-    cardSelectionConfig: {
-      availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
+    cardSelectionConfig: () => ({
+      availableCards: null,
       minCards: config.minCards,
       maxCards: config.maxCards,
       summary: config.summary,
@@ -47,7 +47,7 @@ const internalSearchStep = (
       cancelable: config.cancelable ?? false,
       _sourceZone: sourceZone,
       _filter: config.filter,
-    },
+    }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // ソースゾーンのカードをフィルタリング
       const availableCards =
@@ -154,7 +154,7 @@ export const searchFromDeckTopStep = (cardId: number, count: number, selectCount
     summary,
     description,
     notificationLevel: "interactive",
-    cardSelectionConfig: {
+    cardSelectionConfig: () => ({
       availableCards: null,
       minCards: selectCount,
       maxCards: selectCount,
@@ -163,7 +163,7 @@ export const searchFromDeckTopStep = (cardId: number, count: number, selectCount
       cancelable: false,
       _sourceZone: "mainDeck",
       _filter: filter,
-    },
+    }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       const topCards = currentState.space.mainDeck.slice(0, count);
 

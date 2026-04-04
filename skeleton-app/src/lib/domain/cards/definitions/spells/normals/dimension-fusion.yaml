@@ -1,0 +1,26 @@
+# 《次元融合》 (Dimension Fusion)
+#
+# カードの発動:
+# - CONDITIONS: 自分のLPが2000以上
+# - ACTIVATIONS: LP2000を支払う（コスト）
+# - RESOLUTIONS: お互いの除外ゾーンのモンスターを可能な限り特殊召喚する
+
+id: 23557835
+
+data:
+  jaName: "次元融合"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "LP_AT_LEAST"
+          args: { amount: 2000 }
+    activations:
+      - step: "PAY_LP"
+        args: { amount: 2000 }
+    resolutions:
+      - step: "SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE"

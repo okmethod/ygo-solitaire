@@ -105,15 +105,17 @@ describe("StepRegistry - RELEASE", () => {
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が mainMonsterZone に設定される", () => {
       const step = buildStep("RELEASE", {}, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("mainMonsterZone");
+      expect(config?._sourceZone).toBe("mainMonsterZone");
     });
 
     it("minCards と maxCards が count に設定される", () => {
       const step = buildStep("RELEASE", { count: 2 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.minCards).toBe(2);
-      expect(step.cardSelectionConfig?.maxCards).toBe(2);
+      expect(config?.minCards).toBe(2);
+      expect(config?.maxCards).toBe(2);
     });
   });
 });
@@ -226,7 +228,7 @@ describe("selectAndReleaseStep", () => {
       }),
     });
 
-    expect(step.cardSelectionConfig?._filter).toBeDefined();
+    expect(step.cardSelectionConfig!(createMockGameState())?._filter).toBeDefined();
   });
 
   it("カスタムサマリーを設定できる", () => {

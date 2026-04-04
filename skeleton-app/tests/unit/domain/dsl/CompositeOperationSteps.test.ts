@@ -139,15 +139,17 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が hand に設定される", () => {
       const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("hand");
+      expect(config?._sourceZone).toBe("hand");
     });
 
     it("minCards と maxCards が正しく設定される", () => {
       const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 2, max: 4 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.minCards).toBe(2);
-      expect(step.cardSelectionConfig?.maxCards).toBe(4);
+      expect(config?.minCards).toBe(2);
+      expect(config?.maxCards).toBe(4);
     });
   });
 });
@@ -229,8 +231,9 @@ describe("selectReturnShuffleDrawStep", () => {
     const step = selectReturnShuffleDrawStep({ min: 1, max: 3 });
 
     expect(step.id).toContain("select-and-return-to-deck");
-    expect(step.cardSelectionConfig?.minCards).toBe(1);
-    expect(step.cardSelectionConfig?.maxCards).toBe(3);
+    const config = step.cardSelectionConfig!(createMockGameState());
+    expect(config?.minCards).toBe(1);
+    expect(config?.maxCards).toBe(3);
   });
 });
 

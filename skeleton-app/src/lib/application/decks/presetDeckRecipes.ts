@@ -137,7 +137,7 @@ const deckScienceCatapult: DeckRecipe = {
   category: "フルバーン",
   mainDeck: [
     // モンスターカード
-    { id: 34206604, quantity: 3 }, // 魔導サイエンティスト
+    { id: 34206604, quantity: 1 }, // 魔導サイエンティスト
     { id: 95727991, quantity: 3 }, // カタパルト・タートル[L]
     { id: 40737112, quantity: 3 }, // 混沌の黒魔術師[L]
     { id: 79875176, quantity: 1 }, // トゥーン・キャノン・ソルジャー
@@ -147,10 +147,13 @@ const deckScienceCatapult: DeckRecipe = {
     { id: 79571449, quantity: 1 }, // 天使の施し
     { id: 83764719, quantity: 1 }, // 死者蘇生
     { id: 70828912, quantity: 1 }, // 早すぎた埋葬
+    { id: 23557835, quantity: 1 }, // 次元融合
     { id: 85602018, quantity: 3 }, // 遺言状
     { id: 43040603, quantity: 3 }, // モンスターゲート
     { id: 58577036, quantity: 3 }, // 名推理
     { id: 74519184, quantity: 3 }, // 手札断殺
+    { id: 98494543, quantity: 3 }, // 魔法石の採掘
+    { id: 85852291, quantity: 3 }, // 打ち出の小槌
     { id: 24874630, quantity: 3 }, // デビルズ・サンクチュアリ
     { id: 89997728, quantity: 3 }, // トゥーンのもくじ
   ],

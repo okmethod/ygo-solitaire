@@ -38,6 +38,7 @@ import {
   specialSummonFromDeckByAtkStepBuilder,
   specialSummonFromExtraDeckStepBuilder,
   specialSummonFromContextStepBuilder,
+  specialSummonFromBanishedAsPossibleStepBuilder,
 } from "./builders/summons";
 import { excavateUntilMonsterStepBuilder, excavateUntilMonsterWithLevelCheckStepBuilder } from "./builders/excavations";
 import { createTokenMonsterStepBuilder } from "./builders/tokens";
@@ -117,6 +118,7 @@ AtomicStepRegistry.register(S.RELEASE_FOR_BURN, selectAndReleaseForBurnStepBuild
 
 // 除外関連
 AtomicStepRegistry.register(S.SELECT_AND_BANISH_FROM_GRAVEYARD, selectAndBanishFromGraveyardStepBuilder);
+AtomicStepRegistry.register(S.SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE, specialSummonFromBanishedAsPossibleStepBuilder);
 
 // デッキ操作関連
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);

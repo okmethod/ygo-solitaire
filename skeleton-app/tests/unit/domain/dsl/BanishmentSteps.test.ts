@@ -240,21 +240,24 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が graveyard に設定される", () => {
       const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 1, maxCount: 1 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("graveyard");
+      expect(config?._sourceZone).toBe("graveyard");
     });
 
     it("minCards と maxCards が正しく設定される", () => {
       const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 2, maxCount: 5 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.minCards).toBe(2);
-      expect(step.cardSelectionConfig?.maxCards).toBe(5);
+      expect(config?.minCards).toBe(2);
+      expect(config?.maxCards).toBe(5);
     });
 
     it("cancelable が false に設定される", () => {
       const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 1, maxCount: 1 }, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.cancelable).toBe(false);
+      expect(config?.cancelable).toBe(false);
     });
   });
 });

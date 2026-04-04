@@ -11,7 +11,7 @@ import type { DeckLocationName } from "$lib/domain/models/Location";
 import type { CardInstance, BattlePosition } from "$lib/domain/models/Card";
 import type { GameSnapshot, EffectActivationContext } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, GameStateUpdateResult, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { EffectId } from "$lib/domain/models/Effect";
 import { canSpecialSummon, executeSpecialSummon } from "$lib/domain/rules/SummonRule";
@@ -71,7 +71,7 @@ const internalSpecialSummonStep = (
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
-    cardSelectionConfig: {
+    cardSelectionConfig: () => ({
       availableCards: null,
       minCards: 1,
       maxCards: 1,
@@ -81,7 +81,7 @@ const internalSpecialSummonStep = (
       _sourceZone: sourceZone,
       _effectId: config.effectId,
       _filter: config.dynamicFilter ?? config.filter,
-    },
+    }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // フィルターを解決（動的 or 静的）
       const filter = config.createFilter?.(currentState) ?? config.filter!;
@@ -389,4 +389,86 @@ export const specialSummonFromContextStepBuilder: StepBuilderFn = (args, context
   const battlePosition = ArgValidators.optionalOneOf(args, "battlePosition", ["attack", "defense"] as const, "attack");
   const clearContext = ArgValidators.optionalBoolean(args, "clearContext", true);
   return specialSummonFromContextStep(context.cardId, context.effectId, battlePosition, clearContext);
+};
+
+/**
+ * 除外ゾーンのモンスターを可能な限り同時特殊召喚するステップ
+ *
+ * 処理:
+ * 1. 除外ゾーンのモンスター数とモンスターゾーンの空き数を確認
+ * 2a. 全員空きに収まる場合: 選択UIなしで全員を自動召喚
+ * 2b. 収まらない場合: 空き数ちょうどの体数を選択するUIを表示
+ * 3. 選択されたモンスターを一斉に特殊召喚（同時処理）
+ *
+ * Note: メインモンスターゾーン最大容量は5
+ */
+export const specialSummonFromBanishedAsPossibleStep = (cardId: number): AtomicStep => {
+  const MONSTER_ZONE_CAPACITY = 5;
+
+  return {
+    id: `${cardId}-special-summon-from-banished-as-possible`,
+    sourceCardId: cardId,
+    summary: "除外モンスターを特殊召喚",
+    description: "除外ゾーンのモンスターを可能な限り特殊召喚します",
+    notificationLevel: "interactive",
+    cardSelectionConfig: (state: GameSnapshot): CardSelectionConfig | null => {
+      const banishedMonsters = state.space.banished.filter((c) => c.type === "monster");
+      const emptySlots = MONSTER_ZONE_CAPACITY - state.space.mainMonsterZone.length;
+      const summonCount = Math.min(emptySlots, banishedMonsters.length);
+
+      // 全員が空きに収まる（またはゼロ）場合はUIなし
+      if (banishedMonsters.length <= emptySlots) return null;
+
+      // 収まりきらない場合：空き数ちょうどを選択させる
+      return {
+        availableCards: null,
+        _sourceZone: "banished",
+        _filter: (card: CardInstance) => card.type === "monster",
+        minCards: summonCount,
+        maxCards: summonCount,
+        summary: "除外モンスターを選択",
+        description: `除外ゾーンのモンスターから${summonCount}体を選んで特殊召喚します`,
+        cancelable: false,
+      };
+    },
+    action: (state: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      const MONSTER_ZONE_CAPACITY = 5;
+      const banishedMonsters = state.space.banished.filter((c) => c.type === "monster");
+      const emptySlots = MONSTER_ZONE_CAPACITY - state.space.mainMonsterZone.length;
+      const summonCount = Math.min(emptySlots, banishedMonsters.length);
+
+      if (summonCount === 0) {
+        return GameProcessing.Result.success(state, "No banished monsters to summon (zone full or none available)");
+      }
+
+      // 召喚対象を確定（選択あり: selectedInstanceIds / 選択なし: 全員自動）
+      const toSummon =
+        selectedInstanceIds && selectedInstanceIds.length > 0
+          ? selectedInstanceIds
+          : banishedMonsters.slice(0, summonCount).map((c) => c.instanceId);
+
+      // 全員を一斉に特殊召喚
+      let currentState = state;
+      const events = [];
+      for (const instanceId of toSummon) {
+        const { state: nextState, event } = executeSpecialSummon(currentState, instanceId, "attack");
+        currentState = nextState;
+        events.push(event);
+      }
+
+      return GameProcessing.Result.success(
+        currentState,
+        `Special summoned ${toSummon.length} banished monster(s) simultaneously`,
+        events,
+      );
+    },
+  };
+};
+
+/**
+ * SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE - 除外ゾーンのモンスターを可能な限り特殊召喚
+ * args: なし
+ */
+export const specialSummonFromBanishedAsPossibleStepBuilder: StepBuilderFn = (_args, context) => {
+  return specialSummonFromBanishedAsPossibleStep(context.cardId);
 };

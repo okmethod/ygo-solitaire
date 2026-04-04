@@ -9,7 +9,7 @@
 import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep, GameStateUpdateResult, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, GameStateUpdateResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry"; // 循環インポートに注意
 
@@ -49,7 +49,7 @@ export const selectCardsStep = (config: {
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
-    cardSelectionConfig: {
+    cardSelectionConfig: () => ({
       availableCards: config.availableCards,
       _sourceZone: config._sourceZone,
       _filter: config._filter,
@@ -59,7 +59,7 @@ export const selectCardsStep = (config: {
       description: config.description,
       cancelable: config.cancelable ?? false,
       canConfirm: config.canConfirm,
-    } satisfies CardSelectionConfig,
+    }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // カードが選択されていない場合（minCards = 0の場合に発生しうる）
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {

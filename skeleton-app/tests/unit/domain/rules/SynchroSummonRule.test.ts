@@ -366,7 +366,7 @@ describe("SynchroSummonRule", () => {
 
         // Assert - step should have cardSelectionConfig with canConfirm
         expect(result.step.cardSelectionConfig).toBeDefined();
-        expect(result.step.cardSelectionConfig?.canConfirm).toBeDefined();
+        expect(result.step.cardSelectionConfig!(state)?.canConfirm).toBeDefined();
       });
 
       it("canConfirm should return false for single card selection", () => {
@@ -377,7 +377,7 @@ describe("SynchroSummonRule", () => {
           synchroLevel: 6,
         });
         const result = performSynchroSummon(state, "synchro-0");
-        const config = result.step.cardSelectionConfig;
+        const config = result.step.cardSelectionConfig!(state);
         expect(config).toBeDefined();
         const canConfirm = config!.canConfirm!;
         const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
@@ -398,7 +398,7 @@ describe("SynchroSummonRule", () => {
         const tuner2 = { ...tuner1, instanceId: "tuner-1" };
 
         const result = performSynchroSummon(state, "synchro-0");
-        const config = result.step.cardSelectionConfig;
+        const config = result.step.cardSelectionConfig!(state);
         expect(config).toBeDefined();
         const canConfirm = config!.canConfirm!;
 
@@ -414,7 +414,7 @@ describe("SynchroSummonRule", () => {
           synchroLevel: 6,
         });
         const result = performSynchroSummon(state, "synchro-0");
-        const config = result.step.cardSelectionConfig;
+        const config = result.step.cardSelectionConfig!(state);
         expect(config).toBeDefined();
         const canConfirm = config!.canConfirm!;
         const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
@@ -432,7 +432,7 @@ describe("SynchroSummonRule", () => {
           synchroLevel: 6,
         });
         const result = performSynchroSummon(state, "synchro-0");
-        const config = result.step.cardSelectionConfig;
+        const config = result.step.cardSelectionConfig!(state);
         expect(config).toBeDefined();
         const canConfirm = config!.canConfirm!;
         const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;
@@ -450,7 +450,7 @@ describe("SynchroSummonRule", () => {
           synchroLevel: 5,
         });
         const result = performSynchroSummon(state, "synchro-0");
-        const config = result.step.cardSelectionConfig;
+        const config = result.step.cardSelectionConfig!(state);
         expect(config).toBeDefined();
         const canConfirm = config!.canConfirm!;
         const tuner = state.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!;

@@ -62,8 +62,8 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
     summary,
     description: "モンスターが出るまでデッキをめくり、そのモンスターを特殊召喚します。残りは墓地へ送ります。",
     notificationLevel: "interactive",
-    cardSelectionConfig: {
-      availableCards: null, // 動的指定
+    cardSelectionConfig: () => ({
+      availableCards: null,
       minCards: 1,
       maxCards: 1,
       summary: "めくったカードを確認",
@@ -84,7 +84,7 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
         if (selectedCards.length !== 1) return false;
         return selectedCards[0].type === "monster";
       },
-    },
+    }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       const deck = currentState.space.mainDeck;
 
@@ -183,7 +183,7 @@ export const excavateUntilMonsterWithLevelCheckStep = (
     summary,
     description: "モンスターが出るまでデッキをめくります。宣言と異なるレベルなら特殊召喚、同じなら墓地へ送ります。",
     notificationLevel: "interactive",
-    cardSelectionConfig: {
+    cardSelectionConfig: () => ({
       availableCards: null,
       minCards: 1,
       maxCards: 1,
@@ -201,7 +201,7 @@ export const excavateUntilMonsterWithLevelCheckStep = (
         if (selectedCards.length !== 1) return false;
         return selectedCards[0].type === "monster";
       },
-    },
+    }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       const deck = currentState.space.mainDeck;
 

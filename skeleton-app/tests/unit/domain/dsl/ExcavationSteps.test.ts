@@ -216,19 +216,22 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
   describe("cardSelectionConfig", () => {
     it("_sourceZone が mainDeck に設定される", () => {
       const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?._sourceZone).toBe("mainDeck");
+      expect(config?._sourceZone).toBe("mainDeck");
     });
 
     it("cancelable が false に設定される", () => {
       const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const config = step.cardSelectionConfig!(createMockGameState());
 
-      expect(step.cardSelectionConfig?.cancelable).toBe(false);
+      expect(config?.cancelable).toBe(false);
     });
 
     it("_filter がインデックスに基づいてフィルタリングする", () => {
       const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
-      const filter = step.cardSelectionConfig?._filter;
+      const config = step.cardSelectionConfig!(createMockGameState());
+      const filter = config?._filter;
 
       expect(filter).toBeDefined();
 
@@ -250,7 +253,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
 
     it("canConfirm がモンスター1体選択時のみtrueを返す", () => {
       const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
-      const canConfirm = step.cardSelectionConfig?.canConfirm;
+      const canConfirm = step.cardSelectionConfig!(createMockGameState())?.canConfirm;
 
       expect(canConfirm).toBeDefined();
 

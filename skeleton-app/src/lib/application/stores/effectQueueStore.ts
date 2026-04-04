@@ -31,9 +31,9 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, GameEvent, EventTimeline } from "$lib/domain/models/GameProcessing";
-import type { ChainableAction } from "$lib/domain/models/Effect";
-import type { ChainBlockParams } from "$lib/domain/models/Chain/ChainBlock";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
+import type { ChainableAction } from "$lib/domain/models/Effect";
+import type { ChainBlockParams } from "$lib/domain/models/Chain";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
@@ -139,33 +139,17 @@ const dynamicStrategy: NotificationStrategy = async (step, gameState, handlers) 
 
 // Strategy: "interactive"レベル（カード選択あり） - モーダル表示、ユーザー入力待ち
 const interactiveWithSelectionStrategy: NotificationStrategy = async (step, gameState, _handlers, updateState) => {
-  const config = step.cardSelectionConfig!;
+  // ドメイン層でカード選択設定を解決（availableCards の解決もここで行う）
+  const resolved = GameProcessing.AtomicStep.resolveCardSelection(step, gameState);
 
-  // availableCardsの取得: 配列=直接指定, null=動的指定
-  let availableCards: readonly CardInstance[];
-  if (config.availableCards !== null) {
-    // 直接指定: config.availableCards をそのまま使用
-    availableCards = config.availableCards;
-  } else {
-    // 動的指定: _sourceZone から実行時に取得
-    if (!config._sourceZone) {
-      console.error("_sourceZone must be specified when availableCards is null");
-      return { shouldContinue: false };
-    }
-    const sourceZone = gameState.space[config._sourceZone];
-
-    // EffectActivationContext を解決（_effectId が指定されている場合）
-    const activationContext = config._effectId ? gameState.activationContexts[config._effectId] : undefined;
-
-    availableCards = config._filter
-      ? sourceZone.filter((card, index) => config._filter!(card, index, activationContext, sourceZone))
-      : sourceZone;
+  if (!resolved) {
+    // null = 選択不要（自動実行）
+    const result = executeStepAction(step, gameState);
+    return { shouldContinue: true, emittedEvents: result.emittedEvents };
   }
 
-  // イベント情報をキャプチャするための変数
+  const { config, availableCards } = resolved;
   let emittedEvents: GameEvent[] = [];
-
-  // 発動元カード名を解決
   const sourceCardName = step.sourceCardId ? CardDataRegistry.getCardNameWithBrackets(step.sourceCardId) : undefined;
 
   // カード選択モーダル（Promise化）- 状態を更新してモーダルを表示
