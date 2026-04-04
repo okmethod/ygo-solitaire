@@ -34,6 +34,9 @@
   const selectedCount = $derived(selectedIds.size);
   const cancelable = $derived(config?.cancelable ?? false);
 
+  // 対象が不足していて効果が不発になるかチェック
+  const isFizzled = $derived(config != null && config.availableCards.length < config.minCards);
+
   // 選択中のカードインスタンス配列
   const selectedCards = $derived(() => {
     if (!config) return [];
@@ -92,6 +95,11 @@
     }
   }
 
+  // 不発確認ボタン
+  function handleFizzle() {
+    config?.onConfirm([]);
+  }
+
   // 確定ボタン
   function handleConfirm() {
     if (!config || !isValidSelection()) return;
@@ -139,49 +147,61 @@
             {/if}
           </div>
 
-          <!-- 説明文 -->
-          <p class="text-sm text-surface-600-300-token mb-4">{config.description}</p>
-
-          <!-- 選択状況 -->
-          <div
-            class="flex justify-between items-center mb-4 p-3 bg-surface-200 dark:bg-surface-800 rounded-lg border border-surface-300 dark:border-surface-600"
-          >
-            <span class="text-sm font-semibold">
-              選択中: {selectedCount} / {config.maxCards}枚
-            </span>
-          </div>
-
-          <!-- カード選択エリア -->
-          <div class="min-h-[200px] max-h-[400px] overflow-y-auto mb-6">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {#each config.availableCards as cardInstance (cardInstance.instanceId)}
-                {@const selected = isSelected(cardInstance.instanceId)}
-                {@const canToggle = canToggleCard(cardInstance.instanceId)}
-                {@const cardDisplay = getCardDisplay(cardInstance.instanceId)}
-                {#if cardDisplay}
-                  <div class:opacity-50={!canToggle && !selected}>
-                    <CardComponent
-                      card={cardDisplay}
-                      size="small"
-                      clickable={true}
-                      selectable={false}
-                      isSelected={selected}
-                      animate={true}
-                      onClick={() => handleCardClick(cardInstance.instanceId)}
-                    />
-                  </div>
-                {/if}
-              {/each}
+          {#if isFizzled}
+            <!-- 不発UI -->
+            <div class="flex flex-col items-center justify-center py-10 gap-4 text-center">
+              <p class="text-surface-500 dark:text-surface-400 text-sm">
+                対象となるカードが存在しないため、不発となります
+              </p>
             </div>
-          </div>
+            <div class="flex justify-end mt-6">
+              <button class="btn btn-primary" onclick={handleFizzle}> 確認 </button>
+            </div>
+          {:else}
+            <!-- 説明文 -->
+            <p class="text-sm text-surface-600-300-token mb-4">{config.description}</p>
 
-          <!-- ボタンエリア -->
-          <div class="flex justify-end gap-3 mt-6">
-            {#if cancelable}
-              <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
-            {/if}
-            <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection()}> 確定 </button>
-          </div>
+            <!-- 選択状況 -->
+            <div
+              class="flex justify-between items-center mb-4 p-3 bg-surface-200 dark:bg-surface-800 rounded-lg border border-surface-300 dark:border-surface-600"
+            >
+              <span class="text-sm font-semibold">
+                選択中: {selectedCount} / {config.maxCards}枚
+              </span>
+            </div>
+
+            <!-- カード選択エリア -->
+            <div class="min-h-[200px] max-h-[400px] overflow-y-auto mb-6">
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {#each config.availableCards as cardInstance (cardInstance.instanceId)}
+                  {@const selected = isSelected(cardInstance.instanceId)}
+                  {@const canToggle = canToggleCard(cardInstance.instanceId)}
+                  {@const cardDisplay = getCardDisplay(cardInstance.instanceId)}
+                  {#if cardDisplay}
+                    <div class:opacity-50={!canToggle && !selected}>
+                      <CardComponent
+                        card={cardDisplay}
+                        size="small"
+                        clickable={true}
+                        selectable={false}
+                        isSelected={selected}
+                        animate={true}
+                        onClick={() => handleCardClick(cardInstance.instanceId)}
+                      />
+                    </div>
+                  {/if}
+                {/each}
+              </div>
+            </div>
+
+            <!-- ボタンエリア -->
+            <div class="flex justify-end gap-3 mt-6">
+              {#if cancelable}
+                <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
+              {/if}
+              <button class="btn btn-primary" onclick={handleConfirm} disabled={!isValidSelection()}> 確定 </button>
+            </div>
+          {/if}
         {/if}
       </Dialog.Content>
     </Dialog.Positioner>
