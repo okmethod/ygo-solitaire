@@ -9,10 +9,11 @@
  * - Map による O(1) 高速ルックアップ
  */
 
-import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
+import type { ChainableAction } from "$lib/domain/models/Effect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { GameEvent, AtomicStep } from "$lib/domain/models/GameProcessing";
+import type { ChainBlockParams } from "$lib/domain/models/Chain";
 import { Card } from "$lib/domain/models/Card";
 import { isTriggerEffect } from "$lib/domain/effects/actions/triggers/BaseTriggerEffect";
 
@@ -29,6 +30,14 @@ interface CardEffectEntry {
   activation?: ChainableAction;
   ignitionEffects: ChainableAction[];
   triggerEffects: ChainableAction[];
+}
+
+/** collectTriggerSteps の任意効果エントリ */
+interface TriggerOptionalEffect {
+  instance: CardInstance;
+  action: ChainableAction;
+  activationSteps: AtomicStep[];
+  resolutionSteps: AtomicStep[];
 }
 
 /**
@@ -101,26 +110,20 @@ export class ChainableActionRegistry {
   /**
    * イベントに反応する誘発効果のトリガーステップを収集する
    *
-   * AdditionalRuleRegistry.collectTriggerSteps() と同じパターンで、
-   * レジストリ側で収集ロジックを完結させる。
-   *
-   * 現在の実装: 強制効果（isMandatory: true）のみ処理
-   * 将来拡張: 任意効果（isMandatory: false）のチェーン確認UI統合
-   * TODO: 戻り値を { mandatorySteps, optionalEffects } に拡張して任意効果に対応
+   * - 強制効果（isMandatory: true）: mandatorySteps に追加し、チェーンブロックも作成
+   * - 任意効果（isMandatory: false）: optionalEffects に追加（確認UI経由で発動）
    */
   static collectTriggerSteps(
     state: GameSnapshot,
     event: GameEvent,
-    onCreateChainBlock: (chainBlock: {
-      sourceInstanceId: string;
-      sourceCardId: number;
-      effectId: EffectId;
-      spellSpeed: 1 | 2 | 3;
-      resolutionSteps: AtomicStep[];
-      isNegated: boolean;
-    }) => void,
-  ): AtomicStep[] {
-    const activationSteps: AtomicStep[] = [];
+  ): {
+    mandatorySteps: AtomicStep[];
+    mandatoryChainBlocks: ChainBlockParams[];
+    optionalEffects: TriggerOptionalEffect[];
+  } {
+    const mandatorySteps: AtomicStep[] = [];
+    const mandatoryChainBlocks: ChainBlockParams[] = [];
+    const optionalEffects: TriggerOptionalEffect[] = [];
 
     // Helper: カードから誘発効果を収集
     const collectFromCards = (cards: readonly CardInstance[], requireFaceUp: boolean) => {
@@ -145,29 +148,25 @@ export class ChainableActionRegistry {
           const canActivate = effect.canActivate(state, card);
           if (!canActivate.isValid) continue;
 
-          // 強制効果のみ処理（isMandatory: true）
-          // TODO: 任意効果のチェーン確認UI統合は将来拡張
-          // 戻り値を { mandatorySteps: AtomicStep[], optionalEffects: Array<{ instance, action }> } に拡張し、
-          // 任意効果（isMandatory: false）は optionalEffects 配列に追加する。
-          // effectQueueStore 側で既存のチェーン確認UIを使って発動するかパスするかを選択させる。
-          if (!effect.isMandatory) continue;
-
           // ActivationSteps と ResolutionSteps を生成
-          const stepsBatch = effect.createActivationSteps(state, card);
+          const activationSteps = effect.createActivationSteps(state, card);
           const resolutionSteps = effect.createResolutionSteps(state, card);
 
-          // チェーンブロック作成をコールバック経由で委譲
-          onCreateChainBlock({
-            sourceInstanceId: card.instanceId,
-            sourceCardId: card.id,
-            effectId: effect.effectId,
-            spellSpeed: effect.spellSpeed,
-            resolutionSteps,
-            isNegated: false,
-          });
-
-          // ActivationSteps を収集
-          activationSteps.push(...stepsBatch);
+          if (effect.isMandatory) {
+            // 強制効果: チェーンブロックを収集してステップを追加
+            mandatoryChainBlocks.push({
+              sourceInstanceId: card.instanceId,
+              sourceCardId: card.id,
+              effectId: effect.effectId,
+              spellSpeed: effect.spellSpeed,
+              resolutionSteps,
+              isNegated: false,
+            });
+            mandatorySteps.push(...activationSteps);
+          } else {
+            // 任意効果: 確認UI経由で発動するため optionalEffects に追加
+            optionalEffects.push({ instance: card, action: effect, activationSteps, resolutionSteps });
+          }
         }
       }
     };
@@ -185,7 +184,7 @@ export class ChainableActionRegistry {
     // 除外: 表裏判定不要
     collectFromCards(state.space.banished, false);
 
-    return activationSteps;
+    return { mandatorySteps, mandatoryChainBlocks, optionalEffects };
   }
 
   /**

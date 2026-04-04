@@ -20,9 +20,10 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
+import { BaseTriggerEffect } from "$lib/domain/effects/actions/triggers/BaseTriggerEffect";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import type { AtomicStep, ValidationResult, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
 import { createMockGameState } from "../../../../__testUtils__";
@@ -72,6 +73,54 @@ class MockChainableAction implements ChainableAction {
         action: (state: GameSnapshot) => {
           return { success: true, updatedState: state };
         },
+      },
+    ];
+  }
+}
+
+/**
+ * Mock BaseTriggerEffect for testing trigger registration and collectTriggerSteps
+ */
+class MockTriggerAction extends BaseTriggerEffect {
+  readonly triggers: readonly EventType[];
+  readonly triggerTiming = "when" as const;
+  readonly isMandatory: boolean;
+  readonly selfOnly = false;
+  readonly excludeSelf = false;
+
+  constructor(cardId: number, triggers: readonly EventType[] = ["spellActivated"], isMandatory = true) {
+    super(cardId, 0);
+    this.triggers = triggers;
+    this.isMandatory = isMandatory;
+  }
+
+  protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+    return GameProcessing.Validation.success();
+  }
+
+  // notifyActivationStep が CardDataRegistry を参照するためオーバーライドしてスキップ
+  createActivationSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
+    return [
+      {
+        id: `mock-trigger-activation-${sourceInstance.instanceId}`,
+        summary: "Mock trigger activation",
+        description: "Mock trigger activation step",
+        action: (state: GameSnapshot) => GameProcessing.Result.success(state, "Mock trigger activated"),
+      },
+    ];
+  }
+
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
+    return [];
+  }
+
+  protected individualResolutionSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
+    return [
+      {
+        id: `mock-trigger-${sourceInstance.instanceId}`,
+        summary: "Mock trigger resolution",
+        description: "Mock trigger resolution step",
+        action: (state: GameSnapshot) => GameProcessing.Result.success(state, "Mock trigger resolved"),
       },
     ];
   }
@@ -706,6 +755,155 @@ describe("ChainableActionRegistry", () => {
       expect(instanceIds).toContain("hand-0");
       expect(instanceIds).toContain("spell-0");
       expect(instanceIds).toContain("trap-0");
+    });
+  });
+
+  describe("registerTrigger() / getTriggerEffects() / hasTriggerEffects()", () => {
+    it("should register a trigger effect", () => {
+      const cardId = 12345;
+      const action = new MockTriggerAction(cardId);
+      ChainableActionRegistry.registerTrigger(cardId, action);
+
+      const effects = ChainableActionRegistry.getTriggerEffects(cardId);
+      expect(effects).toHaveLength(1);
+      expect(effects[0]).toBe(action);
+    });
+
+    it("should register multiple trigger effects for same card", () => {
+      const cardId = 12345;
+      const action1 = new MockTriggerAction(cardId, ["spellActivated"]);
+      const action2 = new MockTriggerAction(cardId, ["normalSummoned"]);
+      ChainableActionRegistry.registerTrigger(cardId, action1);
+      ChainableActionRegistry.registerTrigger(cardId, action2);
+
+      expect(ChainableActionRegistry.getTriggerEffects(cardId)).toHaveLength(2);
+    });
+
+    it("should return empty array for card with no trigger effects", () => {
+      expect(ChainableActionRegistry.getTriggerEffects(99999)).toEqual([]);
+    });
+
+    it("hasTriggerEffects() should return false when none registered", () => {
+      expect(ChainableActionRegistry.hasTriggerEffects(99999)).toBe(false);
+    });
+
+    it("hasTriggerEffects() should return true when registered", () => {
+      const cardId = 12345;
+      ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId));
+      expect(ChainableActionRegistry.hasTriggerEffects(cardId)).toBe(true);
+    });
+  });
+
+  describe("collectTriggerSteps()", () => {
+    /** テスト用モンスターゾーン表側表示カードを作成 */
+    const createMonsterCard = (id: number, instanceId: string): CardInstance => ({
+      id,
+      instanceId,
+      jaName: `Monster ${id}`,
+      type: "monster",
+      frameType: "effect",
+      edition: "latest",
+      location: "mainMonsterZone",
+      stateOnField: { position: "faceUp", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+    });
+
+    const makeEvent = (type: EventType = "spellActivated", sourceInstanceId = "other-instance"): GameEvent => ({
+      type,
+      sourceCardId: 99999,
+      sourceInstanceId,
+    });
+
+    it("強制効果は mandatoryChainBlocks と mandatorySteps に収集される", () => {
+      // Arrange
+      const cardId = 12345;
+      ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
+      const card = createMonsterCard(cardId, "mainMonsterZone-0");
+      const state = createMockGameState({ space: { mainMonsterZone: [card] } });
+
+      // Act
+      const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
+
+      // Assert
+      expect(result.mandatoryChainBlocks).toHaveLength(1);
+      expect(result.mandatoryChainBlocks[0].sourceInstanceId).toBe("mainMonsterZone-0");
+      expect(result.mandatorySteps.length).toBeGreaterThan(0);
+      expect(result.optionalEffects).toHaveLength(0);
+    });
+
+    it("任意効果は optionalEffects に収集される", () => {
+      // Arrange
+      const cardId = 12345;
+      ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], false));
+      const card = createMonsterCard(cardId, "mainMonsterZone-0");
+      const state = createMockGameState({ space: { mainMonsterZone: [card] } });
+
+      // Act
+      const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
+
+      // Assert
+      expect(result.optionalEffects).toHaveLength(1);
+      expect(result.optionalEffects[0].instance).toBe(card);
+      expect(result.mandatoryChainBlocks).toHaveLength(0);
+      expect(result.mandatorySteps).toHaveLength(0);
+    });
+
+    it("トリガーが一致しないイベントでは収集されない", () => {
+      // Arrange
+      const cardId = 12345;
+      ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
+      const state = createMockGameState({
+        space: { mainMonsterZone: [createMonsterCard(cardId, "mainMonsterZone-0")] },
+      });
+
+      // Act
+      const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("normalSummoned"));
+
+      // Assert
+      expect(result.mandatoryChainBlocks).toHaveLength(0);
+      expect(result.mandatorySteps).toHaveLength(0);
+      expect(result.optionalEffects).toHaveLength(0);
+    });
+
+    it("裏側表示のカードは収集されない", () => {
+      // Arrange
+      const cardId = 12345;
+      ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
+      const faceDownCard: CardInstance = {
+        ...createMonsterCard(cardId, "mainMonsterZone-0"),
+        stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+      };
+      const state = createMockGameState({ space: { mainMonsterZone: [faceDownCard] } });
+
+      // Act
+      const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
+
+      // Assert
+      expect(result.mandatoryChainBlocks).toHaveLength(0);
+      expect(result.mandatorySteps).toHaveLength(0);
+    });
+
+    it("複数カードの強制効果をまとめて収集できる", () => {
+      // Arrange
+      const cardId = 12345;
+      ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
+      const state = createMockGameState({
+        space: {
+          mainMonsterZone: [
+            createMonsterCard(cardId, "mainMonsterZone-0"),
+            createMonsterCard(cardId, "mainMonsterZone-1"),
+          ],
+        },
+      });
+
+      // Act
+      const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
+
+      // Assert
+      expect(result.mandatoryChainBlocks).toHaveLength(2);
+      expect(result.mandatoryChainBlocks.map((b) => b.sourceInstanceId)).toEqual([
+        "mainMonsterZone-0",
+        "mainMonsterZone-1",
+      ]);
     });
   });
 });

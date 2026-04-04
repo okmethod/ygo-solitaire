@@ -27,6 +27,7 @@
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
   import CardSelectionModal from "./_components/modals/CardSelectionModal.svelte";
+  import OptionalTriggerConfirmModal from "./_components/modals/OptionalTriggerConfirmModal.svelte";
   import ChainConfirmationModal from "./_components/modals/ChainConfirmationModal.svelte";
   import GameOverModal from "./_components/modals/GameOverModal.svelte";
   import CardMovingAnimationOverlay from "./_components/animations/CardMovingAnimationOverlay.svelte";
@@ -162,6 +163,12 @@
 <CardSelectionModal
   isOpen={$effectQueueStore.cardSelectionConfig !== null}
   config={$effectQueueStore.cardSelectionConfig}
+/>
+
+<!-- 任意誘発効果の発動確認モーダル -->
+<OptionalTriggerConfirmModal
+  isOpen={$effectQueueStore.optionalTriggerConfirmConfig !== null}
+  config={$effectQueueStore.optionalTriggerConfirmConfig}
 />
 
 <!-- チェーン確認モーダル: チェーン可能なカードがある場合 -->

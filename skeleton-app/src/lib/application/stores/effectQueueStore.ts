@@ -43,6 +43,8 @@ import type {
   ConfirmationConfig,
   ResolvedCardSelectionConfig,
   ChainConfirmationConfig,
+  OptionalTriggerConfirmConfig,
+  OptionalTriggerEffect,
 } from "$lib/application/types/game";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { chainStackStore } from "$lib/application/stores/chainStackStore";
@@ -63,8 +65,10 @@ interface EffectQueueState {
   confirmationConfig: ConfirmationConfig | null;
   // カード選択用の設定（null = 非表示）
   cardSelectionConfig: ResolvedCardSelectionConfig | null;
-  // チェーン確認用の設定（null = 非表示）
+  // チェーン構築確認用の設定（null = 非表示）
   chainConfirmationConfig: ChainConfirmationConfig | null;
+  // 任意誘発効果の発動確認用の設定（null = 非表示）
+  optionalTriggerConfirmConfig: OptionalTriggerConfirmConfig | null;
   // イベント時間軸（effectQueueStore の内部状態として管理）
   eventTimeline: EventTimeline;
 }
@@ -226,55 +230,82 @@ function selectInteractiveStrategy(step: AtomicStep): NotificationStrategy {
   return step.cardSelectionConfig ? interactiveWithSelectionStrategy : interactiveWithoutSelectionStrategy;
 }
 
-// イベントに対するトリガールールを収集してステップキューに挿入する
-function processTriggerEvents(
+// イベントに対するトリガールールを収集してステップキューに挿入する（任意効果はモーダル確認）
+async function processTriggerEvents(
   events: GameEvent[],
   currentState: GameSnapshot,
   currentSteps: AtomicStep[],
   currentIndex: number,
-): AtomicStep[] {
-  const triggerSteps: AtomicStep[] = [];
+  update: (updater: (state: EffectQueueState) => EffectQueueState) => void,
+): Promise<AtomicStep[]> {
+  const mandatorySteps: AtomicStep[] = [];
+  const optionalTriggers: OptionalTriggerEffect[] = [];
 
   for (const event of events) {
-    // AdditionalRule の TriggerRule を収集
-    const additionalRuleSteps = AdditionalRuleRegistry.collectTriggerSteps(currentState, event);
-    // 即座に実行
-    triggerSteps.push(...additionalRuleSteps);
+    // AdditionalRule の TriggerRule を収集（強制/任意を分離）
+    const additionalResult = AdditionalRuleRegistry.collectTriggerSteps(currentState, event);
+    mandatorySteps.push(...additionalResult.mandatorySteps);
+    for (const opt of additionalResult.optionalEffects) {
+      const sourceCardName = CardDataRegistry.getCardNameWithBrackets(opt.instance.id);
+      optionalTriggers.push({ sourceCardName, activate: () => opt.steps });
+    }
 
-    // ChainableAction の TriggerEffect を収集（強制効果のみ）
-    const chainableActionSteps = ChainableActionRegistry.collectTriggerSteps(currentState, event, (chainBlock) => {
-      // チェーンブロック作成してスタックに追加
-      chainStackStore.pushChainBlock(chainBlock);
-    });
-    triggerSteps.push(...chainableActionSteps);
-
-    // TODO: 任意効果のチェーン確認UI統合（将来拡張）
-    // collectTriggerSteps の戻り値を { mandatorySteps, optionalEffects } に拡張し、
-    // optionalEffects がある場合は既存のチェーン確認UIを表示する。
-    //
-    // 実装イメージ:
-    // const result = ChainableActionRegistry.collectTriggerSteps(...);
-    // triggerSteps.push(...result.mandatorySteps);
-    //
-    // if (result.optionalEffects.length > 0) {
-    //   update((s) => ({
-    //     ...s,
-    //     chainConfirmationConfig: {
-    //       chainableCards: result.optionalEffects,
-    //       onActivate: (instanceId) => { effectQueueStore.activateChain(...); },
-    //       onPass: () => { update((s) => ({ ...s, chainConfirmationConfig: null })); effectQueueStore.next(); },
-    //     },
-    //   }));
-    //   return currentSteps; // UIが表示されるので待機
-    // }
+    // ChainableAction の TriggerEffect を収集（強制/任意を分離）
+    const chainableResult = ChainableActionRegistry.collectTriggerSteps(currentState, event);
+    for (const block of chainableResult.mandatoryChainBlocks) {
+      chainStackStore.pushChainBlock(block);
+    }
+    mandatorySteps.push(...chainableResult.mandatorySteps);
+    for (const opt of chainableResult.optionalEffects) {
+      const sourceCardName = CardDataRegistry.getCardNameWithBrackets(opt.instance.id);
+      optionalTriggers.push({
+        sourceCardName,
+        activate: () => {
+          // 任意効果を発動: チェーンブロックを積んで activationSteps を返す
+          chainStackStore.pushChainBlock({
+            sourceInstanceId: opt.instance.instanceId,
+            sourceCardId: opt.instance.id,
+            effectId: opt.action.effectId,
+            spellSpeed: opt.action.spellSpeed,
+            resolutionSteps: opt.resolutionSteps,
+            isNegated: false,
+          });
+          return opt.activationSteps;
+        },
+      });
+    }
   }
 
-  if (triggerSteps.length === 0) {
+  // 任意効果を1件ずつ確認モーダルで処理
+  const optionalSteps: AtomicStep[] = [];
+  for (const optional of optionalTriggers) {
+    const stepsToAdd = await new Promise<AtomicStep[]>((resolve) => {
+      update((s) => ({
+        ...s,
+        optionalTriggerConfirmConfig: {
+          sourceCardName: optional.sourceCardName,
+          onActivate: () => {
+            const steps = optional.activate();
+            update((s) => ({ ...s, optionalTriggerConfirmConfig: null }));
+            resolve(steps);
+          },
+          onPass: () => {
+            update((s) => ({ ...s, optionalTriggerConfirmConfig: null }));
+            resolve([]);
+          },
+        },
+      }));
+    });
+    optionalSteps.push(...stepsToAdd);
+  }
+
+  const allTriggerSteps = [...mandatorySteps, ...optionalSteps];
+  if (allTriggerSteps.length === 0) {
     return currentSteps;
   }
 
   // 現在位置の次にトリガーステップを挿入
-  return [...currentSteps.slice(0, currentIndex + 1), ...triggerSteps, ...currentSteps.slice(currentIndex + 1)];
+  return [...currentSteps.slice(0, currentIndex + 1), ...allTriggerSteps, ...currentSteps.slice(currentIndex + 1)];
 }
 
 /** 効果処理ステップキューストアのインターフェース */
@@ -318,6 +349,7 @@ function createEffectQueueStore(): EffectQueueStore {
     confirmationConfig: null,
     cardSelectionConfig: null,
     chainConfirmationConfig: null,
+    optionalTriggerConfirmConfig: null,
     eventTimeline: GameProcessing.TimeLine.createEmptyTimeline(),
   });
 
@@ -375,9 +407,15 @@ function createEffectQueueStore(): EffectQueueStore {
         updatedTimeline = GameProcessing.TimeLine.recordEvent(updatedTimeline, event);
       }
 
-      // 最新の GameState を取得してトリガールールを収集
+      // 最新の GameState を取得してトリガールールを収集（任意効果はモーダル確認あり）
       const latestGameState = getStoreValue(gameStateStore);
-      const updatedSteps = processTriggerEvents(result.emittedEvents, latestGameState, state.steps, state.currentIndex);
+      const updatedSteps = await processTriggerEvents(
+        result.emittedEvents,
+        latestGameState,
+        state.steps,
+        state.currentIndex,
+        update,
+      );
 
       // ステップキューと EventTimeline を更新
       update((s) => ({

@@ -34,6 +34,42 @@ const createStateWithFieldZone = (cards: CardInstance[]) => createMockGameState(
 const createStateWithMonsterZone = (cards: CardInstance[]) =>
   createMockGameState({ space: { mainMonsterZone: cards } });
 
+/** テスト用フィールドゾーン表側表示カードを作成 */
+const createFaceUpFieldCard = (id: number, instanceId = "fieldZone-0"): CardInstance => ({
+  id,
+  jaName: "Test Card",
+  type: "spell",
+  frameType: "spell",
+  edition: "latest",
+  instanceId,
+  location: "fieldZone",
+  stateOnField: { position: "faceUp", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+});
+
+/** テスト用フィールドゾーン裏側表示カードを作成 */
+const createFaceDownFieldCard = (id: number, instanceId = "fieldZone-0"): CardInstance => ({
+  ...createFaceUpFieldCard(id, instanceId),
+  stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+});
+
+/** テスト用モンスターゾーン表側表示カードを作成 */
+const createFaceUpMonsterCard = (id: number, instanceId: string): CardInstance => ({
+  id,
+  jaName: "Test Monster",
+  type: "monster",
+  frameType: "effect",
+  edition: "latest",
+  instanceId,
+  location: "mainMonsterZone",
+  stateOnField: { position: "faceUp", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+});
+
+/** テスト用モンスターゾーン裏側表示カードを作成 */
+const createFaceDownMonsterCard = (id: number, instanceId: string): CardInstance => ({
+  ...createFaceUpMonsterCard(id, instanceId),
+  stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+});
+
 /**
  * Mock AdditionalRule for testing
  *
@@ -41,7 +77,7 @@ const createStateWithMonsterZone = (cards: CardInstance[]) =>
  */
 class MockAdditionalRule implements AdditionalRule {
   constructor(
-    private ruleName: string,
+    _ruleName: string,
     public readonly isEffect: boolean = true,
     public readonly category: RuleCategory = "ActionPermission",
     private applyCondition: boolean = true,
@@ -141,7 +177,6 @@ describe("AdditionalRuleRegistry", () => {
 
       // Assert
       expect(retrieved).toEqual([]);
-      expect(retrieved).toHaveLength(0);
     });
 
     it("should return all rules for a card with multiple rules", () => {
@@ -199,7 +234,6 @@ describe("AdditionalRuleRegistry", () => {
 
       // Assert
       expect(modifierRules).toEqual([]);
-      expect(modifierRules).toHaveLength(0);
     });
 
     it("should return empty array for unknown card ID", () => {
@@ -227,23 +261,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(chickenGameId, chickenGameRule);
 
-      // Create mock card instance
-      const chickenGameCard: CardInstance = {
-        id: chickenGameId,
-        jaName: "Chicken Game",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        instanceId: "fieldZone-0",
-        location: "fieldZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
+      const chickenGameCard = createFaceUpFieldCard(chickenGameId);
       const state = createStateWithFieldZone([chickenGameCard]);
 
       // Act
@@ -261,24 +279,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      // Create mock card instance (face-down)
-      const faceDownCard: CardInstance = {
-        id: cardId,
-        jaName: "Test Card",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        instanceId: "fieldZone-0",
-        location: "fieldZone",
-        stateOnField: {
-          position: "faceDown",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithFieldZone([faceDownCard]);
+      const state = createStateWithFieldZone([createFaceDownFieldCard(cardId)]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -299,24 +300,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      // Create mock card instance (face-up)
-      const faceUpCard: CardInstance = {
-        id: cardId,
-        jaName: "Test Card",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        instanceId: "fieldZone-0",
-        location: "fieldZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithFieldZone([faceUpCard]);
+      const state = createStateWithFieldZone([createFaceUpFieldCard(cardId)]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -334,24 +318,7 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(cardId, permissionRule);
       AdditionalRuleRegistry.register(cardId, modifierRule);
 
-      // Create mock card instance (face-up)
-      const faceUpCard: CardInstance = {
-        id: cardId,
-        jaName: "Test Card",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        instanceId: "fieldZone-0",
-        location: "fieldZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithFieldZone([faceUpCard]);
+      const state = createStateWithFieldZone([createFaceUpFieldCard(cardId)]);
 
       // Act
       const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -374,40 +341,10 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(cardId1, rule1);
       AdditionalRuleRegistry.register(cardId2, rule2);
 
-      // Create mock card instances
-      const card1: CardInstance = {
-        id: cardId1,
-        jaName: "Card 1",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        instanceId: "fieldZone-0",
-        location: "fieldZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const card2: CardInstance = {
-        id: cardId2,
-        jaName: "Card 2",
-        type: "spell",
-        frameType: "spell",
-        edition: "latest",
-        instanceId: "fieldZone-1",
-        location: "fieldZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithFieldZone([card1, card2]);
+      const state = createStateWithFieldZone([
+        createFaceUpFieldCard(cardId1, "fieldZone-0"),
+        createFaceUpFieldCard(cardId2, "fieldZone-1"),
+      ]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -461,7 +398,6 @@ describe("AdditionalRuleRegistry", () => {
   describe("getRegisteredCardIds()", () => {
     it("should return empty array when no rules are registered", () => {
       // Act & Assert
-      expect(AdditionalRuleRegistry.getRegisteredCardIds()).toHaveLength(0);
       expect(AdditionalRuleRegistry.getRegisteredCardIds()).toEqual([]);
     });
 
@@ -490,7 +426,6 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.clear();
 
       // Assert
-      expect(AdditionalRuleRegistry.getRegisteredCardIds()).toHaveLength(0);
       expect(AdditionalRuleRegistry.getRegisteredCardIds()).toEqual([]);
     });
 
@@ -539,22 +474,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
+      const monsterCard = createFaceUpMonsterCard(cardId, "mainMonsterZone-0");
       const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
@@ -573,23 +493,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithMonsterZone([monsterCard]);
+      const state = createStateWithMonsterZone([createFaceUpMonsterCard(cardId, "mainMonsterZone-0")]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "normalSummoned");
@@ -605,23 +509,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceDown",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithMonsterZone([monsterCard]);
+      const state = createStateWithMonsterZone([createFaceDownMonsterCard(cardId, "mainMonsterZone-0")]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -637,38 +525,8 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard1: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const monsterCard2: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-1",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
+      const monsterCard1 = createFaceUpMonsterCard(cardId, "mainMonsterZone-0");
+      const monsterCard2 = createFaceUpMonsterCard(cardId, "mainMonsterZone-1");
       const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
       // Act
@@ -749,31 +607,15 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithMonsterZone([monsterCard]);
+      const state = createStateWithMonsterZone([createFaceUpMonsterCard(cardId, "mainMonsterZone-0")]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
-      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, event);
-      const newState = executeSteps(steps, state);
+      const { mandatorySteps } = AdditionalRuleRegistry.collectTriggerSteps(state, event);
+      const newState = executeSteps(mandatorySteps, state);
 
       // Assert
-      expect(steps).toHaveLength(1);
+      expect(mandatorySteps).toHaveLength(1);
       expect(triggerRule.executionCount).toBe(1);
       expect(newState.lp.player).toBe(7900);
     });
@@ -785,31 +627,15 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const state = createStateWithMonsterZone([monsterCard]);
+      const state = createStateWithMonsterZone([createFaceUpMonsterCard(cardId, "mainMonsterZone-0")]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
-      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, event);
-      const newState = executeSteps(steps, state);
+      const { mandatorySteps } = AdditionalRuleRegistry.collectTriggerSteps(state, event);
+      const newState = executeSteps(mandatorySteps, state);
 
       // Assert
-      expect(steps).toHaveLength(0);
+      expect(mandatorySteps).toHaveLength(0);
       expect(triggerRule.executionCount).toBe(0);
       expect(newState.lp.player).toBe(8000);
     });
@@ -821,47 +647,17 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard1: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-0",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
-      const monsterCard2: CardInstance = {
-        id: cardId,
-        jaName: "王立魔法図書館",
-        type: "monster",
-        frameType: "effect",
-        edition: "latest",
-        instanceId: "mainMonsterZone-1",
-        location: "mainMonsterZone",
-        stateOnField: {
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [],
-          activatedEffects: new Set(),
-        },
-      };
-
+      const monsterCard1 = createFaceUpMonsterCard(cardId, "mainMonsterZone-0");
+      const monsterCard2 = createFaceUpMonsterCard(cardId, "mainMonsterZone-1");
       const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
-      const steps = AdditionalRuleRegistry.collectTriggerSteps(state, event);
-      const newState = executeSteps(steps, state);
+      const { mandatorySteps } = AdditionalRuleRegistry.collectTriggerSteps(state, event);
+      const newState = executeSteps(mandatorySteps, state);
 
       // Assert
-      expect(steps).toHaveLength(2);
+      expect(mandatorySteps).toHaveLength(2);
       expect(triggerRule.executionCount).toBe(2);
       expect(newState.lp.player).toBe(7800); // 8000 - 100 - 100
     });

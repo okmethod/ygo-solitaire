@@ -103,13 +103,19 @@ export class AdditionalRuleRegistry {
   /**
    * 指定イベントに対するトリガールールのステップを収集する
    *
-   * 収集したトリガールールから AtomicStep[] を生成する。
-   * 各ルールの canApply() が true の場合のみ createTriggerSteps() を呼び出す。
-   * 各ステップは実行時に最新のカードインスタンスを取得して処理を行う。
+   * - 強制効果（isMandatory: true またはデフォルト）: mandatorySteps に追加
+   * - 任意効果（isMandatory: false）: optionalEffects に追加（確認UI経由で発動）
    */
-  static collectTriggerSteps(state: GameSnapshot, event: GameEvent): AtomicStep[] {
+  static collectTriggerSteps(
+    state: GameSnapshot,
+    event: GameEvent,
+  ): {
+    mandatorySteps: AtomicStep[];
+    optionalEffects: Array<{ instance: CardInstance; steps: AtomicStep[] }>;
+  } {
     const triggerRules = this.collectTriggerRules(state, event.type);
-    const steps: AtomicStep[] = [];
+    const mandatorySteps: AtomicStep[] = [];
+    const optionalEffects: Array<{ instance: CardInstance; steps: AtomicStep[] }> = [];
 
     for (const { rule, sourceInstance } of triggerRules) {
       // canApply で適用可能かチェック
@@ -134,10 +140,17 @@ export class AdditionalRuleRegistry {
 
       // 各ルールにステップ生成を委譲
       const ruleSteps = rule.createTriggerSteps(state, sourceInstance);
-      steps.push(...ruleSteps);
+
+      if (rule.isMandatory === false) {
+        // 任意効果: 確認UI経由で発動
+        optionalEffects.push({ instance: sourceInstance, steps: ruleSteps });
+      } else {
+        // 強制効果（デフォルト true）: 即座に実行
+        mandatorySteps.push(...ruleSteps);
+      }
     }
 
-    return steps;
+    return { mandatorySteps, optionalEffects };
   }
 
   /** レジストリをクリアする（テスト用） */

@@ -11,7 +11,7 @@
 
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { ChainableAction } from "$lib/domain/models/Effect";
-import type { InteractionConfig, CardSelectionConfig } from "$lib/domain/models/GameProcessing";
+import type { InteractionConfig, CardSelectionConfig, AtomicStep } from "$lib/domain/models/GameProcessing";
 
 /** Domain 型の再エクスポート */
 export type { GameSnapshot } from "$lib/domain/models/GameState";
@@ -42,6 +42,33 @@ export interface ResolvedCardSelectionConfig
   sourceCardName?: string; // 発動元カード名（AtomicStep.sourceCardId から解決済み）
   onConfirm: (selectedInstanceIds: string[]) => void;
   onCancel?: () => void; // cancelable=true の場合のみ選択可能
+}
+
+/**
+ * 任意誘発効果の情報（任意効果確認キュー用）
+ *
+ * processTriggerEvents が収集し、effectQueueStore が順番に確認する。
+ */
+export interface OptionalTriggerEffect {
+  /** 発動元カード名（表示用） */
+  sourceCardName: string;
+  /** 「発動する」時に実行する関数。追加するステップ配列を返す */
+  activate: () => AtomicStep[];
+}
+
+/**
+ * 任意誘発効果の発動確認設定（コールバック付き）
+ *
+ * 任意誘発効果を発動するかどうかをユーザーに確認する。
+ * effectQueueStore が生成し、プレゼン層のUIが消費する。
+ */
+export interface OptionalTriggerConfirmConfig {
+  /** 発動元カード名（表示用） */
+  sourceCardName: string;
+  /** 効果を発動する */
+  onActivate: () => void;
+  /** 効果を発動しない */
+  onPass: () => void;
 }
 
 /**

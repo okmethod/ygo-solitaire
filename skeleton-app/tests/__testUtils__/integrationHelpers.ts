@@ -76,3 +76,30 @@ export function getState() {
 export function hasCardSelection(): boolean {
   return get(effectQueueStore).cardSelectionConfig !== null;
 }
+
+/** optionalTriggerConfirmConfig が存在するか確認する */
+export function hasOptionalTrigger(): boolean {
+  return get(effectQueueStore).optionalTriggerConfirmConfig !== null;
+}
+
+/**
+ * 任意誘発効果の確認を解決する
+ *
+ * flushEffectQueue() 後に effectQueueStore.optionalTriggerConfirmConfig が
+ * セットされている場合に呼び出す。
+ * activate=true で「発動する」、false で「発動しない（パス）」を選択する。
+ */
+export async function resolveOptionalTrigger(activate: boolean): Promise<void> {
+  const queueState = get(effectQueueStore);
+  if (!queueState.optionalTriggerConfirmConfig) {
+    throw new Error(
+      "resolveOptionalTrigger: optionalTriggerConfirmConfig が見つかりません。flushEffectQueue() 後に呼んでください。",
+    );
+  }
+  if (activate) {
+    queueState.optionalTriggerConfirmConfig.onActivate();
+  } else {
+    queueState.optionalTriggerConfirmConfig.onPass();
+  }
+  await vi.runAllTimersAsync();
+}
