@@ -60,6 +60,7 @@ import fiendsSanctuaryYaml from "./spells/normals/fiends-sanctuary.yaml?raw";
 import monsterGateYaml from "./spells/normals/monster-gate.yaml?raw";
 import reasoningYaml from "./spells/normals/reasoning.yaml?raw";
 import lastWillYaml from "./spells/normals/last-will.yaml?raw";
+import potOfAvariceYaml from "./spells/normals/pot-of-avarice.yaml?raw";
 
 // 速攻魔法
 import handDestructionYaml from "./spells/quick-plays/hand-destruction.yaml?raw";
@@ -136,6 +137,7 @@ export const dslDefinitions: ReadonlyMap<number, string> = new Map([
   [43040603, monsterGateYaml], // モンスターゲート
   [58577036, reasoningYaml], // 名推理
   [85602018, lastWillYaml], // 遺言状
+  [67169062, potOfAvariceYaml], // 貪欲な壺
 
   // 速攻魔法
   [74519184, handDestructionYaml], // 手札断殺

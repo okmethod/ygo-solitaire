@@ -48,8 +48,12 @@ import {
 } from "./builders/equips";
 import { selectAndReleaseStepBuilder, selectAndReleaseForBurnStepBuilder } from "./builders/releases";
 import { selectAndBanishFromGraveyardStepBuilder } from "./builders/banishments";
-import { shuffleDeckStepBuilder } from "./builders/deckOperations";
-import { selectTargetFromFieldByRaceStepBuilder, selectTargetFromGraveyardStepBuilder } from "./builders/targeting";
+import { shuffleDeckStepBuilder, returnContextCardsToDeckShuffleStepBuilder } from "./builders/deckOperations";
+import {
+  selectTargetFromFieldByRaceStepBuilder,
+  selectTargetFromGraveyardStepBuilder,
+  selectTargetsFromGraveyardStepBuilder,
+} from "./builders/targeting";
 import {
   saveTargetsToContextStepBuilder,
   clearContextStepBuilder,
@@ -120,10 +124,12 @@ AtomicStepRegistry.register(S.SELECT_AND_BANISH_FROM_GRAVEYARD, selectAndBanishF
 
 // デッキ操作関連
 AtomicStepRegistry.register(S.SHUFFLE_DECK, shuffleDeckStepBuilder);
+AtomicStepRegistry.register(S.RETURN_CONTEXT_CARDS_TO_DECK_SHUFFLE, returnContextCardsToDeckShuffleStepBuilder);
 
 // コンテキスト操作関連
 AtomicStepRegistry.register(S.SELECT_TARGET_FROM_FIELD_BY_RACE, selectTargetFromFieldByRaceStepBuilder);
 AtomicStepRegistry.register(S.SELECT_TARGET_FROM_GRAVEYARD, selectTargetFromGraveyardStepBuilder);
+AtomicStepRegistry.register(S.SELECT_TARGETS_FROM_GRAVEYARD, selectTargetsFromGraveyardStepBuilder);
 AtomicStepRegistry.register(S.SAVE_TARGETS_TO_CONTEXT, saveTargetsToContextStepBuilder);
 AtomicStepRegistry.register(S.CLEAR_CONTEXT, clearContextStepBuilder);
 AtomicStepRegistry.register(S.DECLARE_RANDOM_INTEGER, declareRandomIntegerStepBuilder);

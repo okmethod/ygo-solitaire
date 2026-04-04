@@ -114,7 +114,8 @@ const deckPandaExodia: DeckRecipe = {
     // 魔法カード
     { id: 70368879, quantity: 3 }, // 成金ゴブリン
     { id: 33782437, quantity: 3 }, // 一時休戦
-    { id: 93946239, quantity: 3 }, // 無の煉獄
+    { id: 93946239, quantity: 2 }, // 無の煉獄
+    { id: 67169062, quantity: 1 }, // 貪欲な壺
     { id: 67616300, quantity: 3 }, // チキンレース
     { id: 67775894, quantity: 3 }, // ワンダー・ワンド
     { id: 18756904, quantity: 3 }, // 馬の骨の対価

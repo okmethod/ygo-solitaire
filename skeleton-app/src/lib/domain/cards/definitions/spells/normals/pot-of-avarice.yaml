@@ -1,0 +1,28 @@
+# 《貪欲な壺》 (Pot of Avarice)
+#
+# カードの発動:
+# - CONDITIONS: 墓地にモンスター5体以上
+# - ACTIVATIONS: 自分の墓地のモンスター5体を対象に取る
+# - RESOLUTIONS: 対象の5体をデッキに戻してシャッフル、1枚ドロー
+
+id: 67169062
+
+data:
+  jaName: "貪欲な壺"
+  type: "spell"
+  frameType: "spell"
+  spellType: "normal"
+
+effectChainableActions:
+  activations:
+    conditions:
+      requirements:
+        - step: "GRAVEYARD_HAS_MONSTER"
+          args: { minCount: 5 }
+    activations:
+      - step: "SELECT_TARGETS_FROM_GRAVEYARD"
+        args: { count: 5 }
+    resolutions:
+      - step: "RETURN_CONTEXT_CARDS_TO_DECK_SHUFFLE"
+      - step: "DRAW"
+        args: { count: 1 }

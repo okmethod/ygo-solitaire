@@ -6,7 +6,8 @@
  *
  * StepBuilder:
  * - selectTargetFromFieldByRaceStepBuilder: フィールドから種族指定でモンスターを対象に取る
- * - selectTargetFromGraveyardStepBuilder: 墓地からモンスターを対象に取る
+ * - selectTargetFromGraveyardStepBuilder: 墓地からモンスター1体を対象に取る
+ * - selectTargetsFromGraveyardStepBuilder: 墓地からモンスターN体を対象に取る
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
@@ -130,6 +131,52 @@ export const selectTargetFromGraveyardStep = (cardId: number, effectId: EffectId
   };
 };
 
+/**
+ * 墓地からモンスターをN体選択し、対象としてコンテキストに保存するステップ（発動時に使用）
+ *
+ * @param cardId - カードID
+ * @param effectId - 効果ID（コンテキストのキー）
+ * @param count - 選択するモンスターの体数
+ */
+export const selectTargetsFromGraveyardStep = (cardId: number, effectId: EffectId, count: number): AtomicStep => {
+  const summary = `墓地のモンスター${count}体を対象に取る`;
+  const description = `墓地からモンスター${count}体を選択し、対象に取ります`;
+  const filter = (card: CardInstance): boolean => card.type === "monster";
+
+  return {
+    id: `${cardId}-select-targets-from-graveyard-${count}`,
+    summary,
+    description,
+    notificationLevel: "interactive",
+    cardSelectionConfig: {
+      availableCards: null,
+      minCards: count,
+      maxCards: count,
+      summary,
+      description,
+      cancelable: false,
+      _sourceZone: "graveyard",
+      _filter: filter,
+    },
+    action: (state: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
+      if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
+        return GameProcessing.Result.failure(state, "No targets selected");
+      }
+
+      const updatedState: GameSnapshot = {
+        ...state,
+        activationContexts: GameState.ActivationContext.setTargets(
+          state.activationContexts,
+          effectId,
+          selectedInstanceIds,
+        ),
+      };
+
+      return GameProcessing.Result.success(updatedState, `Selected ${selectedInstanceIds.length} monsters as targets`);
+    },
+  };
+};
+
 // ===========================
 // StepBuilder（DSL用ファクトリ）
 // ===========================
@@ -155,4 +202,16 @@ export const selectTargetFromGraveyardStepBuilder: StepBuilderFn = (_args, conte
     throw new Error("SELECT_TARGET_FROM_GRAVEYARD step requires effectId in context");
   }
   return selectTargetFromGraveyardStep(context.cardId, context.effectId);
+};
+
+/**
+ * SELECT_TARGETS_FROM_GRAVEYARD - 墓地からモンスターN体を選択し対象に取る
+ * args: { count: number }
+ */
+export const selectTargetsFromGraveyardStepBuilder: StepBuilderFn = (args, context) => {
+  if (!context.effectId) {
+    throw new Error("SELECT_TARGETS_FROM_GRAVEYARD step requires effectId in context");
+  }
+  const count = ArgValidators.positiveInt(args, "count");
+  return selectTargetsFromGraveyardStep(context.cardId, context.effectId, count);
 };
