@@ -15,6 +15,8 @@ import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 
 type LpOperationType = "gain" | "damage" | "payment" | "loss";
 
+const clampLp = (lp: number): number => Math.min(99999, Math.max(0, lp));
+
 // LP操作ステップの共通ヘルパー
 const commonLpStep = (type: LpOperationType, amount: number, target: Player): AtomicStep => {
   const isPlayer = target === "player";
@@ -36,9 +38,10 @@ const commonLpStep = (type: LpOperationType, amount: number, target: Player): At
     description: `${targetJa}に${amount}の${labels.action}が発生します`,
     notificationLevel: "static",
     action: (state: GameSnapshot): GameStateUpdateResult => {
+      const newLp = clampLp(state.lp[target] + amount * sign);
       const updatedState: GameSnapshot = {
         ...state,
-        lp: { ...state.lp, [target]: state.lp[target] + amount * sign },
+        lp: { ...state.lp, [target]: newLp },
       };
       return GameProcessing.Result.success(updatedState, `${targetEn} ${labels.msg} ${amount} LP`);
     },
@@ -128,10 +131,9 @@ export const burnFromContextStepBuilder: StepBuilderFn = (args, context) => {
         return GameProcessing.Result.failure(state, "No damage value in activation context");
       }
 
-      // ダメージを適用
       const updatedLp = {
         ...state.lp,
-        [damageTarget]: state.lp[damageTarget] - damage,
+        [damageTarget]: clampLp(state.lp[damageTarget] - damage),
       };
 
       // コンテキストをクリア
