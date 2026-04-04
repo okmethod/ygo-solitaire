@@ -3,10 +3,7 @@ import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import {
-  selectTargetFromFieldByRaceStep,
-  selectTargetFromGraveyardStep,
-} from "$lib/domain/dsl/steps/builders/targeting";
+import { selectTargetFromFieldByRaceStep } from "$lib/domain/dsl/steps/builders/targeting";
 import { createMockGameState, createTestMonsterCard, TEST_CARD_IDS } from "../../../__testUtils__";
 
 /**
@@ -14,7 +11,7 @@ import { createMockGameState, createTestMonsterCard, TEST_CARD_IDS } from "../..
  *
  * TEST STRATEGY:
  * - SELECT_TARGET_FROM_FIELD_BY_RACE ステップが正しく生成されること
- * - SELECT_TARGET_FROM_GRAVEYARD ステップが正しく生成されること
+ * - SELECT_TARGETS_FROM_GRAVEYARD ステップが正しく生成されること
  * - 対象がコンテキストに保存されること
  */
 
@@ -187,27 +184,34 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
 });
 
 // =============================================================================
-// SELECT_TARGET_FROM_GRAVEYARD ステップのテスト
+// SELECT_TARGETS_FROM_GRAVEYARD ステップのテスト
 // =============================================================================
 
-describe("StepRegistry - SELECT_TARGET_FROM_GRAVEYARD", () => {
+describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
   describe("ステップ生成", () => {
-    it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("SELECT_TARGET_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+    it("count省略時（1体）のステップを生成できる", () => {
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
 
-      expect(step.id).toContain("select-target-from-graveyard");
-      expect(step.summary).toContain("蘇生対象");
+      expect(step.id).toContain("select-targets-from-graveyard-1");
+      expect(step.summary).toContain("1体");
       expect(typeof step.action).toBe("function");
+    });
+
+    it("count指定時のステップを生成できる", () => {
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", { count: 3 }, createTestContext(EFFECT_ID_1));
+
+      expect(step.id).toContain("select-targets-from-graveyard-3");
+      expect(step.summary).toContain("3体");
     });
 
     it("effectId がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_TARGET_FROM_GRAVEYARD", {}, createTestContext());
-      }).toThrow("SELECT_TARGET_FROM_GRAVEYARD step requires effectId in context");
+        buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext());
+      }).toThrow("SELECT_TARGETS_FROM_GRAVEYARD step requires effectId in context");
     });
 
     it("isRegistered で登録済みであることを確認できる", () => {
-      expect(AtomicStepRegistry.isRegistered("SELECT_TARGET_FROM_GRAVEYARD")).toBe(true);
+      expect(AtomicStepRegistry.isRegistered("SELECT_TARGETS_FROM_GRAVEYARD")).toBe(true);
     });
   });
 
@@ -225,13 +229,12 @@ describe("StepRegistry - SELECT_TARGET_FROM_GRAVEYARD", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("SELECT_TARGET_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
 
       const result = step.action(state, ["graveyard-monster-0"]);
 
       expect(result.success).toBe(true);
       expect(result.updatedState.activationContexts[EFFECT_ID_1]?.targets).toContain("graveyard-monster-0");
-      expect(result.message).toContain("target");
     });
 
     it("対象が選択されていない場合エラー", () => {
@@ -245,24 +248,24 @@ describe("StepRegistry - SELECT_TARGET_FROM_GRAVEYARD", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("SELECT_TARGET_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
 
       const result = step.action(state, []);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("No target selected");
+      expect(result.error).toContain("No targets selected");
     });
   });
 
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が graveyard に設定される", () => {
-      const step = buildStep("SELECT_TARGET_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
 
       expect(step.cardSelectionConfig?._sourceZone).toBe("graveyard");
     });
 
     it("_filter がモンスターのみを対象とする", () => {
-      const step = buildStep("SELECT_TARGET_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
 
       const filter = step.cardSelectionConfig?._filter;
       expect(filter).toBeDefined();
@@ -284,14 +287,5 @@ describe("selectTargetFromFieldByRaceStep", () => {
 
     expect(step.id).toContain("Dragon");
     expect(step.description).toContain("Dragon");
-  });
-});
-
-describe("selectTargetFromGraveyardStep", () => {
-  it("墓地対象選択ステップを生成できる", () => {
-    const step = selectTargetFromGraveyardStep(TEST_CARD_IDS.DUMMY, EFFECT_ID_1);
-
-    expect(step.id).toContain("select-target-from-graveyard");
-    expect(step.description).toContain("墓地");
   });
 });

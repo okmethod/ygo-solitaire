@@ -65,10 +65,14 @@ export class GenericEquipSpellActivation extends EquipSpellActivation {
   /**
    * DSL定義に明示的な対象選択ステップがあるかチェック
    *
-   * SELECT_TARGET_* で始まるステップ名があれば true を返す。
+   * SELECT_TARGET_* または SELECT_TARGETS_* で始まるステップ名があれば true を返す。
    */
   private hasExplicitTargetSelection(): boolean {
-    return this.dslDefinition.activations?.some((stepDef) => stepDef.step.startsWith("SELECT_TARGET_")) ?? false;
+    return (
+      this.dslDefinition.activations?.some(
+        (stepDef) => stepDef.step.startsWith("SELECT_TARGET_") || stepDef.step.startsWith("SELECT_TARGETS_"),
+      ) ?? false
+    );
   }
 
   /**

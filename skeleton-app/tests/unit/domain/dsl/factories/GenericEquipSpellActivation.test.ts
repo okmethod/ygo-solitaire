@@ -136,7 +136,7 @@ describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
 
   it("SELECT_TARGET_* ステップがある場合はデフォルト対象選択を無効化", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "SELECT_TARGET_FROM_GRAVEYARD", args: { count: 1 } }],
+      activations: [{ step: "SELECT_TARGETS_FROM_GRAVEYARD", args: { count: 1 } }],
       resolutions: [{ step: "SPECIAL_SUMMON_FROM_CONTEXT", args: {} }],
     };
 
@@ -175,7 +175,7 @@ describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
 describe("GenericEquipSpellActivation - 条件チェック", () => {
   it("メインフェイズ以外では発動できない", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "SELECT_TARGET_FROM_GRAVEYARD", args: {} }],
+      activations: [{ step: "SELECT_TARGETS_FROM_GRAVEYARD", args: {} }],
     };
 
     const activation = createGenericEquipSpellActivation(TEST_EQUIP_CARD_ID, dsl);
@@ -242,7 +242,7 @@ describe("GenericEquipSpellActivation - 条件チェック", () => {
 describe("GenericEquipSpellActivation - ステップ生成", () => {
   it("createActivationSteps で発動ステップを生成できる", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "SELECT_TARGET_FROM_GRAVEYARD", args: { count: 1 } }],
+      activations: [{ step: "SELECT_TARGETS_FROM_GRAVEYARD", args: { count: 1 } }],
       resolutions: [{ step: "SPECIAL_SUMMON_FROM_CONTEXT", args: {} }],
     };
 
@@ -252,12 +252,12 @@ describe("GenericEquipSpellActivation - ステップ生成", () => {
 
     const steps = activation.createActivationSteps(state, sourceInstance);
 
-    expect(steps.some((s) => s.id.includes("select-target-from-graveyard"))).toBe(true);
+    expect(steps.some((s) => s.id.includes("select-targets-from-graveyard"))).toBe(true);
   });
 
   it("createResolutionSteps で効果解決ステップを生成できる", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "SELECT_TARGET_FROM_GRAVEYARD", args: {} }],
+      activations: [{ step: "SELECT_TARGETS_FROM_GRAVEYARD", args: {} }],
       resolutions: [{ step: "SPECIAL_SUMMON_FROM_CONTEXT", args: {} }, { step: "THEN" }],
     };
 
@@ -289,7 +289,7 @@ describe("GenericEquipSpellActivation - ステップ生成", () => {
 
   it("resolutions が定義されていない場合は基底クラスのステップのみ返す", () => {
     const dsl: ChainableActionDSL = {
-      activations: [{ step: "SELECT_TARGET_FROM_GRAVEYARD", args: {} }],
+      activations: [{ step: "SELECT_TARGETS_FROM_GRAVEYARD", args: {} }],
     };
 
     const activation = createGenericEquipSpellActivation(TEST_EQUIP_CARD_ID, dsl);

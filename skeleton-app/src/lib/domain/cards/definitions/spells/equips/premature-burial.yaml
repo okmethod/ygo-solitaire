@@ -23,7 +23,7 @@ effectChainableActions:
     activations:
       - step: "PAY_LP"
         args: { amount: 800 }
-      - step: "SELECT_TARGET_FROM_GRAVEYARD"
+      - step: "SELECT_TARGETS_FROM_GRAVEYARD"
     resolutions:
       - step: "SPECIAL_SUMMON_FROM_CONTEXT"
         args: { clearContext: false }
