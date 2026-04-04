@@ -4,6 +4,7 @@
  * 特定のタイミングで反応する効果等、フックするためのイベントを定義する。
  */
 
+import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
 
 /** イベント種別 */
@@ -47,6 +48,9 @@ export interface GameEvent {
   /** イベント発生源のカードインスタンスID */
   readonly sourceInstanceId: string;
 
+  /** イベント発生時点での発生源カードのゾーン（オプション） */
+  readonly sourceInstanceLocation?: LocationName;
+
   /** イベントのコンテキスト情報（オプション） */
   readonly context?: EventContext;
 }
@@ -60,9 +64,10 @@ export interface GameEvent {
 export const GameEvents = {
   /** 墓地送りイベントを生成（モンスターの場合は monsterSentToGraveyard も含む） */
   sentToGraveyard(card: CardInstance): GameEvent[] {
-    const events: GameEvent[] = [{ type: "sentToGraveyard", sourceCardId: card.id, sourceInstanceId: card.instanceId }];
+    const base = { sourceCardId: card.id, sourceInstanceId: card.instanceId, sourceInstanceLocation: card.location };
+    const events: GameEvent[] = [{ type: "sentToGraveyard", ...base }];
     if (card.type === "monster") {
-      events.push({ type: "monsterSentToGraveyard", sourceCardId: card.id, sourceInstanceId: card.instanceId });
+      events.push({ type: "monsterSentToGraveyard", ...base });
     }
     return events;
   },

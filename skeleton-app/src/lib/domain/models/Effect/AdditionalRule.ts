@@ -4,6 +4,7 @@
  * TODO: 仮実装が多く、冗長かもしれない。具体的な効果実装に沿って調整する。
  */
 
+import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
@@ -166,6 +167,17 @@ export interface AdditionalRule {
    * 未指定の場合は false として扱う
    */
   readonly excludeSelf?: boolean;
+
+  /**
+   * トリガー発生源のゾーンフィルタ（TriggerRule用）
+   *
+   * 指定した場合、イベントの発生源カードが該当ゾーンにいた場合のみ反応する。
+   * 未指定の場合はすべてのゾーンに反応する。
+   *
+   * 例: 「自分フィールドのモンスターが墓地へ送られた場合」
+   *   → sourceZones: ["mainMonsterZone", "spellTrapZone", "fieldZone"]
+   */
+  readonly triggerSourceZones?: readonly LocationName[];
 
   /**
    * トリガー発動時のステップ生成（TriggerRule用）

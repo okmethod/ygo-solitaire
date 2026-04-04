@@ -15,6 +15,7 @@ import {
 } from "$lib/domain/models/Card/CardData";
 import { EVENT_TYPES } from "$lib/domain/models/GameProcessing/GameEvent";
 import { RULE_CATEGORIES, TRIGGER_TIMINGS } from "$lib/domain/models/Effect/AdditionalRule";
+import { FIELD_LOCATIONS, DECK_LOCATIONS, OTHER_LOCATIONS } from "$lib/domain/models/Location/LocationName";
 import { CONDITION_NAMES, type ConditionName } from "$lib/domain/dsl/conditions/ConditionNames";
 import { STEP_NAMES, type StepName } from "$lib/domain/dsl/steps/StepNames";
 import { OVERRIDE_NAMES, type OverrideName } from "$lib/domain/dsl/overrides/OverrideNames";
@@ -112,6 +113,11 @@ const TriggerDSLSchema = z.object({
    * 例: 「他のモンスターがシンクロ召喚に成功した時」→ excludeSelf: true
    */
   excludeSelf: z.boolean().optional(),
+  /**
+   * トリガー発生源のゾーンフィルタ（オプション）
+   * 指定した場合、イベント発生源カードが該当ゾーンにいた場合のみ反応する。
+   */
+  sourceZones: z.array(z.enum([...FIELD_LOCATIONS, ...DECK_LOCATIONS, ...OTHER_LOCATIONS])).optional(),
 });
 
 /** トリガー情報のDSL表現 */

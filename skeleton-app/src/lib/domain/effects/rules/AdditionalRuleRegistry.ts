@@ -127,6 +127,11 @@ export class AdditionalRuleRegistry {
         continue;
       }
 
+      // triggerSourceZones が指定されている場合、発生源ゾーンをフィルタ
+      if (rule.triggerSourceZones && !rule.triggerSourceZones.includes(event.sourceInstanceLocation!)) {
+        continue;
+      }
+
       // 各ルールにステップ生成を委譲
       const ruleSteps = rule.createTriggerSteps(state, sourceInstance);
       steps.push(...ruleSteps);

@@ -11,6 +11,7 @@
  * @module domain/dsl/factories/GenericContinuousTriggerRule
  */
 
+import type { LocationName } from "$lib/domain/models/Location";
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType } from "$lib/domain/models/GameProcessing";
@@ -45,6 +46,9 @@ export class GenericContinuousTriggerRule extends BaseContinuousEffect {
   /** 自身が発生源のイベントのみに反応するか（デフォルト: false） */
   readonly selfOnly: boolean;
 
+  /** トリガー発生源のゾーンフィルタ（未指定の場合は全ゾーンに反応） */
+  readonly triggerSourceZones?: readonly LocationName[];
+
   /** DSL定義（内部保持） */
   private readonly dslDefinition: AdditionalRuleDSL;
 
@@ -67,6 +71,7 @@ export class GenericContinuousTriggerRule extends BaseContinuousEffect {
     this.triggerTiming = trigger?.timing ?? "if";
     this.isMandatory = trigger?.isMandatory ?? true;
     this.selfOnly = trigger?.selfOnly ?? false;
+    this.triggerSourceZones = trigger?.sourceZones as readonly LocationName[] | undefined;
   }
 
   /**

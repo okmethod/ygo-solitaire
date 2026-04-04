@@ -1,13 +1,13 @@
 # 《遺言状》 (Last Will)
 #
 # 永続効果（擬似）:
-# - TRIGGER: 自分フィールドのカードが墓地へ送られた場合
+# - TRIGGER: 自分フィールドのモンスターカードが墓地へ送られた場合
 # - EFFECT: デッキから攻撃力1500以下のモンスター1体を特殊召喚
 #
 # Note:
-# 正確には通常魔法（発動後GYへ送られる残存効果）だが、
-# 残存効果メカニズムが未実装のため「永続魔法」として擬似実装する。
-# プレイヤー体験（フィールドにある間、モンスターがGYへ送られたら1度だけSS）は再現できる。
+# 正確には通常魔法であり、発動後墓地に送られても使える「残存効果」だが、
+# 「残存効果」は特殊ケースのため、代わりに「永続魔法」として実装する。
+# 永続魔法でもプレイヤー体験（モンスターが墓地へ送られたら特殊召喚）は再現できる。
 
 id: 85602018
 
@@ -33,6 +33,7 @@ effectAdditionalRules:
           timing: "if"
           isMandatory: false
           excludeSelf: true
+          sourceZones: ["mainMonsterZone", "spellTrapZone", "fieldZone"]
       resolutions:
         - step: "SPECIAL_SUMMON_FROM_DECK_BY_ATK"
           args: { maxAtk: 1500 }
