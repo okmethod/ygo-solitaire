@@ -3,7 +3,7 @@
 # カードの発動:
 # - CONDITIONS: 墓地にモンスター5体以上
 # - ACTIVATIONS: 自分の墓地のモンスター5体を対象に取る
-# - RESOLUTIONS: 対象の5体をデッキに戻してシャッフル、1枚ドロー
+# - RESOLUTIONS: 対象の5体をデッキに戻してシャッフル、2枚ドロー
 
 id: 67169062
 
@@ -25,4 +25,4 @@ effectChainableActions:
     resolutions:
       - step: "RETURN_CONTEXT_CARDS_TO_DECK_SHUFFLE"
       - step: "DRAW"
-        args: { count: 1 }
+        args: { count: 2 }
