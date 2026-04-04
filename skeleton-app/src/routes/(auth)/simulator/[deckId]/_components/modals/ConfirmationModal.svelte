@@ -51,6 +51,9 @@
       >
         {#if config}
           <header class="text-center">
+            {#if config.sourceCardName}
+              <p class="text-xs font-semibold mb-1">{config.sourceCardName}</p>
+            {/if}
             <h2 class="h3 font-bold text-primary-600-300-token">{config.summary}</h2>
           </header>
 

@@ -117,6 +117,7 @@ export const selectAndDiscardStep = (
   cardCount: number,
   cancelable?: boolean,
   filterType?: "spell" | "monster" | "trap",
+  sourceCardId?: number,
 ): AtomicStep => {
   const filterTypeJa = filterType ? cardTypeToJapanese[filterType] : "";
   const summary = filterType ? `手札の${filterTypeJa}を${cardCount}枚捨てる` : `手札を${cardCount}枚捨てる`;
@@ -126,6 +127,7 @@ export const selectAndDiscardStep = (
 
   return selectCardsStep({
     id: `select-and-discard-${cardCount}-${filterType ?? "any"}-cards`,
+    sourceCardId,
     summary,
     description,
     availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
@@ -155,11 +157,11 @@ export const selectAndDiscardStep = (
  * SELECT_AND_DISCARD - 手札から指定枚数選んで捨てる
  * args: { count: number, cancelable?: boolean, filterType?: CardType }
  */
-export const selectAndDiscardStepBuilder: StepBuilderFn = (args) => {
+export const selectAndDiscardStepBuilder: StepBuilderFn = (args, context) => {
   const count = ArgValidators.positiveInt(args, "count");
   const cancelable = ArgValidators.optionalBoolean(args, "cancelable", false);
   const filterType = ArgValidators.optionalCardType(args, "filterType");
-  return selectAndDiscardStep(count, cancelable, filterType);
+  return selectAndDiscardStep(count, cancelable, filterType, context.cardId);
 };
 
 /**

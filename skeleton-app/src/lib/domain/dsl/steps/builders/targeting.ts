@@ -43,6 +43,7 @@ export const selectTargetFromFieldByRaceStep = (cardId: number, effectId: Effect
 
   return {
     id: `${cardId}-select-target-from-field-by-race-${race}`,
+    sourceCardId: cardId,
     summary,
     description,
     notificationLevel: "interactive",
@@ -95,6 +96,7 @@ export const selectTargetsFromGraveyardStep = (cardId: number, effectId: EffectI
 
   return {
     id: `${cardId}-select-targets-from-graveyard-${count}`,
+    sourceCardId: cardId,
     summary,
     description,
     notificationLevel: "interactive",

@@ -135,6 +135,7 @@ export abstract class EquipSpellActivation extends BaseSpellActivation {
     return [
       selectCardsStep({
         id: `${this.cardId}-select-equip-target`,
+        sourceCardId: this.cardId,
         summary: "装備対象を選択",
         description: "装備するモンスターを1体選択してください",
         availableCards: null, // 動的に取得

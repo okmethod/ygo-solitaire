@@ -101,6 +101,7 @@ export const selectAndBanishFromGraveyardStep = (
   filterType?: BanishFilterType,
   faceDown: boolean = false,
   effectId?: EffectId,
+  sourceCardId?: number,
 ): AtomicStep => {
   const filterTypeJa = filterType ? filterTypeToJapanese[filterType] : "";
   const countDesc = minCount === maxCount ? `${minCount}枚` : `${minCount}〜${maxCount}枚`;
@@ -110,6 +111,7 @@ export const selectAndBanishFromGraveyardStep = (
 
   return selectCardsStep({
     id: `select-and-banish-from-graveyard-${minCount}-${maxCount}-${filterType ?? "any"}`,
+    sourceCardId,
     summary,
     description,
     availableCards: null, // 動的指定: 実行時に_sourceZoneから取得
@@ -146,5 +148,5 @@ export const selectAndBanishFromGraveyardStepBuilder: StepBuilderFn = (args, con
     throw new Error("SELECT_AND_BANISH_FROM_GRAVEYARD step requires maxCount >= minCount");
   }
 
-  return selectAndBanishFromGraveyardStep(minCount, maxCount, filterType, faceDown, context.effectId);
+  return selectAndBanishFromGraveyardStep(minCount, maxCount, filterType, faceDown, context.effectId, context.cardId);
 };

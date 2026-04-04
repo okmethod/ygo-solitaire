@@ -36,6 +36,7 @@ import type { ChainBlockParams } from "$lib/domain/models/Chain/ChainBlock";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
+import { CardDataRegistry } from "$lib/domain/cards/CardDataRegistry";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
 import { isThenMarker } from "$lib/domain/dsl/steps/builders/timing";
 import type {
@@ -164,12 +165,16 @@ const interactiveWithSelectionStrategy: NotificationStrategy = async (step, game
   // イベント情報をキャプチャするための変数
   let emittedEvents: GameEvent[] = [];
 
+  // 発動元カード名を解決
+  const sourceCardName = step.sourceCardId ? CardDataRegistry.getCardNameWithBrackets(step.sourceCardId) : undefined;
+
   // カード選択モーダル（Promise化）- 状態を更新してモーダルを表示
   await new Promise<void>((resolve) => {
     updateState((s) => ({
       ...s,
       cardSelectionConfig: {
         availableCards,
+        sourceCardName,
         minCards: config.minCards,
         maxCards: config.maxCards,
         summary: config.summary,
@@ -200,11 +205,15 @@ const interactiveWithoutSelectionStrategy: NotificationStrategy = async (step, _
   // イベント情報をキャプチャするための変数
   let emittedEvents: GameEvent[] = [];
 
+  // 発動元カード名を解決
+  const sourceCardName = step.sourceCardId ? CardDataRegistry.getCardNameWithBrackets(step.sourceCardId) : undefined;
+
   // 効果確認モーダル（Promise化）- 状態を更新してモーダルを表示
   await new Promise<void>((resolve) => {
     updateState((s) => ({
       ...s,
       confirmationConfig: {
+        sourceCardName,
         summary: step.summary,
         description: step.description,
         onConfirm: () => {

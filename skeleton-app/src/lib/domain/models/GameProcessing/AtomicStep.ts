@@ -73,6 +73,7 @@ export interface CardSelectionConfig extends InteractionConfig {
  */
 export interface AtomicStep {
   id: string;
+  sourceCardId?: number; // 効果の発動元カードID（インタラクションモーダル表示用）
   summary: string; // UIに表示される要約
   description: string; // UIに表示される詳細説明
   notificationLevel?: NotificationLevel; // Default: "static"

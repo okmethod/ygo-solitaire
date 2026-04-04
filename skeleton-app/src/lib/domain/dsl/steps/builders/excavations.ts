@@ -58,6 +58,7 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
 
   return {
     id: `${cardId}-excavate-until-monster`,
+    sourceCardId: cardId,
     summary,
     description: "モンスターが出るまでデッキをめくり、そのモンスターを特殊召喚します。残りは墓地へ送ります。",
     notificationLevel: "interactive",
@@ -178,6 +179,7 @@ export const excavateUntilMonsterWithLevelCheckStep = (
 
   return {
     id: `${cardId}-excavate-until-monster-level-check`,
+    sourceCardId: cardId,
     summary,
     description: "モンスターが出るまでデッキをめくります。宣言と異なるレベルなら特殊召喚、同じなら墓地へ送ります。",
     notificationLevel: "interactive",

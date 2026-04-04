@@ -30,6 +30,7 @@ export const notifyActivationStep = (cardId: number): AtomicStep => {
 /** カード選択モーダルを開き、ユーザーの選択を受け付けるステップ*/
 export const selectCardsStep = (config: {
   id: string;
+  sourceCardId?: number;
   summary: string;
   description: string;
   availableCards: readonly CardInstance[] | null;
@@ -44,6 +45,7 @@ export const selectCardsStep = (config: {
 }): AtomicStep => {
   return {
     id: config.id,
+    sourceCardId: config.sourceCardId,
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",

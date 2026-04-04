@@ -21,6 +21,7 @@ import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 const internalSearchStep = (
   config: {
     id: string;
+    sourceCardId?: number;
     summary: string;
     description: string;
     filter: (card: CardInstance, index?: number) => boolean;
@@ -33,6 +34,7 @@ const internalSearchStep = (
 ): AtomicStep => {
   return {
     id: config.id,
+    sourceCardId: config.sourceCardId,
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
@@ -105,6 +107,7 @@ export const searchFromDeckByTypeStep = (
   return internalSearchStep(
     {
       id: `${cardId}-search-from-deck-${filterDescEn}`,
+      sourceCardId: cardId,
       summary,
       description,
       filter,
@@ -126,6 +129,7 @@ export const searchFromDeckByNameStep = (cardId: number, namePattern: string, co
   return internalSearchStep(
     {
       id: `${cardId}-search-by-name-${namePattern}`,
+      sourceCardId: cardId,
       summary,
       description,
       filter,
@@ -146,6 +150,7 @@ export const searchFromDeckTopStep = (cardId: number, count: number, selectCount
 
   return {
     id: `${cardId}-search-from-deck-top-${count}`,
+    sourceCardId: cardId,
     summary,
     description,
     notificationLevel: "interactive",
@@ -208,6 +213,7 @@ export const searchMonsterByStatStep = (
   return internalSearchStep(
     {
       id: `${cardId}-search-monster-by-${statType}-${maxValue}`,
+      sourceCardId: cardId,
       summary,
       description,
       filter,
@@ -246,6 +252,7 @@ export const salvageFromGraveyardStep = (
   return internalSearchStep(
     {
       id: `${cardId}-salvage-from-graveyard-${filterDescEn}`,
+      sourceCardId: cardId,
       summary,
       description,
       filter,

@@ -24,6 +24,7 @@ export type { InteractionConfig, CardSelectionConfig };
  * effectQueueStore が生成し、プレゼン層のUIが消費する。
  */
 export interface ConfirmationConfig extends InteractionConfig {
+  sourceCardName?: string; // 発動元カード名（AtomicStep.sourceCardId から解決済み）
   onConfirm: () => void;
   onCancel?: () => void; // cancelable=true の場合のみ選択可能
 }
@@ -38,6 +39,7 @@ export interface ConfirmationConfig extends InteractionConfig {
 export interface ResolvedCardSelectionConfig
   extends Omit<CardSelectionConfig, "availableCards" | "_sourceZone" | "_filter"> {
   availableCards: readonly CardInstance[];
+  sourceCardName?: string; // 発動元カード名（AtomicStep.sourceCardId から解決済み）
   onConfirm: (selectedInstanceIds: string[]) => void;
   onCancel?: () => void; // cancelable=true の場合のみ選択可能
 }

@@ -128,7 +128,12 @@
         {#if config}
           <!-- ヘッダー -->
           <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-lg">{config.summary}</h3>
+            <div>
+              {#if config.sourceCardName}
+                <p class="text-xs font-semibold mb-1">{config.sourceCardName}</p>
+              {/if}
+              <h3 class="font-bold text-lg">{config.summary}</h3>
+            </div>
             {#if cancelable}
               <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
             {/if}

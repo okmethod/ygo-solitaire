@@ -95,6 +95,7 @@ export const selectAndReleaseStep = (config: SelectAndReleaseConfig): AtomicStep
 
   return selectCardsStep({
     id: `${config.cardId}-select-release`,
+    sourceCardId: config.cardId,
     summary,
     description,
     availableCards: null,

@@ -152,6 +152,7 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
   // 素材選択ステップを生成
   const materialSelectionStep = selectCardsStep({
     id: `${synchroMonster.id}-select-synchro-materials`,
+    sourceCardId: synchroMonster.id,
     summary: "シンクロ素材を選択",
     description: `チューナー＋非チューナーを選び、レベル合計が ${targetLevel} になるようにしてください`,
     availableCards: null,

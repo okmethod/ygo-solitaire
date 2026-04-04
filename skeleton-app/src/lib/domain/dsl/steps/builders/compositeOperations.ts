@@ -57,9 +57,14 @@ const returnToDeckShuffleAndDraw = (
  * 通知は「n枚をデッキに戻し、シャッフルしてn枚ドローしました」とまとめて表示される。
  * 選択した枚数を記録する必要があるため、1つのステップとしてまとめて実装している。
  */
-export const selectReturnShuffleDrawStep = (options: { min: number; max?: number }): AtomicStep => {
+export const selectReturnShuffleDrawStep = (options: {
+  min: number;
+  max?: number;
+  sourceCardId?: number;
+}): AtomicStep => {
   return selectCardsStep({
     id: "select-and-return-to-deck",
+    sourceCardId: options.sourceCardId,
     summary: "手札をデッキに戻す",
     description: `デッキに戻すカードを選択してください（${options.min}〜${options.max ?? 100}枚）`,
     availableCards: null, // 動的指定: 実行時に手札から取得
@@ -114,13 +119,13 @@ export const returnAllHandShuffleDrawStep = (): AtomicStep => {
  * SELECT_RETURN_SHUFFLE_DRAW - 手札をデッキに戻してシャッフル後、同数ドロー
  * args: { min: number, max?: number }
  */
-export const selectReturnShuffleDrawStepBuilder: StepBuilderFn = (args) => {
+export const selectReturnShuffleDrawStepBuilder: StepBuilderFn = (args, context) => {
   const min = (args.min as number) ?? 0;
   const max = args.max as number | undefined;
   if (typeof min !== "number" || min < 0) {
     throw new Error("SELECT_RETURN_SHUFFLE_DRAW step requires a non-negative min argument");
   }
-  return selectReturnShuffleDrawStep({ min, max });
+  return selectReturnShuffleDrawStep({ min, max, sourceCardId: context.cardId });
 };
 
 /**

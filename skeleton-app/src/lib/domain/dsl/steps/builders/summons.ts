@@ -40,6 +40,7 @@ type DynamicCardFilter = (card: CardInstance, index?: number, context?: EffectAc
 
 type SpecialSummonStepConfig = {
   id: string;
+  sourceCardId?: number;
   summary: string;
   description: string;
   /** 静的フィルター（action で使用）。動的フィルター使用時は createFilter を指定 */
@@ -66,6 +67,7 @@ const internalSpecialSummonStep = (
 ): AtomicStep => {
   return {
     id: config.id,
+    sourceCardId: config.sourceCardId,
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
@@ -184,6 +186,7 @@ export const specialSummonFromDeckStep = (
   return internalSpecialSummonStep(
     {
       id: `${cardId}-special-summon-from-deck-level${filterLevelArg ?? "any"}`,
+      sourceCardId: cardId,
       summary,
       description,
       dynamicFilter,
@@ -224,6 +227,7 @@ export const specialSummonFromExtraDeckStep = (
   return internalSpecialSummonStep(
     {
       id: `${cardId}-special-summon-from-extra-deck-level${filterMaxLevel ?? "any"}-${filterFrameType ?? "any"}`,
+      sourceCardId: cardId,
       summary,
       description,
       filter,
@@ -360,6 +364,7 @@ export const specialSummonFromDeckByAtkStepBuilder: StepBuilderFn = (args, conte
   return internalSpecialSummonStep(
     {
       id: `${context.cardId}-special-summon-from-deck-by-atk${maxAtk}`,
+      sourceCardId: context.cardId,
       summary,
       description,
       filter,
