@@ -132,7 +132,7 @@ const deckPandaExodia: DeckRecipe = {
 };
 
 const deckScienceCatapult: DeckRecipe = {
-  name: "サイエンカタパ - WIP",
+  name: "サイエンカタパ",
   description: "魔導サイエンティストで特殊召喚した融合モンスターを、カタパルトタートルで射出するデッキです",
   category: "フルバーン",
   mainDeck: [
@@ -154,6 +154,7 @@ const deckScienceCatapult: DeckRecipe = {
     { id: 74519184, quantity: 3 }, // 手札断殺
     { id: 98494543, quantity: 3 }, // 魔法石の採掘
     { id: 85852291, quantity: 3 }, // 打ち出の小槌
+    { id: 22589918, quantity: 3 }, // リロード
     { id: 24874630, quantity: 3 }, // デビルズ・サンクチュアリ
     { id: 89997728, quantity: 3 }, // トゥーンのもくじ
   ],
