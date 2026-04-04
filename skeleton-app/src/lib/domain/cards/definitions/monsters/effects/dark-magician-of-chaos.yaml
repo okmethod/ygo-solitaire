@@ -11,7 +11,6 @@
 # Note:
 # - レガシー版（エラッタ前）: エンドフェイズではなく、召喚・特殊召喚成功時に発動
 # - 戦闘破壊時除外する効果は未実装
-# - 本来は任意効果だが、一旦強制効果としている
 
 id: 40737112
 
@@ -33,7 +32,7 @@ effectChainableActions:
         trigger:
           events: ["normalSummoned", "specialSummoned"]
           timing: "when"
-          isMandatory: true
+          isMandatory: false
           selfOnly: true
         requirements:
           - step: "GRAVEYARD_HAS_SPELL"

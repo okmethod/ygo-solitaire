@@ -7,7 +7,6 @@
 # TODO: 同名ターン1回制限を実装する
 #
 # Note: 特殊召喚された相手モンスター全てに攻撃できる効果は未実装
-# 本来は任意効果だが、一旦強制効果としている
 
 id: 64880894
 
@@ -27,7 +26,7 @@ effectChainableActions:
         trigger:
           events: ["synchroSummoned"]
           timing: "when"
-          isMandatory: true
+          isMandatory: false
           selfOnly: true
       resolutions:
         - step: "DRAW"

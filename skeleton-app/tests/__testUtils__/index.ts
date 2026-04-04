@@ -50,4 +50,6 @@ export {
   resolveCardSelection,
   getState,
   hasCardSelection,
+  hasOptionalTrigger,
+  resolveOptionalTrigger,
 } from "./integrationHelpers";

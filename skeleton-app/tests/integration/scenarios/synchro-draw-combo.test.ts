@@ -24,6 +24,8 @@ import {
   flushEffectQueue,
   resolveCardSelection,
   hasCardSelection,
+  hasOptionalTrigger,
+  resolveOptionalTrigger,
   getState,
 } from "../../__testUtils__";
 import { SYNCHRO_TEST_CARD_IDS, TEST_CARD_IDS } from "../../__testUtils__/constants";
@@ -150,9 +152,10 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
 
     expect(hasCardSelection()).toBe(true);
     await resolveCardSelection(["tuner-for-formula", "nontuner-lv1"]);
-    // ↑召喚後、2つの誘発効果が発動:
-    //   ライブラリアン: 他のシンクロ召喚時 → 1枚ドロー
-    //   フォーミュラ:   このカードのシンクロ召喚時 → 1枚ドロー
+
+    // フォーミュラの任意効果を発動
+    expect(hasOptionalTrigger()).toBe(true);
+    await resolveOptionalTrigger(true);
 
     const finalState = getState();
     // フォーミュラとライブラリアンが両方フィールドにいる
