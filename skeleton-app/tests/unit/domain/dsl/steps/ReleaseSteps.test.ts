@@ -4,7 +4,7 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
-import { createMockGameState, createMonstersOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterZone, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * ReleaseSteps Tests - リリース系ステップのテスト
@@ -65,7 +65,7 @@ describe("StepRegistry - RELEASE", () => {
 
   describe("action実行", () => {
     it("選択したモンスターをリリースできる", () => {
-      const monsters = createMonstersOnField(1);
+      const { mainMonsterZone: monsters } = createMonsterZone(1);
       const state = createMockGameState({
         space: {
           mainMonsterZone: monsters,
@@ -84,7 +84,7 @@ describe("StepRegistry - RELEASE", () => {
     });
 
     it("複数モンスターをリリースできる", () => {
-      const monsters = createMonstersOnField(2);
+      const { mainMonsterZone: monsters } = createMonsterZone(2);
       const state = createMockGameState({
         space: {
           mainMonsterZone: monsters,
@@ -159,7 +159,7 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
 
   describe("action実行", () => {
     it("リリースしてダメージをコンテキストに保存できる", () => {
-      const monsters = createMonstersOnField(1);
+      const monsters = [...createMonsterZone(1).mainMonsterZone];
       // 攻撃力を設定
       monsters[0] = { ...monsters[0], attack: 2000 };
 
@@ -185,7 +185,7 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
     });
 
     it("ダメージ倍率が100%の場合", () => {
-      const monsters = createMonstersOnField(1);
+      const monsters = [...createMonsterZone(1).mainMonsterZone];
       monsters[0] = { ...monsters[0], attack: 1500 };
 
       const contexts: Record<EffectId, EffectActivationContext> = {

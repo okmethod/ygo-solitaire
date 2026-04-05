@@ -15,13 +15,14 @@ export {
   createTrapInstance,
   // フィールド向け
   createMonsterOnField,
-  createMonstersOnField,
   createSpellOnField,
-  createSpellsOnField,
   createSetCard,
   // 汎用
   createCardInstances,
 } from "./cardInstanceFactory";
+
+// カードスペースファクトリ
+export { createMonsterZone, createSpellZone } from "./cardSpaceFactory";
 
 // ゲーム状態ファクトリ
 export {

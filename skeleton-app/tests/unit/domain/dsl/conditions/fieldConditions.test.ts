@@ -20,8 +20,8 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import {
   createMockGameState,
   createMonsterOnField,
-  createMonstersOnField,
-  createSpellsOnField,
+  createMonsterZone,
+  createSpellZone,
   createSpellOnField,
   createSpellInstance,
 } from "../../../../__testUtils__";
@@ -36,18 +36,14 @@ const createSourceInstance = (): CardInstance => createSpellInstance("source-ins
 /** モンスターをフィールドに配置した状態を生成 */
 const createStateWithMonsters = (count: number) =>
   createMockGameState({
-    space: {
-      mainMonsterZone: createMonstersOnField(count),
-    },
+    space: createMonsterZone(count),
     phase: "main1",
   });
 
 /** 魔法カードを魔法・罠ゾーンに配置した状態を生成 */
 const createStateWithSpells = (count: number) =>
   createMockGameState({
-    space: {
-      spellTrapZone: createSpellsOnField(count),
-    },
+    space: createSpellZone(count),
     phase: "main1",
   });
 

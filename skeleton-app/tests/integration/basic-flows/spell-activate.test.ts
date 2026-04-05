@@ -18,7 +18,7 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
   createSpellInstance,
-  createSpellsOnField,
+  createSpellZone,
   createScenarioDeck,
   advanceToMain1,
   flushEffectQueue,
@@ -102,14 +102,13 @@ describe("魔法カード発動 - 基本フローテスト", () => {
     });
 
     it("魔法・罠ゾーン5枚満杯では6枚目をセットできない", () => {
-      const spellsOnField = createSpellsOnField(5);
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createSpellInstance("s-extra")],
             mainMonsterZone: [],
-            spellTrapZone: spellsOnField,
+            ...createSpellZone(5),
             mainDeck: [],
           },
         }),

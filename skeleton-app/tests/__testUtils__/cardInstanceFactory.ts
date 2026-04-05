@@ -10,9 +10,7 @@
  *
  * 【フィールド向け】stateOnField 付き
  * - createMonsterOnField: フィールド上のモンスター
- * - createMonstersOnField: フィールド上のモンスター配列
  * - createSpellOnField: 魔法・罠ゾーンorフィールドゾーンの魔法カード
- * - createSpellsOnField: 魔法・罠ゾーンの魔法配列
  * - createSetCard: セット状態のカード
  *
  * 【汎用】
@@ -230,40 +228,6 @@ export function createSpellOnField(
     { type: "spell", frameType: "spell" },
     defined({ spellType: options?.spellType }),
     { position: options?.position ?? "faceUp", equippedTo: options?.equippedTo },
-  );
-}
-
-/**
- * フィールド上のモンスター配列を作成
- *
- * @param count - 作成するモンスター数
- * @param options - オプション設定
- */
-export function createMonstersOnField(count: number, options?: { position?: "faceUp" | "faceDown" }): CardInstance[] {
-  return Array.from({ length: count }, (_, i) =>
-    createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, { position: options?.position }),
-  );
-}
-
-/**
- * 魔法・罠ゾーンの魔法カード配列を作成
- *
- * @param count - 作成する魔法カード数
- */
-export function createSpellsOnField(count: number): CardInstance[] {
-  return Array.from({ length: count }, (_, i) =>
-    createBase(
-      `spell-${i}`,
-      TEST_CARD_IDS.SPELL_NORMAL,
-      "spellTrapZone",
-      {
-        type: "spell",
-        frameType: "spell",
-        spellType: "normal",
-      },
-      {},
-      { position: "faceUp" },
-    ),
   );
 }
 

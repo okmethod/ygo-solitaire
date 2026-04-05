@@ -1,12 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import {
-  createMockGameState,
-  createMonstersOnField,
-  TOKEN_TEST_CARD_IDS,
-  TEST_CARD_IDS,
-} from "../../../../__testUtils__";
+import { createMockGameState, createMonsterZone, TOKEN_TEST_CARD_IDS, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * TokenSteps Tests - トークン生成ステップのテスト
@@ -161,7 +156,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     it("モンスターゾーンが満杯の場合エラー", () => {
       const state = createMockGameState({
         space: {
-          mainMonsterZone: createMonstersOnField(5), // 5体で満杯
+          ...createMonsterZone(5), // 5体で満杯
         },
       });
 
@@ -180,7 +175,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     it("既存のモンスターがいても空きがあれば召喚できる", () => {
       const state = createMockGameState({
         space: {
-          mainMonsterZone: createMonstersOnField(3), // 3体
+          ...createMonsterZone(3), // 3体
         },
       });
 

@@ -7,7 +7,7 @@ import {
   createMockGameState,
   createMonsterInstance,
   createSpellInstance,
-  createMonstersOnField,
+  createMonsterZone,
   TEST_CARD_IDS,
   SYNCHRO_TEST_CARD_IDS,
 } from "../../../../__testUtils__";
@@ -200,7 +200,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
       const state = createMockGameState({
         space: {
           mainDeck: [monster],
-          mainMonsterZone: createMonstersOnField(5),
+          ...createMonsterZone(5),
           graveyard: [],
         },
       });

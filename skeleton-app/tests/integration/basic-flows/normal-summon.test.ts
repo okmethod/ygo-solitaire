@@ -12,7 +12,7 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
   createMonsterInstance,
-  createMonstersOnField,
+  createMonsterZone,
   createScenarioDeck,
   flushEffectQueue,
   resolveCardSelection,
@@ -74,13 +74,12 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("レベル5モンスター（1体リリース）", () => {
     it("フィールドに1体→リリース選択→レベル5召喚成功", async () => {
-      const fieldMonsters = createMonstersOnField(1); // "monster-0"
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv5", { level: 5 })],
-            mainMonsterZone: fieldMonsters,
+            ...createMonsterZone(1), // "monster-0"
             mainDeck: [],
           },
         }),
@@ -127,13 +126,12 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("レベル6モンスター（1体リリース）", () => {
     it("フィールドに1体→リリース選択→レベル6召喚成功", async () => {
-      const fieldMonsters = createMonstersOnField(1);
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv6", { level: 6 })],
-            mainMonsterZone: fieldMonsters,
+            ...createMonsterZone(1), // "monster-0"
             mainDeck: [],
           },
         }),
@@ -156,13 +154,12 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("レベル7モンスター（2体リリース）", () => {
     it("フィールドに2体→2体リリース→レベル7召喚成功", async () => {
-      const fieldMonsters = createMonstersOnField(2); // "monster-0", "monster-1"
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv7", { level: 7 })],
-            mainMonsterZone: fieldMonsters,
+            ...createMonsterZone(2), // "monster-0", "monster-1"
             mainDeck: [],
           },
         }),
@@ -183,13 +180,12 @@ describe("通常召喚 - 基本フローテスト", () => {
     });
 
     it("フィールドに1体しかいない → レベル7召喚不可", () => {
-      const fieldMonsters = createMonstersOnField(1);
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv7", { level: 7 })],
-            mainMonsterZone: fieldMonsters, // 1体しかいない
+            ...createMonsterZone(1), // 1体しかいない
             mainDeck: [],
           },
         }),
@@ -238,13 +234,12 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("アドバンスセット（裏側守備表示）", () => {
     it("フィールドに1体→リリース選択→レベル5セット成功（裏側守備表示）", async () => {
-      const fieldMonsters = createMonstersOnField(1);
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv5", { level: 5 })],
-            mainMonsterZone: fieldMonsters,
+            ...createMonsterZone(1), // "monster-0"
             mainDeck: [],
           },
         }),
@@ -319,13 +314,12 @@ describe("通常召喚 - 基本フローテスト", () => {
     });
 
     it("モンスターゾーン5枚満杯では召喚できない（canSummonMonster = false）", () => {
-      const monstersOnField = createMonstersOnField(5);
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
           space: {
             hand: [createMonsterInstance("m-extra", { level: 4 })],
-            mainMonsterZone: monstersOnField,
+            ...createMonsterZone(5),
             mainDeck: [],
           },
         }),

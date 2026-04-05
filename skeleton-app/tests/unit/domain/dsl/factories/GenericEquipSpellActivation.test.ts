@@ -21,7 +21,7 @@ import { CardDataRegistry } from "$lib/domain/cards";
 import {
   createMockGameState,
   createCardInstances,
-  createMonstersOnField,
+  createMonsterZone,
   createSpellInstance,
   TEST_CARD_IDS,
 } from "../../../../__testUtils__";
@@ -57,7 +57,7 @@ const createStateWithFieldMonster = (monsterCount: number = 1) =>
   createMockGameState({
     space: {
       mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      mainMonsterZone: createMonstersOnField(monsterCount),
+      ...createMonsterZone(monsterCount),
     },
     phase: "main1",
   });

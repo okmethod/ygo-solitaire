@@ -6,7 +6,7 @@ import {
   canSpecialSummon,
   executeSpecialSummon,
 } from "$lib/domain/rules/SummonRule";
-import { createMockGameState, createMonsterInstance, createMonstersOnField } from "../../../__testUtils__";
+import { createMockGameState, createMonsterInstance, createMonsterZone } from "../../../__testUtils__";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
@@ -82,7 +82,7 @@ describe("SummonRule", () => {
       const state = createMockGameState({
         space: {
           hand: [monster],
-          mainMonsterZone: createMonstersOnField(5),
+          ...createMonsterZone(5),
         },
       });
 
@@ -115,7 +115,7 @@ describe("SummonRule", () => {
       const state = createMockGameState({
         space: {
           hand: [monster],
-          mainMonsterZone: createMonstersOnField(1),
+          ...createMonsterZone(1),
         },
       });
 
@@ -132,7 +132,7 @@ describe("SummonRule", () => {
       const state = createMockGameState({
         space: {
           hand: [monster],
-          mainMonsterZone: createMonstersOnField(1), // Only 1, but need 2
+          ...createMonsterZone(1), // Only 1, but need 2
         },
       });
 
@@ -231,7 +231,7 @@ describe("SummonRule", () => {
         const state = createMockGameState({
           space: {
             hand: [monster],
-            mainMonsterZone: createMonstersOnField(1),
+            ...createMonsterZone(1),
           },
         });
 
@@ -252,7 +252,7 @@ describe("SummonRule", () => {
         const state = createMockGameState({
           space: {
             hand: [monster],
-            mainMonsterZone: createMonstersOnField(2),
+            ...createMonsterZone(2),
           },
         });
 
@@ -283,7 +283,7 @@ describe("SummonRule", () => {
     it("should return success when monster zone has 4 monsters", () => {
       // Arrange
       const state = createMockGameState({
-        space: { mainMonsterZone: createMonstersOnField(4) },
+        space: { ...createMonsterZone(4) },
       });
 
       // Act
@@ -296,7 +296,7 @@ describe("SummonRule", () => {
     it("should return MONSTER_ZONE_FULL when monster zone is full (5 monsters)", () => {
       // Arrange
       const state = createMockGameState({
-        space: { mainMonsterZone: createMonstersOnField(5) },
+        space: { ...createMonsterZone(5) },
       });
 
       // Act
