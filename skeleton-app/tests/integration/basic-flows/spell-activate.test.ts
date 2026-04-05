@@ -18,7 +18,7 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
   createSpellInstance,
-  createSpellZone,
+  createFilledSpellZone,
   createScenarioDeck,
   advanceToMain1,
   flushEffectQueue,
@@ -108,7 +108,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
           space: {
             hand: [createSpellInstance("s-extra")],
             mainMonsterZone: [],
-            ...createSpellZone(5),
+            ...createFilledSpellZone(5),
             mainDeck: [],
           },
         }),

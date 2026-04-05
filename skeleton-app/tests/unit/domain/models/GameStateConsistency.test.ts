@@ -11,7 +11,14 @@
 import { describe, it, expect } from "vitest";
 import { assertValidGameState } from "$lib/domain/models/GameState/GameStateConsistency";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { createMockGameState, createCardInstances, createMonsterInstance, TEST_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createFilledMainDeck,
+  createFilledExtraDeck,
+  createFilledMonsterZone,
+  createFilledFieldZone,
+  createMonsterInstance,
+} from "../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
@@ -20,9 +27,7 @@ import { createMockGameState, createCardInstances, createMonsterInstance, TEST_C
 /** 有効なゲーム状態を生成 */
 const createValidGameState = (): GameSnapshot =>
   createMockGameState({
-    space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-    },
+    space: { ...createFilledMainDeck(30) },
     phase: "main1",
     lp: { player: 8000, opponent: 8000 },
     turn: 1,
@@ -50,9 +55,7 @@ describe("assertValidGameState", () => {
   describe("validateSpace", () => {
     it("デッキ枚数が範囲外の場合はエラー", () => {
       const state = createMockGameState({
-        space: {
-          mainDeck: createCardInstances(Array(61).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-        },
+        space: { ...createFilledMainDeck(61) },
       });
 
       expect(() => assertValidGameState(state)).toThrow("Deck size is out of bounds");
@@ -61,8 +64,8 @@ describe("assertValidGameState", () => {
     it("EXデッキ枚数が範囲外の場合はエラー", () => {
       const state = createMockGameState({
         space: {
-          mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-          extraDeck: createCardInstances(Array(16).fill(TEST_CARD_IDS.DUMMY), "extraDeck"),
+          ...createFilledMainDeck(10),
+          ...createFilledExtraDeck(16),
         },
       });
 
@@ -72,8 +75,8 @@ describe("assertValidGameState", () => {
     it("モンスターゾーン枚数が範囲外の場合はエラー", () => {
       const state = createMockGameState({
         space: {
-          mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-          mainMonsterZone: createCardInstances(Array(6).fill(TEST_CARD_IDS.DUMMY), "mainMonsterZone"),
+          ...createFilledMainDeck(10),
+          ...createFilledMonsterZone(6),
         },
       });
 
@@ -83,8 +86,8 @@ describe("assertValidGameState", () => {
     it("フィールドゾーン枚数が範囲外の場合はエラー", () => {
       const state = createMockGameState({
         space: {
-          mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-          fieldZone: createCardInstances(Array(2).fill(TEST_CARD_IDS.SPELL_FIELD), "fieldZone"),
+          ...createFilledMainDeck(10),
+          ...createFilledFieldZone(2),
         },
       });
 
@@ -97,7 +100,7 @@ describe("assertValidGameState", () => {
 
       const state = createMockGameState({
         space: {
-          mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+          ...createFilledMainDeck(10),
           hand: [card1],
           graveyard: [card2],
         },
@@ -114,7 +117,7 @@ describe("assertValidGameState", () => {
 
       const state = createMockGameState({
         space: {
-          mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+          ...createFilledMainDeck(10),
           hand: [invalidCard],
         },
       });
@@ -130,7 +133,7 @@ describe("assertValidGameState", () => {
 
       const state = createMockGameState({
         space: {
-          mainDeck: createCardInstances(Array(10).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+          ...createFilledMainDeck(10),
           hand: [invalidCard],
         },
       });

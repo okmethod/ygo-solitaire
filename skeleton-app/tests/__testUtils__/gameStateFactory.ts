@@ -1,7 +1,7 @@
 /**
  * テスト用ゲーム状態ファクトリ
  *
- * テストシナリオで使用する GameSnapshot を生成するユーティリティ
+ * GameSnapshot を生成するユーティリティ関数群
  *
  * - createMockGameState: 基本のゲーム状態（部分的な上書き可能）
  * - createExodiaDeckState: エクゾディアデッキの初期状態
@@ -17,7 +17,13 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, GamePhase, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { EXODIA_PIECE_IDS, TEST_CARD_IDS } from "./constants";
-import { createCardInstances } from "./cardInstanceFactory";
+import {
+  createFilledMainDeck,
+  createMainDeck,
+  createHand,
+  createGraveyard,
+  createSpellTrapZone,
+} from "./cardSpaceFactory";
 
 /**
  * カードID配列を InitialDeckCardIds に変換
@@ -131,7 +137,7 @@ export function createExodiaDeckState(): GameSnapshot {
 
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(exodiaDeck, "mainDeck"),
+      ...createMainDeck(exodiaDeck),
     },
     phase: "draw",
     turn: 1,
@@ -147,8 +153,8 @@ export function createExodiaDeckState(): GameSnapshot {
 export function createStateWithHand(cardIds: (string | number)[], phase: GamePhase = "main1"): GameSnapshot {
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      hand: createCardInstances(cardIds, "hand"),
+      ...createFilledMainDeck(30),
+      ...createHand(cardIds),
     },
     phase,
   });
@@ -162,8 +168,8 @@ export function createStateWithHand(cardIds: (string | number)[], phase: GamePha
 export function createStateWithSpellOnField(spellCardId: string | number): GameSnapshot {
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(35).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      spellTrapZone: createCardInstances([spellCardId], "spellTrapZone"),
+      ...createFilledMainDeck(35),
+      ...createSpellTrapZone([spellCardId]),
     },
     phase: "main1",
   });
@@ -177,8 +183,8 @@ export function createStateWithSpellOnField(spellCardId: string | number): GameS
 export function createStateWithGraveyard(cardIds: (string | number)[]): GameSnapshot {
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      graveyard: createCardInstances(cardIds, "graveyard"),
+      ...createFilledMainDeck(30),
+      ...createGraveyard(cardIds),
     },
   });
 }
@@ -189,8 +195,8 @@ export function createStateWithGraveyard(cardIds: (string | number)[]): GameSnap
 export function createExodiaVictoryState(): GameSnapshot {
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(35).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      hand: createCardInstances([...EXODIA_PIECE_IDS.ALL], "hand"),
+      ...createFilledMainDeck(35),
+      ...createHand([...EXODIA_PIECE_IDS.ALL]),
     },
     phase: "main1",
     result: {
@@ -227,8 +233,8 @@ export function createLPZeroState(): GameSnapshot {
 export function createDeckOutState(): GameSnapshot {
   return createMockGameState({
     space: {
-      hand: createCardInstances([TEST_CARD_IDS.DUMMY], "hand"),
-      graveyard: createCardInstances(Array(39).fill(TEST_CARD_IDS.DUMMY), "graveyard"),
+      ...createHand([TEST_CARD_IDS.DUMMY]),
+      ...createGraveyard(Array(39).fill(TEST_CARD_IDS.DUMMY)),
     },
     phase: "draw",
     result: {

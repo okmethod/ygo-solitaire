@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/dsl/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { createMockGameState, createCardInstances } from "../../../../__testUtils__";
+import { createMockGameState, createFilledMainDeck } from "../../../../__testUtils__";
 
 /**
  * ConditionRegistry Tests
@@ -29,9 +29,7 @@ const createMockCardInstance = (cardId: number = 12345): CardInstance => ({
 /** デッキ枚数を指定してゲーム状態を生成 */
 const createStateWithDeck = (deckCount: number) =>
   createMockGameState({
-    space: {
-      mainDeck: createCardInstances(Array(deckCount).fill(12345678), "mainDeck"),
-    },
+    space: { ...createFilledMainDeck(deckCount) },
   });
 
 // =============================================================================

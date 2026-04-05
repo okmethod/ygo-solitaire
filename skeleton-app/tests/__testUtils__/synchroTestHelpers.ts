@@ -15,8 +15,8 @@ import type { CardSpace } from "$lib/domain/models/GameState";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { Location } from "$lib/domain/models/Location";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { SYNCHRO_TEST_CARD_IDS, TEST_CARD_IDS } from "./constants";
-import { createCardInstances } from "./cardInstanceFactory";
+import { SYNCHRO_TEST_CARD_IDS } from "./constants";
+import { createFilledMainDeck } from "./cardSpaceFactory";
 import { createMockGameState } from "./gameStateFactory";
 
 /**
@@ -151,7 +151,7 @@ export function createSynchroSummonReadyState(options?: {
 
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
       extraDeck: [createTestSynchroMonster("synchro-0", synchroLevel, { location: "extraDeck" })],
       mainMonsterZone: monstersOnField,
     },
@@ -168,7 +168,7 @@ export function createSynchroSummonNoTunerState(): ReturnType<typeof createMockG
 
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
       extraDeck: [createTestSynchroMonster("synchro-0", 6, { location: "extraDeck" })],
       mainMonsterZone: [
         {
@@ -195,7 +195,7 @@ export function createSynchroSummonNoTunerState(): ReturnType<typeof createMockG
 export function createSynchroSummonLevelMismatchState(): ReturnType<typeof createMockGameState> {
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
       extraDeck: [createTestSynchroMonster("synchro-0", 8, { location: "extraDeck" })], // Lv8 シンクロ
       mainMonsterZone: [
         createTestTunerCard("tuner-0", 1, { location: "mainMonsterZone" }), // Lv1 チューナー

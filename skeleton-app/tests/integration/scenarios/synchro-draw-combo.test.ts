@@ -20,7 +20,7 @@ import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField"
 import {
   createMockGameState,
   createTestTunerCard,
-  createCardInstances,
+  createFilledMainDeck,
   flushEffectQueue,
   resolveCardSelection,
   hasCardSelection,
@@ -28,7 +28,7 @@ import {
   resolveOptionalTrigger,
   getState,
 } from "../../__testUtils__";
-import { SYNCHRO_TEST_CARD_IDS, TEST_CARD_IDS } from "../../__testUtils__/constants";
+import { SYNCHRO_TEST_CARD_IDS } from "../../__testUtils__/constants";
 
 const TG_HYPER_LIBRARIAN_ID = 90953320; // Lv5 シンクロ
 const FORMULA_SYNCHRON_ID = 50091196; // Lv2 シンクロ
@@ -107,7 +107,7 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
     const initialState = createMockGameState({
       phase: "main1",
       space: {
-        mainDeck: createCardInstances(Array(5).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+        ...createFilledMainDeck(5),
         extraDeck: [
           createRealSynchroCard(TG_HYPER_LIBRARIAN_ID, "librarian", "extraDeck"),
           createRealSynchroCard(FORMULA_SYNCHRON_ID, "formula", "extraDeck"),
@@ -171,7 +171,7 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
     const initialState = createMockGameState({
       phase: "main1",
       space: {
-        mainDeck: createCardInstances(Array(5).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+        ...createFilledMainDeck(5),
         extraDeck: [createRealSynchroCard(TG_HYPER_LIBRARIAN_ID, "librarian", "extraDeck")],
         mainMonsterZone: [createTestTunerCard("tuner-0", 1), createNonTunerCard("nontuner-0", 4)],
         hand: [],

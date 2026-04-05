@@ -12,9 +12,6 @@
  * - createMonsterOnField: フィールド上のモンスター
  * - createSpellOnField: 魔法・罠ゾーンorフィールドゾーンの魔法カード
  * - createSetCard: セット状態のカード
- *
- * 【汎用】
- * - createCardInstances: カードID配列から複数インスタンス生成
  */
 
 import type {
@@ -253,30 +250,4 @@ export function createSetCard(
     {},
     { position: "faceDown", placedThisTurn: options?.placedThisTurn },
   );
-}
-
-// =============================================================================
-// 汎用
-// =============================================================================
-
-/**
- * カードID配列から CardInstance 配列を生成
- *
- * @param cardIds - カードIDの配列（string または number）
- * @param location - カードの配置場所
- * @param prefix - インスタンスIDのプレフィックス（デフォルト: location名）
- * @param type - カード種別（デフォルト: "spell"）
- */
-export function createCardInstances(
-  cardIds: (string | number)[],
-  location: keyof CardSpace,
-  prefix?: string,
-  type: "monster" | "spell" | "trap" = "spell",
-): CardInstance[] {
-  const instancePrefix = prefix || location;
-  const frameType: FrameSubType = type === "monster" ? "normal" : type;
-  return cardIds.map((cardId, index) => {
-    const id = typeof cardId === "string" ? parseInt(cardId, 10) : cardId;
-    return createBase(`${instancePrefix}-${index}`, id, location, { type, frameType });
-  });
 }

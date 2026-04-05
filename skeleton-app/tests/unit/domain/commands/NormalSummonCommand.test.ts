@@ -11,7 +11,7 @@ import {
   createMockGameState,
   createMonsterInstance,
   createSpellInstance,
-  createMonsterZone,
+  createFilledMonsterZone,
 } from "../../../__testUtils__";
 
 describe("NormalSummonCommand", () => {
@@ -109,7 +109,7 @@ describe("NormalSummonCommand", () => {
         const state = createMockGameState({
           space: {
             hand: [monsterCard],
-            ...createMonsterZone(5),
+            ...createFilledMonsterZone(5),
           },
         });
 
@@ -206,7 +206,7 @@ describe("NormalSummonCommand", () => {
         const state = createMockGameState({
           space: {
             hand: [monsterCard],
-            ...createMonsterZone(5),
+            ...createFilledMonsterZone(5),
           },
         });
 

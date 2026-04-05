@@ -51,7 +51,7 @@ function createHandCard(id: number, instanceId: string): CardInstance {
 }
 
 /** デッキカードインスタンスを生成する */
-function createDeckCard(instanceId: string): CardInstance {
+function createFilledMainDeckCard(instanceId: string): CardInstance {
   return {
     id: 12345678,
     jaName: "Test Monster",
@@ -85,7 +85,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createDeckCard("deck-1"), createDeckCard("deck-2")],
+          mainDeck: [createFilledMainDeckCard("deck-1"), createFilledMainDeckCard("deck-2")],
           hand: [createHandCard(70368879, "goblin-1")],
           mainMonsterZone: [createLibraryOnField(libraryInstanceId)],
           spellTrapZone: [],
@@ -110,10 +110,10 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
         phase: "main1",
         space: {
           mainDeck: [
-            createDeckCard("deck-1"),
-            createDeckCard("deck-2"),
-            createDeckCard("deck-3"),
-            createDeckCard("deck-4"),
+            createFilledMainDeckCard("deck-1"),
+            createFilledMainDeckCard("deck-2"),
+            createFilledMainDeckCard("deck-3"),
+            createFilledMainDeckCard("deck-4"),
           ],
           hand: [
             createHandCard(70368879, "goblin-1"),
@@ -154,7 +154,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createDeckCard("deck-1"), createDeckCard("deck-2")],
+          mainDeck: [createFilledMainDeckCard("deck-1"), createFilledMainDeckCard("deck-2")],
           hand: [createHandCard(70368879, "goblin-1")],
           mainMonsterZone: [libraryWithMaxCounters],
           spellTrapZone: [],
@@ -191,7 +191,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createDeckCard("deck-1"), createDeckCard("deck-2")],
+          mainDeck: [createFilledMainDeckCard("deck-1"), createFilledMainDeckCard("deck-2")],
           hand: [],
           mainMonsterZone: [libraryWithCounters],
           spellTrapZone: [],
@@ -227,7 +227,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createDeckCard("deck-1")],
+          mainDeck: [createFilledMainDeckCard("deck-1")],
           hand: [],
           mainMonsterZone: [libraryWithTwoCounters],
           spellTrapZone: [],
@@ -252,11 +252,11 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
         phase: "main1",
         space: {
           mainDeck: [
-            createDeckCard("deck-1"),
-            createDeckCard("deck-2"),
-            createDeckCard("deck-3"),
-            createDeckCard("deck-4"),
-            createDeckCard("deck-5"),
+            createFilledMainDeckCard("deck-1"),
+            createFilledMainDeckCard("deck-2"),
+            createFilledMainDeckCard("deck-3"),
+            createFilledMainDeckCard("deck-4"),
+            createFilledMainDeckCard("deck-5"),
           ],
           hand: [
             createHandCard(70368879, "goblin-1"),

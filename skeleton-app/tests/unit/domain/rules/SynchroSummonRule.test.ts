@@ -17,7 +17,7 @@ import {
   createTestSynchroMonster,
   createTestTunerCard,
   createMonsterOnField,
-  createCardInstances,
+  createFilledMainDeck,
   SYNCHRO_TEST_CARD_IDS,
 } from "../../../__testUtils__";
 
@@ -128,7 +128,7 @@ describe("SynchroSummonRule", () => {
           space: {
             extraDeck: [createTestSynchroMonster("synchro-0", 6, { location: "extraDeck" })],
             mainMonsterZone: [createTestTunerCard("tuner-0", 2, { location: "mainMonsterZone" })],
-            mainDeck: createCardInstances(Array(30).fill(12345678), "mainDeck"),
+            ...createFilledMainDeck(30),
           },
           phase: "main1",
         });
@@ -209,7 +209,7 @@ describe("SynchroSummonRule", () => {
               createMonsterOnField(SYNCHRO_TEST_CARD_IDS.TUNER_LV2, "tuner-0", { position: "faceDown" }), // Face-down
               createMonsterOnField(SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4, "nontuner-", { position: "faceDown" }),
             ],
-            mainDeck: createCardInstances(Array(30).fill(12345678), "mainDeck"),
+            ...createFilledMainDeck(30),
           },
           phase: "main1",
         });

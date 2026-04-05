@@ -12,7 +12,7 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
   createMonsterInstance,
-  createMonsterZone,
+  createFilledMonsterZone,
   createScenarioDeck,
   flushEffectQueue,
   resolveCardSelection,
@@ -79,7 +79,7 @@ describe("通常召喚 - 基本フローテスト", () => {
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv5", { level: 5 })],
-            ...createMonsterZone(1), // "monster-0"
+            ...createFilledMonsterZone(1), // "monster-0"
             mainDeck: [],
           },
         }),
@@ -131,7 +131,7 @@ describe("通常召喚 - 基本フローテスト", () => {
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv6", { level: 6 })],
-            ...createMonsterZone(1), // "monster-0"
+            ...createFilledMonsterZone(1), // "monster-0"
             mainDeck: [],
           },
         }),
@@ -159,7 +159,7 @@ describe("通常召喚 - 基本フローテスト", () => {
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv7", { level: 7 })],
-            ...createMonsterZone(2), // "monster-0", "monster-1"
+            ...createFilledMonsterZone(2), // "monster-0", "monster-1"
             mainDeck: [],
           },
         }),
@@ -185,7 +185,7 @@ describe("通常召喚 - 基本フローテスト", () => {
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv7", { level: 7 })],
-            ...createMonsterZone(1), // 1体しかいない
+            ...createFilledMonsterZone(1), // 1体しかいない
             mainDeck: [],
           },
         }),
@@ -239,7 +239,7 @@ describe("通常召喚 - 基本フローテスト", () => {
           phase: "main1",
           space: {
             hand: [createMonsterInstance("lv5", { level: 5 })],
-            ...createMonsterZone(1), // "monster-0"
+            ...createFilledMonsterZone(1), // "monster-0"
             mainDeck: [],
           },
         }),
@@ -319,7 +319,7 @@ describe("通常召喚 - 基本フローテスト", () => {
           phase: "main1",
           space: {
             hand: [createMonsterInstance("m-extra", { level: 4 })],
-            ...createMonsterZone(5),
+            ...createFilledMonsterZone(5),
             mainDeck: [],
           },
         }),

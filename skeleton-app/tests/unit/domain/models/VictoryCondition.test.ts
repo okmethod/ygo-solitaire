@@ -9,15 +9,14 @@
 
 import { describe, it, expect } from "vitest";
 import { GameState } from "$lib/domain/models/GameState";
-import { createMockGameState, createCardInstances, EXODIA_PIECE_IDS } from "../../../__testUtils__";
+import { createMockGameState, createHand, createGraveyard, EXODIA_PIECE_IDS } from "../../../__testUtils__";
 
 describe("VictoryCondition", () => {
   describe("Exodia Victory", () => {
     it("should declare player victory when all 5 Exodia pieces are in hand", () => {
       // Arrange
-      const exodiaHand = createCardInstances([...EXODIA_PIECE_IDS.ALL], "hand");
       const state = createMockGameState({
-        space: { hand: exodiaHand },
+        space: { ...createHand([...EXODIA_PIECE_IDS.ALL]) },
       });
 
       // Act
@@ -32,12 +31,15 @@ describe("VictoryCondition", () => {
 
     it("should not declare victory when only 4 Exodia pieces are in hand", () => {
       // Arrange: Missing left leg
-      const partialExodiaHand = createCardInstances(
-        [EXODIA_PIECE_IDS.MAIN, EXODIA_PIECE_IDS.RIGHT_ARM, EXODIA_PIECE_IDS.LEFT_ARM, EXODIA_PIECE_IDS.RIGHT_LEG],
-        "hand",
-      );
       const state = createMockGameState({
-        space: { hand: partialExodiaHand },
+        space: {
+          ...createHand([
+            EXODIA_PIECE_IDS.MAIN,
+            EXODIA_PIECE_IDS.RIGHT_ARM,
+            EXODIA_PIECE_IDS.LEFT_ARM,
+            EXODIA_PIECE_IDS.RIGHT_LEG,
+          ]),
+        },
       });
 
       // Act
@@ -49,15 +51,10 @@ describe("VictoryCondition", () => {
 
     it("should not declare victory when Exodia pieces are in different zones", () => {
       // Arrange: Some pieces in hand, some in graveyard
-      const handCards = createCardInstances(
-        [EXODIA_PIECE_IDS.MAIN, EXODIA_PIECE_IDS.RIGHT_ARM, EXODIA_PIECE_IDS.LEFT_ARM],
-        "hand",
-      );
-      const graveyardCards = createCardInstances([EXODIA_PIECE_IDS.RIGHT_LEG, EXODIA_PIECE_IDS.LEFT_LEG], "graveyard");
       const state = createMockGameState({
         space: {
-          hand: handCards,
-          graveyard: graveyardCards,
+          ...createHand([EXODIA_PIECE_IDS.MAIN, EXODIA_PIECE_IDS.RIGHT_ARM, EXODIA_PIECE_IDS.LEFT_ARM]),
+          ...createGraveyard([EXODIA_PIECE_IDS.RIGHT_LEG, EXODIA_PIECE_IDS.LEFT_LEG]),
         },
       });
 
@@ -159,10 +156,9 @@ describe("VictoryCondition", () => {
   describe("Victory Priority", () => {
     it("should prioritize Exodia over LP0 when both conditions are met", () => {
       // Arrange: Player has 0 LP but also has all Exodia pieces
-      const exodiaHand = createCardInstances([...EXODIA_PIECE_IDS.ALL], "hand");
       const state = createMockGameState({
         lp: { player: 0, opponent: 8000 },
-        space: { hand: exodiaHand },
+        space: { ...createHand([...EXODIA_PIECE_IDS.ALL]) },
       });
 
       // Act

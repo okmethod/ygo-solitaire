@@ -20,10 +20,9 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
 import {
   createMockGameState,
-  createCardInstances,
-  createMonsterZone,
+  createFilledMainDeck,
+  createFilledMonsterZone,
   createSpellInstance,
-  TEST_CARD_IDS,
 } from "../../../../__testUtils__";
 
 // =============================================================================
@@ -56,8 +55,8 @@ const createEquipSpellInstance = (cardId: number): CardInstance =>
 const createStateWithFieldMonster = (monsterCount: number = 1) =>
   createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      ...createMonsterZone(monsterCount),
+      ...createFilledMainDeck(30),
+      ...createFilledMonsterZone(monsterCount),
     },
     phase: "main1",
   });
@@ -66,7 +65,7 @@ const createStateWithFieldMonster = (monsterCount: number = 1) =>
 const createStateWithoutFieldMonster = () =>
   createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
     },
     phase: "main1",
   });

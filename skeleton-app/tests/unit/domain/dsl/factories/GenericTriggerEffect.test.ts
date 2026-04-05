@@ -14,7 +14,7 @@ import { GenericTriggerEffect, createGenericTriggerEffect } from "$lib/domain/ds
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createMockGameState, createCardInstances, TEST_CARD_IDS } from "../../../../__testUtils__";
+import { createMockGameState, createFilledMainDeck, createHand, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストセットアップ
@@ -76,8 +76,8 @@ const createTriggerMonsterInstance = (
 const createTriggerTestState = (deckCount: number, handCount: number = 0) =>
   createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(deckCount).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
-      hand: createCardInstances(Array(handCount).fill(TEST_CARD_IDS.DUMMY), "hand"),
+      ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY),
+      ...createHand(Array(handCount).fill(TEST_CARD_IDS.DUMMY)),
     },
     phase: "main1",
   });

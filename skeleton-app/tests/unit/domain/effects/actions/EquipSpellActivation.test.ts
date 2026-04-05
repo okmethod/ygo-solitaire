@@ -16,7 +16,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
 import {
   createMockGameState,
-  createCardInstances,
+  createFilledMainDeck,
   createMonsterOnField,
   TEST_CARD_IDS,
 } from "../../../../__testUtils__";
@@ -63,7 +63,7 @@ const createStateWithFieldMonster = (monsterCount: number = 1) => {
 
   return createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
       mainMonsterZone: monsters,
     },
     phase: "main1",
@@ -74,7 +74,7 @@ const createStateWithFieldMonster = (monsterCount: number = 1) => {
 const createStateWithoutFieldMonster = () =>
   createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
     },
     phase: "main1",
   });
@@ -83,7 +83,7 @@ const createStateWithoutFieldMonster = () =>
 const createStateWithFaceDownMonster = () =>
   createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
+      ...createFilledMainDeck(30),
       mainMonsterZone: [
         createMonsterOnField(TEST_CARD_IDS.DUMMY, "facedown-monster", {
           position: "faceDown",

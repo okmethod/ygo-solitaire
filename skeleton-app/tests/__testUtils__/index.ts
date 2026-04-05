@@ -17,12 +17,18 @@ export {
   createMonsterOnField,
   createSpellOnField,
   createSetCard,
-  // 汎用
-  createCardInstances,
 } from "./cardInstanceFactory";
 
 // カードスペースファクトリ
-export { createMonsterZone, createSpellZone } from "./cardSpaceFactory";
+export {
+  createHand,
+  createGraveyard,
+  createFilledMainDeck,
+  createFilledExtraDeck,
+  createFilledMonsterZone,
+  createFilledSpellZone,
+  createFilledFieldZone,
+} from "./cardSpaceFactory";
 
 // ゲーム状態ファクトリ
 export {

@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import { createCardInstances } from "../../../__testUtils__";
+import { createFilledMainDeck, createHand, createFilledMonsterZone } from "../../../__testUtils__";
+import { createMonsterInstance, createSpellInstance } from "../../../__testUtils__";
 
 describe("CardSpace", () => {
   describe("moveCardInstance", () => {
@@ -11,7 +12,7 @@ describe("CardSpace", () => {
         mainDeck: [],
         extraDeck: [],
         hand: [],
-        mainMonsterZone: createCardInstances(["12345678"], "mainMonsterZone", undefined, "monster"),
+        ...createFilledMonsterZone(1),
         spellTrapZone: [],
         fieldZone: [],
         graveyard: [],
@@ -32,7 +33,7 @@ describe("CardSpace", () => {
       const space: CardSpace = {
         mainDeck: [],
         extraDeck: [],
-        hand: createCardInstances(["12345678"], "hand"),
+        ...createHand(["12345678"]),
         mainMonsterZone: [],
         spellTrapZone: [],
         fieldZone: [],
@@ -51,12 +52,14 @@ describe("CardSpace", () => {
 
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
     it("should preserve other zones when moving card", () => {
+      const monsterCard = createMonsterInstance("monster-0", { cardId: 1003, location: "mainMonsterZone" });
+      const spellCard = createSpellInstance("spell-0", "normal", { cardId: 1004, location: "spellTrapZone" });
       const space: CardSpace = {
-        mainDeck: createCardInstances(["1001"], "mainDeck"),
+        ...createFilledMainDeck(1, 12345678),
         extraDeck: [],
-        hand: createCardInstances(["1002"], "hand"),
-        mainMonsterZone: createCardInstances(["1003"], "mainMonsterZone", undefined, "monster"),
-        spellTrapZone: createCardInstances(["1004"], "spellTrapZone"),
+        hand: [createSpellInstance("hand-0", "normal", { cardId: 1002, location: "hand" })],
+        mainMonsterZone: [monsterCard],
+        spellTrapZone: [spellCard],
         fieldZone: [],
         graveyard: [],
         banished: [],

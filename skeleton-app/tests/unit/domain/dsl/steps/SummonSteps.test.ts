@@ -6,7 +6,7 @@ import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import {
   createMockGameState,
   createMonsterInstance,
-  createMonsterZone,
+  createFilledMonsterZone,
   TEST_CARD_IDS,
   SYNCHRO_TEST_CARD_IDS,
 } from "../../../../__testUtils__";
@@ -150,7 +150,7 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_DECK", () => {
       const state = createMockGameState({
         space: {
           mainDeck: [monster],
-          ...createMonsterZone(5),
+          ...createFilledMonsterZone(5),
         },
       });
 
@@ -446,7 +446,7 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_CONTEXT", () => {
       const state = createMockGameState({
         space: {
           graveyard: [monster],
-          ...createMonsterZone(5),
+          ...createFilledMonsterZone(5),
         },
         activationContexts: contexts,
       });

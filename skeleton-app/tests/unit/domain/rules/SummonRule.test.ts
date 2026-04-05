@@ -6,7 +6,7 @@ import {
   canSpecialSummon,
   executeSpecialSummon,
 } from "$lib/domain/rules/SummonRule";
-import { createMockGameState, createMonsterInstance, createMonsterZone } from "../../../__testUtils__";
+import { createMockGameState, createMonsterInstance, createFilledMonsterZone } from "../../../__testUtils__";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
@@ -82,7 +82,7 @@ describe("SummonRule", () => {
       const state = createMockGameState({
         space: {
           hand: [monster],
-          ...createMonsterZone(5),
+          ...createFilledMonsterZone(5),
         },
       });
 
@@ -115,7 +115,7 @@ describe("SummonRule", () => {
       const state = createMockGameState({
         space: {
           hand: [monster],
-          ...createMonsterZone(1),
+          ...createFilledMonsterZone(1),
         },
       });
 
@@ -132,7 +132,7 @@ describe("SummonRule", () => {
       const state = createMockGameState({
         space: {
           hand: [monster],
-          ...createMonsterZone(1), // Only 1, but need 2
+          ...createFilledMonsterZone(1), // Only 1, but need 2
         },
       });
 
@@ -231,7 +231,7 @@ describe("SummonRule", () => {
         const state = createMockGameState({
           space: {
             hand: [monster],
-            ...createMonsterZone(1),
+            ...createFilledMonsterZone(1),
           },
         });
 
@@ -252,7 +252,7 @@ describe("SummonRule", () => {
         const state = createMockGameState({
           space: {
             hand: [monster],
-            ...createMonsterZone(2),
+            ...createFilledMonsterZone(2),
           },
         });
 
@@ -283,7 +283,7 @@ describe("SummonRule", () => {
     it("should return success when monster zone has 4 monsters", () => {
       // Arrange
       const state = createMockGameState({
-        space: { ...createMonsterZone(4) },
+        space: { ...createFilledMonsterZone(4) },
       });
 
       // Act
@@ -296,7 +296,7 @@ describe("SummonRule", () => {
     it("should return MONSTER_ZONE_FULL when monster zone is full (5 monsters)", () => {
       // Arrange
       const state = createMockGameState({
-        space: { ...createMonsterZone(5) },
+        space: { ...createFilledMonsterZone(5) },
       });
 
       // Act

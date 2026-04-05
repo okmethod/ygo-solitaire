@@ -12,7 +12,7 @@ import {
   createMockGameState,
   createSpellInstance,
   createMonsterInstance,
-  createSpellZone,
+  createFilledSpellZone,
 } from "../../../__testUtils__";
 
 describe("SetSpellTrapCommand", () => {
@@ -76,7 +76,7 @@ describe("SetSpellTrapCommand", () => {
       const state = createMockGameState({
         space: {
           hand: [spellCard],
-          ...createSpellZone(5),
+          ...createFilledSpellZone(5),
         },
       });
 
@@ -347,7 +347,7 @@ describe("SetSpellTrapCommand", () => {
     it("should fail if spellTrapZone is full", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const existingSpells = createSpellZone(5).spellTrapZone.map((s) => ({
+      const existingSpells = createFilledSpellZone(5).spellTrapZone.map((s) => ({
         ...s,
         location: "spellTrapZone" as const,
       }));

@@ -6,7 +6,7 @@ import {
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createMockGameState, createCardInstances } from "../../../../__testUtils__";
+import { createMockGameState, createFilledMainDeck, createHand } from "../../../../__testUtils__";
 
 /**
  * GenericNormalSpellActivation Tests
@@ -54,8 +54,8 @@ const createMockCardInstance = (cardId: number): CardInstance => ({
 const createSpellTestState = (deckCount: number, handCount: number = 0) =>
   createMockGameState({
     space: {
-      mainDeck: createCardInstances(Array(deckCount).fill(12345678), "mainDeck"),
-      hand: createCardInstances(Array(handCount).fill(12345678), "hand"),
+      ...createFilledMainDeck(deckCount),
+      ...createHand(Array(handCount).fill(12345678)),
     },
   });
 
