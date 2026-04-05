@@ -9,20 +9,28 @@ export { EXODIA_PIECE_IDS, TEST_CARD_IDS, TOKEN_TEST_CARD_IDS, SYNCHRO_TEST_CARD
 
 // カードインスタンスファクトリ
 export {
+  // 手札向け
   createTestMonsterCard,
   createHandMonster,
-  createMonstersOnField,
-  createSpellsOnField,
   createTestSpellCard,
   createTestTrapCard,
+  // フィールド向け
   createFieldCardInstance,
+  createMonsterOnField,
+  createMonstersOnField,
+  createFaceUpFieldCard,
+  createFaceDownFieldCard,
+  createSpellsOnField,
   createSetCard,
+  // 汎用
   createCardInstances,
 } from "./cardInstanceFactory";
 
 // ゲーム状態ファクトリ
 export {
   createMockGameState,
+  createStateWithMonsterZone,
+  createStateWithFieldZone,
   createExodiaDeckState,
   createStateWithHand,
   createStateWithSpellOnField,

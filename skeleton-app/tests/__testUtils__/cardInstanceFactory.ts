@@ -3,24 +3,87 @@
  *
  * CardInstance を生成するユーティリティ関数群
  *
+ * 【手札向け】stateOnField なし
  * - createTestMonsterCard: テスト用モンスター
  * - createHandMonster: 手札のモンスター
- * - createMonstersOnField: フィールド上のモンスター配列
- * - createSpellsOnField: 魔法・罠ゾーンの魔法配列
  * - createTestSpellCard: テスト用魔法
  * - createTestTrapCard: テスト用罠
- * - createFieldCardInstance: フィールド上のカード（stateOnField付き）
+ *
+ * 【フィールド向け】stateOnField 付き
+ * - createFieldCardInstance: フィールド上のカード（汎用）
+ * - createMonsterOnField: フィールド上のモンスター
+ * - createMonstersOnField: フィールド上のモンスター配列
+ * - createFaceUpFieldCard: フィールドゾーンの表側カード
+ * - createFaceDownFieldCard: フィールドゾーンの裏側カード
+ * - createSpellsOnField: 魔法・罠ゾーンの魔法配列
  * - createSetCard: セット状態のカード
+ *
+ * 【汎用】
  * - createCardInstances: カードID配列から複数インスタンス生成
  */
 
-import type { CardInstance, FrameSubType, SpellSubType, TrapSubType } from "$lib/domain/models/Card";
+import type {
+  CardData,
+  CardInstance,
+  FrameSubType,
+  SpellSubType,
+  TrapSubType,
+  StateOnField,
+} from "$lib/domain/models/Card";
 import type { CounterState } from "$lib/domain/models/Card";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { Location } from "$lib/domain/models/Location";
 import { CardDataRegistry } from "$lib/domain/cards";
 import { TEST_CARD_IDS } from "./constants";
+
+// =============================================================================
+// 内部ユーティリティ
+// =============================================================================
+
+/** undefined 値を除いたオブジェクトを返す */
+const defined = <T extends object>(obj: T): Partial<T> =>
+  Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
+
+type StateOptions = Partial<Pick<StateOnField, "position" | "battlePosition" | "placedThisTurn" | "equippedTo">>;
+
+/**
+ * CardInstance の基底ビルダー
+ *
+ * 優先度: callerFields > レジストリ値 > typeDefaults > グローバルデフォルト
+ * フィールド系ロケーションの場合は stateOnField を自動付与する。
+ */
+const createBase = (
+  instanceId: string,
+  id: number,
+  location: keyof CardSpace,
+  typeDefaults: Partial<CardData>,
+  callerFields: Partial<CardData> = {},
+  stateOptions: StateOptions = {},
+): CardInstance => {
+  const reg = CardDataRegistry.getOrUndefined(id);
+  const base = {
+    jaName: `Test Card ${id}`,
+    edition: "latest" as const,
+    type: "monster" as const,
+    frameType: "normal" as const,
+    ...typeDefaults,
+    ...defined(reg ?? {}),
+    ...defined(callerFields),
+    id,
+    instanceId,
+    location,
+  } as CardInstance;
+
+  if (Location.isField(location)) {
+    return { ...base, stateOnField: createInitialStateOnField(stateOptions) };
+  }
+  return base;
+};
+
+// =============================================================================
+// 手札向け（stateOnField なし）
+// =============================================================================
 
 /**
  * テスト用モンスターカードインスタンスを作成
@@ -41,18 +104,13 @@ export function createTestMonsterCard(
     level?: number;
   },
 ): CardInstance {
-  const cardId = options?.cardId ?? TEST_CARD_IDS.DUMMY;
-  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
-  return {
+  return createBase(
     instanceId,
-    id: cardId,
-    jaName: registeredCard?.jaName ?? "Test Monster",
-    type: "monster",
-    frameType: options?.frameType ?? registeredCard?.frameType ?? "normal",
-    level: options?.level ?? registeredCard?.level,
-    edition: registeredCard?.edition ?? "latest",
-    location: options?.location ?? "hand",
-  };
+    options?.cardId ?? TEST_CARD_IDS.DUMMY,
+    options?.location ?? "hand",
+    { type: "monster", frameType: "normal" },
+    { frameType: options?.frameType, level: options?.level },
+  );
 }
 
 /**
@@ -62,47 +120,7 @@ export function createTestMonsterCard(
  * @param level - モンスターレベル（デフォルト: 4）
  */
 export function createHandMonster(instanceId: string, level: number = 4): CardInstance {
-  return createTestMonsterCard(instanceId, { location: "hand", level });
-}
-
-/**
- * フィールド上のモンスター配列を作成
- *
- * @param count - 作成するモンスター数
- * @param options - オプション設定
- */
-export function createMonstersOnField(count: number, options?: { position?: "faceUp" | "faceDown" }): CardInstance[] {
-  return Array.from({ length: count }, (_, i) =>
-    createFieldCardInstance({
-      instanceId: `monster-${i}`,
-      id: TEST_CARD_IDS.DUMMY,
-      jaName: `Monster ${i}`,
-      type: "monster",
-      frameType: "normal",
-      location: "mainMonsterZone",
-      position: options?.position ?? "faceUp",
-    }),
-  );
-}
-
-/**
- * 魔法・罠ゾーンの魔法カード配列を作成
- *
- * @param count - 作成する魔法カード数
- */
-export function createSpellsOnField(count: number): CardInstance[] {
-  return Array.from({ length: count }, (_, i) =>
-    createFieldCardInstance({
-      instanceId: `spell-${i}`,
-      id: TEST_CARD_IDS.SPELL_NORMAL,
-      jaName: `Spell ${i}`,
-      type: "spell",
-      frameType: "spell",
-      location: "spellTrapZone",
-      position: "faceUp",
-      spellType: "normal",
-    }),
-  );
+  return createTestMonsterCard(instanceId, { level });
 }
 
 /**
@@ -132,19 +150,11 @@ export function createTestSpellCard(
     equip: TEST_CARD_IDS.SPELL_EQUIP,
     ritual: TEST_CARD_IDS.SPELL_NORMAL,
   };
-  const cardId = options?.cardId ?? defaultCardIds[spellType];
-  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
-
-  return {
-    instanceId,
-    id: cardId,
-    jaName: registeredCard?.jaName ?? `Test ${spellType} Spell`,
+  return createBase(instanceId, options?.cardId ?? defaultCardIds[spellType], options?.location ?? "hand", {
     type: "spell",
     frameType: "spell",
-    spellType: registeredCard?.spellType ?? spellType,
-    edition: registeredCard?.edition ?? "latest",
-    location: options?.location ?? "hand",
-  };
+    spellType,
+  });
 }
 
 /**
@@ -163,23 +173,22 @@ export function createTestTrapCard(
     location?: keyof CardSpace;
   },
 ): CardInstance {
-  const cardId = options?.cardId ?? TEST_CARD_IDS.TRAP_NORMAL;
-  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
-
-  return {
-    instanceId,
-    id: cardId,
-    jaName: registeredCard?.jaName ?? `Test ${trapType} Trap`,
+  return createBase(instanceId, options?.cardId ?? TEST_CARD_IDS.TRAP_NORMAL, options?.location ?? "hand", {
     type: "trap",
     frameType: "trap",
-    trapType: registeredCard?.trapType ?? trapType,
-    edition: registeredCard?.edition ?? "latest",
-    location: options?.location ?? "hand",
-  };
+    trapType,
+  });
 }
+
+// =============================================================================
+// フィールド向け（stateOnField 付き）
+// =============================================================================
 
 /**
  * フィールド上のカードインスタンスを作成（stateOnField付き）
+ *
+ * 全フィールドを明示的に指定する汎用コンストラクタ。
+ * レジストリ値より呼び出し元の値が常に優先される。
  *
  * @param options - カードインスタンスの設定
  */
@@ -218,6 +227,75 @@ export function createFieldCardInstance(options: {
 }
 
 /**
+ * モンスターゾーンのカードインスタンスを作成（stateOnField付き）
+ *
+ * @param id - カードID
+ * @param instanceId - インスタンスID（例: "mainMonsterZone-0"）
+ * @param position - 表裏表示（デフォルト: "faceUp"）
+ */
+export function createMonsterOnField(
+  id: number,
+  instanceId: string,
+  position: "faceUp" | "faceDown" = "faceUp",
+): CardInstance {
+  return createBase(instanceId, id, "mainMonsterZone", { type: "monster", frameType: "effect" }, {}, { position });
+}
+
+/**
+ * フィールド上のモンスター配列を作成
+ *
+ * @param count - 作成するモンスター数
+ * @param options - オプション設定
+ */
+export function createMonstersOnField(count: number, options?: { position?: "faceUp" | "faceDown" }): CardInstance[] {
+  return Array.from({ length: count }, (_, i) =>
+    createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, options?.position),
+  );
+}
+
+/**
+ * フィールドゾーンの表側表示カードを作成
+ *
+ * @param id - カードID
+ * @param instanceId - インスタンスID（デフォルト: "fieldZone-0"）
+ */
+export function createFaceUpFieldCard(id: number, instanceId = "fieldZone-0"): CardInstance {
+  return createBase(instanceId, id, "fieldZone", { type: "spell", frameType: "spell" }, {}, { position: "faceUp" });
+}
+
+/**
+ * フィールドゾーンの裏側表示カードを作成
+ *
+ * @param id - カードID
+ * @param instanceId - インスタンスID（デフォルト: "fieldZone-0"）
+ */
+export function createFaceDownFieldCard(id: number, instanceId = "fieldZone-0"): CardInstance {
+  return createBase(instanceId, id, "fieldZone", { type: "spell", frameType: "spell" }, {}, { position: "faceDown" });
+}
+
+/**
+ * 魔法・罠ゾーンの魔法カード配列を作成
+ *
+ * @param count - 作成する魔法カード数
+ */
+export function createSpellsOnField(count: number): CardInstance[] {
+  return Array.from({ length: count }, (_, i) =>
+    createBase(
+      `spell-${i}`,
+      TEST_CARD_IDS.SPELL_NORMAL,
+      "spellTrapZone",
+      {
+        type: "spell",
+        frameType: "spell",
+        spellType: "normal",
+      },
+      {},
+      { position: "faceUp" },
+    ),
+  );
+}
+
+/**
  * セット状態のカードを生成（裏側表示、stateOnField付き）
  *
  * @param instanceId - カードインスタンスID
@@ -231,24 +309,19 @@ export function createSetCard(
   location: "spellTrapZone" | "fieldZone",
   options?: { placedThisTurn?: boolean },
 ): CardInstance {
-  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
-  return {
+  return createBase(
     instanceId,
-    id: cardId,
-    jaName: registeredCard?.jaName ?? `Test Card ${cardId}`,
-    type: registeredCard?.type ?? "spell",
-    frameType: registeredCard?.frameType ?? "spell",
-    spellType: registeredCard?.spellType,
-    edition: registeredCard?.edition ?? "latest",
+    cardId,
     location,
-    stateOnField: {
-      position: "faceDown",
-      placedThisTurn: options?.placedThisTurn ?? false,
-      counters: [],
-      activatedEffects: new Set(),
-    },
-  };
+    { type: "spell", frameType: "spell" },
+    {},
+    { position: "faceDown", placedThisTurn: options?.placedThisTurn },
+  );
 }
+
+// =============================================================================
+// 汎用
+// =============================================================================
 
 /**
  * カードID配列から CardInstance 配列を生成
@@ -265,28 +338,9 @@ export function createCardInstances(
   type: "monster" | "spell" | "trap" = "spell",
 ): CardInstance[] {
   const instancePrefix = prefix || location;
+  const frameType: FrameSubType = type === "monster" ? "normal" : type;
   return cardIds.map((cardId, index) => {
-    const numericId = typeof cardId === "string" ? parseInt(cardId, 10) : cardId;
-    const registeredCard = CardDataRegistry.getOrUndefined(numericId);
-    const frameType: FrameSubType = registeredCard?.frameType ?? (type === "monster" ? "normal" : type);
-    const spellType = registeredCard?.spellType;
-    const baseInstance = {
-      instanceId: `${instancePrefix}-${index}`,
-      id: numericId,
-      type: registeredCard?.type ?? type,
-      frameType,
-      spellType,
-      jaName: registeredCard?.jaName ?? `Test Card ${numericId}`,
-      edition: registeredCard?.edition ?? ("latest" as const),
-      location,
-    };
-    // フィールドロケーションの場合は stateOnField を設定
-    if (Location.isField(location)) {
-      return {
-        ...baseInstance,
-        stateOnField: createInitialStateOnField(),
-      };
-    }
-    return baseInstance;
+    const id = typeof cardId === "string" ? parseInt(cardId, 10) : cardId;
+    return createBase(`${instancePrefix}-${index}`, id, location, { type, frameType });
   });
 }

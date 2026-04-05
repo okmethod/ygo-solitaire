@@ -21,54 +21,13 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
-import { createMockGameState } from "../../../../__testUtils__";
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-/** フィールドゾーンにカードを配置した状態を生成 */
-const createStateWithFieldZone = (cards: CardInstance[]) => createMockGameState({ space: { fieldZone: cards } });
-
-/** モンスターゾーンにカードを配置した状態を生成 */
-const createStateWithMonsterZone = (cards: CardInstance[]) =>
-  createMockGameState({ space: { mainMonsterZone: cards } });
-
-/** テスト用フィールドゾーン表側表示カードを作成 */
-const createFaceUpFieldCard = (id: number, instanceId = "fieldZone-0"): CardInstance => ({
-  id,
-  jaName: "Test Card",
-  type: "spell",
-  frameType: "spell",
-  edition: "latest",
-  instanceId,
-  location: "fieldZone",
-  stateOnField: { position: "faceUp", placedThisTurn: false, counters: [], activatedEffects: new Set() },
-});
-
-/** テスト用フィールドゾーン裏側表示カードを作成 */
-const createFaceDownFieldCard = (id: number, instanceId = "fieldZone-0"): CardInstance => ({
-  ...createFaceUpFieldCard(id, instanceId),
-  stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
-});
-
-/** テスト用モンスターゾーン表側表示カードを作成 */
-const createFaceUpMonsterCard = (id: number, instanceId: string): CardInstance => ({
-  id,
-  jaName: "Test Monster",
-  type: "monster",
-  frameType: "effect",
-  edition: "latest",
-  instanceId,
-  location: "mainMonsterZone",
-  stateOnField: { position: "faceUp", placedThisTurn: false, counters: [], activatedEffects: new Set() },
-});
-
-/** テスト用モンスターゾーン裏側表示カードを作成 */
-const createFaceDownMonsterCard = (id: number, instanceId: string): CardInstance => ({
-  ...createFaceUpMonsterCard(id, instanceId),
-  stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
-});
+import {
+  createMonsterOnField,
+  createFaceUpFieldCard,
+  createFaceDownFieldCard,
+  createStateWithMonsterZone,
+  createStateWithFieldZone,
+} from "../../../../__testUtils__";
 
 /**
  * Mock AdditionalRule for testing
@@ -474,7 +433,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard = createFaceUpMonsterCard(cardId, "mainMonsterZone-0");
+      const monsterCard = createMonsterOnField(cardId, "mainMonsterZone-0");
       const state = createStateWithMonsterZone([monsterCard]);
 
       // Act
@@ -493,7 +452,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createFaceUpMonsterCard(cardId, "mainMonsterZone-0")]);
+      const state = createStateWithMonsterZone([createMonsterOnField(cardId, "mainMonsterZone-0")]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "normalSummoned");
@@ -509,7 +468,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createFaceDownMonsterCard(cardId, "mainMonsterZone-0")]);
+      const state = createStateWithMonsterZone([createMonsterOnField(cardId, "mainMonsterZone-0", "faceDown")]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -525,8 +484,8 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard1 = createFaceUpMonsterCard(cardId, "mainMonsterZone-0");
-      const monsterCard2 = createFaceUpMonsterCard(cardId, "mainMonsterZone-1");
+      const monsterCard1 = createMonsterOnField(cardId, "mainMonsterZone-0");
+      const monsterCard2 = createMonsterOnField(cardId, "mainMonsterZone-1");
       const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
       // Act
@@ -607,7 +566,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createFaceUpMonsterCard(cardId, "mainMonsterZone-0")]);
+      const state = createStateWithMonsterZone([createMonsterOnField(cardId, "mainMonsterZone-0")]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
@@ -627,7 +586,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createFaceUpMonsterCard(cardId, "mainMonsterZone-0")]);
+      const state = createStateWithMonsterZone([createMonsterOnField(cardId, "mainMonsterZone-0")]);
 
       // Act
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
@@ -647,8 +606,8 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const monsterCard1 = createFaceUpMonsterCard(cardId, "mainMonsterZone-0");
-      const monsterCard2 = createFaceUpMonsterCard(cardId, "mainMonsterZone-1");
+      const monsterCard1 = createMonsterOnField(cardId, "mainMonsterZone-0");
+      const monsterCard2 = createMonsterOnField(cardId, "mainMonsterZone-1");
       const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
       // Act

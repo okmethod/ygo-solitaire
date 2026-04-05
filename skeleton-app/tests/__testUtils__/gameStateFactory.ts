@@ -13,6 +13,7 @@
  * - createDeckOutState: デッキ切れ敗北状態
  */
 
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, GamePhase, CardSpace } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { EXODIA_PIECE_IDS, TEST_CARD_IDS } from "./constants";
@@ -72,6 +73,24 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
       ...overrides?.result,
     },
   };
+}
+
+/**
+ * モンスターゾーンにカードを配置した状態を生成
+ *
+ * @param cards - モンスターゾーンに配置するカード配列
+ */
+export function createStateWithMonsterZone(cards: CardInstance[]): GameSnapshot {
+  return createMockGameState({ space: { mainMonsterZone: cards } });
+}
+
+/**
+ * フィールドゾーンにカードを配置した状態を生成
+ *
+ * @param cards - フィールドゾーンに配置するカード配列
+ */
+export function createStateWithFieldZone(cards: CardInstance[]): GameSnapshot {
+  return createMockGameState({ space: { fieldZone: cards } });
 }
 
 /**

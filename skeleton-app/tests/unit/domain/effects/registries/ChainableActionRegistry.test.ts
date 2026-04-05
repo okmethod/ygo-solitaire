@@ -26,7 +26,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField } from "../../../../__testUtils__";
 
 /**
  * Mock ChainableAction for testing
@@ -795,18 +795,6 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("collectTriggerSteps()", () => {
-    /** テスト用モンスターゾーン表側表示カードを作成 */
-    const createMonsterCard = (id: number, instanceId: string): CardInstance => ({
-      id,
-      instanceId,
-      jaName: `Monster ${id}`,
-      type: "monster",
-      frameType: "effect",
-      edition: "latest",
-      location: "mainMonsterZone",
-      stateOnField: { position: "faceUp", placedThisTurn: false, counters: [], activatedEffects: new Set() },
-    });
-
     const makeEvent = (type: EventType = "spellActivated", sourceInstanceId = "other-instance"): GameEvent => ({
       type,
       sourceCardId: 99999,
@@ -817,7 +805,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
-      const card = createMonsterCard(cardId, "mainMonsterZone-0");
+      const card = createMonsterOnField(cardId, "mainMonsterZone-0");
       const state = createMockGameState({ space: { mainMonsterZone: [card] } });
 
       // Act
@@ -834,7 +822,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], false));
-      const card = createMonsterCard(cardId, "mainMonsterZone-0");
+      const card = createMonsterOnField(cardId, "mainMonsterZone-0");
       const state = createMockGameState({ space: { mainMonsterZone: [card] } });
 
       // Act
@@ -852,7 +840,7 @@ describe("ChainableActionRegistry", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
       const state = createMockGameState({
-        space: { mainMonsterZone: [createMonsterCard(cardId, "mainMonsterZone-0")] },
+        space: { mainMonsterZone: [createMonsterOnField(cardId, "mainMonsterZone-0")] },
       });
 
       // Act
@@ -869,7 +857,7 @@ describe("ChainableActionRegistry", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
       const faceDownCard: CardInstance = {
-        ...createMonsterCard(cardId, "mainMonsterZone-0"),
+        ...createMonsterOnField(cardId, "mainMonsterZone-0"),
         stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
       };
       const state = createMockGameState({ space: { mainMonsterZone: [faceDownCard] } });
@@ -889,8 +877,8 @@ describe("ChainableActionRegistry", () => {
       const state = createMockGameState({
         space: {
           mainMonsterZone: [
-            createMonsterCard(cardId, "mainMonsterZone-0"),
-            createMonsterCard(cardId, "mainMonsterZone-1"),
+            createMonsterOnField(cardId, "mainMonsterZone-0"),
+            createMonsterOnField(cardId, "mainMonsterZone-1"),
           ],
         },
       });
