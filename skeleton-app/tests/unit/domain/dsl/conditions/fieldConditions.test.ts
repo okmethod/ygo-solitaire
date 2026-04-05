@@ -107,7 +107,7 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     const state = createMockGameState({
       space: {
         spellTrapZone: [
-          createSpellOnField(41587307, "equip-1"), // 折れ竹光
+          createSpellOnField("equip-1", { cardId: 41587307 }), // 折れ竹光
         ],
       },
       phase: "main1",
@@ -123,7 +123,7 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     const state = createMockGameState({
       space: {
         spellTrapZone: [
-          createSpellOnField(41587307, "equip-1"), // 折れ竹光
+          createSpellOnField("equip-1", { cardId: 41587307 }), // 折れ竹光
         ],
       },
       phase: "main1",
@@ -162,7 +162,9 @@ describe("fieldHasMonsterWithRaceCondition", () => {
   it("フィールドに指定種族の表側表示モンスターがある場合はtrueを返す", () => {
     const state = createMockGameState({
       space: {
-        mainMonsterZone: [createMonsterOnField(88888, "warrior-1", { position: "faceUp", battlePosition: "attack" })],
+        mainMonsterZone: [
+          createMonsterOnField("warrior-1", { cardId: 88888, position: "faceUp", battlePosition: "attack" }),
+        ],
       },
       phase: "main1",
     });
@@ -188,7 +190,7 @@ describe("fieldHasMonsterWithRaceCondition", () => {
     const state = createMockGameState({
       space: {
         mainMonsterZone: [
-          createMonsterOnField(88888, "facedown-1", { position: "faceDown", battlePosition: "defense" }),
+          createMonsterOnField("facedown-1", { cardId: 88888, position: "faceDown", battlePosition: "defense" }),
         ],
       },
       phase: "main1",
@@ -210,7 +212,9 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   it("フィールドに効果モンスター以外の表側表示モンスターがある場合はtrueを返す", () => {
     const state = createMockGameState({
       space: {
-        mainMonsterZone: [createMonsterOnField(88888, "normal-1", { position: "faceUp", battlePosition: "attack" })],
+        mainMonsterZone: [
+          createMonsterOnField("normal-1", { cardId: 88888, position: "faceUp", battlePosition: "attack" }),
+        ],
       },
       phase: "main1",
     });
@@ -222,7 +226,8 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   });
 
   it("フィールドに効果モンスターのみの場合はfalseを返す", () => {
-    const effectMonster = createMonsterOnField(88888, "effect-1", {
+    const effectMonster = createMonsterOnField("effect-1", {
+      cardId: 88888,
       position: "faceUp",
       battlePosition: "attack",
       frameType: "effect",
@@ -247,8 +252,8 @@ describe("fieldHasNonEffectMonsterCondition", () => {
     const state = createMockGameState({
       space: {
         mainMonsterZone: [
-          createMonsterOnField(88888, "normal-1", { position: "faceUp", battlePosition: "attack" }),
-          createMonsterOnField(88889, "normal-2", { position: "faceUp", battlePosition: "attack" }),
+          createMonsterOnField("normal-1", { cardId: 88888, position: "faceUp", battlePosition: "attack" }),
+          createMonsterOnField("normal-2", { cardId: 88889, position: "faceUp", battlePosition: "attack" }),
         ],
       },
       phase: "main1",
@@ -263,7 +268,9 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   it("minCountに満たない場合はfalseを返す", () => {
     const state = createMockGameState({
       space: {
-        mainMonsterZone: [createMonsterOnField(88888, "normal-1", { position: "faceUp", battlePosition: "attack" })],
+        mainMonsterZone: [
+          createMonsterOnField("normal-1", { cardId: 88888, position: "faceUp", battlePosition: "attack" }),
+        ],
       },
       phase: "main1",
     });
@@ -278,7 +285,7 @@ describe("fieldHasNonEffectMonsterCondition", () => {
     const state = createMockGameState({
       space: {
         mainMonsterZone: [
-          createMonsterOnField(88888, "facedown-1", { position: "faceDown", battlePosition: "defense" }),
+          createMonsterOnField("facedown-1", { cardId: 88888, position: "faceDown", battlePosition: "defense" }),
         ],
       },
       phase: "main1",

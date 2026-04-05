@@ -162,7 +162,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1, 1, true);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -175,7 +175,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -189,7 +189,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1, 1, true);
       const state = createMockGameState({ phase: "draw" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -204,7 +204,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const steps = effect.createActivationSteps(state, sourceInstance);
@@ -223,7 +223,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);

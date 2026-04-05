@@ -158,7 +158,7 @@ export function createFilledMonsterZone(
 ): Pick<CardSpace, "mainMonsterZone"> {
   return {
     mainMonsterZone: Array.from({ length: count }, (_, i) =>
-      createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, { position: options?.position }),
+      createMonsterOnField(`monster-${i}`, { position: options?.position }),
     ),
   };
 }
@@ -173,9 +173,7 @@ export function createFilledMonsterZone(
  */
 export function createFilledSpellZone(count: number): Pick<CardSpace, "spellTrapZone"> {
   return {
-    spellTrapZone: Array.from({ length: count }, (_, i) =>
-      createSpellOnField(TEST_CARD_IDS.SPELL_NORMAL, `spell-${i}`, { position: "faceUp" }),
-    ),
+    spellTrapZone: Array.from({ length: count }, (_, i) => createSpellOnField(`spell-${i}`, { position: "faceUp" })),
   };
 }
 
@@ -190,6 +188,6 @@ export function createFilledSpellZone(count: number): Pick<CardSpace, "spellTrap
  */
 export function createFilledFieldZone(count: number): Pick<CardSpace, "fieldZone"> {
   return {
-    fieldZone: Array.from({ length: count }, (_, i) => createSpellOnField(TEST_CARD_IDS.SPELL_FIELD, `field-${i}`)),
+    fieldZone: Array.from({ length: count }, (_, i) => createSpellOnField(`field-${i}`, { spellType: "field" })),
   };
 }

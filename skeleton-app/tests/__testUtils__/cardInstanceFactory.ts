@@ -20,12 +20,31 @@ import type {
   SpellSubType,
   TrapSubType,
   StateOnField,
+  Position,
+  BattlePosition,
 } from "$lib/domain/models/Card";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { Location } from "$lib/domain/models/Location";
 import { CardDataRegistry } from "$lib/domain/cards";
 import { TEST_CARD_IDS } from "./constants";
+
+const defaultMonsterCardId = TEST_CARD_IDS.DUMMY;
+
+const defaultSpellCardIds: Record<SpellSubType, number> = {
+  normal: TEST_CARD_IDS.SPELL_NORMAL,
+  "quick-play": TEST_CARD_IDS.SPELL_QUICK,
+  continuous: TEST_CARD_IDS.SPELL_CONTINUOUS,
+  field: TEST_CARD_IDS.SPELL_FIELD,
+  equip: TEST_CARD_IDS.SPELL_EQUIP,
+  ritual: TEST_CARD_IDS.SPELL_NORMAL,
+};
+
+const defaultTrapCardIds: Record<TrapSubType, number> = {
+  normal: TEST_CARD_IDS.TRAP_NORMAL,
+  continuous: 0, // 未登録
+  counter: 0, // 未登録
+};
 
 // =============================================================================
 // 内部ユーティリティ
@@ -97,7 +116,7 @@ export function createMonsterInstance(
 ): CardInstance {
   return createBase(
     instanceId,
-    options?.cardId ?? TEST_CARD_IDS.DUMMY,
+    options?.cardId ?? defaultMonsterCardId,
     options?.location ?? "hand",
     { type: "monster", frameType: "normal" },
     { frameType: options?.frameType, level: options?.level },
@@ -123,15 +142,7 @@ export function createSpellInstance(
     location?: keyof CardSpace;
   },
 ): CardInstance {
-  const defaultCardIds: Record<SpellSubType, number> = {
-    normal: TEST_CARD_IDS.SPELL_NORMAL,
-    "quick-play": TEST_CARD_IDS.SPELL_QUICK,
-    continuous: TEST_CARD_IDS.SPELL_CONTINUOUS,
-    field: TEST_CARD_IDS.SPELL_FIELD,
-    equip: TEST_CARD_IDS.SPELL_EQUIP,
-    ritual: TEST_CARD_IDS.SPELL_NORMAL,
-  };
-  return createBase(instanceId, options?.cardId ?? defaultCardIds[spellType], options?.location ?? "hand", {
+  return createBase(instanceId, options?.cardId ?? defaultSpellCardIds[spellType], options?.location ?? "hand", {
     type: "spell",
     frameType: "spell",
     spellType,
@@ -154,12 +165,7 @@ export function createTrapInstance(
     location?: keyof CardSpace;
   },
 ): CardInstance {
-  const defaultCardIds: Record<TrapSubType, number> = {
-    normal: TEST_CARD_IDS.TRAP_NORMAL,
-    continuous: 0, // 未登録
-    counter: 0, // 未登録
-  };
-  return createBase(instanceId, options?.cardId ?? defaultCardIds[trapType], options?.location ?? "hand", {
+  return createBase(instanceId, options?.cardId ?? defaultTrapCardIds[trapType], options?.location ?? "hand", {
     type: "trap",
     frameType: "trap",
     trapType,
@@ -173,23 +179,22 @@ export function createTrapInstance(
 /**
  * モンスターゾーンのカードインスタンスを作成（stateOnField付き）
  *
- * @param id - カードID
  * @param instanceId - インスタンスID（例: "mainMonsterZone-0"）
- * @param position - 表裏表示（デフォルト: "faceUp"）
+ * @param options - オプション設定
  */
 export function createMonsterOnField(
-  id: number,
   instanceId: string,
   options?: {
+    cardId?: number;
     frameType?: FrameSubType;
-    position?: "faceUp" | "faceDown";
-    battlePosition?: "attack" | "defense";
+    position?: Position;
+    battlePosition?: BattlePosition;
     placedThisTurn?: boolean;
   },
 ): CardInstance {
   return createBase(
     instanceId,
-    id,
+    options?.cardId ?? defaultMonsterCardId,
     "mainMonsterZone",
     { type: "monster" },
     defined({ frameType: options?.frameType }),
@@ -204,28 +209,27 @@ export function createMonsterOnField(
 /**
  * 魔法カードインスタンスを作成（stateOnField付き）
  *
- * spellType が "field" の場合は fieldZone、それ以外は spellTrapZone に配置する。
- * spellType 未指定時はレジストリから取得した値で判定する。
- *
- * @param id - カードID
  * @param instanceId - インスタンスID
  * @param options - オプション設定
  */
 export function createSpellOnField(
-  id: number,
   instanceId: string,
   options?: {
+    cardId?: number;
     spellType?: SpellSubType;
-    position?: "faceUp" | "faceDown";
+    position?: Position;
     placedThisTurn?: boolean;
     equippedTo?: string;
   },
 ): CardInstance {
-  const resolvedSpellType = options?.spellType ?? CardDataRegistry.getOrUndefined(id)?.spellType;
+  const resolvedSpellType =
+    options?.spellType ??
+    (options?.cardId !== undefined ? CardDataRegistry.getOrUndefined(options.cardId)?.spellType : undefined);
+  const cardId = options?.cardId ?? defaultSpellCardIds[resolvedSpellType ?? "normal"];
   const location = resolvedSpellType === "field" ? "fieldZone" : "spellTrapZone";
   return createBase(
     instanceId,
-    id,
+    cardId,
     location,
     { type: "spell", frameType: "spell" },
     defined({ spellType: options?.spellType }),

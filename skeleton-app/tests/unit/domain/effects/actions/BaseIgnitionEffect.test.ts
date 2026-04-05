@@ -96,7 +96,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, true);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -109,7 +109,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, true);
       const state = createMockGameState({ phase: "standby" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -123,7 +123,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, true);
       const state = createMockGameState({ phase: "draw" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -137,7 +137,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -153,7 +153,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const steps = effect.createActivationSteps(state, sourceInstance);
@@ -172,7 +172,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);
@@ -186,7 +186,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterOnField(12345678, "test-1");
+      const sourceInstance = createMonsterOnField("test-1");
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);

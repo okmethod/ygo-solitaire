@@ -89,7 +89,7 @@ describe("ActivationRule", () => {
 
       it("should send existing field spell to graveyard when placing new field spell", () => {
         // Arrange
-        const existingFieldSpell = createSpellOnField(1006, "existing-field-0");
+        const existingFieldSpell = createSpellOnField("existing-field-0", { spellType: "field" });
         const newFieldSpell = createSpellInstance("new-field-0", "field", { location: "hand" });
         const state = createMockGameState({
           space: {
@@ -113,7 +113,10 @@ describe("ActivationRule", () => {
     describe("set to face-up activation", () => {
       it("should flip set spell to face-up in spellTrapZone", () => {
         // Arrange
-        const setSpell = createSpellOnField(1001, "set-spell-0", { position: "faceDown", placedThisTurn: false });
+        const setSpell = createSpellOnField("set-spell-0", {
+          position: "faceDown",
+          placedThisTurn: false,
+        });
         const state = createMockGameState({
           space: {
             spellTrapZone: [setSpell],
@@ -130,7 +133,11 @@ describe("ActivationRule", () => {
 
       it("should flip set field spell to face-up in fieldZone", () => {
         // Arrange
-        const setFieldSpell = createSpellOnField(1006, "set-field-0", { position: "faceDown", placedThisTurn: false });
+        const setFieldSpell = createSpellOnField("set-field-0", {
+          spellType: "field",
+          position: "faceDown",
+          placedThisTurn: false,
+        });
         const state = createMockGameState({
           space: {
             fieldZone: [setFieldSpell],

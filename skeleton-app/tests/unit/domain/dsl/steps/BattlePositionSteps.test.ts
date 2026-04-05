@@ -75,7 +75,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
 
   describe("action実行", () => {
     it("守備表示のモンスターを攻撃表示に変更できる", () => {
-      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "test-monster", {
+      const monster = createMonsterOnField("test-monster", {
         position: "faceUp",
         battlePosition: "defense",
       });
@@ -97,7 +97,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
     });
 
     it("攻撃表示のモンスターを守備表示に変更できる", () => {
-      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "test-monster", {
+      const monster = createMonsterOnField("test-monster", {
         position: "faceUp",
         battlePosition: "attack",
       });
@@ -119,7 +119,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
     });
 
     it("既に同じ表示形式の場合は成功するが変化なし", () => {
-      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "test-monster", {
+      const monster = createMonsterOnField("test-monster", {
         position: "faceUp",
         battlePosition: "attack",
       });

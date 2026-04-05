@@ -62,7 +62,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField(12345678, "test-1")],
+          mainMonsterZone: [createMonsterOnField("test-1")],
         },
       });
 
@@ -78,7 +78,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          spellTrapZone: [createSpellOnField(12345678, "test-1", { spellType: "continuous" })],
+          spellTrapZone: [createSpellOnField("test-1", { cardId: 12345678, spellType: "continuous" })],
         },
       });
 
@@ -94,7 +94,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          fieldZone: [createSpellOnField(12345678, "test-1", { spellType: "field" })],
+          fieldZone: [createSpellOnField("test-1", { cardId: 12345678, spellType: "field" })],
         },
       });
 
@@ -110,7 +110,9 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          spellTrapZone: [createSpellOnField(12345678, "test-1", { spellType: "continuous", position: "faceDown" })],
+          spellTrapZone: [
+            createSpellOnField("test-1", { cardId: 12345678, spellType: "continuous", position: "faceDown" }),
+          ],
         },
       });
 
@@ -152,7 +154,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, false); // shouldPass = false
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField(12345678, "test-1")],
+          mainMonsterZone: [createMonsterOnField("test-1")],
         },
       });
 
@@ -168,7 +170,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField(87654321, "test-1")], // Different card ID
+          mainMonsterZone: [createMonsterOnField("test-1", { cardId: 87654321 })], // Different card ID
         },
       });
 
@@ -202,9 +204,9 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField(11111111, "monster-1")],
-          spellTrapZone: [createSpellOnField(22222222, "spell-1")],
-          fieldZone: [createSpellOnField(12345678, "field-1", { spellType: "field" })], // This is the card we're looking for
+          mainMonsterZone: [createMonsterOnField("monster-1", { cardId: 11111111 })],
+          spellTrapZone: [createSpellOnField("spell-1", { cardId: 22222222 })],
+          fieldZone: [createSpellOnField("field-1", { cardId: 12345678, spellType: "field" })], // This is the card we're looking for
         },
       });
 

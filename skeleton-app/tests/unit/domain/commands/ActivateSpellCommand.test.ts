@@ -304,7 +304,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [createSpellOnField(1001, "set-spell-1", { position: "faceDown" })],
+          spellTrapZone: [createSpellOnField("set-spell-1", { position: "faceDown" })],
           fieldZone: [],
           graveyard: [],
           banished: [],
@@ -331,7 +331,7 @@ describe("ActivateSpellCommand", () => {
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [createSpellOnField(1006, "set-field-spell-1", { position: "faceDown" })],
+          fieldZone: [createSpellOnField("set-field-spell-1", { spellType: "field", position: "faceDown" })],
           graveyard: [],
           banished: [],
         },
@@ -358,7 +358,13 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [createSpellOnField(1004, "set-quick-play-1", { position: "faceDown", placedThisTurn: true })],
+          spellTrapZone: [
+            createSpellOnField("set-quick-play-1", {
+              spellType: "quick-play",
+              position: "faceDown",
+              placedThisTurn: true,
+            }),
+          ],
           fieldZone: [],
           graveyard: [],
           banished: [],
@@ -384,7 +390,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [createSpellOnField(1004, "set-quick-play-2", { position: "faceDown" })], // placedThisTurn: false by default
+          spellTrapZone: [createSpellOnField("set-quick-play-2", { spellType: "quick-play", position: "faceDown" })], // placedThisTurn: false by default
           fieldZone: [],
           graveyard: [],
           banished: [],

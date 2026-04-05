@@ -206,8 +206,8 @@ describe("SynchroSummonRule", () => {
           space: {
             extraDeck: [createTestSynchroMonster("synchro-0", 6, { location: "extraDeck" })],
             mainMonsterZone: [
-              createMonsterOnField(SYNCHRO_TEST_CARD_IDS.TUNER_LV2, "tuner-0", { position: "faceDown" }), // Face-down
-              createMonsterOnField(SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4, "nontuner-", { position: "faceDown" }),
+              createMonsterOnField("tuner-0", { cardId: SYNCHRO_TEST_CARD_IDS.TUNER_LV2, position: "faceDown" }), // Face-down
+              createMonsterOnField("nontuner-", { cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4, position: "faceDown" }),
             ],
             ...createFilledMainDeck(30),
           },

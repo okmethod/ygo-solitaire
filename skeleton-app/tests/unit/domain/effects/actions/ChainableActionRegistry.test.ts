@@ -803,7 +803,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
-      const card = createMonsterOnField(cardId, "mainMonsterZone-0");
+      const card = createMonsterOnField("mainMonsterZone-0", { cardId });
       const state = createMockGameState({ space: { mainMonsterZone: [card] } });
 
       // Act
@@ -820,7 +820,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], false));
-      const card = createMonsterOnField(cardId, "mainMonsterZone-0");
+      const card = createMonsterOnField("mainMonsterZone-0", { cardId });
       const state = createMockGameState({ space: { mainMonsterZone: [card] } });
 
       // Act
@@ -838,7 +838,7 @@ describe("ChainableActionRegistry", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
       const state = createMockGameState({
-        space: { mainMonsterZone: [createMonsterOnField(cardId, "mainMonsterZone-0")] },
+        space: { mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId })] },
       });
 
       // Act
@@ -855,7 +855,7 @@ describe("ChainableActionRegistry", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
       const faceDownCard: CardInstance = {
-        ...createMonsterOnField(cardId, "mainMonsterZone-0"),
+        ...createMonsterOnField("mainMonsterZone-0", { cardId }),
         stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
       };
       const state = createMockGameState({ space: { mainMonsterZone: [faceDownCard] } });
@@ -875,8 +875,8 @@ describe("ChainableActionRegistry", () => {
       const state = createMockGameState({
         space: {
           mainMonsterZone: [
-            createMonsterOnField(cardId, "mainMonsterZone-0"),
-            createMonsterOnField(cardId, "mainMonsterZone-1"),
+            createMonsterOnField("mainMonsterZone-0", { cardId }),
+            createMonsterOnField("mainMonsterZone-1", { cardId }),
           ],
         },
       });

@@ -79,9 +79,9 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
 
   describe("action実行", () => {
     it("装備関係を確立できる", () => {
-      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "target-monster");
+      const monster = createMonsterOnField("target-monster");
 
-      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
+      const equipSpell = createSpellOnField("equip-spell", { spellType: "equip" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
@@ -116,7 +116,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
     });
 
     it("対象がコンテキストにない場合エラー", () => {
-      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
+      const equipSpell = createSpellOnField("equip-spell", { spellType: "equip" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
@@ -170,7 +170,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
     });
 
     it("装備対象が見つからない場合エラー", () => {
-      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
+      const equipSpell = createSpellOnField("equip-spell", { spellType: "equip" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
@@ -238,9 +238,9 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
 
   describe("action実行", () => {
     it("装備モンスターと装備カードを墓地に送れる", () => {
-      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "equipped-monster");
+      const monster = createMonsterOnField("equipped-monster");
 
-      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", {
+      const equipSpell = createSpellOnField("equip-spell", {
         spellType: "equip",
         equippedTo: "equipped-monster",
       });
@@ -287,7 +287,7 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
     });
 
     it("装備されていない場合エラー", () => {
-      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
+      const equipSpell = createSpellOnField("equip-spell", { spellType: "equip" });
       // equippedTo が未設定
 
       const state = createMockGameState({
@@ -344,7 +344,7 @@ describe("StepRegistry - UNEQUIP", () => {
 
   describe("action実行", () => {
     it("装備を解除できる", () => {
-      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", {
+      const equipSpell = createSpellOnField("equip-spell", {
         spellType: "equip",
         equippedTo: "some-monster",
       });

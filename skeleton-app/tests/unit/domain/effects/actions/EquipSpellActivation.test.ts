@@ -14,12 +14,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
-import {
-  createMockGameState,
-  createFilledMainDeck,
-  createMonsterOnField,
-  TEST_CARD_IDS,
-} from "../../../../__testUtils__";
+import { createMockGameState, createFilledMainDeck, createMonsterOnField } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストセットアップ
@@ -58,7 +53,7 @@ const createEquipSpellInstance = (cardId: number): CardInstance => ({
 /** フィールドにモンスターを配置したゲーム状態を生成 */
 const createStateWithFieldMonster = (monsterCount: number = 1) => {
   const monsters = Array.from({ length: monsterCount }, (_, i) =>
-    createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, { position: "faceUp", battlePosition: "attack" }),
+    createMonsterOnField(`monster-${i}`, { position: "faceUp", battlePosition: "attack" }),
   );
 
   return createMockGameState({
@@ -85,7 +80,7 @@ const createStateWithFaceDownMonster = () =>
     space: {
       ...createFilledMainDeck(30),
       mainMonsterZone: [
-        createMonsterOnField(TEST_CARD_IDS.DUMMY, "facedown-monster", {
+        createMonsterOnField("facedown-monster", {
           position: "faceDown",
           battlePosition: "defense",
         }),
