@@ -14,7 +14,6 @@ export {
   createTestSpellCard,
   createTestTrapCard,
   // フィールド向け
-  createFieldCardInstance,
   createMonsterOnField,
   createMonstersOnField,
   createSpellOnField,

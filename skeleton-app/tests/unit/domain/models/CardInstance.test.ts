@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+import type { CardInstance, FrameSubType, SpellSubType, CounterState } from "$lib/domain/models/Card";
 import {
   inHand,
   onField,
@@ -19,8 +20,49 @@ import {
   leavedFromFieldInstance,
   updateCardStateInPlace,
 } from "$lib/domain/models/Card/CardInstance";
-import type { CardInstance } from "$lib/domain/models/Card/CardInstance";
-import { createTestMonsterCard, createFieldCardInstance, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createTestMonsterCard, TEST_CARD_IDS } from "../../../__testUtils__";
+
+/**
+ * ダミーのカードインスタンスを作成する
+ *
+ * 全フィールドを明示的に指定する汎用コンストラクタ。
+ * 汎用的すぎるため、testUtils に配置せず本テスト専用としている。
+ *
+ * @param options - カードインスタンスの設定
+ */
+export function createDummyCardInstance(options: {
+  instanceId: string;
+  id: number;
+  jaName: string;
+  type: "monster" | "spell" | "trap";
+  frameType: FrameSubType;
+  location: "mainMonsterZone" | "spellTrapZone" | "fieldZone";
+  position?: "faceUp" | "faceDown";
+  battlePosition?: "attack" | "defense";
+  placedThisTurn?: boolean;
+  counters?: readonly CounterState[];
+  spellType?: SpellSubType;
+  equippedTo?: string;
+}): CardInstance {
+  return {
+    instanceId: options.instanceId,
+    id: options.id,
+    jaName: options.jaName,
+    type: options.type,
+    frameType: options.frameType,
+    edition: "latest",
+    location: options.location,
+    spellType: options.spellType,
+    stateOnField: {
+      position: options.position ?? "faceUp",
+      battlePosition: options.battlePosition,
+      placedThisTurn: options.placedThisTurn ?? false,
+      counters: options.counters ?? [],
+      activatedEffects: new Set(),
+      equippedTo: options.equippedTo,
+    },
+  };
+}
 
 describe("CardInstance", () => {
   // ===========================
@@ -34,7 +76,7 @@ describe("CardInstance", () => {
     });
 
     it("手札以外のカードはfalseを返す", () => {
-      const fieldCard = createFieldCardInstance({
+      const fieldCard = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -52,7 +94,7 @@ describe("CardInstance", () => {
 
   describe("onField", () => {
     it("メインモンスターゾーンのカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -64,7 +106,7 @@ describe("CardInstance", () => {
     });
 
     it("魔法・罠ゾーンのカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.SPELL_NORMAL,
         jaName: "Test Spell",
@@ -76,7 +118,7 @@ describe("CardInstance", () => {
     });
 
     it("フィールドゾーンのカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.SPELL_FIELD,
         jaName: "Test Field Spell",
@@ -130,7 +172,7 @@ describe("CardInstance", () => {
 
   describe("isFaceUp", () => {
     it("表側表示のカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -143,7 +185,7 @@ describe("CardInstance", () => {
     });
 
     it("裏側表示のカードはfalseを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -163,7 +205,7 @@ describe("CardInstance", () => {
 
   describe("isFaceDown", () => {
     it("裏側表示のカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -176,7 +218,7 @@ describe("CardInstance", () => {
     });
 
     it("表側表示のカードはfalseを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -196,7 +238,7 @@ describe("CardInstance", () => {
 
   describe("isAttackPosition", () => {
     it("攻撃表示のカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -210,7 +252,7 @@ describe("CardInstance", () => {
     });
 
     it("守備表示のカードはfalseを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -231,7 +273,7 @@ describe("CardInstance", () => {
 
   describe("isDefensePosition", () => {
     it("守備表示のカードはtrueを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -245,7 +287,7 @@ describe("CardInstance", () => {
     });
 
     it("攻撃表示のカードはfalseを返す", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -279,7 +321,7 @@ describe("CardInstance", () => {
     });
 
     it("移動時にstateOnFieldがクリアされる", () => {
-      const fieldCard = createFieldCardInstance({
+      const fieldCard = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -340,7 +382,7 @@ describe("CardInstance", () => {
 
   describe("leavedFromFieldInstance", () => {
     it("カードをフィールドから取り除きstateOnFieldを削除する", () => {
-      const fieldCard = createFieldCardInstance({
+      const fieldCard = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -355,7 +397,7 @@ describe("CardInstance", () => {
     });
 
     it("除外ゾーンに移動できる", () => {
-      const fieldCard = createFieldCardInstance({
+      const fieldCard = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -369,7 +411,7 @@ describe("CardInstance", () => {
     });
 
     it("フィールドへの移動はエラーをスローする", () => {
-      const fieldCard = createFieldCardInstance({
+      const fieldCard = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -389,7 +431,7 @@ describe("CardInstance", () => {
 
   describe("updateCardStateInPlace", () => {
     it("カードのフィールド状態を更新する", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -406,7 +448,7 @@ describe("CardInstance", () => {
     });
 
     it("複数のプロパティを同時に更新できる", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
@@ -455,7 +497,7 @@ describe("CardInstance", () => {
     });
 
     it("元のカードは変更されない（イミュータブル）", () => {
-      const card = createFieldCardInstance({
+      const card = createDummyCardInstance({
         instanceId: "test-1",
         id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",

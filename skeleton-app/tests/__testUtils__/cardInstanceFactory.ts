@@ -9,7 +9,6 @@
  * - createTestTrapCard: テスト用罠
  *
  * 【フィールド向け】stateOnField 付き
- * - createFieldCardInstance: フィールド上のカード（汎用）
  * - createMonsterOnField: フィールド上のモンスター
  * - createMonstersOnField: フィールド上のモンスター配列
  * - createSpellOnField: 魔法・罠ゾーンの魔法カード
@@ -28,7 +27,6 @@ import type {
   TrapSubType,
   StateOnField,
 } from "$lib/domain/models/Card";
-import type { CounterState } from "$lib/domain/models/Card";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { Location } from "$lib/domain/models/Location";
@@ -177,48 +175,6 @@ export function createTestTrapCard(
 // =============================================================================
 // フィールド向け（stateOnField 付き）
 // =============================================================================
-
-/**
- * フィールド上のカードインスタンスを作成（stateOnField付き）
- *
- * 全フィールドを明示的に指定する汎用コンストラクタ。
- * レジストリ値より呼び出し元の値が常に優先される。
- *
- * @param options - カードインスタンスの設定
- */
-export function createFieldCardInstance(options: {
-  instanceId: string;
-  id: number;
-  jaName: string;
-  type: "monster" | "spell" | "trap";
-  frameType: FrameSubType;
-  location: "mainMonsterZone" | "spellTrapZone" | "fieldZone";
-  position?: "faceUp" | "faceDown";
-  battlePosition?: "attack" | "defense";
-  placedThisTurn?: boolean;
-  counters?: readonly CounterState[];
-  spellType?: SpellSubType;
-  equippedTo?: string;
-}): CardInstance {
-  return {
-    instanceId: options.instanceId,
-    id: options.id,
-    jaName: options.jaName,
-    type: options.type,
-    frameType: options.frameType,
-    edition: "latest",
-    location: options.location,
-    spellType: options.spellType,
-    stateOnField: {
-      position: options.position ?? "faceUp",
-      battlePosition: options.battlePosition,
-      placedThisTurn: options.placedThisTurn ?? false,
-      counters: options.counters ?? [],
-      activatedEffects: new Set(),
-      equippedTo: options.equippedTo,
-    },
-  };
-}
 
 /**
  * モンスターゾーンのカードインスタンスを作成（stateOnField付き）
