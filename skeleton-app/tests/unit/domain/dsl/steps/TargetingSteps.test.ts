@@ -4,7 +4,7 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { selectTargetFromFieldByRaceStep } from "$lib/domain/dsl/steps/builders/targeting";
-import { createMockGameState, createTestMonsterCard, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, createTestMonsterCard, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * TargetingSteps Tests - 対象選択系ステップのテスト

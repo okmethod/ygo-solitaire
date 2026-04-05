@@ -5,7 +5,12 @@ import {
   selectReturnShuffleDrawStep,
   returnAllHandShuffleDrawStep,
 } from "$lib/domain/dsl/steps/builders/compositeOperations";
-import { createMockGameState, createTestMonsterCard, createTestSpellCard, TEST_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createTestMonsterCard,
+  createTestSpellCard,
+  TEST_CARD_IDS,
+} from "../../../../__testUtils__";
 
 /**
  * CompositeOperationSteps Tests - 複合操作系ステップのテスト

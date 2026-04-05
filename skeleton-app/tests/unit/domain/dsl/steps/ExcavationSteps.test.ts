@@ -10,7 +10,7 @@ import {
   createMonstersOnField,
   TEST_CARD_IDS,
   SYNCHRO_TEST_CARD_IDS,
-} from "../../../__testUtils__";
+} from "../../../../__testUtils__";
 
 /**
  * ExcavationSteps Tests - デッキめくり系ステップのテスト

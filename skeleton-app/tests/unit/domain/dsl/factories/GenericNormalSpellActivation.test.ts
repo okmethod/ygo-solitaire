@@ -6,7 +6,7 @@ import {
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createMockGameState, createCardInstances } from "../../../__testUtils__";
+import { createMockGameState, createCardInstances } from "../../../../__testUtils__";
 
 /**
  * GenericNormalSpellActivation Tests

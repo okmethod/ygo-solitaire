@@ -2,7 +2,12 @@ import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { sendToGraveyardStep, discardAllHandStep, selectAndDiscardStep } from "$lib/domain/dsl/steps/builders/discards";
-import { createMockGameState, createTestMonsterCard, createTestSpellCard, TEST_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createTestMonsterCard,
+  createTestSpellCard,
+  TEST_CARD_IDS,
+} from "../../../../__testUtils__";
 
 /**
  * DiscardSteps Tests - 手札破棄系ステップのテスト

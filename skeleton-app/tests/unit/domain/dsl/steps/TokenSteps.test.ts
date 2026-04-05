@@ -1,7 +1,12 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createMonstersOnField, TOKEN_TEST_CARD_IDS, TEST_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createMonstersOnField,
+  TOKEN_TEST_CARD_IDS,
+  TEST_CARD_IDS,
+} from "../../../../__testUtils__";
 
 /**
  * TokenSteps Tests - トークン生成ステップのテスト

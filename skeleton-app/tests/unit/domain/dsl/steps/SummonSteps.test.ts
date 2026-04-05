@@ -9,7 +9,7 @@ import {
   createMonstersOnField,
   TEST_CARD_IDS,
   SYNCHRO_TEST_CARD_IDS,
-} from "../../../__testUtils__";
+} from "../../../../__testUtils__";
 
 /**
  * SummonSteps Tests - 特殊召喚系ステップのテスト

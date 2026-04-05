@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * BattlePositionSteps Tests - 表示形式変更ステップのテスト

@@ -3,7 +3,7 @@ import {
   emitSpellActivatedEventStep,
   emitNormalSummonedEventStep,
 } from "$lib/domain/dsl/steps/primitives/eventEmitters";
-import { createMockGameState, createTestMonsterCard, createTestSpellCard } from "../../../__testUtils__";
+import { createMockGameState, createTestMonsterCard, createTestSpellCard } from "../../../../__testUtils__";
 
 /**
  * EventEmitterSteps Tests - イベント発行系ステップのテスト

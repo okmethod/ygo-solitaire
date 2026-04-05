@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { createMockGameState } from "../../../__testUtils__";
+import { createMockGameState } from "../../../../__testUtils__";
 
 /**
  * GenericContinuousTriggerRule Tests - DSL定義の永続効果トリガールールのテスト

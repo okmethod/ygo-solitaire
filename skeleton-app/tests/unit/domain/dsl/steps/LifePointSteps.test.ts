@@ -4,7 +4,7 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { gainLpStep, payLpStep, damageLpStep, lossLpStep } from "$lib/domain/dsl/steps/builders/lifePoints";
-import { createMockGameState, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * LifePointSteps Tests - LP操作系ステップのテスト

@@ -9,7 +9,7 @@
  * - 不正な引数でエラーがスローされること
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   fieldHasCardCondition,
   fieldHasEquippedNameIncludesCondition,
@@ -17,7 +17,6 @@ import {
   fieldHasNonEffectMonsterCondition,
 } from "$lib/domain/dsl/conditions/checkers/fieldConditions";
 import type { CardInstance } from "$lib/domain/models/Card";
-import { CardDataRegistry } from "$lib/domain/cards";
 import {
   createMockGameState,
   createMonsterOnField,
@@ -25,15 +24,7 @@ import {
   createSpellsOnField,
   createSpellOnField,
   createTestSpellCard,
-} from "../../../../../__testUtils__";
-
-// =============================================================================
-// テストセットアップ
-// =============================================================================
-
-beforeEach(() => {
-  CardDataRegistry.clear();
-});
+} from "../../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー

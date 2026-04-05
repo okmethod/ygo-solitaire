@@ -3,7 +3,12 @@ import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createMonsterOnField, createSpellOnField, TEST_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createMonsterOnField,
+  createSpellOnField,
+  TEST_CARD_IDS,
+} from "../../../../__testUtils__";
 
 /**
  * EquipSteps Tests - 装備関連ステップのテスト

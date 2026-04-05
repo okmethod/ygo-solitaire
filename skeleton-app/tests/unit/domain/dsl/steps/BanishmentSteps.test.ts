@@ -3,7 +3,7 @@ import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, TEST_CARD_IDS, createTestSpellCard } from "../../../__testUtils__";
+import { createMockGameState, TEST_CARD_IDS, createTestSpellCard } from "../../../../__testUtils__";
 
 /**
  * BanishmentSteps Tests - 除外系ステップのテスト

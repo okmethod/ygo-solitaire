@@ -6,7 +6,7 @@ import {
 } from "$lib/domain/dsl/steps/primitives/dynamicFiltering";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
-import { createMockGameState } from "../../../__testUtils__";
+import { createMockGameState } from "../../../../__testUtils__";
 
 /**
  * DynamicFiltering Tests - 動的フィルタリングユーティリティのテスト

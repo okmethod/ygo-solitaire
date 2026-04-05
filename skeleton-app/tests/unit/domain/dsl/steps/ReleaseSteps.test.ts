@@ -4,7 +4,7 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
-import { createMockGameState, createMonstersOnField, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, createMonstersOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * ReleaseSteps Tests - リリース系ステップのテスト
