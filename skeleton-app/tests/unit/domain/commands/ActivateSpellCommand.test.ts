@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-import { createMockGameState, createSpellInstance, createSetCard } from "../../../__testUtils__";
+import { createMockGameState, createSpellInstance, createSpellOnField } from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
 describe("ActivateSpellCommand", () => {
@@ -304,7 +304,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [createSetCard("set-spell-1", 1001, "spellTrapZone")],
+          spellTrapZone: [createSpellOnField(1001, "set-spell-1", { position: "faceDown" })],
           fieldZone: [],
           graveyard: [],
           banished: [],
@@ -331,7 +331,7 @@ describe("ActivateSpellCommand", () => {
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [createSetCard("set-field-spell-1", 1006, "fieldZone")],
+          fieldZone: [createSpellOnField(1006, "set-field-spell-1", { position: "faceDown" })],
           graveyard: [],
           banished: [],
         },
@@ -358,7 +358,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [createSetCard("set-quick-play-1", 1004, "spellTrapZone", { placedThisTurn: true })],
+          spellTrapZone: [createSpellOnField(1004, "set-quick-play-1", { position: "faceDown", placedThisTurn: true })],
           fieldZone: [],
           graveyard: [],
           banished: [],
@@ -384,7 +384,7 @@ describe("ActivateSpellCommand", () => {
           extraDeck: [],
           hand: [],
           mainMonsterZone: [],
-          spellTrapZone: [createSetCard("set-quick-play-2", 1004, "spellTrapZone")], // placedThisTurn: false by default
+          spellTrapZone: [createSpellOnField(1004, "set-quick-play-2", { position: "faceDown" })], // placedThisTurn: false by default
           fieldZone: [],
           graveyard: [],
           banished: [],

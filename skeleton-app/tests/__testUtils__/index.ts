@@ -16,7 +16,6 @@ export {
   // フィールド向け
   createMonsterOnField,
   createSpellOnField,
-  createSetCard,
 } from "./cardInstanceFactory";
 
 // カードスペースファクトリ

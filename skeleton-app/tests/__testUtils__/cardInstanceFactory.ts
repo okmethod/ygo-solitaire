@@ -10,8 +10,7 @@
  *
  * 【フィールド向け】stateOnField 付き
  * - createMonsterOnField: フィールド上のモンスター
- * - createSpellOnField: 魔法・罠ゾーンorフィールドゾーンの魔法カード
- * - createSetCard: セット状態のカード
+ * - createSpellOnField: フィールド上の魔法
  */
 
 import type {
@@ -182,9 +181,10 @@ export function createMonsterOnField(
   id: number,
   instanceId: string,
   options?: {
+    frameType?: FrameSubType;
     position?: "faceUp" | "faceDown";
     battlePosition?: "attack" | "defense";
-    frameType?: FrameSubType;
+    placedThisTurn?: boolean;
   },
 ): CardInstance {
   return createBase(
@@ -193,7 +193,11 @@ export function createMonsterOnField(
     "mainMonsterZone",
     { type: "monster" },
     defined({ frameType: options?.frameType }),
-    { position: options?.position ?? "faceUp", battlePosition: options?.battlePosition },
+    {
+      position: options?.position ?? "faceUp",
+      battlePosition: options?.battlePosition,
+      placedThisTurn: options?.placedThisTurn,
+    },
   );
 }
 
@@ -213,6 +217,7 @@ export function createSpellOnField(
   options?: {
     spellType?: SpellSubType;
     position?: "faceUp" | "faceDown";
+    placedThisTurn?: boolean;
     equippedTo?: string;
   },
 ): CardInstance {
@@ -224,30 +229,10 @@ export function createSpellOnField(
     location,
     { type: "spell", frameType: "spell" },
     defined({ spellType: options?.spellType }),
-    { position: options?.position ?? "faceUp", equippedTo: options?.equippedTo },
-  );
-}
-
-/**
- * セット状態のカードを生成（裏側表示、stateOnField付き）
- *
- * @param instanceId - カードインスタンスID
- * @param cardId - カードID
- * @param location - 配置位置（spellTrapZone または fieldZone）
- * @param options - オプション（placedThisTurn など）
- */
-export function createSetCard(
-  instanceId: string,
-  cardId: number,
-  location: "spellTrapZone" | "fieldZone",
-  options?: { placedThisTurn?: boolean },
-): CardInstance {
-  return createBase(
-    instanceId,
-    cardId,
-    location,
-    { type: "spell", frameType: "spell" },
-    {},
-    { position: "faceDown", placedThisTurn: options?.placedThisTurn },
+    {
+      position: options?.position ?? "faceUp",
+      placedThisTurn: options?.placedThisTurn,
+      equippedTo: options?.equippedTo,
+    },
   );
 }

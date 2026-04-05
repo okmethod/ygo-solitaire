@@ -9,7 +9,7 @@
 
 import { describe, it, expect } from "vitest";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
-import { createMockGameState, createSpellInstance, createSetCard, createSpellOnField } from "../../../__testUtils__";
+import { createMockGameState, createSpellInstance, createSpellOnField } from "../../../__testUtils__";
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {
@@ -113,7 +113,7 @@ describe("ActivationRule", () => {
     describe("set to face-up activation", () => {
       it("should flip set spell to face-up in spellTrapZone", () => {
         // Arrange
-        const setSpell = createSetCard("set-spell-0", 1001, "spellTrapZone", { placedThisTurn: false });
+        const setSpell = createSpellOnField(1001, "set-spell-0", { position: "faceDown", placedThisTurn: false });
         const state = createMockGameState({
           space: {
             spellTrapZone: [setSpell],
@@ -130,7 +130,7 @@ describe("ActivationRule", () => {
 
       it("should flip set field spell to face-up in fieldZone", () => {
         // Arrange
-        const setFieldSpell = createSetCard("set-field-0", 1006, "fieldZone", { placedThisTurn: false });
+        const setFieldSpell = createSpellOnField(1006, "set-field-0", { position: "faceDown", placedThisTurn: false });
         const state = createMockGameState({
           space: {
             fieldZone: [setFieldSpell],
