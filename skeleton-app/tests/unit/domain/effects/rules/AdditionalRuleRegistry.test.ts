@@ -1,17 +1,17 @@
 /**
- * AdditionalRuleRegistry Tests
+ * AdditionalRuleRegistry のテスト
  *
- * Tests for AdditionalRuleRegistry registration and retrieval functionality.
+ * ルール登録・取得機能のテスト。
  *
- * Test Responsibility:
- * - register() functionality
- * - get() functionality
- * - getByCategory() functionality
- * - collectActiveRules() functionality
- * - clear() functionality
- * - getRegisteredCardIds() functionality
- * - Multiple rules per card registration
- * - Unknown card ID handling
+ * TEST STRATEGY:
+ * - register() によるルール登録
+ * - get() によるルール取得
+ * - getByCategory() によるカテゴリ別フィルタリング
+ * - collectActiveRules() によるアクティブルール収集
+ * - clear() によるレジストリクリア
+ * - getRegisteredCardIds() による登録済みカードID取得
+ * - 同一カードへの複数ルール登録
+ * - 未登録カードIDのハンドリング
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -29,9 +29,9 @@ import {
 } from "../../../../__testUtils__";
 
 /**
- * Mock AdditionalRule for testing
+ * テスト用のモック AdditionalRule
  *
- * Simple implementation to test Registry functionality without real card logic.
+ * 実際のカードロジックなしでレジストリ機能をテストするシンプルな実装。
  */
 class MockAdditionalRule implements AdditionalRule {
   constructor(
@@ -407,7 +407,7 @@ describe("AdditionalRuleRegistry", () => {
 
   describe("collectTriggerRules()", () => {
     /**
-     * Mock TriggerRule for testing trigger functionality
+     * テスト用のモック TriggerRule
      */
     class MockTriggerRule implements AdditionalRule {
       constructor(
@@ -503,7 +503,7 @@ describe("AdditionalRuleRegistry", () => {
 
   describe("collectTriggerSteps()", () => {
     /**
-     * Mock TriggerRule that creates steps for testing
+     * テスト用のモック TriggerRule（ステップ生成あり）
      */
     class MockTriggerRuleWithEffect implements AdditionalRule {
       public executionCount = 0;
@@ -551,7 +551,7 @@ describe("AdditionalRuleRegistry", () => {
     }
 
     /**
-     * Helper to execute collected steps
+     * 収集したステップを実行するヘルパー
      */
     function executeSteps(steps: AtomicStep[], state: GameSnapshot): GameSnapshot {
       let currentState = state;

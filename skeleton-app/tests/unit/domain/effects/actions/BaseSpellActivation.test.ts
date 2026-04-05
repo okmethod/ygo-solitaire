@@ -1,37 +1,27 @@
 /**
- * BaseSpellActivation Tests
+ * BaseSpellActivation のテスト
  *
- * Tests for BaseSpellActivation abstract class.
+ * 魔法発動の抽象基底クラスのテスト。
+ * Template Methodパターンの動作を検証する。
  *
- * Test Coverage:
- * - ChainableAction interface properties (isCardActivation, spellSpeed)
- * - canActivate() Template Method pattern (delegates to subTypeConditions and individualConditions)
- * - createActivationSteps() default implementation
- * - Abstract methods must be implemented by subclasses
- *
- * TEST STRATEGY: Base Class テストでは Template Method パターンの動作をテスト。
- * Subclass テストでは、各サブクラス固有の条件（subTypeConditions, individualConditions）をテストする。
- * ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテストする。
- *
- * @module tests/unit/domain/effects/actions/spells/BaseSpellActivation
+ * TEST STRATEGY:
+ * - Base Class テストでは Template Method パターンの動作をテスト
+ * - Subclass テストでは各サブクラス固有の条件（subTypeConditions, individualConditions）をテスト
+ * - ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテスト
  */
 
 import { describe, it, expect } from "vitest";
 import { BaseSpellActivation } from "$lib/domain/effects/actions/activations/BaseSpellActivation";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-
-/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
-function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
-  return { mainDeckCardIds, extraDeckCardIds: [] };
-}
+import { createTestInitialDeck } from "../../../../__testUtils__";
 
 /**
- * Concrete implementation of BaseSpellActivation for testing
+ * テスト用の具象クラス
  */
 class TestSpellAction extends BaseSpellActivation {
   readonly spellSpeed = 1 as const;

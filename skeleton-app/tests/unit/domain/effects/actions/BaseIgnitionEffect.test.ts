@@ -3,8 +3,6 @@
  *
  * 起動効果の抽象基底クラスのテスト。
  * Template Methodパターンの動作を検証する。
- *
- * @module tests/unit/domain/effects/base/BaseIgnitionEffect
  */
 
 import { describe, it, expect } from "vitest";

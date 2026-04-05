@@ -25,6 +25,7 @@ export {
 
 // ゲーム状態ファクトリ
 export {
+  createTestInitialDeck,
   createMockGameState,
   createStateWithMonsterZone,
   createStateWithFieldZone,

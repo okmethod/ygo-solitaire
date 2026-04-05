@@ -3,8 +3,6 @@
  *
  * 永続効果の抽象基底クラスのテスト。
  * Template Methodパターンとフィールド上の表側表示チェックを検証する。
- *
- * @module tests/unit/domain/effects/base/BaseContinuousEffect
  */
 
 import { describe, it, expect } from "vitest";

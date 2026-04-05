@@ -3,8 +3,6 @@
  *
  * 誘発効果の抽象基底クラスのテスト。
  * Template MethodパターンとisTriggerEffect型ガードを検証する。
- *
- * @module tests/unit/domain/effects/base/BaseTriggerEffect
  */
 
 import { describe, it, expect } from "vitest";

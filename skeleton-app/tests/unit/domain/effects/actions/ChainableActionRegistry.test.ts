@@ -1,21 +1,19 @@
 /**
- * ChainableActionRegistry Tests
+ * ChainableActionRegistry のテスト
  *
- * Tests for ChainableActionRegistry registration and retrieval functionality.
+ * チェイン可能アクションの登録・取得・収集機能のテスト。
  *
- * Test Responsibility:
- * - registerActivation() functionality
- * - registerIgnition() functionality
- * - getActivation() functionality
- * - getIgnitionEffects() functionality
- * - hasIgnitionEffects() functionality
- * - collectChainableActions() functionality
- * - clear() functionality
- * - getRegisteredCardIds() functionality
- * - Multiple registrations
- * - Unknown card ID handling
- *
- * @module tests/unit/domain/registries/ChainableActionRegistry
+ * TEST STRATEGY:
+ * - registerActivation() による発動効果登録
+ * - registerIgnition() による起動効果登録
+ * - getActivation() による発動効果取得
+ * - getIgnitionEffects() による起動効果取得
+ * - hasIgnitionEffects() による起動効果有無判定
+ * - collectChainableActions() によるフィールド上アクション収集
+ * - clear() によるレジストリクリア
+ * - getRegisteredCardIds() による登録済みカードID取得
+ * - 複数登録のハンドリング
+ * - 未登録カードIDのハンドリング
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -29,9 +27,9 @@ import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domai
 import { createMockGameState, createMonsterOnField } from "../../../../__testUtils__";
 
 /**
- * Mock ChainableAction for testing
+ * テスト用のモック ChainableAction
  *
- * Simple implementation to test Registry functionality without real card logic.
+ * 実際のカードロジックなしでレジストリ機能をテストするシンプルな実装。
  */
 class MockChainableAction implements ChainableAction {
   public readonly effectId: EffectId;
@@ -79,7 +77,7 @@ class MockChainableAction implements ChainableAction {
 }
 
 /**
- * Mock BaseTriggerEffect for testing trigger registration and collectTriggerSteps
+ * テスト用のモック BaseTriggerEffect（トリガー登録・collectTriggerSteps用）
  */
 class MockTriggerAction extends BaseTriggerEffect {
   readonly triggers: readonly EventType[];

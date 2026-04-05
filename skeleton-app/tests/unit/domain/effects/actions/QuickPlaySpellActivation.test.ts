@@ -1,32 +1,27 @@
 /**
- * QuickPlaySpellActivation Tests
+ * QuickPlaySpellActivation のテスト
  *
- * Tests for QuickPlaySpellActivation abstract class.
+ * 速攻魔法発動の抽象クラスのテスト。
+ * BaseSpellActivation を継承した subTypeConditions（メインフェイズ制約）を検証する。
  *
- * Test Coverage:
- * - ChainableAction interface properties (spellSpeed = 2)
- * - canActivate() Quick-Play Spell conditions (Main Phase check for current scope)
- * - Inherits BaseSpellActivation behavior
- *
- * @module tests/unit/domain/effects/actions/spells/QuickPlaySpellActivation
+ * TEST STRATEGY:
+ * - spellSpeed = 2 であること
+ * - メインフェイズ以外では発動不可であること（現スコープでの制約）
+ * - 追加条件（individualConditions）が満たされない場合に発動不可であること
  */
 
 import { describe, it, expect } from "vitest";
 import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { GameSnapshot } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-
-/** テスト用ヘルパー: カードID配列をInitialDeckCardIdsに変換 */
-function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
-  return { mainDeckCardIds, extraDeckCardIds: [] };
-}
+import { createTestInitialDeck } from "../../../../__testUtils__";
 
 /**
- * Concrete implementation of QuickPlaySpellActivation for testing
+ * テスト用の具象クラス
  */
 class TestQuickPlaySpell extends QuickPlaySpellActivation {
   constructor() {

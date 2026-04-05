@@ -14,10 +14,21 @@
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, GamePhase, CardSpace } from "$lib/domain/models/GameState";
+import type { GameSnapshot, GamePhase, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { EXODIA_PIECE_IDS, TEST_CARD_IDS } from "./constants";
 import { createCardInstances } from "./cardInstanceFactory";
+
+/**
+ * カードID配列を InitialDeckCardIds に変換
+ *
+ * GameState.initialize() を使うテストで使用する。
+ *
+ * @param mainDeckCardIds - メインデッキのカードID配列
+ */
+export function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
+  return { mainDeckCardIds, extraDeckCardIds: [] };
+}
 
 /** createMockGameState の引数型（space を部分的に上書き可能） */
 type GameStateOverrides = Omit<Partial<GameSnapshot>, "space"> & {

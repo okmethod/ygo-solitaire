@@ -19,7 +19,7 @@ import {
   createCardInstances,
   createMonsterOnField,
   TEST_CARD_IDS,
-} from "../../../../../__testUtils__";
+} from "../../../../__testUtils__";
 
 // =============================================================================
 // テストセットアップ
