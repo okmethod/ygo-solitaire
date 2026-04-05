@@ -4,7 +4,7 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { selectTargetFromFieldByRaceStep } from "$lib/domain/dsl/steps/builders/targeting";
-import { createMockGameState, createTestMonsterCard, TEST_CARD_IDS } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterInstance, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * TargetingSteps Tests - 対象選択系ステップのテスト
@@ -70,7 +70,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
 
   describe("action実行", () => {
     it("選択したモンスターを対象としてコンテキストに保存できる", () => {
-      const monster = createTestMonsterCard("field-monster-0", { location: "mainMonsterZone" });
+      const monster = createMonsterInstance("field-monster-0", { location: "mainMonsterZone" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: { targets: [] },
@@ -155,7 +155,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
 
       // Spellcaster モンスター（表側表示）は通過
       const spellcaster = {
-        ...createTestMonsterCard("test-1", { location: "mainMonsterZone" }),
+        ...createMonsterInstance("test-1", { location: "mainMonsterZone" }),
         race: "Spellcaster",
         stateOnField: {
           position: "faceUp" as const,
@@ -219,7 +219,7 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
 
   describe("action実行", () => {
     it("選択したモンスターを対象としてコンテキストに保存できる", () => {
-      const monster = createTestMonsterCard("graveyard-monster-0", { location: "graveyard" });
+      const monster = createMonsterInstance("graveyard-monster-0", { location: "graveyard" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: { targets: [] },
@@ -274,7 +274,7 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
       expect(filter).toBeDefined();
 
       // モンスターは通過
-      const monster = createTestMonsterCard("test-1", { location: "graveyard" });
+      const monster = createMonsterInstance("test-1", { location: "graveyard" });
       expect(filter!(monster)).toBe(true);
     });
   });

@@ -22,7 +22,7 @@ import {
   createMockGameState,
   createCardInstances,
   createMonstersOnField,
-  createTestSpellCard,
+  createSpellInstance,
   TEST_CARD_IDS,
 } from "../../../../__testUtils__";
 
@@ -50,7 +50,7 @@ beforeEach(() => {
 
 /** テスト用装備魔法カードインスタンスを生成 */
 const createEquipSpellInstance = (cardId: number): CardInstance =>
-  createTestSpellCard("equip-test-instance", "equip", { cardId, location: "hand" });
+  createSpellInstance("equip-test-instance", "equip", { cardId, location: "hand" });
 
 /** フィールドにモンスターを配置したゲーム状態を生成 */
 const createStateWithFieldMonster = (monsterCount: number = 1) =>

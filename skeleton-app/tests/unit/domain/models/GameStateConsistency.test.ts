@@ -11,7 +11,7 @@
 import { describe, it, expect } from "vitest";
 import { assertValidGameState } from "$lib/domain/models/GameState/GameStateConsistency";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { createMockGameState, createCardInstances, createTestMonsterCard, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, createCardInstances, createMonsterInstance, TEST_CARD_IDS } from "../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
@@ -92,8 +92,8 @@ describe("assertValidGameState", () => {
     });
 
     it("重複したインスタンスIDがある場合はエラー", () => {
-      const card1 = createTestMonsterCard("duplicate-id", { location: "hand" });
-      const card2 = createTestMonsterCard("duplicate-id", { location: "graveyard" });
+      const card1 = createMonsterInstance("duplicate-id", { location: "hand" });
+      const card2 = createMonsterInstance("duplicate-id", { location: "graveyard" });
 
       const state = createMockGameState({
         space: {
@@ -108,7 +108,7 @@ describe("assertValidGameState", () => {
 
     it("インスタンスIDが欠落している場合はエラー", () => {
       const invalidCard = {
-        ...createTestMonsterCard("test", { location: "hand" }),
+        ...createMonsterInstance("test", { location: "hand" }),
         instanceId: "",
       };
 
@@ -124,7 +124,7 @@ describe("assertValidGameState", () => {
 
     it("locationプロパティが不正な場合はエラー", () => {
       const invalidCard = {
-        ...createTestMonsterCard("test", { location: "hand" }),
+        ...createMonsterInstance("test", { location: "hand" }),
         location: "graveyard" as "hand", // 手札にあるのにlocationがgraveyard
       };
 

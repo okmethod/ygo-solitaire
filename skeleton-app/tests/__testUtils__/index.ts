@@ -10,9 +10,9 @@ export { EXODIA_PIECE_IDS, TEST_CARD_IDS, TOKEN_TEST_CARD_IDS, SYNCHRO_TEST_CARD
 // カードインスタンスファクトリ
 export {
   // 手札向け
-  createTestMonsterCard,
-  createTestSpellCard,
-  createTestTrapCard,
+  createMonsterInstance,
+  createSpellInstance,
+  createTrapInstance,
   // フィールド向け
   createMonsterOnField,
   createMonstersOnField,

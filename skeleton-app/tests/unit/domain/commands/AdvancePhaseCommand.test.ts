@@ -4,12 +4,12 @@
 
 import { describe, it, expect } from "vitest";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
-import { createMockGameState, createExodiaVictoryState, createTestMonsterCard } from "../../../__testUtils__";
+import { createMockGameState, createExodiaVictoryState, createMonsterInstance } from "../../../__testUtils__";
 
 describe("AdvancePhaseCommand", () => {
   describe("canExecute", () => {
     it("should return true for Draw → Standby", () => {
-      const deckCard = { ...createTestMonsterCard("main-0"), location: "mainDeck" as const };
+      const deckCard = { ...createMonsterInstance("main-0"), location: "mainDeck" as const };
       const state = createMockGameState({
         phase: "draw",
         space: {
@@ -59,7 +59,7 @@ describe("AdvancePhaseCommand", () => {
 
   describe("execute", () => {
     it("should advance from Draw to Standby", () => {
-      const deckCard = { ...createTestMonsterCard("main-0"), location: "mainDeck" as const };
+      const deckCard = { ...createMonsterInstance("main-0"), location: "mainDeck" as const };
       const state = createMockGameState({
         phase: "draw",
         space: {

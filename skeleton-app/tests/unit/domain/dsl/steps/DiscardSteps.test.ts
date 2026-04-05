@@ -4,8 +4,8 @@ import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { sendToGraveyardStep, discardAllHandStep, selectAndDiscardStep } from "$lib/domain/dsl/steps/builders/discards";
 import {
   createMockGameState,
-  createTestMonsterCard,
-  createTestSpellCard,
+  createMonsterInstance,
+  createSpellInstance,
   TEST_CARD_IDS,
 } from "../../../../__testUtils__";
 
@@ -77,8 +77,8 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
 
   describe("action実行", () => {
     it("選択したカードを墓地に送れる", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestMonsterCard("hand-monster-1", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -98,9 +98,9 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
     });
 
     it("複数カードを墓地に送れる", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestMonsterCard("hand-monster-1", { location: "hand" });
-      const handCard3 = createTestMonsterCard("hand-monster-2", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
+      const handCard3 = createMonsterInstance("hand-monster-2", { location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -119,8 +119,8 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
     });
 
     it("指定枚数と異なる枚数を選択した場合エラー", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestMonsterCard("hand-monster-1", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -139,7 +139,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
     });
 
     it("sentToGraveyard イベントが発行される", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -190,8 +190,8 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
       const filter = config?._filter;
       expect(filter).toBeDefined();
 
-      const spell = createTestSpellCard("test-spell", "normal", { location: "hand" });
-      const monster = createTestMonsterCard("test-monster", { location: "hand" });
+      const spell = createSpellInstance("test-spell", "normal", { location: "hand" });
+      const monster = createMonsterInstance("test-monster", { location: "hand" });
 
       expect(filter!(spell)).toBe(true);
       expect(filter!(monster)).toBe(false);
@@ -220,8 +220,8 @@ describe("StepRegistry - DISCARD_ALL_HAND_END_PHASE", () => {
 
   describe("action実行", () => {
     it("エンドフェイズ効果をキューに登録できる", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestSpellCard("hand-spell-0", "normal", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createSpellInstance("hand-spell-0", "normal", { location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -255,7 +255,7 @@ describe("sendToGraveyardStep", () => {
   });
 
   it("カードを墓地に送れる", () => {
-    const card = createTestMonsterCard("card-instance-1", { location: "hand" });
+    const card = createMonsterInstance("card-instance-1", { location: "hand" });
 
     const state = createMockGameState({
       space: {
@@ -283,8 +283,8 @@ describe("discardAllHandStep", () => {
   });
 
   it("手札全てを墓地に送れる", () => {
-    const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-    const handCard2 = createTestSpellCard("hand-spell-0", "normal", { location: "hand" });
+    const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+    const handCard2 = createSpellInstance("hand-spell-0", "normal", { location: "hand" });
 
     const state = createMockGameState({
       space: {

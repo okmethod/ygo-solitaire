@@ -4,14 +4,14 @@
  * CardInstance を生成するユーティリティ関数群
  *
  * 【手札向け】stateOnField なし
- * - createTestMonsterCard: テスト用モンスター
- * - createTestSpellCard: テスト用魔法
- * - createTestTrapCard: テスト用罠
+ * - createMonsterInstance: モンスター
+ * - createSpellInstance: 魔法
+ * - createTrapInstance: 罠
  *
  * 【フィールド向け】stateOnField 付き
  * - createMonsterOnField: フィールド上のモンスター
  * - createMonstersOnField: フィールド上のモンスター配列
- * - createSpellOnField: 魔法・罠ゾーンの魔法カード
+ * - createSpellOnField: 魔法・罠ゾーンorフィールドゾーンの魔法カード
  * - createSpellsOnField: 魔法・罠ゾーンの魔法配列
  * - createSetCard: セット状態のカード
  *
@@ -92,7 +92,7 @@ const createBase = (
  * @param options - オプション設定
  * @returns CardInstance
  */
-export function createTestMonsterCard(
+export function createMonsterInstance(
   instanceId: string,
   options?: {
     cardId?: number;
@@ -121,7 +121,7 @@ export function createTestMonsterCard(
  * @param options - オプション設定
  * @returns CardInstance
  */
-export function createTestSpellCard(
+export function createSpellInstance(
   instanceId: string,
   spellType: SpellSubType = "normal",
   options?: {
@@ -152,7 +152,7 @@ export function createTestSpellCard(
  * @param options - オプション設定
  * @returns CardInstance
  */
-export function createTestTrapCard(
+export function createTrapInstance(
   instanceId: string,
   trapType: TrapSubType = "normal",
   options?: {

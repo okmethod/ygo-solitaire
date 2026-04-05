@@ -17,7 +17,7 @@ import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
-  createTestSpellCard,
+  createSpellInstance,
   createSpellsOnField,
   createScenarioDeck,
   advanceToMain1,
@@ -90,7 +90,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createTestSpellCard("s1", "normal")], spellTrapZone: [], mainDeck: [] },
+          space: { hand: [createSpellInstance("s1", "normal")], spellTrapZone: [], mainDeck: [] },
         }),
       );
 
@@ -107,7 +107,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createTestSpellCard("s-extra")],
+            hand: [createSpellInstance("s-extra")],
             mainMonsterZone: [],
             spellTrapZone: spellsOnField,
             mainDeck: [],
@@ -122,7 +122,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createTestSpellCard("s1", "normal")], spellTrapZone: [], mainDeck: [] },
+          space: { hand: [createSpellInstance("s1", "normal")], spellTrapZone: [], mainDeck: [] },
         }),
       );
 
@@ -169,7 +169,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createTestSpellCard("fs1", "field")], fieldZone: [], mainDeck: [] },
+          space: { hand: [createSpellInstance("fs1", "field")], fieldZone: [], mainDeck: [] },
         }),
       );
 
@@ -185,7 +185,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createTestSpellCard("fs1", "field")], fieldZone: [], mainDeck: [] },
+          space: { hand: [createSpellInstance("fs1", "field")], fieldZone: [], mainDeck: [] },
         }),
       );
 

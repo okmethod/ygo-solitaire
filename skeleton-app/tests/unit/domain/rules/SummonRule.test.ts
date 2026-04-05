@@ -6,7 +6,7 @@ import {
   canSpecialSummon,
   executeSpecialSummon,
 } from "$lib/domain/rules/SummonRule";
-import { createMockGameState, createTestMonsterCard, createMonstersOnField } from "../../../__testUtils__";
+import { createMockGameState, createMonsterInstance, createMonstersOnField } from "../../../__testUtils__";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
@@ -31,7 +31,7 @@ describe("SummonRule", () => {
   describe("canSummonOrSet", () => {
     it("should allow summon when conditions are met (level 4 monster)", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         space: { hand: [monster] },
       });
@@ -46,7 +46,7 @@ describe("SummonRule", () => {
 
     it("should fail if not in Main phase", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         phase: "draw",
         space: { hand: [monster] },
@@ -62,7 +62,7 @@ describe("SummonRule", () => {
 
     it("should fail if summon limit reached", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         normalSummonUsed: 1,
         space: { hand: [monster] },
@@ -78,7 +78,7 @@ describe("SummonRule", () => {
 
     it("should fail if mainMonsterZone is full (5 cards) for normal summon", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         space: {
           hand: [monster],
@@ -96,7 +96,7 @@ describe("SummonRule", () => {
 
     it("should fail if card is not in hand", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { location: "mainMonsterZone", level: 4 });
+      const monster = createMonsterInstance("test-monster", { location: "mainMonsterZone", level: 4 });
       const state = createMockGameState({
         space: { mainMonsterZone: [monster] },
       });
@@ -111,7 +111,7 @@ describe("SummonRule", () => {
 
     it("should allow tribute summon when field has enough monsters (level 5)", () => {
       // Arrange
-      const monster = createTestMonsterCard("high-level-monster", { level: 5 });
+      const monster = createMonsterInstance("high-level-monster", { level: 5 });
       const state = createMockGameState({
         space: {
           hand: [monster],
@@ -128,7 +128,7 @@ describe("SummonRule", () => {
 
     it("should fail tribute summon when field has not enough monsters (level 7)", () => {
       // Arrange
-      const monster = createTestMonsterCard("high-level-monster", { level: 7 });
+      const monster = createMonsterInstance("high-level-monster", { level: 7 });
       const state = createMockGameState({
         space: {
           hand: [monster],
@@ -149,7 +149,7 @@ describe("SummonRule", () => {
     describe("no tribute required (level 4 or below)", () => {
       it("should return immediate result with updated state when summoning in attack position", () => {
         // Arrange
-        const monster = createTestMonsterCard("test-monster", { level: 4 });
+        const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
           space: { hand: [monster] },
         });
@@ -170,7 +170,7 @@ describe("SummonRule", () => {
 
       it("should return immediate result when setting in defense position", () => {
         // Arrange
-        const monster = createTestMonsterCard("test-monster", { level: 4 });
+        const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
           space: { hand: [monster] },
         });
@@ -189,7 +189,7 @@ describe("SummonRule", () => {
 
       it("should place monster face up in attack position", () => {
         // Arrange
-        const monster = createTestMonsterCard("test-monster", { level: 4 });
+        const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
           space: { hand: [monster] },
         });
@@ -207,7 +207,7 @@ describe("SummonRule", () => {
 
       it("should place monster face down in defense position", () => {
         // Arrange
-        const monster = createTestMonsterCard("test-monster", { level: 4 });
+        const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
           space: { hand: [monster] },
         });
@@ -227,7 +227,7 @@ describe("SummonRule", () => {
     describe("tribute required (level 5 or above)", () => {
       it("should return needsSelection result for level 5 monster", () => {
         // Arrange
-        const monster = createTestMonsterCard("high-level-monster", { level: 5 });
+        const monster = createMonsterInstance("high-level-monster", { level: 5 });
         const state = createMockGameState({
           space: {
             hand: [monster],
@@ -248,7 +248,7 @@ describe("SummonRule", () => {
 
       it("should return needsSelection result for level 7 monster (2 tributes)", () => {
         // Arrange
-        const monster = createTestMonsterCard("high-level-monster", { level: 7 });
+        const monster = createMonsterInstance("high-level-monster", { level: 7 });
         const state = createMockGameState({
           space: {
             hand: [monster],
@@ -311,7 +311,7 @@ describe("SummonRule", () => {
   describe("executeSpecialSummon", () => {
     it("should move monster from hand to monster zone in attack position", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         space: { hand: [monster] },
       });
@@ -331,7 +331,7 @@ describe("SummonRule", () => {
 
     it("should move monster from hand to monster zone in defense position", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         space: { hand: [monster] },
       });
@@ -347,7 +347,7 @@ describe("SummonRule", () => {
 
     it("should move monster from extra deck to monster zone", () => {
       // Arrange
-      const synchro = createTestMonsterCard("synchro-monster", {
+      const synchro = createMonsterInstance("synchro-monster", {
         frameType: "synchro",
         level: 6,
         location: "extraDeck",
@@ -366,7 +366,7 @@ describe("SummonRule", () => {
 
     it("should not consume normal summon right", () => {
       // Arrange
-      const monster = createTestMonsterCard("test-monster", { level: 4 });
+      const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
         normalSummonUsed: 0,
         space: { hand: [monster] },

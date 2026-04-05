@@ -9,14 +9,14 @@
 
 import { describe, it, expect } from "vitest";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
-import { createMockGameState, createTestSpellCard, createSetCard, createSpellOnField } from "../../../__testUtils__";
+import { createMockGameState, createSpellInstance, createSetCard, createSpellOnField } from "../../../__testUtils__";
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {
     describe("hand to field placement", () => {
       it("should place normal spell from hand to spellTrapZone", () => {
         // Arrange
-        const spell = createTestSpellCard("spell-0", "normal", { location: "hand" });
+        const spell = createSpellInstance("spell-0", "normal", { location: "hand" });
         const state = createMockGameState({
           space: {
             hand: [spell],
@@ -35,7 +35,7 @@ describe("ActivationRule", () => {
 
       it("should place quick-play spell from hand to spellTrapZone", () => {
         // Arrange
-        const spell = createTestSpellCard("spell-0", "quick-play", { location: "hand" });
+        const spell = createSpellInstance("spell-0", "quick-play", { location: "hand" });
         const state = createMockGameState({
           space: {
             hand: [spell],
@@ -53,7 +53,7 @@ describe("ActivationRule", () => {
 
       it("should place continuous spell from hand to spellTrapZone", () => {
         // Arrange
-        const spell = createTestSpellCard("spell-0", "continuous", { location: "hand" });
+        const spell = createSpellInstance("spell-0", "continuous", { location: "hand" });
         const state = createMockGameState({
           space: {
             hand: [spell],
@@ -70,7 +70,7 @@ describe("ActivationRule", () => {
 
       it("should place field spell from hand to fieldZone", () => {
         // Arrange
-        const spell = createTestSpellCard("spell-0", "field", { location: "hand" });
+        const spell = createSpellInstance("spell-0", "field", { location: "hand" });
         const state = createMockGameState({
           space: {
             hand: [spell],
@@ -90,7 +90,7 @@ describe("ActivationRule", () => {
       it("should send existing field spell to graveyard when placing new field spell", () => {
         // Arrange
         const existingFieldSpell = createSpellOnField(1006, "existing-field-0");
-        const newFieldSpell = createTestSpellCard("new-field-0", "field", { location: "hand" });
+        const newFieldSpell = createSpellInstance("new-field-0", "field", { location: "hand" });
         const state = createMockGameState({
           space: {
             hand: [newFieldSpell],

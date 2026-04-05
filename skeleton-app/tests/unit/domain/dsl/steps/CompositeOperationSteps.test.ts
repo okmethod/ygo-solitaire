@@ -7,8 +7,8 @@ import {
 } from "$lib/domain/dsl/steps/builders/compositeOperations";
 import {
   createMockGameState,
-  createTestMonsterCard,
-  createTestSpellCard,
+  createMonsterInstance,
+  createSpellInstance,
   TEST_CARD_IDS,
 } from "../../../../__testUtils__";
 
@@ -69,10 +69,10 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
 
   describe("action実行", () => {
     it("選択したカードをデッキに戻して同数ドローできる", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestMonsterCard("hand-monster-1", { location: "hand" });
-      const deckCard1 = createTestMonsterCard("deck-monster-0", { location: "mainDeck" });
-      const deckCard2 = createTestMonsterCard("deck-monster-1", { location: "mainDeck" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
+      const deckCard1 = createMonsterInstance("deck-monster-0", { location: "mainDeck" });
+      const deckCard2 = createMonsterInstance("deck-monster-1", { location: "mainDeck" });
 
       const state = createMockGameState({
         space: {
@@ -96,11 +96,11 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
     });
 
     it("複数枚を選択して戻してドローできる", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestMonsterCard("hand-monster-1", { location: "hand" });
-      const handCard3 = createTestMonsterCard("hand-monster-2", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
+      const handCard3 = createMonsterInstance("hand-monster-2", { location: "hand" });
       const deckCards = Array.from({ length: 5 }, (_, i) =>
-        createTestMonsterCard(`deck-monster-${i}`, { location: "mainDeck" }),
+        createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );
 
       const state = createMockGameState({
@@ -122,7 +122,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
     });
 
     it("0枚選択の場合は何もしない", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -180,10 +180,10 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
 
   describe("action実行", () => {
     it("手札全てをデッキに戻して同数ドローできる", () => {
-      const handCard1 = createTestMonsterCard("hand-monster-0", { location: "hand" });
-      const handCard2 = createTestSpellCard("hand-spell-0", "normal", { location: "hand" });
+      const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
+      const handCard2 = createSpellInstance("hand-spell-0", "normal", { location: "hand" });
       const deckCards = Array.from({ length: 10 }, (_, i) =>
-        createTestMonsterCard(`deck-monster-${i}`, { location: "mainDeck" }),
+        createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );
 
       const state = createMockGameState({
@@ -206,7 +206,7 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
 
     it("手札が空の場合は何もしない", () => {
       const deckCards = Array.from({ length: 5 }, (_, i) =>
-        createTestMonsterCard(`deck-monster-${i}`, { location: "mainDeck" }),
+        createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );
 
       const state = createMockGameState({

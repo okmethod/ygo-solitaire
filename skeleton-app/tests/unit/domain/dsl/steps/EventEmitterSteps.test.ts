@@ -3,7 +3,7 @@ import {
   emitSpellActivatedEventStep,
   emitNormalSummonedEventStep,
 } from "$lib/domain/dsl/steps/primitives/eventEmitters";
-import { createMockGameState, createTestMonsterCard, createTestSpellCard } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterInstance, createSpellInstance } from "../../../../__testUtils__";
 
 /**
  * EventEmitterSteps Tests - イベント発行系ステップのテスト
@@ -20,7 +20,7 @@ import { createMockGameState, createTestMonsterCard, createTestSpellCard } from 
 
 describe("emitSpellActivatedEventStep", () => {
   it("魔法発動イベントを発行するステップを生成できる", () => {
-    const spellCard = createTestSpellCard("spell-instance-1", "normal", { location: "spellTrapZone" });
+    const spellCard = createSpellInstance("spell-instance-1", "normal", { location: "spellTrapZone" });
 
     const step = emitSpellActivatedEventStep(spellCard);
 
@@ -31,7 +31,7 @@ describe("emitSpellActivatedEventStep", () => {
   });
 
   it("action実行でspellActivatedイベントを発行する", () => {
-    const spellCard = createTestSpellCard("spell-instance-1", "normal", { location: "spellTrapZone" });
+    const spellCard = createSpellInstance("spell-instance-1", "normal", { location: "spellTrapZone" });
     const state = createMockGameState();
 
     const step = emitSpellActivatedEventStep(spellCard);
@@ -47,7 +47,7 @@ describe("emitSpellActivatedEventStep", () => {
   });
 
   it("状態は変更されない", () => {
-    const spellCard = createTestSpellCard("spell-instance-1", "normal", { location: "spellTrapZone" });
+    const spellCard = createSpellInstance("spell-instance-1", "normal", { location: "spellTrapZone" });
     const state = createMockGameState();
 
     const step = emitSpellActivatedEventStep(spellCard);
@@ -63,7 +63,7 @@ describe("emitSpellActivatedEventStep", () => {
 
 describe("emitNormalSummonedEventStep", () => {
   it("モンスター召喚イベントを発行するステップを生成できる", () => {
-    const monsterCard = createTestMonsterCard("monster-instance-1", { location: "mainMonsterZone" });
+    const monsterCard = createMonsterInstance("monster-instance-1", { location: "mainMonsterZone" });
 
     const step = emitNormalSummonedEventStep(monsterCard);
 
@@ -74,7 +74,7 @@ describe("emitNormalSummonedEventStep", () => {
   });
 
   it("action実行でnormalSummonedイベントを発行する", () => {
-    const monsterCard = createTestMonsterCard("monster-instance-1", { location: "mainMonsterZone" });
+    const monsterCard = createMonsterInstance("monster-instance-1", { location: "mainMonsterZone" });
     const state = createMockGameState();
 
     const step = emitNormalSummonedEventStep(monsterCard);
@@ -90,7 +90,7 @@ describe("emitNormalSummonedEventStep", () => {
   });
 
   it("状態は変更されない", () => {
-    const monsterCard = createTestMonsterCard("monster-instance-1", { location: "mainMonsterZone" });
+    const monsterCard = createMonsterInstance("monster-instance-1", { location: "mainMonsterZone" });
     const state = createMockGameState();
 
     const step = emitNormalSummonedEventStep(monsterCard);
@@ -106,8 +106,8 @@ describe("emitNormalSummonedEventStep", () => {
 
 describe("イベント形式", () => {
   it("全てのイベントにsourceCardIdとsourceInstanceIdが含まれる", () => {
-    const monster = createTestMonsterCard("test-monster", { location: "mainMonsterZone" });
-    const spell = createTestSpellCard("test-spell", "normal", { location: "spellTrapZone" });
+    const monster = createMonsterInstance("test-monster", { location: "mainMonsterZone" });
+    const spell = createSpellInstance("test-spell", "normal", { location: "spellTrapZone" });
     const state = createMockGameState();
 
     const spellStep = emitSpellActivatedEventStep(spell);
@@ -126,8 +126,8 @@ describe("イベント形式", () => {
   });
 
   it("notificationLevelがsilentに設定されている（トリガー専用）", () => {
-    const monster = createTestMonsterCard("test-monster", { location: "mainMonsterZone" });
-    const spell = createTestSpellCard("test-spell", "normal", { location: "spellTrapZone" });
+    const monster = createMonsterInstance("test-monster", { location: "mainMonsterZone" });
+    const spell = createSpellInstance("test-spell", "normal", { location: "spellTrapZone" });
 
     expect(emitSpellActivatedEventStep(spell).notificationLevel).toBe("silent");
     expect(emitNormalSummonedEventStep(monster).notificationLevel).toBe("silent");

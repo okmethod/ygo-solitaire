@@ -20,7 +20,7 @@ import {
   leavedFromFieldInstance,
   updateCardStateInPlace,
 } from "$lib/domain/models/Card/CardInstance";
-import { createTestMonsterCard, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMonsterInstance, TEST_CARD_IDS } from "../../../__testUtils__";
 
 /**
  * ダミーのカードインスタンスを作成する
@@ -71,7 +71,7 @@ describe("CardInstance", () => {
 
   describe("inHand", () => {
     it("手札にあるカードはtrueを返す", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       expect(inHand(card)).toBe(true);
     });
 
@@ -86,7 +86,7 @@ describe("CardInstance", () => {
       });
       expect(inHand(fieldCard)).toBe(false);
 
-      const deckCard = createTestMonsterCard("test-2");
+      const deckCard = createMonsterInstance("test-2");
       (deckCard as { location: string }).location = "mainDeck";
       expect(inHand(deckCard)).toBe(false);
     });
@@ -131,7 +131,7 @@ describe("CardInstance", () => {
     });
 
     it("フィールド以外のカードはfalseを返す", () => {
-      const handCard = createTestMonsterCard("test-1", { location: "hand" });
+      const handCard = createMonsterInstance("test-1", { location: "hand" });
       expect(onField(handCard)).toBe(false);
     });
   });
@@ -139,14 +139,14 @@ describe("CardInstance", () => {
   describe("inGraveyard", () => {
     it("墓地にあるカードはtrueを返す", () => {
       const card: CardInstance = {
-        ...createTestMonsterCard("test-1"),
+        ...createMonsterInstance("test-1"),
         location: "graveyard",
       };
       expect(inGraveyard(card)).toBe(true);
     });
 
     it("墓地以外のカードはfalseを返す", () => {
-      const handCard = createTestMonsterCard("test-1", { location: "hand" });
+      const handCard = createMonsterInstance("test-1", { location: "hand" });
       expect(inGraveyard(handCard)).toBe(false);
     });
   });
@@ -154,14 +154,14 @@ describe("CardInstance", () => {
   describe("isBanished", () => {
     it("除外されたカードはtrueを返す", () => {
       const card: CardInstance = {
-        ...createTestMonsterCard("test-1"),
+        ...createMonsterInstance("test-1"),
         location: "banished",
       };
       expect(isBanished(card)).toBe(true);
     });
 
     it("除外以外のカードはfalseを返す", () => {
-      const handCard = createTestMonsterCard("test-1", { location: "hand" });
+      const handCard = createMonsterInstance("test-1", { location: "hand" });
       expect(isBanished(handCard)).toBe(false);
     });
   });
@@ -198,7 +198,7 @@ describe("CardInstance", () => {
     });
 
     it("stateOnFieldがないカードはfalseを返す", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       expect(isFaceUp(card)).toBe(false);
     });
   });
@@ -231,7 +231,7 @@ describe("CardInstance", () => {
     });
 
     it("stateOnFieldがないカードはfalseを返す", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       expect(isFaceDown(card)).toBe(false);
     });
   });
@@ -266,7 +266,7 @@ describe("CardInstance", () => {
     });
 
     it("stateOnFieldがないカードはfalseを返す", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       expect(isAttackPosition(card)).toBe(false);
     });
   });
@@ -301,7 +301,7 @@ describe("CardInstance", () => {
     });
 
     it("stateOnFieldがないカードはfalseを返す", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       expect(isDefensePosition(card)).toBe(false);
     });
   });
@@ -312,7 +312,7 @@ describe("CardInstance", () => {
 
   describe("movedInstance", () => {
     it("カードを新しいロケーションに移動する", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       const movedCard = movedInstance(card, "graveyard");
 
       expect(movedCard.location).toBe("graveyard");
@@ -335,7 +335,7 @@ describe("CardInstance", () => {
     });
 
     it("元のカードは変更されない（イミュータブル）", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       const originalLocation = card.location;
       movedInstance(card, "graveyard");
 
@@ -345,7 +345,7 @@ describe("CardInstance", () => {
 
   describe("placedOnFieldInstance", () => {
     it("カードをフィールドに配置しstateOnFieldを初期化する", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       const placedCard = placedOnFieldInstance(card, "mainMonsterZone", "faceUp", "attack");
 
       expect(placedCard.location).toBe("mainMonsterZone");
@@ -356,7 +356,7 @@ describe("CardInstance", () => {
     });
 
     it("守備表示で配置できる", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       const placedCard = placedOnFieldInstance(card, "mainMonsterZone", "faceDown", "defense");
 
       expect(placedCard.stateOnField?.position).toBe("faceDown");
@@ -364,7 +364,7 @@ describe("CardInstance", () => {
     });
 
     it("魔法・罠ゾーンに配置できる", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
       const placedCard = placedOnFieldInstance(card, "spellTrapZone", "faceDown");
 
       expect(placedCard.location).toBe("spellTrapZone");
@@ -372,7 +372,7 @@ describe("CardInstance", () => {
     });
 
     it("フィールド以外のロケーションにはエラーをスローする", () => {
-      const card = createTestMonsterCard("test-1", { location: "hand" });
+      const card = createMonsterInstance("test-1", { location: "hand" });
 
       expect(() => placedOnFieldInstance(card, "graveyard", "faceUp")).toThrow("Invalid location for placing on field");
       expect(() => placedOnFieldInstance(card, "hand", "faceUp")).toThrow("Invalid location for placing on field");
@@ -471,7 +471,7 @@ describe("CardInstance", () => {
     });
 
     it("フィールド外のカードにはエラーをスローする", () => {
-      const handCard = createTestMonsterCard("test-1", { location: "hand" });
+      const handCard = createMonsterInstance("test-1", { location: "hand" });
 
       expect(() => updateCardStateInPlace(handCard, { position: "faceUp" })).toThrow(
         "Card must be on the field to update state",
