@@ -11,7 +11,6 @@ export { EXODIA_PIECE_IDS, TEST_CARD_IDS, TOKEN_TEST_CARD_IDS, SYNCHRO_TEST_CARD
 export {
   // 手札向け
   createTestMonsterCard,
-  createHandMonster,
   createTestSpellCard,
   createTestTrapCard,
   // フィールド向け

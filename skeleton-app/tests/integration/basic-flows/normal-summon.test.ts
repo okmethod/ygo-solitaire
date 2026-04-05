@@ -11,7 +11,7 @@ import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
-  createHandMonster,
+  createTestMonsterCard,
   createMonstersOnField,
   createScenarioDeck,
   flushEffectQueue,
@@ -40,7 +40,7 @@ describe("通常召喚 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createHandMonster("m1")], mainMonsterZone: [], mainDeck: [] },
+          space: { hand: [createTestMonsterCard("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
         }),
       );
 
@@ -59,7 +59,7 @@ describe("通常召喚 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createHandMonster("m1")], mainMonsterZone: [], mainDeck: [] },
+          space: { hand: [createTestMonsterCard("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
         }),
       );
 
@@ -79,7 +79,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("lv5", 5)],
+            hand: [createTestMonsterCard("lv5", { level: 5 })],
             mainMonsterZone: fieldMonsters,
             mainDeck: [],
           },
@@ -109,7 +109,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("lv5", 5)],
+            hand: [createTestMonsterCard("lv5", { level: 5 })],
             mainMonsterZone: [], // リリース対象なし
             mainDeck: [],
           },
@@ -132,7 +132,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("lv6", 6)],
+            hand: [createTestMonsterCard("lv6", { level: 6 })],
             mainMonsterZone: fieldMonsters,
             mainDeck: [],
           },
@@ -161,7 +161,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("lv7", 7)],
+            hand: [createTestMonsterCard("lv7", { level: 7 })],
             mainMonsterZone: fieldMonsters,
             mainDeck: [],
           },
@@ -188,7 +188,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("lv7", 7)],
+            hand: [createTestMonsterCard("lv7", { level: 7 })],
             mainMonsterZone: fieldMonsters, // 1体しかいない
             mainDeck: [],
           },
@@ -207,7 +207,7 @@ describe("通常召喚 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createHandMonster("m1")], mainMonsterZone: [], mainDeck: [] },
+          space: { hand: [createTestMonsterCard("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
         }),
       );
 
@@ -224,7 +224,7 @@ describe("通常召喚 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createHandMonster("m1")], mainMonsterZone: [], mainDeck: [] },
+          space: { hand: [createTestMonsterCard("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
         }),
       );
 
@@ -243,7 +243,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("lv5", 5)],
+            hand: [createTestMonsterCard("lv5", { level: 5 })],
             mainMonsterZone: fieldMonsters,
             mainDeck: [],
           },
@@ -272,7 +272,11 @@ describe("通常召喚 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createHandMonster("m1"), createHandMonster("m2")], mainMonsterZone: [], mainDeck: [] },
+          space: {
+            hand: [createTestMonsterCard("m1", { level: 4 }), createTestMonsterCard("m2", { level: 4 })],
+            mainMonsterZone: [],
+            mainDeck: [],
+          },
         }),
       );
 
@@ -287,7 +291,11 @@ describe("通常召喚 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           phase: "main1",
-          space: { hand: [createHandMonster("m1"), createHandMonster("m2")], mainMonsterZone: [], mainDeck: [] },
+          space: {
+            hand: [createTestMonsterCard("m1", { level: 4 }), createTestMonsterCard("m2", { level: 4 })],
+            mainMonsterZone: [],
+            mainDeck: [],
+          },
         }),
       );
 
@@ -316,7 +324,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         createMockGameState({
           phase: "main1",
           space: {
-            hand: [createHandMonster("m-extra")],
+            hand: [createTestMonsterCard("m-extra", { level: 4 })],
             mainMonsterZone: monstersOnField,
             mainDeck: [],
           },

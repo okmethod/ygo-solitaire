@@ -5,7 +5,6 @@
  *
  * 【手札向け】stateOnField なし
  * - createTestMonsterCard: テスト用モンスター
- * - createHandMonster: 手札のモンスター
  * - createTestSpellCard: テスト用魔法
  * - createTestTrapCard: テスト用罠
  *
@@ -89,7 +88,8 @@ const createBase = (
  * テスト用モンスターカードインスタンスを作成
  *
  * setup.ts で登録されたデフォルトテストモンスター (id: 12345678) を使用。
- * 登録済みカードの場合は CardDataRegistry から情報を取得。
+ * cardId 指定の場合、登録済みカードの場合は CardDataRegistry から情報を取得。
+ * level 指定により上書きも可能。
  *
  * @param instanceId - 一意のインスタンス識別子
  * @param options - オプション設定
@@ -111,16 +111,6 @@ export function createTestMonsterCard(
     { type: "monster", frameType: "normal" },
     { frameType: options?.frameType, level: options?.level },
   );
-}
-
-/**
- * 手札のモンスターカードを作成（召喚テスト用）
- *
- * @param instanceId - インスタンスID
- * @param level - モンスターレベル（デフォルト: 4）
- */
-export function createHandMonster(instanceId: string, level: number = 4): CardInstance {
-  return createTestMonsterCard(instanceId, { level });
 }
 
 /**
@@ -173,7 +163,12 @@ export function createTestTrapCard(
     location?: keyof CardSpace;
   },
 ): CardInstance {
-  return createBase(instanceId, options?.cardId ?? TEST_CARD_IDS.TRAP_NORMAL, options?.location ?? "hand", {
+  const defaultCardIds: Record<TrapSubType, number> = {
+    normal: TEST_CARD_IDS.TRAP_NORMAL,
+    continuous: 0, // 未登録
+    counter: 0, // 未登録
+  };
+  return createBase(instanceId, options?.cardId ?? defaultCardIds[trapType], options?.location ?? "hand", {
     type: "trap",
     frameType: "trap",
     trapType,
