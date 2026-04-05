@@ -237,7 +237,9 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      const state = createStateWithFieldZone([createSpellOnField(cardId, "fieldZone-0", { spellType: "field", position: "faceDown" })]);
+      const state = createStateWithFieldZone([
+        createSpellOnField(cardId, "fieldZone-0", { spellType: "field", position: "faceDown" }),
+      ]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -467,7 +469,9 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createMonsterOnField(cardId, "mainMonsterZone-0", "faceDown")]);
+      const state = createStateWithMonsterZone([
+        createMonsterOnField(cardId, "mainMonsterZone-0", { position: "faceDown" }),
+      ]);
 
       // Act
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");

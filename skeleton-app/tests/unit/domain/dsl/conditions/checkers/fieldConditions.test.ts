@@ -20,9 +20,10 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import { CardDataRegistry } from "$lib/domain/cards";
 import {
   createMockGameState,
-  createFieldCardInstance,
+  createMonsterOnField,
   createMonstersOnField,
   createSpellsOnField,
+  createSpellOnField,
   createTestSpellCard,
 } from "../../../../../__testUtils__";
 
@@ -119,23 +120,14 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     const state = createMockGameState({
       space: {
         spellTrapZone: [
-          createFieldCardInstance({
-            instanceId: "equip-1",
-            id: 99999,
-            jaName: "魔導師の力",
-            type: "spell",
-            frameType: "spell",
-            location: "spellTrapZone",
-            position: "faceUp",
-            spellType: "equip",
-          }),
+          createSpellOnField(41587307, "equip-1"), // 折れ竹光
         ],
       },
       phase: "main1",
     });
     const sourceInstance = createSourceInstance();
 
-    const result = fieldHasEquippedNameIncludesCondition(state, sourceInstance, { namePattern: "魔導師" });
+    const result = fieldHasEquippedNameIncludesCondition(state, sourceInstance, { namePattern: "竹光" });
 
     expect(result.isValid).toBe(true);
   });
@@ -144,23 +136,14 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     const state = createMockGameState({
       space: {
         spellTrapZone: [
-          createFieldCardInstance({
-            instanceId: "equip-1",
-            id: 99999,
-            jaName: "装備魔法カード",
-            type: "spell",
-            frameType: "spell",
-            location: "spellTrapZone",
-            position: "faceUp",
-            spellType: "equip",
-          }),
+          createSpellOnField(41587307, "equip-1"), // 折れ竹光
         ],
       },
       phase: "main1",
     });
     const sourceInstance = createSourceInstance();
 
-    const result = fieldHasEquippedNameIncludesCondition(state, sourceInstance, { namePattern: "竹光" });
+    const result = fieldHasEquippedNameIncludesCondition(state, sourceInstance, { namePattern: "魔導師" });
 
     expect(result.isValid).toBe(false);
   });
@@ -192,18 +175,7 @@ describe("fieldHasMonsterWithRaceCondition", () => {
   it("フィールドに指定種族の表側表示モンスターがある場合はtrueを返す", () => {
     const state = createMockGameState({
       space: {
-        mainMonsterZone: [
-          createFieldCardInstance({
-            instanceId: "warrior-1",
-            id: 88888,
-            jaName: "戦士モンスター",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceUp",
-            battlePosition: "attack",
-          }),
-        ],
+        mainMonsterZone: [createMonsterOnField(88888, "warrior-1", { position: "faceUp", battlePosition: "attack" })],
       },
       phase: "main1",
     });
@@ -229,16 +201,7 @@ describe("fieldHasMonsterWithRaceCondition", () => {
     const state = createMockGameState({
       space: {
         mainMonsterZone: [
-          createFieldCardInstance({
-            instanceId: "facedown-1",
-            id: 88888,
-            jaName: "裏側モンスター",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceDown",
-            battlePosition: "defense",
-          }),
+          createMonsterOnField(88888, "facedown-1", { position: "faceDown", battlePosition: "defense" }),
         ],
       },
       phase: "main1",
@@ -260,18 +223,7 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   it("フィールドに効果モンスター以外の表側表示モンスターがある場合はtrueを返す", () => {
     const state = createMockGameState({
       space: {
-        mainMonsterZone: [
-          createFieldCardInstance({
-            instanceId: "normal-1",
-            id: 88888,
-            jaName: "通常モンスター",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceUp",
-            battlePosition: "attack",
-          }),
-        ],
+        mainMonsterZone: [createMonsterOnField(88888, "normal-1", { position: "faceUp", battlePosition: "attack" })],
       },
       phase: "main1",
     });
@@ -283,15 +235,10 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   });
 
   it("フィールドに効果モンスターのみの場合はfalseを返す", () => {
-    const effectMonster = createFieldCardInstance({
-      instanceId: "effect-1",
-      id: 88888,
-      jaName: "効果モンスター",
-      type: "monster",
-      frameType: "effect",
-      location: "mainMonsterZone",
+    const effectMonster = createMonsterOnField(88888, "effect-1", {
       position: "faceUp",
       battlePosition: "attack",
+      frameType: "effect",
     });
     // 効果モンスター判定にはmonsterTypeListが必要
     (effectMonster as unknown as { monsterTypeList: string[] }).monsterTypeList = ["effect"];
@@ -313,26 +260,8 @@ describe("fieldHasNonEffectMonsterCondition", () => {
     const state = createMockGameState({
       space: {
         mainMonsterZone: [
-          createFieldCardInstance({
-            instanceId: "normal-1",
-            id: 88888,
-            jaName: "通常モンスター1",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceUp",
-            battlePosition: "attack",
-          }),
-          createFieldCardInstance({
-            instanceId: "normal-2",
-            id: 88889,
-            jaName: "通常モンスター2",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceUp",
-            battlePosition: "attack",
-          }),
+          createMonsterOnField(88888, "normal-1", { position: "faceUp", battlePosition: "attack" }),
+          createMonsterOnField(88889, "normal-2", { position: "faceUp", battlePosition: "attack" }),
         ],
       },
       phase: "main1",
@@ -347,18 +276,7 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   it("minCountに満たない場合はfalseを返す", () => {
     const state = createMockGameState({
       space: {
-        mainMonsterZone: [
-          createFieldCardInstance({
-            instanceId: "normal-1",
-            id: 88888,
-            jaName: "通常モンスター",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceUp",
-            battlePosition: "attack",
-          }),
-        ],
+        mainMonsterZone: [createMonsterOnField(88888, "normal-1", { position: "faceUp", battlePosition: "attack" })],
       },
       phase: "main1",
     });
@@ -373,16 +291,7 @@ describe("fieldHasNonEffectMonsterCondition", () => {
     const state = createMockGameState({
       space: {
         mainMonsterZone: [
-          createFieldCardInstance({
-            instanceId: "facedown-1",
-            id: 88888,
-            jaName: "通常モンスター",
-            type: "monster",
-            frameType: "normal",
-            location: "mainMonsterZone",
-            position: "faceDown",
-            battlePosition: "defense",
-          }),
+          createMonsterOnField(88888, "facedown-1", { position: "faceDown", battlePosition: "defense" }),
         ],
       },
       phase: "main1",

@@ -16,7 +16,7 @@ import {
   createSynchroSummonLevelMismatchState,
   createTestSynchroMonster,
   createTestTunerCard,
-  createFieldCardInstance,
+  createMonsterOnField,
   createCardInstances,
   SYNCHRO_TEST_CARD_IDS,
 } from "../../../__testUtils__";
@@ -206,24 +206,8 @@ describe("SynchroSummonRule", () => {
           space: {
             extraDeck: [createTestSynchroMonster("synchro-0", 6, { location: "extraDeck" })],
             mainMonsterZone: [
-              createFieldCardInstance({
-                instanceId: "tuner-0",
-                id: SYNCHRO_TEST_CARD_IDS.TUNER_LV2,
-                jaName: "Test Tuner Lv2",
-                type: "monster",
-                frameType: "effect",
-                location: "mainMonsterZone",
-                position: "faceDown", // Face-down
-              }),
-              createFieldCardInstance({
-                instanceId: "nontuner-0",
-                id: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
-                jaName: "Test NonTuner Lv4",
-                type: "monster",
-                frameType: "normal",
-                location: "mainMonsterZone",
-                position: "faceUp",
-              }),
+              createMonsterOnField(SYNCHRO_TEST_CARD_IDS.TUNER_LV2, "tuner-0", { position: "faceDown" }), // Face-down
+              createMonsterOnField(SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4, "nontuner-", { position: "faceDown" }),
             ],
             mainDeck: createCardInstances(Array(30).fill(12345678), "mainDeck"),
           },

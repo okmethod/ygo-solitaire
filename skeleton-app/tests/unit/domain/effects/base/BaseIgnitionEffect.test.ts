@@ -13,7 +13,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -98,14 +98,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, true);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -118,14 +111,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, true);
       const state = createMockGameState({ phase: "standby" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -139,14 +125,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, true);
       const state = createMockGameState({ phase: "draw" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -160,14 +139,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -183,14 +155,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const steps = effect.createActivationSteps(state, sourceInstance);
@@ -209,14 +174,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);
@@ -230,14 +188,7 @@ describe("BaseIgnitionEffect", () => {
       // Arrange
       const effect = new TestIgnitionEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);

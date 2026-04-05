@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createFieldCardInstance, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../__testUtils__";
 
 /**
  * BattlePositionSteps Tests - 表示形式変更ステップのテスト
@@ -75,13 +75,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
 
   describe("action実行", () => {
     it("守備表示のモンスターを攻撃表示に変更できる", () => {
-      const monster = createFieldCardInstance({
-        instanceId: "test-monster",
-        id: TEST_CARD_IDS.DUMMY,
-        jaName: "Test Monster",
-        type: "monster",
-        frameType: "normal",
-        location: "mainMonsterZone",
+      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "test-monster", {
         position: "faceUp",
         battlePosition: "defense",
       });
@@ -103,13 +97,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
     });
 
     it("攻撃表示のモンスターを守備表示に変更できる", () => {
-      const monster = createFieldCardInstance({
-        instanceId: "test-monster",
-        id: TEST_CARD_IDS.DUMMY,
-        jaName: "Test Monster",
-        type: "monster",
-        frameType: "normal",
-        location: "mainMonsterZone",
+      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "test-monster", {
         position: "faceUp",
         battlePosition: "attack",
       });
@@ -131,13 +119,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
     });
 
     it("既に同じ表示形式の場合は成功するが変化なし", () => {
-      const monster = createFieldCardInstance({
-        instanceId: "test-monster",
-        id: TEST_CARD_IDS.DUMMY,
-        jaName: "Test Monster",
-        type: "monster",
-        frameType: "normal",
-        location: "mainMonsterZone",
+      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "test-monster", {
         position: "faceUp",
         battlePosition: "attack",
       });

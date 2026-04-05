@@ -14,7 +14,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -164,14 +164,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1, 1, true);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -184,14 +177,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -205,14 +191,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1, 1, true);
       const state = createMockGameState({ phase: "draw" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const result = effect.canActivate(state, sourceInstance);
@@ -227,14 +206,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const steps = effect.createActivationSteps(state, sourceInstance);
@@ -253,14 +225,7 @@ describe("BaseTriggerEffect", () => {
       // Arrange
       const effect = new TestTriggerEffect(12345678, 1);
       const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createFieldCardInstance({
-        instanceId: "test-1",
-        id: 12345678,
-        jaName: "Test Card",
-        type: "monster",
-        frameType: "effect",
-        location: "mainMonsterZone",
-      });
+      const sourceInstance = createMonsterOnField(12345678, "test-1");
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);

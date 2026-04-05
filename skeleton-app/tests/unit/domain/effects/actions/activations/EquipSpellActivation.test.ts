@@ -17,7 +17,7 @@ import { CardDataRegistry } from "$lib/domain/cards";
 import {
   createMockGameState,
   createCardInstances,
-  createFieldCardInstance,
+  createMonsterOnField,
   TEST_CARD_IDS,
 } from "../../../../../__testUtils__";
 
@@ -58,16 +58,7 @@ const createEquipSpellInstance = (cardId: number): CardInstance => ({
 /** フィールドにモンスターを配置したゲーム状態を生成 */
 const createStateWithFieldMonster = (monsterCount: number = 1) => {
   const monsters = Array.from({ length: monsterCount }, (_, i) =>
-    createFieldCardInstance({
-      instanceId: `monster-${i}`,
-      id: TEST_CARD_IDS.DUMMY,
-      jaName: `Test Monster ${i}`,
-      type: "monster",
-      frameType: "normal",
-      location: "mainMonsterZone",
-      position: "faceUp",
-      battlePosition: "attack",
-    }),
+    createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, { position: "faceUp", battlePosition: "attack" }),
   );
 
   return createMockGameState({
@@ -94,13 +85,7 @@ const createStateWithFaceDownMonster = () =>
     space: {
       mainDeck: createCardInstances(Array(30).fill(TEST_CARD_IDS.DUMMY), "mainDeck"),
       mainMonsterZone: [
-        createFieldCardInstance({
-          instanceId: "facedown-monster",
-          id: TEST_CARD_IDS.DUMMY,
-          jaName: "FaceDown Monster",
-          type: "monster",
-          frameType: "normal",
-          location: "mainMonsterZone",
+        createMonsterOnField(TEST_CARD_IDS.DUMMY, "facedown-monster", {
           position: "faceDown",
           battlePosition: "defense",
         }),

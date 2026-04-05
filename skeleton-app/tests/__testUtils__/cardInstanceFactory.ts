@@ -230,9 +230,20 @@ export function createFieldCardInstance(options: {
 export function createMonsterOnField(
   id: number,
   instanceId: string,
-  position: "faceUp" | "faceDown" = "faceUp",
+  options?: {
+    position?: "faceUp" | "faceDown";
+    battlePosition?: "attack" | "defense";
+    frameType?: FrameSubType;
+  },
 ): CardInstance {
-  return createBase(instanceId, id, "mainMonsterZone", { type: "monster" }, {}, { position });
+  return createBase(
+    instanceId,
+    id,
+    "mainMonsterZone",
+    { type: "monster" },
+    defined({ frameType: options?.frameType }),
+    { position: options?.position ?? "faceUp", battlePosition: options?.battlePosition },
+  );
 }
 
 /**
@@ -274,7 +285,7 @@ export function createSpellOnField(
  */
 export function createMonstersOnField(count: number, options?: { position?: "faceUp" | "faceDown" }): CardInstance[] {
   return Array.from({ length: count }, (_, i) =>
-    createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, options?.position),
+    createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, { position: options?.position }),
   );
 }
 
