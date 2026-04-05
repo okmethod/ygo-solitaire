@@ -49,7 +49,7 @@ beforeEach(() => {
 
 /** テスト用装備魔法カードインスタンスを生成 */
 const createEquipSpellInstance = (cardId: number): CardInstance =>
-  createSpellInstance("equip-test-instance", "equip", { cardId, location: "hand" });
+  createSpellInstance("equip-test-instance", { spellType: "equip", cardId, location: "hand" });
 
 /** フィールドにモンスターを配置したゲーム状態を生成 */
 const createStateWithFieldMonster = (monsterCount: number = 1) =>

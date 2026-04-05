@@ -54,9 +54,9 @@ function createCardInstances(
     if (type === "monster") {
       return createMonsterInstance(instanceId, { cardId: id, location });
     } else if (type === "trap") {
-      return createTrapInstance(instanceId, "normal", { cardId: id, location });
+      return createTrapInstance(instanceId, { cardId: id, location });
     } else {
-      return createSpellInstance(instanceId, "normal", { cardId: id, location });
+      return createSpellInstance(instanceId, { cardId: id, location });
     }
   });
 }

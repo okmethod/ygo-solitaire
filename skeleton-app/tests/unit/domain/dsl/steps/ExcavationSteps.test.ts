@@ -98,8 +98,8 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
     });
 
     it("モンスターの前に魔法カードがある場合、魔法を墓地へ送る", () => {
-      const spell1 = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
-      const spell2 = createSpellInstance("deck-spell-1", "normal", { location: "mainDeck" });
+      const spell1 = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
+      const spell2 = createSpellInstance("deck-spell-1", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", {
         cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
@@ -126,7 +126,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
     });
 
     it("デッキにモンスターがいない場合エラー", () => {
-      const spell = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
+      const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
 
       const state = createMockGameState({
         space: {
@@ -236,9 +236,9 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
       expect(filter).toBeDefined();
 
       // テスト用のソースゾーン（デッキ）
-      const spell = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
+      const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", { location: "mainDeck" });
-      const spell2 = createSpellInstance("deck-spell-1", "normal", { location: "mainDeck" });
+      const spell2 = createSpellInstance("deck-spell-1", { spellType: "normal", location: "mainDeck" });
       const sourceZone = [spell, monster, spell2];
 
       // インデックス0（魔法）：最初のモンスター（インデックス1）以前なのでtrue
@@ -258,7 +258,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
       expect(canConfirm).toBeDefined();
 
       const monster = createMonsterInstance("deck-monster-0", { location: "mainDeck" });
-      const spell = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
+      const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
 
       // モンスター1体：true
       expect(canConfirm!([monster])).toBe(true);
@@ -415,7 +415,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
     });
 
     it("モンスターの前に魔法カードがある場合、魔法も墓地へ送る（レベル不一致）", () => {
-      const spell = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
+      const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", {
         cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
@@ -448,7 +448,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
     });
 
     it("モンスターの前に魔法カードがある場合、全て墓地へ（レベル一致）", () => {
-      const spell = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
+      const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", {
         cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
@@ -481,7 +481,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
     });
 
     it("デッキにモンスターがいない場合エラー", () => {
-      const spell = createSpellInstance("deck-spell-0", "normal", { location: "mainDeck" });
+      const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {

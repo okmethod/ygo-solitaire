@@ -17,13 +17,13 @@ describe("ActivateSpellCommand", () => {
       phase: "main1",
       space: {
         mainDeck: [
-          createSpellInstance("main-0", "normal", { cardId: 1001, location: "mainDeck" }),
-          createSpellInstance("mainDeck-1", "normal", { cardId: 1002, location: "mainDeck" }),
+          createSpellInstance("main-0", { spellType: "normal", cardId: 1001, location: "mainDeck" }),
+          createSpellInstance("mainDeck-1", { spellType: "normal", cardId: 1002, location: "mainDeck" }),
         ],
         extraDeck: [],
         hand: [
-          createSpellInstance(spellCardId, "normal", { cardId: 1001, location: "hand" }),
-          createSpellInstance("hand-2", "normal", { cardId: 1003, location: "hand" }),
+          createSpellInstance(spellCardId, { spellType: "normal", cardId: 1001, location: "hand" }),
+          createSpellInstance("hand-2", { spellType: "normal", cardId: 1003, location: "hand" }),
         ],
         mainMonsterZone: [],
         spellTrapZone: [],
@@ -53,7 +53,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance(spellCardId, "normal", { cardId: 1001, location: "hand" })],
+          hand: [createSpellInstance(spellCardId, { spellType: "normal", cardId: 1001, location: "hand" })],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -73,7 +73,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance(spellCardId, "normal", { cardId: 1001, location: "hand" })],
+          hand: [createSpellInstance(spellCardId, { spellType: "normal", cardId: 1001, location: "hand" })],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -135,7 +135,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance(spellCardId, "continuous", { cardId: 1005, location: "hand" })],
+          hand: [createSpellInstance(spellCardId, { spellType: "continuous", cardId: 1005, location: "hand" })],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -212,7 +212,7 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance("field-spell-1", "field", { cardId: 1006, location: "hand" })],
+          hand: [createSpellInstance("field-spell-1", { spellType: "field", cardId: 1006, location: "hand" })],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -238,11 +238,11 @@ describe("ActivateSpellCommand", () => {
         phase: "main1",
         space: {
           mainDeck: [
-            createSpellInstance("main-0", "normal", { cardId: 1001, location: "mainDeck" }),
-            createSpellInstance("main-1", "normal", { cardId: 1002, location: "mainDeck" }),
+            createSpellInstance("main-0", { spellType: "normal", cardId: 1001, location: "mainDeck" }),
+            createSpellInstance("main-1", { spellType: "normal", cardId: 1002, location: "mainDeck" }),
           ],
           extraDeck: [],
-          hand: [createSpellInstance("normal-spell-1", "normal", { cardId: 1001, location: "hand" })],
+          hand: [createSpellInstance("normal-spell-1", { spellType: "normal", cardId: 1001, location: "hand" })],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -270,7 +270,9 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance("continuous-spell-1", "continuous", { cardId: 1005, location: "hand" })],
+          hand: [
+            createSpellInstance("continuous-spell-1", { spellType: "continuous", cardId: 1005, location: "hand" }),
+          ],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -298,8 +300,8 @@ describe("ActivateSpellCommand", () => {
         phase: "main1",
         space: {
           mainDeck: [
-            createSpellInstance("main-0", "normal", { cardId: 1001, location: "mainDeck" }),
-            createSpellInstance("mainDeck-1", "normal", { cardId: 1002, location: "mainDeck" }),
+            createSpellInstance("main-0", { spellType: "normal", cardId: 1001, location: "mainDeck" }),
+            createSpellInstance("mainDeck-1", { spellType: "normal", cardId: 1002, location: "mainDeck" }),
           ],
           extraDeck: [],
           hand: [],

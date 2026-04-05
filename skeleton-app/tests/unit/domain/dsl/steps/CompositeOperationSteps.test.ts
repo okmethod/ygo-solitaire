@@ -181,7 +181,7 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
   describe("action実行", () => {
     it("手札全てをデッキに戻して同数ドローできる", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
-      const handCard2 = createSpellInstance("hand-spell-0", "normal", { location: "hand" });
+      const handCard2 = createSpellInstance("hand-spell-0", { spellType: "normal", location: "hand" });
       const deckCards = Array.from({ length: 10 }, (_, i) =>
         createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );

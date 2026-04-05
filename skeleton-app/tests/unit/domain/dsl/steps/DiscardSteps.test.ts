@@ -190,7 +190,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
       const filter = config?._filter;
       expect(filter).toBeDefined();
 
-      const spell = createSpellInstance("test-spell", "normal", { location: "hand" });
+      const spell = createSpellInstance("test-spell", { spellType: "normal", location: "hand" });
       const monster = createMonsterInstance("test-monster", { location: "hand" });
 
       expect(filter!(spell)).toBe(true);
@@ -221,7 +221,7 @@ describe("StepRegistry - DISCARD_ALL_HAND_END_PHASE", () => {
   describe("action実行", () => {
     it("エンドフェイズ効果をキューに登録できる", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
-      const handCard2 = createSpellInstance("hand-spell-0", "normal", { location: "hand" });
+      const handCard2 = createSpellInstance("hand-spell-0", { spellType: "normal", location: "hand" });
 
       const state = createMockGameState({
         space: {
@@ -284,7 +284,7 @@ describe("discardAllHandStep", () => {
 
   it("手札全てを墓地に送れる", () => {
     const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
-    const handCard2 = createSpellInstance("hand-spell-0", "normal", { location: "hand" });
+    const handCard2 = createSpellInstance("hand-spell-0", { spellType: "normal", location: "hand" });
 
     const state = createMockGameState({
       space: {

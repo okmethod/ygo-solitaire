@@ -130,7 +130,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
   describe("action実行", () => {
     it("選択したカードを除外できる", () => {
       // 墓地にカードを準備
-      const spellCard = createSpellInstance("graveyard-spell-0", "normal", { location: "graveyard" });
+      const spellCard = createSpellInstance("graveyard-spell-0", { spellType: "normal", location: "graveyard" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: { targets: [] },
@@ -162,8 +162,8 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
     });
 
     it("複数カードを除外できる", () => {
-      const spell1 = createSpellInstance("graveyard-spell-0", "normal", { location: "graveyard" });
-      const spell2 = createSpellInstance("graveyard-spell-1", "normal", { location: "graveyard" });
+      const spell1 = createSpellInstance("graveyard-spell-0", { spellType: "normal", location: "graveyard" });
+      const spell2 = createSpellInstance("graveyard-spell-1", { spellType: "normal", location: "graveyard" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: { targets: [] },
@@ -190,8 +190,8 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
     });
 
     it("最低枚数を選択しない場合エラー", () => {
-      const spell1 = createSpellInstance("graveyard-spell-0", "normal", { location: "graveyard" });
-      const spell2 = createSpellInstance("graveyard-spell-1", "normal", { location: "graveyard" });
+      const spell1 = createSpellInstance("graveyard-spell-0", { spellType: "normal", location: "graveyard" });
+      const spell2 = createSpellInstance("graveyard-spell-1", { spellType: "normal", location: "graveyard" });
 
       const state = createMockGameState({
         space: {
@@ -210,8 +210,8 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
     });
 
     it("除外枚数がコンテキストに記録される", () => {
-      const spell1 = createSpellInstance("graveyard-spell-0", "normal", { location: "graveyard" });
-      const spell2 = createSpellInstance("graveyard-spell-1", "normal", { location: "graveyard" });
+      const spell1 = createSpellInstance("graveyard-spell-0", { spellType: "normal", location: "graveyard" });
+      const spell2 = createSpellInstance("graveyard-spell-1", { spellType: "normal", location: "graveyard" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: { targets: [] },

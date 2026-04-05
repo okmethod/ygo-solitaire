@@ -53,11 +53,15 @@ describe("CardSpace", () => {
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
     it("should preserve other zones when moving card", () => {
       const monsterCard = createMonsterInstance("monster-0", { cardId: 1003, location: "mainMonsterZone" });
-      const spellCard = createSpellInstance("spell-0", "normal", { cardId: 1004, location: "spellTrapZone" });
+      const spellCard = createSpellInstance("spell-0", {
+        spellType: "normal",
+        cardId: 1004,
+        location: "spellTrapZone",
+      });
       const space: CardSpace = {
         ...createFilledMainDeck(1, 12345678),
         extraDeck: [],
-        hand: [createSpellInstance("hand-0", "normal", { cardId: 1002, location: "hand" })],
+        hand: [createSpellInstance("hand-0", { spellType: "normal", cardId: 1002, location: "hand" })],
         mainMonsterZone: [monsterCard],
         spellTrapZone: [spellCard],
         fieldZone: [],

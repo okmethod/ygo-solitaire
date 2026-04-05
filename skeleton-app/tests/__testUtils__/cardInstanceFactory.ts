@@ -13,6 +13,8 @@
  * - createSpellOnField: フィールド上の魔法
  */
 
+import type { LocationName } from "$lib/domain/models/Location";
+import { Location } from "$lib/domain/models/Location";
 import type {
   CardData,
   CardInstance,
@@ -23,9 +25,7 @@ import type {
   Position,
   BattlePosition,
 } from "$lib/domain/models/Card";
-import type { CardSpace } from "$lib/domain/models/GameState";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
-import { Location } from "$lib/domain/models/Location";
 import { CardDataRegistry } from "$lib/domain/cards";
 import { TEST_CARD_IDS } from "./constants";
 
@@ -65,7 +65,7 @@ type StateOptions = Partial<Pick<StateOnField, "position" | "battlePosition" | "
 const createBase = (
   instanceId: string,
   id: number,
-  location: keyof CardSpace,
+  location: LocationName,
   typeDefaults: Partial<CardData>,
   callerFields: Partial<CardData> = {},
   stateOptions: StateOptions = {},
@@ -110,7 +110,7 @@ export function createMonsterInstance(
   options?: {
     cardId?: number;
     frameType?: FrameSubType;
-    location?: keyof CardSpace;
+    location?: LocationName;
     level?: number;
   },
 ): CardInstance {
@@ -130,18 +130,18 @@ export function createMonsterInstance(
  * - normal: 1001, quick-play: 1004, continuous: 1005, field: 1006
  *
  * @param instanceId - 一意のインスタンス識別子
- * @param spellType - 魔法カード種別（デフォルト: "normal"）
  * @param options - オプション設定
  * @returns CardInstance
  */
 export function createSpellInstance(
   instanceId: string,
-  spellType: SpellSubType = "normal",
   options?: {
     cardId?: number;
-    location?: keyof CardSpace;
+    spellType?: SpellSubType;
+    location?: LocationName;
   },
 ): CardInstance {
+  const spellType = options?.spellType ?? "normal";
   return createBase(instanceId, options?.cardId ?? defaultSpellCardIds[spellType], options?.location ?? "hand", {
     type: "spell",
     frameType: "spell",
@@ -153,18 +153,18 @@ export function createSpellInstance(
  * テスト用罠カードインスタンスを作成
  *
  * @param instanceId - 一意のインスタンス識別子
- * @param trapType - 罠カード種別（デフォルト: "normal"）
  * @param options - オプション設定
  * @returns CardInstance
  */
 export function createTrapInstance(
   instanceId: string,
-  trapType: TrapSubType = "normal",
   options?: {
     cardId?: number;
-    location?: keyof CardSpace;
+    trapType?: TrapSubType;
+    location?: LocationName;
   },
 ): CardInstance {
+  const trapType = options?.trapType ?? "normal";
   return createBase(instanceId, options?.cardId ?? defaultTrapCardIds[trapType], options?.location ?? "hand", {
     type: "trap",
     frameType: "trap",

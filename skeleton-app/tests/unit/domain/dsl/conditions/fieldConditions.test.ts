@@ -31,7 +31,8 @@ import {
 // =============================================================================
 
 /** ソースインスタンス（条件チェックの発動元として使用） */
-const createSourceInstance = (): CardInstance => createSpellInstance("source-instance", "normal", { location: "hand" });
+const createSourceInstance = (): CardInstance =>
+  createSpellInstance("source-instance", { spellType: "normal", location: "hand" });
 
 /** モンスターをフィールドに配置した状態を生成 */
 const createStateWithMonsters = (count: number) =>
