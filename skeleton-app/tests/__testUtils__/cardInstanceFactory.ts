@@ -12,8 +12,7 @@
  * - createFieldCardInstance: フィールド上のカード（汎用）
  * - createMonsterOnField: フィールド上のモンスター
  * - createMonstersOnField: フィールド上のモンスター配列
- * - createFaceUpFieldCard: フィールドゾーンの表側カード
- * - createFaceDownFieldCard: フィールドゾーンの裏側カード
+ * - createSpellOnField: 魔法・罠ゾーンの魔法カード
  * - createSpellsOnField: 魔法・罠ゾーンの魔法配列
  * - createSetCard: セット状態のカード
  *
@@ -233,7 +232,38 @@ export function createMonsterOnField(
   instanceId: string,
   position: "faceUp" | "faceDown" = "faceUp",
 ): CardInstance {
-  return createBase(instanceId, id, "mainMonsterZone", { type: "monster", frameType: "effect" }, {}, { position });
+  return createBase(instanceId, id, "mainMonsterZone", { type: "monster" }, {}, { position });
+}
+
+/**
+ * 魔法カードインスタンスを作成（stateOnField付き）
+ *
+ * spellType が "field" の場合は fieldZone、それ以外は spellTrapZone に配置する。
+ * spellType 未指定時はレジストリから取得した値で判定する。
+ *
+ * @param id - カードID
+ * @param instanceId - インスタンスID
+ * @param options - オプション設定
+ */
+export function createSpellOnField(
+  id: number,
+  instanceId: string,
+  options?: {
+    spellType?: SpellSubType;
+    position?: "faceUp" | "faceDown";
+    equippedTo?: string;
+  },
+): CardInstance {
+  const resolvedSpellType = options?.spellType ?? CardDataRegistry.getOrUndefined(id)?.spellType;
+  const location = resolvedSpellType === "field" ? "fieldZone" : "spellTrapZone";
+  return createBase(
+    instanceId,
+    id,
+    location,
+    { type: "spell", frameType: "spell" },
+    defined({ spellType: options?.spellType }),
+    { position: options?.position ?? "faceUp", equippedTo: options?.equippedTo },
+  );
 }
 
 /**
@@ -246,26 +276,6 @@ export function createMonstersOnField(count: number, options?: { position?: "fac
   return Array.from({ length: count }, (_, i) =>
     createMonsterOnField(TEST_CARD_IDS.DUMMY, `monster-${i}`, options?.position),
   );
-}
-
-/**
- * フィールドゾーンの表側表示カードを作成
- *
- * @param id - カードID
- * @param instanceId - インスタンスID（デフォルト: "fieldZone-0"）
- */
-export function createFaceUpFieldCard(id: number, instanceId = "fieldZone-0"): CardInstance {
-  return createBase(instanceId, id, "fieldZone", { type: "spell", frameType: "spell" }, {}, { position: "faceUp" });
-}
-
-/**
- * フィールドゾーンの裏側表示カードを作成
- *
- * @param id - カードID
- * @param instanceId - インスタンスID（デフォルト: "fieldZone-0"）
- */
-export function createFaceDownFieldCard(id: number, instanceId = "fieldZone-0"): CardInstance {
-  return createBase(instanceId, id, "fieldZone", { type: "spell", frameType: "spell" }, {}, { position: "faceDown" });
 }
 
 /**

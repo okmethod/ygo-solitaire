@@ -17,8 +17,7 @@ export {
   createFieldCardInstance,
   createMonsterOnField,
   createMonstersOnField,
-  createFaceUpFieldCard,
-  createFaceDownFieldCard,
+  createSpellOnField,
   createSpellsOnField,
   createSetCard,
   // 汎用

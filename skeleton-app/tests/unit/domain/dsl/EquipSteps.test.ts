@@ -3,7 +3,7 @@ import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createFieldCardInstance, TEST_CARD_IDS } from "../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, createSpellOnField, TEST_CARD_IDS } from "../../../__testUtils__";
 
 /**
  * EquipSteps Tests - 装備関連ステップのテスト
@@ -74,26 +74,9 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
 
   describe("action実行", () => {
     it("装備関係を確立できる", () => {
-      const monster = createFieldCardInstance({
-        instanceId: "target-monster",
-        id: TEST_CARD_IDS.DUMMY,
-        jaName: "Test Monster",
-        type: "monster",
-        frameType: "normal",
-        location: "mainMonsterZone",
-        position: "faceUp",
-      });
+      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "target-monster");
 
-      const equipSpell = createFieldCardInstance({
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Test Equip Spell",
-        type: "spell",
-        frameType: "spell",
-        location: "spellTrapZone",
-        position: "faceUp",
-        spellType: "equip",
-      });
+      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
@@ -128,16 +111,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
     });
 
     it("対象がコンテキストにない場合エラー", () => {
-      const equipSpell = createFieldCardInstance({
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Test Equip Spell",
-        type: "spell",
-        frameType: "spell",
-        location: "spellTrapZone",
-        position: "faceUp",
-        spellType: "equip",
-      });
+      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
@@ -191,16 +165,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
     });
 
     it("装備対象が見つからない場合エラー", () => {
-      const equipSpell = createFieldCardInstance({
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Test Equip Spell",
-        type: "spell",
-        frameType: "spell",
-        location: "spellTrapZone",
-        position: "faceUp",
-        spellType: "equip",
-      });
+      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
 
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
@@ -268,24 +233,9 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
 
   describe("action実行", () => {
     it("装備モンスターと装備カードを墓地に送れる", () => {
-      const monster = createFieldCardInstance({
-        instanceId: "equipped-monster",
-        id: TEST_CARD_IDS.DUMMY,
-        jaName: "Equipped Monster",
-        type: "monster",
-        frameType: "normal",
-        location: "mainMonsterZone",
-        position: "faceUp",
-      });
+      const monster = createMonsterOnField(TEST_CARD_IDS.DUMMY, "equipped-monster");
 
-      const equipSpell = createFieldCardInstance({
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Equip Spell",
-        type: "spell",
-        frameType: "spell",
-        location: "spellTrapZone",
-        position: "faceUp",
+      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", {
         spellType: "equip",
         equippedTo: "equipped-monster",
       });
@@ -332,16 +282,7 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
     });
 
     it("装備されていない場合エラー", () => {
-      const equipSpell = createFieldCardInstance({
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Equip Spell",
-        type: "spell",
-        frameType: "spell",
-        location: "spellTrapZone",
-        position: "faceUp",
-        spellType: "equip",
-      });
+      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", { spellType: "equip" });
       // equippedTo が未設定
 
       const state = createMockGameState({
@@ -398,14 +339,7 @@ describe("StepRegistry - UNEQUIP", () => {
 
   describe("action実行", () => {
     it("装備を解除できる", () => {
-      const equipSpell = createFieldCardInstance({
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Equip Spell",
-        type: "spell",
-        frameType: "spell",
-        location: "spellTrapZone",
-        position: "faceUp",
+      const equipSpell = createSpellOnField(TEST_CARD_IDS.SPELL_EQUIP, "equip-spell", {
         spellType: "equip",
         equippedTo: "some-monster",
       });

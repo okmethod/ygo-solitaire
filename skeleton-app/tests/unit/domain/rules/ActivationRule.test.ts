@@ -9,12 +9,7 @@
 
 import { describe, it, expect } from "vitest";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
-import {
-  createMockGameState,
-  createTestSpellCard,
-  createSetCard,
-  createFieldCardInstance,
-} from "../../../__testUtils__";
+import { createMockGameState, createTestSpellCard, createSetCard, createSpellOnField } from "../../../__testUtils__";
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {
@@ -94,16 +89,7 @@ describe("ActivationRule", () => {
 
       it("should send existing field spell to graveyard when placing new field spell", () => {
         // Arrange
-        const existingFieldSpell = createFieldCardInstance({
-          instanceId: "existing-field-0",
-          id: 1006,
-          jaName: "Existing Field Spell",
-          type: "spell",
-          frameType: "spell",
-          location: "fieldZone",
-          position: "faceUp",
-          spellType: "field",
-        });
+        const existingFieldSpell = createSpellOnField(1006, "existing-field-0");
         const newFieldSpell = createTestSpellCard("new-field-0", "field", { location: "hand" });
         const state = createMockGameState({
           space: {

@@ -11,7 +11,7 @@ import { describe, it, expect } from "vitest";
 import { BaseContinuousEffect } from "$lib/domain/effects/rules/continuouses/BaseContinuousEffect";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { RuleCategory } from "$lib/domain/models/Effect";
-import { createMockGameState, createFieldCardInstance } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, createSpellOnField } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -64,17 +64,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [
-            createFieldCardInstance({
-              instanceId: "test-1",
-              id: 12345678,
-              jaName: "Test Card",
-              type: "monster",
-              frameType: "effect",
-              location: "mainMonsterZone",
-              position: "faceUp",
-            }),
-          ],
+          mainMonsterZone: [createMonsterOnField(12345678, "test-1")],
         },
       });
 
@@ -90,18 +80,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          spellTrapZone: [
-            createFieldCardInstance({
-              instanceId: "test-1",
-              id: 12345678,
-              jaName: "Test Spell",
-              type: "spell",
-              frameType: "spell",
-              location: "spellTrapZone",
-              position: "faceUp",
-              spellType: "continuous",
-            }),
-          ],
+          spellTrapZone: [createSpellOnField(12345678, "test-1", { spellType: "continuous" })],
         },
       });
 
@@ -117,18 +96,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          fieldZone: [
-            createFieldCardInstance({
-              instanceId: "test-1",
-              id: 12345678,
-              jaName: "Test Field Spell",
-              type: "spell",
-              frameType: "spell",
-              location: "fieldZone",
-              position: "faceUp",
-              spellType: "field",
-            }),
-          ],
+          fieldZone: [createSpellOnField(12345678, "test-1", { spellType: "field" })],
         },
       });
 
@@ -144,18 +112,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          spellTrapZone: [
-            createFieldCardInstance({
-              instanceId: "test-1",
-              id: 12345678,
-              jaName: "Test Spell",
-              type: "spell",
-              frameType: "spell",
-              location: "spellTrapZone",
-              position: "faceDown", // Face-down
-              spellType: "continuous",
-            }),
-          ],
+          spellTrapZone: [createSpellOnField(12345678, "test-1", { spellType: "continuous", position: "faceDown" })],
         },
       });
 
@@ -197,17 +154,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, false); // shouldPass = false
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [
-            createFieldCardInstance({
-              instanceId: "test-1",
-              id: 12345678,
-              jaName: "Test Card",
-              type: "monster",
-              frameType: "effect",
-              location: "mainMonsterZone",
-              position: "faceUp",
-            }),
-          ],
+          mainMonsterZone: [createMonsterOnField(12345678, "test-1")],
         },
       });
 
@@ -223,17 +170,7 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [
-            createFieldCardInstance({
-              instanceId: "test-1",
-              id: 87654321, // Different card ID
-              jaName: "Different Card",
-              type: "monster",
-              frameType: "effect",
-              location: "mainMonsterZone",
-              position: "faceUp",
-            }),
-          ],
+          mainMonsterZone: [createMonsterOnField(87654321, "test-1")], // Different card ID
         },
       });
 
@@ -267,40 +204,9 @@ describe("BaseContinuousEffect", () => {
       const effect = new TestContinuousEffect(12345678, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [
-            createFieldCardInstance({
-              instanceId: "monster-1",
-              id: 11111111,
-              jaName: "Monster",
-              type: "monster",
-              frameType: "effect",
-              location: "mainMonsterZone",
-              position: "faceUp",
-            }),
-          ],
-          spellTrapZone: [
-            createFieldCardInstance({
-              instanceId: "spell-1",
-              id: 22222222,
-              jaName: "Spell",
-              type: "spell",
-              frameType: "spell",
-              location: "spellTrapZone",
-              position: "faceUp",
-            }),
-          ],
-          fieldZone: [
-            createFieldCardInstance({
-              instanceId: "field-1",
-              id: 12345678, // This is the card we're looking for
-              jaName: "Field Spell",
-              type: "spell",
-              frameType: "spell",
-              location: "fieldZone",
-              position: "faceUp",
-              spellType: "field",
-            }),
-          ],
+          mainMonsterZone: [createMonsterOnField(11111111, "monster-1")],
+          spellTrapZone: [createSpellOnField(22222222, "spell-1")],
+          fieldZone: [createSpellOnField(12345678, "field-1", { spellType: "field" })], // This is the card we're looking for
         },
       });
 

@@ -23,8 +23,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 import {
   createMonsterOnField,
-  createFaceUpFieldCard,
-  createFaceDownFieldCard,
+  createSpellOnField,
   createStateWithMonsterZone,
   createStateWithFieldZone,
 } from "../../../../__testUtils__";
@@ -220,7 +219,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(chickenGameId, chickenGameRule);
 
-      const chickenGameCard = createFaceUpFieldCard(chickenGameId);
+      const chickenGameCard = createSpellOnField(chickenGameId, "fieldZone-0", { spellType: "field" });
       const state = createStateWithFieldZone([chickenGameCard]);
 
       // Act
@@ -238,7 +237,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      const state = createStateWithFieldZone([createFaceDownFieldCard(cardId)]);
+      const state = createStateWithFieldZone([createSpellOnField(cardId, "fieldZone-0", { spellType: "field", position: "faceDown" })]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -259,7 +258,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      const state = createStateWithFieldZone([createFaceUpFieldCard(cardId)]);
+      const state = createStateWithFieldZone([createSpellOnField(cardId, "fieldZone-0", { spellType: "field" })]);
 
       // Act
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -277,7 +276,7 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(cardId, permissionRule);
       AdditionalRuleRegistry.register(cardId, modifierRule);
 
-      const state = createStateWithFieldZone([createFaceUpFieldCard(cardId)]);
+      const state = createStateWithFieldZone([createSpellOnField(cardId, "fieldZone-0", { spellType: "field" })]);
 
       // Act
       const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -301,8 +300,8 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(cardId2, rule2);
 
       const state = createStateWithFieldZone([
-        createFaceUpFieldCard(cardId1, "fieldZone-0"),
-        createFaceUpFieldCard(cardId2, "fieldZone-1"),
+        createSpellOnField(cardId1, "fieldZone-0", { spellType: "field" }),
+        createSpellOnField(cardId2, "fieldZone-1", { spellType: "field" }),
       ]);
 
       // Act
