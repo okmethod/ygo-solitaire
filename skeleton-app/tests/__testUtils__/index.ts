@@ -5,7 +5,13 @@
  */
 
 // 定数
-export { EXODIA_PIECE_IDS, TEST_CARD_IDS, TOKEN_TEST_CARD_IDS, SYNCHRO_TEST_CARD_IDS } from "./constants";
+export {
+  EXODIA_PIECE_IDS,
+  TEST_CARD_IDS,
+  TOKEN_TEST_CARD_IDS,
+  SYNCHRO_TEST_CARD_IDS,
+  OPTIONAL_TRIGGER_TEST_CARD_IDS,
+} from "./constants";
 
 // カードインスタンスファクトリ
 export {

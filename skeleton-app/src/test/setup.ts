@@ -6,6 +6,7 @@ import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/N
 import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
 import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
+import { GenericTriggerEffect } from "$lib/domain/dsl/factories";
 
 // テストで使用するカードID
 const TEST_CARD_IDS = [
@@ -259,3 +260,30 @@ CardDataRegistry.register(1007, {
   trapType: "normal",
   edition: "latest",
 });
+
+// 任意誘発効果テスト用モンスター
+// 召喚成功時に任意誘発効果（NoOp）が発動する。任意効果フローの検証用。
+CardDataRegistry.register(6001, {
+  jaName: "Test Optional Trigger Monster",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect"],
+  race: "Warrior",
+  level: 4,
+  attack: 1500,
+  defense: 1500,
+  edition: "latest",
+});
+ChainableActionRegistry.registerTrigger(
+  6001,
+  new GenericTriggerEffect(6001, 1, {
+    conditions: {
+      trigger: {
+        events: ["normalSummoned"],
+        timing: "when",
+        isMandatory: false,
+        selfOnly: true,
+      },
+    },
+  }),
+);

@@ -31,6 +31,11 @@ export const TOKEN_TEST_CARD_IDS = {
   BASIC_TOKEN: 5001,
 } as const;
 
+/** 任意誘発効果テスト用カードID定数 */
+export const OPTIONAL_TRIGGER_TEST_CARD_IDS = {
+  OPTIONAL_TRIGGER_MONSTER: 6001,
+} as const;
+
 /** シンクロ召喚テスト用カードID定数 */
 export const SYNCHRO_TEST_CARD_IDS = {
   // チューナーモンスター
