@@ -3,27 +3,18 @@
  *
  * GameSnapshot を生成するユーティリティ関数群
  *
+ * - createTestInitialDeck: カードID配列から InitialDeckCardIds を生成
  * - createMockGameState: 基本のゲーム状態（部分的な上書き可能）
- * - createExodiaDeckState: エクゾディアデッキの初期状態
- * - createStateWithHand: 手札を指定したゲーム状態
- * - createStateWithSpellOnField: フィールドに魔法カードを配置した状態
- * - createStateWithGraveyard: 墓地を指定したゲーム状態
+ * - createStateWithMonsterZone: モンスターゾーンにカードを配置した状態
+ * - createStateWithFieldZone: フィールドゾーンにカードを配置した状態
  * - createExodiaVictoryState: エクゾディア勝利状態
- * - createLPZeroState: LP0敗北状態
- * - createDeckOutState: デッキ切れ敗北状態
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot, GamePhase, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
-import { EXODIA_PIECE_IDS, TEST_CARD_IDS } from "./constants";
-import {
-  createFilledMainDeck,
-  createMainDeck,
-  createHand,
-  createGraveyard,
-  createSpellTrapZone,
-} from "./cardSpaceFactory";
+import { EXODIA_PIECE_IDS } from "./constants";
+import { createFilledMainDeck, createHand } from "./cardSpaceFactory";
 
 /**
  * カードID配列を InitialDeckCardIds に変換
@@ -111,85 +102,6 @@ export function createStateWithFieldZone(cards: CardInstance[]): GameSnapshot {
 }
 
 /**
- * エクゾディアデッキ（40枚）の初期状態を作成
- */
-export function createExodiaDeckState(): GameSnapshot {
-  const exodiaDeck = [
-    ...EXODIA_PIECE_IDS.ALL, // 5 Exodia pieces
-    19613556, // Pot of Greed (x3)
-    19613556,
-    19613556,
-    79571449, // Graceful Charity (x3)
-    79571449,
-    79571449,
-    32807846, // Reinforcement of the Army (x3)
-    32807846,
-    32807846,
-    73915051, // Swords of Revealing Light (x3)
-    73915051,
-    73915051,
-    45986603, // Backup Soldier (x3)
-    45986603,
-    45986603,
-    // Fill remaining slots with dummy cards to reach 40
-    ...Array(40 - 5 - 15).fill(TEST_CARD_IDS.DUMMY),
-  ];
-
-  return createMockGameState({
-    space: {
-      ...createMainDeck(exodiaDeck),
-    },
-    phase: "draw",
-    turn: 1,
-  });
-}
-
-/**
- * 指定カードを手札に持つゲーム状態を作成
- *
- * @param cardIds - 手札に配置するカードIDの配列
- * @param phase - 現在のフェイズ（デフォルト: "main1"）
- */
-export function createStateWithHand(cardIds: (string | number)[], phase: GamePhase = "main1"): GameSnapshot {
-  return createMockGameState({
-    space: {
-      ...createFilledMainDeck(30),
-      ...createHand(cardIds),
-    },
-    phase,
-  });
-}
-
-/**
- * 魔法・罠ゾーンにカードを配置したゲーム状態を作成
- *
- * @param spellCardId - 配置する魔法カードのID
- */
-export function createStateWithSpellOnField(spellCardId: string | number): GameSnapshot {
-  return createMockGameState({
-    space: {
-      ...createFilledMainDeck(35),
-      ...createSpellTrapZone([spellCardId]),
-    },
-    phase: "main1",
-  });
-}
-
-/**
- * 墓地にカードを配置したゲーム状態を作成
- *
- * @param cardIds - 墓地に配置するカードIDの配列
- */
-export function createStateWithGraveyard(cardIds: (string | number)[]): GameSnapshot {
-  return createMockGameState({
-    space: {
-      ...createFilledMainDeck(30),
-      ...createGraveyard(cardIds),
-    },
-  });
-}
-
-/**
  * エクゾディア全パーツが手札にある勝利状態を作成
  */
 export function createExodiaVictoryState(): GameSnapshot {
@@ -204,44 +116,6 @@ export function createExodiaVictoryState(): GameSnapshot {
       winner: "player",
       reason: "exodia",
       message: "All 5 Exodia pieces are in your hand. You win!",
-    },
-  });
-}
-
-/**
- * LP0（敗北）状態を作成
- */
-export function createLPZeroState(): GameSnapshot {
-  return createMockGameState({
-    lp: {
-      player: 0,
-      opponent: INITIAL_LP,
-    },
-    phase: "main1",
-    result: {
-      isGameOver: true,
-      winner: "opponent",
-      reason: "lp0",
-      message: "Your Life Points reached 0. You lose!",
-    },
-  });
-}
-
-/**
- * デッキ切れ（敗北）状態を作成
- */
-export function createDeckOutState(): GameSnapshot {
-  return createMockGameState({
-    space: {
-      ...createHand([TEST_CARD_IDS.DUMMY]),
-      ...createGraveyard(Array(39).fill(TEST_CARD_IDS.DUMMY)),
-    },
-    phase: "draw",
-    result: {
-      isGameOver: true,
-      winner: "opponent",
-      reason: "deckout",
-      message: "You cannot draw from an empty deck. You lose!",
     },
   });
 }

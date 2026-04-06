@@ -35,13 +35,7 @@ export {
   createMockGameState,
   createStateWithMonsterZone,
   createStateWithFieldZone,
-  createExodiaDeckState,
-  createStateWithHand,
-  createStateWithSpellOnField,
-  createStateWithGraveyard,
   createExodiaVictoryState,
-  createLPZeroState,
-  createDeckOutState,
 } from "./gameStateFactory";
 
 // シンクロ召喚テストヘルパー
