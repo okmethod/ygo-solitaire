@@ -58,4 +58,6 @@ export {
   hasCardSelection,
   hasOptionalTrigger,
   resolveOptionalTrigger,
+  hasChainConfirmation,
+  resolveChainConfirmation,
 } from "./integrationHelpers";

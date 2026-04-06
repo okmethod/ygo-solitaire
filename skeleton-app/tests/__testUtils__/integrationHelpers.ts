@@ -103,3 +103,33 @@ export async function resolveOptionalTrigger(activate: boolean): Promise<void> {
   }
   await vi.runAllTimersAsync();
 }
+
+/** chainConfirmationConfig が存在するか確認する */
+export function hasChainConfirmation(): boolean {
+  return get(effectQueueStore).chainConfirmationConfig !== null;
+}
+
+/**
+ * チェーン確認を解決する
+ *
+ * flushEffectQueue() 後に effectQueueStore.chainConfirmationConfig が
+ * セットされている場合に呼び出す。
+ * pass=true でパス（チェーンしない）、pass=false でカードを選択してチェーン発動する。
+ */
+export async function resolveChainConfirmation(pass: true): Promise<void>;
+export async function resolveChainConfirmation(pass: false, instanceId: string): Promise<void>;
+export async function resolveChainConfirmation(pass: boolean, instanceId?: string): Promise<void> {
+  const queueState = get(effectQueueStore);
+  if (!queueState.chainConfirmationConfig) {
+    throw new Error(
+      "resolveChainConfirmation: chainConfirmationConfig が見つかりません。flushEffectQueue() 後に呼んでください。",
+    );
+  }
+  if (pass) {
+    queueState.chainConfirmationConfig.onPass();
+  } else {
+    if (!instanceId) throw new Error("resolveChainConfirmation: チェーン発動には instanceId が必要です。");
+    queueState.chainConfirmationConfig.onActivate(instanceId);
+  }
+  await vi.runAllTimersAsync();
+}
