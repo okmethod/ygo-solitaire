@@ -13,6 +13,7 @@ import {
   createSynchroSummonReadyState,
   createSynchroSummonNoTunerState,
   createSynchroSummonLevelMismatchState,
+  createExodiaVictoryState,
 } from "../../../__testUtils__";
 
 describe("SynchroSummonCommand", () => {
@@ -30,15 +31,7 @@ describe("SynchroSummonCommand", () => {
   describe("canExecute", () => {
     it("should return false when game is over", () => {
       // Arrange
-      const state = createSynchroSummonReadyState();
-      const gameOverState = {
-        ...state,
-        result: {
-          isGameOver: true,
-          winner: "player" as const,
-          reason: "exodia" as const,
-        },
-      };
+      const gameOverState = createExodiaVictoryState();
       const command = new SynchroSummonCommand("synchro-0");
 
       // Act

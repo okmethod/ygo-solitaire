@@ -4,7 +4,12 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateSpellCommand } from "$lib/domain/commands/ActivateSpellCommand";
-import { createMockGameState, createSpellInstance, createSpellOnField } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createSpellInstance,
+  createSpellOnField,
+  createExodiaVictoryState,
+} from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
 describe("ActivateSpellCommand", () => {
@@ -68,25 +73,7 @@ describe("ActivateSpellCommand", () => {
     });
 
     it("should return false when game is over", () => {
-      const gameOverState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [createSpellInstance(spellCardId, { spellType: "normal", cardId: 1001, location: "hand" })],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
-        result: {
-          isGameOver: true,
-          winner: "player",
-          reason: "exodia",
-          message: "Exodia victory!",
-        },
-      });
+      const gameOverState = createExodiaVictoryState();
 
       const command = new ActivateSpellCommand(spellCardId);
 

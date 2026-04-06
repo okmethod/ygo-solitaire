@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { createMockGameState } from "../../../__testUtils__";
+import { createMockGameState, createExodiaVictoryState } from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 // Note: ChainableActionRegistry は setup.ts で初期化済み
 
@@ -141,42 +141,7 @@ describe("ActivateIgnitionEffectCommand", () => {
     });
 
     it("should return false when game is over", () => {
-      const gameOverState = createMockGameState({
-        phase: "main1",
-        lp: { player: 5000, opponent: 5000 },
-        result: {
-          isGameOver: true,
-          winner: "player" as const,
-          reason: "exodia" as const,
-        },
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [
-            {
-              instanceId: chickenGameInstanceId,
-              id: 67616300,
-              jaName: "チキンゲーム",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              edition: "latest" as const,
-              location: "fieldZone" as const,
-              stateOnField: {
-                position: "faceUp" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
-          graveyard: [],
-          banished: [],
-        },
-      });
+      const gameOverState = createExodiaVictoryState();
 
       const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
 

@@ -12,6 +12,7 @@ import {
   createMonsterInstance,
   createSpellInstance,
   createFilledMonsterZone,
+  createExodiaVictoryState,
 } from "../../../__testUtils__";
 
 describe("NormalSummonCommand", () => {
@@ -33,11 +34,7 @@ describe("NormalSummonCommand", () => {
       });
 
       it("should return false if game is over", () => {
-        const monsterCard = createMonsterInstance("monster-1");
-        const state = createMockGameState({
-          space: { hand: [monsterCard] },
-          result: { isGameOver: true, winner: "player" },
-        });
+        const state = createExodiaVictoryState();
 
         const command = new NormalSummonCommand("monster-1", "summon");
         const result = command.canExecute(state);
@@ -189,11 +186,7 @@ describe("NormalSummonCommand", () => {
       });
 
       it("should fail if game is already over", () => {
-        const monsterCard = createMonsterInstance("monster-1");
-        const state = createMockGameState({
-          space: { hand: [monsterCard] },
-          result: { isGameOver: true, winner: "player", reason: "exodia" },
-        });
+        const state = createExodiaVictoryState();
 
         const command = new NormalSummonCommand("monster-1", "set");
         const result = command.canExecute(state);

@@ -13,6 +13,7 @@ import {
   createSpellInstance,
   createMonsterInstance,
   createFilledSpellZone,
+  createExodiaVictoryState,
 } from "../../../__testUtils__";
 
 describe("SetSpellTrapCommand", () => {
@@ -136,11 +137,7 @@ describe("SetSpellTrapCommand", () => {
 
     it("should fail if game is already over", () => {
       // Arrange
-      const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        space: { hand: [spellCard] },
-        result: { isGameOver: true, winner: "player", reason: "exodia" },
-      });
+      const state = createExodiaVictoryState();
 
       const command = new SetSpellTrapCommand("spell-1");
 
