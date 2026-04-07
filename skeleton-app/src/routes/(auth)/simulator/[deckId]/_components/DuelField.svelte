@@ -31,13 +31,21 @@
     deckCards: number;
     extraDeckCards: DisplayCardInstance[];
     graveyardCards: DisplayCardInstance[];
+    banishedCards: DisplayCardInstance[];
     fieldCards: (DisplayCardInstanceOnField | null)[];
     monsterCards: (DisplayCardInstanceOnField | null)[];
     spellTrapCards: (DisplayCardInstanceOnField | null)[];
   }
 
-  let { deckCards, extraDeckCards, graveyardCards, fieldCards, monsterCards, spellTrapCards }: DuelFieldProps =
-    $props();
+  let {
+    deckCards,
+    extraDeckCards,
+    graveyardCards,
+    banishedCards,
+    fieldCards,
+    monsterCards,
+    spellTrapCards,
+  }: DuelFieldProps = $props();
 
   // アニメーション中のカードのインスタンスID（cardAnimationStore から直接取得）
   const animatingInstanceIds = $derived(new Set($cardAnimationStore.activeAnimations.map((a) => a.instanceId)));
@@ -397,7 +405,7 @@
 
 {#snippet graveyardZone()}
   <div class="flex justify-center">
-    <Graveyard cards={graveyardCards} size={cardSize} {animatingInstanceIds} />
+    <Graveyard cards={graveyardCards} {banishedCards} size={cardSize} {animatingInstanceIds} />
   </div>
 {/snippet}
 

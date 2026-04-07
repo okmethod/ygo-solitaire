@@ -13,6 +13,7 @@
     gameResult,
     handCardRefs,
     graveyardCardRefs,
+    banishedCardRefs,
     extraDeckCardRefs,
     monsterZoneInstanceOnFieldRefs,
     spellTrapZoneInstanceOnFieldRefs,
@@ -79,6 +80,13 @@
       .filter((item): item is DisplayCardInstance => item.card !== undefined),
   );
 
+  // 除外カードマップ
+  const banishedCardsWithInstanceId = $derived(
+    $banishedCardRefs
+      .map((ref) => ({ card: getDisplayCardData(ref.cardId), instanceId: ref.instanceId }))
+      .filter((item): item is DisplayCardInstance => item.card !== undefined),
+  );
+
   // 墓地カードマップ
   const graveyardCardsWithInstanceId = $derived(
     $graveyardCardRefs
@@ -131,6 +139,7 @@
       deckCards={$deckCardCount}
       extraDeckCards={extraDeckCardsWithInstanceId}
       graveyardCards={graveyardCardsWithInstanceId}
+      banishedCards={banishedCardsWithInstanceId}
       fieldCards={fieldSpellZoneCards}
       monsterCards={monsterZoneCards}
       spellTrapCards={spellTrapZoneCards}

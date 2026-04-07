@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { DisplayCardInstance } from "$lib/presentation/types";
-  import { CARD_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
+  import { CARD_SIZE_CLASSES, BADGE_SIZE_CLASSES, type ComponentSize } from "$lib/presentation/constants/sizes";
   import { isMobile } from "$lib/presentation/utils/mobile";
   import { cardAnimationStore } from "$lib/presentation/stores/cardAnimationStore";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
@@ -11,11 +11,17 @@
 
   interface GraveyardProps {
     cards: DisplayCardInstance[];
+    banishedCards?: DisplayCardInstance[];
     size?: ComponentSize;
     animatingInstanceIds?: Set<string>; // アニメーション中のカードのインスタンスID
   }
 
-  let { cards, size = "medium", animatingInstanceIds = new Set<string>() }: GraveyardProps = $props();
+  let {
+    cards,
+    banishedCards = [],
+    size = "medium",
+    animatingInstanceIds = new Set<string>(),
+  }: GraveyardProps = $props();
 
   const _isMobile = isMobile();
 
@@ -30,8 +36,11 @@
     }
   });
 
-  // モーダル状態管理
-  let modalOpen = $state(false);
+  // 墓地モーダル状態管理
+  let graveyardModalOpen = $state(false);
+
+  // 除外モーダル状態管理
+  let banishedModalOpen = $state(false);
 
   // アニメーション中のカードを除外した表示用カード
   const visibleCards = $derived(cards.filter((c) => !animatingInstanceIds.has(c.instanceId)));
@@ -42,14 +51,18 @@
   // 表示用のカード枚数（アニメーション中のカードを除外）
   const displayCount = $derived(visibleCards.length);
 
-  // クリック処理
+  // 除外ゾーンのカード枚数
+  const banishedCount = $derived(banishedCards.length);
+
+  // クリック処理（墓地）
   function handleClick() {
-    modalOpen = true;
+    graveyardModalOpen = true;
   }
 
-  // モーダル状態変更処理
-  function handleModalChange(open: boolean) {
-    modalOpen = open;
+  // クリック処理（除外）
+  function handleBanishedClick(e: MouseEvent | KeyboardEvent) {
+    e.stopPropagation();
+    banishedModalOpen = true;
   }
 
   // ホバー状態
@@ -105,7 +118,36 @@
     </div>
     <CountBadge count={displayCount} />
   {/if}
+
+  <!-- 除外ゾーンボタン（カードがある場合のみ表示） -->
+  {#if banishedCount > 0}
+    <button
+      class="
+        absolute -bottom-2 -right-2
+        bg-primary-600 text-white
+        text-xs font-bold
+        rounded-full {BADGE_SIZE_CLASSES[size]}
+        shadow-md z-20
+        hover:bg-primary-400
+        leading-tight
+      "
+      onclick={handleBanishedClick}
+      onkeydown={(e) => e.key === "Enter" && handleBanishedClick(e)}
+      title="除外ゾーン ({banishedCount}枚)"
+    >
+      {banishedCount}
+    </button>
+  {/if}
 </div>
 
 <!-- 墓地モーダル -->
-<CardStackModal {cards} open={modalOpen} onOpenChange={handleModalChange} title="墓地" />
+<CardStackModal {cards} open={graveyardModalOpen} onOpenChange={(v) => (graveyardModalOpen = v)} title="墓地" />
+
+<!-- 除外モーダル -->
+<CardStackModal
+  cards={banishedCards}
+  open={banishedModalOpen}
+  onOpenChange={(v) => (banishedModalOpen = v)}
+  title="除外ゾーン"
+  emptyMessage="除外されたカードはありません"
+/>
