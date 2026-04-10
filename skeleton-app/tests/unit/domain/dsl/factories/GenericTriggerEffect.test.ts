@@ -60,6 +60,7 @@ const createTriggerMonsterInstance = (
     return {
       ...base,
       stateOnField: {
+        slotIndex: 0,
         position: "faceUp" as const,
         battlePosition: "attack" as const,
         placedThisTurn: false,

@@ -247,6 +247,7 @@ describe("SetSpellTrapCommand", () => {
         ...createSpellInstance("field-old", { spellType: "field" }),
         location: "fieldZone" as const,
         stateOnField: {
+          slotIndex: 0,
           position: "faceUp" as const,
           counters: [],
           activatedEffects: new Set<string>(),

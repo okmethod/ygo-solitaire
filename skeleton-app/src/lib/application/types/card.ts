@@ -67,6 +67,7 @@ export interface CardInstanceRef {
  * derivedStores で生成され、プレゼン層はこの型を通じてフィールド上のカード状態にアクセスする。
  */
 export interface CardInstanceOnFieldRef extends CardInstanceRef {
+  slotIndex: number;
   position: "faceUp" | "faceDown";
   battlePosition?: "attack" | "defense";
   counters: readonly { type: string; count: number }[];

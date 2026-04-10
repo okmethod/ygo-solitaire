@@ -13,6 +13,7 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { canSpecialSummon } from "$lib/domain/rules/SummonRule";
 import { CardDataRegistry } from "$lib/domain/cards";
 import type { CardSpace } from "$lib/domain/models/GameState/CardSpace";
+import { findFirstAvailableSlot } from "$lib/domain/models/GameState/CardSpace";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 
@@ -62,11 +63,13 @@ export const createTokenMonsterStep = (
       const instanceId = `token-${tokenCardId}-${timestamp}-${random}`;
 
       // 4. CardInstanceを生成（フィールドに配置）
+      const slotIndex = findFirstAvailableSlot(state.space, "mainMonsterZone");
       const tokenInstance: CardInstance = {
         ...tokenCardData,
         instanceId,
         location: "mainMonsterZone",
         stateOnField: createInitialStateOnField({
+          slotIndex,
           position: "faceUp",
           battlePosition,
           placedThisTurn: true,

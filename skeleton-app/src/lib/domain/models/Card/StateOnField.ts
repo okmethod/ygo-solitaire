@@ -17,6 +17,9 @@ export type BattlePosition = "attack" | "defense";
  * - フィールド: mainMonsterZone, spellTrapZone, fieldZone
  */
 export interface StateOnField {
+  /** ゾーン内のスロット番号（0始まり） */
+  readonly slotIndex: number;
+
   readonly position: Position;
   readonly battlePosition?: BattlePosition;
 
@@ -33,8 +36,9 @@ export interface StateOnField {
 
 /** StateOnField の初期値を生成する */
 export const createInitialStateOnField = (
-  options?: Partial<Pick<StateOnField, "position" | "battlePosition" | "placedThisTurn" | "equippedTo">>,
+  options?: Partial<Pick<StateOnField, "slotIndex" | "position" | "battlePosition" | "placedThisTurn" | "equippedTo">>,
 ): StateOnField => ({
+  slotIndex: options?.slotIndex ?? 0,
   position: options?.position ?? "faceDown",
   battlePosition: options?.battlePosition,
   placedThisTurn: options?.placedThisTurn ?? false,

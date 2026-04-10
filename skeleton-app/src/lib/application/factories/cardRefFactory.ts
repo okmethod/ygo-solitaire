@@ -30,6 +30,7 @@ export function toInstanceOnFieldRef(instance: CardInstance): CardInstanceOnFiel
   return {
     cardId: instance.id,
     instanceId: instance.instanceId,
+    slotIndex: instance.stateOnField?.slotIndex ?? 0,
     position: instance.stateOnField?.position ?? "faceDown",
     battlePosition: instance.stateOnField?.battlePosition,
     counters: instance.stateOnField?.counters ?? [],

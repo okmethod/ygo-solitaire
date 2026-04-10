@@ -158,6 +158,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
         ...createMonsterInstance("test-1", { location: "mainMonsterZone" }),
         race: "Spellcaster",
         stateOnField: {
+          slotIndex: 0,
           position: "faceUp" as const,
           counters: [],
           activatedEffects: new Set<string>(),
@@ -174,6 +175,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const faceDown = {
         ...spellcaster,
         stateOnField: {
+          slotIndex: 0,
           position: "faceDown" as const,
           counters: [],
           activatedEffects: new Set<string>(),

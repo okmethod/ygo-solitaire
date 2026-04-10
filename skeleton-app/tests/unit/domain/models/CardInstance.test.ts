@@ -54,6 +54,7 @@ export function createDummyCardInstance(options: {
     location: options.location,
     spellType: options.spellType,
     stateOnField: {
+      slotIndex: 0,
       position: options.position ?? "faceUp",
       battlePosition: options.battlePosition,
       placedThisTurn: options.placedThisTurn ?? false,
@@ -346,10 +347,11 @@ describe("CardInstance", () => {
   describe("placedOnFieldInstance", () => {
     it("カードをフィールドに配置しstateOnFieldを初期化する", () => {
       const card = createMonsterInstance("test-1", { location: "hand" });
-      const placedCard = placedOnFieldInstance(card, "mainMonsterZone", "faceUp", "attack");
+      const placedCard = placedOnFieldInstance(card, "mainMonsterZone", 0, "faceUp", "attack");
 
       expect(placedCard.location).toBe("mainMonsterZone");
       expect(placedCard.stateOnField).toBeDefined();
+      expect(placedCard.stateOnField?.slotIndex).toBe(0);
       expect(placedCard.stateOnField?.position).toBe("faceUp");
       expect(placedCard.stateOnField?.battlePosition).toBe("attack");
       expect(placedCard.stateOnField?.placedThisTurn).toBe(true);
@@ -357,7 +359,7 @@ describe("CardInstance", () => {
 
     it("守備表示で配置できる", () => {
       const card = createMonsterInstance("test-1", { location: "hand" });
-      const placedCard = placedOnFieldInstance(card, "mainMonsterZone", "faceDown", "defense");
+      const placedCard = placedOnFieldInstance(card, "mainMonsterZone", 0, "faceDown", "defense");
 
       expect(placedCard.stateOnField?.position).toBe("faceDown");
       expect(placedCard.stateOnField?.battlePosition).toBe("defense");
@@ -365,7 +367,7 @@ describe("CardInstance", () => {
 
     it("魔法・罠ゾーンに配置できる", () => {
       const card = createMonsterInstance("test-1", { location: "hand" });
-      const placedCard = placedOnFieldInstance(card, "spellTrapZone", "faceDown");
+      const placedCard = placedOnFieldInstance(card, "spellTrapZone", 0, "faceDown");
 
       expect(placedCard.location).toBe("spellTrapZone");
       expect(placedCard.stateOnField?.position).toBe("faceDown");
@@ -374,9 +376,13 @@ describe("CardInstance", () => {
     it("フィールド以外のロケーションにはエラーをスローする", () => {
       const card = createMonsterInstance("test-1", { location: "hand" });
 
-      expect(() => placedOnFieldInstance(card, "graveyard", "faceUp")).toThrow("Invalid location for placing on field");
-      expect(() => placedOnFieldInstance(card, "hand", "faceUp")).toThrow("Invalid location for placing on field");
-      expect(() => placedOnFieldInstance(card, "mainDeck", "faceUp")).toThrow("Invalid location for placing on field");
+      expect(() => placedOnFieldInstance(card, "graveyard", 0, "faceUp")).toThrow(
+        "Invalid location for placing on field",
+      );
+      expect(() => placedOnFieldInstance(card, "hand", 0, "faceUp")).toThrow("Invalid location for placing on field");
+      expect(() => placedOnFieldInstance(card, "mainDeck", 0, "faceUp")).toThrow(
+        "Invalid location for placing on field",
+      );
     });
   });
 

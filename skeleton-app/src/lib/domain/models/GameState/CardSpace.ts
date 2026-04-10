@@ -34,6 +34,16 @@ export const ZONE_CAPACITY = {
   fieldZone: 1,
 } as const;
 
+/** ゾーン内の空きスロット番号を昇順で返す（最初の空きスロット = 先頭要素） */
+export const findFirstAvailableSlot = (space: CardSpace, location: LocationName): number => {
+  const capacity = ZONE_CAPACITY[location as keyof typeof ZONE_CAPACITY] ?? 1;
+  const occupied = new Set(space[location].map((c) => c.stateOnField?.slotIndex ?? -1));
+  for (let i = 0; i < capacity; i++) {
+    if (!occupied.has(i)) return i;
+  }
+  throw new Error(`No available slot in ${location}`);
+};
+
 /** 指定したロケーションのカード枚数を取得 */
 const countCardsAt = (space: CardSpace, location: LocationName): number => {
   return space[location].length;
@@ -107,8 +117,9 @@ export function moveCardInstance(
     if (updates?.position === undefined) {
       throw new Error("Position must be specified when placing a card on the field.");
     }
-    // フィールドに出される移動
-    updatedCard = Card.Instance.placedOnField(card, to, updates?.position, updates?.battlePosition);
+    // フィールドに出される移動（空きスロットを自動で割り当て）
+    const slotIndex = findFirstAvailableSlot(currentSpace, to);
+    updatedCard = Card.Instance.placedOnField(card, to, slotIndex, updates?.position, updates?.battlePosition);
   } else if (leavingFromField) {
     // フィールドから離れる移動
     updatedCard = Card.Instance.leavedFromField(card, to);

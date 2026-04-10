@@ -133,6 +133,7 @@ const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "b
     edition: "latest" as const,
     location: "mainMonsterZone",
     stateOnField: {
+      slotIndex: 0,
       position: "faceUp",
       battlePosition: "attack",
       placedThisTurn: false,

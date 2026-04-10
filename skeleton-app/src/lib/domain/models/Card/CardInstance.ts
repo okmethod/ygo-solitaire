@@ -75,6 +75,7 @@ export const movedInstance = (card: CardInstance, location: LocationName): CardI
 export const placedOnFieldInstance = (
   card: CardInstance,
   location: LocationName,
+  slotIndex: number,
   position: Position,
   battlePosition?: BattlePosition,
 ): CardInstance => {
@@ -84,7 +85,7 @@ export const placedOnFieldInstance = (
   return updatedCardInstance(
     card,
     location,
-    createInitialStateOnField({ position, battlePosition, placedThisTurn: true }),
+    createInitialStateOnField({ slotIndex, position, battlePosition, placedThisTurn: true }),
   );
 };
 

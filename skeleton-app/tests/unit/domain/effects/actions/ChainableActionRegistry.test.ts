@@ -448,6 +448,7 @@ describe("ChainableActionRegistry", () => {
       stateOnField:
         location === "spellTrapZone"
           ? {
+              slotIndex: 0,
               position: options?.position ?? "faceDown",
               placedThisTurn: options?.placedThisTurn ?? false,
               counters: [],
@@ -471,6 +472,7 @@ describe("ChainableActionRegistry", () => {
       trapType: "normal",
       location: "spellTrapZone",
       stateOnField: {
+        slotIndex: 0,
         position: options?.position ?? "faceDown",
         placedThisTurn: options?.placedThisTurn ?? false,
         counters: [],
@@ -856,7 +858,13 @@ describe("ChainableActionRegistry", () => {
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
       const faceDownCard: CardInstance = {
         ...createMonsterOnField("mainMonsterZone-0", { cardId }),
-        stateOnField: { position: "faceDown", placedThisTurn: false, counters: [], activatedEffects: new Set() },
+        stateOnField: {
+          slotIndex: 0,
+          position: "faceDown",
+          placedThisTurn: false,
+          counters: [],
+          activatedEffects: new Set(),
+        },
       };
       const state = createMockGameState({ space: { mainMonsterZone: [faceDownCard] } });
 

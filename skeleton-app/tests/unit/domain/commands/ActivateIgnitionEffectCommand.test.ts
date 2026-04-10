@@ -44,6 +44,7 @@ describe("ActivateIgnitionEffectCommand", () => {
             spellType: "field" as const,
             location: "fieldZone" as const,
             stateOnField: {
+              slotIndex: 0,
               position: "faceUp" as const,
               placedThisTurn: false,
               counters: [],
@@ -91,6 +92,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
+                slotIndex: 0,
                 position: "faceDown" as const,
                 placedThisTurn: false,
                 counters: [],
@@ -168,6 +170,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
+                slotIndex: 0,
                 position: "faceUp" as const,
                 placedThisTurn: false,
                 counters: [],
@@ -227,6 +230,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
+                slotIndex: 0,
                 position: "faceUp" as const,
                 placedThisTurn: false,
                 counters: [],
@@ -337,6 +341,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               edition: "latest" as const,
               location: "mainMonsterZone" as const,
               stateOnField: {
+                slotIndex: 0,
                 position: "faceUp" as const,
                 battlePosition: "attack" as const,
                 placedThisTurn: false,
@@ -378,6 +383,7 @@ describe("ActivateIgnitionEffectCommand", () => {
                 edition: "latest" as const,
                 location: "mainMonsterZone" as const,
                 stateOnField: {
+                  slotIndex: 0,
                   position: "faceUp" as const,
                   battlePosition: "defense" as const,
                   placedThisTurn: false,
@@ -505,6 +511,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               edition: "latest" as const,
               location: "mainMonsterZone" as const,
               stateOnField: {
+                slotIndex: 0,
                 position: "faceUp" as const,
                 battlePosition: "attack" as const,
                 placedThisTurn: false,
@@ -525,6 +532,7 @@ describe("ActivateIgnitionEffectCommand", () => {
               edition: "latest" as const,
               location: "fieldZone" as const,
               stateOnField: {
+                slotIndex: 0,
                 position: "faceUp" as const,
                 placedThisTurn: false,
                 counters: [],

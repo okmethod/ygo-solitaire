@@ -28,6 +28,7 @@ function createLibraryOnField(instanceId: string): CardInstance {
     instanceId,
     location: "mainMonsterZone",
     stateOnField: {
+      slotIndex: 0,
       position: "faceUp",
       placedThisTurn: false,
       counters: [],
@@ -145,6 +146,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const libraryWithMaxCounters: CardInstance = {
         ...createLibraryOnField(libraryInstanceId),
         stateOnField: {
+          slotIndex: 0,
           position: "faceUp",
           placedThisTurn: false,
           counters: [{ type: "spell", count: 3 }],
@@ -182,6 +184,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const libraryWithCounters: CardInstance = {
         ...createLibraryOnField(libraryInstanceId),
         stateOnField: {
+          slotIndex: 0,
           position: "faceUp",
           placedThisTurn: false,
           counters: [{ type: "spell", count: 3 }],
@@ -218,6 +221,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const libraryWithTwoCounters: CardInstance = {
         ...createLibraryOnField(libraryInstanceId),
         stateOnField: {
+          slotIndex: 0,
           position: "faceUp",
           placedThisTurn: false,
           counters: [{ type: "spell", count: 2 }],

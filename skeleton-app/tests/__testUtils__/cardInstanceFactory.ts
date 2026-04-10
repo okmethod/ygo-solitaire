@@ -18,6 +18,7 @@ import { Location } from "$lib/domain/models/Location";
 import type {
   CardData,
   CardInstance,
+  CounterState,
   FrameSubType,
   SpellSubType,
   TrapSubType,
@@ -54,7 +55,9 @@ const defaultTrapCardIds: Record<TrapSubType, number> = {
 const defined = <T extends object>(obj: T): Partial<T> =>
   Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
 
-type StateOptions = Partial<Pick<StateOnField, "position" | "battlePosition" | "placedThisTurn" | "equippedTo">>;
+type StateOptions = Partial<
+  Pick<StateOnField, "slotIndex" | "position" | "battlePosition" | "placedThisTurn" | "equippedTo" | "counters">
+>;
 
 /**
  * CardInstance の基底ビルダー
@@ -85,7 +88,12 @@ const createBase = (
   } as CardInstance;
 
   if (Location.isField(location)) {
-    return { ...base, stateOnField: createInitialStateOnField(stateOptions) };
+    const stateOnField = createInitialStateOnField(stateOptions);
+    return {
+      ...base,
+      stateOnField:
+        stateOptions.counters !== undefined ? { ...stateOnField, counters: stateOptions.counters } : stateOnField,
+    };
   }
   return base;
 };
@@ -190,6 +198,8 @@ export function createMonsterOnField(
     position?: Position;
     battlePosition?: BattlePosition;
     placedThisTurn?: boolean;
+    slotIndex?: number;
+    counters?: readonly CounterState[];
   },
 ): CardInstance {
   return createBase(
@@ -199,9 +209,11 @@ export function createMonsterOnField(
     { type: "monster" },
     defined({ frameType: options?.frameType }),
     {
+      slotIndex: options?.slotIndex ?? 0,
       position: options?.position ?? "faceUp",
       battlePosition: options?.battlePosition,
       placedThisTurn: options?.placedThisTurn,
+      counters: options?.counters,
     },
   );
 }
@@ -220,6 +232,8 @@ export function createSpellOnField(
     position?: Position;
     placedThisTurn?: boolean;
     equippedTo?: string;
+    slotIndex?: number;
+    counters?: readonly CounterState[];
   },
 ): CardInstance {
   const resolvedSpellType =
@@ -234,9 +248,11 @@ export function createSpellOnField(
     { type: "spell", frameType: "spell" },
     defined({ spellType: options?.spellType }),
     {
+      slotIndex: options?.slotIndex ?? 0,
       position: options?.position ?? "faceUp",
       placedThisTurn: options?.placedThisTurn,
       equippedTo: options?.equippedTo,
+      counters: options?.counters,
     },
   );
 }

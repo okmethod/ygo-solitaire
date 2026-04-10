@@ -49,9 +49,9 @@ export function toFixedSlotZone(
 ): (DisplayCardInstanceOnField | null)[] {
   const zone: (DisplayCardInstanceOnField | null)[] = Array(slotCount).fill(null);
 
-  instanceOnFieldRefs.forEach((ref, i) => {
-    if (i < slotCount) {
-      zone[i] = toDisplayCardInstanceOnField(ref);
+  instanceOnFieldRefs.forEach((ref) => {
+    if (ref.slotIndex < slotCount) {
+      zone[ref.slotIndex] = toDisplayCardInstanceOnField(ref);
     }
   });
 
