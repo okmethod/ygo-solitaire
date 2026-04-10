@@ -120,6 +120,10 @@ export function createMonsterInstance(
     frameType?: FrameSubType;
     location?: LocationName;
     level?: number;
+    race?: string;
+    attack?: number;
+    defense?: number;
+    monsterTypeList?: string[];
   },
 ): CardInstance {
   return createBase(
@@ -127,7 +131,14 @@ export function createMonsterInstance(
     options?.cardId ?? defaultMonsterCardId,
     options?.location ?? "hand",
     { type: "monster", frameType: "normal" },
-    { frameType: options?.frameType, level: options?.level },
+    {
+      frameType: options?.frameType,
+      level: options?.level,
+      race: options?.race,
+      attack: options?.attack,
+      defense: options?.defense,
+      monsterTypeList: options?.monsterTypeList as CardData["monsterTypeList"],
+    },
   );
 }
 
@@ -200,6 +211,11 @@ export function createMonsterOnField(
     placedThisTurn?: boolean;
     slotIndex?: number;
     counters?: readonly CounterState[];
+    race?: string;
+    level?: number;
+    attack?: number;
+    defense?: number;
+    monsterTypeList?: string[];
   },
 ): CardInstance {
   return createBase(
@@ -207,7 +223,14 @@ export function createMonsterOnField(
     options?.cardId ?? defaultMonsterCardId,
     "mainMonsterZone",
     { type: "monster" },
-    defined({ frameType: options?.frameType }),
+    defined({
+      frameType: options?.frameType,
+      race: options?.race,
+      level: options?.level,
+      attack: options?.attack,
+      defense: options?.defense,
+      monsterTypeList: options?.monsterTypeList as CardData["monsterTypeList"],
+    }),
     {
       slotIndex: options?.slotIndex ?? 0,
       position: options?.position ?? "faceUp",

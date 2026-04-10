@@ -4,7 +4,12 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { selectTargetFromFieldByRaceStep } from "$lib/domain/dsl/steps/builders/targeting";
-import { createMockGameState, createMonsterInstance, TEST_CARD_IDS } from "../../../../__testUtils__";
+import {
+  createMockGameState,
+  createMonsterInstance,
+  createMonsterOnField,
+  TEST_CARD_IDS,
+} from "../../../../__testUtils__";
 
 /**
  * TargetingSteps Tests - 対象選択系ステップのテスト
@@ -154,34 +159,15 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       expect(filter).toBeDefined();
 
       // Spellcaster モンスター（表側表示）は通過
-      const spellcaster = {
-        ...createMonsterInstance("test-1", { location: "mainMonsterZone" }),
-        race: "Spellcaster",
-        stateOnField: {
-          slotIndex: 0,
-          position: "faceUp" as const,
-          counters: [],
-          activatedEffects: new Set<string>(),
-          placedThisTurn: false,
-        },
-      };
+      const spellcaster = createMonsterOnField("test-1", { race: "Spellcaster" });
       expect(filter!(spellcaster)).toBe(true);
 
       // 異なる種族は除外
-      const warrior = { ...spellcaster, race: "Warrior" };
+      const warrior = createMonsterOnField("test-2", { race: "Warrior" });
       expect(filter!(warrior)).toBe(false);
 
       // 裏側表示は除外
-      const faceDown = {
-        ...spellcaster,
-        stateOnField: {
-          slotIndex: 0,
-          position: "faceDown" as const,
-          counters: [],
-          activatedEffects: new Set<string>(),
-          placedThisTurn: false,
-        },
-      };
+      const faceDown = createMonsterOnField("test-3", { race: "Spellcaster", position: "faceDown" });
       expect(filter!(faceDown)).toBe(false);
     });
   });
