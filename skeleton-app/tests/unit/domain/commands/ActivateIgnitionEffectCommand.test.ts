@@ -4,9 +4,18 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
-import { createMockGameState, createExodiaVictoryState } from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import {
+  createMockGameState,
+  createExodiaVictoryState,
+  createSpellInstance,
+  createSpellOnField,
+  createMonsterOnField,
+} from "../../../__testUtils__";
 // Note: ChainableActionRegistry は setup.ts で初期化済み
+
+const CHICKEN_GAME_ID = 67616300;
+const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
 
 describe("ActivateIgnitionEffectCommand", () => {
   let initialState: GameSnapshot;
@@ -18,40 +27,12 @@ describe("ActivateIgnitionEffectCommand", () => {
       phase: "main1",
       lp: { player: 5000, opponent: 5000 },
       space: {
-        mainDeck: [
-          {
-            instanceId: "main-0",
-            id: 1001,
-            jaName: "サンプルカード",
-            type: "spell" as const,
-            frameType: "spell" as const,
-            edition: "latest" as const,
-            location: "mainDeck" as const,
-          },
-        ],
+        mainDeck: [createSpellInstance("main-0", { cardId: 1001, location: "mainDeck" })],
         extraDeck: [],
         hand: [],
         mainMonsterZone: [],
         spellTrapZone: [],
-        fieldZone: [
-          {
-            instanceId: chickenGameInstanceId,
-            id: 67616300, // Chicken Game
-            jaName: "チキンゲーム",
-            type: "spell" as const,
-            frameType: "spell" as const,
-            edition: "latest" as const,
-            spellType: "field" as const,
-            location: "fieldZone" as const,
-            stateOnField: {
-              slotIndex: 0,
-              position: "faceUp" as const,
-              placedThisTurn: false,
-              counters: [],
-              activatedEffects: new Set(),
-            },
-          },
-        ],
+        fieldZone: [createSpellOnField(chickenGameInstanceId, { cardId: CHICKEN_GAME_ID, spellType: "field" })],
         graveyard: [],
         banished: [],
       },
@@ -82,23 +63,11 @@ describe("ActivateIgnitionEffectCommand", () => {
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [
-            {
-              instanceId: chickenGameInstanceId,
-              id: 67616300,
-              jaName: "チキンゲーム",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              edition: "latest" as const,
-              location: "fieldZone" as const,
-              stateOnField: {
-                slotIndex: 0,
-                position: "faceDown" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
+            createSpellOnField(chickenGameInstanceId, {
+              cardId: CHICKEN_GAME_ID,
+              spellType: "field",
+              position: "faceDown",
+            }),
           ],
           graveyard: [],
           banished: [],
@@ -117,18 +86,7 @@ describe("ActivateIgnitionEffectCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [
-            {
-              instanceId: chickenGameInstanceId,
-              id: 67616300,
-              jaName: "チキンゲーム",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              edition: "latest" as const,
-              spellType: "field" as const,
-              location: "hand" as const,
-            },
-          ],
+          hand: [createSpellInstance(chickenGameInstanceId, { cardId: CHICKEN_GAME_ID, spellType: "field" })],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -159,25 +117,7 @@ describe("ActivateIgnitionEffectCommand", () => {
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [
-            {
-              instanceId: "field-spell-1",
-              id: 9999999, // Unknown card
-              jaName: "未知のカード",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              edition: "latest" as const,
-              location: "fieldZone" as const,
-              stateOnField: {
-                slotIndex: 0,
-                position: "faceUp" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          fieldZone: [createSpellOnField("field-spell-1", { cardId: 9999999, spellType: "field" })],
           graveyard: [],
           banished: [],
         },
@@ -219,25 +159,7 @@ describe("ActivateIgnitionEffectCommand", () => {
           hand: [],
           mainMonsterZone: [],
           spellTrapZone: [],
-          fieldZone: [
-            {
-              instanceId: "field-spell-1",
-              id: 9999999,
-              jaName: "未知のカード",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              edition: "latest" as const,
-              location: "fieldZone" as const,
-              stateOnField: {
-                slotIndex: 0,
-                position: "faceUp" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          fieldZone: [createSpellOnField("field-spell-1", { cardId: 9999999, spellType: "field" })],
           graveyard: [],
           banished: [],
         },
@@ -299,7 +221,6 @@ describe("ActivateIgnitionEffectCommand", () => {
   // ===========================
   describe("Royal Magical Library integration", () => {
     const royalLibraryInstanceId = "monster-royal-library-1";
-    const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
 
     let libraryState: GameSnapshot;
 
@@ -310,45 +231,17 @@ describe("ActivateIgnitionEffectCommand", () => {
         lp: { player: 8000, opponent: 8000 },
         space: {
           mainDeck: [
-            {
-              instanceId: "main-0",
-              id: 1001,
-              jaName: "サンプルカード",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              edition: "latest" as const,
-              location: "mainDeck" as const,
-            },
-            {
-              instanceId: "deck-1",
-              id: 1002,
-              jaName: "サンプルカード2",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              edition: "latest" as const,
-              location: "mainDeck" as const,
-            },
+            createSpellInstance("main-0", { cardId: 1001, location: "mainDeck" }),
+            createSpellInstance("deck-1", { cardId: 1002, location: "mainDeck" }),
           ],
           extraDeck: [],
           hand: [],
           mainMonsterZone: [
-            {
-              instanceId: royalLibraryInstanceId,
-              id: ROYAL_MAGICAL_LIBRARY_ID,
-              jaName: "王立魔法図書館",
-              type: "monster" as const,
-              frameType: "effect" as const,
-              edition: "latest" as const,
-              location: "mainMonsterZone" as const,
-              stateOnField: {
-                slotIndex: 0,
-                position: "faceUp" as const,
-                battlePosition: "attack" as const,
-                placedThisTurn: false,
-                counters: [{ type: "spell", count: 3 }],
-                activatedEffects: new Set(),
-              },
-            },
+            createMonsterOnField(royalLibraryInstanceId, {
+              cardId: ROYAL_MAGICAL_LIBRARY_ID,
+              battlePosition: "attack",
+              counters: [{ type: "spell", count: 3 }],
+            }),
           ],
           spellTrapZone: [],
           fieldZone: [],
@@ -374,23 +267,11 @@ describe("ActivateIgnitionEffectCommand", () => {
             extraDeck: [],
             hand: [],
             mainMonsterZone: [
-              {
-                instanceId: royalLibraryInstanceId,
-                id: ROYAL_MAGICAL_LIBRARY_ID,
-                jaName: "王立魔法図書館",
-                type: "monster" as const,
-                frameType: "effect" as const,
-                edition: "latest" as const,
-                location: "mainMonsterZone" as const,
-                stateOnField: {
-                  slotIndex: 0,
-                  position: "faceUp" as const,
-                  battlePosition: "defense" as const,
-                  placedThisTurn: false,
-                  counters: [{ type: "spell", count: 3 }],
-                  activatedEffects: new Set(),
-                },
-              },
+              createMonsterOnField(royalLibraryInstanceId, {
+                cardId: ROYAL_MAGICAL_LIBRARY_ID,
+                battlePosition: "defense",
+                counters: [{ type: "spell", count: 3 }],
+              }),
             ],
             spellTrapZone: [],
             fieldZone: [],
@@ -488,58 +369,18 @@ describe("ActivateIgnitionEffectCommand", () => {
         phase: "main1",
         lp: { player: 5000, opponent: 5000 },
         space: {
-          mainDeck: [
-            {
-              instanceId: "main-0",
-              id: 1001,
-              jaName: "サンプルカード",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              edition: "latest" as const,
-              location: "mainDeck" as const,
-            },
-          ],
+          mainDeck: [createSpellInstance("main-0", { cardId: 1001, location: "mainDeck" })],
           extraDeck: [],
           hand: [],
           mainMonsterZone: [
-            {
-              instanceId: royalLibraryId,
-              id: 70791313,
-              jaName: "王立魔法図書館",
-              type: "monster" as const,
-              frameType: "effect" as const,
-              edition: "latest" as const,
-              location: "mainMonsterZone" as const,
-              stateOnField: {
-                slotIndex: 0,
-                position: "faceUp" as const,
-                battlePosition: "attack" as const,
-                placedThisTurn: false,
-                counters: [{ type: "spell", count: 3 }],
-                activatedEffects: new Set(),
-              },
-            },
+            createMonsterOnField(royalLibraryId, {
+              cardId: ROYAL_MAGICAL_LIBRARY_ID,
+              battlePosition: "attack",
+              counters: [{ type: "spell", count: 3 }],
+            }),
           ],
           spellTrapZone: [],
-          fieldZone: [
-            {
-              instanceId: chickenGameId,
-              id: 67616300,
-              jaName: "チキンゲーム",
-              type: "spell" as const,
-              frameType: "spell" as const,
-              spellType: "field" as const,
-              edition: "latest" as const,
-              location: "fieldZone" as const,
-              stateOnField: {
-                slotIndex: 0,
-                position: "faceUp" as const,
-                placedThisTurn: false,
-                counters: [],
-                activatedEffects: new Set(),
-              },
-            },
-          ],
+          fieldZone: [createSpellOnField(chickenGameId, { cardId: CHICKEN_GAME_ID, spellType: "field" })],
           graveyard: [],
           banished: [],
         },

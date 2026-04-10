@@ -11,6 +11,7 @@ import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import {
   createMockGameState,
   createSpellInstance,
+  createSpellOnField,
   createMonsterInstance,
   createFilledSpellZone,
   createExodiaVictoryState,
@@ -243,17 +244,7 @@ describe("SetSpellTrapCommand", () => {
 
     it("should replace existing field spell when setting a new field spell", () => {
       // Arrange
-      const oldFieldSpell = {
-        ...createSpellInstance("field-old", { spellType: "field" }),
-        location: "fieldZone" as const,
-        stateOnField: {
-          slotIndex: 0,
-          position: "faceUp" as const,
-          counters: [],
-          activatedEffects: new Set<string>(),
-          placedThisTurn: false,
-        },
-      };
+      const oldFieldSpell = createSpellOnField("field-old", { spellType: "field" });
       const newFieldSpell = createSpellInstance("field-new", { spellType: "field" });
       const state = createMockGameState({
         space: {

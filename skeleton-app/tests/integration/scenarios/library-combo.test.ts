@@ -14,55 +14,17 @@ import { vi } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { Card } from "$lib/domain/models/Card";
-import type { CardInstance } from "$lib/domain/models/Card";
-import { createMockGameState, flushEffectQueue, getState } from "../../__testUtils__";
+import {
+  createMockGameState,
+  createMonsterOnField,
+  createMonsterInstance,
+  createSpellInstance,
+  flushEffectQueue,
+  getState,
+} from "../../__testUtils__";
 
-/** 王立魔法図書館のフィールドインスタンスを生成する */
-function createLibraryOnField(instanceId: string): CardInstance {
-  return {
-    id: 70791313,
-    jaName: "王立魔法図書館",
-    type: "monster",
-    frameType: "effect",
-    edition: "latest",
-    instanceId,
-    location: "mainMonsterZone",
-    stateOnField: {
-      slotIndex: 0,
-      position: "faceUp",
-      placedThisTurn: false,
-      counters: [],
-      activatedEffects: new Set(),
-    },
-  };
-}
-
-/** 手札カードインスタンスを生成する（登録済みカードID使用） */
-function createHandCard(id: number, instanceId: string): CardInstance {
-  return {
-    id,
-    jaName: id === 70368879 ? "成金ゴブリン" : `Card-${id}`,
-    type: "spell",
-    frameType: "spell",
-    spellType: "normal",
-    edition: "latest",
-    instanceId,
-    location: "hand",
-  };
-}
-
-/** デッキカードインスタンスを生成する */
-function createFilledMainDeckCard(instanceId: string): CardInstance {
-  return {
-    id: 12345678,
-    jaName: "Test Monster",
-    type: "monster",
-    frameType: "normal",
-    edition: "latest",
-    instanceId,
-    location: "mainDeck",
-  };
-}
+const LIBRARY_CARD_ID = 70791313;
+const GOBLIN_CARD_ID = 70368879;
 
 describe("王立魔法図書館コンボ - 実カードシナリオテスト", () => {
   let facade: GameFacade;
@@ -86,9 +48,12 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createFilledMainDeckCard("deck-1"), createFilledMainDeckCard("deck-2")],
-          hand: [createHandCard(70368879, "goblin-1")],
-          mainMonsterZone: [createLibraryOnField(libraryInstanceId)],
+          mainDeck: [
+            createMonsterInstance("deck-1", { location: "mainDeck" }),
+            createMonsterInstance("deck-2", { location: "mainDeck" }),
+          ],
+          hand: [createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID })],
+          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: LIBRARY_CARD_ID })],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -111,17 +76,17 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
         phase: "main1",
         space: {
           mainDeck: [
-            createFilledMainDeckCard("deck-1"),
-            createFilledMainDeckCard("deck-2"),
-            createFilledMainDeckCard("deck-3"),
-            createFilledMainDeckCard("deck-4"),
+            createMonsterInstance("deck-1", { location: "mainDeck" }),
+            createMonsterInstance("deck-2", { location: "mainDeck" }),
+            createMonsterInstance("deck-3", { location: "mainDeck" }),
+            createMonsterInstance("deck-4", { location: "mainDeck" }),
           ],
           hand: [
-            createHandCard(70368879, "goblin-1"),
-            createHandCard(70368879, "goblin-2"),
-            createHandCard(70368879, "goblin-3"),
+            createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID }),
+            createSpellInstance("goblin-2", { cardId: GOBLIN_CARD_ID }),
+            createSpellInstance("goblin-3", { cardId: GOBLIN_CARD_ID }),
           ],
-          mainMonsterZone: [createLibraryOnField(libraryInstanceId)],
+          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: LIBRARY_CARD_ID })],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -143,22 +108,20 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
     });
 
     it("カウンター3個の状態でさらに魔法発動→カウンターは3のまま（上限超えない）", async () => {
-      const libraryWithMaxCounters: CardInstance = {
-        ...createLibraryOnField(libraryInstanceId),
-        stateOnField: {
-          slotIndex: 0,
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [{ type: "spell", count: 3 }],
-          activatedEffects: new Set(),
-        },
-      };
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createFilledMainDeckCard("deck-1"), createFilledMainDeckCard("deck-2")],
-          hand: [createHandCard(70368879, "goblin-1")],
-          mainMonsterZone: [libraryWithMaxCounters],
+          mainDeck: [
+            createMonsterInstance("deck-1", { location: "mainDeck" }),
+            createMonsterInstance("deck-2", { location: "mainDeck" }),
+          ],
+          hand: [createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID })],
+          mainMonsterZone: [
+            createMonsterOnField(libraryInstanceId, {
+              cardId: LIBRARY_CARD_ID,
+              counters: [{ type: "spell", count: 3 }],
+            }),
+          ],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -181,22 +144,20 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
   // ───────────────────────────────────────────────
   describe("起動効果: カウンター3消費→1ドロー", () => {
     it("カウンター3個→起動効果→カウンター0・手札+1", async () => {
-      const libraryWithCounters: CardInstance = {
-        ...createLibraryOnField(libraryInstanceId),
-        stateOnField: {
-          slotIndex: 0,
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [{ type: "spell", count: 3 }],
-          activatedEffects: new Set(),
-        },
-      };
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createFilledMainDeckCard("deck-1"), createFilledMainDeckCard("deck-2")],
+          mainDeck: [
+            createMonsterInstance("deck-1", { location: "mainDeck" }),
+            createMonsterInstance("deck-2", { location: "mainDeck" }),
+          ],
           hand: [],
-          mainMonsterZone: [libraryWithCounters],
+          mainMonsterZone: [
+            createMonsterOnField(libraryInstanceId, {
+              cardId: LIBRARY_CARD_ID,
+              counters: [{ type: "spell", count: 3 }],
+            }),
+          ],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -218,22 +179,17 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
     });
 
     it("カウンター2個のとき起動効果を発動できない", () => {
-      const libraryWithTwoCounters: CardInstance = {
-        ...createLibraryOnField(libraryInstanceId),
-        stateOnField: {
-          slotIndex: 0,
-          position: "faceUp",
-          placedThisTurn: false,
-          counters: [{ type: "spell", count: 2 }],
-          activatedEffects: new Set(),
-        },
-      };
       const initialState = createMockGameState({
         phase: "main1",
         space: {
-          mainDeck: [createFilledMainDeckCard("deck-1")],
+          mainDeck: [createMonsterInstance("deck-1", { location: "mainDeck" })],
           hand: [],
-          mainMonsterZone: [libraryWithTwoCounters],
+          mainMonsterZone: [
+            createMonsterOnField(libraryInstanceId, {
+              cardId: LIBRARY_CARD_ID,
+              counters: [{ type: "spell", count: 2 }],
+            }),
+          ],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -256,18 +212,18 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
         phase: "main1",
         space: {
           mainDeck: [
-            createFilledMainDeckCard("deck-1"),
-            createFilledMainDeckCard("deck-2"),
-            createFilledMainDeckCard("deck-3"),
-            createFilledMainDeckCard("deck-4"),
-            createFilledMainDeckCard("deck-5"),
+            createMonsterInstance("deck-1", { location: "mainDeck" }),
+            createMonsterInstance("deck-2", { location: "mainDeck" }),
+            createMonsterInstance("deck-3", { location: "mainDeck" }),
+            createMonsterInstance("deck-4", { location: "mainDeck" }),
+            createMonsterInstance("deck-5", { location: "mainDeck" }),
           ],
           hand: [
-            createHandCard(70368879, "goblin-1"),
-            createHandCard(70368879, "goblin-2"),
-            createHandCard(70368879, "goblin-3"),
+            createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID }),
+            createSpellInstance("goblin-2", { cardId: GOBLIN_CARD_ID }),
+            createSpellInstance("goblin-3", { cardId: GOBLIN_CARD_ID }),
           ],
-          mainMonsterZone: [createLibraryOnField(libraryInstanceId)],
+          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: LIBRARY_CARD_ID })],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],

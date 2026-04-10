@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/dsl/conditions";
-import type { CardInstance } from "$lib/domain/models/Card";
-import { createMockGameState, createFilledMainDeck } from "../../../../__testUtils__";
+import {
+  createMockGameState,
+  createFilledMainDeck,
+  createSpellInstance,
+  createMonsterOnField,
+} from "../../../../__testUtils__";
 
 /**
  * ConditionRegistry Tests
@@ -16,15 +20,7 @@ import { createMockGameState, createFilledMainDeck } from "../../../../__testUti
 // テストヘルパー
 // =============================================================================
 
-const createMockCardInstance = (cardId: number = 12345): CardInstance => ({
-  instanceId: "test-instance-id",
-  id: cardId,
-  jaName: "テストカード",
-  type: "spell",
-  frameType: "spell",
-  edition: "latest" as const,
-  location: "hand",
-});
+const createMockCardInstance = (cardId: number = 12345) => createSpellInstance("test-instance-id", { cardId });
 
 /** デッキ枚数を指定してゲーム状態を生成 */
 const createStateWithDeck = (deckCount: number) =>
@@ -123,24 +119,11 @@ describe("ConditionRegistry - ユーティリティ", () => {
 // HAS_COUNTER 条件のテスト
 // =============================================================================
 
-const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "bushido", count: number): CardInstance =>
-  ({
-    instanceId: `monster-${cardId}`,
-    id: cardId,
-    jaName: "テストモンスター",
-    type: "monster",
-    frameType: "effect",
-    edition: "latest" as const,
-    location: "mainMonsterZone",
-    stateOnField: {
-      slotIndex: 0,
-      position: "faceUp",
-      battlePosition: "attack",
-      placedThisTurn: false,
-      counters: count > 0 ? [{ type: counterType, count }] : [],
-      activatedEffects: new Set<string>(),
-    },
-  }) as CardInstance;
+const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "bushido", count: number) =>
+  createMonsterOnField(`monster-${cardId}`, {
+    cardId,
+    counters: count > 0 ? [{ type: counterType, count }] : [],
+  });
 
 describe("ConditionRegistry - HAS_COUNTER", () => {
   it("カウンターが十分にある場合は成功を返す", () => {
