@@ -42,6 +42,12 @@ export const byNameIncludes =
   (card) =>
     card.jaName.includes(pattern);
 
+/** レベルでフィルター */
+export const byLevel =
+  (level: number): CardPredicate =>
+  (card) =>
+    card.level === level;
+
 /** 種族でフィルター */
 export const byRace =
   (race: string): CardPredicate =>

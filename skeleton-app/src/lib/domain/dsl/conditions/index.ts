@@ -12,7 +12,12 @@ import { AtomicConditionRegistry } from "./AtomicConditionRegistry";
 import { CONDITION_NAMES, type ConditionName } from "./ConditionNames";
 
 // ConditionChecker 実装
-import { canDrawCondition, deckHasCardCondition, deckHasNameIncludesCondition } from "./checkers/deckConditions";
+import {
+  canDrawCondition,
+  deckHasCardCondition,
+  deckHasNameIncludesCondition,
+  deckHasNormalMonsterForGraveyardBanishCondition,
+} from "./checkers/deckConditions";
 import { handCountCondition, handCountExcludingSelfCondition, handHasSpellCondition } from "./checkers/handConditions";
 import {
   graveyardHasSpellCondition,
@@ -47,6 +52,10 @@ const C = CONDITION_NAMES;
 AtomicConditionRegistry.register(C.CAN_DRAW, canDrawCondition);
 AtomicConditionRegistry.register(C.DECK_HAS_CARD, deckHasCardCondition);
 AtomicConditionRegistry.register(C.DECK_HAS_NAME_INCLUDES, deckHasNameIncludesCondition);
+AtomicConditionRegistry.register(
+  C.DECK_HAS_NORMAL_MONSTER_FOR_GRAVEYARD_BANISH,
+  deckHasNormalMonsterForGraveyardBanishCondition,
+);
 
 // 手札関連
 AtomicConditionRegistry.register(C.HAND_COUNT, handCountCondition);

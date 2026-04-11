@@ -38,9 +38,13 @@ export const selectCardsStep = (config: {
   _filter?: (card: CardInstance, index?: number) => boolean;
   minCards: number;
   maxCards: number;
+  /** 実行時に state から最大選択枚数を動的に算出する関数 */
+  dynamicMaxCards?: (state: GameSnapshot) => number;
   cancelable?: boolean;
   /** 選択中のカードで確定可能かを判定（未指定時は minCards/maxCards のみでチェック） */
   canConfirm?: (selectedCards: readonly CardInstance[]) => boolean;
+  /** 実行時に state を参照して確定可否を判定する関数 */
+  dynamicCanConfirm?: (state: GameSnapshot, selectedCards: readonly CardInstance[]) => boolean;
   onSelect: (state: GameSnapshot, selectedIds: string[]) => GameStateUpdateResult;
 }): AtomicStep => {
   return {
@@ -49,16 +53,18 @@ export const selectCardsStep = (config: {
     summary: config.summary,
     description: config.description,
     notificationLevel: "interactive",
-    cardSelectionConfig: () => ({
+    cardSelectionConfig: (state: GameSnapshot) => ({
       availableCards: config.availableCards,
       _sourceZone: config._sourceZone,
       _filter: config._filter,
       minCards: config.minCards,
-      maxCards: config.maxCards,
+      maxCards: config.dynamicMaxCards ? config.dynamicMaxCards(state) : config.maxCards,
       summary: config.summary,
       description: config.description,
       cancelable: config.cancelable ?? false,
-      canConfirm: config.canConfirm,
+      canConfirm: config.dynamicCanConfirm
+        ? (selectedCards: readonly CardInstance[]) => config.dynamicCanConfirm!(state, selectedCards)
+        : config.canConfirm,
     }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
       // カードが選択されていない場合（minCards = 0の場合に発生しうる）

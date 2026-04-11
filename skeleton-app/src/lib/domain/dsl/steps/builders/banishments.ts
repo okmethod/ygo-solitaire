@@ -14,6 +14,17 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { StepBuilderFn } from "$lib/domain/dsl/types";
 import { ArgValidators } from "$lib/domain/dsl/core/argValidators";
 import { selectCardsStep } from "../primitives/userInteractions";
+import type { DynamicCountRef } from "../primitives/dynamicFiltering";
+import { isDynamicCountRef } from "../primitives/dynamicFiltering";
+import {
+  and,
+  byType,
+  byFrameType,
+  byLevel,
+  hasAtLeast,
+  countMatching,
+  isSpellOrTrap,
+} from "../../conditions/primitives/cardPredicates";
 
 // ===========================
 // 内部ヘルパー
@@ -56,6 +67,30 @@ const banishMultipleFromGraveyardResult = (
     `Banished ${instanceIds.length} card(s) from graveyard: ${cardNames}`,
   );
 };
+
+// ===========================
+// 動的カウント計算ヘルパー
+// ===========================
+
+const isNormalMonster = and(byType("monster"), byFrameType("normal"));
+
+/**
+ * "deck_normal_monster_max_level":
+ * 墓地の魔法・罠枚数(upperBound上限)の中で、デッキに対応レベルの通常モンスターが存在する最大レベルを返す
+ */
+const computeDeckNormalMonsterMaxLevel = (state: GameSnapshot, upperBound: number): number => {
+  const graveyardSpellOrTrapCount = countMatching(state.space.graveyard, isSpellOrTrap);
+  const maxLevel = Math.min(upperBound, graveyardSpellOrTrapCount);
+  for (let level = maxLevel; level >= 1; level--) {
+    if (hasAtLeast(state.space.mainDeck, and(isNormalMonster, byLevel(level)), 1)) {
+      return level;
+    }
+  }
+  return 1; // 条件チェックで事前に弾かれるため到達しない
+};
+
+const deckHasNormalMonsterOfLevel = (state: GameSnapshot, level: number): boolean =>
+  hasAtLeast(state.space.mainDeck, and(isNormalMonster, byLevel(level)), 1);
 
 // ===========================
 // AtomicStep 生成関数
@@ -102,6 +137,7 @@ export const selectAndBanishFromGraveyardStep = (
   faceDown: boolean = false,
   effectId?: EffectId,
   sourceCardId?: number,
+  dynamicMaxCount?: DynamicCountRef,
 ): AtomicStep => {
   const filterTypeJa = filterType ? filterTypeToJapanese[filterType] : "";
   const countDesc = minCount === maxCount ? `${minCount}枚` : `${minCount}〜${maxCount}枚`;
@@ -119,7 +155,15 @@ export const selectAndBanishFromGraveyardStep = (
     _filter: createTypeFilter(filterType),
     minCards: minCount,
     maxCards: maxCount,
+    dynamicMaxCards:
+      dynamicMaxCount === "deck_normal_monster_max_level"
+        ? (state) => computeDeckNormalMonsterMaxLevel(state, maxCount)
+        : undefined,
     cancelable: false,
+    dynamicCanConfirm:
+      dynamicMaxCount === "deck_normal_monster_max_level"
+        ? (state, selectedCards) => deckHasNormalMonsterOfLevel(state, selectedCards.length)
+        : undefined,
     onSelect: (currentState: GameSnapshot, selectedInstanceIds: string[]) => {
       // 最低枚数が選択されていない場合はエラー
       if (selectedInstanceIds.length < minCount) {
@@ -143,10 +187,20 @@ export const selectAndBanishFromGraveyardStepBuilder: StepBuilderFn = (args, con
   const maxCount = ArgValidators.positiveInt(args, "maxCount");
   const filterType = ArgValidators.optionalString(args, "filterType") as BanishFilterType | undefined;
   const faceDown = ArgValidators.optionalBoolean(args, "faceDown", false);
+  const dynamicMaxCountRaw = ArgValidators.optionalString(args, "dynamicMaxCount");
+  const dynamicMaxCount = isDynamicCountRef(dynamicMaxCountRaw) ? dynamicMaxCountRaw : undefined;
 
   if (maxCount < minCount) {
     throw new Error("SELECT_AND_BANISH_FROM_GRAVEYARD step requires maxCount >= minCount");
   }
 
-  return selectAndBanishFromGraveyardStep(minCount, maxCount, filterType, faceDown, context.effectId, context.cardId);
+  return selectAndBanishFromGraveyardStep(
+    minCount,
+    maxCount,
+    filterType,
+    faceDown,
+    context.effectId,
+    context.cardId,
+    dynamicMaxCount,
+  );
 };

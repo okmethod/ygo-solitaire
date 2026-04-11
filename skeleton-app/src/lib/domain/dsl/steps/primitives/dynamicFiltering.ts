@@ -18,6 +18,12 @@ export type DynamicLevelRef = "paidCosts";
 /** フィルターレベル引数の型（静的な数値または動的参照） */
 export type FilterLevelArg = number | DynamicLevelRef;
 
+/** 動的カウント参照キー */
+export type DynamicCountRef = "deck_normal_monster_max_level";
+
+/** フィルターカウント引数の型（静的な数値または動的参照） */
+export type FilterCountArg = number | DynamicCountRef;
+
 // ===========================
 // 判定関数
 // ===========================
@@ -27,6 +33,10 @@ export type FilterLevelArg = number | DynamicLevelRef;
  */
 export const isDynamicLevelRef = (value: unknown): value is DynamicLevelRef => {
   return value === "paidCosts";
+};
+
+export const isDynamicCountRef = (value: unknown): value is DynamicCountRef => {
+  return value === "deck_normal_monster_max_level";
 };
 
 // ===========================
