@@ -16,13 +16,13 @@ import { createConditionChecker } from "../conditionFactory";
 // ===========================
 
 /** このカードがこのターンまだ発動されていないか */
-const isOncePerTurnAvailable = (activatedCardIds: ReadonlySet<number>, cardId: number): boolean =>
-  !activatedCardIds.has(cardId);
+const isOncePerTurnAvailable = (activatedCardIds: readonly number[], cardId: number): boolean =>
+  !activatedCardIds.includes(cardId);
 
 /** この効果がこのターンまだ発動されていないか（フィールド上のカード用） */
 const isOncePerTurnEffectAvailable = (sourceInstance: CardInstance, effectIndex: number): boolean => {
   const effectId = Effect.Id.create("ignition", sourceInstance.id, effectIndex);
-  return !sourceInstance.stateOnField?.activatedEffects?.has(effectId);
+  return !sourceInstance.stateOnField?.activatedEffects?.includes(effectId);
 };
 
 // ===========================

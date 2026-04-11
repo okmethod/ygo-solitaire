@@ -204,7 +204,7 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(result.success).toBe(true);
       // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
       const chickenGameCard = result.updatedState.space.fieldZone[0];
-      expect(chickenGameCard.stateOnField?.activatedEffects.has("ignition-67616300-1")).toBe(true);
+      expect(chickenGameCard.stateOnField?.activatedEffects.includes("ignition-67616300-1")).toBe(true);
     });
   });
 

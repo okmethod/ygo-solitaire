@@ -109,13 +109,11 @@ export class ActivateIgnitionEffectCommand implements GameCommand {
 
     // 2. 更新後状態の構築
     const currentStateOnField = cardInstance.stateOnField!;
-    const updatedActivatedEffects = new Set(currentStateOnField.activatedEffects);
-    updatedActivatedEffects.add(activatableEffect.effectId);
 
     const updatedState: GameSnapshot = {
       ...state,
       space: GameState.Space.updateCardStateInPlace(state.space, cardInstance, {
-        activatedEffects: updatedActivatedEffects, // 発動記録の更新
+        activatedEffects: [...currentStateOnField.activatedEffects, activatableEffect.effectId], // 発動記録の更新
       }),
     };
 

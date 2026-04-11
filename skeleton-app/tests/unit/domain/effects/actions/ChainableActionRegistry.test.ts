@@ -452,7 +452,7 @@ describe("ChainableActionRegistry", () => {
               position: options?.position ?? "faceDown",
               placedThisTurn: options?.placedThisTurn ?? false,
               counters: [],
-              activatedEffects: new Set<string>(),
+              activatedEffects: [],
             }
           : undefined,
     });
@@ -476,7 +476,7 @@ describe("ChainableActionRegistry", () => {
         position: options?.position ?? "faceDown",
         placedThisTurn: options?.placedThisTurn ?? false,
         counters: [],
-        activatedEffects: new Set<string>(),
+        activatedEffects: [],
       },
     });
 
@@ -863,7 +863,7 @@ describe("ChainableActionRegistry", () => {
           position: "faceDown",
           placedThisTurn: false,
           counters: [],
-          activatedEffects: new Set(),
+          activatedEffects: [],
         },
       };
       const state = createMockGameState({ space: { mainMonsterZone: [faceDownCard] } });

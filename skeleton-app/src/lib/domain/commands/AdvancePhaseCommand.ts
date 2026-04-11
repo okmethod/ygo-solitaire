@@ -78,7 +78,7 @@ export class AdvancePhaseCommand implements GameCommand {
       space: updatedSpace,
       phase: nextPhase,
       // ターン終了時に「名称ターン1制限」をリセット
-      activatedCardIds: GameState.Phase.isEnd(nextPhase) ? new Set<number>() : state.activatedCardIds,
+      activatedCardIds: GameState.Phase.isEnd(nextPhase) ? [] : state.activatedCardIds,
       // 保留リストは、エンドフェイズに遷移した時点でクリアする
       queuedEndPhaseEffectIds: hasPendingEffects ? [] : state.queuedEndPhaseEffectIds,
     };
@@ -105,11 +105,11 @@ export class AdvancePhaseCommand implements GameCommand {
   private resetFieldCardActivatedEffects(space: CardSpace): CardSpace {
     const resetCard = (card: CardInstance): CardInstance => {
       if (!card.stateOnField) return card;
-      if (card.stateOnField.activatedEffects.size === 0) return card;
+      if (card.stateOnField.activatedEffects.length === 0) return card;
 
       const resetStateOnField: StateOnField = {
         ...card.stateOnField,
-        activatedEffects: new Set(),
+        activatedEffects: [],
       };
       return { ...card, stateOnField: resetStateOnField };
     };

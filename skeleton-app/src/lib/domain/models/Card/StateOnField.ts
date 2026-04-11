@@ -28,7 +28,7 @@ export interface StateOnField {
   readonly counters: readonly CounterState[];
 
   /** このインスタンスで発動済みの起動効果ID (effectId) */
-  readonly activatedEffects: ReadonlySet<string>;
+  readonly activatedEffects: readonly string[];
 
   /** 装備対象モンスターの instanceId（装備カード用） */
   readonly equippedTo?: string;
@@ -43,6 +43,6 @@ export const createInitialStateOnField = (
   battlePosition: options?.battlePosition,
   placedThisTurn: options?.placedThisTurn ?? false,
   counters: [],
-  activatedEffects: new Set(),
+  activatedEffects: [],
   equippedTo: options?.equippedTo,
 });

@@ -65,7 +65,7 @@ const createTriggerMonsterInstance = (
         battlePosition: "attack" as const,
         placedThisTurn: false,
         counters: [],
-        activatedEffects: new Set<string>(),
+        activatedEffects: [],
       },
     };
   }

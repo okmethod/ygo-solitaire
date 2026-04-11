@@ -1,5 +1,7 @@
 /**
  * GameSnapshot - イミュータブルなあるゲーム状態のスナップショット
+ *
+ * ゲーム状態を永続化しやすくするため、json シリアライズ可能なプリミティブ型や配列、オブジェクトのみで構成する。
  */
 
 import type { CardData } from "$lib/domain/models/Card";
@@ -39,7 +41,7 @@ export interface GameSnapshot {
    * - カード名を指定した「1 ターンに 1 度」制限の発動管理に使用
    * - 先行1ターン目のみのため、「1 デュエルに 1度」制限も兼ねる
    */
-  readonly activatedCardIds: ReadonlySet<number>;
+  readonly activatedCardIds: readonly number[];
 
   /**
    * 発動時コンテキスト
@@ -124,15 +126,13 @@ export function createInitialGameSnapshot(
     },
     normalSummonLimit: 1,
     normalSummonUsed: 0,
-    activatedCardIds: new Set<number>(),
+    activatedCardIds: [],
     activationContexts: {},
     queuedEndPhaseEffectIds: [],
   };
 }
 
-/** 発動済みカードIDを追加した新しいSetを返す */
-export function updatedActivatedCardIds(ids: ReadonlySet<number>, cardId: number): Set<number> {
-  const updated = new Set(ids);
-  updated.add(cardId);
-  return updated;
+/** 発動済みカードIDを追加した新しい配列を返す */
+export function updatedActivatedCardIds(ids: readonly number[], cardId: number): number[] {
+  return [...ids, cardId];
 }

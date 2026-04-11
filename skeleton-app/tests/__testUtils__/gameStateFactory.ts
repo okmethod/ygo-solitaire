@@ -61,7 +61,7 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
     normalSummonLimit: 1,
     normalSummonUsed: 0,
     queuedEndPhaseEffectIds: [],
-    activatedCardIds: new Set<number>(),
+    activatedCardIds: [],
     activationContexts: {},
   };
 

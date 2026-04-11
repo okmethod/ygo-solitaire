@@ -59,7 +59,7 @@ export function createDummyCardInstance(options: {
       battlePosition: options.battlePosition,
       placedThisTurn: options.placedThisTurn ?? false,
       counters: options.counters ?? [],
-      activatedEffects: new Set(),
+      activatedEffects: [],
       equippedTo: options.equippedTo,
     },
   };
