@@ -43,7 +43,7 @@
   onMount(async () => {
     // 復元モードの場合はスナップショットを復元する
     if (data.isRestore) {
-      gameFacade.loadGame();
+      gameFacade.restoreGame();
     }
 
     // DisplayCardData キャッシュを初期化

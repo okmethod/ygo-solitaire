@@ -43,7 +43,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
   describe("通常魔法 - 手札から発動（成金ゴブリン: 70368879）", () => {
     it("発動 → 処理解決 → 墓地へ（effectQueueStore通し）", async () => {
       // 6枚デッキ: 成金ゴブリン×5（手札）+ ダミー×1（ドロー用）
-      facade.startGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
+      facade.resetGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
       advanceToMain1(facade);
 
       const before = getState();
@@ -59,7 +59,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
     });
 
     it("ドローフェイズは手札発動不可", () => {
-      facade.startGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
+      facade.resetGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
       // advanceToMain1 しない（ドローフェイズのまま）
 
       const state = getState();
@@ -70,7 +70,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
 
     it("発動条件不足（デッキ0枚）は発動不可", () => {
       // 強欲な壺は2枚ドロー必要 → デッキ1枚では発動不可
-      facade.startGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
+      facade.resetGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
       advanceToMain1(facade);
 
       const state = getState();
@@ -143,7 +143,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("フィールド魔法 - 手札から発動（チキンゲーム: 67616300）", () => {
     it("発動 → フィールドゾーンに表側表示で配置", async () => {
-      facade.startGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
       advanceToMain1(facade);
 
       const before = getState();

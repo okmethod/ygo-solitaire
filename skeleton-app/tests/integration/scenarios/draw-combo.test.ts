@@ -42,7 +42,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
   describe("強欲な壺 (55144522) - デッキから2枚ドロー", () => {
     it("発動→2枚ドロー→墓地送りが完結する", async () => {
       // 7枚デッキ: 手札5 + デッキ2（2枚ドロー可能）
-      facade.startGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
+      facade.resetGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
       advanceToMain1(facade);
 
       const before = getState();
@@ -62,7 +62,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
 
     it("デッキ1枚のとき発動できない", () => {
       // 6枚デッキ: 手札5 + デッキ1（2枚ドロー不可）
-      facade.startGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
+      facade.resetGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
       advanceToMain1(facade);
 
       const state = getState();
@@ -77,7 +77,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
   describe("成金ゴブリン (70368879) - 1枚ドロー（相手LP+1000）", () => {
     it("発動→1枚ドロー→墓地送りが完結する", async () => {
       // 6枚デッキ: 手札5 + デッキ1
-      facade.startGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 70368879]));
+      facade.resetGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 70368879]));
       advanceToMain1(facade);
 
       const before = getState();
@@ -98,7 +98,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
 
     it("3連発→墓地3枚・相手LP11000", async () => {
       // 8枚デッキ: 手札5 + デッキ3（3回分ドロー可）
-      facade.startGame(
+      facade.resetGame(
         createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879]),
       );
       advanceToMain1(facade);
@@ -123,7 +123,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
     it("発動→3ドロー→2枚捨て→手札±0・墓地3枚", async () => {
       // 8枚デッキ: 手札5（天使施し含む）+ デッキ3（3枚ドロー用）
       // ※全て天使の施しだとデッキ3枚が同じカードになる
-      facade.startGame(
+      facade.resetGame(
         createScenarioDeck([79571449, 79571449, 79571449, 79571449, 79571449, 12345678, 12345678, 12345678]),
       );
       advanceToMain1(facade);
@@ -152,7 +152,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
 
     it("デッキ2枚のとき発動できない", () => {
       // 7枚デッキ: 手札5 + デッキ2（3枚ドロー不可）
-      facade.startGame(createScenarioDeck([79571449, 79571449, 79571449, 79571449, 79571449, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([79571449, 79571449, 79571449, 79571449, 79571449, 12345678, 12345678]));
       advanceToMain1(facade);
 
       const state = getState();

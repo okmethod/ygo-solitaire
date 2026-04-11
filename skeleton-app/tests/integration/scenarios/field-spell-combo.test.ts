@@ -42,7 +42,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
   describe("チキンゲーム (67616300) - フィールド発動 + 起動効果", () => {
     it("フィールドゾーンに配置され、起動効果でLP-1000・1ドロー", async () => {
       // 7枚デッキ: 手札5(チキンゲーム含む) + デッキ2
-      facade.startGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
       advanceToMain1(facade);
 
       const before = getState();
@@ -72,7 +72,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
     });
 
     it("起動効果はメインフェイズのみ発動可（ドローフェイズでは不可）", () => {
-      facade.startGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678]));
+      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678]));
       // ドローフェイズのまま（advanceToMain1しない）
 
       const state = getState();
@@ -196,7 +196,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
   describe("フィールド魔法の置換ルール", () => {
     it("2枚目のチキンゲームを発動すると1枚目が墓地へ", async () => {
       // 手札: チキンゲーム×5、デッキ: ダミー×2
-      facade.startGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
       advanceToMain1(facade);
 
       const before = getState();

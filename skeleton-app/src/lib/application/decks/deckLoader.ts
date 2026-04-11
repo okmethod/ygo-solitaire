@@ -23,7 +23,27 @@ import type {
 } from "$lib/application/types/deck";
 import type { CardData, ExtraMonsterSubType } from "$lib/application/types/card";
 import { presetDeckRecipes } from "$lib/application/decks/presetDeckRecipes";
-import { CardDataRegistry } from "$lib/domain/cards";
+import { CardDataRegistry, TOKEN_CARD_IDS } from "$lib/domain/cards";
+
+/**
+ * DeckData からカード表示キャッシュ用のユニークIDを抽出する
+ *
+ * @param deckData ロード済みデッキデータ
+ * @param includeTokens トークンカードのIDを含めるか（ゲーム画面では true、レシピ表示では false）
+ * @returns 表示キャッシュ用のユニークなカードIDの配列
+ */
+export function extractDisplayCardIds(deckData: DeckData, includeTokens = false): number[] {
+  const deckIds = [
+    ...deckData.mainDeck.monsters,
+    ...deckData.mainDeck.spells,
+    ...deckData.mainDeck.traps,
+    ...deckData.extraDeck.fusion,
+    ...deckData.extraDeck.synchro,
+    ...deckData.extraDeck.xyz,
+    ...deckData.extraDeck.link,
+  ].map((e) => e.cardData.id);
+  return includeTokens ? [...deckIds, ...TOKEN_CARD_IDS] : deckIds;
+}
 
 /**
  * プリセットデッキの一覧を取得する

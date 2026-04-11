@@ -186,7 +186,7 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
     it("4パーツが手札にある状態ではゲーム続行", () => {
       const partsMinus1 = ALL_PARTS.slice(0, 4);
       // 4パーツ + ダミー×2
-      facade.startGame(createScenarioDeck([...partsMinus1, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([...partsMinus1, 12345678, 12345678]));
       advanceToMain1(facade);
 
       const state = getState();

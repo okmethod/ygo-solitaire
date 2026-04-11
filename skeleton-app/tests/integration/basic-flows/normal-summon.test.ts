@@ -302,7 +302,7 @@ describe("通常召喚 - 基本フローテスト", () => {
     });
 
     it("ドローフェイズは召喚できない", () => {
-      facade.startGame(createScenarioDeck([12345678, 12345678, 12345678, 12345678, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([12345678, 12345678, 12345678, 12345678, 12345678, 12345678]));
       // advanceToMain1 しない（ドローフェイズのまま）
 
       const state = getState();

@@ -52,7 +52,7 @@ describe("チェーン確認 - 基本フローテスト", () => {
   describe("チェーン確認なし - チェーン可能なカードが手札にない", () => {
     it("通常魔法のみの手札では chainConfirmationConfig が表示されず自動解決する", async () => {
       // 手札: 成金ゴブリン x5、デッキ: 12345678 x1
-      facade.startGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
+      facade.resetGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
       advanceToMain1(facade);
 
       const before = getState();
