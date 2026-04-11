@@ -6,6 +6,7 @@ import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/N
 import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
 import { ContinuousSpellActivation } from "$lib/domain/effects/actions/activations/ContinuousSpellActivation";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
+import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
 import { GenericTriggerEffect } from "$lib/domain/dsl/factories";
 
 // テストで使用するカードID
@@ -57,10 +58,10 @@ CardDataRegistry.register(1002, {
   jaName: "Test Spell 2",
   type: "spell",
   frameType: "spell",
-  spellType: "normal",
+  spellType: "equip",
   edition: "latest",
 });
-ChainableActionRegistry.registerActivation(1002, NormalSpellActivation.createNoOp(1002));
+ChainableActionRegistry.registerActivation(1002, EquipSpellActivation.createNoOp(1002));
 
 CardDataRegistry.register(1003, {
   jaName: "Test Spell 3",
@@ -249,6 +250,16 @@ CardDataRegistry.register(5001, {
   level: 1,
   attack: 0,
   defense: 0,
+  edition: "latest",
+});
+
+// DSLファクトリテスト用効果モンスター
+CardDataRegistry.register(7001, {
+  jaName: "Test Effect Monster",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect"],
+  level: 4,
   edition: "latest",
 });
 

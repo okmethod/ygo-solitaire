@@ -1,8 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
-import type { CardInstance } from "$lib/domain/models/Card";
-import { createMockGameState } from "../../../../__testUtils__";
+import {
+  TEST_CARD_IDS,
+  createMonsterOnField,
+  createStateWithMonsterZone,
+  createMockGameState,
+} from "../../../../__testUtils__";
 
 /**
  * GenericContinuousTriggerRule Tests - DSL定義の永続効果トリガールールのテスト
@@ -18,36 +22,17 @@ import { createMockGameState } from "../../../../__testUtils__";
 // テストヘルパー
 // =============================================================================
 
-const createMockCardInstance = (
-  cardId: number,
-  location: "mainMonsterZone" | "hand" = "mainMonsterZone",
-): CardInstance =>
-  ({
-    instanceId: `instance-${cardId}`,
-    id: cardId,
-    jaName: "テストモンスター",
-    type: "monster",
-    frameType: "effect",
-    location,
-    stateOnField:
-      location === "mainMonsterZone"
-        ? {
-            position: "faceUp",
-            battlePosition: "attack",
-            placedThisTurn: false,
-            counters: [],
-            activatedEffects: new Set<string>(),
-          }
-        : undefined,
-  }) as CardInstance;
+const CARD_ID = TEST_CARD_IDS.SPELL_CONTINUOUS;
 
-/** モンスターゾーンにモンスターを配置した状態を生成 */
-const createStateWithMonster = (monsterOnField?: CardInstance) =>
-  createMockGameState({
-    space: {
-      mainMonsterZone: monsterOnField ? [monsterOnField] : [],
-    },
-  });
+const monsterOnField = () => createMonsterOnField(`instance-${CARD_ID}`, { cardId: CARD_ID });
+
+const baseDsl = (): AdditionalRuleDSL => ({
+  category: "TriggerRule",
+  conditions: {
+    trigger: { events: ["spellActivated"] },
+  },
+  resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
+});
 
 // =============================================================================
 // GenericContinuousTriggerRule のテスト
@@ -55,74 +40,36 @@ const createStateWithMonster = (monsterOnField?: CardInstance) =>
 
 describe("GenericContinuousTriggerRule", () => {
   it("TriggerRule カテゴリとして生成される", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
 
     expect(rule.category).toBe("TriggerRule");
     expect(rule.isEffect).toBe(true);
   });
 
   it("triggers 配列が正しく設定される", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
 
     expect(rule.triggers).toContain("spellActivated");
   });
 
   it("canApply がフィールドにカードが存在する場合 true を返す", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const cardId = 70791313;
-    const rule = new GenericContinuousTriggerRule(cardId, dslDefinition);
-    const monster = createMockCardInstance(cardId, "mainMonsterZone");
-    const state = createStateWithMonster(monster);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const state = createStateWithMonsterZone([monsterOnField()]);
 
     expect(rule.canApply(state)).toBe(true);
   });
 
   it("canApply がフィールドにカードが存在しない場合 false を返す", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
-    const state = createStateWithMonster();
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const state = createMockGameState();
 
     expect(rule.canApply(state)).toBe(false);
   });
 
   it("createTriggerSteps が DSL定義に基づいてステップを生成する", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const cardId = 70791313;
-    const rule = new GenericContinuousTriggerRule(cardId, dslDefinition);
-    const monster = createMockCardInstance(cardId, "mainMonsterZone");
-    const state = createStateWithMonster(monster);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const monster = monsterOnField();
+    const state = createStateWithMonsterZone([monster]);
 
     const steps = rule.createTriggerSteps(state, monster);
 
@@ -131,53 +78,37 @@ describe("GenericContinuousTriggerRule", () => {
   });
 
   it("triggerTiming が正しく設定される", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
+    const dsl: AdditionalRuleDSL = {
+      ...baseDsl(),
       conditions: {
         trigger: { events: ["spellActivated"], timing: "if" },
       },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, dsl);
 
     expect(rule.triggerTiming).toBe("if");
   });
 
   it("triggerTiming がデフォルトで 'if'", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
 
     expect(rule.triggerTiming).toBe("if");
   });
 
   it("isMandatory がデフォルトで true", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
-      conditions: {
-        trigger: { events: ["spellActivated"] },
-      },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
-    };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
 
     expect(rule.isMandatory).toBe(true);
   });
 
   it("isMandatory を false に設定できる", () => {
-    const dslDefinition: AdditionalRuleDSL = {
-      category: "TriggerRule",
+    const dsl: AdditionalRuleDSL = {
+      ...baseDsl(),
       conditions: {
         trigger: { events: ["spellActivated"], isMandatory: false },
       },
-      resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
     };
-    const rule = new GenericContinuousTriggerRule(70791313, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, dsl);
 
     expect(rule.isMandatory).toBe(false);
   });
@@ -189,14 +120,14 @@ describe("GenericContinuousTriggerRule", () => {
 
 describe("GenericContinuousTriggerRule - Multiple Triggers", () => {
   it("複数のトリガーイベントに対応できる", () => {
-    const dslDefinition: AdditionalRuleDSL = {
+    const dsl: AdditionalRuleDSL = {
       category: "TriggerRule",
       conditions: {
         trigger: { events: ["spellActivated", "normalSummoned"] },
       },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1 } }],
     };
-    const rule = new GenericContinuousTriggerRule(12345, dslDefinition);
+    const rule = new GenericContinuousTriggerRule(CARD_ID, dsl);
 
     expect(rule.triggers).toContain("spellActivated");
     expect(rule.triggers).toContain("normalSummoned");

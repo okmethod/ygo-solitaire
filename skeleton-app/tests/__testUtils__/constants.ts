@@ -18,6 +18,7 @@ export const EXODIA_PIECE_IDS = {
 /** テスト用カードID定数（基本） */
 export const TEST_CARD_IDS = {
   DUMMY: 12345678,
+  EFFECT_MONSTER: 7001,
   SPELL_NORMAL: 1001,
   SPELL_EQUIP: 1002,
   SPELL_QUICK: 1004,

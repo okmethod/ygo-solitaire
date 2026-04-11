@@ -1,12 +1,15 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   GenericNormalSpellActivation,
   createGenericNormalSpellActivation,
 } from "$lib/domain/dsl/factories/GenericNormalSpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
-import type { CardInstance } from "$lib/domain/models/Card";
-import { CardDataRegistry } from "$lib/domain/cards";
-import { createMockGameState, createFilledMainDeck, createHand } from "../../../../__testUtils__";
+import {
+  TEST_CARD_IDS,
+  createSpellInstance,
+  createMockGameState,
+  createFilledMainDeck,
+} from "../../../../__testUtils__";
 
 /**
  * GenericNormalSpellActivation Tests
@@ -18,45 +21,17 @@ import { createMockGameState, createFilledMainDeck, createHand } from "../../../
  */
 
 // =============================================================================
-// テストセットアップ
-// =============================================================================
-
-const TEST_CARD_ID = 12345;
-
-beforeEach(() => {
-  CardDataRegistry.clear();
-  // テスト用カードを登録
-  CardDataRegistry.register(TEST_CARD_ID, {
-    jaName: "テストカード",
-    type: "spell",
-    frameType: "spell",
-    spellType: "normal",
-    edition: "latest",
-  });
-});
-
-// =============================================================================
 // テストヘルパー
 // =============================================================================
 
-const createMockCardInstance = (cardId: number): CardInstance => ({
-  instanceId: "test-instance-id",
-  id: cardId,
-  jaName: "テストカード",
-  type: "spell",
-  frameType: "spell",
-  spellType: "normal",
-  edition: "latest",
-  location: "hand",
-});
+const TEST_CARD_ID = TEST_CARD_IDS.SPELL_NORMAL;
 
-/** デッキ枚数と手札枚数を指定してゲーム状態を生成 */
-const createSpellTestState = (deckCount: number, handCount: number = 0) =>
+const normalSpellInstance = () =>
+  createSpellInstance("test-instance-id", { cardId: TEST_CARD_ID, spellType: "normal" });
+
+const createState = (deckCount: number) =>
   createMockGameState({
-    space: {
-      ...createFilledMainDeck(deckCount),
-      ...createHand(Array(handCount).fill(12345678)),
-    },
+    space: { ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY) },
   });
 
 // =============================================================================
@@ -72,17 +47,15 @@ describe("GenericNormalSpellActivation - インスタンス生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
 
     expect(activation).toBeInstanceOf(GenericNormalSpellActivation);
-    expect(activation.cardId).toBe(12345);
+    expect(activation.cardId).toBe(TEST_CARD_ID);
     expect(activation.spellSpeed).toBe(1);
   });
 
   it("空のDSL定義でもインスタンスを生成できる", () => {
-    const dsl: ChainableActionDSL = {};
-
-    const activation = createGenericNormalSpellActivation(12345, dsl);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, {});
 
     expect(activation).toBeInstanceOf(GenericNormalSpellActivation);
   });
@@ -99,11 +72,8 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createSpellTestState(5); // デッキ5枚
-    const sourceInstance = createMockCardInstance(12345);
-
-    const result = activation.canActivate(state, sourceInstance);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
+    const result = activation.canActivate(createState(5), normalSpellInstance()); // デッキ5枚
 
     expect(result.isValid).toBe(true);
   });
@@ -114,11 +84,8 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
       resolutions: [{ step: "DRAW", args: { count: 3 } }],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createSpellTestState(2); // デッキ2枚（3枚必要）
-    const sourceInstance = createMockCardInstance(12345);
-
-    const result = activation.canActivate(state, sourceInstance);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
+    const result = activation.canActivate(createState(2), normalSpellInstance()); // デッキ2枚（3枚必要）
 
     expect(result.isValid).toBe(false);
   });
@@ -128,13 +95,8 @@ describe("GenericNormalSpellActivation - 条件チェック", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createSpellTestState(0); // デッキ0枚でも条件なしなのでOK
-    const sourceInstance = createMockCardInstance(12345);
-
-    // Note: メインフェイズのみ発動可能という基底クラスの条件があるため、
-    // メインフェイズ1のstateを使用
-    const result = activation.canActivate(state, sourceInstance);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
+    const result = activation.canActivate(createState(0), normalSpellInstance()); // デッキ0枚でも条件なしならOK
 
     expect(result.isValid).toBe(true);
   });
@@ -154,11 +116,8 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
       ],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createSpellTestState(5);
-    const sourceInstance = createMockCardInstance(12345);
-
-    const steps = activation.createResolutionSteps(state, sourceInstance);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
+    const steps = activation.createResolutionSteps(createState(5), normalSpellInstance());
 
     // 基底クラスのsubTypePostResolutionSteps（墓地送り）も含まれる
     expect(steps.length).toBeGreaterThanOrEqual(3);
@@ -173,11 +132,8 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createSpellTestState(5);
-    const sourceInstance = createMockCardInstance(12345);
-
-    const steps = activation.createActivationSteps(state, sourceInstance);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
+    const steps = activation.createActivationSteps(createState(5), normalSpellInstance());
 
     // 発動ステップ（コスト支払い等）
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
@@ -188,11 +144,8 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const activation = createGenericNormalSpellActivation(12345, dsl);
-    const state = createSpellTestState(5);
-    const sourceInstance = createMockCardInstance(12345);
-
-    const steps = activation.createActivationSteps(state, sourceInstance);
+    const activation = createGenericNormalSpellActivation(TEST_CARD_ID, dsl);
+    const steps = activation.createActivationSteps(createState(5), normalSpellInstance());
 
     // 基底クラスの共通ステップのみ（通常魔法は空）
     expect(steps.filter((s) => s.id.includes("select")).length).toBe(0);

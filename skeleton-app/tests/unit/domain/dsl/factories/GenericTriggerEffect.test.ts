@@ -9,72 +9,27 @@
  * - 発動ステップと効果解決ステップが正しく生成されること
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { GenericTriggerEffect, createGenericTriggerEffect } from "$lib/domain/dsl/factories/GenericTriggerEffect";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
-import type { CardInstance } from "$lib/domain/models/Card";
-import { CardDataRegistry } from "$lib/domain/cards";
-import { createMockGameState, createFilledMainDeck, createHand, TEST_CARD_IDS } from "../../../../__testUtils__";
-
-// =============================================================================
-// テストセットアップ
-// =============================================================================
-
-const TEST_CARD_ID = 99999;
-
-beforeEach(() => {
-  CardDataRegistry.clear();
-  // テスト用モンスターカードを登録
-  CardDataRegistry.register(TEST_CARD_ID, {
-    jaName: "テスト誘発効果モンスター",
-    type: "monster",
-    frameType: "effect",
-    monsterTypeList: ["effect"],
-    level: 4,
-    edition: "latest",
-  });
-});
+import {
+  TEST_CARD_IDS,
+  createMonsterOnField,
+  createMockGameState,
+  createFilledMainDeck,
+  createHand,
+} from "../../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
 // =============================================================================
 
-/** テスト用モンスターカードインスタンスを生成 */
-const createTriggerMonsterInstance = (
-  cardId: number,
-  location: CardInstance["location"] = "mainMonsterZone",
-): CardInstance => {
-  const base = {
-    instanceId: "trigger-test-instance",
-    id: cardId,
-    jaName: "テスト誘発効果モンスター",
-    type: "monster" as const,
-    frameType: "effect" as const,
-    monsterTypeList: ["effect"] as ("normal" | "effect" | "tuner" | "token" | "toon" | "spirit")[],
-    level: 4,
-    edition: "latest" as const,
-    location,
-  };
+const TEST_CARD_ID = TEST_CARD_IDS.EFFECT_MONSTER;
 
-  if (location === "mainMonsterZone") {
-    return {
-      ...base,
-      stateOnField: {
-        slotIndex: 0,
-        position: "faceUp" as const,
-        battlePosition: "attack" as const,
-        placedThisTurn: false,
-        counters: [],
-        activatedEffects: [],
-      },
-    };
-  }
-
-  return base;
-};
+const monsterOnField = () => createMonsterOnField("trigger-test-instance", { cardId: TEST_CARD_ID });
 
 /** デッキ枚数と手札枚数を指定してゲーム状態を生成 */
-const createTriggerTestState = (deckCount: number, handCount: number = 0) =>
+const createState = (deckCount: number, handCount: number = 0) =>
   createMockGameState({
     space: {
       ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY),
@@ -148,9 +103,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
   });
 
   it("空のDSL定義でもインスタンスを生成できる", () => {
-    const dsl: ChainableActionDSL = {};
-
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, {});
 
     expect(effect).toBeInstanceOf(GenericTriggerEffect);
     expect(effect.triggers).toEqual([]);
@@ -174,9 +127,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
   });
 
   it("spellSpeed のデフォルト値は 1", () => {
-    const dsl: ChainableActionDSL = {};
-
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, {});
 
     expect(effect.spellSpeed).toBe(1);
   });
@@ -197,10 +148,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5); // デッキ5枚
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const result = effect.canActivate(state, sourceInstance);
+    const result = effect.canActivate(createState(5), monsterOnField()); // デッキ5枚
 
     expect(result.isValid).toBe(true);
   });
@@ -211,14 +159,10 @@ describe("GenericTriggerEffect - 条件チェック", () => {
         trigger: { events: ["normalSummoned"] },
         requirements: [{ step: "CAN_DRAW", args: { count: 10 } }],
       },
-      resolutions: [{ step: "DRAW", args: { count: 10 } }],
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(3); // デッキ3枚（10枚必要）
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const result = effect.canActivate(state, sourceInstance);
+    const result = effect.canActivate(createState(3), monsterOnField()); // デッキ3枚（10枚必要）
 
     expect(result.isValid).toBe(false);
   });
@@ -232,14 +176,10 @@ describe("GenericTriggerEffect - 条件チェック", () => {
           { step: "CAN_DRAW", args: { count: 2 } },
         ],
       },
-      resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5);
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const result = effect.canActivate(state, sourceInstance);
+    const result = effect.canActivate(createState(5), monsterOnField());
 
     expect(result.isValid).toBe(true);
   });
@@ -253,14 +193,10 @@ describe("GenericTriggerEffect - 条件チェック", () => {
           { step: "CAN_DRAW", args: { count: 10 } }, // 満たさない
         ],
       },
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5);
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const result = effect.canActivate(state, sourceInstance);
+    const result = effect.canActivate(createState(5), monsterOnField());
 
     expect(result.isValid).toBe(false);
   });
@@ -274,10 +210,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(0); // デッキ0枚でも条件なしなのでOK
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const result = effect.canActivate(state, sourceInstance);
+    const result = effect.canActivate(createState(0), monsterOnField()); // デッキ0枚でも条件なしなのでOK
 
     expect(result.isValid).toBe(true);
   });
@@ -301,10 +234,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5);
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const steps = effect.createResolutionSteps(state, sourceInstance);
+    const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
     expect(steps[0].id).toBe("draw-2");
@@ -322,10 +252,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5);
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const steps = effect.createActivationSteps(state, sourceInstance);
+    const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
   });
@@ -339,10 +266,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5);
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const steps = effect.createActivationSteps(state, sourceInstance);
+    const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
     // 誘発効果の発動ステップにはselect-and-discardは含まれない
     expect(steps.filter((s) => s.id.includes("select-and-discard")).length).toBe(0);
@@ -356,10 +280,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
     };
 
     const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const state = createTriggerTestState(5);
-    const sourceInstance = createTriggerMonsterInstance(TEST_CARD_ID);
-
-    const steps = effect.createResolutionSteps(state, sourceInstance);
+    const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 
     // カード固有の効果解決ステップはない
     expect(steps.filter((s) => s.id.includes("draw")).length).toBe(0);
