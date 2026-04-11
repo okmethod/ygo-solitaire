@@ -21,8 +21,14 @@ import { SynchroSummonCommand } from "$lib/domain/commands/SynchroSummonCommand"
 import { registerCardDataByIds, registerCardDataWithEffectsByIds, TOKEN_CARD_IDS } from "$lib/domain/cards";
 import type { DeckData, DeckRecipe } from "$lib/application/types/deck";
 import { getDeckRecipe, extractUniqueCardIds, buildDeckData } from "$lib/application/decks/deckLoader";
-import { gameStateStore, resetGameState, getCurrentGameState } from "$lib/application/stores/gameStateStore";
+import {
+  gameStateStore,
+  resetGameState,
+  restoreGameState,
+  getCurrentGameState,
+} from "$lib/application/stores/gameStateStore";
 import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
+import type { IGameSnapshotRepository } from "$lib/application/ports/IGameSnapshotRepository";
 
 /** GameFacadeのメソッドが返す結果型（プレゼン層への公開用） */
 export type FacadeResult = Readonly<Pick<GameCommandResult, "success" | "message" | "error">>;
@@ -31,6 +37,68 @@ export type FacadeResult = Readonly<Pick<GameCommandResult, "success" | "message
  * 全ゲーム操作の唯一の入り口（Single Entry Point）
  */
 export class GameFacade {
+  private snapshotRepository: IGameSnapshotRepository | null = null;
+
+  /** ゲーム状態リポジトリを設定する（プレゼン層から DI） */
+  setSnapshotRepository(repo: IGameSnapshotRepository): void {
+    this.snapshotRepository = repo;
+  }
+
+  /** 現在のゲーム状態を保存する */
+  saveGame(deckId: string): void {
+    if (!this.snapshotRepository) return;
+    this.snapshotRepository.save(deckId, getCurrentGameState());
+  }
+
+  /** 保存済みゲーム状態を復元する（レジストリ再構築 → snapshot 復元） */
+  loadGame(): { deckData: DeckData; uniqueCardIds: number[] } | null {
+    if (!this.snapshotRepository) return null;
+    const saved = this.snapshotRepository.load();
+    if (!saved) return null;
+    const { deckData, uniqueCardIds } = this.setupDeckWithEffects(saved.deckId);
+    restoreGameState(saved.snapshot);
+    return { deckData, uniqueCardIds };
+  }
+
+  /** 保存済みゲーム状態が存在するか確認する */
+  hasSavedGame(): boolean {
+    return this.snapshotRepository?.hasSavedState() ?? false;
+  }
+
+  /** 保存済みゲームのデッキIDを返す（なければ null） */
+  getSavedDeckId(): string | null {
+    return this.snapshotRepository?.load()?.deckId ?? null;
+  }
+
+  /** 保存済みゲーム状態を削除する */
+  clearSavedGame(): void {
+    this.snapshotRepository?.clear();
+  }
+
+  /**
+   * カードデータのみ準備する（ゲーム状態はリセットしない）
+   *
+   * 保存済みゲームを復元する際に使用。
+   * initializeGame と異なり startGame を呼ばないため、gameStateStore は変更されない。
+   */
+  prepareDeck(deckId: string): { deckData: DeckData; uniqueCardIds: number[] } {
+    return this.setupDeckWithEffects(deckId);
+  }
+
+  /** デッキのカードデータ＋効果をレジストリに登録し、デッキデータを返す共通処理 */
+  private setupDeckWithEffects(deckId: string): {
+    deckData: DeckData;
+    uniqueCardIds: number[];
+    deckRecipe: DeckRecipe;
+  } {
+    const deckRecipe = getDeckRecipe(deckId);
+    const deckCardIds = extractUniqueCardIds(deckRecipe);
+    registerCardDataWithEffectsByIds(deckCardIds);
+    const deckData = buildDeckData(deckRecipe, deckCardIds);
+    const uniqueCardIds = [...deckCardIds, ...TOKEN_CARD_IDS];
+    return { deckData, uniqueCardIds, deckRecipe };
+  }
+
   /** 各種 GameCommand の実行可否チェックのヘルパー */
   private canExecuteCommand<T extends GameCommand, Args extends unknown[]>(
     CommandClass: new (...args: Args) => T,

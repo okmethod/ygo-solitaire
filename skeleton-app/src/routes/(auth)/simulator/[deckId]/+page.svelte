@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
+  import { gameStateStore } from "$lib/application/stores/gameStateStore";
   import type { PageData } from "./$types";
   import type { DisplayCardInstance } from "$lib/presentation/types";
   import { ZONE_CAPACITY } from "$lib/presentation/types";
@@ -36,7 +37,15 @@
   const { data } = $props<{ data: PageData }>();
   const deckName = data.deckData.name;
 
+  // ゲーム状態が変化するたびに自動保存するサブスクリプション
+  let unsubscribeAutoSave: (() => void) | undefined;
+
   onMount(async () => {
+    // 復元モードの場合はスナップショットを復元する
+    if (data.isRestore) {
+      gameFacade.loadGame();
+    }
+
     // DisplayCardData キャッシュを初期化
     await initializeCache(data.uniqueCardIds);
 
@@ -48,14 +57,29 @@
       // Interactiveレベルの通知はモーダルを使う
     });
 
-    // ゲーム開始時、Main1 まで自動進行
-    gameFacade.autoAdvanceToMainPhase(
-      () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
-      (message) => {
-        playSE.attention();
-        showSuccessToast(message);
-      }, // 通知のコールバック
-    );
+    // 新規ゲームの場合のみ Main1 まで自動進行
+    if (!data.isRestore) {
+      gameFacade.autoAdvanceToMainPhase(
+        () => new Promise((resolve) => setTimeout(resolve, 300)), // ディレイのコールバック
+        (message) => {
+          playSE.attention();
+          showSuccessToast(message);
+        }, // 通知のコールバック
+      );
+    }
+
+    // ゲーム状態変化時に自動保存（ゲーム終了時はクリア）
+    unsubscribeAutoSave = gameStateStore.subscribe((snapshot) => {
+      if (snapshot.result.isGameOver) {
+        gameFacade.clearSavedGame();
+      } else {
+        gameFacade.saveGame(data.deckId);
+      }
+    });
+  });
+
+  onDestroy(() => {
+    unsubscribeAutoSave?.();
   });
 
   // ゲーム終了したらモーダルを開く

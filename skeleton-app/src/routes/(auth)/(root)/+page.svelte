@@ -1,9 +1,14 @@
 <script lang="ts">
+  import { browser } from "$app/environment";
   import { getPresetDecks } from "$lib/application/decks/deckLoader";
   import { navigateTo } from "$lib/presentation/utils/navigation";
+  import { gameFacade } from "$lib/application/GameFacade";
 
   const decks = getPresetDecks();
   let selectedRecipeId = decks[0].id;
+
+  // browser環境では layout の DI が完了しているので hasSavedGame が使える
+  const savedDeckId = browser ? gameFacade.getSavedDeckId() : null;
 
   function navigateToSimulator() {
     navigateTo(`/simulator/${selectedRecipeId}`);
@@ -11,6 +16,12 @@
 
   function navigateToRecipe() {
     navigateTo(`/recipe/${selectedRecipeId}`);
+  }
+
+  function continueGame() {
+    if (savedDeckId) {
+      navigateTo(`/simulator/${savedDeckId}?restore=true`);
+    }
   }
 </script>
 
@@ -47,5 +58,13 @@
         決闘開始
       </button>
     </div>
+
+    {#if savedDeckId}
+      <div class="flex justify-center">
+        <button class="btn preset-filled rounded-full shadow-lg md:text-lg px-4 md:px-8 py-4" on:click={continueGame}>
+          直前の状態から再開
+        </button>
+      </div>
+    {/if}
   </div>
 </div>

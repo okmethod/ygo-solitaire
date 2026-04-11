@@ -1,6 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
+  import { gameFacade } from "$lib/application/GameFacade";
+  import { LocalStorageGameSnapshotRepository } from "$lib/infrastructure/adapters/LocalStorageGameSnapshotRepository";
+
+  // browser環境でのみ repository を初期化（子コンポーネントの onMount より先に実行される）
+  if (browser) {
+    gameFacade.setSnapshotRepository(new LocalStorageGameSnapshotRepository());
+  }
   //import checkHeartbeat from "$lib/infrastructure/api/checkHeartbeat";
 
   let authorized = false;

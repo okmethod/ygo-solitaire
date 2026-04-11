@@ -54,6 +54,11 @@ export function resetGameState(deckRecipe: DeckRecipe): void {
   gameStateStore.set(GameState.initialize(initialDeck, CardDataRegistry.getCard));
 }
 
+/** 保存済みスナップショットをストアに復元する */
+export function restoreGameState(snapshot: GameSnapshot): void {
+  gameStateStore.set(snapshot);
+}
+
 /** 現在の状態スナップショットを取得する（非リアクティブ） */
 export function getCurrentGameState(): GameSnapshot {
   let currentState: GameSnapshot = createEmptyGameState();
