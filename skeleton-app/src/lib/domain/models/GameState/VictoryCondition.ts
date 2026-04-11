@@ -8,15 +8,15 @@
 import type { GameSnapshot } from "./GameSnapshot";
 import type { GameResult } from "./GameResult";
 
-const checkExodiaVictory = (state: GameSnapshot): boolean => {
-  const EXODIA_PIECE_IDS = [
-    33396948, // 本体
-    70903634, // 右腕
-    7902349, // 左腕
-    8124921, // 右足
-    44519536, // 左足
-  ] as const;
+const EXODIA_PIECE_IDS = [
+  33396948, // 本体
+  70903634, // 右腕
+  7902349, // 左腕
+  8124921, // 右足
+  44519536, // 左足
+] as const;
 
+const checkExodiaVictory = (state: GameSnapshot): boolean => {
   const handCardIds = state.space.hand.map((card) => card.id);
   const hasAllExodiaParts = EXODIA_PIECE_IDS.every((id) => handCardIds.includes(id));
   return hasAllExodiaParts;
