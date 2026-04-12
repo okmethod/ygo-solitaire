@@ -1,25 +1,10 @@
-import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
-import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { ACTUAL_CARD_IDS } from "../../../../__testUtils__";
-
 /**
- * CounterSteps Tests - カウンター関連ステップのテスト
- *
- * TEST STRATEGY:
- * - PLACE_COUNTER ステップが正しく生成されること
- * - REMOVE_COUNTER ステップが正しく生成されること
- * - 引数バリデーションが正しく行われること
+ * カウンター関連ステップのテスト
  */
 
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-const createTestContext = (cardId: number = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY): StepBuildContext => ({
-  cardId,
-  sourceInstanceId: "test-instance-id",
-});
+import { describe, it, expect } from "vitest";
+import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
+import { createStepBuildContext } from "../../../../__testUtils__";
 
 // =============================================================================
 // PLACE_COUNTER ステップのテスト
@@ -34,7 +19,7 @@ describe("StepRegistry - PLACE_COUNTER", () => {
         count: 1,
         limit: 3,
       },
-      createTestContext(),
+      createStepBuildContext(),
     );
 
     expect(step.id).toContain("counter");
@@ -44,13 +29,13 @@ describe("StepRegistry - PLACE_COUNTER", () => {
 
   it("PLACE_COUNTER ステップで counterType が無い場合エラー", () => {
     expect(() => {
-      buildStep("PLACE_COUNTER", { count: 1 }, createTestContext());
+      buildStep("PLACE_COUNTER", { count: 1 }, createStepBuildContext());
     }).toThrow("Argument 'counterType' must be a non-empty string");
   });
 
   it("PLACE_COUNTER ステップで count が無い場合エラー", () => {
     expect(() => {
-      buildStep("PLACE_COUNTER", { counterType: "spell" }, createTestContext());
+      buildStep("PLACE_COUNTER", { counterType: "spell" }, createStepBuildContext());
     }).toThrow("Argument 'count' must be a positive integer");
   });
 
@@ -61,7 +46,7 @@ describe("StepRegistry - PLACE_COUNTER", () => {
         counterType: "spell",
         count: 1,
       },
-      createTestContext(),
+      createStepBuildContext(),
     );
 
     expect(step.id).toContain("counter");
@@ -90,7 +75,7 @@ describe("StepRegistry - REMOVE_COUNTER", () => {
         counterType: "spell",
         count: 3,
       },
-      createTestContext(),
+      createStepBuildContext(),
     );
 
     expect(step.id).toContain("counter");
@@ -100,13 +85,13 @@ describe("StepRegistry - REMOVE_COUNTER", () => {
 
   it("REMOVE_COUNTER ステップで counterType が無い場合エラー", () => {
     expect(() => {
-      buildStep("REMOVE_COUNTER", { count: 3 }, createTestContext());
+      buildStep("REMOVE_COUNTER", { count: 3 }, createStepBuildContext());
     }).toThrow("Argument 'counterType' must be a non-empty string");
   });
 
   it("REMOVE_COUNTER ステップで count が無い場合エラー", () => {
     expect(() => {
-      buildStep("REMOVE_COUNTER", { counterType: "spell" }, createTestContext());
+      buildStep("REMOVE_COUNTER", { counterType: "spell" }, createStepBuildContext());
     }).toThrow("Argument 'count' must be a positive integer");
   });
 

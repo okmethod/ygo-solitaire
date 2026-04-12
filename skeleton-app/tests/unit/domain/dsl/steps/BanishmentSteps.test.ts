@@ -1,31 +1,15 @@
+/**
+ * 除外系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, DUMMY_CARD_IDS, createSpellInstance } from "../../../../__testUtils__";
+import { createMockGameState, createSpellInstance, createStepBuildContext } from "../../../../__testUtils__";
 
-/**
- * BanishmentSteps Tests - 除外系ステップのテスト
- *
- * TEST STRATEGY:
- * - SELECT_AND_BANISH_FROM_GRAVEYARD ステップが正しく生成されること
- * - フィルタータイプ（spell, trap, spell_or_trap, monster）の動作
- * - onSelectコールバックの動作
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-// EffectId constants for testing
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "12345-activation" as EffectId;
-
-const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-  effectId,
-});
 
 // =============================================================================
 // SELECT_AND_BANISH_FROM_GRAVEYARD ステップのテスト
@@ -37,7 +21,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 3 },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       expect(step.id).toContain("select-and-banish-from-graveyard");
@@ -49,7 +33,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 1, filterType: "spell" },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.id).toContain("spell");
@@ -60,7 +44,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 1, filterType: "trap" },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.id).toContain("trap");
@@ -71,7 +55,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 2, filterType: "spell_or_trap" },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.id).toContain("spell_or_trap");
@@ -82,7 +66,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 1, filterType: "monster" },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.id).toContain("monster");
@@ -93,7 +77,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 1, faceDown: true },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.summary).toContain("裏側");
@@ -101,19 +85,19 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
 
     it("minCount がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { maxCount: 3 }, createTestContext());
+        buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { maxCount: 3 }, createStepBuildContext());
       }).toThrow("Argument 'minCount' must be a positive integer");
     });
 
     it("maxCount がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 1 }, createTestContext());
+        buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 1 }, createStepBuildContext());
       }).toThrow("Argument 'maxCount' must be a positive integer");
     });
 
     it("maxCount < minCount の場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 3, maxCount: 1 }, createTestContext());
+        buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 3, maxCount: 1 }, createStepBuildContext());
       }).toThrow("SELECT_AND_BANISH_FROM_GRAVEYARD step requires maxCount >= minCount");
     });
 
@@ -146,7 +130,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 1 },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       // カード選択後のaction実行をテスト
@@ -179,7 +163,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 2, maxCount: 2 },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state, ["graveyard-spell-0", "graveyard-spell-1"]);
@@ -200,7 +184,11 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
         },
       });
 
-      const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 2, maxCount: 3 }, createTestContext());
+      const step = buildStep(
+        "SELECT_AND_BANISH_FROM_GRAVEYARD",
+        { minCount: 2, maxCount: 3 },
+        createStepBuildContext(),
+      );
 
       // 1枚しか選択しない
       const result = step.action(state, ["graveyard-spell-0"]);
@@ -227,7 +215,7 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
       const step = buildStep(
         "SELECT_AND_BANISH_FROM_GRAVEYARD",
         { minCount: 1, maxCount: 2 },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state, ["graveyard-spell-0", "graveyard-spell-1"]);
@@ -239,14 +227,22 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
 
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が graveyard に設定される", () => {
-      const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 1, maxCount: 1 }, createTestContext());
+      const step = buildStep(
+        "SELECT_AND_BANISH_FROM_GRAVEYARD",
+        { minCount: 1, maxCount: 1 },
+        createStepBuildContext(),
+      );
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?._sourceZone).toBe("graveyard");
     });
 
     it("minCards と maxCards が正しく設定される", () => {
-      const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 2, maxCount: 5 }, createTestContext());
+      const step = buildStep(
+        "SELECT_AND_BANISH_FROM_GRAVEYARD",
+        { minCount: 2, maxCount: 5 },
+        createStepBuildContext(),
+      );
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.minCards).toBe(2);
@@ -254,7 +250,11 @@ describe("StepRegistry - SELECT_AND_BANISH_FROM_GRAVEYARD", () => {
     });
 
     it("cancelable が false に設定される", () => {
-      const step = buildStep("SELECT_AND_BANISH_FROM_GRAVEYARD", { minCount: 1, maxCount: 1 }, createTestContext());
+      const step = buildStep(
+        "SELECT_AND_BANISH_FROM_GRAVEYARD",
+        { minCount: 1, maxCount: 1 },
+        createStepBuildContext(),
+      );
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.cancelable).toBe(false);

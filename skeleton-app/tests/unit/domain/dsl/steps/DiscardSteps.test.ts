@@ -1,31 +1,16 @@
+/**
+ * 手札破棄系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { sendToGraveyardStep, discardAllHandStep, selectAndDiscardStep } from "$lib/domain/dsl/steps/builders/discards";
 import {
   createMockGameState,
   createMonsterInstance,
   createSpellInstance,
-  DUMMY_CARD_IDS,
+  createStepBuildContext,
 } from "../../../../__testUtils__";
-
-/**
- * DiscardSteps Tests - 手札破棄系ステップのテスト
- *
- * TEST STRATEGY:
- * - SELECT_AND_DISCARD ステップが正しく動作すること
- * - DISCARD_ALL_HAND_END_PHASE ステップが正しく動作すること
- * - sentToGraveyard イベントが発行されること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-const createTestContext = (): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-});
 
 // =============================================================================
 // SELECT_AND_DISCARD ステップのテスト
@@ -34,7 +19,7 @@ const createTestContext = (): StepBuildContext => ({
 describe("StepRegistry - SELECT_AND_DISCARD", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
 
       expect(step.id).toContain("select-and-discard");
       expect(step.summary).toContain("捨てる");
@@ -42,26 +27,26 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
     });
 
     it("count: 2 でステップを生成できる", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
 
       expect(step.summary).toContain("2枚");
     });
 
     it("filterType: spell でステップを生成できる", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "spell" }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "spell" }, createStepBuildContext());
 
       expect(step.summary).toContain("魔法");
     });
 
     it("filterType: monster でステップを生成できる", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "monster" }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "monster" }, createStepBuildContext());
 
       expect(step.summary).toContain("モンスター");
     });
 
     it("count がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_AND_DISCARD", {}, createTestContext());
+        buildStep("SELECT_AND_DISCARD", {}, createStepBuildContext());
       }).toThrow("Argument 'count' must be a positive integer");
     });
 
@@ -87,7 +72,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
         },
       });
 
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
 
       const result = step.action(state, ["hand-monster-0"]);
 
@@ -109,7 +94,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
         },
       });
 
-      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
 
       const result = step.action(state, ["hand-monster-0", "hand-monster-1"]);
 
@@ -129,7 +114,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
         },
       });
 
-      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
 
       // 1枚しか選択しない
       const result = step.action(state, ["hand-monster-0"]);
@@ -148,7 +133,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
         },
       });
 
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
 
       const result = step.action(state, ["hand-monster-0"]);
 
@@ -163,14 +148,14 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
 
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が hand に設定される", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?._sourceZone).toBe("hand");
     });
 
     it("minCards と maxCards が count に設定される", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.minCards).toBe(2);
@@ -178,14 +163,14 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
     });
 
     it("cancelable: true を指定できる", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1, cancelable: true }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1, cancelable: true }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.cancelable).toBe(true);
     });
 
     it("_filter が filterType でフィルタリングする", () => {
-      const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "spell" }, createTestContext());
+      const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "spell" }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
       const filter = config?._filter;
       expect(filter).toBeDefined();
@@ -206,7 +191,7 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
 describe("StepRegistry - DISCARD_ALL_HAND_END_PHASE", () => {
   describe("ステップ生成", () => {
     it("ステップを生成できる", () => {
-      const step = buildStep("DISCARD_ALL_HAND_END_PHASE", {}, createTestContext());
+      const step = buildStep("DISCARD_ALL_HAND_END_PHASE", {}, createStepBuildContext());
 
       expect(step.id).toContain("end-phase");
       expect(step.summary).toContain("全て捨てる");
@@ -230,7 +215,7 @@ describe("StepRegistry - DISCARD_ALL_HAND_END_PHASE", () => {
         },
       });
 
-      const step = buildStep("DISCARD_ALL_HAND_END_PHASE", {}, createTestContext());
+      const step = buildStep("DISCARD_ALL_HAND_END_PHASE", {}, createStepBuildContext());
 
       const result = step.action(state);
 

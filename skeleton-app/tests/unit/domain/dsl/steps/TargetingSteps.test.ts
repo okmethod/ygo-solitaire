@@ -1,5 +1,8 @@
+/**
+ * 対象選択系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
@@ -8,29 +11,12 @@ import {
   createMockGameState,
   createMonsterInstance,
   createMonsterOnField,
+  createStepBuildContext,
   DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
-/**
- * TargetingSteps Tests - 対象選択系ステップのテスト
- *
- * TEST STRATEGY:
- * - SELECT_TARGET_FROM_FIELD_BY_RACE ステップが正しく生成されること
- * - SELECT_TARGETS_FROM_GRAVEYARD ステップが正しく生成されること
- * - 対象がコンテキストに保存されること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "12345-activation" as EffectId;
-
-const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-  effectId,
-});
 
 // =============================================================================
 // SELECT_TARGET_FROM_FIELD_BY_RACE ステップのテスト
@@ -42,7 +28,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const step = buildStep(
         "SELECT_TARGET_FROM_FIELD_BY_RACE",
         { race: "Spellcaster" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       expect(step.id).toContain("select-target-from-field-by-race");
@@ -53,13 +39,13 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
 
     it("effectId がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_TARGET_FROM_FIELD_BY_RACE", { race: "Spellcaster" }, createTestContext());
+        buildStep("SELECT_TARGET_FROM_FIELD_BY_RACE", { race: "Spellcaster" }, createStepBuildContext());
       }).toThrow("SELECT_TARGET_FROM_FIELD_BY_RACE step requires effectId in context");
     });
 
     it("race がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_TARGET_FROM_FIELD_BY_RACE", {}, createTestContext(EFFECT_ID_1));
+        buildStep("SELECT_TARGET_FROM_FIELD_BY_RACE", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
       }).toThrow("Argument 'race' must be a non-empty string");
     });
 
@@ -90,7 +76,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const step = buildStep(
         "SELECT_TARGET_FROM_FIELD_BY_RACE",
         { race: "Spellcaster" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state, ["field-monster-0"]);
@@ -114,7 +100,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const step = buildStep(
         "SELECT_TARGET_FROM_FIELD_BY_RACE",
         { race: "Spellcaster" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state, []);
@@ -129,7 +115,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const step = buildStep(
         "SELECT_TARGET_FROM_FIELD_BY_RACE",
         { race: "Spellcaster" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
       const config = step.cardSelectionConfig!(createMockGameState());
 
@@ -140,7 +126,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const step = buildStep(
         "SELECT_TARGET_FROM_FIELD_BY_RACE",
         { race: "Spellcaster" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
       const config = step.cardSelectionConfig!(createMockGameState());
 
@@ -152,7 +138,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
       const step = buildStep(
         "SELECT_TARGET_FROM_FIELD_BY_RACE",
         { race: "Spellcaster" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
       const config = step.cardSelectionConfig!(createMockGameState());
       const filter = config?._filter;
@@ -180,7 +166,7 @@ describe("StepRegistry - SELECT_TARGET_FROM_FIELD_BY_RACE", () => {
 describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
   describe("ステップ生成", () => {
     it("count省略時（1体）のステップを生成できる", () => {
-      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       expect(step.id).toContain("select-targets-from-graveyard-1");
       expect(step.summary).toContain("1体");
@@ -188,7 +174,11 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
     });
 
     it("count指定時のステップを生成できる", () => {
-      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", { count: 3 }, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "SELECT_TARGETS_FROM_GRAVEYARD",
+        { count: 3 },
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       expect(step.id).toContain("select-targets-from-graveyard-3");
       expect(step.summary).toContain("3体");
@@ -196,7 +186,7 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
 
     it("effectId がない場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext());
+        buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createStepBuildContext());
       }).toThrow("SELECT_TARGETS_FROM_GRAVEYARD step requires effectId in context");
     });
 
@@ -219,7 +209,7 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       const result = step.action(state, ["graveyard-monster-0"]);
 
@@ -238,7 +228,7 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       const result = step.action(state, []);
 
@@ -249,14 +239,14 @@ describe("StepRegistry - SELECT_TARGETS_FROM_GRAVEYARD", () => {
 
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が graveyard に設定される", () => {
-      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?._sourceZone).toBe("graveyard");
     });
 
     it("_filter がモンスターのみを対象とする", () => {
-      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SELECT_TARGETS_FROM_GRAVEYARD", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
       const config = step.cardSelectionConfig!(createMockGameState());
       const filter = config?._filter;
       expect(filter).toBeDefined();

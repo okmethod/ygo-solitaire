@@ -42,6 +42,9 @@ export {
 // ゲームイベントファクトリ
 export { createGameEvent } from "./gameEventFactory";
 
+// コンテキストファクトリ
+export { createStepBuildContext } from "./contextFactory";
+
 // インテグレーションテスト共通ヘルパー
 export {
   createScenarioDeck,

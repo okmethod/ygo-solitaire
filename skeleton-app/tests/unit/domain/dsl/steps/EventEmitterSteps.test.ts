@@ -1,18 +1,13 @@
+/**
+ * イベント発行系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   emitSpellActivatedEventStep,
   emitNormalSummonedEventStep,
 } from "$lib/domain/dsl/steps/primitives/eventEmitters";
 import { createMockGameState, createMonsterInstance, createSpellInstance } from "../../../../__testUtils__";
-
-/**
- * EventEmitterSteps Tests - イベント発行系ステップのテスト
- *
- * TEST STRATEGY:
- * - emitSpellActivatedEventStep が正しくイベントを発行すること
- * - emitNormalSummonedEventStep が正しくイベントを発行すること
- * - イベントがトリガーシステムで検出可能な形式であること
- */
 
 // =============================================================================
 // emitSpellActivatedEventStep のテスト

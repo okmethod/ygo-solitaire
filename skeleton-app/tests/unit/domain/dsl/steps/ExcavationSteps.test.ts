@@ -1,5 +1,8 @@
+/**
+ * デッキめくり系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
@@ -8,31 +11,11 @@ import {
   createMonsterInstance,
   createSpellInstance,
   createFilledMonsterZone,
-  DUMMY_CARD_IDS,
+  createStepBuildContext,
 } from "../../../../__testUtils__";
 
-/**
- * ExcavationSteps Tests - デッキめくり系ステップのテスト
- *
- * TEST STRATEGY:
- * - EXCAVATE_UNTIL_MONSTER ステップが正しく生成・実行されること
- * - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK ステップが正しく生成・実行されること
- * - フィルタリング（_filter, canConfirm）が正しく動作すること
- * - 墓地送り処理とイベント発行が正しく動作すること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-// EffectId constants for testing
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "12345-activation" as EffectId;
-
-const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-  effectId,
-});
 
 // =============================================================================
 // EXCAVATE_UNTIL_MONSTER ステップのテスト
@@ -41,7 +24,7 @@ const createTestContext = (effectId?: EffectId): StepBuildContext => ({
 describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       expect(step.id).toContain("excavate-until-monster");
       expect(step.summary).toContain("めくった");
@@ -49,13 +32,13 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
     });
 
     it("battlePosition: attack でステップを生成できる", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", { battlePosition: "attack" }, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", { battlePosition: "attack" }, createStepBuildContext());
 
       expect(typeof step.action).toBe("function");
     });
 
     it("battlePosition: defense でステップを生成できる", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", { battlePosition: "defense" }, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", { battlePosition: "defense" }, createStepBuildContext());
 
       expect(typeof step.action).toBe("function");
     });
@@ -85,7 +68,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
         },
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -111,7 +94,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
         },
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -133,7 +116,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
         },
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       const result = step.action(state, []);
 
@@ -155,7 +138,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
         },
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       const result = step.action(state, []);
 
@@ -177,7 +160,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
         },
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       const result = step.action(state, ["wrong-monster"]);
 
@@ -199,7 +182,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
         },
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -209,21 +192,21 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
 
   describe("cardSelectionConfig", () => {
     it("_sourceZone が mainDeck に設定される", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?._sourceZone).toBe("mainDeck");
     });
 
     it("cancelable が false に設定される", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.cancelable).toBe(false);
     });
 
     it("_filter がインデックスに基づいてフィルタリングする", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
       const filter = config?._filter;
 
@@ -246,7 +229,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
     });
 
     it("canConfirm がモンスター1体選択時のみtrueを返す", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createTestContext());
+      const step = buildStep("EXCAVATE_UNTIL_MONSTER", {}, createStepBuildContext());
       const canConfirm = step.cardSelectionConfig!(createMockGameState())?.canConfirm;
 
       expect(canConfirm).toBeDefined();
@@ -276,7 +259,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
 describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
   describe("ステップ生成", () => {
     it("effectIdがcontextにあればステップを生成できる", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       expect(step.id).toContain("excavate-until-monster-level-check");
       expect(step.summary).toContain("めくった");
@@ -284,7 +271,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
     });
 
     it("effectIdをargsで指定できる", () => {
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        { effectId: EFFECT_ID_1 },
+        createStepBuildContext(),
+      );
 
       expect(step.id).toContain("excavate-until-monster-level-check");
     });
@@ -293,7 +284,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
       const step = buildStep(
         "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
         { battlePosition: "defense" },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       expect(typeof step.action).toBe("function");
@@ -301,7 +292,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
 
     it("effectIdがない場合エラー", () => {
       expect(() => {
-        buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext());
+        buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createStepBuildContext());
       }).toThrow("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK step requires effectId");
     });
 
@@ -333,7 +324,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -364,7 +359,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -384,7 +383,7 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_ID_1]: {
           targets: [],
-          // declaredInteger is not set
+          // declaredInteger は未設定
         },
       };
 
@@ -397,7 +396,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -428,7 +431,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -460,7 +467,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, ["deck-monster-0"]);
 
@@ -488,7 +499,11 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, []);
 

@@ -1,32 +1,15 @@
+/**
+ * LP操作系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { gainLpStep, payLpStep, damageLpStep, lossLpStep } from "$lib/domain/dsl/steps/builders/lifePoints";
-import { createMockGameState, DUMMY_CARD_IDS } from "../../../../__testUtils__";
-
-/**
- * LifePointSteps Tests - LP操作系ステップのテスト
- *
- * TEST STRATEGY:
- * - GAIN_LP ステップが正しく動作すること
- * - PAY_LP ステップが正しく動作すること
- * - BURN_DAMAGE ステップが正しく動作すること
- * - BURN_FROM_CONTEXT ステップが正しく動作すること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
+import { createMockGameState, createStepBuildContext } from "../../../../__testUtils__";
 
 const EFFECT_ID_1 = "12345-activation" as EffectId;
-
-const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-  effectId,
-});
 
 // =============================================================================
 // GAIN_LP ステップのテスト
@@ -35,7 +18,7 @@ const createTestContext = (effectId?: EffectId): StepBuildContext => ({
 describe("StepRegistry - GAIN_LP", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("GAIN_LP", { amount: 1000 }, createTestContext());
+      const step = buildStep("GAIN_LP", { amount: 1000 }, createStepBuildContext());
 
       expect(step.id).toContain("gain-lp");
       expect(step.summary).toContain("LP");
@@ -44,7 +27,7 @@ describe("StepRegistry - GAIN_LP", () => {
     });
 
     it("target: opponent を指定できる", () => {
-      const step = buildStep("GAIN_LP", { amount: 500, target: "opponent" }, createTestContext());
+      const step = buildStep("GAIN_LP", { amount: 500, target: "opponent" }, createStepBuildContext());
 
       expect(step.id).toContain("opponent");
       expect(step.summary).toContain("相手");
@@ -52,7 +35,7 @@ describe("StepRegistry - GAIN_LP", () => {
 
     it("amount がない場合エラー", () => {
       expect(() => {
-        buildStep("GAIN_LP", {}, createTestContext());
+        buildStep("GAIN_LP", {}, createStepBuildContext());
       }).toThrow("Argument 'amount' must be a positive integer");
     });
 
@@ -72,7 +55,7 @@ describe("StepRegistry - GAIN_LP", () => {
         lp: { player: 5000, opponent: 8000 },
       });
 
-      const step = buildStep("GAIN_LP", { amount: 1000 }, createTestContext());
+      const step = buildStep("GAIN_LP", { amount: 1000 }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -87,7 +70,7 @@ describe("StepRegistry - GAIN_LP", () => {
         lp: { player: 8000, opponent: 5000 },
       });
 
-      const step = buildStep("GAIN_LP", { amount: 2000, target: "opponent" }, createTestContext());
+      const step = buildStep("GAIN_LP", { amount: 2000, target: "opponent" }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -105,7 +88,7 @@ describe("StepRegistry - GAIN_LP", () => {
 describe("StepRegistry - PAY_LP", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("PAY_LP", { amount: 1000 }, createTestContext());
+      const step = buildStep("PAY_LP", { amount: 1000 }, createStepBuildContext());
 
       expect(step.id).toContain("pay-lp");
       expect(step.summary).toContain("支払い");
@@ -123,7 +106,7 @@ describe("StepRegistry - PAY_LP", () => {
         lp: { player: 8000, opponent: 8000 },
       });
 
-      const step = buildStep("PAY_LP", { amount: 1000 }, createTestContext());
+      const step = buildStep("PAY_LP", { amount: 1000 }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -137,7 +120,7 @@ describe("StepRegistry - PAY_LP", () => {
         lp: { player: 8000, opponent: 8000 },
       });
 
-      const step = buildStep("PAY_LP", { amount: 1000 }, createTestContext());
+      const step = buildStep("PAY_LP", { amount: 1000 }, createStepBuildContext());
 
       // 1回目
       let result = step.action(state);
@@ -158,7 +141,7 @@ describe("StepRegistry - PAY_LP", () => {
 describe("StepRegistry - BURN_DAMAGE", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("BURN_DAMAGE", { amount: 500 }, createTestContext());
+      const step = buildStep("BURN_DAMAGE", { amount: 500 }, createStepBuildContext());
 
       expect(step.id).toContain("damage");
       expect(step.summary).toContain("ダメージ");
@@ -166,13 +149,13 @@ describe("StepRegistry - BURN_DAMAGE", () => {
     });
 
     it("デフォルトで相手を対象にする", () => {
-      const step = buildStep("BURN_DAMAGE", { amount: 500 }, createTestContext());
+      const step = buildStep("BURN_DAMAGE", { amount: 500 }, createStepBuildContext());
 
       expect(step.id).toContain("opponent");
     });
 
     it("target: player を指定できる", () => {
-      const step = buildStep("BURN_DAMAGE", { amount: 500, target: "player" }, createTestContext());
+      const step = buildStep("BURN_DAMAGE", { amount: 500, target: "player" }, createStepBuildContext());
 
       expect(step.id).toContain("player");
     });
@@ -188,7 +171,7 @@ describe("StepRegistry - BURN_DAMAGE", () => {
         lp: { player: 8000, opponent: 8000 },
       });
 
-      const step = buildStep("BURN_DAMAGE", { amount: 500 }, createTestContext());
+      const step = buildStep("BURN_DAMAGE", { amount: 500 }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -203,7 +186,7 @@ describe("StepRegistry - BURN_DAMAGE", () => {
         lp: { player: 8000, opponent: 8000 },
       });
 
-      const step = buildStep("BURN_DAMAGE", { amount: 1000, target: "player" }, createTestContext());
+      const step = buildStep("BURN_DAMAGE", { amount: 1000, target: "player" }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -221,7 +204,7 @@ describe("StepRegistry - BURN_DAMAGE", () => {
 describe("StepRegistry - BURN_FROM_CONTEXT", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("BURN_FROM_CONTEXT", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("BURN_FROM_CONTEXT", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       expect(step.id).toContain("burn-from-context");
       expect(step.summary).toContain("ダメージ");
@@ -230,7 +213,7 @@ describe("StepRegistry - BURN_FROM_CONTEXT", () => {
 
     it("effectId がない場合エラー", () => {
       expect(() => {
-        buildStep("BURN_FROM_CONTEXT", {}, createTestContext());
+        buildStep("BURN_FROM_CONTEXT", {}, createStepBuildContext());
       }).toThrow("BURN_FROM_CONTEXT step requires effectId in context");
     });
 
@@ -249,7 +232,7 @@ describe("StepRegistry - BURN_FROM_CONTEXT", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("BURN_FROM_CONTEXT", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("BURN_FROM_CONTEXT", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       const result = step.action(state);
 
@@ -267,7 +250,7 @@ describe("StepRegistry - BURN_FROM_CONTEXT", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("BURN_FROM_CONTEXT", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("BURN_FROM_CONTEXT", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       const result = step.action(state);
 
@@ -284,7 +267,11 @@ describe("StepRegistry - BURN_FROM_CONTEXT", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("BURN_FROM_CONTEXT", { damageTarget: "player" }, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "BURN_FROM_CONTEXT",
+        { damageTarget: "player" },
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state);
 
@@ -302,7 +289,7 @@ describe("StepRegistry - BURN_FROM_CONTEXT", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("BURN_FROM_CONTEXT", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("BURN_FROM_CONTEXT", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       const result = step.action(state);
 

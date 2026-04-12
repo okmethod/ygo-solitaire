@@ -1,25 +1,15 @@
-import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
-import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
-
 /**
- * BattlePositionSteps Tests - 表示形式変更ステップのテスト
- *
- * TEST STRATEGY:
- * - CHANGE_BATTLE_POSITION ステップが正しく生成されること
- * - action関数が表示形式を正しく変更すること
- * - エラーケースが正しく処理されること
+ * 表示形式変更ステップのテスト
  */
 
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-const createTestContext = (instanceId: string = "test-monster"): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: instanceId,
-});
+import { describe, it, expect } from "vitest";
+import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
+import {
+  createMockGameState,
+  createMonsterOnField,
+  createStepBuildContext,
+  DUMMY_CARD_IDS,
+} from "../../../../__testUtils__";
 
 // =============================================================================
 // CHANGE_BATTLE_POSITION ステップのテスト
@@ -28,7 +18,11 @@ const createTestContext = (instanceId: string = "test-monster"): StepBuildContex
 describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
   describe("ステップ生成", () => {
     it("攻撃表示に変更するステップを生成できる", () => {
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "attack" }, createTestContext());
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "attack" },
+        createStepBuildContext({ sourceInstanceId: "test-monster" }),
+      );
 
       expect(step.id).toContain("change-battle-position");
       expect(step.id).toContain("attack");
@@ -37,7 +31,11 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
     });
 
     it("守備表示に変更するステップを生成できる", () => {
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "defense" }, createTestContext());
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "defense" },
+        createStepBuildContext({ sourceInstanceId: "test-monster" }),
+      );
 
       expect(step.id).toContain("change-battle-position");
       expect(step.id).toContain("defense");
@@ -47,13 +45,13 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
 
     it("position が無い場合エラー", () => {
       expect(() => {
-        buildStep("CHANGE_BATTLE_POSITION", {}, createTestContext());
+        buildStep("CHANGE_BATTLE_POSITION", {}, createStepBuildContext());
       }).toThrow('CHANGE_BATTLE_POSITION step requires position to be "attack" or "defense"');
     });
 
     it("position が不正な値の場合エラー", () => {
       expect(() => {
-        buildStep("CHANGE_BATTLE_POSITION", { position: "invalid" }, createTestContext());
+        buildStep("CHANGE_BATTLE_POSITION", { position: "invalid" }, createStepBuildContext());
       }).toThrow('CHANGE_BATTLE_POSITION step requires position to be "attack" or "defense"');
     });
 
@@ -86,7 +84,11 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         },
       });
 
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "attack" }, createTestContext("test-monster"));
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "attack" },
+        createStepBuildContext({ sourceInstanceId: "test-monster" }),
+      );
 
       const result = step.action(state);
 
@@ -108,7 +110,11 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         },
       });
 
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "defense" }, createTestContext("test-monster"));
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "defense" },
+        createStepBuildContext({ sourceInstanceId: "test-monster" }),
+      );
 
       const result = step.action(state);
 
@@ -130,7 +136,11 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         },
       });
 
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "attack" }, createTestContext("test-monster"));
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "attack" },
+        createStepBuildContext({ sourceInstanceId: "test-monster" }),
+      );
 
       const result = step.action(state);
 
@@ -145,7 +155,11 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         },
       });
 
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "attack" }, createTestContext("nonexistent"));
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "attack" },
+        createStepBuildContext({ sourceInstanceId: "nonexistent" }),
+      );
 
       const result = step.action(state);
 
@@ -172,7 +186,11 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         },
       });
 
-      const step = buildStep("CHANGE_BATTLE_POSITION", { position: "attack" }, createTestContext("test-monster"));
+      const step = buildStep(
+        "CHANGE_BATTLE_POSITION",
+        { position: "attack" },
+        createStepBuildContext({ sourceInstanceId: "test-monster" }),
+      );
 
       const result = step.action(state);
 

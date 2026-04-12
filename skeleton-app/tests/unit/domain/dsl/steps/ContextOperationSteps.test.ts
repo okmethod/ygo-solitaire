@@ -1,34 +1,17 @@
+/**
+ * コンテキスト操作ステップのテスト
+ */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { getTargetsFromContext } from "$lib/domain/dsl/steps/builders/contextOperations";
-import { createMockGameState, DUMMY_CARD_IDS } from "../../../../__testUtils__";
+import { createMockGameState, createStepBuildContext } from "../../../../__testUtils__";
 
-/**
- * ContextOperationSteps Tests - コンテキスト操作ステップのテスト
- *
- * TEST STRATEGY:
- * - SAVE_TARGETS_TO_CONTEXT ステップが正しく生成・実行されること
- * - CLEAR_CONTEXT ステップが正しく生成・実行されること
- * - DECLARE_RANDOM_INTEGER ステップが正しく生成・実行されること
- * - getTargetsFromContext ヘルパーが正しく動作すること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-// EffectId constants for testing
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "12345-activation" as EffectId;
 const EFFECT_NONEXISTENT = "nonexistent" as EffectId;
-
-const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-  effectId,
-});
 
 // =============================================================================
 // SAVE_TARGETS_TO_CONTEXT ステップのテスト
@@ -37,7 +20,7 @@ const createTestContext = (effectId?: EffectId): StepBuildContext => ({
 describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
   describe("ステップ生成", () => {
     it("effectIdをargsで指定してステップを生成できる", () => {
-      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createStepBuildContext());
 
       expect(step.id).toContain("save-targets");
       expect(step.summary).toContain("対象");
@@ -45,7 +28,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
     });
 
     it("effectIdをcontextから取得してステップを生成できる", () => {
-      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       expect(step.id).toContain("save-targets");
       expect(typeof step.action).toBe("function");
@@ -55,7 +38,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
       const step = buildStep(
         "SAVE_TARGETS_TO_CONTEXT",
         { effectId: EFFECT_ID_1, summary: "カスタム保存" },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.summary).toBe("カスタム保存");
@@ -63,7 +46,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
 
     it("effectIdがない場合エラー", () => {
       expect(() => {
-        buildStep("SAVE_TARGETS_TO_CONTEXT", {}, createTestContext());
+        buildStep("SAVE_TARGETS_TO_CONTEXT", {}, createStepBuildContext());
       }).toThrow("SAVE_TARGETS_TO_CONTEXT step requires effectId");
     });
 
@@ -81,7 +64,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createStepBuildContext());
 
       const result = step.action(state, ["target-1", "target-2"]);
 
@@ -97,7 +80,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
         activationContexts: {},
       });
 
-      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createStepBuildContext());
 
       const result = step.action(state, []);
 
@@ -110,7 +93,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
         activationContexts: {},
       });
 
-      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep("SAVE_TARGETS_TO_CONTEXT", { effectId: EFFECT_ID_1 }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -127,7 +110,7 @@ describe("StepRegistry - SAVE_TARGETS_TO_CONTEXT", () => {
 describe("StepRegistry - CLEAR_CONTEXT", () => {
   describe("ステップ生成", () => {
     it("effectIdをargsで指定してステップを生成できる", () => {
-      const step = buildStep("CLEAR_CONTEXT", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep("CLEAR_CONTEXT", { effectId: EFFECT_ID_1 }, createStepBuildContext());
 
       expect(step.id).toContain("clear-context");
       expect(step.summary).toContain("クリア");
@@ -135,7 +118,7 @@ describe("StepRegistry - CLEAR_CONTEXT", () => {
     });
 
     it("effectIdをcontextから取得してステップを生成できる", () => {
-      const step = buildStep("CLEAR_CONTEXT", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("CLEAR_CONTEXT", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       expect(step.id).toContain("clear-context");
       expect(typeof step.action).toBe("function");
@@ -143,7 +126,7 @@ describe("StepRegistry - CLEAR_CONTEXT", () => {
 
     it("effectIdがない場合エラー", () => {
       expect(() => {
-        buildStep("CLEAR_CONTEXT", {}, createTestContext());
+        buildStep("CLEAR_CONTEXT", {}, createStepBuildContext());
       }).toThrow("CLEAR_CONTEXT step requires effectId");
     });
 
@@ -163,7 +146,7 @@ describe("StepRegistry - CLEAR_CONTEXT", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("CLEAR_CONTEXT", { effectId: EFFECT_ID_1 }, createTestContext());
+      const step = buildStep("CLEAR_CONTEXT", { effectId: EFFECT_ID_1 }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -176,7 +159,7 @@ describe("StepRegistry - CLEAR_CONTEXT", () => {
         activationContexts: {},
       });
 
-      const step = buildStep("CLEAR_CONTEXT", { effectId: EFFECT_NONEXISTENT }, createTestContext());
+      const step = buildStep("CLEAR_CONTEXT", { effectId: EFFECT_NONEXISTENT }, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -208,7 +191,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
           maxValue: 12,
           messageTemplate: "レベル{value}を宣言",
         },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       expect(step.id).toContain("declare-random-integer");
@@ -225,7 +208,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
           maxValue: 12,
           messageTemplate: "レベル{value}を宣言",
         },
-        createTestContext(),
+        createStepBuildContext(),
       );
 
       expect(step.id).toContain("declare-random-integer");
@@ -236,7 +219,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
         buildStep(
           "DECLARE_RANDOM_INTEGER",
           { maxValue: 12, messageTemplate: "レベル{value}を宣言" },
-          createTestContext(EFFECT_ID_1),
+          createStepBuildContext({ effectId: EFFECT_ID_1 }),
         );
       }).toThrow("Argument 'minValue' must be a positive integer");
     });
@@ -246,14 +229,18 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
         buildStep(
           "DECLARE_RANDOM_INTEGER",
           { minValue: 1, messageTemplate: "レベル{value}を宣言" },
-          createTestContext(EFFECT_ID_1),
+          createStepBuildContext({ effectId: EFFECT_ID_1 }),
         );
       }).toThrow("Argument 'maxValue' must be a positive integer");
     });
 
     it("messageTemplateがない場合エラー", () => {
       expect(() => {
-        buildStep("DECLARE_RANDOM_INTEGER", { minValue: 1, maxValue: 12 }, createTestContext(EFFECT_ID_1));
+        buildStep(
+          "DECLARE_RANDOM_INTEGER",
+          { minValue: 1, maxValue: 12 },
+          createStepBuildContext({ effectId: EFFECT_ID_1 }),
+        );
       }).toThrow("Argument 'messageTemplate' must be a string");
     });
 
@@ -262,7 +249,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
         buildStep(
           "DECLARE_RANDOM_INTEGER",
           { minValue: 1, maxValue: 12, messageTemplate: "レベル{value}を宣言" },
-          createTestContext(),
+          createStepBuildContext(),
         );
       }).toThrow("DECLARE_RANDOM_INTEGER step requires effectId");
     });
@@ -291,7 +278,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
           maxValue: 12,
           messageTemplate: "レベル{value}を宣言",
         },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state);
@@ -320,7 +307,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
           maxValue: 12,
           messageTemplate: "レベル{value}を宣言",
         },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state);
@@ -346,7 +333,7 @@ describe("StepRegistry - DECLARE_RANDOM_INTEGER", () => {
           maxValue: 12,
           messageTemplate: "レベル{value}を宣言",
         },
-        createTestContext(EFFECT_ID_1),
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
       const result = step.action(state);

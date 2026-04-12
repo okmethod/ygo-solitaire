@@ -1,24 +1,10 @@
-import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
-import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-
 /**
- * CostSteps Tests - コスト関連ステップのテスト
- *
- * TEST STRATEGY:
- * - SEARCH_FROM_DECK ステップが正しく生成されること
- * - SALVAGE_FROM_GRAVEYARD ステップが正しく生成されること
- * - フィルター条件が正しく適用されること
+ * コスト関連ステップのテスト
  */
 
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-const createTestContext = (cardId: number = 12345): StepBuildContext => ({
-  cardId,
-  sourceInstanceId: "test-instance-id",
-});
+import { describe, it, expect } from "vitest";
+import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
+import { createStepBuildContext } from "../../../../__testUtils__";
 
 // =============================================================================
 // SEARCH_FROM_DECK ステップのテスト
@@ -33,7 +19,7 @@ describe("StepRegistry - SEARCH_FROM_DECK", () => {
         filterSpellType: "field",
         count: 1,
       },
-      createTestContext(),
+      createStepBuildContext(),
     );
 
     expect(step.id).toContain("search-from-deck");
@@ -43,13 +29,13 @@ describe("StepRegistry - SEARCH_FROM_DECK", () => {
 
   it("SEARCH_FROM_DECK ステップで filterType が無い場合エラー", () => {
     expect(() => {
-      buildStep("SEARCH_FROM_DECK", { count: 1 }, createTestContext());
+      buildStep("SEARCH_FROM_DECK", { count: 1 }, createStepBuildContext());
     }).toThrow("Argument 'filterType' must be a non-empty string");
   });
 
   it("SEARCH_FROM_DECK ステップで count が無い場合エラー", () => {
     expect(() => {
-      buildStep("SEARCH_FROM_DECK", { filterType: "spell" }, createTestContext());
+      buildStep("SEARCH_FROM_DECK", { filterType: "spell" }, createStepBuildContext());
     }).toThrow("Argument 'count' must be a positive integer");
   });
 
@@ -75,7 +61,7 @@ describe("StepRegistry - SALVAGE_FROM_GRAVEYARD", () => {
         filterType: "spell",
         count: 1,
       },
-      createTestContext(),
+      createStepBuildContext(),
     );
 
     expect(step.id).toContain("salvage-from-graveyard");
@@ -85,13 +71,13 @@ describe("StepRegistry - SALVAGE_FROM_GRAVEYARD", () => {
 
   it("SALVAGE_FROM_GRAVEYARD ステップで filterType が無い場合エラー", () => {
     expect(() => {
-      buildStep("SALVAGE_FROM_GRAVEYARD", { count: 1 }, createTestContext());
+      buildStep("SALVAGE_FROM_GRAVEYARD", { count: 1 }, createStepBuildContext());
     }).toThrow("Argument 'filterType' must be a non-empty string");
   });
 
   it("SALVAGE_FROM_GRAVEYARD ステップで count が無い場合エラー", () => {
     expect(() => {
-      buildStep("SALVAGE_FROM_GRAVEYARD", { filterType: "spell" }, createTestContext());
+      buildStep("SALVAGE_FROM_GRAVEYARD", { filterType: "spell" }, createStepBuildContext());
     }).toThrow("Argument 'count' must be a positive integer");
   });
 

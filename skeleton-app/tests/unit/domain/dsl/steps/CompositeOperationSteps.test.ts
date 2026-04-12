@@ -1,5 +1,8 @@
+/**
+ * 複合操作系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import {
   selectReturnShuffleDrawStep,
@@ -9,26 +12,8 @@ import {
   createMockGameState,
   createMonsterInstance,
   createSpellInstance,
-  DUMMY_CARD_IDS,
+  createStepBuildContext,
 } from "../../../../__testUtils__";
-
-/**
- * CompositeOperationSteps Tests - 複合操作系ステップのテスト
- *
- * TEST STRATEGY:
- * - SELECT_RETURN_SHUFFLE_DRAW ステップが正しく生成されること
- * - RETURN_ALL_HAND_SHUFFLE_DRAW ステップが正しく生成されること
- * - 手札→デッキ→シャッフル→ドローの一連の処理が正しく動作すること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-const createTestContext = (): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-});
 
 // =============================================================================
 // SELECT_RETURN_SHUFFLE_DRAW ステップのテスト
@@ -37,7 +22,7 @@ const createTestContext = (): StepBuildContext => ({
 describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createStepBuildContext());
 
       expect(step.id).toContain("select-and-return-to-deck");
       expect(step.summary).toContain("デッキに戻す");
@@ -45,7 +30,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
     });
 
     it("min と max を指定できる", () => {
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 2, max: 5 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 2, max: 5 }, createStepBuildContext());
 
       expect(step.description).toContain("2");
       expect(step.description).toContain("5");
@@ -53,7 +38,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
 
     it("min が負の場合エラー", () => {
       expect(() => {
-        buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: -1 }, createTestContext());
+        buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: -1 }, createStepBuildContext());
       }).toThrow("SELECT_RETURN_SHUFFLE_DRAW step requires a non-negative min argument");
     });
 
@@ -81,7 +66,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
         },
       });
 
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createStepBuildContext());
 
       // 1枚選択して戻す
       const result = step.action(state, ["hand-monster-0"]);
@@ -110,7 +95,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
         },
       });
 
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1, max: 3 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1, max: 3 }, createStepBuildContext());
 
       // 2枚選択して戻す
       const result = step.action(state, ["hand-monster-0", "hand-monster-1"]);
@@ -131,7 +116,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
         },
       });
 
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 0 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 0 }, createStepBuildContext());
 
       const result = step.action(state, []);
 
@@ -143,14 +128,14 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
 
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が hand に設定される", () => {
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?._sourceZone).toBe("hand");
     });
 
     it("minCards と maxCards が正しく設定される", () => {
-      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 2, max: 4 }, createTestContext());
+      const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 2, max: 4 }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.minCards).toBe(2);
@@ -166,7 +151,7 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
 describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
   describe("ステップ生成", () => {
     it("ステップを生成できる", () => {
-      const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createTestContext());
+      const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createStepBuildContext());
 
       expect(step.id).toContain("return-all-hand-shuffle-draw");
       expect(step.summary).toContain("全て");
@@ -193,7 +178,7 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
         },
       });
 
-      const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createTestContext());
+      const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createStepBuildContext());
 
       const result = step.action(state);
 
@@ -216,7 +201,7 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
         },
       });
 
-      const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createTestContext());
+      const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createStepBuildContext());
 
       const result = step.action(state);
 

@@ -1,5 +1,8 @@
+/**
+ * リリース系ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
-import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
@@ -8,29 +11,12 @@ import {
   createMockGameState,
   createFilledMonsterZone,
   createMonsterOnField,
+  createStepBuildContext,
   DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
-/**
- * ReleaseSteps Tests - リリース系ステップのテスト
- *
- * TEST STRATEGY:
- * - RELEASE ステップが正しく生成されること
- * - RELEASE_FOR_BURN ステップの動作
- * - excludeEffect オプションの動作
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "12345-activation" as EffectId;
-
-const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-  sourceInstanceId: "source-card",
-  effectId,
-});
 
 // =============================================================================
 // RELEASE ステップのテスト
@@ -39,7 +25,7 @@ const createTestContext = (effectId?: EffectId): StepBuildContext => ({
 describe("StepRegistry - RELEASE", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("RELEASE", {}, createTestContext());
+      const step = buildStep("RELEASE", {}, createStepBuildContext());
 
       expect(step.id).toContain("select-release");
       expect(step.summary).toContain("リリース");
@@ -47,13 +33,13 @@ describe("StepRegistry - RELEASE", () => {
     });
 
     it("count: 2 でステップを生成できる", () => {
-      const step = buildStep("RELEASE", { count: 2 }, createTestContext());
+      const step = buildStep("RELEASE", { count: 2 }, createStepBuildContext());
 
       expect(step.description).toContain("2体");
     });
 
     it("excludeEffect: true でステップを生成できる", () => {
-      const step = buildStep("RELEASE", { excludeEffect: true }, createTestContext());
+      const step = buildStep("RELEASE", { excludeEffect: true }, createStepBuildContext());
 
       expect(step.description).toContain("効果モンスター以外");
     });
@@ -78,7 +64,7 @@ describe("StepRegistry - RELEASE", () => {
         },
       });
 
-      const step = buildStep("RELEASE", {}, createTestContext());
+      const step = buildStep("RELEASE", {}, createStepBuildContext());
 
       const result = step.action(state, [monsters[0].instanceId]);
 
@@ -97,7 +83,7 @@ describe("StepRegistry - RELEASE", () => {
         },
       });
 
-      const step = buildStep("RELEASE", { count: 2 }, createTestContext());
+      const step = buildStep("RELEASE", { count: 2 }, createStepBuildContext());
 
       const result = step.action(state, [monsters[0].instanceId, monsters[1].instanceId]);
 
@@ -109,14 +95,14 @@ describe("StepRegistry - RELEASE", () => {
 
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が mainMonsterZone に設定される", () => {
-      const step = buildStep("RELEASE", {}, createTestContext());
+      const step = buildStep("RELEASE", {}, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?._sourceZone).toBe("mainMonsterZone");
     });
 
     it("minCards と maxCards が count に設定される", () => {
-      const step = buildStep("RELEASE", { count: 2 }, createTestContext());
+      const step = buildStep("RELEASE", { count: 2 }, createStepBuildContext());
       const config = step.cardSelectionConfig!(createMockGameState());
 
       expect(config?.minCards).toBe(2);
@@ -132,7 +118,7 @@ describe("StepRegistry - RELEASE", () => {
 describe("StepRegistry - RELEASE_FOR_BURN", () => {
   describe("ステップ生成", () => {
     it("基本パラメータでステップを生成できる", () => {
-      const step = buildStep("RELEASE_FOR_BURN", {}, createTestContext(EFFECT_ID_1));
+      const step = buildStep("RELEASE_FOR_BURN", {}, createStepBuildContext({ effectId: EFFECT_ID_1 }));
 
       expect(step.id).toContain("select-release");
       expect(step.description).toContain("50%");
@@ -140,20 +126,24 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
     });
 
     it("damageMultiplier を指定できる", () => {
-      const step = buildStep("RELEASE_FOR_BURN", { damageMultiplier: 1.0 }, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "RELEASE_FOR_BURN",
+        { damageMultiplier: 1.0 },
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       expect(step.description).toContain("100%");
     });
 
     it("effectId がない場合エラー", () => {
       expect(() => {
-        buildStep("RELEASE_FOR_BURN", {}, createTestContext());
+        buildStep("RELEASE_FOR_BURN", {}, createStepBuildContext());
       }).toThrow("RELEASE_FOR_BURN step requires effectId in context");
     });
 
     it("damageMultiplier が0以下の場合エラー", () => {
       expect(() => {
-        buildStep("RELEASE_FOR_BURN", { damageMultiplier: 0 }, createTestContext(EFFECT_ID_1));
+        buildStep("RELEASE_FOR_BURN", { damageMultiplier: 0 }, createStepBuildContext({ effectId: EFFECT_ID_1 }));
       }).toThrow("RELEASE_FOR_BURN step requires damageMultiplier to be a positive number");
     });
 
@@ -177,7 +167,11 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("RELEASE_FOR_BURN", { damageMultiplier: 0.5 }, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "RELEASE_FOR_BURN",
+        { damageMultiplier: 0.5 },
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, [monsters[0].instanceId]);
 
@@ -201,7 +195,11 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
         activationContexts: contexts,
       });
 
-      const step = buildStep("RELEASE_FOR_BURN", { damageMultiplier: 1.0 }, createTestContext(EFFECT_ID_1));
+      const step = buildStep(
+        "RELEASE_FOR_BURN",
+        { damageMultiplier: 1.0 },
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
 
       const result = step.action(state, [monsters[0].instanceId]);
 

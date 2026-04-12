@@ -1,3 +1,7 @@
+/**
+ * 装備関連ステップのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import type { EffectId } from "$lib/domain/models/Effect";
@@ -8,31 +12,12 @@ import {
   createMonsterOnField,
   createSpellOnField,
   createSpellInstance,
+  createStepBuildContext,
   DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
-/**
- * EquipSteps Tests - 装備関連ステップのテスト
- *
- * TEST STRATEGY:
- * - ESTABLISH_EQUIP ステップが正しく生成・実行されること
- * - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD ステップが正しく生成・実行されること
- * - UNEQUIP ステップが正しく生成・実行されること
- * - エラーケースが正しく処理されること
- */
-
-// =============================================================================
-// テストヘルパー
-// =============================================================================
-
-// EffectId constants for testing
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "12345-activation" as EffectId;
-
-const createTestContext = (options?: { sourceInstanceId?: string; effectId?: EffectId }): StepBuildContext => ({
-  cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
-  sourceInstanceId: options?.sourceInstanceId ?? "equip-spell",
-  effectId: options?.effectId,
-});
 
 // =============================================================================
 // ESTABLISH_EQUIP ステップのテスト
@@ -44,7 +29,11 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
       const step = buildStep(
         "ESTABLISH_EQUIP",
         { effectId: EFFECT_ID_1, equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({
+          effectId: EFFECT_ID_1,
+          cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
+          sourceInstanceId: "equip-spell",
+        }),
       );
 
       expect(step.id).toContain("establish-equip");
@@ -53,7 +42,15 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
     });
 
     it("contextから値を取得してステップを生成できる", () => {
-      const step = buildStep("ESTABLISH_EQUIP", {}, createTestContext({ effectId: EFFECT_ID_1 }));
+      const step = buildStep(
+        "ESTABLISH_EQUIP",
+        {},
+        createStepBuildContext({
+          effectId: EFFECT_ID_1,
+          cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
+          sourceInstanceId: "equip-spell",
+        }),
+      );
 
       expect(step.id).toContain("establish-equip");
       expect(typeof step.action).toBe("function");
@@ -61,15 +58,21 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
 
     it("effectIdがない場合エラー", () => {
       expect(() => {
-        buildStep("ESTABLISH_EQUIP", {}, createTestContext());
+        buildStep(
+          "ESTABLISH_EQUIP",
+          {},
+          createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+        );
       }).toThrow("ESTABLISH_EQUIP step requires effectId");
     });
 
     it("sourceInstanceIdがない場合エラー", () => {
       expect(() => {
-        buildStep("ESTABLISH_EQUIP", { effectId: EFFECT_ID_1 }, {
-          cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
-        } as StepBuildContext);
+        buildStep(
+          "ESTABLISH_EQUIP",
+          { effectId: EFFECT_ID_1 },
+          createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL }),
+        );
       }).toThrow("ESTABLISH_EQUIP step requires equipCardInstanceId");
     });
 
@@ -101,7 +104,11 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
       const step = buildStep(
         "ESTABLISH_EQUIP",
         { effectId: EFFECT_ID_1, equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({
+          effectId: EFFECT_ID_1,
+          cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
+          sourceInstanceId: "equip-spell",
+        }),
       );
 
       const result = step.action(state);
@@ -135,7 +142,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
       const step = buildStep(
         "ESTABLISH_EQUIP",
         { effectId: EFFECT_ID_1, equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       const result = step.action(state);
@@ -161,7 +168,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
       const step = buildStep(
         "ESTABLISH_EQUIP",
         { effectId: EFFECT_ID_1, equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       const result = step.action(state);
@@ -190,7 +197,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
       const step = buildStep(
         "ESTABLISH_EQUIP",
         { effectId: EFFECT_ID_1, equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       const result = step.action(state);
@@ -211,7 +218,7 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
       const step = buildStep(
         "SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD",
         { equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       expect(step.id).toContain("send-equipped-and-self-to-graveyard");
@@ -220,7 +227,11 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
     });
 
     it("contextから値を取得してステップを生成できる", () => {
-      const step = buildStep("SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", {}, createTestContext());
+      const step = buildStep(
+        "SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD",
+        {},
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+      );
 
       expect(step.id).toContain("send-equipped-and-self-to-graveyard");
       expect(typeof step.action).toBe("function");
@@ -259,7 +270,7 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
       const step = buildStep(
         "SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD",
         { equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       const result = step.action(state);
@@ -280,7 +291,7 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
       const step = buildStep(
         "SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD",
         { equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       const result = step.action(state);
@@ -302,7 +313,7 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
       const step = buildStep(
         "SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD",
         { equipCardInstanceId: "equip-spell" },
-        createTestContext(),
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
       );
 
       const result = step.action(state);
@@ -320,7 +331,11 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
 describe("StepRegistry - UNEQUIP", () => {
   describe("ステップ生成", () => {
     it("argsで指定してステップを生成できる", () => {
-      const step = buildStep("UNEQUIP", { equipCardInstanceId: "equip-spell" }, createTestContext());
+      const step = buildStep(
+        "UNEQUIP",
+        { equipCardInstanceId: "equip-spell" },
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+      );
 
       expect(step.id).toContain("unequip");
       expect(step.summary).toContain("装備解除");
@@ -328,7 +343,11 @@ describe("StepRegistry - UNEQUIP", () => {
     });
 
     it("contextから値を取得してステップを生成できる", () => {
-      const step = buildStep("UNEQUIP", {}, createTestContext());
+      const step = buildStep(
+        "UNEQUIP",
+        {},
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+      );
 
       expect(step.id).toContain("unequip");
       expect(typeof step.action).toBe("function");
@@ -358,7 +377,11 @@ describe("StepRegistry - UNEQUIP", () => {
         },
       });
 
-      const step = buildStep("UNEQUIP", { equipCardInstanceId: "equip-spell" }, createTestContext());
+      const step = buildStep(
+        "UNEQUIP",
+        { equipCardInstanceId: "equip-spell" },
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+      );
 
       const result = step.action(state);
 
@@ -373,7 +396,11 @@ describe("StepRegistry - UNEQUIP", () => {
         },
       });
 
-      const step = buildStep("UNEQUIP", { equipCardInstanceId: "equip-spell" }, createTestContext());
+      const step = buildStep(
+        "UNEQUIP",
+        { equipCardInstanceId: "equip-spell" },
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+      );
 
       const result = step.action(state);
 
@@ -393,7 +420,11 @@ describe("StepRegistry - UNEQUIP", () => {
         },
       });
 
-      const step = buildStep("UNEQUIP", { equipCardInstanceId: "equip-spell" }, createTestContext());
+      const step = buildStep(
+        "UNEQUIP",
+        { equipCardInstanceId: "equip-spell" },
+        createStepBuildContext({ cardId: DUMMY_CARD_IDS.EQUIP_SPELL, sourceInstanceId: "equip-spell" }),
+      );
 
       const result = step.action(state);
 

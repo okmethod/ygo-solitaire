@@ -1,3 +1,7 @@
+/**
+ * 動的フィルタリングユーティリティのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   isDynamicLevelRef,
@@ -8,16 +12,7 @@ import type { EffectId } from "$lib/domain/models/Effect";
 import type { EffectActivationContext } from "$lib/domain/models/GameState/ActivationContext";
 import { createMockGameState } from "../../../../__testUtils__";
 
-/**
- * DynamicFiltering Tests - 動的フィルタリングユーティリティのテスト
- *
- * TEST STRATEGY:
- * - isDynamicLevelRef が動的参照を正しく判定すること
- * - resolveDynamicLevelFromContext がコンテキストから値を解決すること
- * - resolveDynamicLevelFromState がステートから値を解決すること
- */
-
-// EffectId constants for testing
+// テスト用 EffectId 定数
 const EFFECT_ID_1 = "effect-1" as EffectId;
 const EFFECT_ID_2 = "effect-2" as EffectId;
 const EFFECT_ID_3 = "effect-3" as EffectId;
@@ -84,7 +79,7 @@ describe("resolveDynamicLevelFromContext", () => {
   it("paidCosts がコンテキストにない場合、undefined を返す", () => {
     const context: EffectActivationContext = {
       targets: [],
-      // paidCosts is not set
+      // paidCosts は未設定
     };
 
     const result = resolveDynamicLevelFromContext("paidCosts", context);
@@ -145,7 +140,7 @@ describe("resolveDynamicLevelFromState", () => {
     const contexts: Record<EffectId, EffectActivationContext> = {
       [EFFECT_ID_123]: {
         targets: [],
-        // paidCosts is not set
+        // paidCosts は未設定
       },
     };
     const state = createMockGameState({
