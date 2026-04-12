@@ -14,6 +14,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { ACTUAL_CARD_IDS } from "./constants";
+import { createMonsterInstance, createMonsterOnField } from "./cardInstanceFactory";
 import { createFilledMainDeck, createHand } from "./cardSpaceFactory";
 
 /**
@@ -123,5 +124,39 @@ export function createExodiaVictoryState(): GameSnapshot {
       reason: "exodia",
       message: "All 5 Exodia pieces are in your hand. You win!",
     },
+  });
+}
+
+/**
+ * シンクロ召喚テスト用の状態を作成（フィールドにチューナー+非チューナー、EXにシンクロ）
+ *
+ * @param options - オプション設定
+ *   - tunerLevel: チューナーのレベル（デフォルト: 2、null でチューナーなし）
+ *   - nonTunerLevels: 非チューナーのレベル配列（デフォルト: [4]）
+ *   - synchroLevel: シンクロモンスターのレベル（デフォルト: 6）
+ */
+export function createSynchroSummonReadyState(options?: {
+  tunerLevel?: 1 | 2 | 3 | null;
+  nonTunerLevels?: (1 | 2 | 3 | 4)[];
+  synchroLevel?: 5 | 6 | 7 | 8;
+}): ReturnType<typeof createMockGameState> {
+  const tunerLevel = options?.tunerLevel !== undefined ? options.tunerLevel : 2;
+  const nonTunerLevels = options?.nonTunerLevels ?? [4];
+  const synchroLevel = options?.synchroLevel ?? 6;
+
+  const tunerZone = tunerLevel !== null ? [createMonsterOnField("tuner-0", { isTuner: true, level: tunerLevel })] : [];
+
+  return createMockGameState({
+    space: {
+      ...createFilledMainDeck(30),
+      extraDeck: [
+        createMonsterInstance("synchro-0", { frameType: "synchro", level: synchroLevel, location: "extraDeck" }),
+      ],
+      mainMonsterZone: [
+        ...tunerZone,
+        ...nonTunerLevels.map((lvl, index) => createMonsterOnField(`nontuner-${index}`, { level: lvl })),
+      ],
+    },
+    phase: "main1",
   });
 }

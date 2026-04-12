@@ -3,12 +3,12 @@
  *
  * CardInstance を生成するユーティリティ関数群
  *
- * 【手札向け】stateOnField なし
+ * 【フィールド以外向け】stateOnField 無し
  * - createMonsterInstance: モンスター
  * - createSpellInstance: 魔法
  * - createTrapInstance: 罠
  *
- * 【フィールド向け】stateOnField 付き
+ * 【フィールド向け】stateOnField 有り
  * - createMonsterOnField: フィールド上のモンスター
  * - createSpellOnField: フィールド上の魔法
  */
@@ -50,6 +50,18 @@ const defaultTrapCardIds: Record<TrapSubType, number> = {
 // =============================================================================
 // 内部ユーティリティ
 // =============================================================================
+
+/** isTuner オプションから frameType / monsterTypeList を解決する */
+const resolveMonsterOptions = (options?: {
+  frameType?: FrameSubType;
+  isTuner?: boolean;
+  monsterTypeList?: string[];
+}) => ({
+  resolvedFrameType: options?.frameType ?? (options?.isTuner ? "effect" : undefined),
+  resolvedMonsterTypeList: (options?.monsterTypeList ?? (options?.isTuner ? ["effect", "tuner"] : undefined)) as
+    | CardData["monsterTypeList"]
+    | undefined,
+});
 
 /** undefined 値を除いたオブジェクトを返す */
 const defined = <T extends object>(obj: T): Partial<T> =>
@@ -99,19 +111,19 @@ const createBase = (
 };
 
 // =============================================================================
-// 手札向け（stateOnField なし）
+// フィールド以外向け（stateOnField 無し）
 // =============================================================================
 
 /**
- * テスト用モンスターカードインスタンスを作成
+ * テスト用モンスターカードインスタンスを作成（stateOnField 無し）
  *
- * setup.ts で登録されたデフォルトテストモンスターを使用。
- * cardId 指定の場合、登録済みカードの場合は CardDataRegistry から情報を取得。
- * level 指定により上書きも可能。
+ * cardId 未指定時は defaultMonsterCardId を使用。
+ * cardId 指定時、CardDataRegistry に登録済みであればレジストリ値を優先。
+ * isTuner: true の場合、frameType="effect" / monsterTypeList=["effect","tuner"] を自動設定。
+ * デフォルトロケーション: 手札
  *
- * @param instanceId - 一意のインスタンス識別子
+ * @param instanceId - 一意のインスタンスID
  * @param options - オプション設定
- * @returns CardInstance
  */
 export function createMonsterInstance(
   instanceId: string,
@@ -120,25 +132,27 @@ export function createMonsterInstance(
     frameType?: FrameSubType;
     location?: LocationName;
     level?: number;
+    isTuner?: boolean;
     race?: string;
     attack?: number;
     defense?: number;
     monsterTypeList?: string[];
   },
 ): CardInstance {
+  const { resolvedFrameType, resolvedMonsterTypeList } = resolveMonsterOptions(options);
   return createBase(
     instanceId,
     options?.cardId ?? defaultMonsterCardId,
     options?.location ?? "hand",
     { type: "monster", frameType: "normal" },
-    {
-      frameType: options?.frameType,
+    defined({
+      frameType: resolvedFrameType,
       level: options?.level,
       race: options?.race,
       attack: options?.attack,
       defense: options?.defense,
-      monsterTypeList: options?.monsterTypeList as CardData["monsterTypeList"],
-    },
+      monsterTypeList: resolvedMonsterTypeList,
+    }),
   );
 }
 
@@ -191,19 +205,27 @@ export function createTrapInstance(
 }
 
 // =============================================================================
-// フィールド向け（stateOnField 付き）
+// フィールド向け（stateOnField 有り）
 // =============================================================================
 
 /**
- * モンスターゾーンのカードインスタンスを作成（stateOnField付き）
+ * テスト用モンスターカードインスタンスを作成（stateOnField 有り）
  *
- * @param instanceId - インスタンスID（例: "mainMonsterZone-0"）
+ * ロケーションは mainMonsterZone 固定。
+ * cardId 未指定時は defaultMonsterCardId を使用。
+ * cardId 指定時、CardDataRegistry に登録済みであればレジストリ値を優先。
+ * isTuner: true の場合、frameType="effect" / monsterTypeList=["effect","tuner"] を自動設定。
+ * isTuner と monsterTypeList / monsterTypeList の同時指定は不可。
+ * デフォルト: slotIndex=0, 表側攻撃表示
+ *
+ * @param instanceId - 一意のインスタンスID
  * @param options - オプション設定
  */
 export function createMonsterOnField(
   instanceId: string,
   options?: {
     cardId?: number;
+    isTuner?: boolean;
     frameType?: FrameSubType;
     position?: Position;
     battlePosition?: BattlePosition;
@@ -217,25 +239,26 @@ export function createMonsterOnField(
     monsterTypeList?: string[];
   },
 ): CardInstance {
+  const { resolvedFrameType, resolvedMonsterTypeList } = resolveMonsterOptions(options);
   return createBase(
     instanceId,
     options?.cardId ?? defaultMonsterCardId,
     "mainMonsterZone",
     { type: "monster" },
     defined({
-      frameType: options?.frameType,
+      frameType: resolvedFrameType,
       race: options?.race,
       level: options?.level,
       attack: options?.attack,
       defense: options?.defense,
-      monsterTypeList: options?.monsterTypeList as CardData["monsterTypeList"],
+      monsterTypeList: resolvedMonsterTypeList,
     }),
     {
       slotIndex: options?.slotIndex ?? 0,
       position: options?.position ?? "faceUp",
-      battlePosition: options?.battlePosition,
-      placedThisTurn: options?.placedThisTurn,
-      counters: options?.counters,
+      battlePosition: options?.battlePosition ?? "attack",
+      placedThisTurn: options?.placedThisTurn ?? false,
+      counters: options?.counters ?? [],
     },
   );
 }

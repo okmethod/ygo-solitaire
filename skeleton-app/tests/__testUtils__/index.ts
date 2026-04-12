@@ -5,7 +5,7 @@
  */
 
 // 定数
-export { ACTUAL_CARD_IDS, TEST_CARD_IDS, SYNCHRO_TEST_CARD_IDS } from "./constants";
+export { ACTUAL_CARD_IDS, TEST_CARD_IDS } from "./constants";
 
 // カードインスタンスファクトリ
 export {
@@ -36,16 +36,8 @@ export {
   createStateWithMonsterZone,
   createStateWithFieldZone,
   createExodiaVictoryState,
-} from "./gameStateFactory";
-
-// シンクロ召喚テストヘルパー
-export {
-  createTestTunerCard,
-  createTestSynchroMonster,
   createSynchroSummonReadyState,
-  createSynchroSummonNoTunerState,
-  createSynchroSummonLevelMismatchState,
-} from "./synchroTestHelpers";
+} from "./gameStateFactory";
 
 // インテグレーションテスト共通ヘルパー
 export {

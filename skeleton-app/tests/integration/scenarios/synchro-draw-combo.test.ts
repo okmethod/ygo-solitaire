@@ -19,7 +19,7 @@ import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import {
   createMockGameState,
-  createTestTunerCard,
+  createMonsterOnField,
   createFilledMainDeck,
   flushEffectQueue,
   resolveCardSelection,
@@ -28,7 +28,7 @@ import {
   resolveOptionalTrigger,
   getState,
 } from "../../__testUtils__";
-import { SYNCHRO_TEST_CARD_IDS, ACTUAL_CARD_IDS } from "../../__testUtils__/constants";
+import { ACTUAL_CARD_IDS } from "../../__testUtils__/constants";
 
 /** 実在シンクロモンスターのカードインスタンスを生成する */
 function createRealSynchroCard(
@@ -55,28 +55,6 @@ function createRealSynchroCard(
     };
   }
   return baseInstance;
-}
-
-/** 非チューナーモンスターのカードインスタンスを生成する */
-function createNonTunerCard(instanceId: string, level: 1 | 4): CardInstance {
-  const cardIdMap: Record<1 | 4, number> = {
-    1: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV1,
-    4: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
-  };
-  const cardId = cardIdMap[level];
-  const registeredCard = CardDataRegistry.getOrUndefined(cardId);
-  return {
-    instanceId,
-    id: cardId,
-    jaName: registeredCard?.jaName ?? `NonTuner Lv${level}`,
-    type: "monster" as const,
-    frameType: registeredCard?.frameType ?? ("normal" as FrameSubType),
-    monsterTypeList: registeredCard?.monsterTypeList ?? ["normal"],
-    level: registeredCard?.level ?? level,
-    edition: registeredCard?.edition ?? ("latest" as const),
-    location: "mainMonsterZone" as const,
-    stateOnField: createInitialStateOnField({ position: "faceUp" }),
-  };
 }
 
 describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
@@ -110,10 +88,10 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
           createRealSynchroCard(ACTUAL_CARD_IDS.FORMULA_SYNCHRON, "formula", "extraDeck"),
         ],
         mainMonsterZone: [
-          createTestTunerCard("tuner-for-librarian", 1),
-          createNonTunerCard("nontuner-lv4", 4),
-          createTestTunerCard("tuner-for-formula", 1),
-          createNonTunerCard("nontuner-lv1", 1),
+          createMonsterOnField("tuner-for-librarian", { isTuner: true, level: 1 }),
+          createMonsterOnField("nontuner-lv4", { level: 4 }),
+          createMonsterOnField("tuner-for-formula", { isTuner: true, level: 1 }),
+          createMonsterOnField("nontuner-lv1", { level: 1 }),
         ],
         hand: [],
       },
@@ -170,7 +148,10 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
       space: {
         ...createFilledMainDeck(5),
         extraDeck: [createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck")],
-        mainMonsterZone: [createTestTunerCard("tuner-0", 1), createNonTunerCard("nontuner-0", 4)],
+        mainMonsterZone: [
+          createMonsterOnField("tuner-0", { isTuner: true, level: 1 }),
+          createMonsterOnField("nontuner-0", { level: 4 }),
+        ],
         hand: [],
       },
     });

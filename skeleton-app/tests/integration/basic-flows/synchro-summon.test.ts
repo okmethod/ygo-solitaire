@@ -21,8 +21,6 @@ import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createSynchroSummonReadyState,
-  createSynchroSummonNoTunerState,
-  createSynchroSummonLevelMismatchState,
   flushEffectQueue,
   resolveCardSelection,
   hasCardSelection,
@@ -128,7 +126,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("シンクロ召喚 - 失敗フロー", () => {
     it("チューナーなしでは canSynchroSummon が false", () => {
-      gameStateStore.set(createSynchroSummonNoTunerState());
+      gameStateStore.set(createSynchroSummonReadyState({ tunerLevel: null }));
 
       const state = getState();
       const synchroId = state.space.extraDeck[0].instanceId;
@@ -137,7 +135,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
     });
 
     it("チューナーなしでは synchroSummon が失敗する", () => {
-      gameStateStore.set(createSynchroSummonNoTunerState());
+      gameStateStore.set(createSynchroSummonReadyState({ tunerLevel: null }));
 
       const state = getState();
       const synchroId = state.space.extraDeck[0].instanceId;
@@ -148,7 +146,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
 
     it("レベル合計不一致では召喚できない", () => {
       // Lv1チューナー + Lv4非チューナー = Lv5 ≠ Lv8シンクロ
-      gameStateStore.set(createSynchroSummonLevelMismatchState());
+      gameStateStore.set(createSynchroSummonReadyState({ tunerLevel: 1, nonTunerLevels: [4], synchroLevel: 8 }));
 
       const state = getState();
       const synchroId = state.space.extraDeck[0].instanceId;

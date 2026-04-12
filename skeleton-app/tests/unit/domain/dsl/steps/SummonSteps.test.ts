@@ -8,7 +8,6 @@ import {
   createMonsterInstance,
   createFilledMonsterZone,
   TEST_CARD_IDS,
-  SYNCHRO_TEST_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -103,7 +102,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_DECK", () => {
   describe("action実行", () => {
     it("デッキからモンスターを特殊召喚できる", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -142,7 +140,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_DECK", () => {
 
     it("モンスターゾーンが満杯の場合エラー", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -163,7 +160,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_DECK", () => {
 
     it("選択されていない場合エラー", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -295,7 +291,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_CONTEXT", () => {
   describe("action実行", () => {
     it("コンテキストから対象を取得して特殊召喚できる", () => {
       const monster = createMonsterInstance("graveyard-monster", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "graveyard",
         level: 4,
       });
@@ -374,7 +369,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_CONTEXT", () => {
 
     it("clearContext: true でコンテキストがクリアされる", () => {
       const monster = createMonsterInstance("graveyard-monster", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "graveyard",
         level: 4,
       });
@@ -403,7 +397,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_CONTEXT", () => {
 
     it("clearContext: false でコンテキストが残る", () => {
       const monster = createMonsterInstance("graveyard-monster", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "graveyard",
         level: 4,
       });
@@ -432,7 +425,6 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_CONTEXT", () => {
 
     it("モンスターゾーンが満杯の場合エラー", () => {
       const monster = createMonsterInstance("graveyard-monster", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "graveyard",
         level: 4,
       });

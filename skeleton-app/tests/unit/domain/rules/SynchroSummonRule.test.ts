@@ -12,19 +12,15 @@ import { canSynchroSummon, performSynchroSummon } from "$lib/domain/rules/Synchr
 import {
   createMockGameState,
   createSynchroSummonReadyState,
-  createSynchroSummonNoTunerState,
-  createSynchroSummonLevelMismatchState,
-  createTestSynchroMonster,
-  createTestTunerCard,
+  createMonsterInstance,
   createMonsterOnField,
   createFilledMainDeck,
-  SYNCHRO_TEST_CARD_IDS,
 } from "../../../__testUtils__";
 
 describe("SynchroSummonRule", () => {
   describe("canSynchroSummon", () => {
-    describe("phase validation", () => {
-      it("should return NOT_MAIN_PHASE when in draw phase", () => {
+    describe("フェーズ検証", () => {
+      it("ドローフェーズ中は NOT_MAIN_PHASE を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState();
         const drawState = { ...state, phase: "draw" as const };
@@ -37,7 +33,7 @@ describe("SynchroSummonRule", () => {
         expect(result.errorCode).toBe("NOT_MAIN_PHASE");
       });
 
-      it("should pass when in main1 phase", () => {
+      it("メインフェーズ1では検証を通過する", () => {
         // Arrange
         const state = createSynchroSummonReadyState();
 
@@ -49,8 +45,8 @@ describe("SynchroSummonRule", () => {
       });
     });
 
-    describe("card validation", () => {
-      it("should return CARD_NOT_FOUND when card does not exist", () => {
+    describe("カード検証", () => {
+      it("カードが存在しない場合は CARD_NOT_FOUND を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState();
 
@@ -62,7 +58,7 @@ describe("SynchroSummonRule", () => {
         expect(result.errorCode).toBe("CARD_NOT_FOUND");
       });
 
-      it("should return NOT_SYNCHRO_MONSTER when card is not synchro", () => {
+      it("シンクロモンスター以外は NOT_SYNCHRO_MONSTER を返す", () => {
         // Arrange
         const state = createMockGameState({
           space: {
@@ -77,7 +73,7 @@ describe("SynchroSummonRule", () => {
                 location: "extraDeck",
               },
             ],
-            mainMonsterZone: [createTestTunerCard("tuner-0", 2, { location: "mainMonsterZone" })],
+            mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
           },
           phase: "main1",
         });
@@ -90,12 +86,12 @@ describe("SynchroSummonRule", () => {
         expect(result.errorCode).toBe("NOT_SYNCHRO_MONSTER");
       });
 
-      it("should return CARD_NOT_IN_EXTRA_DECK when synchro is not in extra deck", () => {
+      it("シンクロモンスターがエクストラデッキにない場合は CARD_NOT_IN_EXTRA_DECK を返す", () => {
         // Arrange
         const state = createMockGameState({
           space: {
-            hand: [createTestSynchroMonster("synchro-0", 6, { location: "hand" })],
-            mainMonsterZone: [createTestTunerCard("tuner-0", 2, { location: "mainMonsterZone" })],
+            mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
+            graveyard: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "hand" })],
           },
           phase: "main1",
         });
@@ -109,10 +105,10 @@ describe("SynchroSummonRule", () => {
       });
     });
 
-    describe("material validation", () => {
-      it("should return NO_VALID_SYNCHRO_MATERIALS when no tuner", () => {
+    describe("素材検証", () => {
+      it("チューナーがいない場合は NO_VALID_SYNCHRO_MATERIALS を返す", () => {
         // Arrange
-        const state = createSynchroSummonNoTunerState();
+        const state = createSynchroSummonReadyState({ tunerLevel: null });
 
         // Act
         const result = canSynchroSummon(state, "synchro-0");
@@ -122,12 +118,12 @@ describe("SynchroSummonRule", () => {
         expect(result.errorCode).toBe("NO_VALID_SYNCHRO_MATERIALS");
       });
 
-      it("should return NO_VALID_SYNCHRO_MATERIALS when no non-tuner", () => {
+      it("非チューナーがいない場合は NO_VALID_SYNCHRO_MATERIALS を返す", () => {
         // Arrange: Only tuner on field, no non-tuner
         const state = createMockGameState({
           space: {
-            extraDeck: [createTestSynchroMonster("synchro-0", 6, { location: "extraDeck" })],
-            mainMonsterZone: [createTestTunerCard("tuner-0", 2, { location: "mainMonsterZone" })],
+            extraDeck: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "extraDeck" })],
+            mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
             ...createFilledMainDeck(30),
           },
           phase: "main1",
@@ -141,9 +137,9 @@ describe("SynchroSummonRule", () => {
         expect(result.errorCode).toBe("NO_VALID_SYNCHRO_MATERIALS");
       });
 
-      it("should return NO_VALID_SYNCHRO_MATERIALS when levels do not match", () => {
+      it("レベルが一致しない場合は NO_VALID_SYNCHRO_MATERIALS を返す", () => {
         // Arrange
-        const state = createSynchroSummonLevelMismatchState();
+        const state = createSynchroSummonReadyState({ tunerLevel: 1, nonTunerLevels: [4], synchroLevel: 8 });
 
         // Act
         const result = canSynchroSummon(state, "synchro-0");
@@ -153,7 +149,7 @@ describe("SynchroSummonRule", () => {
         expect(result.errorCode).toBe("NO_VALID_SYNCHRO_MATERIALS");
       });
 
-      it("should return success with valid materials (Tuner Lv2 + NonTuner Lv4 = Lv6)", () => {
+      it("有効な素材がある場合は成功する（チューナーLv2 + 非チューナーLv4 = Lv6）", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -168,7 +164,7 @@ describe("SynchroSummonRule", () => {
         expect(result.isValid).toBe(true);
       });
 
-      it("should return success with multiple non-tuners (Tuner Lv1 + NonTuner Lv2 + NonTuner Lv2 = Lv5)", () => {
+      it("複数の非チューナーでも成功する（チューナーLv1 + 非チューナーLv2 + 非チューナーLv2 = Lv5）", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 1,
@@ -183,7 +179,7 @@ describe("SynchroSummonRule", () => {
         expect(result.isValid).toBe(true);
       });
 
-      it("should return success with Tuner Lv3 + NonTuner Lv4 = Lv7", () => {
+      it("チューナーLv3 + 非チューナーLv4 = Lv7 で成功する", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 3,
@@ -199,15 +195,15 @@ describe("SynchroSummonRule", () => {
       });
     });
 
-    describe("face-down monster handling", () => {
-      it("should ignore face-down monsters as materials", () => {
+    describe("裏側モンスターの扱い", () => {
+      it("裏側のモンスターを素材として無視する", () => {
         // Arrange: Tuner is face-down
         const state = createMockGameState({
           space: {
-            extraDeck: [createTestSynchroMonster("synchro-0", 6, { location: "extraDeck" })],
+            extraDeck: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "extraDeck" })],
             mainMonsterZone: [
-              createMonsterOnField("tuner-0", { cardId: SYNCHRO_TEST_CARD_IDS.TUNER_LV2, position: "faceDown" }), // Face-down
-              createMonsterOnField("nontuner-", { cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4, position: "faceDown" }),
+              createMonsterOnField("tuner-0", { isTuner: true, level: 2, position: "faceDown" }), // Face-down
+              createMonsterOnField("nontuner-", { level: 4, position: "faceDown" }),
             ],
             ...createFilledMainDeck(30),
           },
@@ -225,7 +221,7 @@ describe("SynchroSummonRule", () => {
   });
 
   describe("performSynchroSummon", () => {
-    it("should return material selection step", () => {
+    it("素材選択ステップを返す", () => {
       // Arrange
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
@@ -242,7 +238,7 @@ describe("SynchroSummonRule", () => {
       expect(result.step.summary).toContain("シンクロ素材");
     });
 
-    it("should include synchro monster name in message", () => {
+    it("メッセージにシンクロモンスター名が含まれる", () => {
       // Arrange
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
@@ -253,11 +249,12 @@ describe("SynchroSummonRule", () => {
       // Act
       const result = performSynchroSummon(state, "synchro-0");
 
-      // Assert
-      expect(result.message).toContain("Test Synchro Lv6");
+      // Assert: メッセージにシンクロモンスターの jaName が含まれることを確認
+      const synchroCard = state.space.extraDeck.find((c) => c.instanceId === "synchro-0");
+      expect(result.message).toContain(synchroCard?.jaName);
     });
 
-    it("should create a cancelable selection step", () => {
+    it("キャンセル可能な選択ステップを作成する", () => {
       // Arrange
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
@@ -272,8 +269,8 @@ describe("SynchroSummonRule", () => {
       expect(result.step.id).toContain("select-synchro-materials");
     });
 
-    describe("material selection callback", () => {
-      it("should return failure when selection is cancelled (empty selection)", () => {
+    describe("素材選択コールバック", () => {
+      it("選択がキャンセルされた場合（空の選択）は失敗を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -290,7 +287,7 @@ describe("SynchroSummonRule", () => {
         expect(updateResult.error).toContain("キャンセル");
       });
 
-      it("should send materials to graveyard and summon synchro monster on valid selection", () => {
+      it("有効な選択で素材を墓地に送りシンクロモンスターを召喚する", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -319,7 +316,7 @@ describe("SynchroSummonRule", () => {
         expect(synchro?.stateOnField?.battlePosition).toBe("attack");
       });
 
-      it("should emit sentToGraveyard and synchroSummoned events", () => {
+      it("sentToGraveyard と synchroSummoned イベントを発行する", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -338,8 +335,8 @@ describe("SynchroSummonRule", () => {
       });
     });
 
-    describe("canConfirm validation", () => {
-      it("should have canConfirm function that validates material selection", () => {
+    describe("canConfirm 検証", () => {
+      it("素材選択を検証する canConfirm 関数を持つ", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -353,7 +350,7 @@ describe("SynchroSummonRule", () => {
         expect(result.step.cardSelectionConfig!(state)?.canConfirm).toBeDefined();
       });
 
-      it("canConfirm should return false for single card selection", () => {
+      it("1枚だけ選択した場合は canConfirm が false を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -370,7 +367,7 @@ describe("SynchroSummonRule", () => {
         expect(canConfirm([tuner])).toBe(false);
       });
 
-      it("canConfirm should return false for tuner-only selection", () => {
+      it("チューナーのみ選択した場合は canConfirm が false を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -390,7 +387,7 @@ describe("SynchroSummonRule", () => {
         expect(canConfirm([tuner1, tuner2])).toBe(false);
       });
 
-      it("canConfirm should return false for wrong level total", () => {
+      it("レベル合計が合わない場合は canConfirm が false を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -408,7 +405,7 @@ describe("SynchroSummonRule", () => {
         expect(canConfirm([tuner, nonTuner])).toBe(false);
       });
 
-      it("canConfirm should return true for valid material selection", () => {
+      it("有効な素材選択では canConfirm が true を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 2,
@@ -426,7 +423,7 @@ describe("SynchroSummonRule", () => {
         expect(canConfirm([tuner, nonTuner])).toBe(true);
       });
 
-      it("canConfirm should return true for multiple non-tuners with correct level", () => {
+      it("複数の非チューナーで正しいレベルの場合は canConfirm が true を返す", () => {
         // Arrange
         const state = createSynchroSummonReadyState({
           tunerLevel: 1,

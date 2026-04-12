@@ -9,7 +9,6 @@ import {
   createSpellInstance,
   createFilledMonsterZone,
   TEST_CARD_IDS,
-  SYNCHRO_TEST_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -74,7 +73,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
   describe("action実行", () => {
     it("デッキトップがモンスターの場合、そのモンスターを特殊召喚できる", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -101,7 +99,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
       const spell1 = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
       const spell2 = createSpellInstance("deck-spell-1", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -146,7 +143,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
 
     it("選択されていない場合エラー", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -169,7 +165,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
 
     it("無効な選択の場合エラー", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -192,7 +187,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER", () => {
 
     it("モンスターゾーンが満杯の場合エラー", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -319,7 +313,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
   describe("action実行", () => {
     it("宣言レベルと異なる場合、モンスターを特殊召喚できる", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -351,7 +344,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
 
     it("宣言レベルと同じ場合、モンスターを墓地へ送る", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -385,7 +377,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
 
     it("宣言レベルがコンテキストにない場合エラー", () => {
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -417,7 +408,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
     it("モンスターの前に魔法カードがある場合、魔法も墓地へ送る（レベル不一致）", () => {
       const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });
@@ -450,7 +440,6 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
     it("モンスターの前に魔法カードがある場合、全て墓地へ（レベル一致）", () => {
       const spell = createSpellInstance("deck-spell-0", { spellType: "normal", location: "mainDeck" });
       const monster = createMonsterInstance("deck-monster-0", {
-        cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV4,
         location: "mainDeck",
         level: 4,
       });

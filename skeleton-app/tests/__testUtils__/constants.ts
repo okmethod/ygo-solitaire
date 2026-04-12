@@ -26,10 +26,11 @@ export const ACTUAL_CARD_IDS = {
 
 /** テスト用カードID定数 */
 export const TEST_CARD_IDS = {
-  DUMMY: 12345678,
-  DUMMY_B: 87654321,
+  DUMMY: 8001,
+  DUMMY_B: 8002,
   EFFECT_MONSTER: 7001,
   OPTIONAL_TRIGGER_MONSTER: 6001,
+  SYNCHRO_MONSTER: 8003,
   SPELL_NORMAL: 1001,
   SPELL_EQUIP: 1002,
   SPELL_QUICK: 1004,
@@ -37,22 +38,4 @@ export const TEST_CARD_IDS = {
   SPELL_FIELD: 1006,
   TRAP_NORMAL: 1007,
   BASIC_TOKEN: 5001,
-} as const;
-
-/** シンクロ召喚テスト用カードID定数 */
-export const SYNCHRO_TEST_CARD_IDS = {
-  // チューナーモンスター
-  TUNER_LV1: 2001,
-  TUNER_LV2: 2002,
-  TUNER_LV3: 2003,
-  // 非チューナーモンスター
-  NON_TUNER_LV1: 3001,
-  NON_TUNER_LV2: 3002,
-  NON_TUNER_LV3: 3003,
-  NON_TUNER_LV4: 3004,
-  // シンクロモンスター
-  SYNCHRO_LV5: 4005,
-  SYNCHRO_LV6: 4006,
-  SYNCHRO_LV7: 4007,
-  SYNCHRO_LV8: 4008,
 } as const;

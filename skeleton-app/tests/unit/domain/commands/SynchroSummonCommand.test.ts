@@ -9,16 +9,11 @@
 
 import { describe, it, expect } from "vitest";
 import { SynchroSummonCommand } from "$lib/domain/commands/SynchroSummonCommand";
-import {
-  createSynchroSummonReadyState,
-  createSynchroSummonNoTunerState,
-  createSynchroSummonLevelMismatchState,
-  createExodiaVictoryState,
-} from "../../../__testUtils__";
+import { createSynchroSummonReadyState, createExodiaVictoryState } from "../../../__testUtils__";
 
 describe("SynchroSummonCommand", () => {
   describe("constructor", () => {
-    it("should create command with card instance id", () => {
+    it("カードインスタンスIDでコマンドを生成する", () => {
       // Arrange & Act
       const command = new SynchroSummonCommand("synchro-0");
 
@@ -29,7 +24,7 @@ describe("SynchroSummonCommand", () => {
   });
 
   describe("canExecute", () => {
-    it("should return false when game is over", () => {
+    it("ゲームが終了している場合は false を返す", () => {
       // Arrange
       const gameOverState = createExodiaVictoryState();
       const command = new SynchroSummonCommand("synchro-0");
@@ -42,7 +37,7 @@ describe("SynchroSummonCommand", () => {
       expect(result.errorCode).toBe("GAME_OVER");
     });
 
-    it("should return false when not in main phase", () => {
+    it("メインフェーズでない場合は false を返す", () => {
       // Arrange
       const state = createSynchroSummonReadyState();
       const drawPhaseState = { ...state, phase: "draw" as const };
@@ -56,7 +51,7 @@ describe("SynchroSummonCommand", () => {
       expect(result.errorCode).toBe("NOT_MAIN_PHASE");
     });
 
-    it("should return false when card not found", () => {
+    it("カードが見つからない場合は false を返す", () => {
       // Arrange
       const state = createSynchroSummonReadyState();
       const command = new SynchroSummonCommand("non-existent");
@@ -69,9 +64,9 @@ describe("SynchroSummonCommand", () => {
       expect(result.errorCode).toBe("CARD_NOT_FOUND");
     });
 
-    it("should return false when no tuner on field", () => {
+    it("フィールドにチューナーがいない場合は false を返す", () => {
       // Arrange
-      const state = createSynchroSummonNoTunerState();
+      const state = createSynchroSummonReadyState({ tunerLevel: null });
       const command = new SynchroSummonCommand("synchro-0");
 
       // Act
@@ -82,9 +77,9 @@ describe("SynchroSummonCommand", () => {
       expect(result.errorCode).toBe("NO_VALID_SYNCHRO_MATERIALS");
     });
 
-    it("should return false when level sum does not match (level mismatch)", () => {
-      // Arrange
-      const state = createSynchroSummonLevelMismatchState();
+    it("レベル合計が合わない場合は false を返す（レベル不一致）", () => {
+      // Arrange: Lv1チューナー + Lv4非チューナー = Lv8シンクロ
+      const state = createSynchroSummonReadyState({ tunerLevel: 1, nonTunerLevels: [4], synchroLevel: 8 });
       const command = new SynchroSummonCommand("synchro-0");
 
       // Act
@@ -95,8 +90,8 @@ describe("SynchroSummonCommand", () => {
       expect(result.errorCode).toBe("NO_VALID_SYNCHRO_MATERIALS");
     });
 
-    it("should return true when synchro materials are valid", () => {
-      // Arrange: Tuner Lv2 + NonTuner Lv4 = Lv6 Synchro
+    it("シンクロ素材が有効な場合は true を返す", () => {
+      // Arrange: Lv2チューナー + Lv4非チューナー = Lv6シンクロ
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
         nonTunerLevels: [4],
@@ -111,8 +106,8 @@ describe("SynchroSummonCommand", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should return true with multiple non-tuners summing to correct level", () => {
-      // Arrange: Tuner Lv2 + NonTuner Lv2 + NonTuner Lv3 = Lv7 Synchro
+    it("複数の非チューナーで合計レベルが正しい場合は true を返す", () => {
+      // Arrange: Lv2チューナー + Lv2非チューナー + Lv3非チューナー = Lv7シンクロ
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
         nonTunerLevels: [2, 3],
@@ -129,9 +124,9 @@ describe("SynchroSummonCommand", () => {
   });
 
   describe("execute", () => {
-    it("should return failure when canExecute fails", () => {
-      // Arrange
-      const state = createSynchroSummonNoTunerState();
+    it("canExecute が失敗する場合は失敗を返す", () => {
+      // Arrange: チューナーなし
+      const state = createSynchroSummonReadyState({ tunerLevel: null });
       const command = new SynchroSummonCommand("synchro-0");
 
       // Act
@@ -141,8 +136,8 @@ describe("SynchroSummonCommand", () => {
       expect(result.success).toBe(false);
     });
 
-    it("should return success with material selection step when valid", () => {
-      // Arrange
+    it("有効な場合は素材選択ステップ付きで成功を返す", () => {
+      // Arrange: Lv2チューナー + Lv4非チューナー = Lv6シンクロ
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
         nonTunerLevels: [4],
@@ -160,8 +155,8 @@ describe("SynchroSummonCommand", () => {
       expect(result.activationSteps?.[0].summary).toContain("シンクロ素材");
     });
 
-    it("should return the current state (not modified until selection completes)", () => {
-      // Arrange
+    it("選択完了まで状態は変更されない（現在の状態を返す）", () => {
+      // Arrange: Lv2チューナー + Lv4非チューナー = Lv6シンクロ
       const state = createSynchroSummonReadyState({
         tunerLevel: 2,
         nonTunerLevels: [4],
