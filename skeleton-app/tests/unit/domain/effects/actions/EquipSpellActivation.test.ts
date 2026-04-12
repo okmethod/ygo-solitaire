@@ -1,5 +1,7 @@
 /**
  * 装備魔法発動の抽象クラスのテスト
+ *
+ * createNoOp で生成される効果無しインスタンスにより動作検証する。
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

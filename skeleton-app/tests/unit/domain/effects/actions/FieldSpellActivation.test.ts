@@ -1,42 +1,15 @@
 /**
  * フィールド魔法発動の抽象クラスのテスト
+ *
+ * createNoOp で生成される効果無しインスタンスにより動作検証する。
  */
 
 import { describe, it, expect } from "vitest";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
-import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
-import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck, DUMMY_CARD_IDS, ACTUAL_CARD_IDS } from "../../../../__testUtils__";
-
-/**
- * テスト用の具象クラス
- */
-class TestFieldSpell extends FieldSpellActivation {
-  constructor() {
-    super(DUMMY_CARD_IDS.NORMAL_MONSTER);
-  }
-
-  protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // テスト実装: 常にtrue（追加条件なし）
-    return GameProcessing.Validation.success();
-  }
-
-  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    return [];
-  }
-
-  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    // フィールド魔法は通常、解決ステップなし（永続効果のみ）
-    return [];
-  }
-}
+import { createMockGameState, createSpellInstance, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 describe("FieldSpellActivation", () => {
-  const action = new TestFieldSpell();
+  const action = FieldSpellActivation.createNoOp(DUMMY_CARD_IDS.FIELD_SPELL);
 
   describe("ChainableAction インターフェースのプロパティ", () => {
     it("effectCategory が 'activation' であること", () => {
@@ -51,91 +24,37 @@ describe("FieldSpellActivation", () => {
   describe("canActivate()", () => {
     it("全条件を満たす場合（メインフェイズ＋追加条件なし）は true を返すこと", () => {
       // Arrange: メインフェイズ1
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
-      const stateInMain1: GameSnapshot = {
-        ...state,
-        phase: "main1",
-      };
+      const state = createMockGameState({ phase: "main1" });
+      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
+      expect(action.canActivate(state, sourceInstance).isValid).toBe(true);
     });
 
     it("フェイズがメインフェイズ1以外の場合は false を返すこと", () => {
       // Arrange: ドローフェイズ（FieldSpellActivation固有のフェーズ制約テスト）
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
-      // デフォルトフェイズは "Draw"
+      const state = createMockGameState({ phase: "draw" });
+      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
 
       // Act & Assert
-      expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(false);
+      expect(action.canActivate(state, sourceInstance).isValid).toBe(false);
     });
 
     it("デッキが空でも true を返すこと（追加条件なし）", () => {
       // Arrange: メインフェイズ1、デッキ空（フィールド魔法は追加条件なし）
-      const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
-      const stateInMain1: GameSnapshot = {
-        ...state,
-        phase: "main1",
-      };
+      const state = createMockGameState({ phase: "main1" });
+      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
+      expect(action.canActivate(state, sourceInstance).isValid).toBe(true);
     });
   });
 
   describe("createActivationSteps()", () => {
-    // テスト用の sourceInstance を作成するヘルパー
-    const createTestSourceInstance = (): CardInstance => ({
-      id: ACTUAL_CARD_IDS.CHICKEN_GAME,
-      instanceId: "test-field-spell-1",
-      jaName: "Test Field Spell",
-      type: "spell",
-      frameType: "spell",
-      spellType: "field",
-      edition: "latest" as const,
-      location: "hand",
-    });
-
     it("通知ステップとイベントステップを返すこと（フィールド魔法は追加の発動ステップなし）", () => {
       // Arrange
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
-      const sourceInstance = createTestSourceInstance();
+      const state = createMockGameState({ phase: "main1" });
+      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
 
       // Act
       const steps = action.createActivationSteps(state, sourceInstance);
@@ -150,21 +69,11 @@ describe("FieldSpellActivation", () => {
   describe("createResolutionSteps()", () => {
     it("空配列を返すこと（フィールド魔法は解決ステップなし）", () => {
       // Arrange
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
+      const state = createMockGameState({ phase: "main1" });
+      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
 
       // Act
-      const steps = action.createResolutionSteps(state, state.space.hand[0]);
+      const steps = action.createResolutionSteps(state, sourceInstance);
 
       // Assert
       expect(steps).toEqual([]);

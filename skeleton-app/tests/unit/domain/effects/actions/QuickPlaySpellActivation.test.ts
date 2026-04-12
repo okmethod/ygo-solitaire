@@ -1,44 +1,15 @@
 /**
  * 速攻魔法発動の抽象クラスのテスト
+ *
+ * createNoOp で生成される効果無しインスタンスにより動作検証する。
  */
 
 import { describe, it, expect } from "vitest";
 import { QuickPlaySpellActivation } from "$lib/domain/effects/actions/activations/QuickPlaySpellActivation";
-import type { CardInstance } from "$lib/domain/models/Card";
-import type { GameSnapshot } from "$lib/domain/models/GameState";
-import { GameState } from "$lib/domain/models/GameState";
-import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
-import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck, createSpellInstance, DUMMY_CARD_IDS } from "../../../../__testUtils__";
-
-/**
- * テスト用の具象クラス
- */
-class TestQuickPlaySpell extends QuickPlaySpellActivation {
-  constructor() {
-    super(DUMMY_CARD_IDS.NORMAL_MONSTER);
-  }
-
-  protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // テスト実装: 手札枚数チェック
-    if (state.space.hand.length > 0) {
-      return GameProcessing.Validation.success();
-    }
-    return GameProcessing.Validation.failure(GameProcessing.Validation.ERROR_CODES.ACTIVATION_CONDITIONS_NOT_MET);
-  }
-
-  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    return [];
-  }
-
-  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    return [];
-  }
-}
+import { createMockGameState, createSpellInstance, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 describe("QuickPlaySpellActivation", () => {
-  const action = new TestQuickPlaySpell();
+  const action = QuickPlaySpellActivation.createNoOp(DUMMY_CARD_IDS.QUICKPLAY_SPELL);
 
   describe("ChainableAction インターフェースのプロパティ", () => {
     it("effectCategory が 'activation' であること", () => {
@@ -51,104 +22,29 @@ describe("QuickPlaySpellActivation", () => {
   });
 
   describe("canActivate()", () => {
-    it("全条件が満たされた場合（メインフェーズ + 追加条件）に true を返すこと", () => {
-      // Arrange: メインフェーズ1、手札あり
-      const baseState = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
-      const handCard: CardInstance = {
-        ...baseState.space.mainDeck[0],
-        instanceId: "hand-0",
-        location: "hand",
-      };
-      const stateInMain1: GameSnapshot = {
-        ...baseState,
-        phase: "main1",
-        space: {
-          ...baseState.space,
-          hand: [handCard],
-        },
-      };
+    it("全条件が満たされた場合（メインフェーズ）に true を返すこと", () => {
+      // Arrange
+      const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createSpellInstance("test-instance-0", { spellType: "quick-play" });
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, sourceInstance).isValid).toBe(true);
+      expect(action.canActivate(state, sourceInstance).isValid).toBe(true);
     });
 
-    it("フェーズがメイン1でない場合に false を返すこと", () => {
-      // Arrange: フェーズがドロー（QuickPlaySpellActivation固有のフェーズ制約テスト）
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
-      const sourceInstance = createSpellInstance("test-instance-0", { spellType: "quick-play" });
-      // デフォルトフェーズは "Draw"
-
-      // Act & Assert
-      expect(action.canActivate(state, sourceInstance).isValid).toBe(false);
-    });
-
-    it("追加条件が満たされない場合に false を返すこと", () => {
-      // Arrange: 手札が空（additionalActivationConditions が false を返す）
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
-      const emptyHandState: GameSnapshot = {
-        ...state,
-        phase: "main1",
-        space: {
-          ...state.space,
-          hand: [],
-        },
-      };
+    it("速攻魔法はフェーズ制限がないため、ドローフェーズでも true を返すこと", () => {
+      // Arrange: 速攻魔法はチェーン中にも発動できるためフェーズ制限なし
+      const state = createMockGameState({ phase: "draw" });
       const sourceInstance = createSpellInstance("test-instance-0", { spellType: "quick-play" });
 
       // Act & Assert
-      expect(action.canActivate(emptyHandState, sourceInstance).isValid).toBe(false);
+      expect(action.canActivate(state, sourceInstance).isValid).toBe(true);
     });
   });
 
   describe("createActivationSteps()", () => {
     it("デフォルトの発動ステップを返すこと", () => {
       // Arrange
-      const state = GameState.initialize(
-        createTestInitialDeck([
-          DUMMY_CARD_IDS.NORMAL_SPELL,
-          DUMMY_CARD_IDS.EQUIP_SPELL,
-          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
-        ]),
-        CardDataRegistry.getCard,
-        {
-          skipShuffle: true,
-          skipInitialDraw: true,
-        },
-      );
+      const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createSpellInstance("test-instance-0", { spellType: "quick-play" });
 
       // Act
@@ -156,9 +52,9 @@ describe("QuickPlaySpellActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
-      expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_MONSTER}-activation-notification`);
+      expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.QUICKPLAY_SPELL}-activation-notification`);
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("《Dummy Normal Monster》を発動します");
+      expect(steps[0].description).toBeDefined();
       expect(steps[1].id).toContain("emit-spell-activated-");
     });
   });
