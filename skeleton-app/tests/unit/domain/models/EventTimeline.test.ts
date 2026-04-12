@@ -18,12 +18,11 @@ import {
   hasEventOfType,
   clearHistory,
 } from "$lib/domain/models/GameProcessing/EventTimeline";
-import type { GameEvent } from "$lib/domain/models/GameProcessing/GameEvent";
-import { DUMMY_CARD_IDS } from "../../../__testUtils__";
+import { createGameEvent } from "../../../__testUtils__";
 
 describe("EventTimeline", () => {
   describe("createEmptyTimeline", () => {
-    it("should create an empty timeline with initial values", () => {
+    it("初期値を持つ空のタイムラインを生成する", () => {
       // Act
       const timeline = createEmptyTimeline();
 
@@ -36,7 +35,7 @@ describe("EventTimeline", () => {
   });
 
   describe("createEmptySnapshot", () => {
-    it("should create an empty snapshot with given timestamp", () => {
+    it("指定タイムスタンプを持つ空のスナップショットを生成する", () => {
       // Act
       const snapshot = createEmptySnapshot(5);
 
@@ -47,14 +46,10 @@ describe("EventTimeline", () => {
   });
 
   describe("recordEvent", () => {
-    it("should add event to current snapshot", () => {
+    it("現在のスナップショットにイベントを追加する", () => {
       // Arrange
       const timeline = createEmptyTimeline();
-      const event: GameEvent = {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      };
+      const event = createGameEvent("spellActivated");
 
       // Act
       const result = recordEvent(timeline, event);
@@ -64,19 +59,11 @@ describe("EventTimeline", () => {
       expect(result.current.events[0]).toEqual(event);
     });
 
-    it("should add multiple events to the same snapshot", () => {
+    it("同じスナップショットに複数イベントを追加する", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      const event1: GameEvent = {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      };
-      const event2: GameEvent = {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-2",
-      };
+      const event1 = createGameEvent("spellActivated", "card-1");
+      const event2 = createGameEvent("spellActivated", "card-2");
 
       // Act
       timeline = recordEvent(timeline, event1);
@@ -88,32 +75,24 @@ describe("EventTimeline", () => {
       expect(timeline.current.events[1]).toEqual(event2);
     });
 
-    it("should not mutate original timeline", () => {
+    it("元のタイムラインを変更しない", () => {
       // Arrange
       const timeline = createEmptyTimeline();
-      const event: GameEvent = {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      };
+      const event = createGameEvent("spellActivated");
 
       // Act
       recordEvent(timeline, event);
 
-      // Assert - original should be unchanged
+      // Assert - 元のタイムラインが変更されていないこと
       expect(timeline.current.events).toEqual([]);
     });
   });
 
   describe("advanceTime", () => {
-    it("should move current snapshot to history and create new snapshot", () => {
+    it("現在のスナップショットを履歴へ移動し、新しいスナップショットを生成する", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      const event: GameEvent = {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      };
+      const event = createGameEvent("spellActivated");
       timeline = recordEvent(timeline, event);
 
       // Act
@@ -127,37 +106,29 @@ describe("EventTimeline", () => {
       expect(result.nextTimestamp).toBe(2);
     });
 
-    it("should not advance if current snapshot has no events", () => {
+    it("現在のスナップショットにイベントがない場合は進めない", () => {
       // Arrange
       const timeline = createEmptyTimeline();
 
       // Act
       const result = advanceTime(timeline);
 
-      // Assert - should return same timeline
+      // Assert - 同じタイムラインが返ること
       expect(result).toBe(timeline);
       expect(result.current.timestamp).toBe(0);
       expect(result.history).toEqual([]);
     });
 
-    it("should preserve history across multiple advances", () => {
+    it("複数回の進行で履歴を正しく保持する", () => {
       // Arrange
       let timeline = createEmptyTimeline();
 
-      // First event and advance
-      timeline = recordEvent(timeline, {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      });
+      // 1回目のイベント記録と進行
+      timeline = recordEvent(timeline, createGameEvent("spellActivated", "card-1"));
       timeline = advanceTime(timeline);
 
-      // Second event and advance
-      timeline = recordEvent(timeline, {
-        type: "normalSummoned",
-        sourceCardId: DUMMY_CARD_IDS.EFFECT_MONSTER,
-        sourceInstanceId: "card-2",
-      });
+      // 2回目のイベント記録と進行
+      timeline = recordEvent(timeline, createGameEvent("normalSummoned", "card-2"));
       timeline = advanceTime(timeline);
 
       // Assert
@@ -169,7 +140,7 @@ describe("EventTimeline", () => {
   });
 
   describe("hasCurrentEvents", () => {
-    it("should return false for empty timeline", () => {
+    it("空のタイムラインでは false を返す", () => {
       // Arrange
       const timeline = createEmptyTimeline();
 
@@ -177,14 +148,10 @@ describe("EventTimeline", () => {
       expect(hasCurrentEvents(timeline)).toBe(false);
     });
 
-    it("should return true when current snapshot has events", () => {
+    it("現在のスナップショットにイベントがある場合は true を返す", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      });
+      timeline = recordEvent(timeline, createGameEvent("spellActivated"));
 
       // Act & Assert
       expect(hasCurrentEvents(timeline)).toBe(true);
@@ -192,7 +159,7 @@ describe("EventTimeline", () => {
   });
 
   describe("getCurrentEvents", () => {
-    it("should return empty array for empty timeline", () => {
+    it("空のタイムラインでは空配列を返す", () => {
       // Arrange
       const timeline = createEmptyTimeline();
 
@@ -203,14 +170,10 @@ describe("EventTimeline", () => {
       expect(events).toEqual([]);
     });
 
-    it("should return current events", () => {
+    it("現在のイベントを返す", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      const event: GameEvent = {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      };
+      const event = createGameEvent("spellActivated");
       timeline = recordEvent(timeline, event);
 
       // Act
@@ -223,7 +186,7 @@ describe("EventTimeline", () => {
   });
 
   describe("hasEventOfType", () => {
-    it("should return false when event type is not present", () => {
+    it("指定イベント種別が存在しない場合は false を返す", () => {
       // Arrange
       const timeline = createEmptyTimeline();
 
@@ -231,49 +194,33 @@ describe("EventTimeline", () => {
       expect(hasEventOfType(timeline, "spellActivated")).toBe(false);
     });
 
-    it("should return true when event type is present", () => {
+    it("指定イベント種別が存在する場合は true を返す", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      });
+      timeline = recordEvent(timeline, createGameEvent("spellActivated"));
 
       // Act & Assert
       expect(hasEventOfType(timeline, "spellActivated")).toBe(true);
     });
 
-    it("should check only current snapshot, not history", () => {
+    it("履歴ではなく現在のスナップショットのみを対象とする", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      });
+      timeline = recordEvent(timeline, createGameEvent("spellActivated"));
       timeline = advanceTime(timeline);
 
-      // Act & Assert - spellActivated is in history, not current
+      // Act & Assert - spellActivated は履歴にあり、現在には存在しない
       expect(hasEventOfType(timeline, "spellActivated")).toBe(false);
     });
   });
 
   describe("clearHistory", () => {
-    it("should clear history while preserving current snapshot", () => {
+    it("現在のスナップショットを保持したまま履歴を削除する", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      });
+      timeline = recordEvent(timeline, createGameEvent("spellActivated", "card-1"));
       timeline = advanceTime(timeline);
-      timeline = recordEvent(timeline, {
-        type: "normalSummoned",
-        sourceCardId: DUMMY_CARD_IDS.EFFECT_MONSTER,
-        sourceInstanceId: "card-2",
-      });
+      timeline = recordEvent(timeline, createGameEvent("normalSummoned", "card-2"));
 
       // Act
       const result = clearHistory(timeline);
@@ -284,20 +231,16 @@ describe("EventTimeline", () => {
       expect(result.current.events[0].type).toBe("normalSummoned");
     });
 
-    it("should not mutate original timeline", () => {
+    it("元のタイムラインを変更しない", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, {
-        type: "spellActivated",
-        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
-        sourceInstanceId: "card-1",
-      });
+      timeline = recordEvent(timeline, createGameEvent("spellActivated"));
       timeline = advanceTime(timeline);
 
       // Act
       clearHistory(timeline);
 
-      // Assert - original should be unchanged
+      // Assert - 元のタイムラインが変更されていないこと
       expect(timeline.history).toHaveLength(1);
     });
   });

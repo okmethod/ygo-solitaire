@@ -39,6 +39,9 @@ export {
   createSynchroSummonReadyState,
 } from "./gameStateFactory";
 
+// ゲームイベントファクトリ
+export { createGameEvent } from "./gameEventFactory";
+
 // インテグレーションテスト共通ヘルパー
 export {
   createScenarioDeck,
