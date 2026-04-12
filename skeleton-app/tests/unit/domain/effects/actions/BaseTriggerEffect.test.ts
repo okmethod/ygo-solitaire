@@ -1,8 +1,5 @@
 /**
- * BaseTriggerEffect Tests
- *
- * 誘発効果の抽象基底クラスのテスト。
- * Template MethodパターンとisTriggerEffect型ガードを検証する。
+ * 誘発効果発動の抽象基底クラスのテスト
  */
 
 import { describe, it, expect } from "vitest";

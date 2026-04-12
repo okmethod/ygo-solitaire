@@ -1,5 +1,5 @@
 /**
- * Unit tests for AdvancePhaseCommand
+ * フェーズ進行コマンドのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -8,7 +8,7 @@ import { createMockGameState, createExodiaVictoryState, createMonsterInstance } 
 
 describe("AdvancePhaseCommand", () => {
   describe("canExecute", () => {
-    it("should return true for Draw → Standby", () => {
+    it("ドロー → スタンバイ の場合は true を返す", () => {
       const deckCard = { ...createMonsterInstance("main-0"), location: "mainDeck" as const };
       const state = createMockGameState({
         phase: "draw",
@@ -28,28 +28,28 @@ describe("AdvancePhaseCommand", () => {
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
-    it("should return true for Standby → Main1", () => {
+    it("スタンバイ → メイン1 の場合は true を返す", () => {
       const state = createMockGameState({ phase: "standby" });
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
-    it("should return true for Main1 → End", () => {
+    it("メイン1 → エンド の場合は true を返す", () => {
       const state = createMockGameState({ phase: "main1" });
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
-    it("should return true for End → End (循環)", () => {
+    it("エンド → エンド（循環）の場合は true を返す", () => {
       const state = createMockGameState({ phase: "end" });
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
-    it("should return false when game is already over", () => {
+    it("ゲームが既に終了している場合は false を返す", () => {
       const state = createExodiaVictoryState();
       const command = new AdvancePhaseCommand();
 
@@ -58,7 +58,7 @@ describe("AdvancePhaseCommand", () => {
   });
 
   describe("execute", () => {
-    it("should advance from Draw to Standby", () => {
+    it("ドローからスタンバイに進行する", () => {
       const deckCard = { ...createMonsterInstance("main-0"), location: "mainDeck" as const };
       const state = createMockGameState({
         phase: "draw",
@@ -82,7 +82,7 @@ describe("AdvancePhaseCommand", () => {
       expect(result.message).toContain("スタンバイフェイズ");
     });
 
-    it("should advance from Standby to Main1", () => {
+    it("スタンバイからメイン1に進行する", () => {
       const state = createMockGameState({ phase: "standby" });
       const command = new AdvancePhaseCommand();
 
@@ -93,7 +93,7 @@ describe("AdvancePhaseCommand", () => {
       expect(result.message).toContain("メインフェイズ");
     });
 
-    it("should advance from Main1 to End", () => {
+    it("メイン1からエンドに進行する", () => {
       const state = createMockGameState({ phase: "main1" });
       const command = new AdvancePhaseCommand();
 
@@ -104,7 +104,7 @@ describe("AdvancePhaseCommand", () => {
       expect(result.message).toContain("エンドフェイズ");
     });
 
-    it("should stay at End phase when advancing from End", () => {
+    it("エンドフェイズからはエンドフェイズに留まる", () => {
       const state = createMockGameState({ phase: "end" });
       const command = new AdvancePhaseCommand();
 
@@ -114,18 +114,18 @@ describe("AdvancePhaseCommand", () => {
       expect(result.updatedState.phase).toBe("end");
     });
 
-    it("should not mutate original state (immutability)", () => {
+    it("元の状態を変更しない（イミュータビリティ）", () => {
       const state = createMockGameState({ phase: "draw" });
       const originalPhase = state.phase;
       const command = new AdvancePhaseCommand();
 
       command.execute(state);
 
-      // Original state should remain unchanged
+      // 元の状態は変化しないことを確認
       expect(state.phase).toBe(originalPhase);
     });
 
-    it("should fail when game is already over", () => {
+    it("ゲームが既に終了している場合は失敗する", () => {
       const state = createExodiaVictoryState();
       const command = new AdvancePhaseCommand();
 
@@ -137,28 +137,28 @@ describe("AdvancePhaseCommand", () => {
   });
 
   describe("getNextPhase", () => {
-    it("should return Standby for Draw phase", () => {
+    it("ドローフェイズの次はスタンバイを返す", () => {
       const state = createMockGameState({ phase: "draw" });
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("standby");
     });
 
-    it("should return Main1 for Standby phase", () => {
+    it("スタンバイフェイズの次はメイン1を返す", () => {
       const state = createMockGameState({ phase: "standby" });
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("main1");
     });
 
-    it("should return End for Main1 phase", () => {
+    it("メイン1フェイズの次はエンドを返す", () => {
       const state = createMockGameState({ phase: "main1" });
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("end");
     });
 
-    it("should return End for End phase", () => {
+    it("エンドフェイズの次はエンドを返す", () => {
       const state = createMockGameState({ phase: "end" });
       const command = new AdvancePhaseCommand();
 
@@ -167,7 +167,7 @@ describe("AdvancePhaseCommand", () => {
   });
 
   describe("description", () => {
-    it("should have correct description", () => {
+    it("正しい description を持つ", () => {
       const command = new AdvancePhaseCommand();
 
       expect(command.description).toBe("Advance to next phase");

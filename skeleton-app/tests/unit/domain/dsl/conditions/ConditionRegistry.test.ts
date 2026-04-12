@@ -1,3 +1,7 @@
+/**
+ * 条件レジストリのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/dsl/conditions";
 import {
@@ -7,15 +11,6 @@ import {
   createMonsterOnField,
   ACTUAL_CARD_IDS,
 } from "../../../../__testUtils__";
-
-/**
- * ConditionRegistry Tests
- *
- * TEST STRATEGY:
- * - 登録済み条件が正しく判定を行うこと
- * - 未登録条件でエラーがスローされること
- * - 条件の成功/失敗が正しく判定されること
- */
 
 // =============================================================================
 // テストヘルパー

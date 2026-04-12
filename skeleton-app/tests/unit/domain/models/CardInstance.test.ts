@@ -1,7 +1,5 @@
 /**
- * CardInstance.ts のテスト
- *
- * カードインスタンスのロケーションチェック、状態チェック、状態変更関数を検証する。
+ * CardInstance モデルのテスト
  */
 
 import { describe, it, expect } from "vitest";

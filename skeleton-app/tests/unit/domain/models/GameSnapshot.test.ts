@@ -1,11 +1,5 @@
 /**
- * Unit tests for GameState creation and immutability
- *
- * Tests:
- * - createInitialGameState factory function
- * - Immutability enforcement via spread syntax
- * - Readonly properties cannot be mutated
- * - Original state remains unchanged after updates
+ * GameSnapshot モデルのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -19,9 +13,9 @@ function createTestInitialDeck(mainDeckCardIds: number[]): InitialDeckCardIds {
   return { mainDeckCardIds, extraDeckCardIds: [] };
 }
 
-describe("GameState", () => {
+describe("GameSnapshot", () => {
   describe("createInitialGameState", () => {
-    it("should create initial state with given deck (numeric IDs)", () => {
+    it("デッキを指定して初期状態を生成できる（数値ID）", () => {
       const deckCardIds = [DUMMY_CARD_IDS.NORMAL_SPELL, DUMMY_CARD_IDS.EQUIP_SPELL, DUMMY_CARD_IDS.QUICKPLAY_SPELL];
       const state = GameState.initialize(createTestInitialDeck(deckCardIds), CardDataRegistry.getCard, {
         skipShuffle: true,
@@ -37,7 +31,7 @@ describe("GameState", () => {
       expect(state.space.banished.length).toBe(0);
     });
 
-    it("should initialize with correct default values", () => {
+    it("正しいデフォルト値で初期化される", () => {
       const state = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
         CardDataRegistry.getCard,
@@ -56,7 +50,7 @@ describe("GameState", () => {
       expect(state.normalSummonUsed).toBe(0);
     });
 
-    it("should create unique instance IDs for deck cards", () => {
+    it("デッキのカードにユニークなインスタンスIDが付与される", () => {
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -77,7 +71,7 @@ describe("GameState", () => {
       expect(instanceIds).toEqual(["main-0", "main-1", "main-2"]);
     });
 
-    it("should set correct location for deck cards", () => {
+    it("デッキのカードに正しいlocationが設定される", () => {
       const state = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL, DUMMY_CARD_IDS.EQUIP_SPELL]),
         CardDataRegistry.getCard,
@@ -92,7 +86,7 @@ describe("GameState", () => {
       });
     });
 
-    it("should handle empty deck", () => {
+    it("空のデッキを扱える", () => {
       const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
@@ -103,8 +97,8 @@ describe("GameState", () => {
     });
   });
 
-  describe("Immutability with spread syntax", () => {
-    it("should create new state instance when updated", () => {
+  describe("スプレッド構文による不変性", () => {
+    it("更新時に新しい状態インスタンスが生成される", () => {
       const originalState = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -128,7 +122,7 @@ describe("GameState", () => {
       expect(originalState.turn).toBe(1);
     });
 
-    it("should not mutate original state when updating zones", () => {
+    it("ゾーン更新時に元の状態が変化しない", () => {
       const originalState = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -159,7 +153,7 @@ describe("GameState", () => {
       expect(newState.space.hand.length).toBe(1);
     });
 
-    it("should not mutate original state when updating life points", () => {
+    it("ライフポイント更新時に元の状態が変化しない", () => {
       const originalState = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
         CardDataRegistry.getCard,
@@ -181,7 +175,7 @@ describe("GameState", () => {
       expect(newState.lp.player).toBe(7000);
     });
 
-    it("should not mutate original state when updating phase", () => {
+    it("フェーズ更新時に元の状態が変化しない", () => {
       const originalState = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
         CardDataRegistry.getCard,
@@ -200,7 +194,7 @@ describe("GameState", () => {
       expect(newState.phase).toBe("main1");
     });
 
-    it("should not mutate original state when updating game result", () => {
+    it("ゲーム結果更新時に元の状態が変化しない", () => {
       const originalState = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
         CardDataRegistry.getCard,
@@ -226,7 +220,7 @@ describe("GameState", () => {
       expect(newState.result.winner).toBe("player");
     });
 
-    it("should support nested updates without mutation", () => {
+    it("ネストした更新でも元の状態が変化しない", () => {
       const originalState = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL, DUMMY_CARD_IDS.EQUIP_SPELL]),
         CardDataRegistry.getCard,
@@ -236,7 +230,7 @@ describe("GameState", () => {
         },
       );
 
-      // Move card from deck to hand
+      // デッキから手札へカードを移動
       const card = {
         ...originalState.space.mainDeck[originalState.space.mainDeck.length - 1],
         location: "hand" as const,
@@ -255,13 +249,13 @@ describe("GameState", () => {
         phase: "standby",
       };
 
-      // Original state unchanged
+      // 元の状態が変化していないことを確認
       expect(originalState.space.mainDeck.length).toBe(2);
       expect(originalState.space.hand.length).toBe(0);
       expect(originalState.lp.player).toBe(8000);
       expect(originalState.phase).toBe("draw");
 
-      // New state updated
+      // 新しい状態が更新されていることを確認
       expect(newState.space.mainDeck.length).toBe(1);
       expect(newState.space.hand.length).toBe(1);
       expect(newState.lp.player).toBe(7500);
@@ -269,9 +263,9 @@ describe("GameState", () => {
     });
   });
 
-  describe("Helper functions", () => {
+  describe("ヘルパー関数", () => {
     describe("findCardInstance", () => {
-      it("should find card in deck", () => {
+      it("デッキ内のカードを検索できる", () => {
         const state = GameState.initialize(
           createTestInitialDeck([
             DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -292,7 +286,7 @@ describe("GameState", () => {
         expect(card?.location).toBe("mainDeck");
       });
 
-      it("should find card in hand", () => {
+      it("手札内のカードを検索できる", () => {
         const initialState = GameState.initialize(
           createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
           CardDataRegistry.getCard,
@@ -316,7 +310,7 @@ describe("GameState", () => {
         expect(card?.location).toBe("hand");
       });
 
-      it("should return undefined for non-existent card", () => {
+      it("存在しないカードはundefinedを返す", () => {
         const state = GameState.initialize(
           createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
           CardDataRegistry.getCard,
@@ -329,7 +323,7 @@ describe("GameState", () => {
         expect(card).toBeUndefined();
       });
 
-      it("should search across all zones", () => {
+      it("全ゾーンを横断して検索できる", () => {
         const initialState = GameState.initialize(
           createTestInitialDeck([
             DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -361,8 +355,8 @@ describe("GameState", () => {
     });
   });
 
-  describe("Type safety", () => {
-    it("should enforce readonly at compile time", () => {
+  describe("型安全性", () => {
+    it("コンパイル時にreadonlyが強制される", () => {
       const state = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
         CardDataRegistry.getCard,
@@ -372,12 +366,12 @@ describe("GameState", () => {
         },
       );
 
-      // These should cause TypeScript errors if uncommented:
+      // コメントを外すとTypeScriptエラーになる:
       // state.turn = 2; // Error: Cannot assign to 'turn' because it is a read-only property
       // state.space.mainDeck = []; // Error: Cannot assign to 'deck' because it is a read-only property
       // state.lp.player = 7000; // Error: Cannot assign to 'player' because it is a read-only property
 
-      // Instead, we must use spread syntax
+      // 代わりにスプレッド構文を使う必要がある
       const newState: GameSnapshot = {
         ...state,
         turn: 2,

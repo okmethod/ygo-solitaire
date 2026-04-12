@@ -1,17 +1,5 @@
 /**
- * AdditionalRuleRegistry のテスト
- *
- * ルール登録・取得機能のテスト。
- *
- * TEST STRATEGY:
- * - register() によるルール登録
- * - get() によるルール取得
- * - getByCategory() によるカテゴリ別フィルタリング
- * - collectActiveRules() によるアクティブルール収集
- * - clear() によるレジストリクリア
- * - getRegisteredCardIds() による登録済みカードID取得
- * - 同一カードへの複数ルール登録
- * - 未登録カードIDのハンドリング
+ * 適用する効果レジストリのテスト
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

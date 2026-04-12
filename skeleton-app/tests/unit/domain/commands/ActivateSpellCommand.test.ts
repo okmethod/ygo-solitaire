@@ -1,5 +1,5 @@
 /**
- * ActivateSpellCommand のユニットテスト
+ * 魔法カード発動コマンドのテスト
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

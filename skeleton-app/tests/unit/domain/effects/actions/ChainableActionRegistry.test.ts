@@ -1,19 +1,5 @@
 /**
- * ChainableActionRegistry のテスト
- *
- * チェイン可能アクションの登録・取得・収集機能のテスト。
- *
- * TEST STRATEGY:
- * - registerActivation() による発動効果登録
- * - registerIgnition() による起動効果登録
- * - getActivation() による発動効果取得
- * - getIgnitionEffects() による起動効果取得
- * - hasIgnitionEffects() による起動効果有無判定
- * - collectChainableActions() によるフィールド上アクション収集
- * - clear() によるレジストリクリア
- * - getRegisteredCardIds() による登録済みカードID取得
- * - 複数登録のハンドリング
- * - 未登録カードIDのハンドリング
+ * 発動する効果レジストリのテスト
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -45,7 +31,7 @@ class MockChainableAction implements ChainableAction {
   }
 
   canActivate(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Mock: always return valid
+    // モック：常にバリデーション成功を返す
     return GameProcessing.Validation.success();
   }
 
@@ -125,13 +111,13 @@ class MockTriggerAction extends BaseTriggerEffect {
 }
 
 describe("ChainableActionRegistry", () => {
-  // Clean up before each test to ensure test isolation
+  // テストの独立性を保つため各テスト前にクリア
   beforeEach(() => {
     ChainableActionRegistry.clear();
   });
 
   describe("registerActivation()", () => {
-    it("should register an activation effect", () => {
+    it("発動効果を登録できる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.POT_OF_GREED; // Pot of Greed
       const action = new MockChainableAction(cardId, "Pot of Greed");
@@ -144,7 +130,7 @@ describe("ChainableActionRegistry", () => {
       expect(retrieved).toBe(action);
     });
 
-    it("should register multiple activation effects for different cards", () => {
+    it("異なるカードに複数の発動効果を登録できる", () => {
       // Arrange
       const potOfGreedId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const gracefulCharityId = ACTUAL_CARD_IDS.GRACEFUL_CHARITY;
@@ -161,7 +147,7 @@ describe("ChainableActionRegistry", () => {
       expect(ChainableActionRegistry.getRegisteredCardIds()).toHaveLength(2);
     });
 
-    it("should overwrite existing activation when registering same card ID", () => {
+    it("同じカードIDを登録すると既存の発動効果を上書きできる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const firstAction = new MockChainableAction(cardId, "First Action");
@@ -169,18 +155,18 @@ describe("ChainableActionRegistry", () => {
 
       // Act
       ChainableActionRegistry.registerActivation(cardId, firstAction);
-      ChainableActionRegistry.registerActivation(cardId, secondAction); // Overwrite
+      ChainableActionRegistry.registerActivation(cardId, secondAction); // 上書き
 
       // Assert
       const retrieved = ChainableActionRegistry.getActivation(cardId);
       expect(retrieved).toBe(secondAction);
       expect(retrieved).not.toBe(firstAction);
-      expect(ChainableActionRegistry.getRegisteredCardIds()).toHaveLength(1); // Only 1 entry
+      expect(ChainableActionRegistry.getRegisteredCardIds()).toHaveLength(1); // エントリは1件のみ
     });
   });
 
   describe("registerIgnition()", () => {
-    it("should register an ignition effect", () => {
+    it("起動効果を登録できる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME; // Chicken Game
       const action = new MockChainableAction(cardId, "Chicken Game Ignition", 1, "ignition", "chicken-game-ignition");
@@ -194,7 +180,7 @@ describe("ChainableActionRegistry", () => {
       expect(effects[0]).toBe(action);
     });
 
-    it("should register multiple ignition effects for same card", () => {
+    it("同じカードに複数の起動効果を登録できる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const effect1 = new MockChainableAction(cardId, "Effect 1", 1, "ignition", "effect-1");
@@ -213,7 +199,7 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("getActivation()", () => {
-    it("should return registered activation effect", () => {
+    it("登録した発動効果を取得できる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const action = new MockChainableAction(cardId, "Pot of Greed");
@@ -227,7 +213,7 @@ describe("ChainableActionRegistry", () => {
       expect(retrieved).toBeInstanceOf(MockChainableAction);
     });
 
-    it("should return undefined for unknown card ID", () => {
+    it("未知のカードIDはundefinedを返す", () => {
       // Arrange
       const unknownCardId = 99999999;
 
@@ -238,7 +224,7 @@ describe("ChainableActionRegistry", () => {
       expect(retrieved).toBeUndefined();
     });
 
-    it("should return undefined for card ID not registered", () => {
+    it("未登録のカードIDはundefinedを返す", () => {
       // Arrange
       const potOfGreedId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const gracefulCharityId = ACTUAL_CARD_IDS.GRACEFUL_CHARITY;
@@ -247,7 +233,7 @@ describe("ChainableActionRegistry", () => {
       ChainableActionRegistry.registerActivation(potOfGreedId, potOfGreedAction);
 
       // Act
-      const retrieved = ChainableActionRegistry.getActivation(gracefulCharityId); // Not registered
+      const retrieved = ChainableActionRegistry.getActivation(gracefulCharityId); // 未登録
 
       // Assert
       expect(retrieved).toBeUndefined();
@@ -255,7 +241,7 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("getIgnitionEffects()", () => {
-    it("should return empty array for card with no ignition effects", () => {
+    it("起動効果がないカードは空配列を返す", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.POT_OF_GREED;
 
@@ -266,7 +252,7 @@ describe("ChainableActionRegistry", () => {
       expect(effects).toEqual([]);
     });
 
-    it("should return all registered ignition effects", () => {
+    it("登録した全起動効果を返す", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const effect1 = new MockChainableAction(cardId, "Effect 1", 1, "ignition", "effect-1");
@@ -283,7 +269,7 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("hasIgnitionEffects()", () => {
-    it("should return false for card with no ignition effects", () => {
+    it("起動効果がないカードはfalseを返す", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.POT_OF_GREED;
 
@@ -291,7 +277,7 @@ describe("ChainableActionRegistry", () => {
       expect(ChainableActionRegistry.hasIgnitionEffects(cardId)).toBe(false);
     });
 
-    it("should return true for card with ignition effects", () => {
+    it("起動効果があるカードはtrueを返す", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       ChainableActionRegistry.registerIgnition(
@@ -304,8 +290,8 @@ describe("ChainableActionRegistry", () => {
     });
   });
 
-  describe("activation and ignition coexistence", () => {
-    it("should allow both activation and ignition for same card", () => {
+  describe("発動効果と起動効果の共存", () => {
+    it("同じカードに発動効果と起動効果を両方登録できる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME; // Chicken Game
       const activation = new MockChainableAction(
@@ -329,7 +315,7 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("clear()", () => {
-    it("should clear all registered effects", () => {
+    it("登録済みの全効果をクリアできる", () => {
       // Arrange
       const potOfGreedId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const chickenGameId = ACTUAL_CARD_IDS.CHICKEN_GAME;
@@ -358,7 +344,7 @@ describe("ChainableActionRegistry", () => {
       expect(ChainableActionRegistry.getIgnitionEffects(chickenGameId)).toEqual([]);
     });
 
-    it("should allow re-registration after clear", () => {
+    it("clear後に再登録できる", () => {
       // Arrange
       const cardId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const firstAction = new MockChainableAction(cardId, "First Action", 1, "activation", "first-action");
@@ -377,13 +363,13 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("getRegisteredCardIds()", () => {
-    it("should return empty array when no actions are registered", () => {
+    it("アクションが未登録の場合は空配列を返す", () => {
       // Act & Assert
       expect(ChainableActionRegistry.getRegisteredCardIds()).toHaveLength(0);
       expect(ChainableActionRegistry.getRegisteredCardIds()).toEqual([]);
     });
 
-    it("should return correct card IDs after registrations", () => {
+    it("登録後に正しいカードIDを返す", () => {
       // Arrange
       const potOfGreedId = ACTUAL_CARD_IDS.POT_OF_GREED;
       const gracefulCharityId = ACTUAL_CARD_IDS.GRACEFUL_CHARITY;
@@ -405,7 +391,7 @@ describe("ChainableActionRegistry", () => {
       expect(registeredIds).toContain(gracefulCharityId);
     });
 
-    it("should return correct card IDs after clear", () => {
+    it("clear後に正しいカードIDを返す", () => {
       // Arrange
       ChainableActionRegistry.registerActivation(
         ACTUAL_CARD_IDS.POT_OF_GREED,
@@ -765,7 +751,7 @@ describe("ChainableActionRegistry", () => {
   });
 
   describe("registerTrigger() / getTriggerEffects() / hasTriggerEffects()", () => {
-    it("should register a trigger effect", () => {
+    it("トリガー効果を登録できる", () => {
       const cardId = 12345;
       const action = new MockTriggerAction(cardId);
       ChainableActionRegistry.registerTrigger(cardId, action);
@@ -775,7 +761,7 @@ describe("ChainableActionRegistry", () => {
       expect(effects[0]).toBe(action);
     });
 
-    it("should register multiple trigger effects for same card", () => {
+    it("同じカードに複数のトリガー効果を登録できる", () => {
       const cardId = 12345;
       const action1 = new MockTriggerAction(cardId, ["spellActivated"]);
       const action2 = new MockTriggerAction(cardId, ["normalSummoned"]);
@@ -785,15 +771,15 @@ describe("ChainableActionRegistry", () => {
       expect(ChainableActionRegistry.getTriggerEffects(cardId)).toHaveLength(2);
     });
 
-    it("should return empty array for card with no trigger effects", () => {
+    it("トリガー効果がないカードは空配列を返す", () => {
       expect(ChainableActionRegistry.getTriggerEffects(99999)).toEqual([]);
     });
 
-    it("hasTriggerEffects() should return false when none registered", () => {
+    it("hasTriggerEffects()は未登録時にfalseを返す", () => {
       expect(ChainableActionRegistry.hasTriggerEffects(99999)).toBe(false);
     });
 
-    it("hasTriggerEffects() should return true when registered", () => {
+    it("hasTriggerEffects()は登録済みの場合trueを返す", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId));
       expect(ChainableActionRegistry.hasTriggerEffects(cardId)).toBe(true);

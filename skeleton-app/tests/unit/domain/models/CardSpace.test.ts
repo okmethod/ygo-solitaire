@@ -1,3 +1,7 @@
+/**
+ * CardSpace モデルのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
@@ -14,7 +18,7 @@ import {
 describe("CardSpace", () => {
   describe("moveCardInstance", () => {
     // 代表例テスト: mainMonsterZone から graveyard への移動
-    it("should move card from mainMonsterZone to graveyard", () => {
+    it("mainMonsterZone から graveyard にカードを移動する", () => {
       const space: CardSpace = {
         mainDeck: [],
         extraDeck: [],
@@ -36,7 +40,7 @@ describe("CardSpace", () => {
     });
 
     // 代表例テスト: hand から graveyard への移動
-    it("should move card from hand to graveyard", () => {
+    it("hand から graveyard にカードを移動する", () => {
       const space: CardSpace = {
         mainDeck: [],
         extraDeck: [],
@@ -58,7 +62,7 @@ describe("CardSpace", () => {
     });
 
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
-    it("should preserve other zones when moving card", () => {
+    it("カード移動時に変更対象以外のゾーンが保持される", () => {
       const monsterCard = createMonsterOnField("monster-0");
       const spellCard = createSpellOnField("spell-0");
       const space: CardSpace = {

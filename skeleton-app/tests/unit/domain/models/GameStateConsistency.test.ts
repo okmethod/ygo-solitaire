@@ -1,11 +1,5 @@
 /**
- * GameStateConsistency.ts のテスト
- *
- * ゲーム状態の整合性チェック関数を検証する。
- *
- * TEST STRATEGY:
- * - 各バリデーション関数の正常系・異常系
- * - assertValidGameState のエラースロー
+ * GameSnapshot の整合性チェック関数のテスト
  */
 
 import { describe, it, expect } from "vitest";

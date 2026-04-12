@@ -1,10 +1,5 @@
 /**
- * ActivationContext Tests
- *
- * 効果発動時のコンテキスト管理機能のテスト。
- * 純粋関数のテストとして、入力と出力の検証および不変性の確認を行う。
- *
- * @module tests/unit/domain/models/ActivationContext
+ * ActivationContext モデルのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -22,14 +17,14 @@ import {
 } from "$lib/domain/models/GameState/ActivationContext";
 import type { EffectId } from "$lib/domain/models/Effect";
 
-// Test helper: EffectId constants
+// テストヘルパー: EffectId 定数
 const EFFECT_1 = "effect-1" as EffectId;
 const EFFECT_2 = "effect-2" as EffectId;
 const NON_EXISTENT = "non-existent" as EffectId;
 
 describe("ActivationContext", () => {
   describe("setActivationTargets / getActivationTargets", () => {
-    it("should set targets for a new effect", () => {
+    it("新規エフェクトにターゲットを設定できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
       const effectId = EFFECT_1;
@@ -43,7 +38,7 @@ describe("ActivationContext", () => {
       expect(result[effectId].targets).toEqual(targets);
     });
 
-    it("should get targets for an existing effect", () => {
+    it("既存エフェクトのターゲットを取得できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: ["card-1", "card-2"] },
@@ -56,7 +51,7 @@ describe("ActivationContext", () => {
       expect(result).toEqual(["card-1", "card-2"]);
     });
 
-    it("should return empty array for non-existent effect", () => {
+    it("存在しないエフェクトは空配列を返す", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
@@ -67,7 +62,7 @@ describe("ActivationContext", () => {
       expect(result).toEqual([]);
     });
 
-    it("should preserve existing context properties when setting targets", () => {
+    it("ターゲット設定時に既存のコンテキストプロパティを保持する", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: [], paidCosts: 100 },
@@ -81,20 +76,20 @@ describe("ActivationContext", () => {
       expect(result[EFFECT_1].paidCosts).toBe(100);
     });
 
-    it("should not mutate original contexts", () => {
+    it("元のコンテキストを変更しない（不変性）", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
       // Act
       setActivationTargets(contexts, EFFECT_1, ["card-1"]);
 
-      // Assert - original should be unchanged
+      // Assert - 元のオブジェクトが変更されていないこと
       expect(contexts[EFFECT_1]).toBeUndefined();
     });
   });
 
   describe("setPaidCosts / getPaidCosts", () => {
-    it("should set paid costs for a new effect", () => {
+    it("新規エフェクトにコスト支払い量を設定できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
@@ -105,7 +100,7 @@ describe("ActivationContext", () => {
       expect(result[EFFECT_1].paidCosts).toBe(1000);
     });
 
-    it("should get paid costs for an existing effect", () => {
+    it("既存エフェクトのコスト支払い量を取得できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: [], paidCosts: 500 },
@@ -118,7 +113,7 @@ describe("ActivationContext", () => {
       expect(result).toBe(500);
     });
 
-    it("should return undefined for non-existent effect", () => {
+    it("存在しないエフェクトは undefined を返す", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
@@ -131,7 +126,7 @@ describe("ActivationContext", () => {
   });
 
   describe("setCalculatedDamage / getCalculatedDamage", () => {
-    it("should set calculated damage for an effect", () => {
+    it("エフェクトに計算済みダメージを設定できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
@@ -142,7 +137,7 @@ describe("ActivationContext", () => {
       expect(result[EFFECT_1].calculatedDamage).toBe(2000);
     });
 
-    it("should get calculated damage for an existing effect", () => {
+    it("既存エフェクトの計算済みダメージを取得できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: [], calculatedDamage: 1500 },
@@ -155,7 +150,7 @@ describe("ActivationContext", () => {
       expect(result).toBe(1500);
     });
 
-    it("should return undefined for effect without calculated damage", () => {
+    it("計算済みダメージが未設定のエフェクトは undefined を返す", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: [] },
@@ -170,7 +165,7 @@ describe("ActivationContext", () => {
   });
 
   describe("setDeclaredInteger / getDeclaredInteger", () => {
-    it("should set declared integer for an effect", () => {
+    it("エフェクトに宣言整数を設定できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
@@ -181,7 +176,7 @@ describe("ActivationContext", () => {
       expect(result[EFFECT_1].declaredInteger).toBe(5);
     });
 
-    it("should get declared integer for an existing effect", () => {
+    it("既存エフェクトの宣言整数を取得できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: [], declaredInteger: 3 },
@@ -194,7 +189,7 @@ describe("ActivationContext", () => {
       expect(result).toBe(3);
     });
 
-    it("should return undefined for effect without declared integer", () => {
+    it("宣言整数が未設定のエフェクトは undefined を返す", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {};
 
@@ -207,7 +202,7 @@ describe("ActivationContext", () => {
   });
 
   describe("clearActivationContext", () => {
-    it("should remove context for specified effect", () => {
+    it("指定エフェクトのコンテキストを削除できる", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: ["card-1"] },
@@ -222,7 +217,7 @@ describe("ActivationContext", () => {
       expect(result[EFFECT_2]).toBeDefined();
     });
 
-    it("should return same object if effect does not exist", () => {
+    it("存在しないエフェクトを削除しても同じオブジェクトを返す", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: [] },
@@ -235,7 +230,7 @@ describe("ActivationContext", () => {
       expect(result).toBe(contexts);
     });
 
-    it("should not mutate original contexts", () => {
+    it("元のコンテキストを変更しない（不変性）", () => {
       // Arrange
       const contexts: Record<EffectId, EffectActivationContext> = {
         [EFFECT_1]: { targets: ["card-1"] },
@@ -244,7 +239,7 @@ describe("ActivationContext", () => {
       // Act
       clearActivationContext(contexts, EFFECT_1);
 
-      // Assert - original should be unchanged
+      // Assert - 元のオブジェクトが変更されていないこと
       expect(contexts[EFFECT_1]).toBeDefined();
     });
   });

@@ -1,8 +1,5 @@
 /**
- * NormalSpellActivation のテスト
- *
- * 通常魔法発動の抽象クラスのテスト。
- * BaseSpellActivation を継承した subTypeConditions を検証する。
+ * 通常魔法発動の抽象クラスのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -24,7 +21,7 @@ class TestNormalSpell extends NormalSpellActivation {
   }
 
   protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Test implementation: check deck size
+    // テスト用実装: デッキ枚数チェック
     if (state.space.mainDeck.length >= 2) {
       return GameProcessing.Validation.success();
     }
@@ -43,19 +40,19 @@ class TestNormalSpell extends NormalSpellActivation {
 describe("NormalSpellActivation", () => {
   const action = new TestNormalSpell();
 
-  describe("ChainableAction interface properties", () => {
-    it("should have effect category = 'activation'", () => {
+  describe("ChainableAction インターフェースのプロパティ", () => {
+    it("effectCategory が 'activation' であること", () => {
       expect(action.effectCategory).toBe("activation");
     });
 
-    it("should have spell speed 1", () => {
+    it("spellSpeed が 1 であること", () => {
       expect(action.spellSpeed).toBe(1);
     });
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
-      // Arrange: Main Phase 1, Deck >= 2
+    it("全条件が満たされた場合に true を返すこと（メインフェーズ + 追加条件）", () => {
+      // Arrange: メインフェーズ1、デッキ >= 2
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -77,8 +74,8 @@ describe("NormalSpellActivation", () => {
       expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
     });
 
-    it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw (NormalSpellActivation固有のフェーズ制約テスト)
+    it("フェーズが Main1 でない場合に false を返すこと", () => {
+      // Arrange: フェーズがドロウ（NormalSpellActivation固有のフェーズ制約テスト）
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -91,14 +88,14 @@ describe("NormalSpellActivation", () => {
           skipInitialDraw: true,
         },
       );
-      // Default phase is "Draw"
+      // デフォルトフェーズは "Draw"
 
       // Act & Assert
       expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(false);
     });
 
-    it("should return false when additional conditions are not met", () => {
-      // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
+    it("追加条件が満たされない場合に false を返すこと", () => {
+      // Arrange: デッキが1枚のみ（individualConditions が false を返す）
       const state = GameState.initialize(
         createTestInitialDeck([DUMMY_CARD_IDS.NORMAL_SPELL]),
         CardDataRegistry.getCard,
@@ -118,7 +115,7 @@ describe("NormalSpellActivation", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return default activation step", () => {
+    it("デフォルトの発動ステップを返すこと", () => {
       // Arrange
       const state = GameState.initialize(
         createTestInitialDeck([
@@ -138,7 +135,7 @@ describe("NormalSpellActivation", () => {
       const steps = action.createActivationSteps(state, sourceInstance);
 
       // Assert
-      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
+      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep（発動通知 + イベント発火）
       expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_MONSTER}-activation-notification`);
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Dummy Normal Monster》を発動します");

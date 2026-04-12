@@ -1,10 +1,5 @@
 /**
- * EventTimeline Tests
- *
- * ゲームイベントの時間軸管理機能のテスト。
- * イベントの記録、タイミング進行、履歴管理を検証する。
- *
- * @module tests/unit/domain/models/EventTimeline
+ * EventTimeline モデルのテスト
  */
 
 import { describe, it, expect } from "vitest";

@@ -1,3 +1,7 @@
+/**
+ * DSLパーサーのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   parseCardDSL,
@@ -6,15 +10,6 @@ import {
   isDSLValidationError,
 } from "$lib/domain/dsl/core/parsers";
 import { DSLParseError, DSLValidationError } from "$lib/domain/dsl/types";
-
-/**
- * CardDSLParser Tests
- *
- * TEST STRATEGY:
- * - 正常系: 有効なYAML定義が正しくパースされること
- * - 異常系: 不正なYAMLや必須フィールド欠落時に適切なエラーが投げられること
- * - エラーメッセージにカードIDとフィールドパスが含まれること
- */
 
 // =============================================================================
 // テストデータ

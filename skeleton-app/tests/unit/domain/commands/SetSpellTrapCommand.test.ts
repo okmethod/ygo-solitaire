@@ -1,9 +1,5 @@
 /**
- * Unit tests for SetSpellTrapCommand
- *
- * Tests the SetSpellTrapCommand which sets a spell or trap card face-down
- * to either the spellTrapZone or fieldZone (for field spells).
- * Setting does NOT consume normal summon rights.
+ * 魔法・罠カードセットコマンドのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -19,7 +15,7 @@ import {
 
 describe("SetSpellTrapCommand", () => {
   describe("canExecute", () => {
-    it("should allow setting a normal spell when conditions are met", () => {
+    it("条件を満たす場合に通常魔法をセットできる", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const state = createMockGameState({
@@ -35,7 +31,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should allow setting a field spell even if fieldZone is occupied", () => {
+    it("フィールドゾーンが使用中でもフィールド魔法をセットできる", () => {
       // Arrange
       const fieldSpell1 = createSpellInstance("field-1", { spellType: "field" });
       const fieldSpell2 = createSpellInstance("field-2", { spellType: "field", location: "fieldZone" });
@@ -55,7 +51,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should fail if not in main1 phase", () => {
+    it("メイン1フェイズでない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const state = createMockGameState({
@@ -72,7 +68,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(false);
     });
 
-    it("should fail if spellTrapZone is full (5 cards)", () => {
+    it("魔法・罠ゾーンが満杯の場合（5枚）は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const state = createMockGameState({
@@ -91,7 +87,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(false);
     });
 
-    it("should fail if card not found", () => {
+    it("カードが見つからない場合は失敗する", () => {
       // Arrange
       const state = createMockGameState();
 
@@ -104,7 +100,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(false);
     });
 
-    it("should fail if card is not in hand", () => {
+    it("カードが手札にない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1", { spellType: "normal", location: "mainDeck" });
       const state = createMockGameState({
@@ -120,7 +116,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(false);
     });
 
-    it("should fail if card is not a spell or trap", () => {
+    it("カードが魔法・罠でない場合は失敗する", () => {
       // Arrange
       const monsterCard = createMonsterInstance("monster-1");
       const state = createMockGameState({
@@ -136,7 +132,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.isValid).toBe(false);
     });
 
-    it("should fail if game is already over", () => {
+    it("ゲームが既に終了している場合は失敗する", () => {
       // Arrange
       const state = createExodiaVictoryState();
 
@@ -151,7 +147,7 @@ describe("SetSpellTrapCommand", () => {
   });
 
   describe("execute", () => {
-    it("should successfully set normal spell to spellTrapZone face-down", () => {
+    it("通常魔法を裏向きで魔法・罠ゾーンにセットする", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const state = createMockGameState({
@@ -175,7 +171,7 @@ describe("SetSpellTrapCommand", () => {
       expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
-    it("should successfully set quick-play spell to spellTrapZone face-down", () => {
+    it("速攻魔法を裏向きで魔法・罠ゾーンにセットする", () => {
       // Arrange
       const spellCard = createSpellInstance("quick-1", { spellType: "quick-play" });
       const state = createMockGameState({
@@ -197,7 +193,7 @@ describe("SetSpellTrapCommand", () => {
       expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
-    it("should successfully set continuous spell to spellTrapZone face-down", () => {
+    it("永続魔法を裏向きで魔法・罠ゾーンにセットする", () => {
       // Arrange
       const spellCard = createSpellInstance("continuous-1", { spellType: "continuous" });
       const state = createMockGameState({
@@ -218,7 +214,7 @@ describe("SetSpellTrapCommand", () => {
       expect(setCard.stateOnField?.position).toBe("faceDown");
     });
 
-    it("should successfully set field spell to fieldZone face-down", () => {
+    it("フィールド魔法を裏向きでフィールドゾーンにセットする", () => {
       // Arrange
       const fieldSpell = createSpellInstance("field-1", { spellType: "field" });
       const state = createMockGameState({
@@ -242,7 +238,7 @@ describe("SetSpellTrapCommand", () => {
       expect(setCard.stateOnField?.placedThisTurn).toBe(true);
     });
 
-    it("should replace existing field spell when setting a new field spell", () => {
+    it("新しいフィールド魔法をセットする際に既存のフィールド魔法を置き換える", () => {
       // Arrange
       const oldFieldSpell = createSpellOnField("field-old", { spellType: "field" });
       const newFieldSpell = createSpellInstance("field-new", { spellType: "field" });
@@ -266,7 +262,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.updatedState.space.graveyard[0].instanceId).toBe("field-old");
     });
 
-    it("should NOT consume normalSummonUsed when setting spell", () => {
+    it("魔法をセットしても normalSummonUsed を消費しない", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const state = createMockGameState({
@@ -284,7 +280,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.updatedState.normalSummonUsed).toBe(0); // Should NOT increment
     });
 
-    it("should fail if not in main1 phase", () => {
+    it("メイン1フェイズでない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const state = createMockGameState({
@@ -302,7 +298,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.error).toBe("メインフェイズではありません");
     });
 
-    it("should fail if card not found", () => {
+    it("カードが見つからない場合は失敗する", () => {
       // Arrange
       const state = createMockGameState();
 
@@ -316,7 +312,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.error).toBe("カードが見つかりません");
     });
 
-    it("should fail if card is not in hand", () => {
+    it("カードが手札にない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1", { spellType: "normal", location: "mainDeck" });
       const state = createMockGameState({
@@ -333,7 +329,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.error).toBe("カードが手札にありません");
     });
 
-    it("should fail if spellTrapZone is full", () => {
+    it("魔法・罠ゾーンが満杯の場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const existingSpells = createFilledSpellZone(5).spellTrapZone.map((s) => ({
@@ -357,7 +353,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.error).toBe("魔法・罠ゾーンに空きがありません");
     });
 
-    it("should preserve other zones when setting", () => {
+    it("セット時に他のゾーンを保持する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
       const existingDeckCard = createSpellInstance("deck-card", { spellType: "normal", location: "mainDeck" });
@@ -384,7 +380,7 @@ describe("SetSpellTrapCommand", () => {
   });
 
   describe("getCardInstanceId", () => {
-    it("should return the card instance id", () => {
+    it("カードインスタンス ID を返す", () => {
       // Arrange
       const command = new SetSpellTrapCommand("spell-1");
 

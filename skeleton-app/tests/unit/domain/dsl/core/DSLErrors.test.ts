@@ -1,13 +1,10 @@
+/**
+ * DSLエラーメッセージのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import { parseCardDSL } from "$lib/domain/dsl/core/parsers";
 import { DSLParseError, DSLValidationError } from "$lib/domain/dsl/types/DSLErrors";
-
-/**
- * DSL Error Messages Tests
- *
- * エラーメッセージにカードIDとフィールドパスが含まれることを検証する。
- * デバッグの効率化に必要な情報がエラーに含まれていることを保証する。
- */
 
 describe("DSLErrors - Error Messages", () => {
   describe("DSLParseError", () => {

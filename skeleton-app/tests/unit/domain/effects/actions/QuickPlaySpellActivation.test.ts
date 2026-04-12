@@ -1,8 +1,5 @@
 /**
- * QuickPlaySpellActivation のテスト
- *
- * 速攻魔法発動の抽象クラスのテスト。
- * BaseSpellActivation を継承した subTypeConditions を検証する。
+ * 速攻魔法発動の抽象クラスのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -24,7 +21,7 @@ class TestQuickPlaySpell extends QuickPlaySpellActivation {
   }
 
   protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Test implementation: check hand size
+    // テスト実装: 手札枚数チェック
     if (state.space.hand.length > 0) {
       return GameProcessing.Validation.success();
     }
@@ -43,19 +40,19 @@ class TestQuickPlaySpell extends QuickPlaySpellActivation {
 describe("QuickPlaySpellActivation", () => {
   const action = new TestQuickPlaySpell();
 
-  describe("ChainableAction interface properties", () => {
-    it("should have effect category = 'activation'", () => {
+  describe("ChainableAction インターフェースのプロパティ", () => {
+    it("effectCategory が 'activation' であること", () => {
       expect(action.effectCategory).toBe("activation");
     });
 
-    it("should have spell speed 2", () => {
+    it("スペルスピードが 2 であること", () => {
       expect(action.spellSpeed).toBe(2);
     });
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
-      // Arrange: Main Phase 1, Hand not empty
+    it("全条件が満たされた場合（メインフェーズ + 追加条件）に true を返すこと", () => {
+      // Arrange: メインフェーズ1、手札あり
       const baseState = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -87,8 +84,8 @@ describe("QuickPlaySpellActivation", () => {
       expect(action.canActivate(stateInMain1, sourceInstance).isValid).toBe(true);
     });
 
-    it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw (QuickPlaySpellActivation固有のフェーズ制約テスト)
+    it("フェーズがメイン1でない場合に false を返すこと", () => {
+      // Arrange: フェーズがドロー（QuickPlaySpellActivation固有のフェーズ制約テスト）
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -102,14 +99,14 @@ describe("QuickPlaySpellActivation", () => {
         },
       );
       const sourceInstance = createSpellInstance("test-instance-0", { spellType: "quick-play" });
-      // Default phase is "Draw"
+      // デフォルトフェーズは "Draw"
 
       // Act & Assert
       expect(action.canActivate(state, sourceInstance).isValid).toBe(false);
     });
 
-    it("should return false when additional conditions are not met", () => {
-      // Arrange: Hand is empty (additionalActivationConditions returns false)
+    it("追加条件が満たされない場合に false を返すこと", () => {
+      // Arrange: 手札が空（additionalActivationConditions が false を返す）
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -138,7 +135,7 @@ describe("QuickPlaySpellActivation", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should return default activation step", () => {
+    it("デフォルトの発動ステップを返すこと", () => {
       // Arrange
       const state = GameState.initialize(
         createTestInitialDeck([

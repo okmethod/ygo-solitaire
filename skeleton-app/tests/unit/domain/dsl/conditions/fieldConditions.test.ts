@@ -1,12 +1,5 @@
 /**
- * fieldConditions.ts のテスト
- *
- * フィールド関連の条件チェック関数を検証する。
- *
- * TEST STRATEGY:
- * - 各条件チェッカーが正しく機能すること
- * - 境界条件（minCount等）が正しく処理されること
- * - 不正な引数でエラーがスローされること
+ * フィールド系条件チェックのテスト
  */
 
 import { describe, it, expect } from "vitest";

@@ -1,3 +1,12 @@
+/**
+ * DSL定義から通常魔法効果を生成するファクトリクラスのテスト
+ *
+ * TEST STRATEGY:
+ * - DSL定義から正しくAtomicStepが生成されること
+ * - 条件チェックが正しく機能すること
+ * - 発動ステップと効果解決ステップが正しく分離されていること
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   GenericNormalSpellActivation,
@@ -10,15 +19,6 @@ import {
   createMockGameState,
   createFilledMainDeck,
 } from "../../../../__testUtils__";
-
-/**
- * GenericNormalSpellActivation Tests
- *
- * TEST STRATEGY:
- * - DSL定義から正しくAtomicStepが生成されること
- * - 条件チェックが正しく機能すること
- * - 発動ステップと効果解決ステップが正しく分離されていること
- */
 
 // =============================================================================
 // テストヘルパー

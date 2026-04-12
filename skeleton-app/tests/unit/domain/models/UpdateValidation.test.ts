@@ -1,10 +1,5 @@
 /**
- * UpdateValidation Tests
- *
- * ゲーム状態更新の実行条件チェック結果モデルのテスト。
- * ValidationResultの生成とエラーメッセージ取得を検証する。
- *
- * @module tests/unit/domain/models/UpdateValidation
+ * ValidationResult モデルのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -18,24 +13,24 @@ import type { ValidationResult } from "$lib/domain/models/GameProcessing/UpdateV
 
 describe("UpdateValidation", () => {
   describe("ERROR_CODES", () => {
-    it("should have common error codes defined", () => {
+    it("汎用エラーコードが定義されている", () => {
       expect(ERROR_CODES.GAME_OVER).toBe("GAME_OVER");
       expect(ERROR_CODES.NOT_MAIN_PHASE).toBe("NOT_MAIN_PHASE");
     });
 
-    it("should have card-related error codes defined", () => {
+    it("カード関連エラーコードが定義されている", () => {
       expect(ERROR_CODES.CARD_NOT_FOUND).toBe("CARD_NOT_FOUND");
       expect(ERROR_CODES.CARD_NOT_IN_HAND).toBe("CARD_NOT_IN_HAND");
       expect(ERROR_CODES.NOT_SPELL_CARD).toBe("NOT_SPELL_CARD");
       expect(ERROR_CODES.NOT_MONSTER_CARD).toBe("NOT_MONSTER_CARD");
     });
 
-    it("should have zone-related error codes defined", () => {
+    it("ゾーン関連エラーコードが定義されている", () => {
       expect(ERROR_CODES.SPELL_TRAP_ZONE_FULL).toBe("SPELL_TRAP_ZONE_FULL");
       expect(ERROR_CODES.MONSTER_ZONE_FULL).toBe("MONSTER_ZONE_FULL");
     });
 
-    it("should have synchro-related error codes defined", () => {
+    it("シンクロ関連エラーコードが定義されている", () => {
       expect(ERROR_CODES.NOT_SYNCHRO_MONSTER).toBe("NOT_SYNCHRO_MONSTER");
       expect(ERROR_CODES.CARD_NOT_IN_EXTRA_DECK).toBe("CARD_NOT_IN_EXTRA_DECK");
       expect(ERROR_CODES.NO_VALID_SYNCHRO_MATERIALS).toBe("NO_VALID_SYNCHRO_MATERIALS");
@@ -43,7 +38,7 @@ describe("UpdateValidation", () => {
   });
 
   describe("successValidationResult", () => {
-    it("should create a valid result with isValid true", () => {
+    it("isValid が true の成功結果を生成する", () => {
       // Act
       const result = successValidationResult();
 
@@ -53,7 +48,7 @@ describe("UpdateValidation", () => {
       expect(result.errorParams).toBeUndefined();
     });
 
-    it("should return a new object each time", () => {
+    it("呼び出すたびに新しいオブジェクトを返す", () => {
       // Act
       const result1 = successValidationResult();
       const result2 = successValidationResult();
@@ -64,7 +59,7 @@ describe("UpdateValidation", () => {
   });
 
   describe("failureValidationResult", () => {
-    it("should create an invalid result with error code", () => {
+    it("エラーコードを持つ失敗結果を生成する", () => {
       // Act
       const result = failureValidationResult(ERROR_CODES.GAME_OVER);
 
@@ -74,7 +69,7 @@ describe("UpdateValidation", () => {
       expect(result.errorParams).toBeUndefined();
     });
 
-    it("should create an invalid result with error params", () => {
+    it("エラーパラメータを持つ失敗結果を生成する", () => {
       // Act
       const result = failureValidationResult(ERROR_CODES.INSUFFICIENT_DECK, {
         required: 2,
@@ -87,7 +82,7 @@ describe("UpdateValidation", () => {
       expect(result.errorParams).toEqual({ required: 2, actual: 1 });
     });
 
-    it("should return a new object each time", () => {
+    it("呼び出すたびに新しいオブジェクトを返す", () => {
       // Act
       const result1 = failureValidationResult(ERROR_CODES.GAME_OVER);
       const result2 = failureValidationResult(ERROR_CODES.GAME_OVER);
@@ -98,7 +93,7 @@ describe("UpdateValidation", () => {
   });
 
   describe("validationErrorMessage", () => {
-    it("should return empty string for valid result", () => {
+    it("成功結果の場合は空文字を返す", () => {
       // Arrange
       const result = successValidationResult();
 
@@ -109,7 +104,7 @@ describe("UpdateValidation", () => {
       expect(message).toBe("");
     });
 
-    it("should return error message for GAME_OVER", () => {
+    it("GAME_OVER のエラーメッセージを返す", () => {
       // Arrange
       const result = failureValidationResult(ERROR_CODES.GAME_OVER);
 
@@ -120,7 +115,7 @@ describe("UpdateValidation", () => {
       expect(message).toBe("ゲームは終了しています");
     });
 
-    it("should return error message for NOT_MAIN_PHASE", () => {
+    it("NOT_MAIN_PHASE のエラーメッセージを返す", () => {
       // Arrange
       const result = failureValidationResult(ERROR_CODES.NOT_MAIN_PHASE);
 
@@ -131,7 +126,7 @@ describe("UpdateValidation", () => {
       expect(message).toBe("メインフェイズではありません");
     });
 
-    it("should return error message for CARD_NOT_IN_HAND", () => {
+    it("CARD_NOT_IN_HAND のエラーメッセージを返す", () => {
       // Arrange
       const result = failureValidationResult(ERROR_CODES.CARD_NOT_IN_HAND);
 
@@ -142,7 +137,7 @@ describe("UpdateValidation", () => {
       expect(message).toBe("カードが手札にありません");
     });
 
-    it("should return error message for zone-related errors", () => {
+    it("ゾーン関連エラーのメッセージを返す", () => {
       // Arrange
       const result = failureValidationResult(ERROR_CODES.SPELL_TRAP_ZONE_FULL);
 
@@ -153,7 +148,7 @@ describe("UpdateValidation", () => {
       expect(message).toBe("魔法・罠ゾーンに空きがありません");
     });
 
-    it("should return error message for synchro-related errors", () => {
+    it("シンクロ関連エラーのメッセージを返す", () => {
       // Arrange
       const result = failureValidationResult(ERROR_CODES.NO_VALID_SYNCHRO_MATERIALS);
 
@@ -164,8 +159,8 @@ describe("UpdateValidation", () => {
       expect(message).toBe("有効なシンクロ素材がありません");
     });
 
-    it("should return empty string for invalid result without error code", () => {
-      // Arrange - edge case: manually constructed invalid result
+    it("エラーコードなしの失敗結果の場合は空文字を返す", () => {
+      // Arrange - エッジケース: 手動で構築した失敗結果
       const result: ValidationResult = { isValid: false };
 
       // Act
@@ -175,7 +170,7 @@ describe("UpdateValidation", () => {
       expect(message).toBe("");
     });
 
-    it("should handle result with error params (template placeholder)", () => {
+    it("エラーパラメータを持つ結果を処理する（テンプレートプレースホルダー）", () => {
       // Arrange
       const result = failureValidationResult(ERROR_CODES.INSUFFICIENT_DECK, {
         required: 2,
@@ -185,7 +180,7 @@ describe("UpdateValidation", () => {
       // Act
       const message = validationErrorMessage(result);
 
-      // Assert - currently just returns template, params are not substituted yet
+      // Assert - 現状はテンプレートをそのまま返す（パラメータ置換は未実装）
       expect(message).toBe("デッキのカードが不足しています");
     });
   });

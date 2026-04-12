@@ -1,3 +1,13 @@
+/**
+ * DSL定義の永続効果トリガールールのテスト
+ *
+ * TEST STRATEGY:
+ * - GenericContinuousTriggerRule が AdditionalRule インターフェースを正しく実装していること
+ * - DSL定義からトリガールールを生成できること
+ * - canApply がカードのフィールド状態を正しく判定すること
+ * - createTriggerSteps がDSL定義に基づいてステップを生成すること
+ */
+
 import { describe, it, expect } from "vitest";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
@@ -7,16 +17,6 @@ import {
   createStateWithMonsterZone,
   createMockGameState,
 } from "../../../../__testUtils__";
-
-/**
- * GenericContinuousTriggerRule Tests - DSL定義の永続効果トリガールールのテスト
- *
- * TEST STRATEGY:
- * - GenericContinuousTriggerRule が AdditionalRule インターフェースを正しく実装していること
- * - DSL定義からトリガールールを生成できること
- * - canApply がカードのフィールド状態を正しく判定すること
- * - createTriggerSteps がDSL定義に基づいてステップを生成すること
- */
 
 // =============================================================================
 // テストヘルパー

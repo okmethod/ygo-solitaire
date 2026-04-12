@@ -1,10 +1,5 @@
 /**
- * SynchroSummonCommand Tests
- *
- * シンクロ召喚コマンドのテスト。
- * canExecuteとexecuteの動作を検証する。
- *
- * @module tests/unit/domain/commands/SynchroSummonCommand
+ * シンクロ召喚コマンドのテスト
  */
 
 import { describe, it, expect } from "vitest";

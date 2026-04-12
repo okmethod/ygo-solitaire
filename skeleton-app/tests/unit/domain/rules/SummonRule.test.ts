@@ -1,3 +1,7 @@
+/**
+ * 通常召喚・特殊召喚ルールのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   canNormalSummon,
@@ -11,25 +15,25 @@ import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
   describe("getRequiredTributes", () => {
-    it("should return 0 for level 4 or below", () => {
+    it("レベル4以下はリリース不要", () => {
       expect(getRequiredTributes(1)).toBe(0);
       expect(getRequiredTributes(4)).toBe(0);
       expect(getRequiredTributes(undefined)).toBe(0);
     });
 
-    it("should return 1 for level 5-6", () => {
+    it("レベル5〜6は1体リリース", () => {
       expect(getRequiredTributes(5)).toBe(1);
       expect(getRequiredTributes(6)).toBe(1);
     });
 
-    it("should return 2 for level 7 or above", () => {
+    it("レベル7以上は2体リリース", () => {
       expect(getRequiredTributes(7)).toBe(2);
       expect(getRequiredTributes(12)).toBe(2);
     });
   });
 
   describe("canSummonOrSet", () => {
-    it("should allow summon when conditions are met (level 4 monster)", () => {
+    it("条件を満たしている場合は召喚可能（レベル4モンスター）", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -44,7 +48,7 @@ describe("SummonRule", () => {
       expect(result.errorCode).toBeUndefined();
     });
 
-    it("should fail if not in Main phase", () => {
+    it("メインフェイズ以外では失敗", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -60,7 +64,7 @@ describe("SummonRule", () => {
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
     });
 
-    it("should fail if summon limit reached", () => {
+    it("召喚回数上限に達している場合は失敗", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -76,7 +80,7 @@ describe("SummonRule", () => {
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.SUMMON_LIMIT_REACHED);
     });
 
-    it("should fail if mainMonsterZone is full (5 cards) for normal summon", () => {
+    it("モンスターゾーンが満杯（5体）の場合は通常召喚失敗", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -94,7 +98,7 @@ describe("SummonRule", () => {
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.MONSTER_ZONE_FULL);
     });
 
-    it("should fail if card is not in hand", () => {
+    it("カードが手札にない場合は失敗", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { location: "mainMonsterZone", level: 4 });
       const state = createMockGameState({
@@ -109,7 +113,7 @@ describe("SummonRule", () => {
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
     });
 
-    it("should allow tribute summon when field has enough monsters (level 5)", () => {
+    it("フィールドに十分なモンスターがいる場合はリリース召喚可能（レベル5）", () => {
       // Arrange
       const monster = createMonsterInstance("high-level-monster", { level: 5 });
       const state = createMockGameState({
@@ -126,13 +130,13 @@ describe("SummonRule", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should fail tribute summon when field has not enough monsters (level 7)", () => {
+    it("フィールドのモンスターが不足している場合はリリース召喚失敗（レベル7）", () => {
       // Arrange
       const monster = createMonsterInstance("high-level-monster", { level: 7 });
       const state = createMockGameState({
         space: {
           hand: [monster],
-          ...createFilledMonsterZone(1), // Only 1, but need 2
+          ...createFilledMonsterZone(1), // 1体しかいないが2体必要
         },
       });
 
@@ -146,8 +150,8 @@ describe("SummonRule", () => {
   });
 
   describe("performNormalSummon", () => {
-    describe("no tribute required (level 4 or below)", () => {
-      it("should return immediate result with updated state when summoning in attack position", () => {
+    describe("リリース不要（レベル4以下）", () => {
+      it("攻撃表示で召喚した場合、更新済みステートを即時返却する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
@@ -168,7 +172,7 @@ describe("SummonRule", () => {
         }
       });
 
-      it("should return immediate result when setting in defense position", () => {
+      it("守備表示でセットした場合、即時結果を返却する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
@@ -183,11 +187,11 @@ describe("SummonRule", () => {
         if (result.type === "immediate") {
           expect(result.state.normalSummonUsed).toBe(1);
           expect(result.message).toContain("セット");
-          expect(result.activationSteps.length).toBe(0); // No event for set
+          expect(result.activationSteps.length).toBe(0); // セット時はイベントなし
         }
       });
 
-      it("should place monster face up in attack position", () => {
+      it("モンスターを表側攻撃表示で配置する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
@@ -205,7 +209,7 @@ describe("SummonRule", () => {
         }
       });
 
-      it("should place monster face down in defense position", () => {
+      it("モンスターを裏側守備表示で配置する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
         const state = createMockGameState({
@@ -224,8 +228,8 @@ describe("SummonRule", () => {
       });
     });
 
-    describe("tribute required (level 5 or above)", () => {
-      it("should return needsSelection result for level 5 monster", () => {
+    describe("リリース必要（レベル5以上）", () => {
+      it("レベル5モンスターはneedsSelection結果を返却する", () => {
         // Arrange
         const monster = createMonsterInstance("high-level-monster", { level: 5 });
         const state = createMockGameState({
@@ -246,7 +250,7 @@ describe("SummonRule", () => {
         }
       });
 
-      it("should return needsSelection result for level 7 monster (2 tributes)", () => {
+      it("レベル7モンスター（2体リリース）はneedsSelection結果を返却する", () => {
         // Arrange
         const monster = createMonsterInstance("high-level-monster", { level: 7 });
         const state = createMockGameState({
@@ -269,7 +273,7 @@ describe("SummonRule", () => {
   });
 
   describe("canSpecialSummon", () => {
-    it("should return success when monster zone is not full", () => {
+    it("モンスターゾーンが満杯でない場合は特殊召喚可能", () => {
       // Arrange
       const state = createMockGameState();
 
@@ -280,7 +284,7 @@ describe("SummonRule", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should return success when monster zone has 4 monsters", () => {
+    it("モンスターゾーンに4体いる場合は特殊召喚可能", () => {
       // Arrange
       const state = createMockGameState({
         space: { ...createFilledMonsterZone(4) },
@@ -293,7 +297,7 @@ describe("SummonRule", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should return MONSTER_ZONE_FULL when monster zone is full (5 monsters)", () => {
+    it("モンスターゾーンが満杯（5体）の場合はMONSTER_ZONE_FULLを返す", () => {
       // Arrange
       const state = createMockGameState({
         space: { ...createFilledMonsterZone(5) },
@@ -309,7 +313,7 @@ describe("SummonRule", () => {
   });
 
   describe("executeSpecialSummon", () => {
-    it("should move monster from hand to monster zone in attack position", () => {
+    it("手札のモンスターを攻撃表示でモンスターゾーンに移動する", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -329,7 +333,7 @@ describe("SummonRule", () => {
       expect(event.sourceInstanceId).toBe(monster.instanceId);
     });
 
-    it("should move monster from hand to monster zone in defense position", () => {
+    it("手札のモンスターを守備表示でモンスターゾーンに移動する", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -341,11 +345,11 @@ describe("SummonRule", () => {
 
       // Assert
       const summonedMonster = result.space.mainMonsterZone[0];
-      expect(summonedMonster.stateOnField?.position).toBe("faceUp"); // Special summon is always face up
+      expect(summonedMonster.stateOnField?.position).toBe("faceUp"); // 特殊召喚は常に表側
       expect(summonedMonster.stateOnField?.battlePosition).toBe("defense");
     });
 
-    it("should move monster from extra deck to monster zone", () => {
+    it("エクストラデッキのモンスターをモンスターゾーンに移動する", () => {
       // Arrange
       const synchro = createMonsterInstance("synchro-monster", {
         frameType: "synchro",
@@ -364,7 +368,7 @@ describe("SummonRule", () => {
       expect(result.space.mainMonsterZone.length).toBe(1);
     });
 
-    it("should not consume normal summon right", () => {
+    it("通常召喚権を消費しない", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
       const state = createMockGameState({
@@ -376,7 +380,7 @@ describe("SummonRule", () => {
       const { state: result } = executeSpecialSummon(state, monster.instanceId, "attack");
 
       // Assert
-      expect(result.normalSummonUsed).toBe(0); // Should remain 0
+      expect(result.normalSummonUsed).toBe(0); // 0のまま
     });
   });
 });

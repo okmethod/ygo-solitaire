@@ -1,8 +1,5 @@
 /**
- * FieldSpellActivation のテスト
- *
- * フィールド魔法発動の抽象クラスのテスト。
- * BaseSpellActivation を継承した subTypeConditions（メインフェイズ制約）を検証する。
+ * フィールド魔法発動の抽象クラスのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -24,7 +21,7 @@ class TestFieldSpell extends FieldSpellActivation {
   }
 
   protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Test implementation: always true (no additional conditions)
+    // テスト実装: 常にtrue（追加条件なし）
     return GameProcessing.Validation.success();
   }
 
@@ -33,7 +30,7 @@ class TestFieldSpell extends FieldSpellActivation {
   }
 
   protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
-    // Field Spells typically have no resolution steps (only continuous effects)
+    // フィールド魔法は通常、解決ステップなし（永続効果のみ）
     return [];
   }
 }
@@ -41,19 +38,19 @@ class TestFieldSpell extends FieldSpellActivation {
 describe("FieldSpellActivation", () => {
   const action = new TestFieldSpell();
 
-  describe("ChainableAction interface properties", () => {
-    it("should have effect category = 'activation'", () => {
+  describe("ChainableAction インターフェースのプロパティ", () => {
+    it("effectCategory が 'activation' であること", () => {
       expect(action.effectCategory).toBe("activation");
     });
 
-    it("should have spell speed 1", () => {
+    it("spellSpeed が 1 であること", () => {
       expect(action.spellSpeed).toBe(1);
     });
   });
 
   describe("canActivate()", () => {
-    it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
-      // Arrange: Main Phase 1
+    it("全条件を満たす場合（メインフェイズ＋追加条件なし）は true を返すこと", () => {
+      // Arrange: メインフェイズ1
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -75,8 +72,8 @@ describe("FieldSpellActivation", () => {
       expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
     });
 
-    it("should return false when phase is not Main1", () => {
-      // Arrange: Phase is Draw (FieldSpellActivation固有のフェーズ制約テスト)
+    it("フェイズがメインフェイズ1以外の場合は false を返すこと", () => {
+      // Arrange: ドローフェイズ（FieldSpellActivation固有のフェーズ制約テスト）
       const state = GameState.initialize(
         createTestInitialDeck([
           DUMMY_CARD_IDS.NORMAL_SPELL,
@@ -89,14 +86,14 @@ describe("FieldSpellActivation", () => {
           skipInitialDraw: true,
         },
       );
-      // Default phase is "Draw"
+      // デフォルトフェイズは "Draw"
 
       // Act & Assert
       expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(false);
     });
 
-    it("should return true even with empty deck (no additional conditions)", () => {
-      // Arrange: Main Phase 1, empty deck (Field Spells have no additional conditions)
+    it("デッキが空でも true を返すこと（追加条件なし）", () => {
+      // Arrange: メインフェイズ1、デッキ空（フィールド魔法は追加条件なし）
       const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
@@ -124,7 +121,7 @@ describe("FieldSpellActivation", () => {
       location: "hand",
     });
 
-    it("should return notification and event steps (field spells have no additional activation steps)", () => {
+    it("通知ステップとイベントステップを返すこと（フィールド魔法は追加の発動ステップなし）", () => {
       // Arrange
       const state = GameState.initialize(
         createTestInitialDeck([
@@ -143,7 +140,7 @@ describe("FieldSpellActivation", () => {
       // Act
       const steps = action.createActivationSteps(state, sourceInstance);
 
-      // Assert: Field Spells have notification + event step (placement handled by ActivateSpellCommand)
+      // Assert: フィールド魔法は通知ステップ＋イベントステップ（配置は ActivateSpellCommand が担当）
       expect(steps).toHaveLength(2);
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[1].id).toBe("emit-spell-activated-test-field-spell-1");
@@ -151,7 +148,7 @@ describe("FieldSpellActivation", () => {
   });
 
   describe("createResolutionSteps()", () => {
-    it("should return empty array (field spells have no resolution steps)", () => {
+    it("空配列を返すこと（フィールド魔法は解決ステップなし）", () => {
       // Arrange
       const state = GameState.initialize(
         createTestInitialDeck([

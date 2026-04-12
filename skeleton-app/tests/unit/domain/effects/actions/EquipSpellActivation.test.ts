@@ -1,13 +1,5 @@
 /**
- * EquipSpellActivation のテスト
- *
- * 装備魔法発動の抽象基底クラスと、NoOp実装の動作を検証する。
- *
- * TEST STRATEGY:
- * - createNoOp でインスタンスを生成できること
- * - subTypeConditions が正しく機能すること
- * - デフォルト対象選択ステップが生成されること
- * - 装備関係確立ステップが生成されること
+ * 装備魔法発動の抽象クラスのテスト
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

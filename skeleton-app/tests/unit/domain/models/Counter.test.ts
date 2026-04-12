@@ -1,7 +1,5 @@
 /**
- * Counter モデルのユニットテスト
- *
- * @module tests/unit/domain/models/Counter.test
+ * Counter モデルのテスト
  */
 
 import { describe, it, expect } from "vitest";

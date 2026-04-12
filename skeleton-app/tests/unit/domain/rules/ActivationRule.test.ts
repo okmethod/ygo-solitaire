@@ -1,10 +1,5 @@
 /**
- * ActivationRule Tests
- *
- * カード発動ルールのテスト。
- * placeCardForActivationの動作を検証する。
- *
- * @module tests/unit/domain/rules/ActivationRule
+ * カード発動ルールのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -18,8 +13,8 @@ import {
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {
-    describe("hand to field placement", () => {
-      it("should place normal spell from hand to spellTrapZone", () => {
+    describe("手札からフィールドへの配置", () => {
+      it("通常魔法を手札から魔法・罠ゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "normal", location: "hand" });
         const state = createMockGameState({
@@ -38,7 +33,7 @@ describe("ActivationRule", () => {
         expect(result.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
       });
 
-      it("should place quick-play spell from hand to spellTrapZone", () => {
+      it("速攻魔法を手札から魔法・罠ゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "quick-play", location: "hand" });
         const state = createMockGameState({
@@ -56,7 +51,7 @@ describe("ActivationRule", () => {
         expect(result.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
       });
 
-      it("should place continuous spell from hand to spellTrapZone", () => {
+      it("永続魔法を手札から魔法・罠ゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "continuous", location: "hand" });
         const state = createMockGameState({
@@ -73,7 +68,7 @@ describe("ActivationRule", () => {
         expect(result.spellTrapZone).toHaveLength(1);
       });
 
-      it("should place field spell from hand to fieldZone", () => {
+      it("フィールド魔法を手札からフィールドゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "field", location: "hand" });
         const state = createMockGameState({
@@ -92,7 +87,7 @@ describe("ActivationRule", () => {
         expect(result.fieldZone[0].stateOnField?.position).toBe("faceUp");
       });
 
-      it("should send existing field spell to graveyard when placing new field spell", () => {
+      it("新しいフィールド魔法を置くと既存のフィールド魔法が墓地に送られる", () => {
         // Arrange
         const existingFieldSpell = createSpellOnField("existing-field-0", { spellType: "field" });
         const newFieldSpell = createSpellInstance("new-field-0", { spellType: "field", location: "hand" });
@@ -115,8 +110,8 @@ describe("ActivationRule", () => {
       });
     });
 
-    describe("set to face-up activation", () => {
-      it("should flip set spell to face-up in spellTrapZone", () => {
+    describe("セット状態からの表向き発動", () => {
+      it("魔法・罠ゾーンのセット魔法を表向きに反転できる", () => {
         // Arrange
         const setSpell = createSpellOnField("set-spell-0", {
           position: "faceDown",
@@ -136,7 +131,7 @@ describe("ActivationRule", () => {
         expect(result.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
       });
 
-      it("should flip set field spell to face-up in fieldZone", () => {
+      it("フィールドゾーンのセットフィールド魔法を表向きに反転できる", () => {
         // Arrange
         const setFieldSpell = createSpellOnField("set-field-0", {
           spellType: "field",
@@ -158,8 +153,8 @@ describe("ActivationRule", () => {
       });
     });
 
-    describe("error cases", () => {
-      it("should throw error for non-spell/trap card activation from hand", () => {
+    describe("エラーケース", () => {
+      it("手札のモンスターカードを発動しようとするとエラーが発生する", () => {
         // Arrange
         const monster = createMonsterInstance("monster-0");
         const state = createMockGameState({

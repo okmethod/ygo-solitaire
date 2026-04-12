@@ -1,8 +1,5 @@
 /**
- * BaseContinuousEffect Tests
- *
- * 永続効果の抽象基底クラスのテスト。
- * Template Methodパターンとフィールド上の表側表示チェックを検証する。
+ * 永続効果適用の抽象基底クラスのテスト
  */
 
 import { describe, it, expect } from "vitest";

@@ -1,16 +1,11 @@
+/**
+ * コスト系条件のテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import { checkCondition, AtomicConditionRegistry } from "$lib/domain/dsl/conditions";
 import type { CardInstance } from "$lib/domain/models/Card";
 import { createMockGameState } from "../../../../__testUtils__";
-
-/**
- * CostConditions Tests - コスト関連条件のテスト
- *
- * TEST STRATEGY:
- * - HAND_COUNT_EXCLUDING_SELF 条件が正しく判定されること
- * - GRAVEYARD_HAS_SPELL 条件が正しく判定されること
- * - DECK_HAS_CARD 条件が正しく判定されること
- */
 
 // =============================================================================
 // テストヘルパー

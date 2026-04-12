@@ -1,7 +1,5 @@
 /**
- * cards/index.ts のテスト
- *
- * カードデータライブラリの登録関数を検証する。
+ * カードデータライブラリ登録関数のテスト
  *
  * TEST STRATEGY:
  * - registerCardDataByIds: DSL定義優先、マップフォールバック

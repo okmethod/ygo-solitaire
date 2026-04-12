@@ -1,27 +1,19 @@
 /**
- * arrayUtils.test.ts
- *
- * shuffleArray<T>() ユーティリティ関数のユニットテスト
- *
- * テストケース:
- * 1. 配列の長さが変わらないこと
- * 2. 元の配列の要素がすべて含まれていること
- * 3. ランダム性の検証（複数回実行で異なる結果）
- * 4. 不変性の保証（元の配列が変更されないこと）
+ * 配列操作ユーティリティ関数群のテスト
  */
 
 import { describe, it, expect } from "vitest";
 import { shuffleArray } from "$lib/shared/utils/arrayUtils";
 
 describe("shuffleArray", () => {
-  it("should preserve array length", () => {
+  it("配列の長さが変わらないこと", () => {
     const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const shuffled = shuffleArray(original);
 
     expect(shuffled).toHaveLength(original.length);
   });
 
-  it("should contain all original elements", () => {
+  it("元の配列の要素がすべて含まれていること", () => {
     const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const shuffled = shuffleArray(original);
 
@@ -29,7 +21,7 @@ describe("shuffleArray", () => {
     expect(shuffled.sort()).toEqual(original.sort());
   });
 
-  it("should produce different orders on multiple calls (randomness check)", () => {
+  it("複数回実行で異なる順序が得られること（ランダム性の検証）", () => {
     const original = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const results: string[] = [];
 
@@ -44,7 +36,7 @@ describe("shuffleArray", () => {
     expect(uniqueResults.size).toBeGreaterThanOrEqual(5);
   });
 
-  it("should not mutate the original array (immutability)", () => {
+  it("元の配列が変更されないこと（不変性の保証）", () => {
     const original = [1, 2, 3, 4, 5];
     const originalCopy = [...original];
 
@@ -54,21 +46,21 @@ describe("shuffleArray", () => {
     expect(original).toEqual(originalCopy);
   });
 
-  it("should handle empty arrays", () => {
+  it("空配列を正しく処理できること", () => {
     const empty: number[] = [];
     const shuffled = shuffleArray(empty);
 
     expect(shuffled).toEqual([]);
   });
 
-  it("should handle single-element arrays", () => {
+  it("要素が1つの配列を正しく処理できること", () => {
     const single = [42];
     const shuffled = shuffleArray(single);
 
     expect(shuffled).toEqual([42]);
   });
 
-  it("should work with different data types", () => {
+  it("異なるデータ型で動作すること", () => {
     const strings = ["a", "b", "c", "d", "e"];
     const shuffledStrings = shuffleArray(strings);
 
@@ -76,7 +68,7 @@ describe("shuffleArray", () => {
     expect(shuffledStrings.sort()).toEqual(["a", "b", "c", "d", "e"]);
   });
 
-  it("should work with complex objects", () => {
+  it("複雑なオブジェクトで動作すること", () => {
     interface Card {
       id: number;
       name: string;

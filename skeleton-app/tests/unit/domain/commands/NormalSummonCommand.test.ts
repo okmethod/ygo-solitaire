@@ -1,8 +1,5 @@
 /**
- * Unit tests for NormalSummonCommand
- *
- * Tests the unified NormalSummonCommand which handles both summoning (attack position)
- * and setting (defense position) monster cards, consuming one normal summon right.
+ * 通常召喚コマンドのテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -21,7 +18,7 @@ describe("NormalSummonCommand", () => {
   // ===========================
   describe("summon mode", () => {
     describe("canExecute", () => {
-      it("should return true when all conditions are met", () => {
+      it("全条件を満たす場合は true を返す", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: { hand: [monsterCard] },
@@ -33,7 +30,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(true);
       });
 
-      it("should return false if game is over", () => {
+      it("ゲームが終了している場合は false を返す", () => {
         const state = createExodiaVictoryState();
 
         const command = new NormalSummonCommand("monster-1", "summon");
@@ -42,7 +39,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should return false if not in main phase", () => {
+      it("メインフェイズでない場合は false を返す", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           phase: "draw",
@@ -55,7 +52,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should return false if summon limit reached", () => {
+      it("召喚回数の上限に達している場合は false を返す", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           normalSummonUsed: 1,
@@ -68,7 +65,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should return false if card not found", () => {
+      it("カードが見つからない場合は false を返す", () => {
         const state = createMockGameState();
 
         const command = new NormalSummonCommand("non-existent-id", "summon");
@@ -77,7 +74,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should return false if card is not in hand", () => {
+      it("カードが手札にない場合は false を返す", () => {
         const monsterCard = createMonsterInstance("monster-1", { location: "mainDeck" });
         const state = createMockGameState({
           space: { mainDeck: [monsterCard] },
@@ -89,7 +86,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should return false if card is not a monster", () => {
+      it("カードがモンスターでない場合は false を返す", () => {
         const spellCard = createSpellInstance("spell-1");
         const state = createMockGameState({
           space: { hand: [spellCard] },
@@ -101,7 +98,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should return false if mainMonsterZone is full", () => {
+      it("モンスターゾーンが満杯の場合は false を返す", () => {
         const monsterCard = createMonsterInstance("monster-new");
         const state = createMockGameState({
           space: {
@@ -118,7 +115,7 @@ describe("NormalSummonCommand", () => {
     });
 
     describe("execute", () => {
-      it("should successfully summon monster to mainMonsterZone in attack position", () => {
+      it("モンスターを攻撃表示でモンスターゾーンに正常召喚する", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: { hand: [monsterCard] },
@@ -139,7 +136,7 @@ describe("NormalSummonCommand", () => {
         expect(summonedCard.stateOnField?.placedThisTurn).toBe(true);
       });
 
-      it("should increment normalSummonUsed", () => {
+      it("normalSummonUsed をインクリメントする", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: { hand: [monsterCard] },
@@ -152,7 +149,7 @@ describe("NormalSummonCommand", () => {
         expect(result.updatedState.normalSummonUsed).toBe(1);
       });
 
-      it("should fail if not in main phase", () => {
+      it("メインフェイズでない場合は失敗する", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           phase: "draw",
@@ -173,7 +170,7 @@ describe("NormalSummonCommand", () => {
   // ===========================
   describe("set mode", () => {
     describe("canExecute", () => {
-      it("should allow setting a monster when conditions are met", () => {
+      it("条件を満たす場合にモンスターをセットできる", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: { hand: [monsterCard] },
@@ -185,7 +182,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(true);
       });
 
-      it("should fail if game is already over", () => {
+      it("ゲームが既に終了している場合は失敗する", () => {
         const state = createExodiaVictoryState();
 
         const command = new NormalSummonCommand("monster-1", "set");
@@ -194,7 +191,7 @@ describe("NormalSummonCommand", () => {
         expect(result.isValid).toBe(false);
       });
 
-      it("should fail if mainMonsterZone is full (5 cards)", () => {
+      it("モンスターゾーンが満杯の場合（5枚）は失敗する", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: {
@@ -211,7 +208,7 @@ describe("NormalSummonCommand", () => {
     });
 
     describe("execute", () => {
-      it("should successfully set monster from hand to mainMonsterZone face-down", () => {
+      it("手札からモンスターを裏向きでモンスターゾーンにセットする", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: { hand: [monsterCard] },
@@ -232,7 +229,7 @@ describe("NormalSummonCommand", () => {
         expect(setCard.stateOnField?.placedThisTurn).toBe(true);
       });
 
-      it("should increment normalSummonUsed when setting a monster", () => {
+      it("モンスターをセットする際に normalSummonUsed をインクリメントする", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const state = createMockGameState({
           space: { hand: [monsterCard] },
@@ -245,7 +242,7 @@ describe("NormalSummonCommand", () => {
         expect(result.updatedState.normalSummonUsed).toBe(1);
       });
 
-      it("should preserve other zones when setting", () => {
+      it("セット時に他のゾーンを保持する", () => {
         const monsterCard = createMonsterInstance("monster-1");
         const existingDeckCard = createMonsterInstance("deck-card", { location: "mainDeck" });
         const existingGraveyardCard = createMonsterInstance("gy-card", { location: "graveyard" });
@@ -272,19 +269,19 @@ describe("NormalSummonCommand", () => {
   // Helper Methods
   // ===========================
   describe("getCardInstanceId", () => {
-    it("should return the card instance ID", () => {
+    it("カードインスタンス ID を返す", () => {
       const command = new NormalSummonCommand("monster-1", "summon");
       expect(command.getCardInstanceId()).toBe("monster-1");
     });
   });
 
   describe("getMode", () => {
-    it("should return 'summon' for summon mode", () => {
+    it("召喚モードの場合は 'summon' を返す", () => {
       const command = new NormalSummonCommand("monster-1", "summon");
       expect(command.getMode()).toBe("summon");
     });
 
-    it("should return 'set' for set mode", () => {
+    it("セットモードの場合は 'set' を返す", () => {
       const command = new NormalSummonCommand("monster-1", "set");
       expect(command.getMode()).toBe("set");
     });

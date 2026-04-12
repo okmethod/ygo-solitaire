@@ -1,8 +1,5 @@
 /**
- * BaseSpellActivation のテスト
- *
- * 魔法発動の抽象基底クラスのテスト。
- * Template Methodパターンの動作を検証する。
+ * 魔法カード発動の抽象基底クラスのテスト
  */
 
 import { describe, it, expect } from "vitest";

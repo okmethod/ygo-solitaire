@@ -1,3 +1,7 @@
+/**
+ * デッキローダーのテスト
+ */
+
 import { describe, it, expect } from "vitest";
 import {
   getDeckRecipe,
@@ -7,8 +11,8 @@ import {
 } from "$lib/application/decks/deckLoader";
 import { gameFacade } from "$lib/application/GameFacade";
 
-describe("deckLoader - Deck Recipe Loading Test", () => {
-  it("should load deck via GameFacade.newGame", () => {
+describe("deckLoader - デッキレシピ読み込みテスト", () => {
+  it("GameFacade.newGame経由でデッキを読み込める", () => {
     // GameFacade経由でデッキをロード
     const deckData = gameFacade.newGame("exodia-deck");
     const uniqueCardIds = extractDisplayCardIds(deckData, true);
@@ -21,7 +25,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
     expect(uniqueCardIds.length).toBeGreaterThan(0);
   });
 
-  it("should return CardData in LoadedCardEntry", () => {
+  it("LoadedCardEntryがCardDataを持つ", () => {
     const deckData = gameFacade.newGame("exodia-deck");
 
     // メインデッキのカードを確認
@@ -38,12 +42,12 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
     }
   });
 
-  it("should handle missing deck ID", () => {
+  it("存在しないデッキIDを指定するとエラーをスロー", () => {
     // 存在しないデッキIDを指定するとエラーをスロー
     expect(() => gameFacade.newGame("non-existent-deck")).toThrow("Deck not found: non-existent-deck");
   });
 
-  it("should calculate deck stats correctly", () => {
+  it("デッキ統計情報が正しく計算される", () => {
     const deckData = gameFacade.newGame("exodia-deck");
 
     // 統計情報が計算されていることを確認
@@ -64,7 +68,7 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
     expect(deckData.stats.trapCount).toBe(calculatedTrapCount);
   });
 
-  it("should classify cards by type correctly", () => {
+  it("カードが種別ごとに正しく分類される", () => {
     const deckData = gameFacade.newGame("exodia-deck");
 
     // モンスターカードの検証
@@ -84,8 +88,8 @@ describe("deckLoader - Deck Recipe Loading Test", () => {
   });
 });
 
-describe("deckLoader - Helper Functions", () => {
-  it("getDeckRecipe should return deck recipe", () => {
+describe("deckLoader - ヘルパー関数", () => {
+  it("getDeckRecipe: デッキレシピを返す", () => {
     const deckRecipe = getDeckRecipe("exodia-deck");
 
     expect(deckRecipe).toBeDefined();
@@ -94,11 +98,11 @@ describe("deckLoader - Helper Functions", () => {
     expect(deckRecipe.extraDeck).toBeDefined();
   });
 
-  it("getDeckRecipe should throw for non-existent deck", () => {
+  it("getDeckRecipe: 存在しないデッキIDでエラーをスロー", () => {
     expect(() => getDeckRecipe("non-existent-deck")).toThrow("Deck not found: non-existent-deck");
   });
 
-  it("extractUniqueCardIds should return unique card IDs", () => {
+  it("extractUniqueCardIds: 重複なしのカードIDを返す", () => {
     const deckRecipe = getDeckRecipe("exodia-deck");
     const uniqueCardIds = extractUniqueCardIds(deckRecipe);
 
@@ -108,7 +112,7 @@ describe("deckLoader - Helper Functions", () => {
     expect(uniqueSet.size).toBe(uniqueCardIds.length);
   });
 
-  it("buildDeckData should build deck data from recipe and registry", () => {
+  it("buildDeckData: レシピとレジストリからデッキデータを構築する", () => {
     // GameFacadeで先に初期化（レジストリを準備）
     gameFacade.newGame("exodia-deck");
 

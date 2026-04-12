@@ -1,14 +1,9 @@
 /**
  * VictoryCondition Tests
- *
- * 勝敗判定のテスト。
- * エクゾディア勝利、LP0による勝敗、ゲーム続行を検証する。
- *
- * @module tests/unit/domain/models/VictoryCondition
  */
 
 import { describe, it, expect } from "vitest";
-import { GameState } from "$lib/domain/models/GameState";
+import { checkedVictoryState } from "$lib/domain/models/GameState/VictoryCondition";
 import { createMockGameState, createHand, createGraveyard, ACTUAL_CARD_IDS } from "../../../__testUtils__";
 
 const ALL_PARTS: number[] = [
@@ -20,8 +15,8 @@ const ALL_PARTS: number[] = [
 ];
 
 describe("VictoryCondition", () => {
-  describe("Exodia Victory", () => {
-    it("should declare player victory when all 5 Exodia pieces are in hand", () => {
+  describe("エクゾディア勝利", () => {
+    it("エクゾディア5パーツが手札に揃った場合、プレイヤーの勝利を宣言する", () => {
       // Arrange
       const state = createMockGameState({
         space: {
@@ -30,7 +25,7 @@ describe("VictoryCondition", () => {
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(true);
@@ -39,8 +34,8 @@ describe("VictoryCondition", () => {
       expect(checkedState.result.message).toContain("エクゾディア");
     });
 
-    it("should not declare victory when only 4 Exodia pieces are in hand", () => {
-      // Arrange: Missing 1 piece
+    it("手札にエクゾディアが4パーツしかない場合、勝利を宣言しない", () => {
+      // Arrange: 1パーツ不足
       const state = createMockGameState({
         space: {
           ...createHand(ALL_PARTS.slice(0, 4)),
@@ -48,14 +43,14 @@ describe("VictoryCondition", () => {
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(false);
     });
 
-    it("should not declare victory when Exodia pieces are in different zones", () => {
-      // Arrange: Some pieces in hand, some in graveyard
+    it("エクゾディアのパーツが異なるゾーンにある場合、勝利を宣言しない", () => {
+      // Arrange: 一部のパーツは手札、一部は墓地
       const state = createMockGameState({
         space: {
           ...createHand(ALL_PARTS.slice(0, 3)),
@@ -64,22 +59,22 @@ describe("VictoryCondition", () => {
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(false);
     });
   });
 
-  describe("LP0 Victory/Defeat", () => {
-    it("should declare opponent victory when player LP is 0", () => {
+  describe("LP0による勝敗", () => {
+    it("プレイヤーのLPが0の場合、相手の勝利を宣言する", () => {
       // Arrange
       const state = createMockGameState({
         lp: { player: 0, opponent: 8000 },
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(true);
@@ -88,14 +83,14 @@ describe("VictoryCondition", () => {
       expect(checkedState.result.message).toContain("敗北");
     });
 
-    it("should declare player victory when opponent LP is 0", () => {
+    it("相手のLPが0の場合、プレイヤーの勝利を宣言する", () => {
       // Arrange
       const state = createMockGameState({
         lp: { player: 8000, opponent: 0 },
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(true);
@@ -104,14 +99,14 @@ describe("VictoryCondition", () => {
       expect(checkedState.result.message).toContain("勝利");
     });
 
-    it("should declare opponent victory when player LP is negative", () => {
+    it("プレイヤーのLPがマイナスの場合、相手の勝利を宣言する", () => {
       // Arrange
       const state = createMockGameState({
         lp: { player: -1000, opponent: 8000 },
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(true);
@@ -120,15 +115,15 @@ describe("VictoryCondition", () => {
     });
   });
 
-  describe("Game In Progress", () => {
-    it("should not declare game over when both players have LP and no special conditions", () => {
+  describe("ゲーム続行中", () => {
+    it("両プレイヤーにLPがあり特殊条件がない場合、ゲームオーバーを宣言しない", () => {
       // Arrange
       const state = createMockGameState({
         lp: { player: 8000, opponent: 8000 },
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(false);
@@ -136,7 +131,7 @@ describe("VictoryCondition", () => {
       expect(checkedState.result.reason).toBeUndefined();
     });
 
-    it("should not re-check victory if already game over", () => {
+    it("既にゲームオーバーの場合、再度勝利チェックを行わない", () => {
       // Arrange
       const state = createMockGameState({
         lp: { player: 8000, opponent: 8000 },
@@ -149,7 +144,7 @@ describe("VictoryCondition", () => {
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
       // Assert
       expect(checkedState.result.isGameOver).toBe(true);
@@ -158,9 +153,9 @@ describe("VictoryCondition", () => {
     });
   });
 
-  describe("Victory Priority", () => {
-    it("should prioritize Exodia over LP0 when both conditions are met", () => {
-      // Arrange: Player has 0 LP but also has all Exodia pieces
+  describe("勝利条件の優先度", () => {
+    it("エクゾディアとLP0の両条件が満たされた場合、エクゾディアを優先する", () => {
+      // Arrange: プレイヤーのLPが0かつエクゾディア5パーツ手札あり
       const state = createMockGameState({
         lp: { player: 0, opponent: 8000 },
         space: {
@@ -169,9 +164,9 @@ describe("VictoryCondition", () => {
       });
 
       // Act
-      const checkedState = GameState.checkVictory(state);
+      const checkedState = checkedVictoryState(state);
 
-      // Assert: Exodia should take priority
+      // Assert: エクゾディアが優先される
       expect(checkedState.result.isGameOver).toBe(true);
       expect(checkedState.result.winner).toBe("player");
       expect(checkedState.result.reason).toBe("exodia");

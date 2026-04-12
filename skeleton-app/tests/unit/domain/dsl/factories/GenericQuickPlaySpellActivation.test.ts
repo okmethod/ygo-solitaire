@@ -1,7 +1,5 @@
 /**
- * GenericQuickPlaySpellActivation のテスト
- *
- * DSL定義から速攻魔法効果を生成するファクトリクラスの動作を検証する。
+ * DSL定義から速攻魔法効果を生成するファクトリクラスのテスト
  *
  * TEST STRATEGY:
  * - DSL定義から正しくインスタンスが生成されること

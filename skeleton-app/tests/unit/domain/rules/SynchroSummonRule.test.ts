@@ -1,10 +1,5 @@
 /**
- * SynchroSummonRule Tests
- *
- * シンクロ召喚ルールのテスト。
- * canSynchroSummonとperformSynchroSummonの動作を検証する。
- *
- * @module tests/unit/domain/rules/SynchroSummonRule
+ * シンクロ召喚ルールのテスト
  */
 
 import { describe, it, expect } from "vitest";

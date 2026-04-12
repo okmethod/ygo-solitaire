@@ -1,7 +1,8 @@
 /**
- * YGOPRODeck API unit tests
+ * YGOPRODeck API のテスト
  *
- * Tests for cache hit/miss behavior and API integration
+ * キャッシュのヒット/ミス動作とAPI連携をテストする。
+ * APIレスポンス形式を模倣したモックデータを使用し、実際のAPI呼び出しは行わない。
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getCardsByIds, clearCache } from "$lib/infrastructure/api/ygoprodeck";
@@ -52,7 +53,7 @@ const mockPotOfGreed = {
 
 const NOT_EXISTING_CARD_ID = 99999999;
 
-describe("getCardsByIds - with mock", () => {
+describe("getCardsByIds - モックを使用", () => {
   beforeEach(() => {
     clearCache(); // テスト前にキャッシュクリア
   });
@@ -61,7 +62,7 @@ describe("getCardsByIds - with mock", () => {
     vi.restoreAllMocks();
   });
 
-  it("should fetch cards from mocked API", async () => {
+  it("モックAPIからカードを取得できる", async () => {
     // fetchのモック
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -76,7 +77,7 @@ describe("getCardsByIds - with mock", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("should use cache for duplicate requests", async () => {
+  it("重複リクエストにはキャッシュを使用する", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [mockExodia] }),
@@ -96,7 +97,7 @@ describe("getCardsByIds - with mock", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it("should handle mixed cache hits and misses", async () => {
+  it("キャッシュヒットとキャッシュミスが混在する場合を処理できる", async () => {
     // 1回目: Exodiaのみ取得
     const mockFetch1 = vi.fn().mockResolvedValue({
       ok: true,
@@ -126,7 +127,7 @@ describe("getCardsByIds - with mock", () => {
     );
   });
 
-  it("should return empty array for empty input", async () => {
+  it("空の入力に対して空配列を返す", async () => {
     const mockFetch = vi.fn();
     const cards = await getCardsByIds(mockFetch, []);
 
@@ -134,7 +135,7 @@ describe("getCardsByIds - with mock", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("should handle API errors gracefully", async () => {
+  it("APIエラーを適切に処理できる", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 404,
@@ -148,8 +149,8 @@ describe("getCardsByIds - with mock", () => {
   });
 });
 
-describe("clearCache - test utility", () => {
-  it("should clear the cache", async () => {
+describe("clearCache - テストユーティリティ", () => {
+  it("キャッシュをクリアできる", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [mockExodia] }),
@@ -168,12 +169,12 @@ describe("clearCache - test utility", () => {
   });
 });
 
-describe("Card ID Resolution Integration Test", () => {
+describe("カードID解決の統合テスト", () => {
   beforeEach(() => {
     clearCache();
   });
 
-  it("should resolve YGOPRODeck API compatible numeric card IDs", async () => {
+  it("YGOPRODeck API互換の数値カードIDを解決できる", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [mockExodia, mockPotOfGreed] }),
@@ -197,7 +198,7 @@ describe("Card ID Resolution Integration Test", () => {
     );
   });
 
-  it("should handle batch card ID resolution", async () => {
+  it("カードIDのバッチ解決を処理できる", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [mockExodia, mockPotOfGreed] }),
@@ -218,7 +219,7 @@ describe("Card ID Resolution Integration Test", () => {
     expect(callUrl).toContain(`${ACTUAL_CARD_IDS.POT_OF_GREED}`);
   });
 
-  it("should return correct card types from API response", async () => {
+  it("APIレスポンスから正しいカード種別を返す", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: [mockExodia, mockPotOfGreed] }),
