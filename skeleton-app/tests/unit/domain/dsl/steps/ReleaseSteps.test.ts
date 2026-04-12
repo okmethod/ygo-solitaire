@@ -8,7 +8,7 @@ import {
   createMockGameState,
   createFilledMonsterZone,
   createMonsterOnField,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -27,7 +27,7 @@ import {
 const EFFECT_ID_1 = "12345-activation" as EffectId;
 
 const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: TEST_CARD_IDS.DUMMY,
+  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
   sourceInstanceId: "source-card",
   effectId,
 });
@@ -219,7 +219,7 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
 describe("selectAndReleaseStep", () => {
   it("カスタムフィルターを適用できる", () => {
     const step = selectAndReleaseStep({
-      cardId: TEST_CARD_IDS.DUMMY,
+      cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
       count: 1,
       filter: (card) => card.attack !== undefined && card.attack >= 1000,
       onReleased: (state, releasedCards, events) => ({
@@ -235,7 +235,7 @@ describe("selectAndReleaseStep", () => {
 
   it("カスタムサマリーを設定できる", () => {
     const step = selectAndReleaseStep({
-      cardId: TEST_CARD_IDS.DUMMY,
+      cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
       count: 1,
       summary: "カスタムサマリー",
       onReleased: (state) => ({

@@ -24,18 +24,23 @@ export const ACTUAL_CARD_IDS = {
   METAL_FIEND_TOKEN: 24874631, // メタルデビル・トークン
 } as const;
 
-/** テスト用カードID定数 */
-export const TEST_CARD_IDS = {
-  DUMMY: 8001,
-  DUMMY_B: 8002,
-  EFFECT_MONSTER: 7001,
-  OPTIONAL_TRIGGER_MONSTER: 6001,
-  SYNCHRO_MONSTER: 8003,
-  SPELL_NORMAL: 1001,
-  SPELL_EQUIP: 1002,
-  SPELL_QUICK: 1004,
-  SPELL_CONTINUOUS: 1005,
-  SPELL_FIELD: 1006,
-  TRAP_NORMAL: 1007,
-  BASIC_TOKEN: 5001,
+/** テスト用カードID定数
+ * 1xxx: メインデッキに入るモンスターカード
+ * 2xxx: エクストラデッキに入るモンスターカード
+ * 3xxx: モンスタートークン
+ * 4xxx: 魔法カード
+ * 5xxx: 罠カード
+ */
+export const DUMMY_CARD_IDS = {
+  NORMAL_MONSTER: 1001,
+  EFFECT_MONSTER: 1002,
+  OPTIONAL_TRIGGER_MONSTER: 1003,
+  SYNCHRO_MONSTER: 2001,
+  BASIC_TOKEN: 3001,
+  NORMAL_SPELL: 4001,
+  EQUIP_SPELL: 4002,
+  QUICKPLAY_SPELL: 4003,
+  CONTINUOUS_SPELL: 4004,
+  FIELD_SPELL: 4005,
+  NORMAL_TRAP: 5001,
 } as const;

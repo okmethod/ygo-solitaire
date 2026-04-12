@@ -25,7 +25,7 @@ import {
   getState,
   hasChainConfirmation,
   resolveChainConfirmation,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("チェーン確認 - 基本フローテスト", () => {
@@ -48,20 +48,20 @@ describe("チェーン確認 - 基本フローテスト", () => {
       // 手札: 通常魔法 x5、デッキ: DUMMY x1
       facade.resetGame(
         createScenarioDeck([
-          TEST_CARD_IDS.SPELL_NORMAL,
-          TEST_CARD_IDS.SPELL_NORMAL,
-          TEST_CARD_IDS.SPELL_NORMAL,
-          TEST_CARD_IDS.SPELL_NORMAL,
-          TEST_CARD_IDS.SPELL_NORMAL,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       advanceToMain1(facade);
 
       const before = getState();
-      const goblinId = before.space.hand.find((c) => c.id === TEST_CARD_IDS.SPELL_NORMAL)!.instanceId;
+      const normalSpellId = before.space.hand.find((c) => c.id === DUMMY_CARD_IDS.NORMAL_SPELL)!.instanceId;
 
-      facade.activateSpell(goblinId);
+      facade.activateSpell(normalSpellId);
       await flushEffectQueue();
 
       // チェーン確認は表示されず、そのまま解決される

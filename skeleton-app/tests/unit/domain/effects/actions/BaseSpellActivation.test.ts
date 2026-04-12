@@ -3,11 +3,6 @@
  *
  * 魔法発動の抽象基底クラスのテスト。
  * Template Methodパターンの動作を検証する。
- *
- * TEST STRATEGY:
- * - Base Class テストでは Template Method パターンの動作をテスト
- * - Subclass テストでは各サブクラス固有の条件（subTypeConditions, individualConditions）をテスト
- * - ゲームオーバーチェック等のコマンドレベルの条件は ActivateSpellCommand でテスト
  */
 
 import { describe, it, expect } from "vitest";
@@ -18,7 +13,7 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck, TEST_CARD_IDS } from "../../../../__testUtils__";
+import { createTestInitialDeck, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -27,16 +22,16 @@ class TestSpellAction extends BaseSpellActivation {
   readonly spellSpeed = 1 as const;
 
   constructor() {
-    super(TEST_CARD_IDS.DUMMY);
+    super(DUMMY_CARD_IDS.NORMAL_MONSTER);
   }
 
   protected subTypeConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Test implementation: no subtype restrictions
+    // テスト実装: サブタイプ制限なし
     return GameProcessing.Validation.success();
   }
 
   protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
-    // Test implementation: check deck has cards
+    // テスト実装: デッキにカードがあるか確認
     if (state.space.mainDeck.length > 0) {
       return GameProcessing.Validation.success();
     }
@@ -71,21 +66,25 @@ class TestSpellAction extends BaseSpellActivation {
 describe("BaseSpellActivation", () => {
   const action = new TestSpellAction();
 
-  describe("ChainableAction interface properties", () => {
-    it("should have effect category = 'activation'", () => {
+  describe("ChainableAction インターフェースのプロパティ", () => {
+    it("effectCategory が 'activation' であること", () => {
       expect(action.effectCategory).toBe("activation");
     });
 
-    it("should have spell speed defined by subclass", () => {
+    it("spellSpeed がサブクラスで定義された値であること", () => {
       expect(action.spellSpeed).toBe(1);
     });
   });
 
   describe("canActivate()", () => {
-    it("should return true when subtype conditions and individual conditions are met", () => {
-      // Arrange: Deck has cards (individualConditions returns true)
+    it("サブタイプ条件と個別条件が満たされた場合に true を返すこと", () => {
+      // Arrange: デッキにカードがある（individualConditions が true を返す）
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,
@@ -101,8 +100,8 @@ describe("BaseSpellActivation", () => {
       expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
     });
 
-    it("should return false when individual conditions are not met", () => {
-      // Arrange: Deck is empty (individualConditions returns false)
+    it("個別条件が満たされない場合に false を返すこと", () => {
+      // Arrange: デッキが空（individualConditions が false を返す）
       const state = GameState.initialize(createTestInitialDeck([]), CardDataRegistry.getCard, {
         skipShuffle: true,
         skipInitialDraw: true,
@@ -120,19 +119,23 @@ describe("BaseSpellActivation", () => {
   describe("createActivationSteps()", () => {
     // テスト用の sourceInstance を作成するヘルパー
     const createTestSourceInstance = (): CardInstance => ({
-      id: TEST_CARD_IDS.DUMMY,
+      id: DUMMY_CARD_IDS.NORMAL_MONSTER,
       instanceId: "test-instance-1",
-      jaName: "Test Monster A",
+      jaName: "Dummy Normal Monster",
       type: "spell",
       frameType: "spell",
       edition: "latest" as const,
       location: "hand",
     });
 
-    it("should return default activation step with card info", () => {
+    it("カード情報を含むデフォルトの発動ステップを返すこと", () => {
       // Arrange
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,
@@ -146,19 +149,23 @@ describe("BaseSpellActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
-      expect(steps[0].id).toBe(`${TEST_CARD_IDS.DUMMY}-activation-notification`);
+      expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_MONSTER}-activation-notification`);
       expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("《Test Monster A》を発動します"); // Uses getCardNameWithBrackets from registry
+      expect(steps[0].description).toBe("《Dummy Normal Monster》を発動します"); // レジストリの getCardNameWithBrackets を使用
       expect(steps[0].notificationLevel).toBe("static");
       // イベント発行ステップの検証
       expect(steps[1].id).toBe("emit-spell-activated-test-instance-1");
       expect(steps[1].notificationLevel).toBe("silent");
     });
 
-    it("should return step with action that does not modify state", () => {
+    it("状態を変更しないアクションを持つステップを返すこと", () => {
       // Arrange
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,
@@ -174,15 +181,19 @@ describe("BaseSpellActivation", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState).toStrictEqual(state);
-      expect(result.message).toBe("《Test Monster A》 activated"); // Uses jaName from registry
+      expect(result.message).toBe("《Dummy Normal Monster》 activated"); // レジストリの jaName を使用
     });
   });
 
-  describe("Abstract methods", () => {
-    it("should implement createResolutionSteps()", () => {
+  describe("抽象メソッド", () => {
+    it("createResolutionSteps() が実装されていること", () => {
       // Arrange
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,

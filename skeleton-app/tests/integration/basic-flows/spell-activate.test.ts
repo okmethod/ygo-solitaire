@@ -7,7 +7,7 @@
  * テスト対象:
  * - 通常魔法を手札から発動（成金ゴブリン）
  * - 通常魔法をセットしてからフィールドで発動
- * - フィールド魔法を手札から発動（チキンゲーム）
+ * - フィールド魔法を手札から発動（チキンレース）
  * - フィールド魔法をセットしてからフィールドで発動
  */
 
@@ -23,7 +23,7 @@ import {
   advanceToMain1,
   flushEffectQueue,
   getState,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   ACTUAL_CARD_IDS,
 } from "../../__testUtils__";
 
@@ -52,7 +52,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
           ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
           ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
           ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       advanceToMain1(facade);
@@ -77,7 +77,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
           ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
           ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
           ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       // advanceToMain1 しない（ドローフェイズのまま）
@@ -170,7 +170,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   // フィールド魔法：手札から発動
   // ───────────────────────────────────────────────
-  describe("フィールド魔法 - 手札から発動（チキンゲーム）", () => {
+  describe("フィールド魔法 - 手札から発動（チキンレース）", () => {
     it("発動 → フィールドゾーンに表側表示で配置", async () => {
       facade.resetGame(
         createScenarioDeck([
@@ -179,8 +179,8 @@ describe("魔法カード発動 - 基本フローテスト", () => {
           ACTUAL_CARD_IDS.CHICKEN_GAME,
           ACTUAL_CARD_IDS.CHICKEN_GAME,
           ACTUAL_CARD_IDS.CHICKEN_GAME,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       advanceToMain1(facade);

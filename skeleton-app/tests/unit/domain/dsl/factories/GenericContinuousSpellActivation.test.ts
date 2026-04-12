@@ -17,7 +17,7 @@ import {
 } from "$lib/domain/dsl/factories/GenericContinuousSpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   createSpellInstance,
   createMockGameState,
   createFilledMainDeck,
@@ -27,14 +27,18 @@ import {
 // テストヘルパー
 // =============================================================================
 
-const TEST_CARD_ID = TEST_CARD_IDS.SPELL_CONTINUOUS;
+const CONTINUOUS_SPELL_ID = DUMMY_CARD_IDS.CONTINUOUS_SPELL;
+const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 const continuousSpellInstance = () =>
-  createSpellInstance("continuous-spell-test-instance", { cardId: TEST_CARD_ID, spellType: "continuous" });
+  createSpellInstance("continuous-spell-test-instance", {
+    cardId: CONTINUOUS_SPELL_ID,
+    spellType: "continuous",
+  });
 
 const createState = (deckCount: number, phase: "main1" | "standby" | "end" = "main1") =>
   createMockGameState({
-    space: { ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY) },
+    space: { ...createFilledMainDeck(deckCount, OTHER_CARD_ID) },
     phase,
   });
 
@@ -48,32 +52,32 @@ describe("GenericContinuousSpellActivation - インスタンス生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     expect(activation).toBeInstanceOf(GenericContinuousSpellActivation);
-    expect(activation.cardId).toBe(TEST_CARD_ID);
+    expect(activation.cardId).toBe(CONTINUOUS_SPELL_ID);
   });
 
   it("effectId は 'activation-{cardId}' の形式で生成される", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    expect(activation.effectId).toBe(`activation-${TEST_CARD_ID}`);
+    expect(activation.effectId).toBe(`activation-${CONTINUOUS_SPELL_ID}`);
   });
 
   it("effectCategory は 'activation'", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     expect(activation.effectCategory).toBe("activation");
   });
 
   it("spellSpeed は 1（永続魔法）", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     expect(activation.spellSpeed).toBe(1);
   });
 
   it("空のDSL定義でもインスタンスを生成できる", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     expect(activation).toBeInstanceOf(GenericContinuousSpellActivation);
   });
@@ -85,7 +89,7 @@ describe("GenericContinuousSpellActivation - インスタンス生成", () => {
 
 describe("GenericContinuousSpellActivation - 条件チェック", () => {
   it("メインフェイズ1では canActivate が true を返す", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     const result = activation.canActivate(createState(5, "main1"), continuousSpellInstance());
 
@@ -93,7 +97,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
   });
 
   it("メインフェイズ以外では canActivate が false を返す（メインフェイズ制限）", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     const result = activation.canActivate(createState(5, "standby"), continuousSpellInstance());
 
@@ -104,7 +108,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
     const dsl: ChainableActionDSL = {
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
     };
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     const result = activation.canActivate(createState(5), continuousSpellInstance());
 
@@ -115,7 +119,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
     const dsl: ChainableActionDSL = {
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 10 } }] },
     };
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     const result = activation.canActivate(createState(2), continuousSpellInstance()); // デッキ2枚（10枚必要）
 
@@ -123,7 +127,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
   });
 
   it("条件が定義されていない場合はメインフェイズなら canActivate が true を返す", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     const result = activation.canActivate(createState(0), continuousSpellInstance());
 
@@ -139,7 +143,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
         ],
       },
     };
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     const result = activation.canActivate(createState(5), continuousSpellInstance());
 
@@ -153,7 +157,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
 
 describe("GenericContinuousSpellActivation - ステップ生成", () => {
   it("createActivationSteps に発動通知ステップが含まれる", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     const steps = activation.createActivationSteps(createState(5), continuousSpellInstance());
 
@@ -165,7 +169,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
     };
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     const steps = activation.createActivationSteps(createState(5), continuousSpellInstance());
 
@@ -173,7 +177,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
   });
 
   it("activations が定義されていない場合は個別ステップは空", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     const steps = activation.createActivationSteps(createState(5), continuousSpellInstance());
 
@@ -188,7 +192,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
         { step: "SELECT_AND_DISCARD", args: { count: 1 } },
       ],
     };
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     const steps = activation.createResolutionSteps(createState(5), continuousSpellInstance());
 
@@ -199,7 +203,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
   });
 
   it("resolutions が定義されていない場合は空の解決ステップを返す", () => {
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
     const steps = activation.createResolutionSteps(createState(5), continuousSpellInstance());
 
@@ -210,7 +214,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const activation = createGenericContinuousSpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
     const steps = activation.createResolutionSteps(createState(5), continuousSpellInstance());
 

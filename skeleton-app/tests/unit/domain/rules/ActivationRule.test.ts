@@ -9,7 +9,12 @@
 
 import { describe, it, expect } from "vitest";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
-import { createMockGameState, createSpellInstance, createSpellOnField, TEST_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createMonsterInstance,
+  createSpellInstance,
+  createSpellOnField,
+} from "../../../__testUtils__";
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {
@@ -156,15 +161,7 @@ describe("ActivationRule", () => {
     describe("error cases", () => {
       it("should throw error for non-spell/trap card activation from hand", () => {
         // Arrange
-        const monster = {
-          instanceId: "monster-0",
-          id: TEST_CARD_IDS.DUMMY,
-          jaName: "Test Monster",
-          type: "monster" as const,
-          frameType: "normal" as const,
-          edition: "latest" as const,
-          location: "hand" as const,
-        };
+        const monster = createMonsterInstance("monster-0");
         const state = createMockGameState({
           space: {
             hand: [monster],

@@ -12,7 +12,6 @@ import {
   createSpellOnField,
   createMonsterOnField,
   ACTUAL_CARD_IDS,
-  TEST_CARD_IDS,
 } from "../../../__testUtils__";
 // Note: ChainableActionRegistry は setup.ts で初期化済み
 
@@ -26,7 +25,7 @@ describe("ActivateIgnitionEffectCommand", () => {
       phase: "main1",
       lp: { player: 5000, opponent: 5000 },
       space: {
-        mainDeck: [createSpellInstance("main-0", { cardId: TEST_CARD_IDS.SPELL_NORMAL, location: "mainDeck" })],
+        mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
         extraDeck: [],
         hand: [],
         mainMonsterZone: [],
@@ -236,8 +235,8 @@ describe("ActivateIgnitionEffectCommand", () => {
         lp: { player: 8000, opponent: 8000 },
         space: {
           mainDeck: [
-            createSpellInstance("main-0", { cardId: TEST_CARD_IDS.SPELL_NORMAL, location: "mainDeck" }),
-            createSpellInstance("deck-1", { cardId: TEST_CARD_IDS.SPELL_EQUIP, location: "mainDeck" }),
+            createSpellInstance("main-0", { location: "mainDeck" }),
+            createSpellInstance("deck-1", { spellType: "equip", location: "mainDeck" }),
           ],
           extraDeck: [],
           hand: [],
@@ -374,7 +373,7 @@ describe("ActivateIgnitionEffectCommand", () => {
         phase: "main1",
         lp: { player: 5000, opponent: 5000 },
         space: {
-          mainDeck: [createSpellInstance("main-0", { cardId: TEST_CARD_IDS.SPELL_NORMAL, location: "mainDeck" })],
+          mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
           extraDeck: [],
           hand: [],
           mainMonsterZone: [

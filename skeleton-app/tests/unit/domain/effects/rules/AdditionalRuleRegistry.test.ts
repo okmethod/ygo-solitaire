@@ -26,9 +26,12 @@ import {
   createSpellOnField,
   createStateWithMonsterZone,
   createStateWithFieldZone,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   ACTUAL_CARD_IDS,
 } from "../../../../__testUtils__";
+
+const CHICKEN_GAME_ID = ACTUAL_CARD_IDS.CHICKEN_GAME;
+const NORMAL_MONSTER_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 /**
  * テスト用のモック AdditionalRule
@@ -48,175 +51,169 @@ class MockAdditionalRule implements AdditionalRule {
   }
 
   checkPermission(_state: GameSnapshot): boolean {
-    return false; // Mock: deny permission
+    return false; // モック: パーミッションを拒否
   }
 
   apply(_state: GameSnapshot): GameSnapshot {
-    return _state; // Mock: no state change
+    return _state; // モック: 状態変更なし
   }
 }
 
 describe("AdditionalRuleRegistry", () => {
-  // Clean up before each test to ensure test isolation
+  // テスト間の独立性を確保するため、各テスト前にクリア
   beforeEach(() => {
     AdditionalRuleRegistry.clear();
   });
 
   describe("register()", () => {
-    it("should register an additional rule", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME; // Chicken Game
+    it("追加ルールを登録できる", () => {
+      // 準備
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule = new MockAdditionalRule("Chicken Game Continuous");
 
-      // Act
+      // 実行
       AdditionalRuleRegistry.register(cardId, rule);
 
-      // Assert
+      // 検証
       const retrieved = AdditionalRuleRegistry.get(cardId);
       expect(retrieved).toHaveLength(1);
       expect(retrieved[0]).toBe(rule);
     });
 
-    it("should register multiple rules for the same card", () => {
-      // Arrange
+    it("同一カードに複数のルールを登録できる", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule1 = new MockAdditionalRule("Rule 1", true, "ActionPermission");
       const rule2 = new MockAdditionalRule("Rule 2", false, "StatusModifier");
 
-      // Act
+      // 実行
       AdditionalRuleRegistry.register(cardId, rule1);
       AdditionalRuleRegistry.register(cardId, rule2);
 
-      // Assert
+      // 検証
       const retrieved = AdditionalRuleRegistry.get(cardId);
       expect(retrieved).toHaveLength(2);
       expect(retrieved).toContain(rule1);
       expect(retrieved).toContain(rule2);
     });
 
-    it("should register rules for multiple cards", () => {
-      // Arrange
-      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME; // Chicken Game
-      const cardId2 = TEST_CARD_IDS.DUMMY; // Mock Card
+    it("複数のカードにルールを登録できる", () => {
+      // 準備
       const rule1 = new MockAdditionalRule("Rule 1");
       const rule2 = new MockAdditionalRule("Rule 2");
 
-      // Act
-      AdditionalRuleRegistry.register(cardId1, rule1);
-      AdditionalRuleRegistry.register(cardId2, rule2);
+      // 実行
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule1);
+      AdditionalRuleRegistry.register(NORMAL_MONSTER_ID, rule2);
 
-      // Assert
-      expect(AdditionalRuleRegistry.get(cardId1)).toContain(rule1);
-      expect(AdditionalRuleRegistry.get(cardId2)).toContain(rule2);
+      // 検証
+      expect(AdditionalRuleRegistry.get(CHICKEN_GAME_ID)).toContain(rule1);
+      expect(AdditionalRuleRegistry.get(NORMAL_MONSTER_ID)).toContain(rule2);
       expect(AdditionalRuleRegistry.getRegisteredCardIds()).toHaveLength(2);
     });
   });
 
   describe("get()", () => {
-    it("should return registered rules", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
+    it("登録済みルールを返す", () => {
+      // 準備
       const rule = new MockAdditionalRule("Chicken Game Continuous");
-      AdditionalRuleRegistry.register(cardId, rule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule);
 
-      // Act
-      const retrieved = AdditionalRuleRegistry.get(cardId);
+      // 実行
+      const retrieved = AdditionalRuleRegistry.get(CHICKEN_GAME_ID);
 
-      // Assert
+      // 検証
       expect(retrieved).toHaveLength(1);
       expect(retrieved[0]).toBe(rule);
       expect(retrieved[0]).toBeInstanceOf(MockAdditionalRule);
     });
 
-    it("should return empty array for unknown card ID", () => {
-      // Arrange
+    it("未知のカードIDに対して空配列を返す", () => {
+      // 準備
       const unknownCardId = 99999999;
 
-      // Act
+      // 実行
       const retrieved = AdditionalRuleRegistry.get(unknownCardId);
 
-      // Assert
+      // 検証
       expect(retrieved).toEqual([]);
     });
 
-    it("should return all rules for a card with multiple rules", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
+    it("複数ルールが登録されたカードの全ルールを返す", () => {
+      // 準備
       const rule1 = new MockAdditionalRule("Rule 1");
       const rule2 = new MockAdditionalRule("Rule 2");
       const rule3 = new MockAdditionalRule("Rule 3");
 
-      AdditionalRuleRegistry.register(cardId, rule1);
-      AdditionalRuleRegistry.register(cardId, rule2);
-      AdditionalRuleRegistry.register(cardId, rule3);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule1);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule2);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule3);
 
-      // Act
-      const retrieved = AdditionalRuleRegistry.get(cardId);
+      // 実行
+      const retrieved = AdditionalRuleRegistry.get(CHICKEN_GAME_ID);
 
-      // Assert
+      // 検証
       expect(retrieved).toHaveLength(3);
       expect(retrieved).toEqual([rule1, rule2, rule3]);
     });
   });
 
   describe("getByCategory()", () => {
-    it("should return rules filtered by category", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
+    it("カテゴリでフィルタリングしたルールを返す", () => {
+      // 準備
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission");
       const modifierRule = new MockAdditionalRule("Modifier", true, "StatusModifier");
       const replacementRule = new MockAdditionalRule("Replacement", true, "ActionOverride");
 
-      AdditionalRuleRegistry.register(cardId, permissionRule);
-      AdditionalRuleRegistry.register(cardId, modifierRule);
-      AdditionalRuleRegistry.register(cardId, replacementRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, permissionRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, modifierRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, replacementRule);
 
-      // Act
-      const permissionRules = AdditionalRuleRegistry.getByCategory(cardId, "ActionPermission");
-      const modifierRules = AdditionalRuleRegistry.getByCategory(cardId, "StatusModifier");
+      // 実行
+      const permissionRules = AdditionalRuleRegistry.getByCategory(CHICKEN_GAME_ID, "ActionPermission");
+      const modifierRules = AdditionalRuleRegistry.getByCategory(CHICKEN_GAME_ID, "StatusModifier");
 
-      // Assert
+      // 検証
       expect(permissionRules).toHaveLength(1);
       expect(permissionRules[0]).toBe(permissionRule);
       expect(modifierRules).toHaveLength(1);
       expect(modifierRules[0]).toBe(modifierRule);
     });
 
-    it("should return empty array when no rules match the category", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
+    it("カテゴリに一致するルールがない場合は空配列を返す", () => {
+      // 準備
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission");
 
-      AdditionalRuleRegistry.register(cardId, permissionRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, permissionRule);
 
-      // Act
-      const modifierRules = AdditionalRuleRegistry.getByCategory(cardId, "StatusModifier");
+      // 実行
+      const modifierRules = AdditionalRuleRegistry.getByCategory(CHICKEN_GAME_ID, "StatusModifier");
 
-      // Assert
+      // 検証
       expect(modifierRules).toEqual([]);
     });
 
-    it("should return empty array for unknown card ID", () => {
-      // Arrange
+    it("未知のカードIDに対して空配列を返す", () => {
+      // 準備
       const unknownCardId = 99999999;
 
-      // Act
+      // 実行
       const rules = AdditionalRuleRegistry.getByCategory(unknownCardId, "ActionPermission");
 
-      // Assert
+      // 検証
       expect(rules).toEqual([]);
     });
   });
 
   describe("collectActiveRules()", () => {
-    it("should collect active rules from field", () => {
-      // Arrange
+    it("フィールドのアクティブなルールを収集する", () => {
+      // 準備
       const chickenGameId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const chickenGameRule = new MockAdditionalRule(
         "Chicken Game",
         true,
         "ActionPermission",
-        true, // canApply returns true
+        true, // canApply が true を返す
       );
 
       AdditionalRuleRegistry.register(chickenGameId, chickenGameRule);
@@ -224,16 +221,16 @@ describe("AdditionalRuleRegistry", () => {
       const chickenGameCard = createSpellOnField("fieldZone-0", { cardId: chickenGameId, spellType: "field" });
       const state = createStateWithFieldZone([chickenGameCard]);
 
-      // Act
+      // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
-      // Assert
+      // 検証
       expect(activeRules).toHaveLength(1);
       expect(activeRules[0]).toBe(chickenGameRule);
     });
 
-    it("should not collect rules from face-down cards", () => {
-      // Arrange
+    it("裏側表示のカードのルールは収集しない", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule = new MockAdditionalRule("Rule", true, "ActionPermission", true);
 
@@ -243,114 +240,109 @@ describe("AdditionalRuleRegistry", () => {
         createSpellOnField("fieldZone-0", { cardId, spellType: "field", position: "faceDown" }),
       ]);
 
-      // Act
+      // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
-      // Assert
+      // 検証
       expect(activeRules).toHaveLength(0);
     });
 
-    it("should not collect rules when canApply returns false", () => {
-      // Arrange
+    it("canApplyがfalseの場合はルールを収集しない", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule = new MockAdditionalRule(
         "Rule",
         true,
         "ActionPermission",
-        false, // canApply returns false
+        false, // canApply が false を返す
       );
 
       AdditionalRuleRegistry.register(cardId, rule);
 
       const state = createStateWithFieldZone([createSpellOnField("fieldZone-0", { cardId, spellType: "field" })]);
 
-      // Act
+      // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
-      // Assert
+      // 検証
       expect(activeRules).toHaveLength(0);
     });
 
-    it("should only collect rules matching the specified category", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
+    it("指定カテゴリに一致するルールのみ収集する", () => {
+      // 準備
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission", true);
       const modifierRule = new MockAdditionalRule("Modifier", true, "StatusModifier", true);
 
-      AdditionalRuleRegistry.register(cardId, permissionRule);
-      AdditionalRuleRegistry.register(cardId, modifierRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, permissionRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, modifierRule);
 
-      const state = createStateWithFieldZone([createSpellOnField("fieldZone-0", { cardId, spellType: "field" })]);
+      const state = createStateWithFieldZone([
+        createSpellOnField("fieldZone-0", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
+      ]);
 
-      // Act
+      // 実行
       const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
       const modifierRules = AdditionalRuleRegistry.collectActiveRules(state, "StatusModifier");
 
-      // Assert
+      // 検証
       expect(permissionRules).toHaveLength(1);
       expect(permissionRules[0]).toBe(permissionRule);
       expect(modifierRules).toHaveLength(1);
       expect(modifierRules[0]).toBe(modifierRule);
     });
 
-    it("should collect rules from multiple cards", () => {
-      // Arrange
-      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME;
-      const cardId2 = TEST_CARD_IDS.DUMMY;
+    it("複数カードのルールを収集する", () => {
+      // 準備
       const rule1 = new MockAdditionalRule("Rule 1", true, "ActionPermission", true);
       const rule2 = new MockAdditionalRule("Rule 2", true, "ActionPermission", true);
 
-      AdditionalRuleRegistry.register(cardId1, rule1);
-      AdditionalRuleRegistry.register(cardId2, rule2);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule1);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule2);
 
       const state = createStateWithFieldZone([
-        createSpellOnField("fieldZone-0", { cardId: cardId1, spellType: "field" }),
-        createSpellOnField("fieldZone-1", { cardId: cardId2, spellType: "field" }),
+        createSpellOnField("fieldZone-0", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
+        createSpellOnField("fieldZone-1", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
       ]);
 
-      // Act
+      // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
 
-      // Assert
-      expect(activeRules).toHaveLength(2);
+      // 検証
+      expect(activeRules).toHaveLength(4);
       expect(activeRules).toContain(rule1);
       expect(activeRules).toContain(rule2);
     });
   });
 
   describe("clear()", () => {
-    it("should clear all registered rules", () => {
-      // Arrange
-      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME;
-      const cardId2 = TEST_CARD_IDS.DUMMY;
-      AdditionalRuleRegistry.register(cardId1, new MockAdditionalRule("Rule 1"));
-      AdditionalRuleRegistry.register(cardId2, new MockAdditionalRule("Rule 2"));
+    it("全登録済みルールをクリアする", () => {
+      // 準備
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 1"));
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 2"));
 
-      expect(AdditionalRuleRegistry.getRegisteredCardIds()).toHaveLength(2);
+      expect(AdditionalRuleRegistry.getRegisteredCardIds()).toHaveLength(1);
 
-      // Act
+      // 実行
       AdditionalRuleRegistry.clear();
 
-      // Assert
+      // 検証
       expect(AdditionalRuleRegistry.getRegisteredCardIds()).toHaveLength(0);
-      expect(AdditionalRuleRegistry.get(cardId1)).toEqual([]);
-      expect(AdditionalRuleRegistry.get(cardId2)).toEqual([]);
+      expect(AdditionalRuleRegistry.get(CHICKEN_GAME_ID)).toEqual([]);
     });
 
-    it("should allow re-registration after clear", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
+    it("クリア後に再登録できる", () => {
+      // 準備
       const firstRule = new MockAdditionalRule("First Rule");
       const secondRule = new MockAdditionalRule("Second Rule");
 
-      AdditionalRuleRegistry.register(cardId, firstRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, firstRule);
       AdditionalRuleRegistry.clear();
 
-      // Act
-      AdditionalRuleRegistry.register(cardId, secondRule);
+      // 実行
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, secondRule);
 
-      // Assert
-      const retrieved = AdditionalRuleRegistry.get(cardId);
+      // 検証
+      const retrieved = AdditionalRuleRegistry.get(CHICKEN_GAME_ID);
       expect(retrieved).toHaveLength(1);
       expect(retrieved[0]).toBe(secondRule);
       expect(retrieved[0]).not.toBe(firstRule);
@@ -358,52 +350,44 @@ describe("AdditionalRuleRegistry", () => {
   });
 
   describe("getRegisteredCardIds()", () => {
-    it("should return empty array when no rules are registered", () => {
-      // Act & Assert
+    it("ルールが登録されていない場合は空配列を返す", () => {
+      // 実行 & 検証
       expect(AdditionalRuleRegistry.getRegisteredCardIds()).toEqual([]);
     });
 
-    it("should return correct card IDs after registrations", () => {
-      // Arrange
-      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME;
-      const cardId2 = TEST_CARD_IDS.DUMMY;
+    it("登録後に正しいカードIDを返す", () => {
+      // 実行
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 1"));
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 2"));
 
-      // Act
-      AdditionalRuleRegistry.register(cardId1, new MockAdditionalRule("Rule 1"));
-      AdditionalRuleRegistry.register(cardId2, new MockAdditionalRule("Rule 2"));
-
-      // Assert
-      const registeredIds = AdditionalRuleRegistry.getRegisteredCardIds();
-      expect(registeredIds).toHaveLength(2);
-      expect(registeredIds).toContain(cardId1);
-      expect(registeredIds).toContain(cardId2);
-    });
-
-    it("should return correct card IDs after clear", () => {
-      // Arrange
-      AdditionalRuleRegistry.register(ACTUAL_CARD_IDS.CHICKEN_GAME, new MockAdditionalRule("Rule 1"));
-      AdditionalRuleRegistry.register(TEST_CARD_IDS.DUMMY, new MockAdditionalRule("Rule 2"));
-
-      // Act
-      AdditionalRuleRegistry.clear();
-
-      // Assert
-      expect(AdditionalRuleRegistry.getRegisteredCardIds()).toEqual([]);
-    });
-
-    it("should not duplicate card IDs when multiple rules are registered for same card", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
-
-      // Act
-      AdditionalRuleRegistry.register(cardId, new MockAdditionalRule("Rule 1"));
-      AdditionalRuleRegistry.register(cardId, new MockAdditionalRule("Rule 2"));
-      AdditionalRuleRegistry.register(cardId, new MockAdditionalRule("Rule 3"));
-
-      // Assert
+      // 検証
       const registeredIds = AdditionalRuleRegistry.getRegisteredCardIds();
       expect(registeredIds).toHaveLength(1);
-      expect(registeredIds[0]).toBe(cardId);
+      expect(registeredIds).toContain(CHICKEN_GAME_ID);
+    });
+
+    it("クリア後に正しいカードIDを返す", () => {
+      // 準備
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 1"));
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 2"));
+
+      // 実行
+      AdditionalRuleRegistry.clear();
+
+      // 検証
+      expect(AdditionalRuleRegistry.getRegisteredCardIds()).toEqual([]);
+    });
+
+    it("同一カードに複数登録してもカードIDが重複しない", () => {
+      // 実行
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 1"));
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 2"));
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, new MockAdditionalRule("Rule 3"));
+
+      // 検証
+      const registeredIds = AdditionalRuleRegistry.getRegisteredCardIds();
+      expect(registeredIds).toHaveLength(1);
+      expect(registeredIds[0]).toBe(CHICKEN_GAME_ID);
     });
   });
 
@@ -429,43 +413,43 @@ describe("AdditionalRuleRegistry", () => {
       }
     }
 
-    it("should collect trigger rules for specified event from monster zone", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY; // Royal Magical Library
+    it("モンスターゾーンから指定イベントのトリガールールを収集する", () => {
+      // 準備
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
-      AdditionalRuleRegistry.register(cardId, triggerRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, triggerRule);
 
-      const monsterCard = createMonsterOnField("mainMonsterZone-0", { cardId });
+      const monsterCard = createMonsterOnField("mainMonsterZone-0", { cardId: CHICKEN_GAME_ID });
       const state = createStateWithMonsterZone([monsterCard]);
 
-      // Act
+      // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
 
-      // Assert
+      // 検証
       expect(results).toHaveLength(1);
       expect(results[0].rule).toBe(triggerRule);
       expect(results[0].sourceInstance).toBe(monsterCard);
     });
 
-    it("should not collect trigger rules for different events", () => {
-      // Arrange
-      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
+    it("異なるイベントのトリガールールは収集しない", () => {
+      // 準備
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
-      AdditionalRuleRegistry.register(cardId, triggerRule);
+      AdditionalRuleRegistry.register(CHICKEN_GAME_ID, triggerRule);
 
-      const state = createStateWithMonsterZone([createMonsterOnField("mainMonsterZone-0", { cardId })]);
+      const state = createStateWithMonsterZone([
+        createMonsterOnField("mainMonsterZone-0", { cardId: CHICKEN_GAME_ID }),
+      ]);
 
-      // Act
+      // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "normalSummoned");
 
-      // Assert
+      // 検証
       expect(results).toHaveLength(0);
     });
 
-    it("should not collect trigger rules from face-down cards", () => {
-      // Arrange
+    it("裏側表示のカードのトリガールールは収集しない", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
@@ -475,15 +459,15 @@ describe("AdditionalRuleRegistry", () => {
         createMonsterOnField("mainMonsterZone-0", { cardId, position: "faceDown" }),
       ]);
 
-      // Act
+      // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
 
-      // Assert
+      // 検証
       expect(results).toHaveLength(0);
     });
 
-    it("should collect trigger rules from multiple cards", () => {
-      // Arrange
+    it("複数カードのトリガールールを収集する", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
@@ -493,10 +477,10 @@ describe("AdditionalRuleRegistry", () => {
       const monsterCard2 = createMonsterOnField("mainMonsterZone-1", { cardId });
       const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
-      // Act
+      // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
 
-      // Assert
+      // 検証
       expect(results).toHaveLength(2);
       expect(results[0].sourceInstance).toBe(monsterCard1);
       expect(results[1].sourceInstance).toBe(monsterCard2);
@@ -523,7 +507,7 @@ describe("AdditionalRuleRegistry", () => {
       }
 
       createTriggerSteps(_state: GameSnapshot, sourceInstance: CardInstance): AtomicStep[] {
-        // Capture execution count increment in closure
+        // クロージャで実行回数のインクリメントをキャプチャ
         const incrementExecution = () => {
           this.executionCount++;
         };
@@ -535,7 +519,7 @@ describe("AdditionalRuleRegistry", () => {
             notificationLevel: "silent",
             action: (currentState: GameSnapshot) => {
               incrementExecution();
-              // Return state with modified LP as a marker
+              // マーカーとして LP を変更したステートを返す
               return GameProcessing.Result.success(
                 {
                   ...currentState,
@@ -553,7 +537,7 @@ describe("AdditionalRuleRegistry", () => {
     }
 
     /**
-     * 収集したステップを実行するヘルパー
+     * 収集したステップを順に実行するヘルパー
      */
     function executeSteps(steps: AtomicStep[], state: GameSnapshot): GameSnapshot {
       let currentState = state;
@@ -564,8 +548,8 @@ describe("AdditionalRuleRegistry", () => {
       return currentState;
     }
 
-    it("should collect trigger steps and execute them to update state", () => {
-      // Arrange
+    it("トリガーステップを収集し実行してステートを更新する", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRuleWithEffect(["spellActivated"]);
 
@@ -573,19 +557,19 @@ describe("AdditionalRuleRegistry", () => {
 
       const state = createStateWithMonsterZone([createMonsterOnField("mainMonsterZone-0", { cardId })]);
 
-      // Act
+      // 実行
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
       const { mandatorySteps } = AdditionalRuleRegistry.collectTriggerSteps(state, event);
       const newState = executeSteps(mandatorySteps, state);
 
-      // Assert
+      // 検証
       expect(mandatorySteps).toHaveLength(1);
       expect(triggerRule.executionCount).toBe(1);
       expect(newState.lp.player).toBe(7900);
     });
 
-    it("should not collect trigger steps when canApply returns false", () => {
-      // Arrange
+    it("canApplyがfalseの場合はトリガーステップを収集しない", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRuleWithEffect(["spellActivated"], false);
 
@@ -593,19 +577,19 @@ describe("AdditionalRuleRegistry", () => {
 
       const state = createStateWithMonsterZone([createMonsterOnField("mainMonsterZone-0", { cardId })]);
 
-      // Act
+      // 実行
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
       const { mandatorySteps } = AdditionalRuleRegistry.collectTriggerSteps(state, event);
       const newState = executeSteps(mandatorySteps, state);
 
-      // Assert
+      // 検証
       expect(mandatorySteps).toHaveLength(0);
       expect(triggerRule.executionCount).toBe(0);
       expect(newState.lp.player).toBe(8000);
     });
 
-    it("should collect steps from multiple trigger rules", () => {
-      // Arrange
+    it("複数トリガールールのステップを収集する", () => {
+      // 準備
       const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRuleWithEffect(["spellActivated"]);
 
@@ -615,12 +599,12 @@ describe("AdditionalRuleRegistry", () => {
       const monsterCard2 = createMonsterOnField("mainMonsterZone-1", { cardId });
       const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
 
-      // Act
+      // 実行
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
       const { mandatorySteps } = AdditionalRuleRegistry.collectTriggerSteps(state, event);
       const newState = executeSteps(mandatorySteps, state);
 
-      // Assert
+      // 検証
       expect(mandatorySteps).toHaveLength(2);
       expect(triggerRule.executionCount).toBe(2);
       expect(newState.lp.player).toBe(7800); // 8000 - 100 - 100

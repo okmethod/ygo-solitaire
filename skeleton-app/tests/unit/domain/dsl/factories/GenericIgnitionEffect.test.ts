@@ -13,7 +13,7 @@ import { describe, it, expect } from "vitest";
 import { GenericIgnitionEffect, createGenericIgnitionEffect } from "$lib/domain/dsl/factories/GenericIgnitionEffect";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   createMonsterOnField,
   createMockGameState,
   createFilledMainDeck,
@@ -23,13 +23,14 @@ import {
 // テストヘルパー
 // =============================================================================
 
-const TEST_CARD_ID = TEST_CARD_IDS.EFFECT_MONSTER;
+const EFFECT_MONSTER_ID = DUMMY_CARD_IDS.EFFECT_MONSTER;
+const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
-const monsterOnField = () => createMonsterOnField("ignition-test-instance", { cardId: TEST_CARD_ID });
+const monsterOnField = () => createMonsterOnField("ignition-test-instance", { cardId: EFFECT_MONSTER_ID });
 
 const createState = (deckCount: number, phase: "main1" | "standby" | "end" = "main1") =>
   createMockGameState({
-    space: { ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY) },
+    space: { ...createFilledMainDeck(deckCount, OTHER_CARD_ID) },
     phase,
   });
 
@@ -43,41 +44,41 @@ describe("GenericIgnitionEffect - インスタンス生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     expect(effect).toBeInstanceOf(GenericIgnitionEffect);
-    expect(effect.cardId).toBe(TEST_CARD_ID);
+    expect(effect.cardId).toBe(EFFECT_MONSTER_ID);
   });
 
   it("effectId は 'ignition-{cardId}-{effectIndex}' の形式で生成される", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
-    expect(effect.effectId).toBe(`ignition-${TEST_CARD_ID}-1`);
+    expect(effect.effectId).toBe(`ignition-${EFFECT_MONSTER_ID}-1`);
   });
 
   it("effectIndex が異なれば effectId も異なる", () => {
-    const effect1 = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
-    const effect2 = createGenericIgnitionEffect(TEST_CARD_ID, 2, {});
+    const effect1 = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
+    const effect2 = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 2, {});
 
     expect(effect1.effectId).not.toBe(effect2.effectId);
-    expect(effect1.effectId).toBe(`ignition-${TEST_CARD_ID}-1`);
-    expect(effect2.effectId).toBe(`ignition-${TEST_CARD_ID}-2`);
+    expect(effect1.effectId).toBe(`ignition-${EFFECT_MONSTER_ID}-1`);
+    expect(effect2.effectId).toBe(`ignition-${EFFECT_MONSTER_ID}-2`);
   });
 
   it("effectCategory は 'ignition'", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
     expect(effect.effectCategory).toBe("ignition");
   });
 
   it("spellSpeed は 1", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
     expect(effect.spellSpeed).toBe(1);
   });
 
   it("空のDSL定義でもインスタンスを生成できる", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
     expect(effect).toBeInstanceOf(GenericIgnitionEffect);
   });
@@ -89,7 +90,7 @@ describe("GenericIgnitionEffect - インスタンス生成", () => {
 
 describe("GenericIgnitionEffect - 条件チェック", () => {
   it("メインフェイズ1では canActivate が true を返す", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
     const result = effect.canActivate(createState(5, "main1"), monsterOnField());
 
@@ -97,7 +98,7 @@ describe("GenericIgnitionEffect - 条件チェック", () => {
   });
 
   it("メインフェイズ以外では canActivate が false を返す", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
     const result = effect.canActivate(createState(5, "standby"), monsterOnField());
 
@@ -109,7 +110,7 @@ describe("GenericIgnitionEffect - 条件チェック", () => {
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const result = effect.canActivate(createState(5), monsterOnField()); // デッキ5枚
 
@@ -120,7 +121,7 @@ describe("GenericIgnitionEffect - 条件チェック", () => {
     const dsl: ChainableActionDSL = {
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 10 } }] },
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const result = effect.canActivate(createState(2), monsterOnField()); // デッキ2枚（10枚必要）
 
@@ -131,7 +132,7 @@ describe("GenericIgnitionEffect - 条件チェック", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const result = effect.canActivate(createState(0), monsterOnField()); // デッキ0枚でも条件なしならOK
 
@@ -147,7 +148,7 @@ describe("GenericIgnitionEffect - 条件チェック", () => {
         ],
       },
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const result = effect.canActivate(createState(5), monsterOnField());
 
@@ -164,7 +165,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
@@ -177,7 +178,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
@@ -188,7 +189,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
@@ -204,7 +205,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
         { step: "SELECT_AND_DISCARD", args: { count: 1 } },
       ],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 
@@ -215,7 +216,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
   });
 
   it("resolutions が定義されていない場合は空の解決ステップを返す", () => {
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, {});
 
     const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 
@@ -226,7 +227,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const effect = createGenericIgnitionEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericIgnitionEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 

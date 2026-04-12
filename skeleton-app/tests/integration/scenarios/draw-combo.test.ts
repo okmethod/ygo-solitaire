@@ -17,13 +17,15 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
   createScenarioDeck,
+  createSpellInstance,
+  createFilledMainDeck,
   advanceToMain1,
   flushEffectQueue,
   resolveCardSelection,
   getState,
   hasCardSelection,
   ACTUAL_CARD_IDS,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("Draw Spell Combos - 実カードシナリオテスト", () => {
@@ -169,9 +171,9 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
           ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
           ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
           ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       advanceToMain1(facade);
@@ -207,8 +209,8 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
           ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
           ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
           ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       advanceToMain1(facade);
@@ -227,31 +229,14 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
       // 直接状態をセットしてシャッフルを回避
       // 手札: ゴブリン×2 + 天使×3、デッキ: ダミー×5
       const handCards = [
-        { id: ACTUAL_CARD_IDS.GOLDEN_GOBLIN, instanceId: "goblin-1" },
-        { id: ACTUAL_CARD_IDS.GOLDEN_GOBLIN, instanceId: "goblin-2" },
-        { id: ACTUAL_CARD_IDS.GRACEFUL_CHARITY, instanceId: "graceful-1" },
-        { id: ACTUAL_CARD_IDS.GRACEFUL_CHARITY, instanceId: "graceful-2" },
-        { id: ACTUAL_CARD_IDS.GRACEFUL_CHARITY, instanceId: "graceful-3" },
-      ].map(({ id, instanceId }) => ({
-        id,
-        jaName: id === ACTUAL_CARD_IDS.GOLDEN_GOBLIN ? "成金ゴブリン" : "天使の施し",
-        type: "spell" as const,
-        frameType: "spell" as const,
-        spellType: "normal" as const,
-        edition: "latest" as const,
-        instanceId,
-        location: "hand" as const,
-      }));
+        createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+        createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+        createSpellInstance("graceful-1", { cardId: ACTUAL_CARD_IDS.GRACEFUL_CHARITY }),
+        createSpellInstance("graceful-2", { cardId: ACTUAL_CARD_IDS.GRACEFUL_CHARITY }),
+        createSpellInstance("graceful-3", { cardId: ACTUAL_CARD_IDS.GRACEFUL_CHARITY }),
+      ];
 
-      const deckCards = Array.from({ length: 5 }, (_, i) => ({
-        id: TEST_CARD_IDS.DUMMY,
-        jaName: "Test Monster",
-        type: "monster" as const,
-        frameType: "normal" as const,
-        edition: "latest" as const,
-        instanceId: `deck-${i}`,
-        location: "mainDeck" as const,
-      }));
+      const deckCards = createFilledMainDeck(5).mainDeck;
 
       gameStateStore.set(
         createMockGameState({

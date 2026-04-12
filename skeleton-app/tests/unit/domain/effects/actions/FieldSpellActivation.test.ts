@@ -3,12 +3,6 @@
  *
  * フィールド魔法発動の抽象クラスのテスト。
  * BaseSpellActivation を継承した subTypeConditions（メインフェイズ制約）を検証する。
- *
- * TEST STRATEGY:
- * - spellSpeed = 1 であること
- * - メインフェイズ以外では発動不可であること
- * - 追加条件（individualConditions）なしで発動できること
- * - createResolutionSteps が空配列を返すこと
  */
 
 import { describe, it, expect } from "vitest";
@@ -19,14 +13,14 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck, TEST_CARD_IDS, ACTUAL_CARD_IDS } from "../../../../__testUtils__";
+import { createTestInitialDeck, DUMMY_CARD_IDS, ACTUAL_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
  */
 class TestFieldSpell extends FieldSpellActivation {
   constructor() {
-    super(TEST_CARD_IDS.DUMMY);
+    super(DUMMY_CARD_IDS.NORMAL_MONSTER);
   }
 
   protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
@@ -61,7 +55,11 @@ describe("FieldSpellActivation", () => {
     it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
       // Arrange: Main Phase 1
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,
@@ -80,7 +78,11 @@ describe("FieldSpellActivation", () => {
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (FieldSpellActivation固有のフェーズ制約テスト)
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,
@@ -125,7 +127,11 @@ describe("FieldSpellActivation", () => {
     it("should return notification and event steps (field spells have no additional activation steps)", () => {
       // Arrange
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,
@@ -148,7 +154,11 @@ describe("FieldSpellActivation", () => {
     it("should return empty array (field spells have no resolution steps)", () => {
       // Arrange
       const state = GameState.initialize(
-        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        createTestInitialDeck([
+          DUMMY_CARD_IDS.NORMAL_SPELL,
+          DUMMY_CARD_IDS.EQUIP_SPELL,
+          DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+        ]),
         CardDataRegistry.getCard,
         {
           skipShuffle: true,

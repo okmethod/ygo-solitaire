@@ -9,7 +9,10 @@ import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/Fi
 import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/EquipSpellActivation";
 import { GenericTriggerEffect } from "$lib/domain/dsl/factories";
 
-// テストで使用するカードID
+// =============================================================================
+// テスト向けカード登録
+// =============================================================================
+
 const _CARD_IDS = [
   33396948, // 封印されしエクゾディア
   70903634, // 封印されし者の右腕
@@ -31,70 +34,128 @@ const _CARD_IDS = [
 // 各種レジストリを初期化（CardData + 効果一括、DSL優先）
 registerCardDataWithEffectsByIds(_CARD_IDS);
 
-// テスト用カードデータも登録
-CardDataRegistry.register(8001, {
-  jaName: "Test Monster A",
+// =============================================================================
+// ダミーカード登録
+// =============================================================================
+
+// 通常モンスター
+CardDataRegistry.register(1001, {
+  jaName: "Dummy Normal Monster",
   type: "monster",
   frameType: "normal",
   edition: "latest",
 });
-CardDataRegistry.register(8002, {
-  jaName: "Test Monster B",
+
+// 効果モンスター
+CardDataRegistry.register(1002, {
+  jaName: "Dummy Effect Monster",
   type: "monster",
-  frameType: "normal",
+  frameType: "effect",
+  monsterTypeList: ["effect"],
   edition: "latest",
 });
-CardDataRegistry.register(8003, {
-  jaName: "Test Synchro Monster",
+
+// 効果モンスター（任意誘発効果）
+CardDataRegistry.register(1003, {
+  jaName: "Dummy Optional Trigger Monster",
+  type: "monster",
+  frameType: "effect",
+  monsterTypeList: ["effect"],
+  edition: "latest",
+});
+ChainableActionRegistry.registerTrigger(
+  1003,
+  new GenericTriggerEffect(1003, 1, {
+    conditions: {
+      trigger: {
+        events: ["normalSummoned"],
+        timing: "when",
+        isMandatory: false,
+        selfOnly: true,
+      },
+    },
+  }),
+);
+
+// シンクロモンスター
+CardDataRegistry.register(2001, {
+  jaName: "Dummy Synchro Monster",
   type: "monster",
   frameType: "synchro",
   edition: "latest",
 });
 
-CardDataRegistry.register(1001, {
-  jaName: "Test Spell 1",
+// モンスタートークン
+CardDataRegistry.register(3001, {
+  jaName: "Dummy Token",
+  type: "monster",
+  frameType: "token",
+  monsterTypeList: ["normal", "token"],
+  edition: "latest",
+});
+
+// 通常魔法
+CardDataRegistry.register(4001, {
+  jaName: "Dummy Normal Spell",
   type: "spell",
   frameType: "spell",
   spellType: "normal",
   edition: "latest",
 });
-ChainableActionRegistry.registerActivation(1001, NormalSpellActivation.createNoOp(1001));
+ChainableActionRegistry.registerActivation(4001, NormalSpellActivation.createNoOp(4001));
 
-CardDataRegistry.register(1002, {
-  jaName: "Test Spell 2",
+// 装備魔法
+CardDataRegistry.register(4002, {
+  jaName: "Dummy Equip Spell",
   type: "spell",
   frameType: "spell",
   spellType: "equip",
   edition: "latest",
 });
-ChainableActionRegistry.registerActivation(1002, EquipSpellActivation.createNoOp(1002));
+ChainableActionRegistry.registerActivation(4002, EquipSpellActivation.createNoOp(4002));
 
-CardDataRegistry.register(1004, {
-  jaName: "Test Spell 4",
+// 速攻魔法
+CardDataRegistry.register(4003, {
+  jaName: "Dummy Quick-Play Spell",
   type: "spell",
   frameType: "spell",
   spellType: "quick-play",
   edition: "latest",
 });
-ChainableActionRegistry.registerActivation(1004, QuickPlaySpellActivation.createNoOp(1004));
+ChainableActionRegistry.registerActivation(4003, QuickPlaySpellActivation.createNoOp(4003));
 
-CardDataRegistry.register(1005, {
-  jaName: "Test Spell 5",
+// 永続魔法
+CardDataRegistry.register(4004, {
+  jaName: "Dummy Continuous Spell",
   type: "spell",
   frameType: "spell",
   spellType: "continuous",
   edition: "latest",
 });
-ChainableActionRegistry.registerActivation(1005, ContinuousSpellActivation.createNoOp(1005));
+ChainableActionRegistry.registerActivation(4004, ContinuousSpellActivation.createNoOp(4004));
 
-CardDataRegistry.register(1006, {
-  jaName: "Test Spell 6",
+// フィールド魔法
+CardDataRegistry.register(4005, {
+  jaName: "Dummy Field Spell",
   type: "spell",
   frameType: "spell",
   spellType: "field",
   edition: "latest",
 });
-ChainableActionRegistry.registerActivation(1006, FieldSpellActivation.createNoOp(1006));
+ChainableActionRegistry.registerActivation(4005, FieldSpellActivation.createNoOp(4005));
+
+// 通常罠
+CardDataRegistry.register(5001, {
+  jaName: "Dummy Normal Trap",
+  type: "trap",
+  frameType: "trap",
+  trapType: "normal",
+  edition: "latest",
+});
+
+// =============================================================================
+// モック準備
+// =============================================================================
 
 // LocalStorageのモック
 const localStorageMock = {
@@ -112,61 +173,3 @@ Object.defineProperty(window, "localStorage", {
 
 // グローバルにlocalStorageMockを公開
 global.localStorageMock = localStorageMock;
-
-// トークンモンスター
-CardDataRegistry.register(5001, {
-  jaName: "Test Token",
-  type: "monster",
-  frameType: "token",
-  race: "Warrior",
-  level: 1,
-  attack: 0,
-  defense: 0,
-  edition: "latest",
-});
-
-// DSLファクトリテスト用効果モンスター
-CardDataRegistry.register(7001, {
-  jaName: "Test Effect Monster",
-  type: "monster",
-  frameType: "effect",
-  monsterTypeList: ["effect"],
-  level: 4,
-  edition: "latest",
-});
-
-// 罠カード
-CardDataRegistry.register(1007, {
-  jaName: "Test Trap 1",
-  type: "trap",
-  frameType: "trap",
-  trapType: "normal",
-  edition: "latest",
-});
-
-// 任意誘発効果テスト用モンスター
-// 召喚成功時に任意誘発効果（NoOp）が発動する。任意効果フローの検証用。
-CardDataRegistry.register(6001, {
-  jaName: "Test Optional Trigger Monster",
-  type: "monster",
-  frameType: "effect",
-  monsterTypeList: ["effect"],
-  race: "Warrior",
-  level: 4,
-  attack: 1500,
-  defense: 1500,
-  edition: "latest",
-});
-ChainableActionRegistry.registerTrigger(
-  6001,
-  new GenericTriggerEffect(6001, 1, {
-    conditions: {
-      trigger: {
-        events: ["normalSummoned"],
-        timing: "when",
-        isMandatory: false,
-        selfOnly: true,
-      },
-    },
-  }),
-);

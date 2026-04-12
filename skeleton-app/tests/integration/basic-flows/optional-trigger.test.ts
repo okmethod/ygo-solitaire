@@ -23,7 +23,7 @@ import {
   getState,
   hasOptionalTrigger,
   resolveOptionalTrigger,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("任意誘発効果 - 基本フローテスト", () => {
@@ -46,7 +46,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [createMonsterInstance("normal-1", { cardId: TEST_CARD_IDS.DUMMY })],
+            hand: [createMonsterInstance("normal-1")],
           },
         }),
       );
@@ -67,7 +67,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [createMonsterInstance("effect-1", { cardId: TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
+            hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
           },
         }),
       );
@@ -87,7 +87,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [createMonsterInstance("effect-1", { cardId: TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
+            hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
           },
         }),
       );
@@ -112,7 +112,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [createMonsterInstance("effect-1", { cardId: TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
+            hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
           },
         }),
       );

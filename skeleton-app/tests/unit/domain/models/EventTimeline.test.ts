@@ -19,7 +19,7 @@ import {
   clearHistory,
 } from "$lib/domain/models/GameProcessing/EventTimeline";
 import type { GameEvent } from "$lib/domain/models/GameProcessing/GameEvent";
-import { TEST_CARD_IDS } from "../../../__testUtils__";
+import { DUMMY_CARD_IDS } from "../../../__testUtils__";
 
 describe("EventTimeline", () => {
   describe("createEmptyTimeline", () => {
@@ -52,7 +52,7 @@ describe("EventTimeline", () => {
       const timeline = createEmptyTimeline();
       const event: GameEvent = {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       };
 
@@ -69,12 +69,12 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       const event1: GameEvent = {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       };
       const event2: GameEvent = {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-2",
       };
 
@@ -93,7 +93,7 @@ describe("EventTimeline", () => {
       const timeline = createEmptyTimeline();
       const event: GameEvent = {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       };
 
@@ -111,7 +111,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       const event: GameEvent = {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       };
       timeline = recordEvent(timeline, event);
@@ -147,7 +147,7 @@ describe("EventTimeline", () => {
       // First event and advance
       timeline = recordEvent(timeline, {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       });
       timeline = advanceTime(timeline);
@@ -155,7 +155,7 @@ describe("EventTimeline", () => {
       // Second event and advance
       timeline = recordEvent(timeline, {
         type: "normalSummoned",
-        sourceCardId: TEST_CARD_IDS.DUMMY_B,
+        sourceCardId: DUMMY_CARD_IDS.EFFECT_MONSTER,
         sourceInstanceId: "card-2",
       });
       timeline = advanceTime(timeline);
@@ -182,7 +182,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       timeline = recordEvent(timeline, {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       });
 
@@ -208,7 +208,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       const event: GameEvent = {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       };
       timeline = recordEvent(timeline, event);
@@ -236,7 +236,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       timeline = recordEvent(timeline, {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       });
 
@@ -249,7 +249,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       timeline = recordEvent(timeline, {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       });
       timeline = advanceTime(timeline);
@@ -265,13 +265,13 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       timeline = recordEvent(timeline, {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       });
       timeline = advanceTime(timeline);
       timeline = recordEvent(timeline, {
         type: "normalSummoned",
-        sourceCardId: TEST_CARD_IDS.DUMMY_B,
+        sourceCardId: DUMMY_CARD_IDS.EFFECT_MONSTER,
         sourceInstanceId: "card-2",
       });
 
@@ -289,7 +289,7 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
       timeline = recordEvent(timeline, {
         type: "spellActivated",
-        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceCardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
         sourceInstanceId: "card-1",
       });
       timeline = advanceTime(timeline);

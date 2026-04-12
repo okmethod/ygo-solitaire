@@ -28,21 +28,33 @@ import type {
 } from "$lib/domain/models/Card";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { TEST_CARD_IDS } from "./constants";
+import { DUMMY_CARD_IDS } from "./constants";
 
-const defaultMonsterCardId = TEST_CARD_IDS.DUMMY;
+const defaultMonsterCardIds: Record<FrameSubType, number> = {
+  normal: DUMMY_CARD_IDS.NORMAL_MONSTER,
+  effect: DUMMY_CARD_IDS.EFFECT_MONSTER,
+  ritual: 0, // 未登録
+  pendulum: 0, // 未登録
+  fusion: 0, // 未登録
+  synchro: DUMMY_CARD_IDS.SYNCHRO_MONSTER,
+  xyz: 0, // 未登録
+  link: 0, // 未登録
+  token: DUMMY_CARD_IDS.BASIC_TOKEN,
+  spell: 0, // スコープ外
+  trap: 0, // スコープ外
+};
 
 const defaultSpellCardIds: Record<SpellSubType, number> = {
-  normal: TEST_CARD_IDS.SPELL_NORMAL,
-  "quick-play": TEST_CARD_IDS.SPELL_QUICK,
-  continuous: TEST_CARD_IDS.SPELL_CONTINUOUS,
-  field: TEST_CARD_IDS.SPELL_FIELD,
-  equip: TEST_CARD_IDS.SPELL_EQUIP,
-  ritual: TEST_CARD_IDS.SPELL_NORMAL,
+  normal: DUMMY_CARD_IDS.NORMAL_SPELL,
+  "quick-play": DUMMY_CARD_IDS.QUICKPLAY_SPELL,
+  continuous: DUMMY_CARD_IDS.CONTINUOUS_SPELL,
+  field: DUMMY_CARD_IDS.FIELD_SPELL,
+  equip: DUMMY_CARD_IDS.EQUIP_SPELL,
+  ritual: DUMMY_CARD_IDS.NORMAL_SPELL,
 };
 
 const defaultTrapCardIds: Record<TrapSubType, number> = {
-  normal: TEST_CARD_IDS.TRAP_NORMAL,
+  normal: DUMMY_CARD_IDS.NORMAL_TRAP,
   continuous: 0, // 未登録
   counter: 0, // 未登録
 };
@@ -157,7 +169,7 @@ export function createMonsterInstance(
   const { resolvedFrameType, resolvedMonsterTypeList } = resolveMonsterOptions(options);
   return createBase(
     instanceId,
-    options?.cardId ?? defaultMonsterCardId,
+    options?.cardId ?? defaultMonsterCardIds[resolvedFrameType ?? "normal"],
     options?.location ?? "hand",
     { type: "monster", frameType: "normal" },
     defined({
@@ -264,7 +276,7 @@ export function createMonsterOnField(
   const { resolvedFrameType, resolvedMonsterTypeList } = resolveMonsterOptions(options);
   return createBase(
     instanceId,
-    options?.cardId ?? defaultMonsterCardId,
+    options?.cardId ?? defaultMonsterCardIds[resolvedFrameType ?? "normal"],
     "mainMonsterZone",
     { type: "monster" },
     defined({

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
 import {
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   createMonsterOnField,
   createStateWithMonsterZone,
   createMockGameState,
@@ -22,9 +22,9 @@ import {
 // テストヘルパー
 // =============================================================================
 
-const CARD_ID = TEST_CARD_IDS.SPELL_CONTINUOUS;
+const EFFECT_MONSTER_ID = DUMMY_CARD_IDS.EFFECT_MONSTER;
 
-const monsterOnField = () => createMonsterOnField(`instance-${CARD_ID}`, { cardId: CARD_ID });
+const monsterOnField = () => createMonsterOnField(`instance-${EFFECT_MONSTER_ID}`, { cardId: EFFECT_MONSTER_ID });
 
 const baseDsl = (): AdditionalRuleDSL => ({
   category: "TriggerRule",
@@ -40,34 +40,34 @@ const baseDsl = (): AdditionalRuleDSL => ({
 
 describe("GenericContinuousTriggerRule", () => {
   it("TriggerRule カテゴリとして生成される", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.category).toBe("TriggerRule");
     expect(rule.isEffect).toBe(true);
   });
 
   it("triggers 配列が正しく設定される", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.triggers).toContain("spellActivated");
   });
 
   it("canApply がフィールドにカードが存在する場合 true を返す", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
     const state = createStateWithMonsterZone([monsterOnField()]);
 
     expect(rule.canApply(state)).toBe(true);
   });
 
   it("canApply がフィールドにカードが存在しない場合 false を返す", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
     const state = createMockGameState();
 
     expect(rule.canApply(state)).toBe(false);
   });
 
   it("createTriggerSteps が DSL定義に基づいてステップを生成する", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
     const monster = monsterOnField();
     const state = createStateWithMonsterZone([monster]);
 
@@ -84,19 +84,19 @@ describe("GenericContinuousTriggerRule", () => {
         trigger: { events: ["spellActivated"], timing: "if" },
       },
     };
-    const rule = new GenericContinuousTriggerRule(CARD_ID, dsl);
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, dsl);
 
     expect(rule.triggerTiming).toBe("if");
   });
 
   it("triggerTiming がデフォルトで 'if'", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.triggerTiming).toBe("if");
   });
 
   it("isMandatory がデフォルトで true", () => {
-    const rule = new GenericContinuousTriggerRule(CARD_ID, baseDsl());
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.isMandatory).toBe(true);
   });
@@ -108,7 +108,7 @@ describe("GenericContinuousTriggerRule", () => {
         trigger: { events: ["spellActivated"], isMandatory: false },
       },
     };
-    const rule = new GenericContinuousTriggerRule(CARD_ID, dsl);
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, dsl);
 
     expect(rule.isMandatory).toBe(false);
   });
@@ -127,7 +127,7 @@ describe("GenericContinuousTriggerRule - Multiple Triggers", () => {
       },
       resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1 } }],
     };
-    const rule = new GenericContinuousTriggerRule(CARD_ID, dsl);
+    const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, dsl);
 
     expect(rule.triggers).toContain("spellActivated");
     expect(rule.triggers).toContain("normalSummoned");

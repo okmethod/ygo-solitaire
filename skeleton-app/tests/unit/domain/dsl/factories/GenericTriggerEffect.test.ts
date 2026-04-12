@@ -13,7 +13,7 @@ import { describe, it, expect } from "vitest";
 import { GenericTriggerEffect, createGenericTriggerEffect } from "$lib/domain/dsl/factories/GenericTriggerEffect";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   createMonsterOnField,
   createMockGameState,
   createFilledMainDeck,
@@ -24,16 +24,17 @@ import {
 // テストヘルパー
 // =============================================================================
 
-const TEST_CARD_ID = TEST_CARD_IDS.EFFECT_MONSTER;
+const EFFECT_MONSTER_ID = DUMMY_CARD_IDS.EFFECT_MONSTER;
+const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
-const monsterOnField = () => createMonsterOnField("trigger-test-instance", { cardId: TEST_CARD_ID });
+const monsterOnField = () => createMonsterOnField("trigger-test-instance", { cardId: EFFECT_MONSTER_ID });
 
 /** デッキ枚数と手札枚数を指定してゲーム状態を生成 */
 const createState = (deckCount: number, handCount: number = 0) =>
   createMockGameState({
     space: {
-      ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY),
-      ...createHand(Array(handCount).fill(TEST_CARD_IDS.DUMMY)),
+      ...createFilledMainDeck(deckCount, OTHER_CARD_ID),
+      ...createHand(Array(handCount).fill(OTHER_CARD_ID)),
     },
     phase: "main1",
   });
@@ -55,11 +56,11 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     expect(effect).toBeInstanceOf(GenericTriggerEffect);
-    expect(effect.cardId).toBe(TEST_CARD_ID);
-    expect(effect.effectId).toBe(`trigger-${TEST_CARD_ID}-1`);
+    expect(effect.cardId).toBe(EFFECT_MONSTER_ID);
+    expect(effect.effectId).toBe(`trigger-${EFFECT_MONSTER_ID}-1`);
   });
 
   it("DSL定義からトリガープロパティを正しく読み取る", () => {
@@ -75,7 +76,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     expect(effect.triggers).toEqual(["normalSummoned", "synchroSummoned"]);
     expect(effect.triggerTiming).toBe("when");
@@ -93,7 +94,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     expect(effect.triggers).toEqual(["cardDestroyed"]);
     expect(effect.triggerTiming).toBe("if"); // デフォルト
@@ -103,7 +104,7 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
   });
 
   it("空のDSL定義でもインスタンスを生成できる", () => {
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {});
 
     expect(effect).toBeInstanceOf(GenericTriggerEffect);
     expect(effect.triggers).toEqual([]);
@@ -121,13 +122,13 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     expect(effect.spellSpeed).toBe(2);
   });
 
   it("spellSpeed のデフォルト値は 1", () => {
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, {});
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {});
 
     expect(effect.spellSpeed).toBe(1);
   });
@@ -147,7 +148,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const result = effect.canActivate(createState(5), monsterOnField()); // デッキ5枚
 
     expect(result.isValid).toBe(true);
@@ -161,7 +162,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const result = effect.canActivate(createState(3), monsterOnField()); // デッキ3枚（10枚必要）
 
     expect(result.isValid).toBe(false);
@@ -178,7 +179,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const result = effect.canActivate(createState(5), monsterOnField());
 
     expect(result.isValid).toBe(true);
@@ -195,7 +196,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const result = effect.canActivate(createState(5), monsterOnField());
 
     expect(result.isValid).toBe(false);
@@ -209,7 +210,7 @@ describe("GenericTriggerEffect - 条件チェック", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const result = effect.canActivate(createState(0), monsterOnField()); // デッキ0枚でも条件なしなのでOK
 
     expect(result.isValid).toBe(true);
@@ -233,7 +234,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
       ],
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
@@ -251,7 +252,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
@@ -265,7 +266,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const steps = effect.createActivationSteps(createState(5), monsterOnField());
 
     // 誘発効果の発動ステップにはselect-and-discardは含まれない
@@ -279,7 +280,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
     const steps = effect.createResolutionSteps(createState(5), monsterOnField());
 
     // カード固有の効果解決ステップはない
@@ -299,7 +300,7 @@ describe("GenericTriggerEffect - 基底クラス継承", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
 
     expect(effect.effectCategory).toBe("trigger");
   });
@@ -311,9 +312,9 @@ describe("GenericTriggerEffect - 基底クラス継承", () => {
       },
     };
 
-    const effect = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
 
-    expect(effect.effectId).toBe(`trigger-${TEST_CARD_ID}-1`);
+    expect(effect.effectId).toBe(`trigger-${EFFECT_MONSTER_ID}-1`);
   });
 
   it("effectIndex が異なれば effectId も異なる", () => {
@@ -323,11 +324,11 @@ describe("GenericTriggerEffect - 基底クラス継承", () => {
       },
     };
 
-    const effect1 = createGenericTriggerEffect(TEST_CARD_ID, 1, dsl);
-    const effect2 = createGenericTriggerEffect(TEST_CARD_ID, 2, dsl);
+    const effect1 = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
+    const effect2 = createGenericTriggerEffect(EFFECT_MONSTER_ID, 2, dsl);
 
     expect(effect1.effectId).not.toBe(effect2.effectId);
-    expect(effect1.effectId).toBe(`trigger-${TEST_CARD_ID}-1`);
-    expect(effect2.effectId).toBe(`trigger-${TEST_CARD_ID}-2`);
+    expect(effect1.effectId).toBe(`trigger-${EFFECT_MONSTER_ID}-1`);
+    expect(effect2.effectId).toBe(`trigger-${EFFECT_MONSTER_ID}-2`);
   });
 });

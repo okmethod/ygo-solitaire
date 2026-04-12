@@ -17,7 +17,7 @@ import {
 } from "$lib/domain/dsl/factories/GenericQuickPlaySpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   createSpellInstance,
   createSpellOnField,
   createMockGameState,
@@ -28,14 +28,15 @@ import {
 // テストヘルパー
 // =============================================================================
 
-const TEST_CARD_ID = TEST_CARD_IDS.SPELL_QUICK;
+const QUICKPLAY_SPELL_ID = DUMMY_CARD_IDS.QUICKPLAY_SPELL;
+const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 const quickPlayFromHand = () =>
-  createSpellInstance("quick-play-test-instance", { cardId: TEST_CARD_ID, spellType: "quick-play" });
+  createSpellInstance("quick-play-test-instance", { cardId: QUICKPLAY_SPELL_ID, spellType: "quick-play" });
 
 const quickPlaySetThisTurn = () =>
   createSpellOnField("quick-play-set-instance", {
-    cardId: TEST_CARD_ID,
+    cardId: QUICKPLAY_SPELL_ID,
     spellType: "quick-play",
     position: "faceDown",
     placedThisTurn: true,
@@ -43,7 +44,7 @@ const quickPlaySetThisTurn = () =>
 
 const createState = (deckCount: number) =>
   createMockGameState({
-    space: { ...createFilledMainDeck(deckCount, TEST_CARD_IDS.DUMMY) },
+    space: { ...createFilledMainDeck(deckCount, OTHER_CARD_ID) },
     phase: "main1",
   });
 
@@ -57,32 +58,32 @@ describe("GenericQuickPlaySpellActivation - インスタンス生成", () => {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
 
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     expect(activation).toBeInstanceOf(GenericQuickPlaySpellActivation);
-    expect(activation.cardId).toBe(TEST_CARD_ID);
+    expect(activation.cardId).toBe(QUICKPLAY_SPELL_ID);
   });
 
   it("effectId は 'activation-{cardId}' の形式で生成される", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
-    expect(activation.effectId).toBe(`activation-${TEST_CARD_ID}`);
+    expect(activation.effectId).toBe(`activation-${QUICKPLAY_SPELL_ID}`);
   });
 
   it("effectCategory は 'activation'", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     expect(activation.effectCategory).toBe("activation");
   });
 
   it("spellSpeed は 2（速攻魔法）", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     expect(activation.spellSpeed).toBe(2);
   });
 
   it("空のDSL定義でもインスタンスを生成できる", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     expect(activation).toBeInstanceOf(GenericQuickPlaySpellActivation);
   });
@@ -94,7 +95,7 @@ describe("GenericQuickPlaySpellActivation - インスタンス生成", () => {
 
 describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
   it("手札から発動する場合は canActivate が true を返す", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     const result = activation.canActivate(createState(5), quickPlayFromHand());
 
@@ -102,7 +103,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
   });
 
   it("セットしたターンのカードは canActivate が false を返す（速攻魔法制限）", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     const result = activation.canActivate(createState(5), quickPlaySetThisTurn());
 
@@ -114,7 +115,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
       resolutions: [{ step: "DRAW", args: { count: 2 } }],
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const result = activation.canActivate(createState(5), quickPlayFromHand());
 
@@ -125,7 +126,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
     const dsl: ChainableActionDSL = {
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 10 } }] },
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const result = activation.canActivate(createState(2), quickPlayFromHand()); // デッキ2枚（10枚必要）
 
@@ -133,7 +134,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
   });
 
   it("条件が定義されていない場合は手札からなら canActivate が true を返す", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     const result = activation.canActivate(createState(0), quickPlayFromHand());
 
@@ -149,7 +150,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
         ],
       },
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const result = activation.canActivate(createState(5), quickPlayFromHand());
 
@@ -163,7 +164,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
 
 describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
   it("createActivationSteps に発動通知ステップが含まれる", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     const steps = activation.createActivationSteps(createState(5), quickPlayFromHand());
 
@@ -176,7 +177,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const steps = activation.createActivationSteps(createState(5), quickPlayFromHand());
 
@@ -187,7 +188,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const steps = activation.createActivationSteps(createState(5), quickPlayFromHand());
 
@@ -202,7 +203,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
         { step: "SELECT_AND_DISCARD", args: { count: 1 } },
       ],
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const steps = activation.createResolutionSteps(createState(5), quickPlayFromHand());
 
@@ -216,7 +217,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
     const dsl: ChainableActionDSL = {
       resolutions: [{ step: "DRAW", args: { count: 1 } }],
     };
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
     const steps = activation.createResolutionSteps(createState(5), quickPlayFromHand());
 
@@ -225,7 +226,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
   });
 
   it("resolutions が空でも墓地送りステップは含まれる", () => {
-    const activation = createGenericQuickPlaySpellActivation(TEST_CARD_ID, {});
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
     const steps = activation.createResolutionSteps(createState(5), quickPlayFromHand());
 

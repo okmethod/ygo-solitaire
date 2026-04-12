@@ -12,7 +12,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -27,7 +27,7 @@ class TestTriggerEffect extends BaseTriggerEffect {
   private shouldPass: boolean;
 
   constructor(
-    cardId: number = TEST_CARD_IDS.DUMMY,
+    cardId: number = DUMMY_CARD_IDS.NORMAL_MONSTER,
     effectIndex: number = 1,
     spellSpeed: 1 | 2 = 1,
     shouldPass: boolean = true,
@@ -72,14 +72,14 @@ class TestTriggerEffect extends BaseTriggerEffect {
  * テスト用の具象クラス（任意効果、スペルスピード2）
  */
 class TestSpellSpeed2TriggerEffect extends TestTriggerEffect {
-  constructor(cardId: number = TEST_CARD_IDS.DUMMY, effectIndex: number = 1) {
+  constructor(cardId: number = DUMMY_CARD_IDS.NORMAL_MONSTER, effectIndex: number = 1) {
     super(cardId, effectIndex, 2, true);
   }
 }
 
 describe("BaseTriggerEffect", () => {
-  describe("ChainableAction interface properties", () => {
-    it("should have effectCategory = 'trigger'", () => {
+  describe("ChainableActionインターフェースのプロパティ", () => {
+    it("effectCategory が 'trigger' であること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -87,7 +87,7 @@ describe("BaseTriggerEffect", () => {
       expect(effect.effectCategory).toBe("trigger");
     });
 
-    it("should have spellSpeed = 1 by default", () => {
+    it("デフォルトで spellSpeed が 1 であること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -95,7 +95,7 @@ describe("BaseTriggerEffect", () => {
       expect(effect.spellSpeed).toBe(1);
     });
 
-    it("should support spellSpeed = 2", () => {
+    it("spellSpeed = 2 を設定できること", () => {
       // Arrange
       const effect = new TestSpellSpeed2TriggerEffect();
 
@@ -103,25 +103,25 @@ describe("BaseTriggerEffect", () => {
       expect(effect.spellSpeed).toBe(2);
     });
 
-    it("should have correct cardId", () => {
+    it("cardId が正しく設定されること", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY);
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER);
 
       // Assert
-      expect(effect.cardId).toBe(TEST_CARD_IDS.DUMMY);
+      expect(effect.cardId).toBe(DUMMY_CARD_IDS.NORMAL_MONSTER);
     });
 
-    it("should generate effectId from cardId and effectIndex", () => {
+    it("cardId と effectIndex から effectId が生成されること", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 2);
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 2);
 
       // Assert
-      expect(effect.effectId).toBe(`trigger-${TEST_CARD_IDS.DUMMY}-2`);
+      expect(effect.effectId).toBe(`trigger-${DUMMY_CARD_IDS.NORMAL_MONSTER}-2`);
     });
   });
 
-  describe("Trigger properties", () => {
-    it("should have triggers array defined", () => {
+  describe("誘発効果固有のプロパティ", () => {
+    it("triggers 配列が定義されていること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -129,7 +129,7 @@ describe("BaseTriggerEffect", () => {
       expect(effect.triggers).toContain("spellActivated");
     });
 
-    it("should have triggerTiming defined", () => {
+    it("triggerTiming が定義されていること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -137,7 +137,7 @@ describe("BaseTriggerEffect", () => {
       expect(effect.triggerTiming).toBe("when");
     });
 
-    it("should have isMandatory defined", () => {
+    it("isMandatory が定義されていること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -145,7 +145,7 @@ describe("BaseTriggerEffect", () => {
       expect(effect.isMandatory).toBe(false);
     });
 
-    it("should have selfOnly defined", () => {
+    it("selfOnly が定義されていること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -153,7 +153,7 @@ describe("BaseTriggerEffect", () => {
       expect(effect.selfOnly).toBe(false);
     });
 
-    it("should have excludeSelf defined", () => {
+    it("excludeSelf が定義されていること", () => {
       // Arrange
       const effect = new TestTriggerEffect();
 
@@ -163,9 +163,9 @@ describe("BaseTriggerEffect", () => {
   });
 
   describe("canActivate()", () => {
-    it("should return true when individual conditions are met", () => {
+    it("個別条件を満たす場合に true を返すこと", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1, 1, true);
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, 1, true);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -176,9 +176,9 @@ describe("BaseTriggerEffect", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should return false when individual conditions are not met", () => {
+    it("個別条件を満たさない場合に false を返すこと", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1, 1, false); // shouldPass = false
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -190,9 +190,9 @@ describe("BaseTriggerEffect", () => {
       expect(result.errorCode).toBe("ACTIVATION_CONDITIONS_NOT_MET");
     });
 
-    it("should work in any phase (trigger effects are not restricted to main phase)", () => {
+    it("任意のフェーズで発動できること（誘発効果はメインフェーズに限定されない）", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1, 1, true);
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, 1, true);
       const state = createMockGameState({ phase: "draw" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -205,9 +205,9 @@ describe("BaseTriggerEffect", () => {
   });
 
   describe("createActivationSteps()", () => {
-    it("should include notification step and individual steps", () => {
+    it("通知ステップと個別ステップを含むこと", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1);
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -216,17 +216,17 @@ describe("BaseTriggerEffect", () => {
 
       // Assert
       expect(steps.length).toBeGreaterThanOrEqual(2);
-      // First step should be notification
+      // 最初のステップは通知ステップ
       expect(steps[0].id).toContain("activation-notification");
-      // Second step should be from individualActivationSteps
+      // 次のステップは individualActivationSteps からのステップ
       expect(steps[1].id).toBe("test-trigger-activation-step");
     });
   });
 
   describe("createResolutionSteps()", () => {
-    it("should return individual resolution steps", () => {
+    it("個別の解決ステップを返すこと", () => {
       // Arrange
-      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1);
+      const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -240,8 +240,8 @@ describe("BaseTriggerEffect", () => {
   });
 });
 
-describe("isTriggerEffect type guard", () => {
-  it("should return true for BaseTriggerEffect", () => {
+describe("isTriggerEffect 型ガード", () => {
+  it("BaseTriggerEffect に対して true を返すこと", () => {
     // Arrange
     const effect = new TestTriggerEffect();
 
@@ -249,11 +249,11 @@ describe("isTriggerEffect type guard", () => {
     expect(isTriggerEffect(effect)).toBe(true);
   });
 
-  it("should return false for non-trigger effects", () => {
+  it("誘発効果以外に対して false を返すこと", () => {
     // Arrange
     const mockIgnitionEffect: ChainableAction = {
-      cardId: TEST_CARD_IDS.DUMMY,
-      effectId: `ignition-${TEST_CARD_IDS.DUMMY}-1` as EffectId,
+      cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
+      effectId: `ignition-${DUMMY_CARD_IDS.NORMAL_MONSTER}-1` as EffectId,
       effectCategory: "ignition",
       spellSpeed: 1,
       canActivate: () => GameProcessing.Validation.success(),
@@ -265,11 +265,11 @@ describe("isTriggerEffect type guard", () => {
     expect(isTriggerEffect(mockIgnitionEffect)).toBe(false);
   });
 
-  it("should return false for activation effects", () => {
+  it("発動効果に対して false を返すこと", () => {
     // Arrange
     const mockActivationEffect: ChainableAction = {
-      cardId: TEST_CARD_IDS.DUMMY,
-      effectId: `activation-${TEST_CARD_IDS.DUMMY}` as EffectId,
+      cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
+      effectId: `activation-${DUMMY_CARD_IDS.NORMAL_MONSTER}` as EffectId,
       effectCategory: "activation",
       spellSpeed: 1,
       canActivate: () => GameProcessing.Validation.success(),

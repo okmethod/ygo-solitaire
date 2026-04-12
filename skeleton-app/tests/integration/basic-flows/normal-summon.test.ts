@@ -18,7 +18,7 @@ import {
   resolveCardSelection,
   hasCardSelection,
   getState,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("通常召喚 - 基本フローテスト", () => {
@@ -305,12 +305,12 @@ describe("通常召喚 - 基本フローテスト", () => {
     it("ドローフェイズは召喚できない", () => {
       facade.resetGame(
         createScenarioDeck([
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
-          TEST_CARD_IDS.DUMMY,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
+          DUMMY_CARD_IDS.NORMAL_MONSTER,
         ]),
       );
       // advanceToMain1 しない（ドローフェイズのまま）

@@ -1,5 +1,5 @@
 /**
- * Unit tests for ActivateSpellCommand
+ * ActivateSpellCommand のユニットテスト
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -9,7 +9,7 @@ import {
   createSpellInstance,
   createSpellOnField,
   createExodiaVictoryState,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
@@ -18,19 +18,17 @@ describe("ActivateSpellCommand", () => {
   const spellCardId = "hand-spell-1";
 
   beforeEach(() => {
-    // Create state with spell card in hand during main1 phase
+    // メイン1フェイズに手札に魔法カードがある状態を作成
     initialState = createMockGameState({
       phase: "main1",
       space: {
         mainDeck: [
-          createSpellInstance("main-0", {
+          createSpellInstance("mainDeck-0", {
             spellType: "normal",
-            cardId: TEST_CARD_IDS.SPELL_NORMAL,
             location: "mainDeck",
           }),
           createSpellInstance("mainDeck-1", {
-            spellType: "normal",
-            cardId: TEST_CARD_IDS.SPELL_EQUIP,
+            spellType: "equip",
             location: "mainDeck",
           }),
         ],
@@ -38,10 +36,10 @@ describe("ActivateSpellCommand", () => {
         hand: [
           createSpellInstance(spellCardId, {
             spellType: "normal",
-            cardId: TEST_CARD_IDS.SPELL_NORMAL,
-            location: "hand",
           }),
-          createSpellInstance("hand-2", { spellType: "normal", cardId: TEST_CARD_IDS.SPELL_QUICK, location: "hand" }),
+          createSpellInstance("hand-2", {
+            spellType: "quick-play",
+          }),
         ],
         mainMonsterZone: [],
         spellTrapZone: [],
@@ -53,19 +51,19 @@ describe("ActivateSpellCommand", () => {
   });
 
   describe("canExecute", () => {
-    it("should return true when spell can be activated (main1 phase, card in hand)", () => {
+    it("発動可能な場合（メイン1フェイズ、手札にカードあり）はtrueを返す", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.canExecute(initialState).isValid).toBe(true);
     });
 
-    it("should return false when card is not in hand", () => {
+    it("手札にカードがない場合はfalseを返す", () => {
       const command = new ActivateSpellCommand("non-existent-card");
 
       expect(command.canExecute(initialState).isValid).toBe(false);
     });
 
-    it("should return false when not in main1 phase", () => {
+    it("メイン1フェイズ以外はfalseを返す", () => {
       const drawPhaseState = createMockGameState({
         phase: "draw",
         space: {
@@ -74,8 +72,6 @@ describe("ActivateSpellCommand", () => {
           hand: [
             createSpellInstance(spellCardId, {
               spellType: "normal",
-              cardId: TEST_CARD_IDS.SPELL_NORMAL,
-              location: "hand",
             }),
           ],
           mainMonsterZone: [],
@@ -91,7 +87,7 @@ describe("ActivateSpellCommand", () => {
       expect(command.canExecute(drawPhaseState).isValid).toBe(false);
     });
 
-    it("should return false when game is over", () => {
+    it("ゲーム終了時はfalseを返す", () => {
       const gameOverState = createExodiaVictoryState();
 
       const command = new ActivateSpellCommand(spellCardId);
@@ -101,29 +97,29 @@ describe("ActivateSpellCommand", () => {
   });
 
   describe("execute", () => {
-    it("should successfully activate spell card and return activationSteps", () => {
+    it("魔法カードを発動しactivationStepsを返す", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
 
-      // Check card moved from hand
+      // 手札からカードが移動したことを確認
       expect(result.updatedState.space.hand.length).toBe(1);
       expect(result.updatedState.space.hand.some((c) => c.instanceId === spellCardId)).toBe(false);
 
-      // Pot of Greed has registered effect in ChainableActionRegistry (new system)
-      // Card stays on spellTrapZone (effect will send to graveyard later)
+      // 強欲な壺はChainableActionRegistryにエフェクトが登録されている（新システム）
+      // カードはspellTrapZoneに残る（エフェクト解決後に墓地へ送られる）
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone.some((c) => c.instanceId === spellCardId)).toBe(true);
       expect(result.updatedState.space.graveyard.length).toBe(0);
 
-      // NEW: Verify activationSteps are returned
+      // activationStepsが返されることを確認
       expect(result.activationSteps).toBeDefined();
       expect(result.activationSteps!.length).toBeGreaterThan(0);
     });
 
-    it("should fail when card is not in hand", () => {
+    it("手札にカードがない場合は失敗する", () => {
       const command = new ActivateSpellCommand("non-existent-card");
 
       const result = command.execute(initialState);
@@ -131,11 +127,11 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe("カードが見つかりません");
 
-      // State should remain unchanged
+      // 状態は変化しないことを確認
       expect(result.updatedState).toEqual(initialState);
     });
 
-    it("should fail when not in main1 phase", () => {
+    it("メイン1フェイズ以外は失敗する", () => {
       const drawPhaseState = createMockGameState({
         phase: "draw",
         space: {
@@ -144,8 +140,6 @@ describe("ActivateSpellCommand", () => {
           hand: [
             createSpellInstance(spellCardId, {
               spellType: "continuous",
-              cardId: TEST_CARD_IDS.SPELL_CONTINUOUS,
-              location: "hand",
             }),
           ],
           mainMonsterZone: [],
@@ -164,28 +158,28 @@ describe("ActivateSpellCommand", () => {
       // Note: メインフェイズチェックは ChainableAction 側で行われ、詳細なエラーメッセージが返る
       expect(result.error).toBe("メインフェイズではありません");
 
-      // State should remain unchanged
+      // 状態は変化しないことを確認
       expect(result.updatedState).toEqual(drawPhaseState);
     });
 
-    it("should preserve other zones during activation", () => {
+    it("発動中に他のゾーンが変化しない", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
 
-      // Other zones should remain unchanged
+      // 他のゾーンは変化しないことを確認
       expect(result.updatedState.space.mainDeck).toEqual(initialState.space.mainDeck);
       expect(result.updatedState.space.banished).toEqual(initialState.space.banished);
 
-      // Only hand and spellTrapZone should change (Pot of Greed has effect, so stays on spellTrapZone)
+      // 手札とspellTrapZoneのみ変化する（強欲な壺はエフェクトがあるためspellTrapZoneに残る）
       expect(result.updatedState.space.hand.length).toBe(initialState.space.hand.length - 1);
       expect(result.updatedState.space.spellTrapZone.length).toBe(initialState.space.spellTrapZone.length + 1);
       expect(result.updatedState.space.graveyard.length).toBe(initialState.space.graveyard.length);
     });
 
-    it("should maintain immutability (original state unchanged)", () => {
+    it("イミュータビリティを維持する（元の状態が変化しない）", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       const originalHandLength = initialState.space.hand.length;
@@ -193,14 +187,14 @@ describe("ActivateSpellCommand", () => {
 
       command.execute(initialState);
 
-      // Original state should remain unchanged
+      // 元の状態が変化しないことを確認
       expect(initialState.space.hand.length).toBe(originalHandLength);
       expect(initialState.space.graveyard.length).toBe(originalGraveyardLength);
     });
   });
 
   describe("getCardInstanceId", () => {
-    it("should return the card instance ID being activated", () => {
+    it("発動中のカードインスタンスIDを返す", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.getCardInstanceId()).toBe(spellCardId);
@@ -208,7 +202,7 @@ describe("ActivateSpellCommand", () => {
   });
 
   describe("description", () => {
-    it("should have descriptive command description", () => {
+    it("コマンドの説明文を持つ", () => {
       const command = new ActivateSpellCommand(spellCardId);
 
       expect(command.description).toContain("Activate spell card");
@@ -216,9 +210,9 @@ describe("ActivateSpellCommand", () => {
     });
   });
 
-  describe("Zone separation (US1)", () => {
-    it("should place field spell in fieldZone", () => {
-      // Arrange: Field spell in hand (dummy field spell)
+  describe("ゾーン分離 (US1)", () => {
+    it("フィールド魔法をfieldZoneに配置する", () => {
+      // Arrange: 手札にフィールド魔法（ダミー）
       const fieldSpellState = createMockGameState({
         phase: "main1",
         space: {
@@ -227,8 +221,6 @@ describe("ActivateSpellCommand", () => {
           hand: [
             createSpellInstance("field-spell-1", {
               spellType: "field",
-              cardId: TEST_CARD_IDS.SPELL_FIELD,
-              location: "hand",
             }),
           ],
           mainMonsterZone: [],
@@ -243,27 +235,25 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("field-spell-1");
       const result = command.execute(fieldSpellState);
 
-      // Assert: Field spell should be in fieldZone, not spellTrapZone
+      // Assert: フィールド魔法はspellTrapZoneではなくfieldZoneに配置される
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone.length).toBe(0);
-      expect(result.updatedState.space.fieldZone[0].id).toBe(TEST_CARD_IDS.SPELL_FIELD);
+      expect(result.updatedState.space.fieldZone[0].id).toBe(DUMMY_CARD_IDS.FIELD_SPELL);
     });
 
-    it("should place normal spell in spellTrapZone", () => {
-      // Arrange: Normal spell in hand
+    it("通常魔法をspellTrapZoneに配置する", () => {
+      // Arrange: 手札に通常魔法
       const normalSpellState = createMockGameState({
         phase: "main1",
         space: {
           mainDeck: [
-            createSpellInstance("main-0", {
+            createSpellInstance("mainDeck-0", {
               spellType: "normal",
-              cardId: TEST_CARD_IDS.SPELL_NORMAL,
               location: "mainDeck",
             }),
-            createSpellInstance("main-1", {
-              spellType: "normal",
-              cardId: TEST_CARD_IDS.SPELL_EQUIP,
+            createSpellInstance("mainDeck-1", {
+              spellType: "equip",
               location: "mainDeck",
             }),
           ],
@@ -271,8 +261,6 @@ describe("ActivateSpellCommand", () => {
           hand: [
             createSpellInstance("normal-spell-1", {
               spellType: "normal",
-              cardId: TEST_CARD_IDS.SPELL_NORMAL,
-              location: "hand",
             }),
           ],
           mainMonsterZone: [],
@@ -287,16 +275,16 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("normal-spell-1");
       const result = command.execute(normalSpellState);
 
-      // Assert: Normal spell should be placed in spellTrapZone (not fieldZone)
-      // The spell will remain in spellTrapZone until effect resolution in Application Layer
+      // Assert: 通常魔法はfieldZoneではなくspellTrapZoneに配置される
+      // アプリ層でエフェクト解決されるまでspellTrapZoneに残る
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone.length).toBe(0);
-      expect(result.updatedState.space.spellTrapZone[0].id).toBe(TEST_CARD_IDS.SPELL_NORMAL);
+      expect(result.updatedState.space.spellTrapZone[0].id).toBe(DUMMY_CARD_IDS.NORMAL_SPELL);
     });
 
-    it("should place continuous spell in spellTrapZone and keep it on field", () => {
-      // Arrange: Continuous spell in hand (NoOp registered)
+    it("永続魔法をspellTrapZoneに配置しフィールドに維持する", () => {
+      // Arrange: 手札に永続魔法（NoOp登録済み）
       const continuousSpellState = createMockGameState({
         phase: "main1",
         space: {
@@ -305,8 +293,6 @@ describe("ActivateSpellCommand", () => {
           hand: [
             createSpellInstance("continuous-spell-1", {
               spellType: "continuous",
-              cardId: TEST_CARD_IDS.SPELL_CONTINUOUS,
-              location: "hand",
             }),
           ],
           mainMonsterZone: [],
@@ -321,7 +307,7 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("continuous-spell-1");
       const result = command.execute(continuousSpellState);
 
-      // Assert: Continuous spell stays on field (not sent to graveyard)
+      // Assert: 永続魔法はフィールドに残る（墓地に送られない）
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.graveyard.length).toBe(0);
@@ -329,21 +315,19 @@ describe("ActivateSpellCommand", () => {
     });
   });
 
-  describe("Set Card Activation", () => {
-    it("should allow activating normal spell from spellTrapZone", () => {
-      // Arrange: Normal spell set in spellTrapZone
+  describe("セットカードの発動", () => {
+    it("spellTrapZoneにセットされた通常魔法を発動できる", () => {
+      // Arrange: spellTrapZoneにセットされた通常魔法
       const setSpellState = createMockGameState({
         phase: "main1",
         space: {
           mainDeck: [
-            createSpellInstance("main-0", {
+            createSpellInstance("mainDeck-0", {
               spellType: "normal",
-              cardId: TEST_CARD_IDS.SPELL_NORMAL,
               location: "mainDeck",
             }),
             createSpellInstance("mainDeck-1", {
-              spellType: "normal",
-              cardId: TEST_CARD_IDS.SPELL_EQUIP,
+              spellType: "equip",
               location: "mainDeck",
             }),
           ],
@@ -367,8 +351,8 @@ describe("ActivateSpellCommand", () => {
       expect(result.updatedState.space.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
     });
 
-    it("should allow activating field spell from fieldZone", () => {
-      // Arrange: Field spell set in fieldZone (dummy field spell)
+    it("fieldZoneにセットされたフィールド魔法を発動できる", () => {
+      // Arrange: fieldZoneにセットされたフィールド魔法（ダミー）
       const setFieldSpellState = createMockGameState({
         phase: "main1",
         space: {
@@ -387,7 +371,7 @@ describe("ActivateSpellCommand", () => {
       const command = new ActivateSpellCommand("set-field-spell-1");
       const result = command.execute(setFieldSpellState);
 
-      // Assert: Field spell should be flipped face-up and stay in fieldZone
+      // Assert: フィールド魔法は表向きになりfieldZoneに残る
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone[0].stateOnField?.position).toBe("faceUp");
@@ -395,8 +379,8 @@ describe("ActivateSpellCommand", () => {
       expect(result.activationSteps).toBeDefined();
     });
 
-    it("should reject activating quick-play spell set this turn", () => {
-      // Arrange: Quick-play spell set this turn
+    it("同一ターンにセットされた速攻魔法は発動を拒否する", () => {
+      // Arrange: 同一ターンにセットされた速攻魔法
       const setQuickPlayState = createMockGameState({
         phase: "main1",
         space: {
@@ -427,8 +411,8 @@ describe("ActivateSpellCommand", () => {
       expect(result.error).toBe("速攻魔法はセットしたターンに発動できません");
     });
 
-    it("should allow activating quick-play spell NOT set this turn", () => {
-      // Arrange: Quick-play spell set previous turn
+    it("前のターンにセットされた速攻魔法は発動できる", () => {
+      // Arrange: 前のターンにセットされた速攻魔法
       const setQuickPlayState = createMockGameState({
         phase: "main1",
         space: {
@@ -449,7 +433,7 @@ describe("ActivateSpellCommand", () => {
 
       // Assert: セットしたターンでなければ発動可能
       expect(result.success).toBe(true);
-      // Game state: card moved to face-up position
+      // カードが表向きになることを確認
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
     });

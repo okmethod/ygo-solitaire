@@ -7,7 +7,8 @@ import {
   createMockGameState,
   createMonsterOnField,
   createSpellOnField,
-  TEST_CARD_IDS,
+  createSpellInstance,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -28,7 +29,7 @@ import {
 const EFFECT_ID_1 = "12345-activation" as EffectId;
 
 const createTestContext = (options?: { sourceInstanceId?: string; effectId?: EffectId }): StepBuildContext => ({
-  cardId: TEST_CARD_IDS.SPELL_EQUIP,
+  cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
   sourceInstanceId: options?.sourceInstanceId ?? "equip-spell",
   effectId: options?.effectId,
 });
@@ -67,7 +68,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
     it("sourceInstanceIdがない場合エラー", () => {
       expect(() => {
         buildStep("ESTABLISH_EQUIP", { effectId: EFFECT_ID_1 }, {
-          cardId: TEST_CARD_IDS.SPELL_EQUIP,
+          cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
         } as StepBuildContext);
       }).toThrow("ESTABLISH_EQUIP step requires equipCardInstanceId");
     });
@@ -227,7 +228,9 @@ describe("StepRegistry - SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", () => {
 
     it("equipCardInstanceIdがない場合エラー", () => {
       expect(() => {
-        buildStep("SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", {}, { cardId: TEST_CARD_IDS.SPELL_EQUIP } as StepBuildContext);
+        buildStep("SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD", {}, {
+          cardId: DUMMY_CARD_IDS.EQUIP_SPELL,
+        } as StepBuildContext);
       }).toThrow("SEND_EQUIPPED_AND_SELF_TO_GRAVEYARD step requires equipCardInstanceId");
     });
 
@@ -333,7 +336,7 @@ describe("StepRegistry - UNEQUIP", () => {
 
     it("equipCardInstanceIdがない場合エラー", () => {
       expect(() => {
-        buildStep("UNEQUIP", {}, { cardId: TEST_CARD_IDS.SPELL_EQUIP } as StepBuildContext);
+        buildStep("UNEQUIP", {}, { cardId: DUMMY_CARD_IDS.EQUIP_SPELL } as StepBuildContext);
       }).toThrow("UNEQUIP step requires equipCardInstanceId");
     });
 
@@ -380,16 +383,9 @@ describe("StepRegistry - UNEQUIP", () => {
 
     it("フィールド上にない装備カードは成功扱い", () => {
       // stateOnField がない（手札などにある）
-      const equipSpell = {
-        instanceId: "equip-spell",
-        id: TEST_CARD_IDS.SPELL_EQUIP,
-        jaName: "Equip Spell",
-        type: "spell" as const,
-        frameType: "spell" as const,
-        edition: "latest" as const,
-        location: "hand" as const,
-        spellType: "equip" as const,
-      };
+      const equipSpell = createSpellInstance("equip-spell", {
+        spellType: "equip",
+      });
 
       const state = createMockGameState({
         space: {

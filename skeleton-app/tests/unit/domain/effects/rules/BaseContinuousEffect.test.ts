@@ -11,9 +11,10 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { RuleCategory } from "$lib/domain/models/Effect";
 import {
   createMockGameState,
+  createMonsterInstance,
   createMonsterOnField,
   createSpellOnField,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -24,7 +25,7 @@ class TestContinuousEffect extends BaseContinuousEffect {
 
   private shouldPass: boolean;
 
-  constructor(cardId: number = TEST_CARD_IDS.DUMMY, shouldPass: boolean = true) {
+  constructor(cardId: number = DUMMY_CARD_IDS.EFFECT_MONSTER, shouldPass: boolean = true) {
     super(cardId);
     this.shouldPass = shouldPass;
   }
@@ -35,8 +36,8 @@ class TestContinuousEffect extends BaseContinuousEffect {
 }
 
 describe("BaseContinuousEffect", () => {
-  describe("AdditionalRule interface properties", () => {
-    it("should have isEffect = true", () => {
+  describe("AdditionalRuleインターフェースのプロパティ", () => {
+    it("isEffect が true であること", () => {
       // Arrange
       const effect = new TestContinuousEffect();
 
@@ -44,15 +45,15 @@ describe("BaseContinuousEffect", () => {
       expect(effect.isEffect).toBe(true);
     });
 
-    it("should have correct cardId", () => {
+    it("cardId が正しく設定されていること", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER);
 
       // Assert
-      expect(effect.cardId).toBe(TEST_CARD_IDS.DUMMY);
+      expect(effect.cardId).toBe(DUMMY_CARD_IDS.EFFECT_MONSTER);
     });
 
-    it("should have category defined by subclass", () => {
+    it("category がサブクラスで定義した値であること", () => {
       // Arrange
       const effect = new TestContinuousEffect();
 
@@ -62,12 +63,12 @@ describe("BaseContinuousEffect", () => {
   });
 
   describe("canApply()", () => {
-    it("should return true when card is face-up on main monster zone and individual conditions are met", () => {
+    it("メインモンスターゾーンに表側表示で存在し、個別条件を満たす場合は true を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField("test-1")],
+          mainMonsterZone: [createMonsterOnField("test-1", { frameType: "effect" })],
         },
       });
 
@@ -78,12 +79,12 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(true);
     });
 
-    it("should return true when card is face-up on spell/trap zone", () => {
+    it("魔法・罠ゾーンに表側表示で存在する場合は true を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.CONTINUOUS_SPELL, true);
       const state = createMockGameState({
         space: {
-          spellTrapZone: [createSpellOnField("test-1", { cardId: TEST_CARD_IDS.DUMMY, spellType: "continuous" })],
+          spellTrapZone: [createSpellOnField("test-1", { spellType: "continuous" })],
         },
       });
 
@@ -94,12 +95,12 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(true);
     });
 
-    it("should return true when card is face-up on field zone", () => {
+    it("フィールドゾーンに表側表示で存在する場合は true を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.FIELD_SPELL, true);
       const state = createMockGameState({
         space: {
-          fieldZone: [createSpellOnField("test-1", { cardId: TEST_CARD_IDS.DUMMY, spellType: "field" })],
+          fieldZone: [createSpellOnField("test-1", { spellType: "field" })],
         },
       });
 
@@ -110,15 +111,14 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(true);
     });
 
-    it("should return false when card is face-down", () => {
+    it("カードが裏側表示の場合は false を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
       const state = createMockGameState({
         space: {
           spellTrapZone: [
-            createSpellOnField("test-1", {
-              cardId: TEST_CARD_IDS.DUMMY,
-              spellType: "continuous",
+            createMonsterOnField("test-1", {
+              frameType: "effect",
               position: "faceDown",
             }),
           ],
@@ -132,22 +132,12 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false when card is not on field", () => {
+    it("カードがフィールドに存在しない場合は false を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
       const state = createMockGameState({
         space: {
-          hand: [
-            {
-              instanceId: "test-1",
-              id: TEST_CARD_IDS.DUMMY,
-              jaName: "Test Spell",
-              type: "spell",
-              frameType: "spell",
-              location: "hand",
-              edition: "latest",
-            },
-          ],
+          hand: [createMonsterInstance("test-1", { frameType: "effect" })],
         },
       });
 
@@ -158,12 +148,12 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false when individual conditions are not met", () => {
+    it("個別条件を満たさない場合は false を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, false); // shouldPass = false
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, false); // shouldPass = false
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField("test-1")],
+          mainMonsterZone: [createMonsterOnField("test-1", { frameType: "effect" })],
         },
       });
 
@@ -174,12 +164,12 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false when different card is on field", () => {
+    it("フィールドに別のカードが存在する場合は false を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField("test-1", { cardId: TEST_CARD_IDS.DUMMY_B })], // Different card ID
+          mainMonsterZone: [createMonsterOnField("test-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })], // 異なるカードID
         },
       });
 
@@ -190,9 +180,9 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false when field is empty", () => {
+    it("フィールドが空の場合は false を返すこと", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
       const state = createMockGameState({
         space: {
           mainMonsterZone: [],
@@ -208,14 +198,14 @@ describe("BaseContinuousEffect", () => {
       expect(result).toBe(false);
     });
 
-    it("should check all field zones for the card", () => {
+    it("全フィールドゾーンを横断して対象カードを検索すること", () => {
       // Arrange
-      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
+      const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField("monster-1", { cardId: 11111111 })],
-          spellTrapZone: [createSpellOnField("spell-1", { cardId: 22222222 })],
-          fieldZone: [createSpellOnField("field-1", { cardId: TEST_CARD_IDS.DUMMY, spellType: "field" })], // This is the card we're looking for
+          mainMonsterZone: [createMonsterOnField("monster-1", { cardId: DUMMY_CARD_IDS.EFFECT_MONSTER })],
+          spellTrapZone: [createSpellOnField("spell-1")],
+          fieldZone: [createSpellOnField("field-1", { spellType: "field" })], // 検索対象のカード
         },
       });
 

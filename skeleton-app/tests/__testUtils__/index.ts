@@ -5,7 +5,7 @@
  */
 
 // 定数
-export { ACTUAL_CARD_IDS, TEST_CARD_IDS } from "./constants";
+export { ACTUAL_CARD_IDS, DUMMY_CARD_IDS } from "./constants";
 
 // カードインスタンスファクトリ
 export {

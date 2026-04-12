@@ -12,10 +12,13 @@ import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createMockGameState,
   createScenarioDeck,
+  createMonsterInstance,
+  createSpellInstance,
+  createFilledMainDeck,
   advanceToMain1,
   flushEffectQueue,
   getState,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
   ACTUAL_CARD_IDS,
 } from "../../__testUtils__";
 
@@ -42,45 +45,15 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
   // ───────────────────────────────────────────────
   // 初期手札でのエクゾディア判定
   // ───────────────────────────────────────────────
-  // ───────────────────────────────────────────────
-  // 魔法発動でエクゾディア判定
-  // ───────────────────────────────────────────────
   describe("5パーツ手札で魔法発動 → 勝利が検出される", () => {
     it("5パーツ + 成金ゴブリン → 成金発動後に勝利", async () => {
       // 直接状態を設定: 5パーツ + 成金ゴブリン 手札、ダミー1枚デッキ
       // 成金ゴブリン発動 → successUpdateResult → checkVictory → 5パーツ検出
       const handCards = [
-        ...ALL_PARTS.map((id, i) => ({
-          id,
-          jaName: `Exodia Part ${i}`,
-          type: "monster" as const,
-          frameType: "normal" as const,
-          edition: "latest" as const,
-          instanceId: `part-${i}`,
-          location: "hand" as const,
-        })),
-        {
-          id: ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
-          jaName: "成金ゴブリン",
-          type: "spell" as const,
-          frameType: "spell" as const,
-          spellType: "normal" as const,
-          edition: "latest" as const,
-          instanceId: "goblin-1",
-          location: "hand" as const,
-        },
+        ...ALL_PARTS.map((id, i) => createMonsterInstance(`part-${i}`, { cardId: id })),
+        createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
       ];
-      const deckCards = [
-        {
-          id: TEST_CARD_IDS.DUMMY,
-          jaName: "Test Monster",
-          type: "monster" as const,
-          frameType: "normal" as const,
-          edition: "latest" as const,
-          instanceId: "deck-1",
-          location: "mainDeck" as const,
-        },
-      ];
+      const deckCards = createFilledMainDeck(1).mainDeck;
 
       gameStateStore.set(
         createMockGameState({
@@ -122,26 +95,14 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
       const firstThreeParts = ALL_PARTS.slice(0, 3); // 本体・右腕・左腕
       const lastTwoParts = ALL_PARTS.slice(3); // 右足・左足
 
-      const handCards = [...firstThreeParts, ACTUAL_CARD_IDS.POT_OF_GREED].map((id, i) => ({
-        id,
-        jaName: `Card-${id}`,
-        type: (id === ACTUAL_CARD_IDS.POT_OF_GREED ? "spell" : "monster") as "spell" | "monster",
-        frameType: (id === ACTUAL_CARD_IDS.POT_OF_GREED ? "spell" : "normal") as "spell" | "normal",
-        spellType: id === ACTUAL_CARD_IDS.POT_OF_GREED ? ("normal" as const) : undefined,
-        edition: "latest" as const,
-        instanceId: `hand-${i}`,
-        location: "hand" as const,
-      }));
+      const handCards = [
+        ...firstThreeParts.map((id, i) => createMonsterInstance(`hand-${i}`, { cardId: id })),
+        createSpellInstance("hand-3", { cardId: ACTUAL_CARD_IDS.POT_OF_GREED }),
+      ];
 
-      const deckCards = lastTwoParts.map((id, i) => ({
-        id,
-        jaName: `Card-${id}`,
-        type: "monster" as const,
-        frameType: "normal" as const,
-        edition: "latest" as const,
-        instanceId: `deck-${i}`,
-        location: "mainDeck" as const,
-      }));
+      const deckCards = lastTwoParts.map((id, i) =>
+        createMonsterInstance(`deck-${i}`, { cardId: id, location: "mainDeck" }),
+      );
 
       const initialState = createMockGameState({
         phase: "main1",
@@ -178,9 +139,10 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
   // ───────────────────────────────────────────────
   describe("4パーツでは勝利しない", () => {
     it("4パーツが手札にある状態ではゲーム続行", () => {
-      const partsMinus1 = ALL_PARTS.slice(0, 4);
       // 4パーツ + ダミー×2
-      facade.resetGame(createScenarioDeck([...partsMinus1, TEST_CARD_IDS.DUMMY, TEST_CARD_IDS.DUMMY]));
+      facade.resetGame(
+        createScenarioDeck([...ALL_PARTS.slice(0, 4), DUMMY_CARD_IDS.NORMAL_MONSTER, DUMMY_CARD_IDS.NORMAL_MONSTER]),
+      );
       advanceToMain1(facade);
 
       const state = getState();

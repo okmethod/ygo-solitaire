@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * BattlePositionSteps Tests - 表示形式変更ステップのテスト
@@ -17,7 +17,7 @@ import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../
 // =============================================================================
 
 const createTestContext = (instanceId: string = "test-monster"): StepBuildContext => ({
-  cardId: TEST_CARD_IDS.DUMMY,
+  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
   sourceInstanceId: instanceId,
 });
 
@@ -157,7 +157,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
       // stateOnFieldがないカード（手札など）
       const card = {
         instanceId: "test-monster",
-        id: TEST_CARD_IDS.DUMMY,
+        id: DUMMY_CARD_IDS.NORMAL_MONSTER,
         jaName: "Test Monster",
         type: "monster" as const,
         frameType: "normal" as const,

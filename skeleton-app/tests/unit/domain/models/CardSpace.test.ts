@@ -1,8 +1,15 @@
 import { describe, it, expect } from "vitest";
 import type { CardSpace } from "$lib/domain/models/GameState";
 import { GameState } from "$lib/domain/models/GameState";
-import { createFilledMainDeck, createHand, createFilledMonsterZone, TEST_CARD_IDS } from "../../../__testUtils__";
-import { createMonsterInstance, createSpellInstance } from "../../../__testUtils__";
+import {
+  createSpellInstance,
+  createMonsterOnField,
+  createSpellOnField,
+  createFilledMainDeck,
+  createHand,
+  createFilledMonsterZone,
+  DUMMY_CARD_IDS,
+} from "../../../__testUtils__";
 
 describe("CardSpace", () => {
   describe("moveCardInstance", () => {
@@ -33,7 +40,7 @@ describe("CardSpace", () => {
       const space: CardSpace = {
         mainDeck: [],
         extraDeck: [],
-        ...createHand([TEST_CARD_IDS.DUMMY]),
+        ...createHand([DUMMY_CARD_IDS.NORMAL_MONSTER]),
         mainMonsterZone: [],
         spellTrapZone: [],
         fieldZone: [],
@@ -52,21 +59,12 @@ describe("CardSpace", () => {
 
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
     it("should preserve other zones when moving card", () => {
-      const monsterCard = createMonsterInstance("monster-0", {
-        cardId: TEST_CARD_IDS.SPELL_QUICK,
-        location: "mainMonsterZone",
-      });
-      const spellCard = createSpellInstance("spell-0", {
-        spellType: "normal",
-        cardId: TEST_CARD_IDS.SPELL_QUICK,
-        location: "spellTrapZone",
-      });
+      const monsterCard = createMonsterOnField("monster-0");
+      const spellCard = createSpellOnField("spell-0");
       const space: CardSpace = {
-        ...createFilledMainDeck(1, TEST_CARD_IDS.DUMMY),
+        ...createFilledMainDeck(1, DUMMY_CARD_IDS.NORMAL_MONSTER),
         extraDeck: [],
-        hand: [
-          createSpellInstance("hand-0", { spellType: "normal", cardId: TEST_CARD_IDS.SPELL_EQUIP, location: "hand" }),
-        ],
+        hand: [createSpellInstance("hand-0", { spellType: "equip" })],
         mainMonsterZone: [monsterCard],
         spellTrapZone: [spellCard],
         fieldZone: [],

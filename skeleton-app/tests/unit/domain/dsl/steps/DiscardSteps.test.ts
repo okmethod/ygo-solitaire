@@ -6,7 +6,7 @@ import {
   createMockGameState,
   createMonsterInstance,
   createSpellInstance,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -23,7 +23,7 @@ import {
 // =============================================================================
 
 const createTestContext = (): StepBuildContext => ({
-  cardId: TEST_CARD_IDS.DUMMY,
+  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
   sourceInstanceId: "source-card",
 });
 

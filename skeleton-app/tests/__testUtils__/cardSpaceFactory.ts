@@ -24,7 +24,7 @@ import {
   createMonsterOnField,
   createSpellOnField,
 } from "./cardInstanceFactory";
-import { TEST_CARD_IDS } from "./constants";
+import { DUMMY_CARD_IDS } from "./constants";
 
 // =============================================================================
 // 内部ヘルパー
@@ -122,7 +122,10 @@ export function createMainDeck(cardIds: (string | number)[]): Pick<CardSpace, "m
  * @param cardId - カードID（デフォルト: DUMMY）
  * @returns `{ mainDeck: CardInstance[] }`
  */
-export function createFilledMainDeck(count: number, cardId = TEST_CARD_IDS.DUMMY): Pick<CardSpace, "mainDeck"> {
+export function createFilledMainDeck(
+  count: number,
+  cardId = DUMMY_CARD_IDS.NORMAL_MONSTER,
+): Pick<CardSpace, "mainDeck"> {
   return {
     mainDeck: createCardInstances(Array(count).fill(cardId), "mainDeck", "deck"),
   };
@@ -137,7 +140,10 @@ export function createFilledMainDeck(count: number, cardId = TEST_CARD_IDS.DUMMY
  * @param cardId - カードID（デフォルト: DUMMY）
  * @returns `{ extraDeck: CardInstance[] }`
  */
-export function createFilledExtraDeck(count: number, cardId = TEST_CARD_IDS.DUMMY): Pick<CardSpace, "extraDeck"> {
+export function createFilledExtraDeck(
+  count: number,
+  cardId = DUMMY_CARD_IDS.NORMAL_MONSTER,
+): Pick<CardSpace, "extraDeck"> {
   return {
     extraDeck: createCardInstances(Array(count).fill(cardId), "extraDeck", "extra"),
   };

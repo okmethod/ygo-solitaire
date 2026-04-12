@@ -7,7 +7,7 @@ import {
   createMockGameState,
   createMonsterInstance,
   createFilledMonsterZone,
-  TEST_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -28,7 +28,7 @@ import {
 const EFFECT_ID_1 = "12345-activation" as EffectId;
 
 const createTestContext = (effectId?: EffectId): StepBuildContext => ({
-  cardId: TEST_CARD_IDS.DUMMY,
+  cardId: DUMMY_CARD_IDS.NORMAL_MONSTER,
   sourceInstanceId: "source-card",
   effectId,
 });
