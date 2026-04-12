@@ -11,11 +11,10 @@ import {
   createSpellInstance,
   createSpellOnField,
   createMonsterOnField,
+  ACTUAL_CARD_IDS,
+  TEST_CARD_IDS,
 } from "../../../__testUtils__";
 // Note: ChainableActionRegistry は setup.ts で初期化済み
-
-const CHICKEN_GAME_ID = 67616300;
-const ROYAL_MAGICAL_LIBRARY_ID = 70791313;
 
 describe("ActivateIgnitionEffectCommand", () => {
   let initialState: GameSnapshot;
@@ -27,12 +26,14 @@ describe("ActivateIgnitionEffectCommand", () => {
       phase: "main1",
       lp: { player: 5000, opponent: 5000 },
       space: {
-        mainDeck: [createSpellInstance("main-0", { cardId: 1001, location: "mainDeck" })],
+        mainDeck: [createSpellInstance("main-0", { cardId: TEST_CARD_IDS.SPELL_NORMAL, location: "mainDeck" })],
         extraDeck: [],
         hand: [],
         mainMonsterZone: [],
         spellTrapZone: [],
-        fieldZone: [createSpellOnField(chickenGameInstanceId, { cardId: CHICKEN_GAME_ID, spellType: "field" })],
+        fieldZone: [
+          createSpellOnField(chickenGameInstanceId, { cardId: ACTUAL_CARD_IDS.CHICKEN_GAME, spellType: "field" }),
+        ],
         graveyard: [],
         banished: [],
       },
@@ -64,7 +65,7 @@ describe("ActivateIgnitionEffectCommand", () => {
           spellTrapZone: [],
           fieldZone: [
             createSpellOnField(chickenGameInstanceId, {
-              cardId: CHICKEN_GAME_ID,
+              cardId: ACTUAL_CARD_IDS.CHICKEN_GAME,
               spellType: "field",
               position: "faceDown",
             }),
@@ -86,7 +87,9 @@ describe("ActivateIgnitionEffectCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance(chickenGameInstanceId, { cardId: CHICKEN_GAME_ID, spellType: "field" })],
+          hand: [
+            createSpellInstance(chickenGameInstanceId, { cardId: ACTUAL_CARD_IDS.CHICKEN_GAME, spellType: "field" }),
+          ],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -204,7 +207,9 @@ describe("ActivateIgnitionEffectCommand", () => {
       expect(result.success).toBe(true);
       // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
       const chickenGameCard = result.updatedState.space.fieldZone[0];
-      expect(chickenGameCard.stateOnField?.activatedEffects.includes("ignition-67616300-1")).toBe(true);
+      expect(
+        chickenGameCard.stateOnField?.activatedEffects.includes(`ignition-${ACTUAL_CARD_IDS.CHICKEN_GAME}-1`),
+      ).toBe(true);
     });
   });
 
@@ -231,14 +236,14 @@ describe("ActivateIgnitionEffectCommand", () => {
         lp: { player: 8000, opponent: 8000 },
         space: {
           mainDeck: [
-            createSpellInstance("main-0", { cardId: 1001, location: "mainDeck" }),
-            createSpellInstance("deck-1", { cardId: 1002, location: "mainDeck" }),
+            createSpellInstance("main-0", { cardId: TEST_CARD_IDS.SPELL_NORMAL, location: "mainDeck" }),
+            createSpellInstance("deck-1", { cardId: TEST_CARD_IDS.SPELL_EQUIP, location: "mainDeck" }),
           ],
           extraDeck: [],
           hand: [],
           mainMonsterZone: [
             createMonsterOnField(royalLibraryInstanceId, {
-              cardId: ROYAL_MAGICAL_LIBRARY_ID,
+              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
               battlePosition: "attack",
               counters: [{ type: "spell", count: 3 }],
             }),
@@ -268,7 +273,7 @@ describe("ActivateIgnitionEffectCommand", () => {
             hand: [],
             mainMonsterZone: [
               createMonsterOnField(royalLibraryInstanceId, {
-                cardId: ROYAL_MAGICAL_LIBRARY_ID,
+                cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
                 battlePosition: "defense",
                 counters: [{ type: "spell", count: 3 }],
               }),
@@ -369,18 +374,18 @@ describe("ActivateIgnitionEffectCommand", () => {
         phase: "main1",
         lp: { player: 5000, opponent: 5000 },
         space: {
-          mainDeck: [createSpellInstance("main-0", { cardId: 1001, location: "mainDeck" })],
+          mainDeck: [createSpellInstance("main-0", { cardId: TEST_CARD_IDS.SPELL_NORMAL, location: "mainDeck" })],
           extraDeck: [],
           hand: [],
           mainMonsterZone: [
             createMonsterOnField(royalLibraryId, {
-              cardId: ROYAL_MAGICAL_LIBRARY_ID,
+              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
               battlePosition: "attack",
               counters: [{ type: "spell", count: 3 }],
             }),
           ],
           spellTrapZone: [],
-          fieldZone: [createSpellOnField(chickenGameId, { cardId: CHICKEN_GAME_ID, spellType: "field" })],
+          fieldZone: [createSpellOnField(chickenGameId, { cardId: ACTUAL_CARD_IDS.CHICKEN_GAME, spellType: "field" })],
           graveyard: [],
           banished: [],
         },

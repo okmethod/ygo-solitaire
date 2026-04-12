@@ -5,6 +5,7 @@ import {
   createFilledMainDeck,
   createSpellInstance,
   createMonsterOnField,
+  ACTUAL_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -128,7 +129,7 @@ const createMockMonsterWithCounters = (cardId: number, counterType: "spell" | "b
 describe("ConditionRegistry - HAS_COUNTER", () => {
   it("カウンターが十分にある場合は成功を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "spell", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       counterType: "spell",
@@ -140,7 +141,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
 
   it("カウンターが多い場合も成功を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 5);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "spell", 5);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       counterType: "spell",
@@ -152,7 +153,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
 
   it("カウンターが不足している場合は失敗を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 2);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "spell", 2);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       counterType: "spell",
@@ -164,7 +165,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
 
   it("カウンターが0の場合は失敗を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 0);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "spell", 0);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       counterType: "spell",
@@ -176,7 +177,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
 
   it("異なるタイプのカウンターでは失敗を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "bushido", 3);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "bushido", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       counterType: "spell",
@@ -188,7 +189,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
 
   it("counterType引数が無い場合は失敗を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "spell", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       minCount: 3,
@@ -199,7 +200,7 @@ describe("ConditionRegistry - HAS_COUNTER", () => {
 
   it("minCount引数が無効な場合は失敗を返す", () => {
     const state = createStateWithDeck(5);
-    const sourceInstance = createMockMonsterWithCounters(70791313, "spell", 3);
+    const sourceInstance = createMockMonsterWithCounters(ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY, "spell", 3);
 
     const result = checkCondition("HAS_COUNTER", state, sourceInstance, {
       counterType: "spell",

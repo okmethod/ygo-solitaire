@@ -105,7 +105,7 @@ const createBase = (
 /**
  * テスト用モンスターカードインスタンスを作成
  *
- * setup.ts で登録されたデフォルトテストモンスター (id: 12345678) を使用。
+ * setup.ts で登録されたデフォルトテストモンスターを使用。
  * cardId 指定の場合、登録済みカードの場合は CardDataRegistry から情報を取得。
  * level 指定により上書きも可能。
  *
@@ -145,8 +145,7 @@ export function createMonsterInstance(
 /**
  * テスト用魔法カードインスタンスを作成
  *
- * setup.ts で登録されたテスト用魔法カードIDを spellType に応じて使用:
- * - normal: 1001, quick-play: 1004, continuous: 1005, field: 1006
+ * setup.ts で登録されたテスト用魔法カードIDを spellType に応じて使用。
  *
  * @param instanceId - 一意のインスタンス識別子
  * @param options - オプション設定

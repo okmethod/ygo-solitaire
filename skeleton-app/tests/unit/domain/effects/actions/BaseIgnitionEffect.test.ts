@@ -11,7 +11,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { createMockGameState, createMonsterOnField } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -19,7 +19,7 @@ import { createMockGameState, createMonsterOnField } from "../../../../__testUti
 class TestIgnitionEffect extends BaseIgnitionEffect {
   private shouldPass: boolean;
 
-  constructor(cardId: number = 12345678, effectIndex: number = 1, shouldPass: boolean = true) {
+  constructor(cardId: number = TEST_CARD_IDS.DUMMY, effectIndex: number = 1, shouldPass: boolean = true) {
     super(cardId, effectIndex);
     this.shouldPass = shouldPass;
   }
@@ -76,25 +76,25 @@ describe("BaseIgnitionEffect", () => {
 
     it("should have correct cardId", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY);
 
       // Assert
-      expect(effect.cardId).toBe(12345678);
+      expect(effect.cardId).toBe(TEST_CARD_IDS.DUMMY);
     });
 
     it("should generate effectId from cardId and effectIndex", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1);
 
       // Assert
-      expect(effect.effectId).toBe("ignition-12345678-1");
+      expect(effect.effectId).toBe(`ignition-${TEST_CARD_IDS.DUMMY}-1`);
     });
   });
 
   describe("canActivate()", () => {
     it("should return true in main1 phase when individual conditions are met", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1, true);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1, true);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -107,7 +107,7 @@ describe("BaseIgnitionEffect", () => {
 
     it("should return false in standby phase (NOT_MAIN_PHASE)", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1, true);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1, true);
       const state = createMockGameState({ phase: "standby" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -121,7 +121,7 @@ describe("BaseIgnitionEffect", () => {
 
     it("should return false in draw phase (NOT_MAIN_PHASE)", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1, true);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1, true);
       const state = createMockGameState({ phase: "draw" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -135,7 +135,7 @@ describe("BaseIgnitionEffect", () => {
 
     it("should return false when individual conditions are not met", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1, false); // shouldPass = false
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -151,7 +151,7 @@ describe("BaseIgnitionEffect", () => {
   describe("createActivationSteps()", () => {
     it("should include notification step and individual steps", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -170,7 +170,7 @@ describe("BaseIgnitionEffect", () => {
   describe("createResolutionSteps()", () => {
     it("should return individual resolution steps", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -184,7 +184,7 @@ describe("BaseIgnitionEffect", () => {
 
     it("should return step that does not modify state", () => {
       // Arrange
-      const effect = new TestIgnitionEffect(12345678, 1);
+      const effect = new TestIgnitionEffect(TEST_CARD_IDS.DUMMY, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 

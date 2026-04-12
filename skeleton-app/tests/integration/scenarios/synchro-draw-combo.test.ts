@@ -28,10 +28,7 @@ import {
   resolveOptionalTrigger,
   getState,
 } from "../../__testUtils__";
-import { SYNCHRO_TEST_CARD_IDS } from "../../__testUtils__/constants";
-
-const TG_HYPER_LIBRARIAN_ID = 90953320; // Lv5 シンクロ
-const FORMULA_SYNCHRON_ID = 50091196; // Lv2 シンクロ
+import { SYNCHRO_TEST_CARD_IDS, ACTUAL_CARD_IDS } from "../../__testUtils__/constants";
 
 /** 実在シンクロモンスターのカードインスタンスを生成する */
 function createRealSynchroCard(
@@ -109,8 +106,8 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
       space: {
         ...createFilledMainDeck(5),
         extraDeck: [
-          createRealSynchroCard(TG_HYPER_LIBRARIAN_ID, "librarian", "extraDeck"),
-          createRealSynchroCard(FORMULA_SYNCHRON_ID, "formula", "extraDeck"),
+          createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck"),
+          createRealSynchroCard(ACTUAL_CARD_IDS.FORMULA_SYNCHRON, "formula", "extraDeck"),
         ],
         mainMonsterZone: [
           createTestTunerCard("tuner-for-librarian", 1),
@@ -172,7 +169,7 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
       phase: "main1",
       space: {
         ...createFilledMainDeck(5),
-        extraDeck: [createRealSynchroCard(TG_HYPER_LIBRARIAN_ID, "librarian", "extraDeck")],
+        extraDeck: [createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck")],
         mainMonsterZone: [createTestTunerCard("tuner-0", 1), createNonTunerCard("nontuner-0", 4)],
         hand: [],
       },

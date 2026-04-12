@@ -18,14 +18,14 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck } from "../../../../__testUtils__";
+import { createTestInitialDeck, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
  */
 class TestNormalSpell extends NormalSpellActivation {
   constructor() {
-    super(12345678); // Test Monster 2 from CardDataRegistry
+    super(TEST_CARD_IDS.DUMMY);
   }
 
   protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
@@ -61,10 +61,14 @@ describe("NormalSpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Deck >= 2
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -76,10 +80,14 @@ describe("NormalSpellActivation", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (NormalSpellActivation固有のフェーズ制約テスト)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       // Default phase is "Draw"
 
       // Act & Assert
@@ -88,10 +96,14 @@ describe("NormalSpellActivation", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Deck has only 1 card (additionalActivationConditions returns false)
-      const state = GameState.initialize(createTestInitialDeck([1001]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -105,7 +117,7 @@ describe("NormalSpellActivation", () => {
   describe("createActivationSteps()", () => {
     // テスト用の sourceInstance を作成するヘルパー
     const createTestSourceInstance = (): CardInstance => ({
-      id: 12345678,
+      id: TEST_CARD_IDS.DUMMY,
       instanceId: "test-normal-spell-1",
       jaName: "Test Monster A",
       type: "spell",
@@ -117,10 +129,14 @@ describe("NormalSpellActivation", () => {
 
     it("should return default activation step", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const sourceInstance = createTestSourceInstance();
 
       // Act
@@ -128,7 +144,7 @@ describe("NormalSpellActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
-      expect(steps[0].id).toBe("12345678-activation-notification");
+      expect(steps[0].id).toBe(`${TEST_CARD_IDS.DUMMY}-activation-notification`);
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します");
       expect(steps[1].id).toBe("emit-spell-activated-test-normal-spell-1");

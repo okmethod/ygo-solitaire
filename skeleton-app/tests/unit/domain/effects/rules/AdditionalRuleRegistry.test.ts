@@ -26,6 +26,8 @@ import {
   createSpellOnField,
   createStateWithMonsterZone,
   createStateWithFieldZone,
+  TEST_CARD_IDS,
+  ACTUAL_CARD_IDS,
 } from "../../../../__testUtils__";
 
 /**
@@ -63,7 +65,7 @@ describe("AdditionalRuleRegistry", () => {
   describe("register()", () => {
     it("should register an additional rule", () => {
       // Arrange
-      const cardId = 67616300; // Chicken Game
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME; // Chicken Game
       const rule = new MockAdditionalRule("Chicken Game Continuous");
 
       // Act
@@ -77,7 +79,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should register multiple rules for the same card", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule1 = new MockAdditionalRule("Rule 1", true, "ActionPermission");
       const rule2 = new MockAdditionalRule("Rule 2", false, "StatusModifier");
 
@@ -94,8 +96,8 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should register rules for multiple cards", () => {
       // Arrange
-      const cardId1 = 67616300; // Chicken Game
-      const cardId2 = 12345678; // Mock Card
+      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME; // Chicken Game
+      const cardId2 = TEST_CARD_IDS.DUMMY; // Mock Card
       const rule1 = new MockAdditionalRule("Rule 1");
       const rule2 = new MockAdditionalRule("Rule 2");
 
@@ -113,7 +115,7 @@ describe("AdditionalRuleRegistry", () => {
   describe("get()", () => {
     it("should return registered rules", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule = new MockAdditionalRule("Chicken Game Continuous");
       AdditionalRuleRegistry.register(cardId, rule);
 
@@ -139,7 +141,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should return all rules for a card with multiple rules", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule1 = new MockAdditionalRule("Rule 1");
       const rule2 = new MockAdditionalRule("Rule 2");
       const rule3 = new MockAdditionalRule("Rule 3");
@@ -160,7 +162,7 @@ describe("AdditionalRuleRegistry", () => {
   describe("getByCategory()", () => {
     it("should return rules filtered by category", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission");
       const modifierRule = new MockAdditionalRule("Modifier", true, "StatusModifier");
       const replacementRule = new MockAdditionalRule("Replacement", true, "ActionOverride");
@@ -182,7 +184,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should return empty array when no rules match the category", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission");
 
       AdditionalRuleRegistry.register(cardId, permissionRule);
@@ -209,7 +211,7 @@ describe("AdditionalRuleRegistry", () => {
   describe("collectActiveRules()", () => {
     it("should collect active rules from field", () => {
       // Arrange
-      const chickenGameId = 67616300;
+      const chickenGameId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const chickenGameRule = new MockAdditionalRule(
         "Chicken Game",
         true,
@@ -232,7 +234,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should not collect rules from face-down cards", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule = new MockAdditionalRule("Rule", true, "ActionPermission", true);
 
       AdditionalRuleRegistry.register(cardId, rule);
@@ -250,7 +252,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should not collect rules when canApply returns false", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const rule = new MockAdditionalRule(
         "Rule",
         true,
@@ -271,7 +273,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should only collect rules matching the specified category", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const permissionRule = new MockAdditionalRule("Permission", true, "ActionPermission", true);
       const modifierRule = new MockAdditionalRule("Modifier", true, "StatusModifier", true);
 
@@ -293,8 +295,8 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should collect rules from multiple cards", () => {
       // Arrange
-      const cardId1 = 67616300;
-      const cardId2 = 12345678;
+      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME;
+      const cardId2 = TEST_CARD_IDS.DUMMY;
       const rule1 = new MockAdditionalRule("Rule 1", true, "ActionPermission", true);
       const rule2 = new MockAdditionalRule("Rule 2", true, "ActionPermission", true);
 
@@ -319,8 +321,8 @@ describe("AdditionalRuleRegistry", () => {
   describe("clear()", () => {
     it("should clear all registered rules", () => {
       // Arrange
-      const cardId1 = 67616300;
-      const cardId2 = 12345678;
+      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME;
+      const cardId2 = TEST_CARD_IDS.DUMMY;
       AdditionalRuleRegistry.register(cardId1, new MockAdditionalRule("Rule 1"));
       AdditionalRuleRegistry.register(cardId2, new MockAdditionalRule("Rule 2"));
 
@@ -337,7 +339,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should allow re-registration after clear", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
       const firstRule = new MockAdditionalRule("First Rule");
       const secondRule = new MockAdditionalRule("Second Rule");
 
@@ -363,8 +365,8 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should return correct card IDs after registrations", () => {
       // Arrange
-      const cardId1 = 67616300;
-      const cardId2 = 12345678;
+      const cardId1 = ACTUAL_CARD_IDS.CHICKEN_GAME;
+      const cardId2 = TEST_CARD_IDS.DUMMY;
 
       // Act
       AdditionalRuleRegistry.register(cardId1, new MockAdditionalRule("Rule 1"));
@@ -379,8 +381,8 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should return correct card IDs after clear", () => {
       // Arrange
-      AdditionalRuleRegistry.register(67616300, new MockAdditionalRule("Rule 1"));
-      AdditionalRuleRegistry.register(12345678, new MockAdditionalRule("Rule 2"));
+      AdditionalRuleRegistry.register(ACTUAL_CARD_IDS.CHICKEN_GAME, new MockAdditionalRule("Rule 1"));
+      AdditionalRuleRegistry.register(TEST_CARD_IDS.DUMMY, new MockAdditionalRule("Rule 2"));
 
       // Act
       AdditionalRuleRegistry.clear();
@@ -391,7 +393,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should not duplicate card IDs when multiple rules are registered for same card", () => {
       // Arrange
-      const cardId = 67616300;
+      const cardId = ACTUAL_CARD_IDS.CHICKEN_GAME;
 
       // Act
       AdditionalRuleRegistry.register(cardId, new MockAdditionalRule("Rule 1"));
@@ -429,7 +431,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should collect trigger rules for specified event from monster zone", () => {
       // Arrange
-      const cardId = 70791313; // Royal Magical Library
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY; // Royal Magical Library
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
@@ -448,7 +450,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should not collect trigger rules for different events", () => {
       // Arrange
-      const cardId = 70791313;
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
@@ -464,7 +466,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should not collect trigger rules from face-down cards", () => {
       // Arrange
-      const cardId = 70791313;
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
@@ -482,7 +484,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should collect trigger rules from multiple cards", () => {
       // Arrange
-      const cardId = 70791313;
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRule(["spellActivated"]);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
@@ -564,7 +566,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should collect trigger steps and execute them to update state", () => {
       // Arrange
-      const cardId = 70791313;
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRuleWithEffect(["spellActivated"]);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
@@ -584,7 +586,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should not collect trigger steps when canApply returns false", () => {
       // Arrange
-      const cardId = 70791313;
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRuleWithEffect(["spellActivated"], false);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
@@ -604,7 +606,7 @@ describe("AdditionalRuleRegistry", () => {
 
     it("should collect steps from multiple trigger rules", () => {
       // Arrange
-      const cardId = 70791313;
+      const cardId = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY;
       const triggerRule = new MockTriggerRuleWithEffect(["spellActivated"]);
 
       AdditionalRuleRegistry.register(cardId, triggerRule);

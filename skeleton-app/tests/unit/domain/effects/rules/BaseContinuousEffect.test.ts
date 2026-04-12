@@ -9,7 +9,12 @@ import { describe, it, expect } from "vitest";
 import { BaseContinuousEffect } from "$lib/domain/effects/rules/continuouses/BaseContinuousEffect";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { RuleCategory } from "$lib/domain/models/Effect";
-import { createMockGameState, createMonsterOnField, createSpellOnField } from "../../../../__testUtils__";
+import {
+  createMockGameState,
+  createMonsterOnField,
+  createSpellOnField,
+  TEST_CARD_IDS,
+} from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -19,7 +24,7 @@ class TestContinuousEffect extends BaseContinuousEffect {
 
   private shouldPass: boolean;
 
-  constructor(cardId: number = 12345678, shouldPass: boolean = true) {
+  constructor(cardId: number = TEST_CARD_IDS.DUMMY, shouldPass: boolean = true) {
     super(cardId);
     this.shouldPass = shouldPass;
   }
@@ -41,10 +46,10 @@ describe("BaseContinuousEffect", () => {
 
     it("should have correct cardId", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY);
 
       // Assert
-      expect(effect.cardId).toBe(12345678);
+      expect(effect.cardId).toBe(TEST_CARD_IDS.DUMMY);
     });
 
     it("should have category defined by subclass", () => {
@@ -59,7 +64,7 @@ describe("BaseContinuousEffect", () => {
   describe("canApply()", () => {
     it("should return true when card is face-up on main monster zone and individual conditions are met", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
           mainMonsterZone: [createMonsterOnField("test-1")],
@@ -75,10 +80,10 @@ describe("BaseContinuousEffect", () => {
 
     it("should return true when card is face-up on spell/trap zone", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
-          spellTrapZone: [createSpellOnField("test-1", { cardId: 12345678, spellType: "continuous" })],
+          spellTrapZone: [createSpellOnField("test-1", { cardId: TEST_CARD_IDS.DUMMY, spellType: "continuous" })],
         },
       });
 
@@ -91,10 +96,10 @@ describe("BaseContinuousEffect", () => {
 
     it("should return true when card is face-up on field zone", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
-          fieldZone: [createSpellOnField("test-1", { cardId: 12345678, spellType: "field" })],
+          fieldZone: [createSpellOnField("test-1", { cardId: TEST_CARD_IDS.DUMMY, spellType: "field" })],
         },
       });
 
@@ -107,11 +112,15 @@ describe("BaseContinuousEffect", () => {
 
     it("should return false when card is face-down", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
           spellTrapZone: [
-            createSpellOnField("test-1", { cardId: 12345678, spellType: "continuous", position: "faceDown" }),
+            createSpellOnField("test-1", {
+              cardId: TEST_CARD_IDS.DUMMY,
+              spellType: "continuous",
+              position: "faceDown",
+            }),
           ],
         },
       });
@@ -125,13 +134,13 @@ describe("BaseContinuousEffect", () => {
 
     it("should return false when card is not on field", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
           hand: [
             {
               instanceId: "test-1",
-              id: 12345678,
+              id: TEST_CARD_IDS.DUMMY,
               jaName: "Test Spell",
               type: "spell",
               frameType: "spell",
@@ -151,7 +160,7 @@ describe("BaseContinuousEffect", () => {
 
     it("should return false when individual conditions are not met", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, false); // shouldPass = false
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, false); // shouldPass = false
       const state = createMockGameState({
         space: {
           mainMonsterZone: [createMonsterOnField("test-1")],
@@ -167,10 +176,10 @@ describe("BaseContinuousEffect", () => {
 
     it("should return false when different card is on field", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
-          mainMonsterZone: [createMonsterOnField("test-1", { cardId: 87654321 })], // Different card ID
+          mainMonsterZone: [createMonsterOnField("test-1", { cardId: TEST_CARD_IDS.DUMMY_B })], // Different card ID
         },
       });
 
@@ -183,7 +192,7 @@ describe("BaseContinuousEffect", () => {
 
     it("should return false when field is empty", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
           mainMonsterZone: [],
@@ -201,12 +210,12 @@ describe("BaseContinuousEffect", () => {
 
     it("should check all field zones for the card", () => {
       // Arrange
-      const effect = new TestContinuousEffect(12345678, true);
+      const effect = new TestContinuousEffect(TEST_CARD_IDS.DUMMY, true);
       const state = createMockGameState({
         space: {
           mainMonsterZone: [createMonsterOnField("monster-1", { cardId: 11111111 })],
           spellTrapZone: [createSpellOnField("spell-1", { cardId: 22222222 })],
-          fieldZone: [createSpellOnField("field-1", { cardId: 12345678, spellType: "field" })], // This is the card we're looking for
+          fieldZone: [createSpellOnField("field-1", { cardId: TEST_CARD_IDS.DUMMY, spellType: "field" })], // This is the card we're looking for
         },
       });
 

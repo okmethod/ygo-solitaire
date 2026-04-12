@@ -1,12 +1,12 @@
 /**
  * フィールド魔法コンボ シナリオテスト
  *
- * テラ・フォーミング (73628505) でチキンゲーム (67616300) をサーチし、
+ * テラ・フォーミングでチキンゲームをサーチし、
  * 発動後に起動効果（LP-1000→1ドロー）を使うフローを検証する。
  *
  * 対象カード:
- * - テラ・フォーミング (73628505): デッキからフィールド魔法1枚サーチ
- * - チキンゲーム (67616300): フィールド魔法、起動効果でLP-1000→1ドロー
+ * - テラ・フォーミング: デッキからフィールド魔法1枚サーチ
+ * - チキンゲーム: フィールド魔法、起動効果でLP-1000→1ドロー
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -22,6 +22,8 @@ import {
   resolveCardSelection,
   getState,
   hasCardSelection,
+  TEST_CARD_IDS,
+  ACTUAL_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("フィールド魔法コンボ - 実カードシナリオテスト", () => {
@@ -39,17 +41,27 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
   // ───────────────────────────────────────────────
   // チキンゲーム単体
   // ───────────────────────────────────────────────
-  describe("チキンゲーム (67616300) - フィールド発動 + 起動効果", () => {
+  describe("チキンゲーム - フィールド発動 + 起動効果", () => {
     it("フィールドゾーンに配置され、起動効果でLP-1000・1ドロー", async () => {
       // 7枚デッキ: 手札5(チキンゲーム含む) + デッキ2
-      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+        ]),
+      );
       advanceToMain1(facade);
 
       const before = getState();
       expect(before.lp.player).toBe(8000);
 
       // チキンゲームをフィールドに発動（IDで検索してシャッフル対策）
-      const chickenId = before.space.hand.find((c) => c.id === 67616300)!.instanceId;
+      const chickenId = before.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)!.instanceId;
       const result = facade.activateSpell(chickenId);
       expect(result.success).toBe(true);
       await flushEffectQueue();
@@ -72,7 +84,16 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
     });
 
     it("起動効果はメインフェイズのみ発動可（ドローフェイズでは不可）", () => {
-      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          TEST_CARD_IDS.DUMMY,
+        ]),
+      );
       // ドローフェイズのまま（advanceToMain1しない）
 
       const state = getState();
@@ -84,19 +105,19 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
   // ───────────────────────────────────────────────
   // テラ・フォーミング → チキンゲーム
   // ───────────────────────────────────────────────
-  describe("テラ・フォーミング (73628505) → チキンゲーム", () => {
+  describe("テラ・フォーミング → チキンゲーム", () => {
     it("テラフォでサーチ→チキンゲームを手札に加える", async () => {
       // skipShuffle:true でデッキを決定論的に構築
       // deck配列の末尾5枚=テラフォ → 初期手札、先頭2枚=チキンゲーム → デッキ残り
       const deckIds = {
         mainDeckCardIds: [
-          67616300, // チキンゲーム（デッキ底）
-          67616300, // チキンゲーム
-          73628505,
-          73628505,
-          73628505,
-          73628505,
-          73628505, // テラフォ×5（上から引く）
+          ACTUAL_CARD_IDS.CHICKEN_GAME, // チキンゲーム（デッキ底）
+          ACTUAL_CARD_IDS.CHICKEN_GAME, // チキンゲーム
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING, // テラフォ×5（上から引く）
         ],
         extraDeckCardIds: [],
       };
@@ -108,24 +129,24 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       gameStateStore.set({ ...initialState, phase: "main1" });
 
       const before = getState();
-      expect(before.space.hand.some((c) => c.id === 67616300)).toBe(false); // 手札にチキンゲームなし
+      expect(before.space.hand.some((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)).toBe(false); // 手札にチキンゲームなし
 
       // テラ・フォーミング発動
-      const terraId = before.space.hand.find((c) => c.id === 73628505)!.instanceId;
+      const terraId = before.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.TERRAFORMING)!.instanceId;
       facade.activateSpell(terraId);
       await flushEffectQueue(); // カード選択（サーチ）で止まる可能性あり
 
       if (hasCardSelection()) {
         // デッキからチキンゲームを選択
         const deck = getState().space.mainDeck;
-        const chickenInDeck = deck.find((c) => c.id === 67616300);
+        const chickenInDeck = deck.find((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME);
         if (chickenInDeck) {
           await resolveCardSelection([chickenInDeck.instanceId]);
         }
       }
 
       const after = getState();
-      expect(after.space.hand.some((c) => c.id === 67616300)).toBe(true); // チキンゲームが手札に
+      expect(after.space.hand.some((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)).toBe(true); // チキンゲームが手札に
       expect(after.space.graveyard.length).toBe(1); // テラフォ
     });
 
@@ -134,14 +155,14 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       // 末尾5枚=テラフォ → 初期手札、先頭3枚=チキン×2+ダミー → デッキ残り
       const deckIds = {
         mainDeckCardIds: [
-          12345678, // ダミー（デッキ底）
-          67616300, // チキンゲーム
-          67616300, // チキンゲーム
-          73628505,
-          73628505,
-          73628505,
-          73628505,
-          73628505, // テラフォ×5
+          TEST_CARD_IDS.DUMMY, // ダミー（デッキ底）
+          ACTUAL_CARD_IDS.CHICKEN_GAME, // チキンゲーム
+          ACTUAL_CARD_IDS.CHICKEN_GAME, // チキンゲーム
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING,
+          ACTUAL_CARD_IDS.TERRAFORMING, // テラフォ×5
         ],
         extraDeckCardIds: [],
       };
@@ -155,23 +176,23 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       expect(before.lp.player).toBe(8000);
 
       // Step1: テラ・フォーミング発動→チキンゲームサーチ
-      const terraId = before.space.hand.find((c) => c.id === 73628505)!.instanceId;
+      const terraId = before.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.TERRAFORMING)!.instanceId;
       facade.activateSpell(terraId);
       await flushEffectQueue();
 
       if (hasCardSelection()) {
         const deck = getState().space.mainDeck;
-        const chickenInDeck = deck.find((c) => c.id === 67616300);
+        const chickenInDeck = deck.find((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME);
         if (chickenInDeck) {
           await resolveCardSelection([chickenInDeck.instanceId]);
         }
       }
 
       const afterTerra = getState();
-      expect(afterTerra.space.hand.some((c) => c.id === 67616300)).toBe(true);
+      expect(afterTerra.space.hand.some((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)).toBe(true);
 
       // Step2: チキンゲームをフィールドへ発動
-      const chickenId = afterTerra.space.hand.find((c) => c.id === 67616300)!.instanceId;
+      const chickenId = afterTerra.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)!.instanceId;
       facade.activateSpell(chickenId);
       await flushEffectQueue();
 
@@ -196,13 +217,23 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
   describe("フィールド魔法の置換ルール", () => {
     it("2枚目のチキンゲームを発動すると1枚目が墓地へ", async () => {
       // 手札: チキンゲーム×5、デッキ: ダミー×2
-      facade.resetGame(createScenarioDeck([67616300, 67616300, 67616300, 67616300, 67616300, 12345678, 12345678]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          ACTUAL_CARD_IDS.CHICKEN_GAME,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+        ]),
+      );
       advanceToMain1(facade);
 
       const before = getState();
 
       // 1枚目発動（IDで検索してシャッフル対策）
-      const first = before.space.hand.find((c) => c.id === 67616300)!.instanceId;
+      const first = before.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)!.instanceId;
       facade.activateSpell(first);
       await flushEffectQueue();
 
@@ -210,7 +241,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       expect(getState().space.graveyard.length).toBe(0); // まだ墓地なし
 
       // 2枚目発動（1枚目を置換）
-      const second = getState().space.hand.find((c) => c.id === 67616300)!.instanceId;
+      const second = getState().space.hand.find((c) => c.id === ACTUAL_CARD_IDS.CHICKEN_GAME)!.instanceId;
       facade.activateSpell(second);
       await flushEffectQueue();
 

@@ -5,9 +5,9 @@
  * 本物のフローを通して、ドロー系魔法カードの効果を検証する。
  *
  * 対象カード:
- * - 強欲な壺 (55144522): 2枚ドロー
- * - 成金ゴブリン (70368879): 1枚ドロー、相手LP+1000
- * - 天使の施し (79571449): 3枚ドロー→2枚手札捨て（カード選択あり）
+ * - 強欲な壺: 2枚ドロー
+ * - 成金ゴブリン: 1枚ドロー、相手LP+1000
+ * - 天使の施し: 3枚ドロー→2枚手札捨て（カード選択あり）
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -22,6 +22,8 @@ import {
   resolveCardSelection,
   getState,
   hasCardSelection,
+  ACTUAL_CARD_IDS,
+  TEST_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("Draw Spell Combos - 実カードシナリオテスト", () => {
@@ -37,12 +39,22 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
   });
 
   // ───────────────────────────────────────────────
-  // 強欲な壺 (55144522)
+  // 強欲な壺
   // ───────────────────────────────────────────────
-  describe("強欲な壺 (55144522) - デッキから2枚ドロー", () => {
+  describe("強欲な壺 - デッキから2枚ドロー", () => {
     it("発動→2枚ドロー→墓地送りが完結する", async () => {
       // 7枚デッキ: 手札5 + デッキ2（2枚ドロー可能）
-      facade.resetGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+        ]),
+      );
       advanceToMain1(facade);
 
       const before = getState();
@@ -62,22 +74,40 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
 
     it("デッキ1枚のとき発動できない", () => {
       // 6枚デッキ: 手札5 + デッキ1（2枚ドロー不可）
-      facade.resetGame(createScenarioDeck([55144522, 55144522, 55144522, 55144522, 55144522, 55144522]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+          ACTUAL_CARD_IDS.POT_OF_GREED,
+        ]),
+      );
       advanceToMain1(facade);
 
       const state = getState();
-      const potId = state.space.hand[0].instanceId;
+      const potId = state.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.POT_OF_GREED)!.instanceId;
       expect(facade.canActivateSpell(potId)).toBe(false);
     });
   });
 
   // ───────────────────────────────────────────────
-  // 成金ゴブリン (70368879)
+  // 成金ゴブリン
   // ───────────────────────────────────────────────
-  describe("成金ゴブリン (70368879) - 1枚ドロー（相手LP+1000）", () => {
+  describe("成金ゴブリン - 1枚ドロー（相手LP+1000）", () => {
     it("発動→1枚ドロー→墓地送りが完結する", async () => {
       // 6枚デッキ: 手札5 + デッキ1
-      facade.resetGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 70368879]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+        ]),
+      );
       advanceToMain1(facade);
 
       const before = getState();
@@ -99,13 +129,22 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
     it("3連発→墓地3枚・相手LP11000", async () => {
       // 8枚デッキ: 手札5 + デッキ3（3回分ドロー可）
       facade.resetGame(
-        createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879, 70368879]),
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+          ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
+        ]),
       );
       advanceToMain1(facade);
 
       for (let i = 0; i < 3; i++) {
         const state = getState();
-        const goblinId = state.space.hand.find((c) => c.id === 70368879)!.instanceId;
+        const goblinId = state.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.GOLDEN_GOBLIN)!.instanceId;
         facade.activateSpell(goblinId);
         await flushEffectQueue();
       }
@@ -117,14 +156,23 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
   });
 
   // ───────────────────────────────────────────────
-  // 天使の施し (79571449)
+  // 天使の施し
   // ───────────────────────────────────────────────
-  describe("天使の施し (79571449) - 3枚ドロー→2枚手札捨て", () => {
+  describe("天使の施し - 3枚ドロー→2枚手札捨て", () => {
     it("発動→3ドロー→2枚捨て→手札±0・墓地3枚", async () => {
       // 8枚デッキ: 手札5（天使施し含む）+ デッキ3（3枚ドロー用）
       // ※全て天使の施しだとデッキ3枚が同じカードになる
       facade.resetGame(
-        createScenarioDeck([79571449, 79571449, 79571449, 79571449, 79571449, 12345678, 12345678, 12345678]),
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+        ]),
       );
       advanceToMain1(facade);
 
@@ -132,7 +180,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
       expect(before.space.hand.length).toBe(5);
       expect(before.space.mainDeck.length).toBe(3);
 
-      const gracefulId = before.space.hand.find((c) => c.id === 79571449)!.instanceId;
+      const gracefulId = before.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.GRACEFUL_CHARITY)!.instanceId;
       facade.activateSpell(gracefulId);
       await flushEffectQueue(); // 3枚ドロー まで処理（捨て選択で止まる）
 
@@ -152,31 +200,41 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
 
     it("デッキ2枚のとき発動できない", () => {
       // 7枚デッキ: 手札5 + デッキ2（3枚ドロー不可）
-      facade.resetGame(createScenarioDeck([79571449, 79571449, 79571449, 79571449, 79571449, 12345678, 12345678]));
+      facade.resetGame(
+        createScenarioDeck([
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          ACTUAL_CARD_IDS.GRACEFUL_CHARITY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+        ]),
+      );
       advanceToMain1(facade);
 
       const state = getState();
-      const gracefulId = state.space.hand.find((c) => c.id === 79571449)!.instanceId;
+      const gracefulId = state.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.GRACEFUL_CHARITY)!.instanceId;
       expect(facade.canActivateSpell(gracefulId)).toBe(false);
     });
   });
 
   // ───────────────────────────────────────────────
-  // 複合シナリオ: 成金ゴブリン→天使の施し
+  // 複合シナリオ: 成金ゴブリン → 天使の施し
   // ───────────────────────────────────────────────
   describe("複合シナリオ: 成金ゴブリン → 天使の施し", () => {
     it("成金1発後に天使の施しを発動できる", async () => {
       // 直接状態をセットしてシャッフルを回避
       // 手札: ゴブリン×2 + 天使×3、デッキ: ダミー×5
       const handCards = [
-        { id: 70368879, instanceId: "goblin-1" },
-        { id: 70368879, instanceId: "goblin-2" },
-        { id: 79571449, instanceId: "graceful-1" },
-        { id: 79571449, instanceId: "graceful-2" },
-        { id: 79571449, instanceId: "graceful-3" },
+        { id: ACTUAL_CARD_IDS.GOLDEN_GOBLIN, instanceId: "goblin-1" },
+        { id: ACTUAL_CARD_IDS.GOLDEN_GOBLIN, instanceId: "goblin-2" },
+        { id: ACTUAL_CARD_IDS.GRACEFUL_CHARITY, instanceId: "graceful-1" },
+        { id: ACTUAL_CARD_IDS.GRACEFUL_CHARITY, instanceId: "graceful-2" },
+        { id: ACTUAL_CARD_IDS.GRACEFUL_CHARITY, instanceId: "graceful-3" },
       ].map(({ id, instanceId }) => ({
         id,
-        jaName: id === 70368879 ? "成金ゴブリン" : "天使の施し",
+        jaName: id === ACTUAL_CARD_IDS.GOLDEN_GOBLIN ? "成金ゴブリン" : "天使の施し",
         type: "spell" as const,
         frameType: "spell" as const,
         spellType: "normal" as const,
@@ -186,7 +244,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
       }));
 
       const deckCards = Array.from({ length: 5 }, (_, i) => ({
-        id: 12345678,
+        id: TEST_CARD_IDS.DUMMY,
         jaName: "Test Monster",
         type: "monster" as const,
         frameType: "normal" as const,

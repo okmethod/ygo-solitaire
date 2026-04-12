@@ -9,14 +9,24 @@
 
 import { describe, it, expect } from "vitest";
 import { GameState } from "$lib/domain/models/GameState";
-import { createMockGameState, createHand, createGraveyard, EXODIA_PIECE_IDS } from "../../../__testUtils__";
+import { createMockGameState, createHand, createGraveyard, ACTUAL_CARD_IDS } from "../../../__testUtils__";
+
+const ALL_PARTS: number[] = [
+  ACTUAL_CARD_IDS.EXODIA_BODY,
+  ACTUAL_CARD_IDS.EXODIA_RIGHT_ARM,
+  ACTUAL_CARD_IDS.EXODIA_LEFT_ARM,
+  ACTUAL_CARD_IDS.EXODIA_RIGHT_LEG,
+  ACTUAL_CARD_IDS.EXODIA_LEFT_LEG,
+];
 
 describe("VictoryCondition", () => {
   describe("Exodia Victory", () => {
     it("should declare player victory when all 5 Exodia pieces are in hand", () => {
       // Arrange
       const state = createMockGameState({
-        space: { ...createHand([...EXODIA_PIECE_IDS.ALL]) },
+        space: {
+          ...createHand(ALL_PARTS),
+        },
       });
 
       // Act
@@ -30,15 +40,10 @@ describe("VictoryCondition", () => {
     });
 
     it("should not declare victory when only 4 Exodia pieces are in hand", () => {
-      // Arrange: Missing left leg
+      // Arrange: Missing 1 piece
       const state = createMockGameState({
         space: {
-          ...createHand([
-            EXODIA_PIECE_IDS.MAIN,
-            EXODIA_PIECE_IDS.RIGHT_ARM,
-            EXODIA_PIECE_IDS.LEFT_ARM,
-            EXODIA_PIECE_IDS.RIGHT_LEG,
-          ]),
+          ...createHand(ALL_PARTS.slice(0, 4)),
         },
       });
 
@@ -53,8 +58,8 @@ describe("VictoryCondition", () => {
       // Arrange: Some pieces in hand, some in graveyard
       const state = createMockGameState({
         space: {
-          ...createHand([EXODIA_PIECE_IDS.MAIN, EXODIA_PIECE_IDS.RIGHT_ARM, EXODIA_PIECE_IDS.LEFT_ARM]),
-          ...createGraveyard([EXODIA_PIECE_IDS.RIGHT_LEG, EXODIA_PIECE_IDS.LEFT_LEG]),
+          ...createHand(ALL_PARTS.slice(0, 3)),
+          ...createGraveyard(ALL_PARTS.slice(3, 5)),
         },
       });
 
@@ -158,7 +163,9 @@ describe("VictoryCondition", () => {
       // Arrange: Player has 0 LP but also has all Exodia pieces
       const state = createMockGameState({
         lp: { player: 0, opponent: 8000 },
-        space: { ...createHand([...EXODIA_PIECE_IDS.ALL]) },
+        space: {
+          ...createHand(ALL_PARTS),
+        },
       });
 
       // Act

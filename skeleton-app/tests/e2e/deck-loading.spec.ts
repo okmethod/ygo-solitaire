@@ -7,6 +7,7 @@ import { test, expect } from "@playwright/test";
 import exodiaFixture from "./fixtures/ygoprodeck/exodia.json" with { type: "json" };
 import potOfGreedFixture from "./fixtures/ygoprodeck/pot-of-greed.json" with { type: "json" };
 import gracefulCharityFixture from "./fixtures/ygoprodeck/graceful-charity.json" with { type: "json" };
+import { ACTUAL_CARD_IDS } from "../__testUtils__/constants";
 
 test.describe("Application Smoke Test", () => {
   test("should load application with mocked YGOPRODeck API", async ({ page }) => {
@@ -14,8 +15,8 @@ test.describe("Application Smoke Test", () => {
     await page.route("**/api.ygoprodeck.com/api/v7/**", async (route) => {
       const url = route.request().url();
 
-      // Exodia (33396948)
-      if (url.includes("id=33396948")) {
+      // Exodia
+      if (url.includes(`id=${ACTUAL_CARD_IDS.EXODIA_BODY}`)) {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -24,8 +25,8 @@ test.describe("Application Smoke Test", () => {
         return;
       }
 
-      // Pot of Greed (55144522)
-      if (url.includes("id=55144522")) {
+      // Pot of Greed
+      if (url.includes(`id=${ACTUAL_CARD_IDS.POT_OF_GREED}`)) {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -34,8 +35,8 @@ test.describe("Application Smoke Test", () => {
         return;
       }
 
-      // Graceful Charity (79571449)
-      if (url.includes("id=79571449")) {
+      // Graceful Charity
+      if (url.includes(`id=${ACTUAL_CARD_IDS.GRACEFUL_CHARITY}`)) {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -51,9 +52,9 @@ test.describe("Application Smoke Test", () => {
           const ids = idMatch[1].split(",").map((id) => parseInt(id, 10));
           const cards = ids
             .map((id) => {
-              if (id === 33396948) return exodiaFixture;
-              if (id === 55144522) return potOfGreedFixture;
-              if (id === 79571449) return gracefulCharityFixture;
+              if (id === ACTUAL_CARD_IDS.EXODIA_BODY) return exodiaFixture;
+              if (id === ACTUAL_CARD_IDS.POT_OF_GREED) return potOfGreedFixture;
+              if (id === ACTUAL_CARD_IDS.GRACEFUL_CHARITY) return gracefulCharityFixture;
               return null;
             })
             .filter(Boolean);
@@ -94,9 +95,9 @@ test.describe("Application Smoke Test", () => {
           const ids = idMatch[1].split(",").map((id) => parseInt(id, 10));
           const cards = ids.map((id) => {
             // Exodia pieces and spell cards
-            if (id === 33396948) return exodiaFixture;
-            if (id === 55144522) return potOfGreedFixture;
-            if (id === 79571449) return gracefulCharityFixture;
+            if (id === ACTUAL_CARD_IDS.EXODIA_BODY) return exodiaFixture;
+            if (id === ACTUAL_CARD_IDS.POT_OF_GREED) return potOfGreedFixture;
+            if (id === ACTUAL_CARD_IDS.GRACEFUL_CHARITY) return gracefulCharityFixture;
 
             // 残りのExodiaパーツと強欲な瓶はダミーデータで対応
             const isSpell = id > 50000000;

@@ -4,37 +4,39 @@
  * セットアップ時に CardDataRegistry へ登録されるテストカード群
  */
 
-/** エクゾディアパーツのカードID */
-export const EXODIA_PIECE_IDS = {
-  MAIN: 33396948, // 封印されしエクゾディア（本体）
-  LEFT_ARM: 7902349, // 封印されし者の左腕
-  RIGHT_ARM: 70903634, // 封印されし者の右腕
-  LEFT_LEG: 44519536, // 封印されし者の左足
-  RIGHT_LEG: 8124921, // 封印されし者の右足
-  /** 全パーツのID配列 */
-  ALL: [33396948, 7902349, 70903634, 44519536, 8124921] as readonly number[],
+/** テストシナリオで使用する実カードのID定数 */
+export const ACTUAL_CARD_IDS = {
+  EXODIA_BODY: 33396948, // 封印されしエクゾディア
+  EXODIA_LEFT_ARM: 7902349, // 封印されし者の左腕
+  EXODIA_RIGHT_ARM: 70903634, // 封印されし者の右腕
+  EXODIA_LEFT_LEG: 44519536, // 封印されし者の左足
+  EXODIA_RIGHT_LEG: 8124921, // 封印されし者の右足
+  ROYAL_MAGIC_LIBRARY: 70791313, // 王立魔法図書館
+  TG_HYPER_LIBRARIAN: 90953320, // ＴＧ ハイパー・ライブラリアン
+  FORMULA_SYNCHRON: 50091196, // フォーミュラ・シンクロン
+  GOLDEN_GOBLIN: 70368879, // 成金ゴブリン
+  POT_OF_GREED: 55144522, // 強欲な壺
+  GRACEFUL_CHARITY: 79571449, // 天使の施し
+  TERRAFORMING: 73628505, // テラ・フォーミング
+  CHICKEN_GAME: 67616300, // チキンレース
+  BROKEN_BAMBOO_SWORD: 41587307, // 折れ竹光
+  JAR_OF_GREED: 83968380, // 強欲な瓶（DSL未登録）
+  METAL_FIEND_TOKEN: 24874631, // メタルデビル・トークン
 } as const;
 
-/** テスト用カードID定数（基本） */
+/** テスト用カードID定数 */
 export const TEST_CARD_IDS = {
   DUMMY: 12345678,
+  DUMMY_B: 87654321,
   EFFECT_MONSTER: 7001,
+  OPTIONAL_TRIGGER_MONSTER: 6001,
   SPELL_NORMAL: 1001,
   SPELL_EQUIP: 1002,
   SPELL_QUICK: 1004,
   SPELL_CONTINUOUS: 1005,
   SPELL_FIELD: 1006,
   TRAP_NORMAL: 1007,
-} as const;
-
-/** トークンテスト用カードID定数 */
-export const TOKEN_TEST_CARD_IDS = {
   BASIC_TOKEN: 5001,
-} as const;
-
-/** 任意誘発効果テスト用カードID定数 */
-export const OPTIONAL_TRIGGER_TEST_CARD_IDS = {
-  OPTIONAL_TRIGGER_MONSTER: 6001,
 } as const;
 
 /** シンクロ召喚テスト用カードID定数 */

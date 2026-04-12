@@ -3,13 +3,6 @@
  *
  * エクゾディア5パーツが手札に揃った際の勝利判定を
  * GameFacade 経由の実フローで検証する。
- *
- * エクゾディアパーツ:
- * - 封印されしエクゾディア (33396948) ← 本体
- * - 封印されし者の右腕 (70903634)
- * - 封印されし者の左腕 (7902349)
- * - 封印されし者の右足 (8124921)
- * - 封印されし者の左足 (44519536)
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -22,16 +15,17 @@ import {
   advanceToMain1,
   flushEffectQueue,
   getState,
+  TEST_CARD_IDS,
+  ACTUAL_CARD_IDS,
 } from "../../__testUtils__";
 
-const EXODIA_PARTS = {
-  MAIN: 33396948,
-  RIGHT_ARM: 70903634,
-  LEFT_ARM: 7902349,
-  RIGHT_LEG: 8124921,
-  LEFT_LEG: 44519536,
-};
-const ALL_PARTS = Object.values(EXODIA_PARTS);
+const ALL_PARTS: number[] = [
+  ACTUAL_CARD_IDS.EXODIA_BODY,
+  ACTUAL_CARD_IDS.EXODIA_RIGHT_ARM,
+  ACTUAL_CARD_IDS.EXODIA_LEFT_ARM,
+  ACTUAL_CARD_IDS.EXODIA_RIGHT_LEG,
+  ACTUAL_CARD_IDS.EXODIA_LEFT_LEG,
+];
 
 describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
   let facade: GameFacade;
@@ -66,7 +60,7 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
           location: "hand" as const,
         })),
         {
-          id: 70368879,
+          id: ACTUAL_CARD_IDS.GOLDEN_GOBLIN,
           jaName: "成金ゴブリン",
           type: "spell" as const,
           frameType: "spell" as const,
@@ -78,7 +72,7 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
       ];
       const deckCards = [
         {
-          id: 12345678,
+          id: TEST_CARD_IDS.DUMMY,
           jaName: "Test Monster",
           type: "monster" as const,
           frameType: "normal" as const,
@@ -128,12 +122,12 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
       const firstThreeParts = ALL_PARTS.slice(0, 3); // 本体・右腕・左腕
       const lastTwoParts = ALL_PARTS.slice(3); // 右足・左足
 
-      const handCards = [...firstThreeParts, 55144522].map((id, i) => ({
+      const handCards = [...firstThreeParts, ACTUAL_CARD_IDS.POT_OF_GREED].map((id, i) => ({
         id,
         jaName: `Card-${id}`,
-        type: (id === 55144522 ? "spell" : "monster") as "spell" | "monster",
-        frameType: (id === 55144522 ? "spell" : "normal") as "spell" | "normal",
-        spellType: id === 55144522 ? ("normal" as const) : undefined,
+        type: (id === ACTUAL_CARD_IDS.POT_OF_GREED ? "spell" : "monster") as "spell" | "monster",
+        frameType: (id === ACTUAL_CARD_IDS.POT_OF_GREED ? "spell" : "normal") as "spell" | "normal",
+        spellType: id === ACTUAL_CARD_IDS.POT_OF_GREED ? ("normal" as const) : undefined,
         edition: "latest" as const,
         instanceId: `hand-${i}`,
         location: "hand" as const,
@@ -167,7 +161,7 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
       expect(before.result.isGameOver).toBe(false);
 
       // 強欲な壺を発動（2枚ドロー → エクゾディア5パーツ揃い）
-      const potId = before.space.hand.find((c) => c.id === 55144522)!.instanceId;
+      const potId = before.space.hand.find((c) => c.id === ACTUAL_CARD_IDS.POT_OF_GREED)!.instanceId;
       facade.activateSpell(potId);
       await flushEffectQueue();
 
@@ -186,7 +180,7 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
     it("4パーツが手札にある状態ではゲーム続行", () => {
       const partsMinus1 = ALL_PARTS.slice(0, 4);
       // 4パーツ + ダミー×2
-      facade.resetGame(createScenarioDeck([...partsMinus1, 12345678, 12345678]));
+      facade.resetGame(createScenarioDeck([...partsMinus1, TEST_CARD_IDS.DUMMY, TEST_CARD_IDS.DUMMY]));
       advanceToMain1(facade);
 
       const state = getState();

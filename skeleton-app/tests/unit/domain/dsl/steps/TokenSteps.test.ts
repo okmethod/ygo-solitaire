@@ -1,12 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
-import {
-  createMockGameState,
-  createFilledMonsterZone,
-  TOKEN_TEST_CARD_IDS,
-  TEST_CARD_IDS,
-} from "../../../../__testUtils__";
+import { createMockGameState, createFilledMonsterZone, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * TokenSteps Tests - トークン生成ステップのテスト
@@ -35,7 +30,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     it("トークン生成ステップを生成できる（攻撃表示）", () => {
       const step = buildStep(
         "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "attack" },
+        { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "attack" },
         createTestContext(),
       );
 
@@ -47,7 +42,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     it("トークン生成ステップを生成できる（守備表示）", () => {
       const step = buildStep(
         "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "defense" },
+        { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "defense" },
         createTestContext(),
       );
 
@@ -56,11 +51,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     });
 
     it("battlePosition省略時はデフォルトで攻撃表示", () => {
-      const step = buildStep(
-        "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN },
-        createTestContext(),
-      );
+      const step = buildStep("CREATE_TOKEN_MONSTER", { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN }, createTestContext());
 
       expect(step.id).toContain("create-token");
       expect(typeof step.action).toBe("function");
@@ -98,7 +89,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
 
       const step = buildStep(
         "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "attack" },
+        { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "attack" },
         createTestContext(),
       );
 
@@ -108,7 +99,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
       expect(result.updatedState.space.mainMonsterZone.length).toBe(1);
 
       const token = result.updatedState.space.mainMonsterZone[0];
-      expect(token.id).toBe(TOKEN_TEST_CARD_IDS.BASIC_TOKEN);
+      expect(token.id).toBe(TEST_CARD_IDS.BASIC_TOKEN);
       expect(token.instanceId).toContain("token-");
       expect(token.location).toBe("mainMonsterZone");
       expect(token.stateOnField?.battlePosition).toBe("attack");
@@ -125,7 +116,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
 
       const step = buildStep(
         "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "defense" },
+        { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN, battlePosition: "defense" },
         createTestContext(),
       );
 
@@ -143,11 +134,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
         },
       });
 
-      const step = buildStep(
-        "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN },
-        createTestContext(),
-      );
+      const step = buildStep("CREATE_TOKEN_MONSTER", { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN }, createTestContext());
 
       const result1 = step.action(state);
       const result2 = step.action(state);
@@ -165,11 +152,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
         },
       });
 
-      const step = buildStep(
-        "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN },
-        createTestContext(),
-      );
+      const step = buildStep("CREATE_TOKEN_MONSTER", { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN }, createTestContext());
 
       const result = step.action(state);
 
@@ -184,11 +167,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
         },
       });
 
-      const step = buildStep(
-        "CREATE_TOKEN_MONSTER",
-        { tokenCardId: TOKEN_TEST_CARD_IDS.BASIC_TOKEN },
-        createTestContext(),
-      );
+      const step = buildStep("CREATE_TOKEN_MONSTER", { tokenCardId: TEST_CARD_IDS.BASIC_TOKEN }, createTestContext());
 
       const result = step.action(state);
 

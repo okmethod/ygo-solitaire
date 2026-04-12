@@ -9,13 +9,6 @@
  * 2. チェーン可能なカードがあれば chainConfirmationConfig をセット（UI表示）
  * 3a. パス → onPass() → チェーン解決開始（発動済み魔法の resolution 実行）
  * 3b. チェーン発動 → onActivate(instanceId) → 追加ブロックを積む → LIFO 解決
- *
- * 使用カード:
- * - 成金ゴブリン (70368879):  通常魔法 SS1、1枚ドロー（実カード）
- * - テストスペル4 (1004):     速攻魔法 SS2、NoOp（setup.ts 登録済みテスト用）
- *
- * Note: デッキシャッフルによる非決定性を避けるため、チェーン確認が絡むテストでは
- *       gameStateStore.set() を使って手札状態を直接指定する。
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -32,6 +25,7 @@ import {
   getState,
   hasChainConfirmation,
   resolveChainConfirmation,
+  TEST_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("チェーン確認 - 基本フローテスト", () => {
@@ -51,12 +45,21 @@ describe("チェーン確認 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("チェーン確認なし - チェーン可能なカードが手札にない", () => {
     it("通常魔法のみの手札では chainConfirmationConfig が表示されず自動解決する", async () => {
-      // 手札: 成金ゴブリン x5、デッキ: 12345678 x1
-      facade.resetGame(createScenarioDeck([70368879, 70368879, 70368879, 70368879, 70368879, 12345678]));
+      // 手札: 通常魔法 x5、デッキ: DUMMY x1
+      facade.resetGame(
+        createScenarioDeck([
+          TEST_CARD_IDS.SPELL_NORMAL,
+          TEST_CARD_IDS.SPELL_NORMAL,
+          TEST_CARD_IDS.SPELL_NORMAL,
+          TEST_CARD_IDS.SPELL_NORMAL,
+          TEST_CARD_IDS.SPELL_NORMAL,
+          TEST_CARD_IDS.DUMMY,
+        ]),
+      );
       advanceToMain1(facade);
 
       const before = getState();
-      const goblinId = before.space.hand.find((c) => c.id === 70368879)!.instanceId;
+      const goblinId = before.space.hand.find((c) => c.id === TEST_CARD_IDS.SPELL_NORMAL)!.instanceId;
 
       facade.activateSpell(goblinId);
       await flushEffectQueue();
@@ -73,7 +76,7 @@ describe("チェーン確認 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("チェーン確認 → パス（チェーンしない）", () => {
     it("速攻魔法が手札にある場合、通常魔法発動後に chainConfirmationConfig が表示される", async () => {
-      // 手札: 通常魔法(1001) + 速攻魔法(1004) を直接配置（シャッフル回避）
+      // 手札: 通常魔法 + 速攻魔法 を直接配置（シャッフル回避）
       // デッキ: 残り1枚（通常魔法の1ドロー用）
       gameStateStore.set(
         createMockGameState({
@@ -183,7 +186,7 @@ describe("チェーン確認 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("チェーン確認 → チェーン2 → チェーン3 → LIFO 解決", () => {
     it("チェーン2の後も chainConfirmationConfig が表示され、チェーン3を積める", async () => {
-      // 手札: 通常魔法(1001) + 速攻魔法x2(1004)
+      // 手札: 通常魔法 + 速攻魔法x2
       gameStateStore.set(
         createMockGameState({
           phase: "main1",

@@ -20,11 +20,20 @@ import { DSLParseError, DSLValidationError } from "$lib/domain/dsl/types";
 // テストデータ
 // =============================================================================
 
-/** 有効な通常魔法カード定義（天使の施し） */
-const VALID_GRACEFUL_CHARITY_YAML = `
-id: 79571449
+/** 有効な最小限の定義 */
+const VALID_MINIMAL_YAML = `
+id: 1111
 data:
-  jaName: "天使の施し"
+  jaName: "ダミーミニマムカード"
+  type: "spell"
+  frameType: "spell"
+`;
+
+/** 有効な通常魔法カード定義 */
+const VALID_GRACEFUL_CHARITY_YAML = `
+id: 22222
+data:
+  jaName: "ダミー天使の施し"
   type: "spell"
   frameType: "spell"
   spellType: "normal"
@@ -42,20 +51,11 @@ effectChainableActions:
         args: { count: 2 }
 `;
 
-/** 最小限の有効な定義 */
-const VALID_MINIMAL_YAML = `
-id: 12345678
-data:
-  jaName: "テストカード"
-  type: "spell"
-  frameType: "spell"
-`;
-
-/** モンスターカード定義（永続効果付き） - PSCT準拠構造 */
+/** 有効なモンスターカード定義 */
 const VALID_MONSTER_YAML = `
-id: 70791313
+id: 333333
 data:
-  jaName: "王立魔法図書館"
+  jaName: "ダミー王立魔法図書館"
   type: "monster"
   frameType: "effect"
   race: "spellcaster"
@@ -77,25 +77,25 @@ effectAdditionalRules:
 
 /** 無効なYAML構文 */
 const INVALID_YAML_SYNTAX = `
-id: 12345678
+id: 4444444
 data:
-  jaName: "テスト
+  jaName: "ダミー無効YAMLカード
   type: spell  # クォートなし、これは問題なし
 `;
 
 /** 必須フィールド欠落 */
 const MISSING_REQUIRED_FIELD_YAML = `
 data:
-  jaName: "テストカード"
+  jaName: "ダミー欠損カード"
   type: "spell"
   frameType: "spell"
 `;
 
 /** 不正なtype値 */
 const INVALID_TYPE_VALUE_YAML = `
-id: 12345678
+id: 55555555
 data:
-  jaName: "テストカード"
+  jaName: "ダミー不正カード"
   type: "invalid_type"
   frameType: "spell"
 `;
@@ -108,11 +108,24 @@ const EMPTY_YAML = ``;
 // =============================================================================
 
 describe("parseCardDSL - 正常系", () => {
+  it("最小限の定義をパースできる", () => {
+    const result = parseCardDSL(VALID_MINIMAL_YAML);
+
+    expect(result.id).toBe(1111);
+    expect(result.data.jaName).toBe("ダミーミニマムカード");
+    expect(result.data.type).toBe("spell");
+    expect(result.data.frameType).toBe("spell");
+
+    // オプションフィールドはundefined
+    expect(result.data.spellType).toBeUndefined();
+    expect(result["effectChainableActions"]).toBeUndefined();
+  });
+
   it("有効な通常魔法カード定義をパースできる", () => {
     const result = parseCardDSL(VALID_GRACEFUL_CHARITY_YAML);
 
-    expect(result.id).toBe(79571449);
-    expect(result.data.jaName).toBe("天使の施し");
+    expect(result.id).toBe(22222);
+    expect(result.data.jaName).toBe("ダミー天使の施し");
     expect(result.data.type).toBe("spell");
     expect(result.data.frameType).toBe("spell");
     expect(result.data.spellType).toBe("normal");
@@ -125,24 +138,11 @@ describe("parseCardDSL - 正常系", () => {
     expect(actions?.activations?.resolutions).toHaveLength(3);
   });
 
-  it("最小限の定義をパースできる", () => {
-    const result = parseCardDSL(VALID_MINIMAL_YAML);
-
-    expect(result.id).toBe(12345678);
-    expect(result.data.jaName).toBe("テストカード");
-    expect(result.data.type).toBe("spell");
-    expect(result.data.frameType).toBe("spell");
-
-    // オプションフィールドはundefined
-    expect(result.data.spellType).toBeUndefined();
-    expect(result["effectChainableActions"]).toBeUndefined();
-  });
-
-  it("モンスターカード定義（永続効果付き）をパースできる", () => {
+  it("有効なモンスターカード定義をパースできる", () => {
     const result = parseCardDSL(VALID_MONSTER_YAML);
 
-    expect(result.id).toBe(70791313);
-    expect(result.data.jaName).toBe("王立魔法図書館");
+    expect(result.id).toBe(333333);
+    expect(result.data.jaName).toBe("ダミー王立魔法図書館");
     expect(result.data.type).toBe("monster");
     expect(result.data.frameType).toBe("effect");
     expect(result.data.race).toBe("spellcaster");
@@ -190,7 +190,7 @@ describe("parseCardDSL - 異常系", () => {
     } catch (error) {
       expect(isDSLValidationError(error)).toBe(true);
       if (isDSLValidationError(error)) {
-        expect(error.cardId).toBe(12345678);
+        expect(error.cardId).toBe(55555555);
         expect(error.issues.some((i) => i.includes("type"))).toBe(true);
       }
     }
@@ -220,16 +220,16 @@ describe("parseCardDSL - 異常系", () => {
 
 describe("parseMultipleCardDSL", () => {
   it("複数のYAML定義を一括パースできる", () => {
-    const results = parseMultipleCardDSL([VALID_GRACEFUL_CHARITY_YAML, VALID_MINIMAL_YAML]);
+    const results = parseMultipleCardDSL([VALID_MINIMAL_YAML, VALID_GRACEFUL_CHARITY_YAML]);
 
     expect(results).toHaveLength(2);
-    expect(results[0].id).toBe(79571449);
-    expect(results[1].id).toBe(12345678);
+    expect(results[0].id).toBe(1111);
+    expect(results[1].id).toBe(22222);
   });
 
   it("最初のエラーで停止する", () => {
     expect(() =>
-      parseMultipleCardDSL([VALID_GRACEFUL_CHARITY_YAML, INVALID_TYPE_VALUE_YAML, VALID_MINIMAL_YAML]),
+      parseMultipleCardDSL([VALID_MINIMAL_YAML, INVALID_TYPE_VALUE_YAML, VALID_GRACEFUL_CHARITY_YAML]),
     ).toThrow(DSLValidationError);
   });
 });

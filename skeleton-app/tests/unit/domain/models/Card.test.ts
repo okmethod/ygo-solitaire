@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { CardData } from "$lib/domain/models/Card";
 import { Card } from "$lib/domain/models/Card";
+import { TEST_CARD_IDS } from "../../../__testUtils__";
 
 /**
  * Card Type Guard Tests
@@ -12,20 +13,26 @@ import { Card } from "$lib/domain/models/Card";
 describe("isMonsterCard", () => {
   it("should distinguish monster cards from other types", () => {
     const monsterCard: CardData = {
-      id: 33396948,
+      id: TEST_CARD_IDS.DUMMY,
       jaName: "モンスターカード",
       type: "monster",
       frameType: "normal",
       edition: "latest",
     };
     const spellCard: CardData = {
-      id: 55144522,
+      id: TEST_CARD_IDS.SPELL_NORMAL,
       jaName: "魔法カード",
       type: "spell",
       frameType: "spell",
       edition: "latest",
     };
-    const trapCard: CardData = { id: 12345678, jaName: "罠カード", type: "trap", frameType: "trap", edition: "latest" };
+    const trapCard: CardData = {
+      id: TEST_CARD_IDS.TRAP_NORMAL,
+      jaName: "罠カード",
+      type: "trap",
+      frameType: "trap",
+      edition: "latest",
+    };
 
     expect(Card.isMonster(monsterCard)).toBe(true);
     expect(Card.isMonster(spellCard)).toBe(false);
@@ -36,20 +43,26 @@ describe("isMonsterCard", () => {
 describe("isSpellCard", () => {
   it("should distinguish spell cards from other types", () => {
     const monsterCard: CardData = {
-      id: 33396948,
+      id: TEST_CARD_IDS.DUMMY,
       jaName: "モンスターカード",
       type: "monster",
       frameType: "normal",
       edition: "latest",
     };
     const spellCard: CardData = {
-      id: 55144522,
+      id: TEST_CARD_IDS.SPELL_NORMAL,
       jaName: "魔法カード",
       type: "spell",
       frameType: "spell",
       edition: "latest",
     };
-    const trapCard: CardData = { id: 12345678, jaName: "罠カード", type: "trap", frameType: "trap", edition: "latest" };
+    const trapCard: CardData = {
+      id: TEST_CARD_IDS.TRAP_NORMAL,
+      jaName: "罠カード",
+      type: "trap",
+      frameType: "trap",
+      edition: "latest",
+    };
 
     expect(Card.isSpell(spellCard)).toBe(true);
     expect(Card.isSpell(monsterCard)).toBe(false);
@@ -60,20 +73,26 @@ describe("isSpellCard", () => {
 describe("isTrapCard", () => {
   it("should distinguish trap cards from other types", () => {
     const monsterCard: CardData = {
-      id: 33396948,
+      id: TEST_CARD_IDS.DUMMY,
       jaName: "モンスターカード",
       type: "monster",
       frameType: "normal",
       edition: "latest",
     };
     const spellCard: CardData = {
-      id: 55144522,
+      id: TEST_CARD_IDS.SPELL_NORMAL,
       jaName: "魔法カード",
       type: "spell",
       frameType: "spell",
       edition: "latest",
     };
-    const trapCard: CardData = { id: 12345678, jaName: "罠カード", type: "trap", frameType: "trap", edition: "latest" };
+    const trapCard: CardData = {
+      id: TEST_CARD_IDS.TRAP_NORMAL,
+      jaName: "罠カード",
+      type: "trap",
+      frameType: "trap",
+      edition: "latest",
+    };
 
     expect(Card.isTrap(trapCard)).toBe(true);
     expect(Card.isTrap(monsterCard)).toBe(false);

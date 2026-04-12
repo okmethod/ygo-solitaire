@@ -1,7 +1,7 @@
 /**
  * 王立魔法図書館コンボ シナリオテスト
  *
- * 王立魔法図書館 (70791313) の魔力カウンター蓄積と起動効果（ドロー）を
+ * 王立魔法図書館の魔力カウンター蓄積と起動効果（ドロー）を
  * GameFacade + effectQueueStore の本物のフローで検証する。
  *
  * シナリオ:
@@ -21,10 +21,8 @@ import {
   createSpellInstance,
   flushEffectQueue,
   getState,
+  ACTUAL_CARD_IDS,
 } from "../../__testUtils__";
-
-const LIBRARY_CARD_ID = 70791313;
-const GOBLIN_CARD_ID = 70368879;
 
 describe("王立魔法図書館コンボ - 実カードシナリオテスト", () => {
   let facade: GameFacade;
@@ -52,8 +50,8 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
             createMonsterInstance("deck-1", { location: "mainDeck" }),
             createMonsterInstance("deck-2", { location: "mainDeck" }),
           ],
-          hand: [createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID })],
-          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: LIBRARY_CARD_ID })],
+          hand: [createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN })],
+          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -82,11 +80,11 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
             createMonsterInstance("deck-4", { location: "mainDeck" }),
           ],
           hand: [
-            createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID }),
-            createSpellInstance("goblin-2", { cardId: GOBLIN_CARD_ID }),
-            createSpellInstance("goblin-3", { cardId: GOBLIN_CARD_ID }),
+            createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+            createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+            createSpellInstance("goblin-3", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
           ],
-          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: LIBRARY_CARD_ID })],
+          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],
@@ -115,10 +113,10 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
             createMonsterInstance("deck-1", { location: "mainDeck" }),
             createMonsterInstance("deck-2", { location: "mainDeck" }),
           ],
-          hand: [createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID })],
+          hand: [createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN })],
           mainMonsterZone: [
             createMonsterOnField(libraryInstanceId, {
-              cardId: LIBRARY_CARD_ID,
+              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
               counters: [{ type: "spell", count: 3 }],
             }),
           ],
@@ -154,7 +152,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
           hand: [],
           mainMonsterZone: [
             createMonsterOnField(libraryInstanceId, {
-              cardId: LIBRARY_CARD_ID,
+              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
               counters: [{ type: "spell", count: 3 }],
             }),
           ],
@@ -186,7 +184,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
           hand: [],
           mainMonsterZone: [
             createMonsterOnField(libraryInstanceId, {
-              cardId: LIBRARY_CARD_ID,
+              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
               counters: [{ type: "spell", count: 2 }],
             }),
           ],
@@ -219,11 +217,11 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
             createMonsterInstance("deck-5", { location: "mainDeck" }),
           ],
           hand: [
-            createSpellInstance("goblin-1", { cardId: GOBLIN_CARD_ID }),
-            createSpellInstance("goblin-2", { cardId: GOBLIN_CARD_ID }),
-            createSpellInstance("goblin-3", { cardId: GOBLIN_CARD_ID }),
+            createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+            createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+            createSpellInstance("goblin-3", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
           ],
-          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: LIBRARY_CARD_ID })],
+          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
           spellTrapZone: [],
           fieldZone: [],
           graveyard: [],

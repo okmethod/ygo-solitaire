@@ -13,7 +13,7 @@
 import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
-import { EXODIA_PIECE_IDS } from "./constants";
+import { ACTUAL_CARD_IDS } from "./constants";
 import { createFilledMainDeck, createHand } from "./cardSpaceFactory";
 
 /**
@@ -108,7 +108,13 @@ export function createExodiaVictoryState(): GameSnapshot {
   return createMockGameState({
     space: {
       ...createFilledMainDeck(35),
-      ...createHand([...EXODIA_PIECE_IDS.ALL]),
+      ...createHand([
+        ACTUAL_CARD_IDS.EXODIA_BODY,
+        ACTUAL_CARD_IDS.EXODIA_LEFT_ARM,
+        ACTUAL_CARD_IDS.EXODIA_RIGHT_ARM,
+        ACTUAL_CARD_IDS.EXODIA_LEFT_LEG,
+        ACTUAL_CARD_IDS.EXODIA_RIGHT_LEG,
+      ]),
     },
     phase: "main1",
     result: {

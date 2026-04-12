@@ -32,20 +32,20 @@ describe("DSLErrors - Error Messages", () => {
 
   describe("DSLValidationError", () => {
     it("エラーメッセージにカードIDが含まれる", () => {
-      const error = new DSLValidationError("validation failed", 55144522, "data.type", ["Invalid type"]);
-      expect(error.message).toContain("Card ID: 55144522");
-      expect(error.cardId).toBe(55144522);
+      const error = new DSLValidationError("validation failed", 12345, "data.type", ["Invalid type"]);
+      expect(error.message).toContain(`Card ID: ${12345}`);
+      expect(error.cardId).toBe(12345);
     });
 
     it("エラーメッセージにフィールドパスが含まれる", () => {
-      const error = new DSLValidationError("validation failed", 55144522, "data.type", ["Invalid type"]);
+      const error = new DSLValidationError("validation failed", 12345, "data.type", ["Invalid type"]);
       expect(error.message).toContain("Field: data.type");
       expect(error.field).toBe("data.type");
     });
 
     it("issues配列にバリデーション問題が含まれる", () => {
       const issues = ["Invalid type", "Missing required field"];
-      const error = new DSLValidationError("validation failed", 55144522, "data", issues);
+      const error = new DSLValidationError("validation failed", 12345, "data", issues);
       expect(error.issues).toEqual(issues);
       expect(error.issues.length).toBe(2);
     });

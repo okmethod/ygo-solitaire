@@ -12,7 +12,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState, createMonsterOnField } from "../../../../__testUtils__";
+import { createMockGameState, createMonsterOnField, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -26,7 +26,12 @@ class TestTriggerEffect extends BaseTriggerEffect {
 
   private shouldPass: boolean;
 
-  constructor(cardId: number = 12345678, effectIndex: number = 1, spellSpeed: 1 | 2 = 1, shouldPass: boolean = true) {
+  constructor(
+    cardId: number = TEST_CARD_IDS.DUMMY,
+    effectIndex: number = 1,
+    spellSpeed: 1 | 2 = 1,
+    shouldPass: boolean = true,
+  ) {
     super(cardId, effectIndex, spellSpeed);
     this.shouldPass = shouldPass;
   }
@@ -67,7 +72,7 @@ class TestTriggerEffect extends BaseTriggerEffect {
  * テスト用の具象クラス（任意効果、スペルスピード2）
  */
 class TestSpellSpeed2TriggerEffect extends TestTriggerEffect {
-  constructor(cardId: number = 12345678, effectIndex: number = 1) {
+  constructor(cardId: number = TEST_CARD_IDS.DUMMY, effectIndex: number = 1) {
     super(cardId, effectIndex, 2, true);
   }
 }
@@ -100,18 +105,18 @@ describe("BaseTriggerEffect", () => {
 
     it("should have correct cardId", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678);
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY);
 
       // Assert
-      expect(effect.cardId).toBe(12345678);
+      expect(effect.cardId).toBe(TEST_CARD_IDS.DUMMY);
     });
 
     it("should generate effectId from cardId and effectIndex", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678, 2);
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 2);
 
       // Assert
-      expect(effect.effectId).toBe("trigger-12345678-2");
+      expect(effect.effectId).toBe(`trigger-${TEST_CARD_IDS.DUMMY}-2`);
     });
   });
 
@@ -160,7 +165,7 @@ describe("BaseTriggerEffect", () => {
   describe("canActivate()", () => {
     it("should return true when individual conditions are met", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678, 1, 1, true);
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1, 1, true);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -173,7 +178,7 @@ describe("BaseTriggerEffect", () => {
 
     it("should return false when individual conditions are not met", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678, 1, 1, false); // shouldPass = false
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1, 1, false); // shouldPass = false
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -187,7 +192,7 @@ describe("BaseTriggerEffect", () => {
 
     it("should work in any phase (trigger effects are not restricted to main phase)", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678, 1, 1, true);
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1, 1, true);
       const state = createMockGameState({ phase: "draw" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -202,7 +207,7 @@ describe("BaseTriggerEffect", () => {
   describe("createActivationSteps()", () => {
     it("should include notification step and individual steps", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678, 1);
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -221,7 +226,7 @@ describe("BaseTriggerEffect", () => {
   describe("createResolutionSteps()", () => {
     it("should return individual resolution steps", () => {
       // Arrange
-      const effect = new TestTriggerEffect(12345678, 1);
+      const effect = new TestTriggerEffect(TEST_CARD_IDS.DUMMY, 1);
       const state = createMockGameState({ phase: "main1" });
       const sourceInstance = createMonsterOnField("test-1");
 
@@ -247,8 +252,8 @@ describe("isTriggerEffect type guard", () => {
   it("should return false for non-trigger effects", () => {
     // Arrange
     const mockIgnitionEffect: ChainableAction = {
-      cardId: 12345678,
-      effectId: "ignition-12345678-1" as EffectId,
+      cardId: TEST_CARD_IDS.DUMMY,
+      effectId: `ignition-${TEST_CARD_IDS.DUMMY}-1` as EffectId,
       effectCategory: "ignition",
       spellSpeed: 1,
       canActivate: () => GameProcessing.Validation.success(),
@@ -263,8 +268,8 @@ describe("isTriggerEffect type guard", () => {
   it("should return false for activation effects", () => {
     // Arrange
     const mockActivationEffect: ChainableAction = {
-      cardId: 12345678,
-      effectId: "activation-12345678" as EffectId,
+      cardId: TEST_CARD_IDS.DUMMY,
+      effectId: `activation-${TEST_CARD_IDS.DUMMY}` as EffectId,
       effectCategory: "activation",
       spellSpeed: 1,
       canActivate: () => GameProcessing.Validation.success(),

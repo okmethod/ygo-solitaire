@@ -10,26 +10,26 @@ import { EquipSpellActivation } from "$lib/domain/effects/actions/activations/Eq
 import { GenericTriggerEffect } from "$lib/domain/dsl/factories";
 
 // テストで使用するカードID
-const TEST_CARD_IDS = [
+const _CARD_IDS = [
   33396948, // 封印されしエクゾディア
   70903634, // 封印されし者の右腕
   7902349, // 封印されし者の左腕
   8124921, // 封印されし者の右足
   44519536, // 封印されし者の左足
   70791313, // 王立魔法図書館
+  90953320, // ＴＧ ハイパー・ライブラリアン
+  50091196, // フォーミュラ・シンクロン
   70368879, // 成金ゴブリン
   55144522, // 強欲な壺
   79571449, // 天使の施し
-  73628505, // テラフォーミング
+  73628505, // テラ・フォーミング
   67616300, // チキンレース
-  90953320, // ＴＧ ハイパー・ライブラリアン
-  50091196, // フォーミュラ・シンクロン
   41587307, // 折れ竹光
-  22589918, // リロード（チェーン確認テスト用：速攻魔法 SS2）
+  24874631, // メタルデビル・トークン
 ];
 
 // 各種レジストリを初期化（CardData + 効果一括、DSL優先）
-registerCardDataWithEffectsByIds(TEST_CARD_IDS);
+registerCardDataWithEffectsByIds(_CARD_IDS);
 
 // テスト用カードデータも登録
 CardDataRegistry.register(12345678, {
@@ -62,15 +62,6 @@ CardDataRegistry.register(1002, {
   edition: "latest",
 });
 ChainableActionRegistry.registerActivation(1002, EquipSpellActivation.createNoOp(1002));
-
-CardDataRegistry.register(1003, {
-  jaName: "Test Spell 3",
-  type: "spell",
-  frameType: "spell",
-  spellType: "normal",
-  edition: "latest",
-});
-ChainableActionRegistry.registerActivation(1003, NormalSpellActivation.createNoOp(1003));
 
 CardDataRegistry.register(1004, {
   jaName: "Test Spell 4",

@@ -19,6 +19,7 @@ import {
   clearHistory,
 } from "$lib/domain/models/GameProcessing/EventTimeline";
 import type { GameEvent } from "$lib/domain/models/GameProcessing/GameEvent";
+import { TEST_CARD_IDS } from "../../../__testUtils__";
 
 describe("EventTimeline", () => {
   describe("createEmptyTimeline", () => {
@@ -49,7 +50,11 @@ describe("EventTimeline", () => {
     it("should add event to current snapshot", () => {
       // Arrange
       const timeline = createEmptyTimeline();
-      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" };
+      const event: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      };
 
       // Act
       const result = recordEvent(timeline, event);
@@ -62,8 +67,16 @@ describe("EventTimeline", () => {
     it("should add multiple events to the same snapshot", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      const event1: GameEvent = { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" };
-      const event2: GameEvent = { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-2" };
+      const event1: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      };
+      const event2: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-2",
+      };
 
       // Act
       timeline = recordEvent(timeline, event1);
@@ -78,7 +91,11 @@ describe("EventTimeline", () => {
     it("should not mutate original timeline", () => {
       // Arrange
       const timeline = createEmptyTimeline();
-      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" };
+      const event: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      };
 
       // Act
       recordEvent(timeline, event);
@@ -92,7 +109,11 @@ describe("EventTimeline", () => {
     it("should move current snapshot to history and create new snapshot", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" };
+      const event: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      };
       timeline = recordEvent(timeline, event);
 
       // Act
@@ -124,11 +145,19 @@ describe("EventTimeline", () => {
       let timeline = createEmptyTimeline();
 
       // First event and advance
-      timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
+      timeline = recordEvent(timeline, {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      });
       timeline = advanceTime(timeline);
 
       // Second event and advance
-      timeline = recordEvent(timeline, { type: "normalSummoned", sourceCardId: 87654321, sourceInstanceId: "card-2" });
+      timeline = recordEvent(timeline, {
+        type: "normalSummoned",
+        sourceCardId: TEST_CARD_IDS.DUMMY_B,
+        sourceInstanceId: "card-2",
+      });
       timeline = advanceTime(timeline);
 
       // Assert
@@ -151,7 +180,11 @@ describe("EventTimeline", () => {
     it("should return true when current snapshot has events", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
+      timeline = recordEvent(timeline, {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      });
 
       // Act & Assert
       expect(hasCurrentEvents(timeline)).toBe(true);
@@ -173,7 +206,11 @@ describe("EventTimeline", () => {
     it("should return current events", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      const event: GameEvent = { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" };
+      const event: GameEvent = {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      };
       timeline = recordEvent(timeline, event);
 
       // Act
@@ -197,7 +234,11 @@ describe("EventTimeline", () => {
     it("should return true when event type is present", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
+      timeline = recordEvent(timeline, {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      });
 
       // Act & Assert
       expect(hasEventOfType(timeline, "spellActivated")).toBe(true);
@@ -206,7 +247,11 @@ describe("EventTimeline", () => {
     it("should check only current snapshot, not history", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
+      timeline = recordEvent(timeline, {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      });
       timeline = advanceTime(timeline);
 
       // Act & Assert - spellActivated is in history, not current
@@ -218,9 +263,17 @@ describe("EventTimeline", () => {
     it("should clear history while preserving current snapshot", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
+      timeline = recordEvent(timeline, {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      });
       timeline = advanceTime(timeline);
-      timeline = recordEvent(timeline, { type: "normalSummoned", sourceCardId: 87654321, sourceInstanceId: "card-2" });
+      timeline = recordEvent(timeline, {
+        type: "normalSummoned",
+        sourceCardId: TEST_CARD_IDS.DUMMY_B,
+        sourceInstanceId: "card-2",
+      });
 
       // Act
       const result = clearHistory(timeline);
@@ -234,7 +287,11 @@ describe("EventTimeline", () => {
     it("should not mutate original timeline", () => {
       // Arrange
       let timeline = createEmptyTimeline();
-      timeline = recordEvent(timeline, { type: "spellActivated", sourceCardId: 12345678, sourceInstanceId: "card-1" });
+      timeline = recordEvent(timeline, {
+        type: "spellActivated",
+        sourceCardId: TEST_CARD_IDS.DUMMY,
+        sourceInstanceId: "card-1",
+      });
       timeline = advanceTime(timeline);
 
       // Act

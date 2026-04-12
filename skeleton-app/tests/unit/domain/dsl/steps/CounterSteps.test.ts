@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { StepBuildContext } from "$lib/domain/dsl/types";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
+import { ACTUAL_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * CounterSteps Tests - カウンター関連ステップのテスト
@@ -15,7 +16,7 @@ import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 // テストヘルパー
 // =============================================================================
 
-const createTestContext = (cardId: number = 70791313): StepBuildContext => ({
+const createTestContext = (cardId: number = ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY): StepBuildContext => ({
   cardId,
   sourceInstanceId: "test-instance-id",
 });

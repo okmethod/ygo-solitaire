@@ -18,7 +18,7 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck } from "../../../../__testUtils__";
+import { createTestInitialDeck, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -27,7 +27,7 @@ class TestSpellAction extends BaseSpellActivation {
   readonly spellSpeed = 1 as const;
 
   constructor() {
-    super(12345678); // Test card ID from registry
+    super(TEST_CARD_IDS.DUMMY);
   }
 
   protected subTypeConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
@@ -84,10 +84,14 @@ describe("BaseSpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when subtype conditions and individual conditions are met", () => {
       // Arrange: Deck has cards (individualConditions returns true)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -116,7 +120,7 @@ describe("BaseSpellActivation", () => {
   describe("createActivationSteps()", () => {
     // テスト用の sourceInstance を作成するヘルパー
     const createTestSourceInstance = (): CardInstance => ({
-      id: 12345678,
+      id: TEST_CARD_IDS.DUMMY,
       instanceId: "test-instance-1",
       jaName: "Test Monster A",
       type: "spell",
@@ -127,10 +131,14 @@ describe("BaseSpellActivation", () => {
 
     it("should return default activation step with card info", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const sourceInstance = createTestSourceInstance();
 
       // Act
@@ -138,7 +146,7 @@ describe("BaseSpellActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
-      expect(steps[0].id).toBe("12345678-activation-notification");
+      expect(steps[0].id).toBe(`${TEST_CARD_IDS.DUMMY}-activation-notification`);
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します"); // Uses getCardNameWithBrackets from registry
       expect(steps[0].notificationLevel).toBe("static");
@@ -149,10 +157,14 @@ describe("BaseSpellActivation", () => {
 
     it("should return step with action that does not modify state", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const sourceInstance = createTestSourceInstance();
       const steps = action.createActivationSteps(state, sourceInstance);
 
@@ -169,10 +181,14 @@ describe("BaseSpellActivation", () => {
   describe("Abstract methods", () => {
     it("should implement createResolutionSteps()", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
 
       // Act
       const steps = action.createResolutionSteps(state, state.space.hand[0]);

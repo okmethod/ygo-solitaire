@@ -18,6 +18,7 @@ import {
   resolveCardSelection,
   hasCardSelection,
   getState,
+  TEST_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("通常召喚 - 基本フローテスト", () => {
@@ -302,7 +303,16 @@ describe("通常召喚 - 基本フローテスト", () => {
     });
 
     it("ドローフェイズは召喚できない", () => {
-      facade.resetGame(createScenarioDeck([12345678, 12345678, 12345678, 12345678, 12345678, 12345678]));
+      facade.resetGame(
+        createScenarioDeck([
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+          TEST_CARD_IDS.DUMMY,
+        ]),
+      );
       // advanceToMain1 しない（ドローフェイズのまま）
 
       const state = getState();

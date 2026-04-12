@@ -19,14 +19,14 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck } from "../../../../__testUtils__";
+import { createTestInitialDeck, TEST_CARD_IDS, ACTUAL_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
  */
 class TestFieldSpell extends FieldSpellActivation {
   constructor() {
-    super(12345678); // Test Monster 2 from CardDataRegistry
+    super(TEST_CARD_IDS.DUMMY);
   }
 
   protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
@@ -60,10 +60,14 @@ describe("FieldSpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + no additional conditions required)", () => {
       // Arrange: Main Phase 1
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const stateInMain1: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -75,10 +79,14 @@ describe("FieldSpellActivation", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (FieldSpellActivation固有のフェーズ制約テスト)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       // Default phase is "Draw"
 
       // Act & Assert
@@ -104,7 +112,7 @@ describe("FieldSpellActivation", () => {
   describe("createActivationSteps()", () => {
     // テスト用の sourceInstance を作成するヘルパー
     const createTestSourceInstance = (): CardInstance => ({
-      id: 67616300,
+      id: ACTUAL_CARD_IDS.CHICKEN_GAME,
       instanceId: "test-field-spell-1",
       jaName: "Test Field Spell",
       type: "spell",
@@ -116,10 +124,14 @@ describe("FieldSpellActivation", () => {
 
     it("should return notification and event steps (field spells have no additional activation steps)", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const sourceInstance = createTestSourceInstance();
 
       // Act
@@ -135,10 +147,14 @@ describe("FieldSpellActivation", () => {
   describe("createResolutionSteps()", () => {
     it("should return empty array (field spells have no resolution steps)", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
 
       // Act
       const steps = action.createResolutionSteps(state, state.space.hand[0]);

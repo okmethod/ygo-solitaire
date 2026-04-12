@@ -9,7 +9,7 @@
 
 import { describe, it, expect } from "vitest";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
-import { createMockGameState, createSpellInstance, createSpellOnField } from "../../../__testUtils__";
+import { createMockGameState, createSpellInstance, createSpellOnField, TEST_CARD_IDS } from "../../../__testUtils__";
 
 describe("ActivationRule", () => {
   describe("placeCardForActivation", () => {
@@ -158,7 +158,7 @@ describe("ActivationRule", () => {
         // Arrange
         const monster = {
           instanceId: "monster-0",
-          id: 12345678,
+          id: TEST_CARD_IDS.DUMMY,
           jaName: "Test Monster",
           type: "monster" as const,
           frameType: "normal" as const,

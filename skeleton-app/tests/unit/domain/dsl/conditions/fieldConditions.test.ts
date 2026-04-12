@@ -24,6 +24,7 @@ import {
   createFilledSpellZone,
   createSpellOnField,
   createSpellInstance,
+  ACTUAL_CARD_IDS,
 } from "../../../../__testUtils__";
 
 // =============================================================================
@@ -108,7 +109,7 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     const state = createMockGameState({
       space: {
         spellTrapZone: [
-          createSpellOnField("equip-1", { cardId: 41587307 }), // 折れ竹光
+          createSpellOnField("equip-1", { cardId: ACTUAL_CARD_IDS.BROKEN_BAMBOO_SWORD }), // 折れ竹光
         ],
       },
       phase: "main1",
@@ -124,7 +125,7 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     const state = createMockGameState({
       space: {
         spellTrapZone: [
-          createSpellOnField("equip-1", { cardId: 41587307 }), // 折れ竹光
+          createSpellOnField("equip-1", { cardId: ACTUAL_CARD_IDS.BROKEN_BAMBOO_SWORD }), // 折れ竹光
         ],
       },
       phase: "main1",

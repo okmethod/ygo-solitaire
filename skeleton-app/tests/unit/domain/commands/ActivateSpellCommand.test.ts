@@ -9,6 +9,7 @@ import {
   createSpellInstance,
   createSpellOnField,
   createExodiaVictoryState,
+  TEST_CARD_IDS,
 } from "../../../__testUtils__";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 
@@ -22,13 +23,25 @@ describe("ActivateSpellCommand", () => {
       phase: "main1",
       space: {
         mainDeck: [
-          createSpellInstance("main-0", { spellType: "normal", cardId: 1001, location: "mainDeck" }),
-          createSpellInstance("mainDeck-1", { spellType: "normal", cardId: 1002, location: "mainDeck" }),
+          createSpellInstance("main-0", {
+            spellType: "normal",
+            cardId: TEST_CARD_IDS.SPELL_NORMAL,
+            location: "mainDeck",
+          }),
+          createSpellInstance("mainDeck-1", {
+            spellType: "normal",
+            cardId: TEST_CARD_IDS.SPELL_EQUIP,
+            location: "mainDeck",
+          }),
         ],
         extraDeck: [],
         hand: [
-          createSpellInstance(spellCardId, { spellType: "normal", cardId: 1001, location: "hand" }),
-          createSpellInstance("hand-2", { spellType: "normal", cardId: 1003, location: "hand" }),
+          createSpellInstance(spellCardId, {
+            spellType: "normal",
+            cardId: TEST_CARD_IDS.SPELL_NORMAL,
+            location: "hand",
+          }),
+          createSpellInstance("hand-2", { spellType: "normal", cardId: TEST_CARD_IDS.SPELL_QUICK, location: "hand" }),
         ],
         mainMonsterZone: [],
         spellTrapZone: [],
@@ -58,7 +71,13 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance(spellCardId, { spellType: "normal", cardId: 1001, location: "hand" })],
+          hand: [
+            createSpellInstance(spellCardId, {
+              spellType: "normal",
+              cardId: TEST_CARD_IDS.SPELL_NORMAL,
+              location: "hand",
+            }),
+          ],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -122,7 +141,13 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance(spellCardId, { spellType: "continuous", cardId: 1005, location: "hand" })],
+          hand: [
+            createSpellInstance(spellCardId, {
+              spellType: "continuous",
+              cardId: TEST_CARD_IDS.SPELL_CONTINUOUS,
+              location: "hand",
+            }),
+          ],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -199,7 +224,13 @@ describe("ActivateSpellCommand", () => {
         space: {
           mainDeck: [],
           extraDeck: [],
-          hand: [createSpellInstance("field-spell-1", { spellType: "field", cardId: 1006, location: "hand" })],
+          hand: [
+            createSpellInstance("field-spell-1", {
+              spellType: "field",
+              cardId: TEST_CARD_IDS.SPELL_FIELD,
+              location: "hand",
+            }),
+          ],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -216,7 +247,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone.length).toBe(0);
-      expect(result.updatedState.space.fieldZone[0].id).toBe(1006);
+      expect(result.updatedState.space.fieldZone[0].id).toBe(TEST_CARD_IDS.SPELL_FIELD);
     });
 
     it("should place normal spell in spellTrapZone", () => {
@@ -225,11 +256,25 @@ describe("ActivateSpellCommand", () => {
         phase: "main1",
         space: {
           mainDeck: [
-            createSpellInstance("main-0", { spellType: "normal", cardId: 1001, location: "mainDeck" }),
-            createSpellInstance("main-1", { spellType: "normal", cardId: 1002, location: "mainDeck" }),
+            createSpellInstance("main-0", {
+              spellType: "normal",
+              cardId: TEST_CARD_IDS.SPELL_NORMAL,
+              location: "mainDeck",
+            }),
+            createSpellInstance("main-1", {
+              spellType: "normal",
+              cardId: TEST_CARD_IDS.SPELL_EQUIP,
+              location: "mainDeck",
+            }),
           ],
           extraDeck: [],
-          hand: [createSpellInstance("normal-spell-1", { spellType: "normal", cardId: 1001, location: "hand" })],
+          hand: [
+            createSpellInstance("normal-spell-1", {
+              spellType: "normal",
+              cardId: TEST_CARD_IDS.SPELL_NORMAL,
+              location: "hand",
+            }),
+          ],
           mainMonsterZone: [],
           spellTrapZone: [],
           fieldZone: [],
@@ -247,7 +292,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone.length).toBe(0);
-      expect(result.updatedState.space.spellTrapZone[0].id).toBe(1001);
+      expect(result.updatedState.space.spellTrapZone[0].id).toBe(TEST_CARD_IDS.SPELL_NORMAL);
     });
 
     it("should place continuous spell in spellTrapZone and keep it on field", () => {
@@ -258,7 +303,11 @@ describe("ActivateSpellCommand", () => {
           mainDeck: [],
           extraDeck: [],
           hand: [
-            createSpellInstance("continuous-spell-1", { spellType: "continuous", cardId: 1005, location: "hand" }),
+            createSpellInstance("continuous-spell-1", {
+              spellType: "continuous",
+              cardId: TEST_CARD_IDS.SPELL_CONTINUOUS,
+              location: "hand",
+            }),
           ],
           mainMonsterZone: [],
           spellTrapZone: [],
@@ -287,8 +336,16 @@ describe("ActivateSpellCommand", () => {
         phase: "main1",
         space: {
           mainDeck: [
-            createSpellInstance("main-0", { spellType: "normal", cardId: 1001, location: "mainDeck" }),
-            createSpellInstance("mainDeck-1", { spellType: "normal", cardId: 1002, location: "mainDeck" }),
+            createSpellInstance("main-0", {
+              spellType: "normal",
+              cardId: TEST_CARD_IDS.SPELL_NORMAL,
+              location: "mainDeck",
+            }),
+            createSpellInstance("mainDeck-1", {
+              spellType: "normal",
+              cardId: TEST_CARD_IDS.SPELL_EQUIP,
+              location: "mainDeck",
+            }),
           ],
           extraDeck: [],
           hand: [],

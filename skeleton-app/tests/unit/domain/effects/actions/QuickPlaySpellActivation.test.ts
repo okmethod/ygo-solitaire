@@ -18,14 +18,14 @@ import { GameState } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import { CardDataRegistry } from "$lib/domain/cards";
-import { createTestInitialDeck } from "../../../../__testUtils__";
+import { createTestInitialDeck, TEST_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
  */
 class TestQuickPlaySpell extends QuickPlaySpellActivation {
   constructor() {
-    super(12345678); // Test Monster 2 from CardDataRegistry
+    super(TEST_CARD_IDS.DUMMY);
   }
 
   protected individualConditions(state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
@@ -48,7 +48,7 @@ class TestQuickPlaySpell extends QuickPlaySpellActivation {
 /** テスト用ダミー CardInstance */
 function createDummyCardInstance(overrides: Partial<CardInstance> = {}): CardInstance {
   return {
-    id: 12345678,
+    id: TEST_CARD_IDS.DUMMY,
     instanceId: "test-instance-0",
     enName: "Test Card",
     jaName: "テストカード",
@@ -78,10 +78,14 @@ describe("QuickPlaySpellActivation", () => {
   describe("canActivate()", () => {
     it("should return true when all conditions are met (Main Phase + additional conditions)", () => {
       // Arrange: Main Phase 1, Hand not empty
-      const baseState = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const baseState = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const handCard: CardInstance = {
         ...baseState.space.mainDeck[0],
         instanceId: "hand-0",
@@ -103,10 +107,14 @@ describe("QuickPlaySpellActivation", () => {
 
     it("should return false when phase is not Main1", () => {
       // Arrange: Phase is Draw (QuickPlaySpellActivation固有のフェーズ制約テスト)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const sourceInstance = createDummyCardInstance({ location: "hand" });
       // Default phase is "Draw"
 
@@ -116,10 +124,14 @@ describe("QuickPlaySpellActivation", () => {
 
     it("should return false when additional conditions are not met", () => {
       // Arrange: Hand is empty (additionalActivationConditions returns false)
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const emptyHandState: GameSnapshot = {
         ...state,
         phase: "main1",
@@ -138,10 +150,14 @@ describe("QuickPlaySpellActivation", () => {
   describe("createActivationSteps()", () => {
     it("should return default activation step", () => {
       // Arrange
-      const state = GameState.initialize(createTestInitialDeck([1001, 1002, 1003]), CardDataRegistry.getCard, {
-        skipShuffle: true,
-        skipInitialDraw: true,
-      });
+      const state = GameState.initialize(
+        createTestInitialDeck([TEST_CARD_IDS.SPELL_NORMAL, TEST_CARD_IDS.SPELL_EQUIP, TEST_CARD_IDS.SPELL_QUICK]),
+        CardDataRegistry.getCard,
+        {
+          skipShuffle: true,
+          skipInitialDraw: true,
+        },
+      );
       const sourceInstance = createDummyCardInstance();
 
       // Act
@@ -149,7 +165,7 @@ describe("QuickPlaySpellActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
-      expect(steps[0].id).toBe("12345678-activation-notification");
+      expect(steps[0].id).toBe(`${TEST_CARD_IDS.DUMMY}-activation-notification`);
       expect(steps[0].summary).toBe("カード発動");
       expect(steps[0].description).toBe("《Test Monster A》を発動します");
       expect(steps[1].id).toContain("emit-spell-activated-");

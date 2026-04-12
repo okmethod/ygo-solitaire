@@ -10,11 +10,6 @@
  * 3. optionalTriggerConfirmConfig をセット（UI表示）
  * 3a. 発動する → onActivate() → 効果解決
  * 3b. 発動しない → onPass() → 効果スキップ
- *
- * 使用カード:
- * - Test NonTuner Lv1 (3001):              通常モンスター（任意効果なし）
- * - Test Optional Trigger Monster (6001):  効果モンスター、召喚成功時に任意誘発効果（NoOp）
- *                                          （setup.ts 登録済みテスト用）
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -28,8 +23,7 @@ import {
   getState,
   hasOptionalTrigger,
   resolveOptionalTrigger,
-  SYNCHRO_TEST_CARD_IDS,
-  OPTIONAL_TRIGGER_TEST_CARD_IDS,
+  TEST_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("任意誘発効果 - 基本フローテスト", () => {
@@ -52,7 +46,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [createMonsterInstance("normal-1", { cardId: SYNCHRO_TEST_CARD_IDS.NON_TUNER_LV1 })],
+            hand: [createMonsterInstance("normal-1", { cardId: TEST_CARD_IDS.DUMMY })],
           },
         }),
       );
@@ -73,9 +67,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [
-              createMonsterInstance("effect-1", { cardId: OPTIONAL_TRIGGER_TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER }),
-            ],
+            hand: [createMonsterInstance("effect-1", { cardId: TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
           },
         }),
       );
@@ -95,9 +87,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [
-              createMonsterInstance("effect-1", { cardId: OPTIONAL_TRIGGER_TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER }),
-            ],
+            hand: [createMonsterInstance("effect-1", { cardId: TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
           },
         }),
       );
@@ -122,9 +112,7 @@ describe("任意誘発効果 - 基本フローテスト", () => {
       gameStateStore.set(
         createMockGameState({
           space: {
-            hand: [
-              createMonsterInstance("effect-1", { cardId: OPTIONAL_TRIGGER_TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER }),
-            ],
+            hand: [createMonsterInstance("effect-1", { cardId: TEST_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
           },
         }),
       );
