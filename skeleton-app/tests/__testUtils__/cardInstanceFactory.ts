@@ -11,6 +11,7 @@
  * 【フィールド向け】stateOnField 有り
  * - createMonsterOnField: フィールド上のモンスター
  * - createSpellOnField: フィールド上の魔法
+ * - createTrapOnField: フィールド上の罠
  */
 
 import type { LocationName } from "$lib/domain/models/Location";
@@ -328,4 +329,42 @@ export function createSpellOnField(
     equippedTo: options?.equippedTo,
     counters: options?.counters,
   });
+}
+
+/**
+ * テスト用罠カードインスタンスを作成（stateOnField 有り）
+ *
+ * cardId 未指定時は trapType に対応する defaultTrapCardIds を使用。
+ * cardId 指定時、CardDataRegistry に登録済みであればレジストリ値を優先。
+ * ロケーション: 魔法・罠ゾーン固定
+ * デフォルト: slotIndex=0, 表側表示
+ *
+ * @param instanceId - 一意のインスタンスID
+ * @param options - オプション設定
+ */
+export function createTrapOnField(
+  instanceId: string,
+  options?: {
+    cardId?: number;
+    trapType?: TrapSubType;
+    position?: Position;
+    placedThisTurn?: boolean;
+    slotIndex?: number;
+    counters?: readonly CounterState[];
+  },
+): CardInstance {
+  const trapType = options?.trapType ?? "normal";
+  return createBase(
+    instanceId,
+    options?.cardId ?? defaultTrapCardIds[trapType],
+    "spellTrapZone",
+    { type: "trap", frameType: "trap" },
+    defined({ trapType: options?.trapType }),
+    {
+      slotIndex: options?.slotIndex ?? 0,
+      position: options?.position ?? "faceUp",
+      placedThisTurn: options?.placedThisTurn,
+      counters: options?.counters,
+    },
+  );
 }
