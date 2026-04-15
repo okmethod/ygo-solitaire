@@ -5,7 +5,6 @@
 import { describe, it, expect } from "vitest";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import {
-  createMockGameState,
   createSpaceState,
   createSpellInstance,
   createSpellOnField,
@@ -53,10 +52,12 @@ describe("SetSpellTrapCommand", () => {
     it("メイン1フェイズでない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        phase: "draw",
-        space: { hand: [spellCard] },
-      });
+      const state = createSpaceState(
+        {
+          hand: [spellCard],
+        },
+        "draw",
+      );
 
       const command = new SetSpellTrapCommand("spell-1");
 
@@ -86,7 +87,7 @@ describe("SetSpellTrapCommand", () => {
 
     it("カードが見つからない場合は失敗する", () => {
       // Arrange
-      const state = createMockGameState();
+      const state = createSpaceState();
 
       const command = new SetSpellTrapCommand("non-existent-id");
 
@@ -260,10 +261,12 @@ describe("SetSpellTrapCommand", () => {
     it("魔法をセットしても normalSummonUsed を消費しない", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        normalSummonUsed: 0,
-        space: { hand: [spellCard] },
-      });
+      const state = createSpaceState(
+        {
+          hand: [spellCard],
+        },
+        "main1",
+      );
 
       const command = new SetSpellTrapCommand("spell-1");
 
@@ -278,10 +281,12 @@ describe("SetSpellTrapCommand", () => {
     it("メイン1フェイズでない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        phase: "draw",
-        space: { hand: [spellCard] },
-      });
+      const state = createSpaceState(
+        {
+          hand: [spellCard],
+        },
+        "draw",
+      );
 
       const command = new SetSpellTrapCommand("spell-1");
 
@@ -295,7 +300,7 @@ describe("SetSpellTrapCommand", () => {
 
     it("カードが見つからない場合は失敗する", () => {
       // Arrange
-      const state = createMockGameState();
+      const state = createSpaceState();
 
       const command = new SetSpellTrapCommand("non-existent-id");
 

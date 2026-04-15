@@ -9,7 +9,7 @@ import {
   fieldHasMonsterWithRaceCondition,
   fieldHasNonEffectMonsterCondition,
 } from "$lib/domain/dsl/conditions/checkers/fieldConditions";
-import { createMockGameState, createFilledSpaceState, createSpellInstance } from "../../../../__testUtils__";
+import { createFilledSpaceState, createSpellInstance } from "../../../../__testUtils__";
 
 // ソースインスタンス（条件チェックの発動元として使用）
 const sourceInstance = createSpellInstance("dummy-source");
@@ -52,7 +52,7 @@ describe("fieldHasCardCondition", () => {
   });
 
   it("フィールドに該当カードがない場合はfalseを返す", () => {
-    const state = createMockGameState({ phase: "main1" });
+    const state = createFilledSpaceState({ monsterZoneCount: 0 });
 
     const result = fieldHasCardCondition(state, sourceInstance, { filterType: "monster" });
 

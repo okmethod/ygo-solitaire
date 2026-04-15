@@ -17,7 +17,7 @@ import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
   createScenarioDeck,
-  createMockGameState,
+  createSpaceState,
   createSpellInstance,
   createFilledMainDeck,
   advanceToMain1,
@@ -79,15 +79,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
       // 手札: 通常魔法 + 速攻魔法 を直接配置（シャッフル回避）
       // デッキ: 残り1枚（通常魔法の1ドロー用）
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-            ],
-            ...createFilledMainDeck(1),
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+          ],
+          ...createFilledMainDeck(1),
         }),
       );
 
@@ -100,15 +97,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
 
     it("パスを選択すると発動済み魔法のみが解決され、速攻魔法は手札に残る", async () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-            ],
-            ...createFilledMainDeck(1),
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+          ],
+          ...createFilledMainDeck(1),
         }),
       );
 
@@ -132,15 +126,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
   describe("チェーン確認 → チェーン発動 → LIFO 解決", () => {
     it("チェーン発動後に両方の魔法が解決されて墓地へ送られる", async () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-            ],
-            ...createFilledMainDeck(1),
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+          ],
+          ...createFilledMainDeck(1),
         }),
       );
 
@@ -159,15 +150,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
 
     it("チェーン発動後は chainConfirmationConfig が消える（二重チェーン確認なし）", async () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-            ],
-            ...createFilledMainDeck(1),
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+          ],
+          ...createFilledMainDeck(1),
         }),
       );
 
@@ -188,15 +176,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
     it("チェーン2の後も chainConfirmationConfig が表示され、チェーン3を積める", async () => {
       // 手札: 通常魔法 + 速攻魔法x2
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-              createSpellInstance("quick-2", { spellType: "quick-play" }),
-            ],
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+            createSpellInstance("quick-2", { spellType: "quick-play" }),
+          ],
         }),
       );
 
@@ -214,15 +199,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
 
     it("チェーン3まで積んだ後、3枚すべてが LIFO で解決されて墓地へ送られる", async () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-              createSpellInstance("quick-2", { spellType: "quick-play" }),
-            ],
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+            createSpellInstance("quick-2", { spellType: "quick-play" }),
+          ],
         }),
       );
 
@@ -244,15 +226,12 @@ describe("チェーン確認 - 基本フローテスト", () => {
 
     it("チェーン3発動後は chainConfirmationConfig が消える", async () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [
-              createSpellInstance("normal-1", { spellType: "normal" }),
-              createSpellInstance("quick-1", { spellType: "quick-play" }),
-              createSpellInstance("quick-2", { spellType: "quick-play" }),
-            ],
-          },
+        createSpaceState({
+          hand: [
+            createSpellInstance("normal-1", { spellType: "normal" }),
+            createSpellInstance("quick-1", { spellType: "quick-play" }),
+            createSpellInstance("quick-2", { spellType: "quick-play" }),
+          ],
         }),
       );
 
