@@ -10,15 +10,14 @@ import { vi } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
-  createMockGameState,
-  createMonsterInstance,
+  createSummonReadyState,
+  createSpaceState,
   createFilledMonsterZone,
-  createScenarioDeck,
+  createMonsterInstance,
   flushEffectQueue,
   resolveCardSelection,
   hasCardSelection,
   getState,
-  DUMMY_CARD_IDS,
 } from "../../__testUtils__";
 
 describe("通常召喚 - 基本フローテスト", () => {
@@ -38,35 +37,41 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("通常召喚（表側攻撃表示）", () => {
     it("手札のモンスターを召喚 → フィールドに表側攻撃表示で配置", () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: { hand: [createMonsterInstance("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 4,
+        fieldCount: 0,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      gameStateStore.set(state);
 
-      const result = facade.summonMonster("m1");
-
+      const result = facade.summonMonster(handMonsterId);
       expect(result.success).toBe(true);
-      const state = getState();
-      expect(state.space.hand.length).toBe(0);
-      expect(state.space.mainMonsterZone.length).toBe(1);
-      expect(state.space.mainMonsterZone[0].instanceId).toBe("m1");
-      expect(state.space.mainMonsterZone[0].stateOnField?.position).toBe("faceUp");
-      expect(state.space.mainMonsterZone[0].stateOnField?.battlePosition).toBe("attack");
+
+      const updatedState = getState();
+      expect(updatedState.space.hand.length).toBe(0);
+      expect(updatedState.space.mainMonsterZone.length).toBe(1);
+      expect(updatedState.space.mainMonsterZone[0].instanceId).toBe(handMonsterId);
+      expect(updatedState.space.mainMonsterZone[0].stateOnField?.position).toBe("faceUp");
+      expect(updatedState.space.mainMonsterZone[0].stateOnField?.battlePosition).toBe("attack");
     });
 
     it("召喚後に normalSummonUsed が 1 になる", () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: { hand: [createMonsterInstance("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 4,
+        fieldCount: 0,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      gameStateStore.set(state);
 
-      expect(getState().normalSummonUsed).toBe(0);
-      facade.summonMonster("m1");
-      expect(getState().normalSummonUsed).toBe(1);
+      expect(state.normalSummonUsed).toBe(0);
+
+      const result = facade.summonMonster(handMonsterId);
+      expect(result.success).toBe(true);
+
+      const updatedState = getState();
+      expect(updatedState.normalSummonUsed).toBe(1);
     });
   });
 
@@ -75,49 +80,45 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("レベル5モンスター（1体リリース）", () => {
     it("フィールドに1体→リリース選択→レベル5召喚成功", async () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("lv5", { level: 5 })],
-            ...createFilledMonsterZone(1), // "monster-0"
-            mainDeck: [],
-          },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 5,
+        fieldCount: 1,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+      gameStateStore.set(state);
 
-      expect(facade.canSummonMonster("lv5")).toBe(true);
+      expect(facade.canSummonMonster(handMonsterId)).toBe(true);
 
-      facade.summonMonster("lv5");
+      facade.summonMonster(handMonsterId);
       await flushEffectQueue(); // リリース選択ステップで止まる
 
       expect(hasCardSelection()).toBe(true);
 
-      await resolveCardSelection(["monster-0"]); // フィールドのモンスターをリリース
+      await resolveCardSelection([fieldMonsterId]); // フィールドのモンスターをリリース
 
-      const after = getState();
+      const updatedState = getState();
       // レベル5モンスターがフィールドに
-      expect(after.space.mainMonsterZone.some((c) => c.instanceId === "lv5")).toBe(true);
+      expect(updatedState.space.mainMonsterZone.some((c) => c.instanceId === handMonsterId)).toBe(true);
       // リリースしたモンスターが墓地に
-      expect(after.space.graveyard.some((c) => c.instanceId === "monster-0")).toBe(true);
+      expect(updatedState.space.graveyard.some((c) => c.instanceId === fieldMonsterId)).toBe(true);
       // 召喚権消費
-      expect(after.normalSummonUsed).toBe(1);
+      expect(updatedState.normalSummonUsed).toBe(1);
     });
 
     it("フィールドにモンスターなし → レベル5召喚不可", () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("lv5", { level: 5 })],
-            mainMonsterZone: [], // リリース対象なし
-            mainDeck: [],
-          },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 5,
+        fieldCount: 0,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      gameStateStore.set(state);
 
-      expect(facade.canSummonMonster("lv5")).toBe(false);
-      const result = facade.summonMonster("lv5");
+      expect(facade.canSummonMonster(handMonsterId)).toBe(false);
+
+      const result = facade.summonMonster(handMonsterId);
       expect(result.success).toBe(false);
     });
   });
@@ -127,26 +128,24 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("レベル6モンスター（1体リリース）", () => {
     it("フィールドに1体→リリース選択→レベル6召喚成功", async () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("lv6", { level: 6 })],
-            ...createFilledMonsterZone(1), // "monster-0"
-            mainDeck: [],
-          },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 6,
+        fieldCount: 1,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+      gameStateStore.set(state);
 
-      facade.summonMonster("lv6");
+      facade.summonMonster(handMonsterId);
       await flushEffectQueue();
 
       expect(hasCardSelection()).toBe(true);
-      await resolveCardSelection(["monster-0"]);
+      await resolveCardSelection([fieldMonsterId]);
 
-      const after = getState();
-      expect(after.space.mainMonsterZone.some((c) => c.instanceId === "lv6")).toBe(true);
-      expect(after.space.graveyard.some((c) => c.instanceId === "monster-0")).toBe(true);
+      const updatedState = getState();
+      expect(updatedState.space.mainMonsterZone.some((c) => c.instanceId === handMonsterId)).toBe(true);
+      expect(updatedState.space.graveyard.some((c) => c.instanceId === fieldMonsterId)).toBe(true);
     });
   });
 
@@ -155,44 +154,41 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("レベル7モンスター（2体リリース）", () => {
     it("フィールドに2体→2体リリース→レベル7召喚成功", async () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("lv7", { level: 7 })],
-            ...createFilledMonsterZone(2), // "monster-0", "monster-1"
-            mainDeck: [],
-          },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 7,
+        fieldCount: 2,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      const fieldMonsterId1 = state.space.mainMonsterZone[0].instanceId;
+      const fieldMonsterId2 = state.space.mainMonsterZone[1].instanceId;
+      gameStateStore.set(state);
 
-      expect(facade.canSummonMonster("lv7")).toBe(true);
+      expect(facade.canSummonMonster(handMonsterId)).toBe(true);
 
-      facade.summonMonster("lv7");
+      facade.summonMonster(handMonsterId);
       await flushEffectQueue();
 
       expect(hasCardSelection()).toBe(true);
-      await resolveCardSelection(["monster-0", "monster-1"]);
+      await resolveCardSelection([fieldMonsterId1, fieldMonsterId2]);
 
-      const after = getState();
-      expect(after.space.mainMonsterZone.some((c) => c.instanceId === "lv7")).toBe(true);
-      expect(after.space.graveyard.length).toBe(2); // 2体リリース
-      expect(after.normalSummonUsed).toBe(1);
+      const updatedState = getState();
+      expect(updatedState.space.mainMonsterZone.some((c) => c.instanceId === handMonsterId)).toBe(true);
+      expect(updatedState.space.graveyard.length).toBe(2); // 2体リリース
+      expect(updatedState.normalSummonUsed).toBe(1);
     });
 
     it("フィールドに1体しかいない → レベル7召喚不可", () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("lv7", { level: 7 })],
-            ...createFilledMonsterZone(1), // 1体しかいない
-            mainDeck: [],
-          },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 7,
+        fieldCount: 1,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
 
-      expect(facade.canSummonMonster("lv7")).toBe(false);
+      gameStateStore.set(state);
+
+      expect(facade.canSummonMonster(handMonsterId)).toBe(false);
     });
   });
 
@@ -201,31 +197,33 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("セット（裏側守備表示）", () => {
     it("手札のモンスターをセット → フィールドに裏側守備表示で配置", () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: { hand: [createMonsterInstance("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 4,
+        fieldCount: 0,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      gameStateStore.set(state);
 
-      const result = facade.setMonster("m1");
+      const result = facade.setMonster(handMonsterId);
 
       expect(result.success).toBe(true);
-      const state = getState();
-      expect(state.space.mainMonsterZone.length).toBe(1);
-      expect(state.space.mainMonsterZone[0].stateOnField?.position).toBe("faceDown");
-      expect(state.space.mainMonsterZone[0].stateOnField?.battlePosition).toBe("defense");
+      const updatedState = getState();
+      expect(updatedState.space.mainMonsterZone.length).toBe(1);
+      expect(updatedState.space.mainMonsterZone[0].stateOnField?.position).toBe("faceDown");
+      expect(updatedState.space.mainMonsterZone[0].stateOnField?.battlePosition).toBe("defense");
     });
 
     it("セット後も normalSummonUsed が 1 になる", () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: { hand: [createMonsterInstance("m1", { level: 4 })], mainMonsterZone: [], mainDeck: [] },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 4,
+        fieldCount: 0,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      gameStateStore.set(state);
 
-      facade.setMonster("m1");
+      facade.setMonster(handMonsterId);
       expect(getState().normalSummonUsed).toBe(1);
     });
   });
@@ -235,26 +233,25 @@ describe("通常召喚 - 基本フローテスト", () => {
   // ───────────────────────────────────────────────
   describe("アドバンスセット（裏側守備表示）", () => {
     it("フィールドに1体→リリース選択→レベル5セット成功（裏側守備表示）", async () => {
-      gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("lv5", { level: 5 })],
-            ...createFilledMonsterZone(1), // "monster-0"
-            mainDeck: [],
-          },
-        }),
-      );
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 5,
+        fieldCount: 1,
+      });
+      const handMonsterId = state.space.hand[0].instanceId;
+      const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+      gameStateStore.set(state);
 
-      facade.setMonster("lv5");
+      facade.setMonster(handMonsterId);
       await flushEffectQueue();
 
       expect(hasCardSelection()).toBe(true);
-      await resolveCardSelection(["monster-0"]);
+      await resolveCardSelection([fieldMonsterId]);
 
-      const after = getState();
-      expect(after.space.mainMonsterZone.some((c) => c.instanceId === "lv5")).toBe(true);
-      const setMonster = after.space.mainMonsterZone.find((c) => c.instanceId === "lv5");
+      const updatedState = getState();
+      expect(updatedState.space.mainMonsterZone.some((c) => c.instanceId === handMonsterId)).toBe(true);
+
+      const setMonster = updatedState.space.mainMonsterZone.find((c) => c.instanceId === handMonsterId);
       expect(setMonster?.stateOnField?.position).toBe("faceDown");
       expect(setMonster?.stateOnField?.battlePosition).toBe("defense");
     });
@@ -266,13 +263,10 @@ describe("通常召喚 - 基本フローテスト", () => {
   describe("通常召喚失敗フロー", () => {
     it("2体目の召喚は失敗する", () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("m1", { level: 4 }), createMonsterInstance("m2", { level: 4 })],
-            mainMonsterZone: [],
-            mainDeck: [],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("m1", { level: 4 }), createMonsterInstance("m2", { level: 4 })],
+          mainMonsterZone: [],
+          mainDeck: [],
         }),
       );
 
@@ -285,13 +279,10 @@ describe("通常召喚 - 基本フローテスト", () => {
 
     it("セット後の召喚も失敗する", () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("m1", { level: 4 }), createMonsterInstance("m2", { level: 4 })],
-            mainMonsterZone: [],
-            mainDeck: [],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("m1", { level: 4 }), createMonsterInstance("m2", { level: 4 })],
+          mainMonsterZone: [],
+          mainDeck: [],
         }),
       );
 
@@ -303,19 +294,12 @@ describe("通常召喚 - 基本フローテスト", () => {
     });
 
     it("ドローフェイズは召喚できない", () => {
-      facade.resetGame(
-        createScenarioDeck([
-          DUMMY_CARD_IDS.NORMAL_MONSTER,
-          DUMMY_CARD_IDS.NORMAL_MONSTER,
-          DUMMY_CARD_IDS.NORMAL_MONSTER,
-          DUMMY_CARD_IDS.NORMAL_MONSTER,
-          DUMMY_CARD_IDS.NORMAL_MONSTER,
-          DUMMY_CARD_IDS.NORMAL_MONSTER,
-        ]),
-      );
-      // advanceToMain1 しない（ドローフェイズのまま）
-
-      const state = getState();
+      const state = createSummonReadyState({
+        hand: "monster",
+        levelOfHandMonster: 4,
+        fieldCount: 0,
+        phase: "draw",
+      });
       const monsterId = state.space.hand[0].instanceId;
 
       expect(facade.canSummonMonster(monsterId)).toBe(false);
@@ -325,13 +309,9 @@ describe("通常召喚 - 基本フローテスト", () => {
 
     it("モンスターゾーン5枚満杯では召喚できない（canSummonMonster = false）", () => {
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            hand: [createMonsterInstance("m-extra", { level: 4 })],
-            ...createFilledMonsterZone(5),
-            mainDeck: [],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("m-extra", { level: 4 })],
+          ...createFilledMonsterZone(5),
         }),
       );
 

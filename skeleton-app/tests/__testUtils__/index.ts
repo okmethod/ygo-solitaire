@@ -47,6 +47,7 @@ export {
   createSpaceState,
   createFilledSpaceState,
   createExodiaVictoryState,
+  createSummonReadyState,
   createSynchroSummonReadyState,
 } from "./gameStateFactory";
 

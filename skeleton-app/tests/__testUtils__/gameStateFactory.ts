@@ -13,7 +13,7 @@
 import type { GamePhase, GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { ACTUAL_CARD_IDS } from "./constants";
-import { createMonsterInstance, createMonsterOnField } from "./cardInstanceFactory";
+import { createMonsterInstance, createSpellInstance, createMonsterOnField } from "./cardInstanceFactory";
 import {
   createFilledMainDeck,
   createFilledExtraDeck,
@@ -110,8 +110,8 @@ export function createPhaseState(phase: GamePhase = "main1"): GameSnapshot {
  *
  * @param space - 各ロケーションの CardInstance[] を指定するオプション（Partial<CardSpace>）
  */
-export function createSpaceState(space: Partial<CardSpace> = {}): GameSnapshot {
-  return createMockGameState({ space });
+export function createSpaceState(space: Partial<CardSpace> = {}, phase?: GamePhase): GameSnapshot {
+  return createMockGameState({ space, phase: phase ?? "main1" });
 }
 
 /**
@@ -131,6 +131,7 @@ export const createFilledSpaceState = (options: {
   fieldZoneCount?: number;
   graveyardCount?: number;
   banishedCount?: number;
+  phase?: GamePhase;
 }) => {
   return createMockGameState({
     space: {
@@ -143,6 +144,7 @@ export const createFilledSpaceState = (options: {
       ...createFilledGraveyard(options.graveyardCount ?? 0),
       ...createFilledBanished(options.banishedCount ?? 0),
     },
+    phase: options.phase ?? "main1",
   });
 };
 
@@ -172,17 +174,56 @@ export function createExodiaVictoryState(): GameSnapshot {
 }
 
 /**
+ * 通常召喚テスト用の状態を作成（手札・フィールドにモンスター）
+ *
+ * @param options - オプション設定
+ *   - hand: 手札の種類（"monster" | "spell" | "empty"）
+ *   - levelOfHandMonster: 手札のモンスターのレベル（デフォルト: 4）
+ *   - fieldCount: フィールドのモンスター数（デフォルト: 0）
+ *   - phase: フェイズ（デフォルト: "main1"）
+ *   - normalSummonUsed: 通常召喚の使用回数（デフォルト: 0）
+ *   - isGameOver: ゲーム終了状態（デフォルト: false）
+ */
+export function createSummonReadyState(options?: {
+  hand: "monster" | "spell" | "empty";
+  levelOfHandMonster?: number;
+  fieldCount?: number;
+  phase?: GamePhase;
+  normalSummonUsed?: number;
+  isGameOver?: boolean;
+}): GameSnapshot {
+  return {
+    ...createSpaceState({
+      hand:
+        options?.hand === "monster"
+          ? [createMonsterInstance("hand-monster", { level: options?.levelOfHandMonster ?? 4 })]
+          : options?.hand === "spell"
+            ? [createSpellInstance("hand-spell")]
+            : [],
+      ...createFilledMonsterZone(options?.fieldCount ?? 0),
+    }),
+    phase: options?.phase ?? "main1",
+    normalSummonUsed: options?.normalSummonUsed ?? 0,
+    result: {
+      isGameOver: options?.isGameOver ?? false,
+    },
+  };
+}
+
+/**
  * シンクロ召喚テスト用の状態を作成（フィールドにチューナー+非チューナー、EXにシンクロ）
  *
  * @param options - オプション設定
  *   - tunerLevel: チューナーのレベル（デフォルト: 2、null でチューナーなし）
  *   - nonTunerLevels: 非チューナーのレベル配列（デフォルト: [4]）
  *   - synchroLevel: シンクロモンスターのレベル（デフォルト: 6）
+ *   - isGameOver: ゲーム終了状態（デフォルト: false）
  */
 export function createSynchroSummonReadyState(options?: {
   tunerLevel?: 1 | 2 | 3 | null;
   nonTunerLevels?: (1 | 2 | 3 | 4)[];
   synchroLevel?: 5 | 6 | 7 | 8;
+  isGameOver?: boolean;
 }): ReturnType<typeof createMockGameState> {
   const tunerLevel = options?.tunerLevel !== undefined ? options.tunerLevel : 2;
   const nonTunerLevels = options?.nonTunerLevels ?? [4];
@@ -202,5 +243,8 @@ export function createSynchroSummonReadyState(options?: {
       ],
     },
     phase: "main1",
+    result: {
+      isGameOver: options?.isGameOver ?? false,
+    },
   });
 }
