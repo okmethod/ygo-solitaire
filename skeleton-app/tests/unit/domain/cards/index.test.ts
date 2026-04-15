@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { registerCardDataByIds, registerCardDataWithEffectsByIds, CardDataRegistry } from "$lib/domain/cards";
 import { ChainableActionRegistry } from "$lib/domain/effects/actions";
 import { AdditionalRuleRegistry } from "$lib/domain/effects/rules";
-import { ACTUAL_CARD_IDS } from "../../../__testUtils__";
+import { ACTUAL_CARD_IDS, DUMMY_CARD_IDS } from "../../../__testUtils__";
 
 // =============================================================================
 // テストセットアップ
@@ -70,29 +70,27 @@ describe("registerCardDataByIds", () => {
 
   it("登録前にレジストリがクリアされる", () => {
     // 事前に別のカードを登録
-    CardDataRegistry.register(99999, {
+    CardDataRegistry.register(DUMMY_CARD_IDS.NOT_EXISTING_CARD, {
       jaName: "Test Card",
       type: "monster",
       frameType: "normal",
       edition: "latest",
     });
-    expect(CardDataRegistry.has(99999)).toBe(true);
+    expect(CardDataRegistry.has(DUMMY_CARD_IDS.NOT_EXISTING_CARD)).toBe(true);
 
     // registerCardDataByIds を呼び出す
     registerCardDataByIds([ACTUAL_CARD_IDS.POT_OF_GREED]);
 
     // 事前に登録したカードはクリアされる
-    expect(CardDataRegistry.has(99999)).toBe(false);
+    expect(CardDataRegistry.has(DUMMY_CARD_IDS.NOT_EXISTING_CARD)).toBe(false);
     expect(CardDataRegistry.has(ACTUAL_CARD_IDS.POT_OF_GREED)).toBe(true);
   });
 
   it("存在しないカードIDは無視される", () => {
-    const nonExistentId = 999999999;
-
-    registerCardDataByIds([ACTUAL_CARD_IDS.POT_OF_GREED, nonExistentId]);
+    registerCardDataByIds([ACTUAL_CARD_IDS.POT_OF_GREED, DUMMY_CARD_IDS.NOT_EXISTING_CARD]);
 
     expect(CardDataRegistry.has(ACTUAL_CARD_IDS.POT_OF_GREED)).toBe(true);
-    expect(CardDataRegistry.has(nonExistentId)).toBe(false);
+    expect(CardDataRegistry.has(DUMMY_CARD_IDS.NOT_EXISTING_CARD)).toBe(false);
   });
 
   it("空の配列でもエラーにならない", () => {

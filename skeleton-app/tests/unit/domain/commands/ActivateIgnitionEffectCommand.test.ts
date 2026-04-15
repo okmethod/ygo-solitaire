@@ -124,7 +124,9 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("起動効果が登録されていないカードの場合は false を返す", () => {
       const noEffectState = createSpaceState({
-        fieldZone: [createSpellOnField("field-no-effect", { cardId: 9999999, spellType: "field" })],
+        fieldZone: [
+          createSpellOnField("field-no-effect", { cardId: DUMMY_CARD_IDS.NOT_EXISTING_CARD, spellType: "field" }),
+        ],
       });
 
       const command = new ActivateIgnitionEffectCommand("field-no-effect");
@@ -156,7 +158,9 @@ describe("ActivateIgnitionEffectCommand", () => {
 
     it("起動効果がないカードの場合は失敗を返す", () => {
       const noEffectState = createSpaceState({
-        fieldZone: [createSpellOnField("field-no-effect", { cardId: 9999999, spellType: "field" })],
+        fieldZone: [
+          createSpellOnField("field-no-effect", { cardId: DUMMY_CARD_IDS.NOT_EXISTING_CARD, spellType: "field" }),
+        ],
       });
 
       const command = new ActivateIgnitionEffectCommand("field-no-effect");

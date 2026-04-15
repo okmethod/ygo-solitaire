@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getCardsByIds, clearCache } from "$lib/infrastructure/api/ygoprodeck";
-import { ACTUAL_CARD_IDS } from "../../../__testUtils__";
+import { ACTUAL_CARD_IDS, DUMMY_CARD_IDS } from "../../../__testUtils__";
 
 // モックフィクスチャ（実際のYGOPRODeck APIレスポンス形式）
 const mockExodia = {
@@ -51,7 +51,7 @@ const mockPotOfGreed = {
   ],
 };
 
-const NOT_EXISTING_CARD_ID = 99999999;
+const NOT_EXISTING_CARD_ID = DUMMY_CARD_IDS.NOT_EXISTING_CARD;
 
 describe("getCardsByIds - モックを使用", () => {
   beforeEach(() => {

@@ -10,6 +10,7 @@ import {
   createSpellInstance,
   createMonsterOnField,
   ACTUAL_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 // =============================================================================
@@ -82,12 +83,14 @@ describe("ConditionRegistry - エラーケース", () => {
     const state = createSpaceState({
       ...createFilledMainDeck(5),
     });
-    const sourceInstance = createSpellInstance("unknown-instance-id", { cardId: 99999999 });
+    const sourceInstance = createSpellInstance("unknown-instance-id", { cardId: DUMMY_CARD_IDS.NOT_EXISTING_CARD });
 
     expect(() => {
       // @ts-expect-error: UNKNOWN_CONDITION is not a valid ConditionName
       checkCondition("UNKNOWN_CONDITION", state, sourceInstance, {});
-    }).toThrow('Unknown condition "UNKNOWN_CONDITION" for card 99999999. Available conditions: CAN_DRAW');
+    }).toThrow(
+      `Unknown condition "UNKNOWN_CONDITION" for card ${DUMMY_CARD_IDS.NOT_EXISTING_CARD}. Available conditions: CAN_DRAW`,
+    );
   });
 });
 

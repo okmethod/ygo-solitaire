@@ -42,4 +42,5 @@ export const DUMMY_CARD_IDS = {
   CONTINUOUS_SPELL: 4004,
   FIELD_SPELL: 4005,
   NORMAL_TRAP: 5001,
+  NOT_EXISTING_CARD: 99999999, // 存在しないカードID
 } as const;
