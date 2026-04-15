@@ -96,10 +96,15 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
 /**
  * 指定したフェイズのゲーム状態を生成する
  *
+ * フェイズ進行テストで使用しやすいよう、メインデッキに1枚カードを入れておく
+ *
  * @param phase - ゲームのフェイズ（デフォルト: "main1"）
  */
 export function createPhaseState(phase: GamePhase = "main1"): GameSnapshot {
-  return createMockGameState({ phase });
+  return createMockGameState({
+    phase,
+    ...createFilledMainDeck(1),
+  });
 }
 
 /**

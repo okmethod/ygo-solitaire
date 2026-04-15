@@ -4,22 +4,12 @@
 
 import { describe, it, expect } from "vitest";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
-import {
-  createMockGameState,
-  createFilledSpaceState,
-  createPhaseState,
-  createExodiaVictoryState,
-} from "../../../__testUtils__";
+import { createPhaseState, createExodiaVictoryState } from "../../../__testUtils__";
 
 describe("AdvancePhaseCommand", () => {
   describe("canExecute", () => {
     it("ドロー → スタンバイ の場合は true を返す", () => {
-      const state = createMockGameState({
-        ...createFilledSpaceState({
-          mainDeckCount: 1,
-        }),
-        phase: "draw",
-      });
+      const state = createPhaseState("draw");
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
@@ -56,12 +46,7 @@ describe("AdvancePhaseCommand", () => {
 
   describe("execute", () => {
     it("ドローからスタンバイに進行する", () => {
-      const state = createMockGameState({
-        ...createFilledSpaceState({
-          mainDeckCount: 1,
-        }),
-        phase: "draw",
-      });
+      const state = createPhaseState("draw");
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
