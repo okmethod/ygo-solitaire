@@ -140,7 +140,7 @@ export function createHand(cardIds: number[]): Pick<CardSpace, "hand"> {
  * @param cardId - カードID（デフォルト: ダミー通常魔法）
  * @returns `{ hand: CardInstance[] }`
  */
-export function createFilledHand(count: number, cardId = DUMMY_CARD_IDS.NORMAL_SPELL): Pick<CardSpace, "hand"> {
+export function createFilledHand(count: number, cardId: number = DUMMY_CARD_IDS.NORMAL_SPELL): Pick<CardSpace, "hand"> {
   return createFilledZone("hand", count, cardId);
 }
 
@@ -163,7 +163,7 @@ export function createGraveyard(cardIds: number[]): Pick<CardSpace, "graveyard">
  */
 export function createFilledGraveyard(
   count: number,
-  cardId = DUMMY_CARD_IDS.NORMAL_SPELL,
+  cardId: number = DUMMY_CARD_IDS.NORMAL_SPELL,
 ): Pick<CardSpace, "graveyard"> {
   return createFilledZone("graveyard", count, cardId);
 }
@@ -185,7 +185,10 @@ export function createBanished(cardIds: number[]): Pick<CardSpace, "banished"> {
  * @param cardId - カードID（デフォルト: ダミー通常魔法）
  * @returns `{ banished: CardInstance[] }`
  */
-export function createFilledBanished(count: number, cardId = DUMMY_CARD_IDS.NORMAL_SPELL): Pick<CardSpace, "banished"> {
+export function createFilledBanished(
+  count: number,
+  cardId: number = DUMMY_CARD_IDS.NORMAL_SPELL,
+): Pick<CardSpace, "banished"> {
   return createFilledZone("banished", count, cardId);
 }
 
@@ -208,7 +211,10 @@ export function createMainDeck(cardIds: number[]): Pick<CardSpace, "mainDeck"> {
  * @param cardId - カードID（デフォルト: ダミー通常魔法）
  * @returns `{ mainDeck: CardInstance[] }`
  */
-export function createFilledMainDeck(count: number, cardId = DUMMY_CARD_IDS.NORMAL_SPELL): Pick<CardSpace, "mainDeck"> {
+export function createFilledMainDeck(
+  count: number,
+  cardId: number = DUMMY_CARD_IDS.NORMAL_SPELL,
+): Pick<CardSpace, "mainDeck"> {
   return createFilledZone("mainDeck", count, cardId, "deck");
 }
 
@@ -233,7 +239,7 @@ export function createExtraDeck(cardIds: number[]): Pick<CardSpace, "extraDeck">
  */
 export function createFilledExtraDeck(
   count: number,
-  cardId = DUMMY_CARD_IDS.SYNCHRO_MONSTER,
+  cardId: number = DUMMY_CARD_IDS.SYNCHRO_MONSTER,
 ): Pick<CardSpace, "extraDeck"> {
   return createFilledZone("extraDeck", count, cardId, "extra");
 }
@@ -262,7 +268,7 @@ export function createMonsterZone(cardIds: number[]): Pick<CardSpace, "mainMonst
  */
 export function createFilledMonsterZone(
   count: number,
-  cardId = DUMMY_CARD_IDS.NORMAL_MONSTER,
+  cardId: number = DUMMY_CARD_IDS.NORMAL_MONSTER,
 ): Pick<CardSpace, "mainMonsterZone"> {
   return createFilledZone("mainMonsterZone", count, cardId, "monster");
 }
@@ -288,7 +294,7 @@ export function createSpellTrapZone(cardIds: number[]): Pick<CardSpace, "spellTr
  */
 export function createFilledSpellZone(
   count: number,
-  cardId = DUMMY_CARD_IDS.NORMAL_SPELL,
+  cardId: number = DUMMY_CARD_IDS.NORMAL_SPELL,
 ): Pick<CardSpace, "spellTrapZone"> {
   return createFilledZone("spellTrapZone", count, cardId);
 }
@@ -314,7 +320,7 @@ export function createFieldZone(cardIds: number[]): Pick<CardSpace, "fieldZone">
  */
 export function createFilledFieldZone(
   count: number,
-  cardId = DUMMY_CARD_IDS.FIELD_SPELL,
+  cardId: number = DUMMY_CARD_IDS.FIELD_SPELL,
 ): Pick<CardSpace, "fieldZone"> {
   return createFilledZone("fieldZone", count, cardId);
 }
