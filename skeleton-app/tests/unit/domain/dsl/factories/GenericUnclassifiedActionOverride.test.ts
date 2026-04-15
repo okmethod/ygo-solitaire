@@ -13,7 +13,7 @@ import { describe, it, expect } from "vitest";
 import { GenericUnclassifiedActionOverride } from "$lib/domain/dsl/factories/GenericUnclassifiedActionOverride";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
 import { OVERRIDE_NAMES } from "$lib/domain/dsl/overrides/OverrideNames";
-import { DUMMY_CARD_IDS, createMonsterOnField, createMockGameState } from "../../../../__testUtils__";
+import { createSpaceState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
@@ -22,7 +22,12 @@ import { DUMMY_CARD_IDS, createMonsterOnField, createMockGameState } from "../..
 const EFFECT_MONSTER_ID = DUMMY_CARD_IDS.EFFECT_MONSTER;
 const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
-const defaultState = () => createMockGameState({ phase: "main1" });
+const state = createSpaceState();
+
+const baseDsl = (): AdditionalRuleDSL => ({
+  category: "ActionOverride",
+  override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
+});
 
 // =============================================================================
 // インスタンス生成テスト
@@ -30,59 +35,38 @@ const defaultState = () => createMockGameState({ phase: "main1" });
 
 describe("GenericUnclassifiedActionOverride - インスタンス生成", () => {
   it("正しいDSL定義からインスタンスを生成できる", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, {
+      ...baseDsl(),
       args: { destination: "banished" },
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    });
 
     expect(rule).toBeInstanceOf(GenericUnclassifiedActionOverride);
     expect(rule.cardId).toBe(EFFECT_MONSTER_ID);
   });
 
   it("category は 'ActionOverride'", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.category).toBe("ActionOverride");
   });
 
   it("overrideName は DSL定義から正しく設定される", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.overrideName).toBe(OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION);
   });
 
   it("args は DSL定義から正しく設定される", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, {
+      ...baseDsl(),
       args: { destination: "banished" },
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    });
 
     expect(rule.args).toEqual({ destination: "banished" });
   });
 
   it("args が省略された場合は空オブジェクトがデフォルト", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.args).toEqual({});
   });
@@ -97,12 +81,7 @@ describe("GenericUnclassifiedActionOverride - インスタンス生成", () => {
   });
 
   it("isEffect は true（効果として無効化される可能性がある）", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.isEffect).toBe(true);
   });
@@ -114,14 +93,9 @@ describe("GenericUnclassifiedActionOverride - インスタンス生成", () => {
 
 describe("GenericUnclassifiedActionOverride - canApply", () => {
   it("canApply は常に true を返す", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
-    };
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, baseDsl());
 
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
-
-    expect(rule.canApply(defaultState())).toBe(true);
+    expect(rule.canApply(state)).toBe(true);
   });
 });
 
@@ -131,16 +105,13 @@ describe("GenericUnclassifiedActionOverride - canApply", () => {
 
 describe("GenericUnclassifiedActionOverride - shouldApplyOverride", () => {
   it("自分自身のカードが表側表示の場合は shouldApplyOverride が true を返す", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, {
+      ...baseDsl(),
       args: { destination: "banished" },
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    });
     const card = createMonsterOnField("test-instance", { cardId: EFFECT_MONSTER_ID, position: "faceUp" });
 
-    expect(rule.shouldApplyOverride(defaultState(), card)).toBe(true);
+    expect(rule.shouldApplyOverride(state, card)).toBe(true);
   });
 
   it("自分自身のカードが裏側表示の場合は shouldApplyOverride が false を返す", () => {
@@ -153,7 +124,7 @@ describe("GenericUnclassifiedActionOverride - shouldApplyOverride", () => {
     const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
     const card = createMonsterOnField("test-instance", { cardId: EFFECT_MONSTER_ID, position: "faceDown" });
 
-    expect(rule.shouldApplyOverride(defaultState(), card)).toBe(false);
+    expect(rule.shouldApplyOverride(state, card)).toBe(false);
   });
 
   it("異なるカードIDの場合は shouldApplyOverride が false を返す", () => {
@@ -166,7 +137,7 @@ describe("GenericUnclassifiedActionOverride - shouldApplyOverride", () => {
     const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
     const otherCard = createMonsterOnField("other-instance", { cardId: OTHER_CARD_ID, position: "faceUp" });
 
-    expect(rule.shouldApplyOverride(defaultState(), otherCard)).toBe(false);
+    expect(rule.shouldApplyOverride(state, otherCard)).toBe(false);
   });
 });
 
@@ -176,25 +147,16 @@ describe("GenericUnclassifiedActionOverride - shouldApplyOverride", () => {
 
 describe("GenericUnclassifiedActionOverride - getOverrideValue", () => {
   it("args.destination が 'banished' の場合は 'banished' を返す", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, {
+      ...baseDsl(),
       args: { destination: "banished" },
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    });
 
     expect(rule.getOverrideValue<string>()).toBe("banished");
   });
 
   it("args.destination が未指定の場合はデフォルト値 'banished' を返す", () => {
-    const dsl: AdditionalRuleDSL = {
-      category: "ActionOverride",
-      override: OVERRIDE_NAMES.FIELD_DEPARTURE_DESTINATION,
-      // args なし
-    };
-
-    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, dsl);
+    const rule = new GenericUnclassifiedActionOverride(EFFECT_MONSTER_ID, baseDsl());
 
     expect(rule.getOverrideValue<string>()).toBe("banished");
   });

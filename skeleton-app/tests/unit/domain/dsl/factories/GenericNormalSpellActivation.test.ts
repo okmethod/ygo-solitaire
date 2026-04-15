@@ -13,12 +13,7 @@ import {
   createGenericNormalSpellActivation,
 } from "$lib/domain/dsl/factories/GenericNormalSpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
-import {
-  DUMMY_CARD_IDS,
-  createSpellInstance,
-  createMockGameState,
-  createFilledMainDeck,
-} from "../../../../__testUtils__";
+import { createSpellInstance, createSpaceState, createFilledMainDeck, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
@@ -30,10 +25,13 @@ const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 const normalSpellInstance = () =>
   createSpellInstance("test-instance-id", { cardId: NORMAL_SPELL_ID, spellType: "normal" });
 
-const createState = (deckCount: number) =>
-  createMockGameState({
-    space: { ...createFilledMainDeck(deckCount, OTHER_CARD_ID) },
-  });
+const state = createSpaceState({
+  ...createFilledMainDeck(5, OTHER_CARD_ID),
+});
+
+const baseDsl = (): ChainableActionDSL => ({
+  resolutions: [{ step: "DRAW", args: { count: 1 } }],
+});
 
 // =============================================================================
 // 生成テスト
@@ -68,36 +66,28 @@ describe("GenericNormalSpellActivation - インスタンス生成", () => {
 
 describe("GenericNormalSpellActivation - 条件チェック", () => {
   it("条件を満たす場合は canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
-      resolutions: [{ step: "DRAW", args: { count: 2 } }],
-    };
-
-    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, dsl);
-    const result = activation.canActivate(createState(5), normalSpellInstance()); // デッキ5枚
+    });
+    const result = activation.canActivate(state, normalSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
 
   it("条件を満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 3 } }] },
-      resolutions: [{ step: "DRAW", args: { count: 3 } }],
-    };
-
-    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, dsl);
-    const result = activation.canActivate(createState(2), normalSpellInstance()); // デッキ2枚（3枚必要）
+    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, {
+      ...baseDsl(),
+      conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 10 } }] },
+    });
+    const result = activation.canActivate(state, normalSpellInstance()); // デッキ不足
 
     expect(result.isValid).toBe(false);
   });
 
   it("条件が定義されていない場合は常に canActivate が true", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, dsl);
-    const result = activation.canActivate(createState(0), normalSpellInstance()); // デッキ0枚でも条件なしならOK
+    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, baseDsl());
+    const result = activation.canActivate(state, normalSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
@@ -118,7 +108,7 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, dsl);
-    const steps = activation.createResolutionSteps(createState(5), normalSpellInstance());
+    const steps = activation.createResolutionSteps(state, normalSpellInstance());
 
     // 基底クラスのsubTypePostResolutionSteps（墓地送り）も含まれる
     expect(steps.length).toBeGreaterThanOrEqual(3);
@@ -128,25 +118,19 @@ describe("GenericNormalSpellActivation - ステップ生成", () => {
   });
 
   it("createActivationSteps で発動ステップを生成できる", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, {
+      ...baseDsl(),
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, dsl);
-    const steps = activation.createActivationSteps(createState(5), normalSpellInstance());
+    });
+    const steps = activation.createActivationSteps(state, normalSpellInstance());
 
     // 発動ステップ（コスト支払い等）
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
   });
 
   it("activations が定義されていない場合は空配列を返す", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, dsl);
-    const steps = activation.createActivationSteps(createState(5), normalSpellInstance());
+    const activation = createGenericNormalSpellActivation(NORMAL_SPELL_ID, baseDsl());
+    const steps = activation.createActivationSteps(state, normalSpellInstance());
 
     // 基底クラスの共通ステップのみ（通常魔法は空）
     expect(steps.filter((s) => s.id.includes("select")).length).toBe(0);

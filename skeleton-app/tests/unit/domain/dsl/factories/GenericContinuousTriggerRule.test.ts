@@ -11,15 +11,13 @@
 import { describe, it, expect } from "vitest";
 import { GenericContinuousTriggerRule } from "$lib/domain/dsl/factories/GenericContinuousTriggerRule";
 import type { AdditionalRuleDSL } from "$lib/domain/dsl/types";
-import { DUMMY_CARD_IDS, createMonsterOnField, createSpaceState, createMockGameState } from "../../../../__testUtils__";
+import { createMonsterOnField, createSpaceState, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
 // =============================================================================
 
 const EFFECT_MONSTER_ID = DUMMY_CARD_IDS.EFFECT_MONSTER;
-
-const monsterOnField = () => createMonsterOnField(`instance-${EFFECT_MONSTER_ID}`, { cardId: EFFECT_MONSTER_ID });
 
 const baseDsl = (): AdditionalRuleDSL => ({
   category: "TriggerRule",
@@ -28,6 +26,13 @@ const baseDsl = (): AdditionalRuleDSL => ({
   },
   resolutions: [{ step: "PLACE_COUNTER", args: { counterType: "spell", count: 1, limit: 3 } }],
 });
+
+const stateHasMonsterOnField = (hasMonster: boolean = true) =>
+  createSpaceState({
+    mainMonsterZone: hasMonster
+      ? [createMonsterOnField(`instance-${EFFECT_MONSTER_ID}`, { cardId: EFFECT_MONSTER_ID })]
+      : [],
+  });
 
 // =============================================================================
 // GenericContinuousTriggerRule のテスト
@@ -49,24 +54,21 @@ describe("GenericContinuousTriggerRule", () => {
 
   it("canApply がフィールドにカードが存在する場合 true を返す", () => {
     const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
-    const state = createSpaceState({ mainMonsterZone: [monsterOnField()] });
 
-    expect(rule.canApply(state)).toBe(true);
+    expect(rule.canApply(stateHasMonsterOnField())).toBe(true);
   });
 
   it("canApply がフィールドにカードが存在しない場合 false を返す", () => {
     const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
-    const state = createMockGameState();
 
-    expect(rule.canApply(state)).toBe(false);
+    expect(rule.canApply(stateHasMonsterOnField(false))).toBe(false);
   });
 
   it("createTriggerSteps が DSL定義に基づいてステップを生成する", () => {
     const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
-    const monster = monsterOnField();
-    const state = createSpaceState({ mainMonsterZone: [monster] });
+    const state = stateHasMonsterOnField(true);
 
-    const steps = rule.createTriggerSteps(state, monster);
+    const steps = rule.createTriggerSteps(state, state.space.mainMonsterZone[0]);
 
     expect(steps.length).toBeGreaterThan(0);
     expect(steps[0].id).toContain("counter");

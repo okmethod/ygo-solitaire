@@ -11,11 +11,10 @@ import { describe, it, expect } from "vitest";
 import { GenericTriggerEffect, createGenericTriggerEffect } from "$lib/domain/dsl/factories/GenericTriggerEffect";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  DUMMY_CARD_IDS,
   createMonsterOnField,
-  createMockGameState,
+  createSpaceState,
   createFilledMainDeck,
-  createHand,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 // =============================================================================
@@ -27,15 +26,16 @@ const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 const monsterOnField = () => createMonsterOnField("trigger-test-instance", { cardId: EFFECT_MONSTER_ID });
 
-/** デッキ枚数と手札枚数を指定してゲーム状態を生成 */
-const createState = (deckCount: number, handCount: number = 0) =>
-  createMockGameState({
-    space: {
-      ...createFilledMainDeck(deckCount, OTHER_CARD_ID),
-      ...createHand(Array(handCount).fill(OTHER_CARD_ID)),
-    },
-    phase: "main1",
-  });
+const state = createSpaceState({
+  ...createFilledMainDeck(5, OTHER_CARD_ID),
+});
+
+const baseDsl = (): ChainableActionDSL => ({
+  conditions: {
+    trigger: { events: ["normalSummoned"] },
+  },
+  resolutions: [{ step: "DRAW", args: { count: 1 } }],
+});
 
 // =============================================================================
 // インスタンス生成テスト
@@ -111,16 +111,10 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
   });
 
   it("spellSpeed を DSL定義から取得できる", () => {
-    const dsl: ChainableActionDSL = {
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       spellSpeed: 2, // 誘発即時効果
-      conditions: {
-        trigger: {
-          events: ["spellActivated"],
-        },
-      },
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
+    });
 
     expect(effect.spellSpeed).toBe(2);
   });
@@ -138,36 +132,34 @@ describe("GenericTriggerEffect - インスタンス生成", () => {
 
 describe("GenericTriggerEffect - 条件チェック", () => {
   it("条件を満たす場合は canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       conditions: {
         trigger: { events: ["normalSummoned"] },
         requirements: [{ step: "CAN_DRAW", args: { count: 2 } }],
       },
-      resolutions: [{ step: "DRAW", args: { count: 2 } }],
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const result = effect.canActivate(createState(5), monsterOnField()); // デッキ5枚
+    });
+    const result = effect.canActivate(state, monsterOnField());
 
     expect(result.isValid).toBe(true);
   });
 
   it("条件を満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       conditions: {
         trigger: { events: ["normalSummoned"] },
         requirements: [{ step: "CAN_DRAW", args: { count: 10 } }],
       },
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const result = effect.canActivate(createState(3), monsterOnField()); // デッキ3枚（10枚必要）
+    });
+    const result = effect.canActivate(state, monsterOnField()); // デッキ不足
 
     expect(result.isValid).toBe(false);
   });
 
   it("複数の条件がすべて満たされる場合は canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       conditions: {
         trigger: { events: ["normalSummoned"] },
         requirements: [
@@ -175,16 +167,15 @@ describe("GenericTriggerEffect - 条件チェック", () => {
           { step: "CAN_DRAW", args: { count: 2 } },
         ],
       },
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const result = effect.canActivate(createState(5), monsterOnField());
+    });
+    const result = effect.canActivate(state, monsterOnField());
 
     expect(result.isValid).toBe(true);
   });
 
   it("複数の条件のうち1つでも満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       conditions: {
         trigger: { events: ["normalSummoned"] },
         requirements: [
@@ -192,24 +183,15 @@ describe("GenericTriggerEffect - 条件チェック", () => {
           { step: "CAN_DRAW", args: { count: 10 } }, // 満たさない
         ],
       },
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const result = effect.canActivate(createState(5), monsterOnField());
+    });
+    const result = effect.canActivate(state, monsterOnField());
 
     expect(result.isValid).toBe(false);
   });
 
   it("条件が定義されていない場合は常に canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const result = effect.canActivate(createState(0), monsterOnField()); // デッキ0枚でも条件なしなのでOK
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, baseDsl());
+    const result = effect.canActivate(state, monsterOnField());
 
     expect(result.isValid).toBe(true);
   });
@@ -221,19 +203,15 @@ describe("GenericTriggerEffect - 条件チェック", () => {
 
 describe("GenericTriggerEffect - ステップ生成", () => {
   it("createResolutionSteps で効果解決ステップを生成できる", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       resolutions: [
         { step: "DRAW", args: { count: 2 } },
         { step: "THEN" },
         { step: "SELECT_AND_DISCARD", args: { count: 1 } },
       ],
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const steps = effect.createResolutionSteps(createState(5), monsterOnField());
+    });
+    const steps = effect.createResolutionSteps(state, monsterOnField());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
     expect(steps[0].id).toBe("draw-2");
@@ -242,30 +220,18 @@ describe("GenericTriggerEffect - ステップ生成", () => {
   });
 
   it("createActivationSteps で発動ステップを生成できる", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, {
+      ...baseDsl(),
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
-      resolutions: [{ step: "DRAW", args: { count: 2 } }],
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const steps = effect.createActivationSteps(createState(5), monsterOnField());
+    });
+    const steps = effect.createActivationSteps(state, monsterOnField());
 
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
   });
 
   it("activations が定義されていない場合は基底クラスのステップのみ返す", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const steps = effect.createActivationSteps(createState(5), monsterOnField());
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, baseDsl());
+    const steps = effect.createActivationSteps(state, monsterOnField());
 
     // 誘発効果の発動ステップにはselect-and-discardは含まれない
     expect(steps.filter((s) => s.id.includes("select-and-discard")).length).toBe(0);
@@ -279,7 +245,7 @@ describe("GenericTriggerEffect - ステップ生成", () => {
     };
 
     const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const steps = effect.createResolutionSteps(createState(5), monsterOnField());
+    const steps = effect.createResolutionSteps(state, monsterOnField());
 
     // カード固有の効果解決ステップはない
     expect(steps.filter((s) => s.id.includes("draw")).length).toBe(0);
@@ -292,38 +258,20 @@ describe("GenericTriggerEffect - ステップ生成", () => {
 
 describe("GenericTriggerEffect - 基底クラス継承", () => {
   it("effectCategory は 'trigger' を返す", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, baseDsl());
 
     expect(effect.effectCategory).toBe("trigger");
   });
 
   it("effectId は正しい形式で生成される", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
-    };
-
-    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
+    const effect = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, baseDsl());
 
     expect(effect.effectId).toBe(`trigger-${EFFECT_MONSTER_ID}-1`);
   });
 
   it("effectIndex が異なれば effectId も異なる", () => {
-    const dsl: ChainableActionDSL = {
-      conditions: {
-        trigger: { events: ["normalSummoned"] },
-      },
-    };
-
-    const effect1 = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, dsl);
-    const effect2 = createGenericTriggerEffect(EFFECT_MONSTER_ID, 2, dsl);
+    const effect1 = createGenericTriggerEffect(EFFECT_MONSTER_ID, 1, baseDsl());
+    const effect2 = createGenericTriggerEffect(EFFECT_MONSTER_ID, 2, baseDsl());
 
     expect(effect1.effectId).not.toBe(effect2.effectId);
     expect(effect1.effectId).toBe(`trigger-${EFFECT_MONSTER_ID}-1`);

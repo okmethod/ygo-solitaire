@@ -14,19 +14,13 @@ import {
   createGenericContinuousSpellActivation,
 } from "$lib/domain/dsl/factories/GenericContinuousSpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
-import {
-  DUMMY_CARD_IDS,
-  createSpellInstance,
-  createMockGameState,
-  createFilledMainDeck,
-} from "../../../../__testUtils__";
+import { createSpellInstance, createSpaceState, createFilledMainDeck, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 // =============================================================================
 // テストヘルパー
 // =============================================================================
 
 const CONTINUOUS_SPELL_ID = DUMMY_CARD_IDS.CONTINUOUS_SPELL;
-const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 const continuousSpellInstance = () =>
   createSpellInstance("continuous-spell-test-instance", {
@@ -34,11 +28,17 @@ const continuousSpellInstance = () =>
     spellType: "continuous",
   });
 
-const createState = (deckCount: number, phase: "main1" | "standby" | "end" = "main1") =>
-  createMockGameState({
-    space: { ...createFilledMainDeck(deckCount, OTHER_CARD_ID) },
+const stateByPhase = (phase: "main1" | "standby" | "end" = "main1") =>
+  createSpaceState(
+    {
+      ...createFilledMainDeck(5),
+    },
     phase,
-  });
+  );
+
+const baseDsl = (): ChainableActionDSL => ({
+  resolutions: [{ step: "DRAW", args: { count: 1 } }],
+});
 
 // =============================================================================
 // インスタンス生成テスト
@@ -46,11 +46,7 @@ const createState = (deckCount: number, phase: "main1" | "standby" | "end" = "ma
 
 describe("GenericContinuousSpellActivation - インスタンス生成", () => {
   it("createGenericContinuousSpellActivation でインスタンスを生成できる", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, baseDsl());
 
     expect(activation).toBeInstanceOf(GenericContinuousSpellActivation);
     expect(activation.cardId).toBe(CONTINUOUS_SPELL_ID);
@@ -89,7 +85,7 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
   it("メインフェイズ1では canActivate が true を返す", () => {
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    const result = activation.canActivate(createState(5, "main1"), continuousSpellInstance());
+    const result = activation.canActivate(stateByPhase(), continuousSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
@@ -97,29 +93,29 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
   it("メインフェイズ以外では canActivate が false を返す（メインフェイズ制限）", () => {
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    const result = activation.canActivate(createState(5, "standby"), continuousSpellInstance());
+    const result = activation.canActivate(stateByPhase("standby"), continuousSpellInstance());
 
     expect(result.isValid).toBe(false);
   });
 
   it("個別条件を満たす場合は canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
-    };
-    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
+    });
 
-    const result = activation.canActivate(createState(5), continuousSpellInstance());
+    const result = activation.canActivate(stateByPhase(), continuousSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
 
   it("個別条件を満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 10 } }] },
-    };
-    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
+    });
 
-    const result = activation.canActivate(createState(2), continuousSpellInstance()); // デッキ2枚（10枚必要）
+    const result = activation.canActivate(stateByPhase(), continuousSpellInstance()); // デッキ不足
 
     expect(result.isValid).toBe(false);
   });
@@ -127,23 +123,23 @@ describe("GenericContinuousSpellActivation - 条件チェック", () => {
   it("条件が定義されていない場合はメインフェイズなら canActivate が true を返す", () => {
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    const result = activation.canActivate(createState(0), continuousSpellInstance());
+    const result = activation.canActivate(stateByPhase(), continuousSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
 
   it("複数の条件のうち1つでも満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {
+      ...baseDsl(),
       conditions: {
         requirements: [
           { step: "CAN_DRAW", args: { count: 1 } },
           { step: "CAN_DRAW", args: { count: 10 } }, // 満たさない
         ],
       },
-    };
-    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
+    });
 
-    const result = activation.canActivate(createState(5), continuousSpellInstance());
+    const result = activation.canActivate(stateByPhase(), continuousSpellInstance());
 
     expect(result.isValid).toBe(false);
   });
@@ -157,19 +153,19 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
   it("createActivationSteps に発動通知ステップが含まれる", () => {
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    const steps = activation.createActivationSteps(createState(5), continuousSpellInstance());
+    const steps = activation.createActivationSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
     expect(steps[0].id).toContain("activation-notification");
   });
 
   it("activations が定義されている場合は発動ステップに含まれる", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {
+      ...baseDsl(),
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
-    };
-    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
+    });
 
-    const steps = activation.createActivationSteps(createState(5), continuousSpellInstance());
+    const steps = activation.createActivationSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
   });
@@ -177,7 +173,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
   it("activations が定義されていない場合は個別ステップは空", () => {
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    const steps = activation.createActivationSteps(createState(5), continuousSpellInstance());
+    const steps = activation.createActivationSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.filter((s) => s.id.includes("select")).length).toBe(0);
   });
@@ -192,7 +188,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
     };
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
 
-    const steps = activation.createResolutionSteps(createState(5), continuousSpellInstance());
+    const steps = activation.createResolutionSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
     expect(steps[0].id).toBe("draw-2");
@@ -203,18 +199,15 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
   it("resolutions が定義されていない場合は空の解決ステップを返す", () => {
     const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, {});
 
-    const steps = activation.createResolutionSteps(createState(5), continuousSpellInstance());
+    const steps = activation.createResolutionSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.length).toBe(0);
   });
 
   it("createResolutionSteps に墓地送りステップは含まれない（永続魔法はフィールドに残る）", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, dsl);
+    const activation = createGenericContinuousSpellActivation(CONTINUOUS_SPELL_ID, baseDsl());
 
-    const steps = activation.createResolutionSteps(createState(5), continuousSpellInstance());
+    const steps = activation.createResolutionSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.some((s) => s.id.includes("graveyard") || s.id.includes("send-to"))).toBe(false);
   });

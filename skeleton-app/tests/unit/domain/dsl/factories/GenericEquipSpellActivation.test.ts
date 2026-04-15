@@ -15,11 +15,11 @@ import {
 } from "$lib/domain/dsl/factories/GenericEquipSpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  DUMMY_CARD_IDS,
   createSpellInstance,
-  createMockGameState,
+  createSpaceState,
   createFilledMainDeck,
   createFilledMonsterZone,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 // =============================================================================
@@ -27,27 +27,19 @@ import {
 // =============================================================================
 
 const EQUIP_SPELL_ID = DUMMY_CARD_IDS.EQUIP_SPELL;
-const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 const equipSpellInstance = () =>
   createSpellInstance("equip-test-instance", { cardId: EQUIP_SPELL_ID, spellType: "equip" });
 
-/** フィールドにモンスターを配置したゲーム状態を生成 */
-const createStateWithFieldMonster = (monsterCount: number = 1) =>
-  createMockGameState({
-    space: {
-      ...createFilledMainDeck(30, OTHER_CARD_ID),
-      ...createFilledMonsterZone(monsterCount),
-    },
-    phase: "main1",
+const stateHasMonsterOnField = (hasMonster: boolean = true) =>
+  createSpaceState({
+    ...createFilledMainDeck(5),
+    ...createFilledMonsterZone(hasMonster ? 1 : 0),
   });
 
-/** フィールドにモンスターがない状態を生成 */
-const createStateWithoutFieldMonster = () =>
-  createMockGameState({
-    space: { ...createFilledMainDeck(30, OTHER_CARD_ID) },
-    phase: "main1",
-  });
+const baseDsl = (): ChainableActionDSL => ({
+  resolutions: [{ step: "DRAW", args: { count: 1 } }],
+});
 
 // =============================================================================
 // インスタンス生成テスト
@@ -55,11 +47,7 @@ const createStateWithoutFieldMonster = () =>
 
 describe("GenericEquipSpellActivation - インスタンス生成", () => {
   it("createGenericEquipSpellActivation でインスタンスを生成できる", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
+    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, baseDsl());
 
     expect(activation).toBeInstanceOf(GenericEquipSpellActivation);
     expect(activation.cardId).toBe(EQUIP_SPELL_ID);
@@ -96,7 +84,7 @@ describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const result = activation.canActivate(createStateWithoutFieldMonster(), equipSpellInstance());
+    const result = activation.canActivate(stateHasMonsterOnField(false), equipSpellInstance());
 
     // デフォルト対象選択が有効な場合、対象候補がないとエラー
     expect(result.isValid).toBe(false);
@@ -110,7 +98,7 @@ describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const result = activation.canActivate(createStateWithoutFieldMonster(), equipSpellInstance());
+    const result = activation.canActivate(stateHasMonsterOnField(false), equipSpellInstance());
 
     // 明示的対象選択が有効な場合、フィールドのモンスターチェックはスキップされる
     expect(result.isValid).toBe(true);
@@ -123,7 +111,7 @@ describe("GenericEquipSpellActivation - 対象選択切り替え", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const result = activation.canActivate(createStateWithoutFieldMonster(), equipSpellInstance());
+    const result = activation.canActivate(stateHasMonsterOnField(false), equipSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
@@ -140,7 +128,7 @@ describe("GenericEquipSpellActivation - 条件チェック", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const state = createMockGameState({ phase: "draw" });
+    const state = createSpaceState({}, "draw");
     const result = activation.canActivate(state, equipSpellInstance());
 
     expect(result.isValid).toBe(false);
@@ -148,36 +136,28 @@ describe("GenericEquipSpellActivation - 条件チェック", () => {
   });
 
   it("条件を満たす場合は canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 1 } }] },
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const result = activation.canActivate(createStateWithFieldMonster(), equipSpellInstance());
+    });
+    const result = activation.canActivate(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
 
   it("条件を満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 100 } }] },
-      resolutions: [{ step: "DRAW", args: { count: 100 } }],
-    };
-
-    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const result = activation.canActivate(createStateWithFieldMonster(), equipSpellInstance());
+    });
+    const result = activation.canActivate(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(result.isValid).toBe(false);
   });
 
   it("条件が定義されていない場合は常に canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const result = activation.canActivate(createStateWithFieldMonster(), equipSpellInstance());
+    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, baseDsl());
+    const result = activation.canActivate(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(result.isValid).toBe(true);
   });
@@ -195,7 +175,7 @@ describe("GenericEquipSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const steps = activation.createActivationSteps(createStateWithFieldMonster(), equipSpellInstance());
+    const steps = activation.createActivationSteps(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(steps.some((s) => s.id.includes("select-targets-from-graveyard"))).toBe(true);
   });
@@ -207,19 +187,15 @@ describe("GenericEquipSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const steps = activation.createResolutionSteps(createStateWithFieldMonster(), equipSpellInstance());
+    const steps = activation.createResolutionSteps(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(steps.length).toBeGreaterThanOrEqual(2);
     expect(steps.some((s) => s.id.includes("special-summon-from-context"))).toBe(true);
   });
 
   it("activations が定義されていない場合は基底クラスのステップのみ返す", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const steps = activation.createActivationSteps(createStateWithFieldMonster(), equipSpellInstance());
+    const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, baseDsl());
+    const steps = activation.createActivationSteps(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(steps.filter((s) => s.id.includes("select-target-from-graveyard")).length).toBe(0);
   });
@@ -230,7 +206,7 @@ describe("GenericEquipSpellActivation - ステップ生成", () => {
     };
 
     const activation = createGenericEquipSpellActivation(EQUIP_SPELL_ID, dsl);
-    const steps = activation.createResolutionSteps(createStateWithFieldMonster(), equipSpellInstance());
+    const steps = activation.createResolutionSteps(stateHasMonsterOnField(), equipSpellInstance());
 
     expect(steps.filter((s) => s.id.includes("special-summon")).length).toBe(0);
   });

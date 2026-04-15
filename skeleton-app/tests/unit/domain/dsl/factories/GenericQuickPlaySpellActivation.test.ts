@@ -15,11 +15,11 @@ import {
 } from "$lib/domain/dsl/factories/GenericQuickPlaySpellActivation";
 import type { ChainableActionDSL } from "$lib/domain/dsl/types";
 import {
-  DUMMY_CARD_IDS,
   createSpellInstance,
   createSpellOnField,
-  createMockGameState,
+  createSpaceState,
   createFilledMainDeck,
+  DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
 
 // =============================================================================
@@ -27,7 +27,6 @@ import {
 // =============================================================================
 
 const QUICKPLAY_SPELL_ID = DUMMY_CARD_IDS.QUICKPLAY_SPELL;
-const OTHER_CARD_ID = DUMMY_CARD_IDS.NORMAL_MONSTER;
 
 const quickPlayFromHand = () =>
   createSpellInstance("quick-play-test-instance", { cardId: QUICKPLAY_SPELL_ID, spellType: "quick-play" });
@@ -40,11 +39,13 @@ const quickPlaySetThisTurn = () =>
     placedThisTurn: true,
   });
 
-const createState = (deckCount: number) =>
-  createMockGameState({
-    space: { ...createFilledMainDeck(deckCount, OTHER_CARD_ID) },
-    phase: "main1",
-  });
+const state = createSpaceState({
+  ...createFilledMainDeck(5),
+});
+
+const baseDsl = (): ChainableActionDSL => ({
+  resolutions: [{ step: "DRAW", args: { count: 1 } }],
+});
 
 // =============================================================================
 // インスタンス生成テスト
@@ -52,11 +53,7 @@ const createState = (deckCount: number) =>
 
 describe("GenericQuickPlaySpellActivation - インスタンス生成", () => {
   it("createGenericQuickPlaySpellActivation でインスタンスを生成できる", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, baseDsl());
 
     expect(activation).toBeInstanceOf(GenericQuickPlaySpellActivation);
     expect(activation.cardId).toBe(QUICKPLAY_SPELL_ID);
@@ -95,7 +92,7 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
   it("手札から発動する場合は canActivate が true を返す", () => {
     const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
-    const result = activation.canActivate(createState(5), quickPlayFromHand());
+    const result = activation.canActivate(state, quickPlayFromHand());
 
     expect(result.isValid).toBe(true);
   });
@@ -103,30 +100,29 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
   it("セットしたターンのカードは canActivate が false を返す（速攻魔法制限）", () => {
     const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
-    const result = activation.canActivate(createState(5), quickPlaySetThisTurn());
+    const result = activation.canActivate(state, quickPlaySetThisTurn());
 
     expect(result.isValid).toBe(false);
   });
 
   it("個別条件を満たす場合は canActivate が true を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 2 } }] },
-      resolutions: [{ step: "DRAW", args: { count: 2 } }],
-    };
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    });
 
-    const result = activation.canActivate(createState(5), quickPlayFromHand());
+    const result = activation.canActivate(state, quickPlayFromHand());
 
     expect(result.isValid).toBe(true);
   });
 
   it("個別条件を満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {
+      ...baseDsl(),
       conditions: { requirements: [{ step: "CAN_DRAW", args: { count: 10 } }] },
-    };
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    });
 
-    const result = activation.canActivate(createState(2), quickPlayFromHand()); // デッキ2枚（10枚必要）
+    const result = activation.canActivate(state, quickPlayFromHand()); // デッキ不足
 
     expect(result.isValid).toBe(false);
   });
@@ -134,23 +130,23 @@ describe("GenericQuickPlaySpellActivation - 条件チェック", () => {
   it("条件が定義されていない場合は手札からなら canActivate が true を返す", () => {
     const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
-    const result = activation.canActivate(createState(0), quickPlayFromHand());
+    const result = activation.canActivate(state, quickPlayFromHand());
 
     expect(result.isValid).toBe(true);
   });
 
   it("複数の条件のうち1つでも満たさない場合は canActivate が false を返す", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {
+      ...baseDsl(),
       conditions: {
         requirements: [
           { step: "CAN_DRAW", args: { count: 1 } },
           { step: "CAN_DRAW", args: { count: 10 } }, // 満たさない
         ],
       },
-    };
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    });
 
-    const result = activation.canActivate(createState(5), quickPlayFromHand());
+    const result = activation.canActivate(state, quickPlayFromHand());
 
     expect(result.isValid).toBe(false);
   });
@@ -164,31 +160,27 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
   it("createActivationSteps に発動通知ステップが含まれる", () => {
     const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
-    const steps = activation.createActivationSteps(createState(5), quickPlayFromHand());
+    const steps = activation.createActivationSteps(state, quickPlayFromHand());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
     expect(steps[0].id).toContain("activation-notification");
   });
 
   it("activations が定義されている場合は発動ステップに含まれる", () => {
-    const dsl: ChainableActionDSL = {
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {
+      ...baseDsl(),
       activations: [{ step: "SELECT_AND_DISCARD", args: { count: 1 } }],
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    });
 
-    const steps = activation.createActivationSteps(createState(5), quickPlayFromHand());
+    const steps = activation.createActivationSteps(state, quickPlayFromHand());
 
     expect(steps.some((s) => s.id.includes("select-and-discard"))).toBe(true);
   });
 
   it("activations が定義されていない場合は個別ステップは空", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, baseDsl());
 
-    const steps = activation.createActivationSteps(createState(5), quickPlayFromHand());
+    const steps = activation.createActivationSteps(state, quickPlayFromHand());
 
     expect(steps.filter((s) => s.id.includes("select")).length).toBe(0);
   });
@@ -203,7 +195,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
     };
     const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
 
-    const steps = activation.createResolutionSteps(createState(5), quickPlayFromHand());
+    const steps = activation.createResolutionSteps(state, quickPlayFromHand());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
     expect(steps[0].id).toBe("draw-2");
@@ -212,12 +204,9 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
   });
 
   it("createResolutionSteps の末尾に墓地送りステップが含まれる（速攻魔法は使用後墓地へ）", () => {
-    const dsl: ChainableActionDSL = {
-      resolutions: [{ step: "DRAW", args: { count: 1 } }],
-    };
-    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, dsl);
+    const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, baseDsl());
 
-    const steps = activation.createResolutionSteps(createState(5), quickPlayFromHand());
+    const steps = activation.createResolutionSteps(state, quickPlayFromHand());
 
     const lastStep = steps[steps.length - 1];
     expect(lastStep.id).toContain("to-graveyard");
@@ -226,7 +215,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
   it("resolutions が空でも墓地送りステップは含まれる", () => {
     const activation = createGenericQuickPlaySpellActivation(QUICKPLAY_SPELL_ID, {});
 
-    const steps = activation.createResolutionSteps(createState(5), quickPlayFromHand());
+    const steps = activation.createResolutionSteps(state, quickPlayFromHand());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
     expect(steps[steps.length - 1].id).toContain("to-graveyard");
