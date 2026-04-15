@@ -10,7 +10,13 @@ import {
   canSpecialSummon,
   executeSpecialSummon,
 } from "$lib/domain/rules/SummonRule";
-import { createMockGameState, createMonsterInstance, createFilledMonsterZone } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createSpaceState,
+  createFilledSpaceState,
+  createMonsterInstance,
+  createFilledMonsterZone,
+} from "../../../__testUtils__";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 
 describe("SummonRule", () => {
@@ -36,8 +42,8 @@ describe("SummonRule", () => {
     it("条件を満たしている場合は召喚可能（レベル4モンスター）", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
-      const state = createMockGameState({
-        space: { hand: [monster] },
+      const state = createSpaceState({
+        hand: [monster],
       });
 
       // Act
@@ -101,8 +107,8 @@ describe("SummonRule", () => {
     it("カードが手札にない場合は失敗", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { location: "mainMonsterZone", level: 4 });
-      const state = createMockGameState({
-        space: { mainMonsterZone: [monster] },
+      const state = createSpaceState({
+        mainMonsterZone: [monster],
       });
 
       // Act
@@ -116,11 +122,9 @@ describe("SummonRule", () => {
     it("フィールドに十分なモンスターがいる場合はリリース召喚可能（レベル5）", () => {
       // Arrange
       const monster = createMonsterInstance("high-level-monster", { level: 5 });
-      const state = createMockGameState({
-        space: {
-          hand: [monster],
-          ...createFilledMonsterZone(1),
-        },
+      const state = createSpaceState({
+        hand: [monster],
+        ...createFilledMonsterZone(1),
       });
 
       // Act
@@ -133,11 +137,9 @@ describe("SummonRule", () => {
     it("フィールドのモンスターが不足している場合はリリース召喚失敗（レベル7）", () => {
       // Arrange
       const monster = createMonsterInstance("high-level-monster", { level: 7 });
-      const state = createMockGameState({
-        space: {
-          hand: [monster],
-          ...createFilledMonsterZone(1), // 1体しかいないが2体必要
-        },
+      const state = createSpaceState({
+        hand: [monster],
+        ...createFilledMonsterZone(1), // 2体必要だが、1体しかいない
       });
 
       // Act
@@ -154,8 +156,8 @@ describe("SummonRule", () => {
       it("攻撃表示で召喚した場合、更新済みステートを即時返却する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
-        const state = createMockGameState({
-          space: { hand: [monster] },
+        const state = createSpaceState({
+          hand: [monster],
         });
 
         // Act
@@ -175,8 +177,8 @@ describe("SummonRule", () => {
       it("守備表示でセットした場合、即時結果を返却する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
-        const state = createMockGameState({
-          space: { hand: [monster] },
+        const state = createSpaceState({
+          hand: [monster],
         });
 
         // Act
@@ -194,8 +196,8 @@ describe("SummonRule", () => {
       it("モンスターを表側攻撃表示で配置する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
-        const state = createMockGameState({
-          space: { hand: [monster] },
+        const state = createSpaceState({
+          hand: [monster],
         });
 
         // Act
@@ -212,8 +214,8 @@ describe("SummonRule", () => {
       it("モンスターを裏側守備表示で配置する", () => {
         // Arrange
         const monster = createMonsterInstance("test-monster", { level: 4 });
-        const state = createMockGameState({
-          space: { hand: [monster] },
+        const state = createSpaceState({
+          hand: [monster],
         });
 
         // Act
@@ -232,11 +234,9 @@ describe("SummonRule", () => {
       it("レベル5モンスターはneedsSelection結果を返却する", () => {
         // Arrange
         const monster = createMonsterInstance("high-level-monster", { level: 5 });
-        const state = createMockGameState({
-          space: {
-            hand: [monster],
-            ...createFilledMonsterZone(1),
-          },
+        const state = createSpaceState({
+          hand: [monster],
+          ...createFilledMonsterZone(1),
         });
 
         // Act
@@ -253,11 +253,9 @@ describe("SummonRule", () => {
       it("レベル7モンスター（2体リリース）はneedsSelection結果を返却する", () => {
         // Arrange
         const monster = createMonsterInstance("high-level-monster", { level: 7 });
-        const state = createMockGameState({
-          space: {
-            hand: [monster],
-            ...createFilledMonsterZone(2),
-          },
+        const state = createSpaceState({
+          hand: [monster],
+          ...createFilledMonsterZone(2),
         });
 
         // Act
@@ -286,9 +284,7 @@ describe("SummonRule", () => {
 
     it("モンスターゾーンに4体いる場合は特殊召喚可能", () => {
       // Arrange
-      const state = createMockGameState({
-        space: { ...createFilledMonsterZone(4) },
-      });
+      const state = createFilledSpaceState({ monsterZoneCount: 4 });
 
       // Act
       const result = canSpecialSummon(state);
@@ -299,9 +295,7 @@ describe("SummonRule", () => {
 
     it("モンスターゾーンが満杯（5体）の場合はMONSTER_ZONE_FULLを返す", () => {
       // Arrange
-      const state = createMockGameState({
-        space: { ...createFilledMonsterZone(5) },
-      });
+      const state = createFilledSpaceState({ monsterZoneCount: 5 });
 
       // Act
       const result = canSpecialSummon(state);
@@ -316,8 +310,8 @@ describe("SummonRule", () => {
     it("手札のモンスターを攻撃表示でモンスターゾーンに移動する", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
-      const state = createMockGameState({
-        space: { hand: [monster] },
+      const state = createSpaceState({
+        hand: [monster],
       });
 
       // Act
@@ -336,8 +330,8 @@ describe("SummonRule", () => {
     it("手札のモンスターを守備表示でモンスターゾーンに移動する", () => {
       // Arrange
       const monster = createMonsterInstance("test-monster", { level: 4 });
-      const state = createMockGameState({
-        space: { hand: [monster] },
+      const state = createSpaceState({
+        hand: [monster],
       });
 
       // Act
@@ -356,8 +350,8 @@ describe("SummonRule", () => {
         level: 6,
         location: "extraDeck",
       });
-      const state = createMockGameState({
-        space: { extraDeck: [synchro] },
+      const state = createSpaceState({
+        extraDeck: [synchro],
       });
 
       // Act

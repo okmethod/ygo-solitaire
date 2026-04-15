@@ -9,6 +9,7 @@ import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { selectAndReleaseStep } from "$lib/domain/dsl/steps/builders/releases";
 import {
   createMockGameState,
+  createSpaceState,
   createFilledMonsterZone,
   createMonsterOnField,
   createStepBuildContext,
@@ -57,11 +58,9 @@ describe("StepRegistry - RELEASE", () => {
   describe("action実行", () => {
     it("選択したモンスターをリリースできる", () => {
       const { mainMonsterZone: monsters } = createFilledMonsterZone(1);
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: monsters,
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: monsters,
+        graveyard: [],
       });
 
       const step = buildStep("RELEASE", {}, createStepBuildContext());
@@ -76,11 +75,9 @@ describe("StepRegistry - RELEASE", () => {
 
     it("複数モンスターをリリースできる", () => {
       const { mainMonsterZone: monsters } = createFilledMonsterZone(2);
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: monsters,
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: monsters,
+        graveyard: [],
       });
 
       const step = buildStep("RELEASE", { count: 2 }, createStepBuildContext());

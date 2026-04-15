@@ -10,7 +10,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType, GameEvent } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, ActionEffectCategory, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState, createMonsterOnField, ACTUAL_CARD_IDS } from "../../../../__testUtils__";
+import { createSpaceState, createMonsterOnField, ACTUAL_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用のモック ChainableAction
@@ -484,9 +484,6 @@ describe("ChainableActionRegistry", () => {
       location: "hand",
     });
 
-    /** テスト用GameSnapshotを作成（共通ファクトリのラッパー） */
-    const createTestGameSnapshot = (space: Partial<GameSnapshot["space"]> = {}) => createMockGameState({ space });
-
     /** canActivateがfalseを返すMockChainableAction */
     class MockInvalidChainableAction extends MockChainableAction {
       canActivate(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
@@ -502,7 +499,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       const quickPlaySpell = createQuickPlaySpellInstance(cardId, "hand-0", "hand");
-      const state = createTestGameSnapshot({ hand: [quickPlaySpell] });
+      const state = createSpaceState({ hand: [quickPlaySpell] });
       const action = new MockChainableAction(cardId, "Quick-Play Spell", 2, "activation", "quick-play");
       ChainableActionRegistry.registerActivation(cardId, action);
 
@@ -522,7 +519,7 @@ describe("ChainableActionRegistry", () => {
         placedThisTurn: false,
         position: "faceDown",
       });
-      const state = createTestGameSnapshot({ spellTrapZone: [setQuickPlaySpell] });
+      const state = createSpaceState({ spellTrapZone: [setQuickPlaySpell] });
       const action = new MockChainableAction(cardId, "Set Quick-Play", 2, "activation", "set-quick-play");
       ChainableActionRegistry.registerActivation(cardId, action);
 
@@ -538,7 +535,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 54321;
       const setTrap = createTrapInstance(cardId, "trap-0", { placedThisTurn: false, position: "faceDown" });
-      const state = createTestGameSnapshot({ spellTrapZone: [setTrap] });
+      const state = createSpaceState({ spellTrapZone: [setTrap] });
       const action = new MockChainableAction(cardId, "Trap Card", 2, "activation", "trap");
       ChainableActionRegistry.registerActivation(cardId, action);
 
@@ -557,7 +554,7 @@ describe("ChainableActionRegistry", () => {
         placedThisTurn: true,
         position: "faceDown",
       });
-      const state = createTestGameSnapshot({ spellTrapZone: [setThisTurn] });
+      const state = createSpaceState({ spellTrapZone: [setThisTurn] });
       // セットしたターンはcanActivateがfalseを返す（実際のQuickPlaySpellActivationの動作）
       const action = new MockInvalidChainableAction(cardId, "Set This Turn", 2, "activation", "set-this-turn");
       ChainableActionRegistry.registerActivation(cardId, action);
@@ -576,7 +573,7 @@ describe("ChainableActionRegistry", () => {
         placedThisTurn: false,
         position: "faceUp",
       });
-      const state = createTestGameSnapshot({ spellTrapZone: [faceUpCard] });
+      const state = createSpaceState({ spellTrapZone: [faceUpCard] });
       // 表側表示は「効果の発動」なので ignition を登録
       const action = new MockChainableAction(cardId, "Face Up Effect", 1, "ignition", "face-up-effect");
       ChainableActionRegistry.registerIgnition(cardId, action);
@@ -596,7 +593,7 @@ describe("ChainableActionRegistry", () => {
         placedThisTurn: false,
         position: "faceUp",
       });
-      const state = createTestGameSnapshot({ spellTrapZone: [faceUpCard] });
+      const state = createSpaceState({ spellTrapZone: [faceUpCard] });
       // 表側表示に activation を登録しても収集されない
       const action = new MockChainableAction(cardId, "Face Up", 2, "activation", "face-up");
       ChainableActionRegistry.registerActivation(cardId, action);
@@ -614,7 +611,7 @@ describe("ChainableActionRegistry", () => {
       const spellSpeed2CardId = 22222;
       const spell1 = createQuickPlaySpellInstance(spellSpeed1CardId, "hand-0", "hand");
       const spell2 = createQuickPlaySpellInstance(spellSpeed2CardId, "hand-1", "hand");
-      const state = createTestGameSnapshot({ hand: [spell1, spell2] });
+      const state = createSpaceState({ hand: [spell1, spell2] });
 
       // spellSpeed 1 の効果
       ChainableActionRegistry.registerActivation(
@@ -641,7 +638,7 @@ describe("ChainableActionRegistry", () => {
       const cardId2 = 22222;
       const spell1 = createQuickPlaySpellInstance(cardId1, "hand-0", "hand");
       const spell2 = createQuickPlaySpellInstance(cardId2, "hand-1", "hand");
-      const state = createTestGameSnapshot({ hand: [spell1, spell2] });
+      const state = createSpaceState({ hand: [spell1, spell2] });
 
       ChainableActionRegistry.registerActivation(
         cardId1,
@@ -665,7 +662,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       const quickPlaySpell = createQuickPlaySpellInstance(cardId, "hand-0", "hand");
-      const state = createTestGameSnapshot({ hand: [quickPlaySpell] });
+      const state = createSpaceState({ hand: [quickPlaySpell] });
 
       // canActivateがfalseを返すアクション
       const invalidAction = new MockInvalidChainableAction(cardId, "Invalid", 2, "activation", "invalid");
@@ -682,7 +679,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       const normalSpell = createNormalSpellInstance(cardId, "hand-0");
-      const state = createTestGameSnapshot({ hand: [normalSpell] });
+      const state = createSpaceState({ hand: [normalSpell] });
 
       // 通常魔法は spellSpeed 1
       const action = new MockChainableAction(cardId, "Normal Spell", 1, "activation", "normal");
@@ -699,7 +696,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const unregisteredCardId = 99999;
       const quickPlaySpell = createQuickPlaySpellInstance(unregisteredCardId, "hand-0", "hand");
-      const state = createTestGameSnapshot({ hand: [quickPlaySpell] });
+      const state = createSpaceState({ hand: [quickPlaySpell] });
       // 効果を登録しない
 
       // Act
@@ -720,7 +717,7 @@ describe("ChainableActionRegistry", () => {
         position: "faceDown",
       });
       const setTrap = createTrapInstance(cardId3, "trap-0", { placedThisTurn: false, position: "faceDown" });
-      const state = createTestGameSnapshot({
+      const state = createSpaceState({
         hand: [handSpell],
         spellTrapZone: [setSpell, setTrap],
       });
@@ -798,7 +795,7 @@ describe("ChainableActionRegistry", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
       const card = createMonsterOnField("mainMonsterZone-0", { cardId });
-      const state = createMockGameState({ space: { mainMonsterZone: [card] } });
+      const state = createSpaceState({ mainMonsterZone: [card] });
 
       // Act
       const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
@@ -815,7 +812,7 @@ describe("ChainableActionRegistry", () => {
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], false));
       const card = createMonsterOnField("mainMonsterZone-0", { cardId });
-      const state = createMockGameState({ space: { mainMonsterZone: [card] } });
+      const state = createSpaceState({ mainMonsterZone: [card] });
 
       // Act
       const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
@@ -831,9 +828,7 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
-      const state = createMockGameState({
-        space: { mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId })] },
-      });
+      const state = createSpaceState({ mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId })] });
 
       // Act
       const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("normalSummoned"));
@@ -858,7 +853,7 @@ describe("ChainableActionRegistry", () => {
           activatedEffects: [],
         },
       };
-      const state = createMockGameState({ space: { mainMonsterZone: [faceDownCard] } });
+      const state = createSpaceState({ mainMonsterZone: [faceDownCard] });
 
       // Act
       const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
@@ -872,13 +867,11 @@ describe("ChainableActionRegistry", () => {
       // Arrange
       const cardId = 12345;
       ChainableActionRegistry.registerTrigger(cardId, new MockTriggerAction(cardId, ["spellActivated"], true));
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [
-            createMonsterOnField("mainMonsterZone-0", { cardId }),
-            createMonsterOnField("mainMonsterZone-1", { cardId }),
-          ],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [
+          createMonsterOnField("mainMonsterZone-0", { cardId }),
+          createMonsterOnField("mainMonsterZone-1", { cardId }),
+        ],
       });
 
       // Act

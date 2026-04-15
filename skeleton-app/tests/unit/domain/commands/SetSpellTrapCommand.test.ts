@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import { SetSpellTrapCommand } from "$lib/domain/commands/SetSpellTrapCommand";
 import {
   createMockGameState,
+  createSpaceState,
   createSpellInstance,
   createSpellOnField,
   createMonsterInstance,
@@ -18,8 +19,8 @@ describe("SetSpellTrapCommand", () => {
     it("条件を満たす場合に通常魔法をセットできる", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        space: { hand: [spellCard] },
+      const state = createSpaceState({
+        hand: [spellCard],
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -35,11 +36,9 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const fieldSpell1 = createSpellInstance("field-1", { spellType: "field" });
       const fieldSpell2 = createSpellInstance("field-2", { spellType: "field", location: "fieldZone" });
-      const state = createMockGameState({
-        space: {
-          hand: [fieldSpell1],
-          fieldZone: [fieldSpell2],
-        },
+      const state = createSpaceState({
+        hand: [fieldSpell1],
+        fieldZone: [fieldSpell2],
       });
 
       const command = new SetSpellTrapCommand("field-1");
@@ -71,11 +70,9 @@ describe("SetSpellTrapCommand", () => {
     it("魔法・罠ゾーンが満杯の場合（5枚）は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        space: {
-          hand: [spellCard],
-          ...createFilledSpellZone(5),
-        },
+      const state = createSpaceState({
+        hand: [spellCard],
+        ...createFilledSpellZone(5),
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -103,8 +100,8 @@ describe("SetSpellTrapCommand", () => {
     it("カードが手札にない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1", { spellType: "normal", location: "mainDeck" });
-      const state = createMockGameState({
-        space: { mainDeck: [spellCard] },
+      const state = createSpaceState({
+        mainDeck: [spellCard],
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -119,8 +116,8 @@ describe("SetSpellTrapCommand", () => {
     it("カードが魔法・罠でない場合は失敗する", () => {
       // Arrange
       const monsterCard = createMonsterInstance("monster-1");
-      const state = createMockGameState({
-        space: { hand: [monsterCard] },
+      const state = createSpaceState({
+        hand: [monsterCard],
       });
 
       const command = new SetSpellTrapCommand("monster-1");
@@ -150,8 +147,8 @@ describe("SetSpellTrapCommand", () => {
     it("通常魔法を裏向きで魔法・罠ゾーンにセットする", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1");
-      const state = createMockGameState({
-        space: { hand: [spellCard] },
+      const state = createSpaceState({
+        hand: [spellCard],
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -174,8 +171,8 @@ describe("SetSpellTrapCommand", () => {
     it("速攻魔法を裏向きで魔法・罠ゾーンにセットする", () => {
       // Arrange
       const spellCard = createSpellInstance("quick-1", { spellType: "quick-play" });
-      const state = createMockGameState({
-        space: { hand: [spellCard] },
+      const state = createSpaceState({
+        hand: [spellCard],
       });
 
       const command = new SetSpellTrapCommand("quick-1");
@@ -196,8 +193,8 @@ describe("SetSpellTrapCommand", () => {
     it("永続魔法を裏向きで魔法・罠ゾーンにセットする", () => {
       // Arrange
       const spellCard = createSpellInstance("continuous-1", { spellType: "continuous" });
-      const state = createMockGameState({
-        space: { hand: [spellCard] },
+      const state = createSpaceState({
+        hand: [spellCard],
       });
 
       const command = new SetSpellTrapCommand("continuous-1");
@@ -217,8 +214,8 @@ describe("SetSpellTrapCommand", () => {
     it("フィールド魔法を裏向きでフィールドゾーンにセットする", () => {
       // Arrange
       const fieldSpell = createSpellInstance("field-1", { spellType: "field" });
-      const state = createMockGameState({
-        space: { hand: [fieldSpell] },
+      const state = createSpaceState({
+        hand: [fieldSpell],
       });
 
       const command = new SetSpellTrapCommand("field-1");
@@ -242,11 +239,9 @@ describe("SetSpellTrapCommand", () => {
       // Arrange
       const oldFieldSpell = createSpellOnField("field-old", { spellType: "field" });
       const newFieldSpell = createSpellInstance("field-new", { spellType: "field" });
-      const state = createMockGameState({
-        space: {
-          hand: [newFieldSpell],
-          fieldZone: [oldFieldSpell],
-        },
+      const state = createSpaceState({
+        hand: [newFieldSpell],
+        fieldZone: [oldFieldSpell],
       });
 
       const command = new SetSpellTrapCommand("field-new");
@@ -315,8 +310,8 @@ describe("SetSpellTrapCommand", () => {
     it("カードが手札にない場合は失敗する", () => {
       // Arrange
       const spellCard = createSpellInstance("spell-1", { spellType: "normal", location: "mainDeck" });
-      const state = createMockGameState({
-        space: { mainDeck: [spellCard] },
+      const state = createSpaceState({
+        mainDeck: [spellCard],
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -336,11 +331,9 @@ describe("SetSpellTrapCommand", () => {
         ...s,
         location: "spellTrapZone" as const,
       }));
-      const state = createMockGameState({
-        space: {
-          hand: [spellCard],
-          spellTrapZone: existingSpells,
-        },
+      const state = createSpaceState({
+        hand: [spellCard],
+        spellTrapZone: existingSpells,
       });
 
       const command = new SetSpellTrapCommand("spell-1");
@@ -359,12 +352,10 @@ describe("SetSpellTrapCommand", () => {
       const existingDeckCard = createSpellInstance("deck-card", { spellType: "normal", location: "mainDeck" });
       const existingGraveyardCard = createSpellInstance("gy-card", { spellType: "normal", location: "graveyard" });
 
-      const state = createMockGameState({
-        space: {
-          mainDeck: [existingDeckCard],
-          hand: [spellCard],
-          graveyard: [existingGraveyardCard],
-        },
+      const state = createSpaceState({
+        mainDeck: [existingDeckCard],
+        hand: [spellCard],
+        graveyard: [existingGraveyardCard],
       });
 
       const command = new SetSpellTrapCommand("spell-1");

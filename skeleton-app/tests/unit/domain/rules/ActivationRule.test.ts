@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { placeCardForActivation } from "$lib/domain/rules/ActivationRule";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterInstance,
   createSpellInstance,
   createSpellOnField,
@@ -17,10 +17,8 @@ describe("ActivationRule", () => {
       it("通常魔法を手札から魔法・罠ゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "normal", location: "hand" });
-        const state = createMockGameState({
-          space: {
-            hand: [spell],
-          },
+        const state = createSpaceState({
+          hand: [spell],
         });
 
         // Act
@@ -36,10 +34,8 @@ describe("ActivationRule", () => {
       it("速攻魔法を手札から魔法・罠ゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "quick-play", location: "hand" });
-        const state = createMockGameState({
-          space: {
-            hand: [spell],
-          },
+        const state = createSpaceState({
+          hand: [spell],
         });
 
         // Act
@@ -54,10 +50,8 @@ describe("ActivationRule", () => {
       it("永続魔法を手札から魔法・罠ゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "continuous", location: "hand" });
-        const state = createMockGameState({
-          space: {
-            hand: [spell],
-          },
+        const state = createSpaceState({
+          hand: [spell],
         });
 
         // Act
@@ -71,10 +65,8 @@ describe("ActivationRule", () => {
       it("フィールド魔法を手札からフィールドゾーンに配置できる", () => {
         // Arrange
         const spell = createSpellInstance("spell-0", { spellType: "field", location: "hand" });
-        const state = createMockGameState({
-          space: {
-            hand: [spell],
-          },
+        const state = createSpaceState({
+          hand: [spell],
         });
 
         // Act
@@ -91,11 +83,9 @@ describe("ActivationRule", () => {
         // Arrange
         const existingFieldSpell = createSpellOnField("existing-field-0", { spellType: "field" });
         const newFieldSpell = createSpellInstance("new-field-0", { spellType: "field", location: "hand" });
-        const state = createMockGameState({
-          space: {
-            hand: [newFieldSpell],
-            fieldZone: [existingFieldSpell],
-          },
+        const state = createSpaceState({
+          hand: [newFieldSpell],
+          fieldZone: [existingFieldSpell],
         });
 
         // Act
@@ -117,10 +107,8 @@ describe("ActivationRule", () => {
           position: "faceDown",
           placedThisTurn: false,
         });
-        const state = createMockGameState({
-          space: {
-            spellTrapZone: [setSpell],
-          },
+        const state = createSpaceState({
+          spellTrapZone: [setSpell],
         });
 
         // Act
@@ -138,10 +126,8 @@ describe("ActivationRule", () => {
           position: "faceDown",
           placedThisTurn: false,
         });
-        const state = createMockGameState({
-          space: {
-            fieldZone: [setFieldSpell],
-          },
+        const state = createSpaceState({
+          fieldZone: [setFieldSpell],
         });
 
         // Act
@@ -157,10 +143,8 @@ describe("ActivationRule", () => {
       it("手札のモンスターカードを発動しようとするとエラーが発生する", () => {
         // Arrange
         const monster = createMonsterInstance("monster-0");
-        const state = createMockGameState({
-          space: {
-            hand: [monster],
-          },
+        const state = createSpaceState({
+          hand: [monster],
         });
 
         // Act & Assert

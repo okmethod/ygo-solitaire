@@ -7,7 +7,7 @@ import { BaseContinuousEffect } from "$lib/domain/effects/rules/continuouses/Bas
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { RuleCategory } from "$lib/domain/models/Effect";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterInstance,
   createMonsterOnField,
   createSpellOnField,
@@ -63,10 +63,8 @@ describe("BaseContinuousEffect", () => {
     it("メインモンスターゾーンに表側表示で存在し、個別条件を満たす場合は true を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [createMonsterOnField("test-1", { frameType: "effect" })],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [createMonsterOnField("test-1", { frameType: "effect" })],
       });
 
       // Act
@@ -79,10 +77,8 @@ describe("BaseContinuousEffect", () => {
     it("魔法・罠ゾーンに表側表示で存在する場合は true を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.CONTINUOUS_SPELL, true);
-      const state = createMockGameState({
-        space: {
-          spellTrapZone: [createSpellOnField("test-1", { spellType: "continuous" })],
-        },
+      const state = createSpaceState({
+        spellTrapZone: [createSpellOnField("test-1", { spellType: "continuous" })],
       });
 
       // Act
@@ -95,10 +91,8 @@ describe("BaseContinuousEffect", () => {
     it("フィールドゾーンに表側表示で存在する場合は true を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.FIELD_SPELL, true);
-      const state = createMockGameState({
-        space: {
-          fieldZone: [createSpellOnField("test-1", { spellType: "field" })],
-        },
+      const state = createSpaceState({
+        fieldZone: [createSpellOnField("test-1", { spellType: "field" })],
       });
 
       // Act
@@ -111,15 +105,13 @@ describe("BaseContinuousEffect", () => {
     it("カードが裏側表示の場合は false を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
-      const state = createMockGameState({
-        space: {
-          spellTrapZone: [
-            createMonsterOnField("test-1", {
-              frameType: "effect",
-              position: "faceDown",
-            }),
-          ],
-        },
+      const state = createSpaceState({
+        spellTrapZone: [
+          createMonsterOnField("test-1", {
+            frameType: "effect",
+            position: "faceDown",
+          }),
+        ],
       });
 
       // Act
@@ -132,10 +124,8 @@ describe("BaseContinuousEffect", () => {
     it("カードがフィールドに存在しない場合は false を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
-      const state = createMockGameState({
-        space: {
-          hand: [createMonsterInstance("test-1", { frameType: "effect" })],
-        },
+      const state = createSpaceState({
+        hand: [createMonsterInstance("test-1", { frameType: "effect" })],
       });
 
       // Act
@@ -148,10 +138,8 @@ describe("BaseContinuousEffect", () => {
     it("個別条件を満たさない場合は false を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, false); // shouldPass = false
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [createMonsterOnField("test-1", { frameType: "effect" })],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [createMonsterOnField("test-1", { frameType: "effect" })],
       });
 
       // Act
@@ -164,10 +152,8 @@ describe("BaseContinuousEffect", () => {
     it("フィールドに別のカードが存在する場合は false を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [createMonsterOnField("test-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })], // 異なるカードID
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [createMonsterOnField("test-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })], // 異なるカードID
       });
 
       // Act
@@ -180,12 +166,10 @@ describe("BaseContinuousEffect", () => {
     it("フィールドが空の場合は false を返すこと", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
       });
 
       // Act
@@ -198,12 +182,10 @@ describe("BaseContinuousEffect", () => {
     it("全フィールドゾーンを横断して対象カードを検索すること", () => {
       // Arrange
       const effect = new TestContinuousEffect(DUMMY_CARD_IDS.EFFECT_MONSTER, true);
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [createMonsterOnField("monster-1", { cardId: DUMMY_CARD_IDS.EFFECT_MONSTER })],
-          spellTrapZone: [createSpellOnField("spell-1")],
-          fieldZone: [createSpellOnField("field-1", { spellType: "field" })], // 検索対象のカード
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [createMonsterOnField("monster-1", { cardId: DUMMY_CARD_IDS.EFFECT_MONSTER })],
+        spellTrapZone: [createSpellOnField("spell-1")],
+        fieldZone: [createSpellOnField("field-1", { spellType: "field" })], // 検索対象のカード
       });
 
       // Act

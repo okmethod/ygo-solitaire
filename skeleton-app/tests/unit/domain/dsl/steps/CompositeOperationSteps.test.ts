@@ -10,6 +10,7 @@ import {
 } from "$lib/domain/dsl/steps/builders/compositeOperations";
 import {
   createMockGameState,
+  createSpaceState,
   createMonsterInstance,
   createSpellInstance,
   createStepBuildContext,
@@ -59,11 +60,9 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
       const deckCard1 = createMonsterInstance("deck-monster-0", { location: "mainDeck" });
       const deckCard2 = createMonsterInstance("deck-monster-1", { location: "mainDeck" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2],
-          mainDeck: [deckCard1, deckCard2],
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2],
+        mainDeck: [deckCard1, deckCard2],
       });
 
       const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1 }, createStepBuildContext());
@@ -88,11 +87,9 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
         createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2, handCard3],
-          mainDeck: deckCards,
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2, handCard3],
+        mainDeck: deckCards,
       });
 
       const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 1, max: 3 }, createStepBuildContext());
@@ -109,11 +106,9 @@ describe("StepRegistry - SELECT_RETURN_SHUFFLE_DRAW", () => {
     it("0枚選択の場合は何もしない", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1],
-          mainDeck: [],
-        },
+      const state = createSpaceState({
+        hand: [handCard1],
+        mainDeck: [],
       });
 
       const step = buildStep("SELECT_RETURN_SHUFFLE_DRAW", { min: 0 }, createStepBuildContext());
@@ -171,11 +166,9 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
         createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2],
-          mainDeck: deckCards,
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2],
+        mainDeck: deckCards,
       });
 
       const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createStepBuildContext());
@@ -194,11 +187,9 @@ describe("StepRegistry - RETURN_ALL_HAND_SHUFFLE_DRAW", () => {
         createMonsterInstance(`deck-monster-${i}`, { location: "mainDeck" }),
       );
 
-      const state = createMockGameState({
-        space: {
-          hand: [],
-          mainDeck: deckCards,
-        },
+      const state = createSpaceState({
+        hand: [],
+        mainDeck: deckCards,
       });
 
       const step = buildStep("RETURN_ALL_HAND_SHUFFLE_DRAW", {}, createStepBuildContext());

@@ -17,7 +17,7 @@ import { vi } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterInstance,
   flushEffectQueue,
   getState,
@@ -44,10 +44,8 @@ describe("任意誘発効果 - 基本フローテスト", () => {
   describe("任意誘発効果なし - 通常モンスターの召喚", () => {
     it("通常モンスターを召喚しても optionalTriggerConfirmConfig が表示されない", async () => {
       gameStateStore.set(
-        createMockGameState({
-          space: {
-            hand: [createMonsterInstance("normal-1")],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("normal-1")],
         }),
       );
 
@@ -65,10 +63,8 @@ describe("任意誘発効果 - 基本フローテスト", () => {
   describe("任意誘発効果あり - 確認モーダルの表示", () => {
     it("任意誘発効果を持つモンスターの召喚後に optionalTriggerConfirmConfig が表示される", async () => {
       gameStateStore.set(
-        createMockGameState({
-          space: {
-            hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
         }),
       );
 
@@ -85,10 +81,8 @@ describe("任意誘発効果 - 基本フローテスト", () => {
   describe("任意誘発効果 → 発動する", () => {
     it("発動を選択すると効果が解決されて確認モーダルが消える", async () => {
       gameStateStore.set(
-        createMockGameState({
-          space: {
-            hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
         }),
       );
 
@@ -110,10 +104,8 @@ describe("任意誘発効果 - 基本フローテスト", () => {
   describe("任意誘発効果 → 発動しない（パス）", () => {
     it("パスを選択すると効果がスキップされて確認モーダルが消える", async () => {
       gameStateStore.set(
-        createMockGameState({
-          space: {
-            hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
-          },
+        createSpaceState({
+          hand: [createMonsterInstance("effect-1", { cardId: DUMMY_CARD_IDS.OPTIONAL_TRIGGER_MONSTER })],
         }),
       );
 

@@ -10,7 +10,7 @@ import { vi } from "vitest";
 import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import {
-  createMockGameState,
+  createSpaceState,
   createScenarioDeck,
   createMonsterInstance,
   createSpellInstance,
@@ -56,17 +56,14 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
       const deckCards = createFilledMainDeck(1).mainDeck;
 
       gameStateStore.set(
-        createMockGameState({
-          phase: "main1",
-          space: {
-            mainDeck: deckCards,
-            hand: handCards,
-            mainMonsterZone: [],
-            spellTrapZone: [],
-            fieldZone: [],
-            graveyard: [],
-            banished: [],
-          },
+        createSpaceState({
+          mainDeck: deckCards,
+          hand: handCards,
+          mainMonsterZone: [],
+          spellTrapZone: [],
+          fieldZone: [],
+          graveyard: [],
+          banished: [],
         }),
       );
 
@@ -104,17 +101,14 @@ describe("エクゾディア勝利 - 実カードシナリオテスト", () => {
         createMonsterInstance(`deck-${i}`, { cardId: id, location: "mainDeck" }),
       );
 
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: deckCards,
-          hand: handCards,
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: deckCards,
+        hand: handCards,
+        mainMonsterZone: [],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 

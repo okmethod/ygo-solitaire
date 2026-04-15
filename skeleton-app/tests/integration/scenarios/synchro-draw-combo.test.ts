@@ -18,7 +18,7 @@ import { CardDataRegistry } from "$lib/domain/cards";
 import type { CardInstance, FrameSubType } from "$lib/domain/models/Card";
 import { createInitialStateOnField } from "$lib/domain/models/Card/StateOnField";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterOnField,
   createFilledMainDeck,
   flushEffectQueue,
@@ -79,22 +79,19 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
     //     非チューナーLv1 (フォーミュラ素材用)
     // - デッキ: ダミー5枚
     // - 手札: なし
-    const initialState = createMockGameState({
-      phase: "main1",
-      space: {
-        ...createFilledMainDeck(5),
-        extraDeck: [
-          createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck"),
-          createRealSynchroCard(ACTUAL_CARD_IDS.FORMULA_SYNCHRON, "formula", "extraDeck"),
-        ],
-        mainMonsterZone: [
-          createMonsterOnField("tuner-for-librarian", { isTuner: true, level: 1 }),
-          createMonsterOnField("nontuner-lv4", { level: 4 }),
-          createMonsterOnField("tuner-for-formula", { isTuner: true, level: 1 }),
-          createMonsterOnField("nontuner-lv1", { level: 1 }),
-        ],
-        hand: [],
-      },
+    const initialState = createSpaceState({
+      ...createFilledMainDeck(5),
+      extraDeck: [
+        createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck"),
+        createRealSynchroCard(ACTUAL_CARD_IDS.FORMULA_SYNCHRON, "formula", "extraDeck"),
+      ],
+      mainMonsterZone: [
+        createMonsterOnField("tuner-for-librarian", { isTuner: true, level: 1 }),
+        createMonsterOnField("nontuner-lv4", { level: 4 }),
+        createMonsterOnField("tuner-for-formula", { isTuner: true, level: 1 }),
+        createMonsterOnField("nontuner-lv1", { level: 1 }),
+      ],
+      hand: [],
     });
     gameStateStore.set(initialState);
 
@@ -143,17 +140,14 @@ describe("シンクロ召喚連鎖ドロー - シナリオテスト", () => {
 
   it("ライブラリアン召喚時はドローが発生しない", async () => {
     // ライブラリアン自身のシンクロ召喚では誘発しないことを検証
-    const initialState = createMockGameState({
-      phase: "main1",
-      space: {
-        ...createFilledMainDeck(5),
-        extraDeck: [createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck")],
-        mainMonsterZone: [
-          createMonsterOnField("tuner-0", { isTuner: true, level: 1 }),
-          createMonsterOnField("nontuner-0", { level: 4 }),
-        ],
-        hand: [],
-      },
+    const initialState = createSpaceState({
+      ...createFilledMainDeck(5),
+      extraDeck: [createRealSynchroCard(ACTUAL_CARD_IDS.TG_HYPER_LIBRARIAN, "librarian", "extraDeck")],
+      mainMonsterZone: [
+        createMonsterOnField("tuner-0", { isTuner: true, level: 1 }),
+        createMonsterOnField("nontuner-0", { level: 4 }),
+      ],
+      hand: [],
     });
     gameStateStore.set(initialState);
 

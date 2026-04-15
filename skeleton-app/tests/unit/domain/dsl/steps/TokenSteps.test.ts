@@ -5,8 +5,8 @@
 import { describe, it, expect } from "vitest";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import {
-  createMockGameState,
-  createFilledMonsterZone,
+  createSpaceState,
+  createFilledSpaceState,
   createStepBuildContext,
   DUMMY_CARD_IDS,
 } from "../../../../__testUtils__";
@@ -75,10 +75,8 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
 
   describe("action実行", () => {
     it("トークンをフィールドに攻撃表示で特殊召喚できる", () => {
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [],
       });
 
       const step = buildStep(
@@ -102,10 +100,8 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     });
 
     it("トークンをフィールドに守備表示で特殊召喚できる", () => {
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [],
       });
 
       const step = buildStep(
@@ -122,10 +118,8 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     });
 
     it("生成されるトークンのinstanceIdはユニーク", () => {
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [],
       });
 
       const step = buildStep(
@@ -144,11 +138,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     });
 
     it("モンスターゾーンが満杯の場合エラー", () => {
-      const state = createMockGameState({
-        space: {
-          ...createFilledMonsterZone(5), // 5体で満杯
-        },
-      });
+      const state = createFilledSpaceState({ monsterZoneCount: 5 });
 
       const step = buildStep(
         "CREATE_TOKEN_MONSTER",
@@ -163,11 +153,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
     });
 
     it("既存のモンスターがいても空きがあれば召喚できる", () => {
-      const state = createMockGameState({
-        space: {
-          ...createFilledMonsterZone(3), // 3体
-        },
-      });
+      const state = createFilledSpaceState({ monsterZoneCount: 3 });
 
       const step = buildStep(
         "CREATE_TOKEN_MONSTER",

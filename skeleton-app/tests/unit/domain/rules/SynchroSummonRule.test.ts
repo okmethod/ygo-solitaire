@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { canSynchroSummon, performSynchroSummon } from "$lib/domain/rules/SynchroSummonRule";
 import {
-  createMockGameState,
+  createSpaceState,
   createSynchroSummonReadyState,
   createMonsterInstance,
   createMonsterOnField,
@@ -55,22 +55,19 @@ describe("SynchroSummonRule", () => {
 
       it("シンクロモンスター以外は NOT_SYNCHRO_MONSTER を返す", () => {
         // Arrange
-        const state = createMockGameState({
-          space: {
-            extraDeck: [
-              {
-                instanceId: "fusion-0",
-                id: 99999999,
-                jaName: "Test Fusion",
-                type: "monster",
-                frameType: "fusion", // Not synchro
-                edition: "latest",
-                location: "extraDeck",
-              },
-            ],
-            mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
-          },
-          phase: "main1",
+        const state = createSpaceState({
+          extraDeck: [
+            {
+              instanceId: "fusion-0",
+              id: 99999999,
+              jaName: "Test Fusion",
+              type: "monster",
+              frameType: "fusion", // Not synchro
+              edition: "latest",
+              location: "extraDeck",
+            },
+          ],
+          mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
         });
 
         // Act
@@ -83,12 +80,9 @@ describe("SynchroSummonRule", () => {
 
       it("シンクロモンスターがエクストラデッキにない場合は CARD_NOT_IN_EXTRA_DECK を返す", () => {
         // Arrange
-        const state = createMockGameState({
-          space: {
-            mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
-            graveyard: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "hand" })],
-          },
-          phase: "main1",
+        const state = createSpaceState({
+          mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
+          graveyard: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "hand" })],
         });
 
         // Act
@@ -115,13 +109,13 @@ describe("SynchroSummonRule", () => {
 
       it("非チューナーがいない場合は NO_VALID_SYNCHRO_MATERIALS を返す", () => {
         // Arrange: Only tuner on field, no non-tuner
-        const state = createMockGameState({
-          space: {
-            extraDeck: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "extraDeck" })],
-            mainMonsterZone: [createMonsterOnField("tuner-0", { isTuner: true, level: 2 })],
-            ...createFilledMainDeck(30),
-          },
-          phase: "main1",
+        const state = createSpaceState({
+          extraDeck: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "extraDeck" })],
+          mainMonsterZone: [
+            createMonsterOnField("tuner-0", { isTuner: true, level: 2 }),
+            createMonsterOnField("tuner-2", { isTuner: true, level: 4 }),
+          ],
+          ...createFilledMainDeck(30),
         });
 
         // Act
@@ -193,16 +187,13 @@ describe("SynchroSummonRule", () => {
     describe("裏側モンスターの扱い", () => {
       it("裏側のモンスターを素材として無視する", () => {
         // Arrange: Tuner is face-down
-        const state = createMockGameState({
-          space: {
-            extraDeck: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "extraDeck" })],
-            mainMonsterZone: [
-              createMonsterOnField("tuner-0", { isTuner: true, level: 2, position: "faceDown" }), // Face-down
-              createMonsterOnField("nontuner-", { level: 4, position: "faceDown" }),
-            ],
-            ...createFilledMainDeck(30),
-          },
-          phase: "main1",
+        const state = createSpaceState({
+          extraDeck: [createMonsterInstance("synchro-0", { frameType: "synchro", level: 6, location: "extraDeck" })],
+          mainMonsterZone: [
+            createMonsterOnField("tuner-0", { isTuner: true, level: 2, position: "faceDown" }), // Face-down
+            createMonsterOnField("nontuner-", { level: 4, position: "faceDown" }),
+          ],
+          ...createFilledMainDeck(30),
         });
 
         // Act

@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterOnField,
   createStepBuildContext,
   DUMMY_CARD_IDS,
@@ -78,10 +78,8 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         battlePosition: "defense",
       });
 
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [monster],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [monster],
       });
 
       const step = buildStep(
@@ -104,10 +102,8 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         battlePosition: "attack",
       });
 
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [monster],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [monster],
       });
 
       const step = buildStep(
@@ -130,10 +126,8 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         battlePosition: "attack",
       });
 
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [monster],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [monster],
       });
 
       const step = buildStep(
@@ -149,10 +143,8 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
     });
 
     it("カードが見つからない場合エラー", () => {
-      const state = createMockGameState({
-        space: {
-          mainMonsterZone: [],
-        },
+      const state = createSpaceState({
+        mainMonsterZone: [],
       });
 
       const step = buildStep(
@@ -180,10 +172,8 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
         // stateOnField is undefined
       };
 
-      const state = createMockGameState({
-        space: {
-          hand: [card],
-        },
+      const state = createSpaceState({
+        hand: [card],
       });
 
       const step = buildStep(

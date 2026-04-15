@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 import { buildStep, AtomicStepRegistry } from "$lib/domain/dsl/steps";
 import { sendToGraveyardStep, discardAllHandStep, selectAndDiscardStep } from "$lib/domain/dsl/steps/builders/discards";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterInstance,
   createSpellInstance,
   createStepBuildContext,
@@ -65,11 +65,9 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
       const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2],
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2],
+        graveyard: [],
       });
 
       const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
@@ -87,11 +85,9 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
       const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
       const handCard3 = createMonsterInstance("hand-monster-2", { location: "hand" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2, handCard3],
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2, handCard3],
+        graveyard: [],
       });
 
       const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
@@ -107,11 +103,9 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
       const handCard2 = createMonsterInstance("hand-monster-1", { location: "hand" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2],
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2],
+        graveyard: [],
       });
 
       const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
@@ -126,11 +120,9 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
     it("sentToGraveyard イベントが発行される", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1],
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        hand: [handCard1],
+        graveyard: [],
       });
 
       const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
@@ -149,14 +141,14 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
   describe("cardSelectionConfig プロパティ", () => {
     it("_sourceZone が hand に設定される", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 1 }, createStepBuildContext());
-      const config = step.cardSelectionConfig!(createMockGameState());
+      const config = step.cardSelectionConfig!(createSpaceState());
 
       expect(config?._sourceZone).toBe("hand");
     });
 
     it("minCards と maxCards が count に設定される", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 2 }, createStepBuildContext());
-      const config = step.cardSelectionConfig!(createMockGameState());
+      const config = step.cardSelectionConfig!(createSpaceState());
 
       expect(config?.minCards).toBe(2);
       expect(config?.maxCards).toBe(2);
@@ -164,14 +156,14 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
 
     it("cancelable: true を指定できる", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 1, cancelable: true }, createStepBuildContext());
-      const config = step.cardSelectionConfig!(createMockGameState());
+      const config = step.cardSelectionConfig!(createSpaceState());
 
       expect(config?.cancelable).toBe(true);
     });
 
     it("_filter が filterType でフィルタリングする", () => {
       const step = buildStep("SELECT_AND_DISCARD", { count: 1, filterType: "spell" }, createStepBuildContext());
-      const config = step.cardSelectionConfig!(createMockGameState());
+      const config = step.cardSelectionConfig!(createSpaceState());
       const filter = config?._filter;
       expect(filter).toBeDefined();
 
@@ -208,11 +200,9 @@ describe("StepRegistry - DISCARD_ALL_HAND_END_PHASE", () => {
       const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
       const handCard2 = createSpellInstance("hand-spell-0", { spellType: "normal", location: "hand" });
 
-      const state = createMockGameState({
-        space: {
-          hand: [handCard1, handCard2],
-          graveyard: [],
-        },
+      const state = createSpaceState({
+        hand: [handCard1, handCard2],
+        graveyard: [],
       });
 
       const step = buildStep("DISCARD_ALL_HAND_END_PHASE", {}, createStepBuildContext());
@@ -242,11 +232,9 @@ describe("sendToGraveyardStep", () => {
   it("カードを墓地に送れる", () => {
     const card = createMonsterInstance("card-instance-1", { location: "hand" });
 
-    const state = createMockGameState({
-      space: {
-        hand: [card],
-        graveyard: [],
-      },
+    const state = createSpaceState({
+      hand: [card],
+      graveyard: [],
     });
 
     const step = sendToGraveyardStep("card-instance-1", "テストカード");
@@ -271,11 +259,9 @@ describe("discardAllHandStep", () => {
     const handCard1 = createMonsterInstance("hand-monster-0", { location: "hand" });
     const handCard2 = createSpellInstance("hand-spell-0", { spellType: "normal", location: "hand" });
 
-    const state = createMockGameState({
-      space: {
-        hand: [handCard1, handCard2],
-        graveyard: [],
-      },
+    const state = createSpaceState({
+      hand: [handCard1, handCard2],
+      graveyard: [],
     });
 
     const step = discardAllHandStep();
@@ -287,11 +273,9 @@ describe("discardAllHandStep", () => {
   });
 
   it("手札が空の場合は何もしない", () => {
-    const state = createMockGameState({
-      space: {
-        hand: [],
-        graveyard: [],
-      },
+    const state = createSpaceState({
+      hand: [],
+      graveyard: [],
     });
 
     const step = discardAllHandStep();
@@ -308,14 +292,14 @@ describe("selectAndDiscardStep", () => {
 
     expect(step.id).toContain("select-and-discard");
     expect(step.id).toContain("2");
-    const config1 = step.cardSelectionConfig!(createMockGameState());
+    const config1 = step.cardSelectionConfig!(createSpaceState());
     expect(config1?.minCards).toBe(2);
     expect(config1?.maxCards).toBe(2);
   });
 
   it("cancelable オプションを指定できる", () => {
     const step = selectAndDiscardStep(1, true);
-    const config = step.cardSelectionConfig!(createMockGameState());
+    const config = step.cardSelectionConfig!(createSpaceState());
 
     expect(config?.cancelable).toBe(true);
   });

@@ -15,7 +15,7 @@ import { GameFacade } from "$lib/application/GameFacade";
 import { gameStateStore } from "$lib/application/stores/gameStateStore";
 import { Card } from "$lib/domain/models/Card";
 import {
-  createMockGameState,
+  createSpaceState,
   createMonsterOnField,
   createMonsterInstance,
   createSpellInstance,
@@ -43,20 +43,17 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
   describe("魔法発動によるカウンター蓄積", () => {
     it("魔法1枚発動→カウンター1個", async () => {
       // 王立魔法図書館フィールド、成金ゴブリン×1 手札、デッキ2枚
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [
-            createMonsterInstance("deck-1", { location: "mainDeck" }),
-            createMonsterInstance("deck-2", { location: "mainDeck" }),
-          ],
-          hand: [createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN })],
-          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: [
+          createMonsterInstance("deck-1", { location: "mainDeck" }),
+          createMonsterInstance("deck-2", { location: "mainDeck" }),
+        ],
+        hand: [createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN })],
+        mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 
@@ -70,26 +67,23 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
 
     it("魔法3枚発動→カウンター3個（上限）", async () => {
       // 成金ゴブリン×3 手札、デッキ4枚（3回ドロー可）
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [
-            createMonsterInstance("deck-1", { location: "mainDeck" }),
-            createMonsterInstance("deck-2", { location: "mainDeck" }),
-            createMonsterInstance("deck-3", { location: "mainDeck" }),
-            createMonsterInstance("deck-4", { location: "mainDeck" }),
-          ],
-          hand: [
-            createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
-            createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
-            createSpellInstance("goblin-3", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
-          ],
-          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: [
+          createMonsterInstance("deck-1", { location: "mainDeck" }),
+          createMonsterInstance("deck-2", { location: "mainDeck" }),
+          createMonsterInstance("deck-3", { location: "mainDeck" }),
+          createMonsterInstance("deck-4", { location: "mainDeck" }),
+        ],
+        hand: [
+          createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+          createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+          createSpellInstance("goblin-3", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+        ],
+        mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 
@@ -106,25 +100,22 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
     });
 
     it("カウンター3個の状態でさらに魔法発動→カウンターは3のまま（上限超えない）", async () => {
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [
-            createMonsterInstance("deck-1", { location: "mainDeck" }),
-            createMonsterInstance("deck-2", { location: "mainDeck" }),
-          ],
-          hand: [createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN })],
-          mainMonsterZone: [
-            createMonsterOnField(libraryInstanceId, {
-              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
-              counters: [{ type: "spell", count: 3 }],
-            }),
-          ],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: [
+          createMonsterInstance("deck-1", { location: "mainDeck" }),
+          createMonsterInstance("deck-2", { location: "mainDeck" }),
+        ],
+        hand: [createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN })],
+        mainMonsterZone: [
+          createMonsterOnField(libraryInstanceId, {
+            cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
+            counters: [{ type: "spell", count: 3 }],
+          }),
+        ],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 
@@ -142,25 +133,22 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
   // ───────────────────────────────────────────────
   describe("起動効果: カウンター3消費→1ドロー", () => {
     it("カウンター3個→起動効果→カウンター0・手札+1", async () => {
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [
-            createMonsterInstance("deck-1", { location: "mainDeck" }),
-            createMonsterInstance("deck-2", { location: "mainDeck" }),
-          ],
-          hand: [],
-          mainMonsterZone: [
-            createMonsterOnField(libraryInstanceId, {
-              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
-              counters: [{ type: "spell", count: 3 }],
-            }),
-          ],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: [
+          createMonsterInstance("deck-1", { location: "mainDeck" }),
+          createMonsterInstance("deck-2", { location: "mainDeck" }),
+        ],
+        hand: [],
+        mainMonsterZone: [
+          createMonsterOnField(libraryInstanceId, {
+            cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
+            counters: [{ type: "spell", count: 3 }],
+          }),
+        ],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 
@@ -177,22 +165,19 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
     });
 
     it("カウンター2個のとき起動効果を発動できない", () => {
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [createMonsterInstance("deck-1", { location: "mainDeck" })],
-          hand: [],
-          mainMonsterZone: [
-            createMonsterOnField(libraryInstanceId, {
-              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
-              counters: [{ type: "spell", count: 2 }],
-            }),
-          ],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: [createMonsterInstance("deck-1", { location: "mainDeck" })],
+        hand: [],
+        mainMonsterZone: [
+          createMonsterOnField(libraryInstanceId, {
+            cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
+            counters: [{ type: "spell", count: 2 }],
+          }),
+        ],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 
@@ -206,27 +191,24 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
   describe("完全コンボ: 魔法3枚→カウンター蓄積→起動効果ドロー", () => {
     it("成金ゴブリン3枚→カウンター3→起動効果→最終手札+1", async () => {
       // 初期: 図書館フィールド、ゴブリン×3手札、デッキ5枚
-      const initialState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [
-            createMonsterInstance("deck-1", { location: "mainDeck" }),
-            createMonsterInstance("deck-2", { location: "mainDeck" }),
-            createMonsterInstance("deck-3", { location: "mainDeck" }),
-            createMonsterInstance("deck-4", { location: "mainDeck" }),
-            createMonsterInstance("deck-5", { location: "mainDeck" }),
-          ],
-          hand: [
-            createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
-            createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
-            createSpellInstance("goblin-3", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
-          ],
-          mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const initialState = createSpaceState({
+        mainDeck: [
+          createMonsterInstance("deck-1", { location: "mainDeck" }),
+          createMonsterInstance("deck-2", { location: "mainDeck" }),
+          createMonsterInstance("deck-3", { location: "mainDeck" }),
+          createMonsterInstance("deck-4", { location: "mainDeck" }),
+          createMonsterInstance("deck-5", { location: "mainDeck" }),
+        ],
+        hand: [
+          createSpellInstance("goblin-1", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+          createSpellInstance("goblin-2", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+          createSpellInstance("goblin-3", { cardId: ACTUAL_CARD_IDS.GOLDEN_GOBLIN }),
+        ],
+        mainMonsterZone: [createMonsterOnField(libraryInstanceId, { cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY })],
+        spellTrapZone: [],
+        fieldZone: [],
+        graveyard: [],
+        banished: [],
       });
       gameStateStore.set(initialState);
 
