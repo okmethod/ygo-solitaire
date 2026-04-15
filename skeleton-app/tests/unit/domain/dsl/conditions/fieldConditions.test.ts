@@ -104,7 +104,7 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
 
     const result = fieldHasEquippedNameIncludesCondition(state, sourceInstance, { namePattern: "竹光" });
 
-    expect(result.isValid).toBe(true); // FIXME: 裏側表示の装備カードもカウントするバグ
+    expect(result.isValid).toBe(false);
   });
 
   it("装備魔法以外のカードはマッチしない", () => {

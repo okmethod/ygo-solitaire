@@ -48,7 +48,8 @@ export const fieldHasCardCondition = createSimpleConditionChecker(
  */
 export const fieldHasEquippedNameIncludesCondition = createSimpleConditionChecker(
   (args) => ({ namePattern: ArgValidators.nonEmptyString(args, "namePattern") }),
-  (state, { namePattern }) => hasAtLeast(state.space.spellTrapZone, and(isEquipSpell, byNameIncludes(namePattern)), 1),
+  (state, { namePattern }) =>
+    hasAtLeast(state.space.spellTrapZone, and(isEquipSpell, isFaceUp, byNameIncludes(namePattern)), 1),
 );
 
 /**
