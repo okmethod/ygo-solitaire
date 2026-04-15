@@ -22,11 +22,20 @@ export {
 // カードスペースファクトリ
 export {
   createHand,
+  createFilledHand,
   createGraveyard,
+  createFilledGraveyard,
+  createBanished,
+  createFilledBanished,
+  createMainDeck,
   createFilledMainDeck,
+  createExtraDeck,
   createFilledExtraDeck,
+  createMonsterZone,
   createFilledMonsterZone,
+  createSpellTrapZone,
   createFilledSpellZone,
+  createFieldZone,
   createFilledFieldZone,
 } from "./cardSpaceFactory";
 
