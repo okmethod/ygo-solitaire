@@ -2,45 +2,88 @@
  * 起動効果発動コマンドのテスト
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { ActivateIgnitionEffectCommand } from "$lib/domain/commands/ActivateIgnitionEffectCommand";
+import { BaseIgnitionEffect } from "$lib/domain/effects/actions/ignitions/BaseIgnitionEffect";
+import { ChainableActionRegistry } from "$lib/domain/effects/actions/ChainableActionRegistry";
+import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
+import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
+import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import {
-  createMockGameState,
+  createSpaceState,
   createExodiaVictoryState,
   createSpellInstance,
   createSpellOnField,
   createMonsterOnField,
-  ACTUAL_CARD_IDS,
+  DUMMY_CARD_IDS,
 } from "../../../__testUtils__";
+
+/**
+ * テスト用の起動効果（シンプルなno-op実装）
+ *
+ * activation: 1ステップ（no-op）
+ * resolution: 1ステップ（no-op）
+ * → createActivationSteps が加える notifyActivationStep と合わせて計2ステップになる
+ */
+class TestIgnitionEffect extends BaseIgnitionEffect {
+  constructor(cardId: number) {
+    super(cardId, 1);
+  }
+
+  protected individualConditions(_state: GameSnapshot, _sourceInstance: CardInstance): ValidationResult {
+    return GameProcessing.Validation.success();
+  }
+
+  protected individualActivationSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
+    return [
+      {
+        id: "test-activation-step",
+        summary: "テスト発動処理",
+        description: "テスト用の発動処理ステップ",
+        notificationLevel: "silent",
+        action: (s) => ({ success: true, updatedState: s }),
+      },
+    ];
+  }
+
+  protected individualResolutionSteps(_state: GameSnapshot, _sourceInstance: CardInstance): AtomicStep[] {
+    return [
+      {
+        id: "test-resolution-step",
+        summary: "テスト解決処理",
+        description: "テスト用の解決処理ステップ",
+        notificationLevel: "silent",
+        action: (s) => ({ success: true, updatedState: s }),
+      },
+    ];
+  }
+}
 
 describe("ActivateIgnitionEffectCommand", () => {
   let initialState: GameSnapshot;
-  const chickenGameInstanceId = "field-chickengame-1";
+  // cardId 未指定の createSpellOnField({ spellType: "field" }) は DUMMY_CARD_IDS.FIELD_SPELL を使用する
+  const fieldSpellInstanceId = "field-spell-1";
 
   beforeEach(() => {
-    // Create state with Chicken Game face-up on field during Main1 phase
-    initialState = createMockGameState({
-      phase: "main1",
-      lp: { player: 5000, opponent: 5000 },
-      space: {
-        mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
-        extraDeck: [],
-        hand: [],
-        mainMonsterZone: [],
-        spellTrapZone: [],
-        fieldZone: [
-          createSpellOnField(chickenGameInstanceId, { cardId: ACTUAL_CARD_IDS.CHICKEN_GAME, spellType: "field" }),
-        ],
-        graveyard: [],
-        banished: [],
-      },
+    ChainableActionRegistry.registerIgnition(
+      DUMMY_CARD_IDS.FIELD_SPELL,
+      new TestIgnitionEffect(DUMMY_CARD_IDS.FIELD_SPELL),
+    );
+    // メイン1フェイズにダミーフィールド魔法が表側でフィールドゾーンにある状態
+    initialState = createSpaceState({
+      mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
+      fieldZone: [createSpellOnField(fieldSpellInstanceId, { spellType: "field" })],
     });
   });
 
+  afterEach(() => {
+    ChainableActionRegistry.clear();
+  });
+
   describe("canExecute", () => {
-    it("起動効果を発動できる場合（メイン1フェイズ、表向きフィールド上、LP >= 1000）は true を返す", () => {
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+    it("起動効果を発動できる場合（メイン1フェイズ、表向きフィールド上）は true を返す", () => {
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       expect(command.canExecute(initialState).isValid).toBe(true);
     });
@@ -52,51 +95,21 @@ describe("ActivateIgnitionEffectCommand", () => {
     });
 
     it("カードが裏向きの場合は false を返す", () => {
-      const faceDownState = createMockGameState({
-        phase: "main1",
-        lp: { player: 5000, opponent: 5000 },
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [
-            createSpellOnField(chickenGameInstanceId, {
-              cardId: ACTUAL_CARD_IDS.CHICKEN_GAME,
-              spellType: "field",
-              position: "faceDown",
-            }),
-          ],
-          graveyard: [],
-          banished: [],
-        },
+      const faceDownState = createSpaceState({
+        fieldZone: [createSpellOnField(fieldSpellInstanceId, { spellType: "field", position: "faceDown" })],
       });
 
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       expect(command.canExecute(faceDownState).isValid).toBe(false);
     });
 
     it("カードがフィールド上にない場合は false を返す", () => {
-      const handState = createMockGameState({
-        phase: "main1",
-        lp: { player: 5000, opponent: 5000 },
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [
-            createSpellInstance(chickenGameInstanceId, { cardId: ACTUAL_CARD_IDS.CHICKEN_GAME, spellType: "field" }),
-          ],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      const handState = createSpaceState({
+        hand: [createSpellInstance(fieldSpellInstanceId, { spellType: "field" })],
       });
 
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       expect(command.canExecute(handState).isValid).toBe(false);
     });
@@ -104,27 +117,17 @@ describe("ActivateIgnitionEffectCommand", () => {
     it("ゲームが終了している場合は false を返す", () => {
       const gameOverState = createExodiaVictoryState();
 
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       expect(command.canExecute(gameOverState).isValid).toBe(false);
     });
 
     it("起動効果が登録されていないカードの場合は false を返す", () => {
-      const noEffectState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [createSpellOnField("field-spell-1", { cardId: 9999999, spellType: "field" })],
-          graveyard: [],
-          banished: [],
-        },
+      const noEffectState = createSpaceState({
+        fieldZone: [createSpellOnField("field-no-effect", { cardId: 9999999, spellType: "field" })],
       });
 
-      const command = new ActivateIgnitionEffectCommand("field-spell-1");
+      const command = new ActivateIgnitionEffectCommand("field-no-effect");
 
       expect(command.canExecute(noEffectState).isValid).toBe(false);
     });
@@ -132,7 +135,7 @@ describe("ActivateIgnitionEffectCommand", () => {
 
   describe("execute", () => {
     it("起動効果を正常に発動し activationSteps を返す", () => {
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       const result = command.execute(initialState);
 
@@ -152,21 +155,11 @@ describe("ActivateIgnitionEffectCommand", () => {
     });
 
     it("起動効果がないカードの場合は失敗を返す", () => {
-      const noEffectState = createMockGameState({
-        phase: "main1",
-        space: {
-          mainDeck: [],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [createSpellOnField("field-spell-1", { cardId: 9999999, spellType: "field" })],
-          graveyard: [],
-          banished: [],
-        },
+      const noEffectState = createSpaceState({
+        fieldZone: [createSpellOnField("field-no-effect", { cardId: 9999999, spellType: "field" })],
       });
 
-      const command = new ActivateIgnitionEffectCommand("field-spell-1");
+      const command = new ActivateIgnitionEffectCommand("field-no-effect");
 
       const result = command.execute(noEffectState);
 
@@ -175,7 +168,7 @@ describe("ActivateIgnitionEffectCommand", () => {
     });
 
     it("イミュータビリティを維持する（元の状態が変化しない）", () => {
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       const originalState = { ...initialState };
       command.execute(initialState);
@@ -184,132 +177,86 @@ describe("ActivateIgnitionEffectCommand", () => {
     });
 
     it("activationSteps に発動ステップと解決ステップを含む", () => {
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
       expect(result.activationSteps).toBeDefined();
       expect(result.chainBlock).toBeDefined();
-      // Chicken Game: activationSteps = activation steps only (発動通知 + LP payment)
+      // TestIgnitionEffect: activationSteps = 発動通知 + individualActivationStep の2ステップ
       expect(result.activationSteps!.length).toBe(2);
-      // chainBlock.resolutionSteps = resolution steps (draw)
+      // chainBlock.resolutionSteps = individualResolutionStep の1ステップ
       expect(result.chainBlock!.resolutionSteps.length).toBe(1);
     });
 
     it("stateOnField.activatedEffects に発動記録が行われる", () => {
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
-      // コマンド実行時に発動記録が stateOnField.activatedEffects に行われる
-      const chickenGameCard = result.updatedState.space.fieldZone[0];
-      expect(
-        chickenGameCard.stateOnField?.activatedEffects.includes(`ignition-${ACTUAL_CARD_IDS.CHICKEN_GAME}-1`),
-      ).toBe(true);
+      const fieldCard = result.updatedState.space.fieldZone[0];
+      expect(fieldCard.stateOnField?.activatedEffects.includes(`ignition-${DUMMY_CARD_IDS.FIELD_SPELL}-1`)).toBe(true);
     });
   });
 
   describe("getCardInstanceId", () => {
     it("カードインスタンス ID を返す", () => {
-      const command = new ActivateIgnitionEffectCommand(chickenGameInstanceId);
+      const command = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
 
-      expect(command.getCardInstanceId()).toBe(chickenGameInstanceId);
+      expect(command.getCardInstanceId()).toBe(fieldSpellInstanceId);
     });
   });
 
   // ===========================
-  // 統合テスト: 王立魔法図書館
+  // モンスターカードの起動効果テスト
   // ===========================
-  describe("王立魔法図書館 統合テスト", () => {
-    const royalLibraryInstanceId = "monster-royal-library-1";
-
-    let libraryState: GameSnapshot;
+  describe("モンスターカードの起動効果", () => {
+    const monsterInstanceId = "monster-effect-1";
+    let monsterState: GameSnapshot;
 
     beforeEach(() => {
-      // 魔法カウンターが3個乗った王立魔法図書館が攻撃表示でモンスターゾーンにいる状態を作成
-      libraryState = createMockGameState({
-        phase: "main1",
-        lp: { player: 8000, opponent: 8000 },
-        space: {
-          mainDeck: [
-            createSpellInstance("main-0", { location: "mainDeck" }),
-            createSpellInstance("deck-1", { spellType: "equip", location: "mainDeck" }),
-          ],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [
-            createMonsterOnField(royalLibraryInstanceId, {
-              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
-              battlePosition: "attack",
-              counters: [{ type: "spell", count: 3 }],
-            }),
-          ],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
+      ChainableActionRegistry.registerIgnition(
+        DUMMY_CARD_IDS.EFFECT_MONSTER,
+        new TestIgnitionEffect(DUMMY_CARD_IDS.EFFECT_MONSTER),
+      );
+      monsterState = createSpaceState({
+        mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
+        mainMonsterZone: [createMonsterOnField(monsterInstanceId, { cardId: DUMMY_CARD_IDS.EFFECT_MONSTER })],
       });
     });
 
     describe("canExecute", () => {
-      it("王立魔法図書館が起動効果を発動できる場合は true を返す", () => {
-        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+      it("モンスターの起動効果を発動できる場合は true を返す", () => {
+        const command = new ActivateIgnitionEffectCommand(monsterInstanceId);
 
-        expect(command.canExecute(libraryState).isValid).toBe(true);
+        expect(command.canExecute(monsterState).isValid).toBe(true);
       });
 
       it("守備表示の場合も true を返す（起動効果はどの表示形式でも発動可能）", () => {
-        const defenseState = createMockGameState({
-          phase: "main1",
-          lp: { player: 8000, opponent: 8000 },
-          space: {
-            mainDeck: libraryState.space.mainDeck,
-            extraDeck: [],
-            hand: [],
-            mainMonsterZone: [
-              createMonsterOnField(royalLibraryInstanceId, {
-                cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
-                battlePosition: "defense",
-                counters: [{ type: "spell", count: 3 }],
-              }),
-            ],
-            spellTrapZone: [],
-            fieldZone: [],
-            graveyard: [],
-            banished: [],
-          },
+        const defenseState = createSpaceState({
+          mainDeck: monsterState.space.mainDeck,
+          mainMonsterZone: [
+            createMonsterOnField(monsterInstanceId, {
+              cardId: DUMMY_CARD_IDS.EFFECT_MONSTER,
+              battlePosition: "defense",
+            }),
+          ],
         });
 
-        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+        const command = new ActivateIgnitionEffectCommand(monsterInstanceId);
 
-        // Ignition effects can be activated in any battle position as long as the card is face-up
+        // 起動効果はどの表示形式でも（表側表示であれば）発動可能
         expect(command.canExecute(defenseState).isValid).toBe(true);
-      });
-
-      it("前回発動後も true を返す（1ターン1回制限なし）", () => {
-        // 王立魔法図書館には1ターン1回制限がない
-        // 実際のゲームではコスト（魔法カウンター3個）が発動回数を制限する
-        const activatedState = createMockGameState({
-          phase: "main1",
-          lp: { player: 8000, opponent: 8000 },
-          space: libraryState.space,
-        });
-
-        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
-
-        // まだ発動できるはず
-        expect(command.canExecute(activatedState).isValid).toBe(true);
       });
     });
 
     describe("execute", () => {
-      it("王立魔法図書館の起動効果を正常に発動し activationSteps を返す", () => {
-        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+      it("モンスターの起動効果を正常に発動し activationSteps を返す", () => {
+        const command = new ActivateIgnitionEffectCommand(monsterInstanceId);
 
-        const result = command.execute(libraryState);
+        const result = command.execute(monsterState);
 
         expect(result.success).toBe(true);
         expect(result.updatedState).toBeDefined();
@@ -317,24 +264,24 @@ describe("ActivateIgnitionEffectCommand", () => {
         expect(result.activationSteps!.length).toBeGreaterThan(0);
       });
 
-      it("発動通知・カウンター消費・解決ステップを含む", () => {
-        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+      it("発動通知ステップと解決ステップを含む", () => {
+        const command = new ActivateIgnitionEffectCommand(monsterInstanceId);
 
-        const result = command.execute(libraryState);
+        const result = command.execute(monsterState);
 
         expect(result.success).toBe(true);
         expect(result.activationSteps).toBeDefined();
         expect(result.chainBlock).toBeDefined();
-        // Royal Magical Library: activationSteps = activation steps only (発動通知 + カウンター消費)
+        // TestIgnitionEffect: activationSteps = 発動通知 + individualActivationStep の2ステップ
         expect(result.activationSteps!.length).toBe(2);
-        // chainBlock.resolutionSteps = resolution steps (draw)
+        // chainBlock.resolutionSteps = individualResolutionStep の1ステップ
         expect(result.chainBlock!.resolutionSteps.length).toBe(1);
       });
 
-      it("全ステップ実行後に1枚ドローする", () => {
-        const command = new ActivateIgnitionEffectCommand(royalLibraryInstanceId);
+      it("全ステップを正常に実行できる", () => {
+        const command = new ActivateIgnitionEffectCommand(monsterInstanceId);
 
-        const result = command.execute(libraryState);
+        const result = command.execute(monsterState);
 
         expect(result.success).toBe(true);
         expect(result.activationSteps).toBeDefined();
@@ -352,65 +299,49 @@ describe("ActivateIgnitionEffectCommand", () => {
           expect(stepResult.success).toBe(true);
           currentState = stepResult.updatedState;
         }
-
-        // ドローが行われたことを確認
-        expect(currentState.space.hand).toHaveLength(1);
-        expect(currentState.space.mainDeck).toHaveLength(1); // Started with 2
       });
     });
   });
 
   // ===========================
-  // 統合テスト: 複数カードの起動効果
+  // 複数カードの起動効果テスト
   // ===========================
-  describe("汎用的な起動効果処理", () => {
-    it("チキンゲームと王立魔法図書館それぞれ独立して処理できる", () => {
-      const chickenGameId = "field-chickengame-1";
-      const royalLibraryId = "monster-royal-library-1";
+  describe("複数カードの起動効果", () => {
+    it("フィールド魔法とモンスターそれぞれ独立して処理できる", () => {
+      ChainableActionRegistry.registerIgnition(
+        DUMMY_CARD_IDS.EFFECT_MONSTER,
+        new TestIgnitionEffect(DUMMY_CARD_IDS.EFFECT_MONSTER),
+      );
 
-      const mixedState = createMockGameState({
-        phase: "main1",
-        lp: { player: 5000, opponent: 5000 },
-        space: {
-          mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [
-            createMonsterOnField(royalLibraryId, {
-              cardId: ACTUAL_CARD_IDS.ROYAL_MAGIC_LIBRARY,
-              battlePosition: "attack",
-              counters: [{ type: "spell", count: 3 }],
-            }),
-          ],
-          spellTrapZone: [],
-          fieldZone: [createSpellOnField(chickenGameId, { cardId: ACTUAL_CARD_IDS.CHICKEN_GAME, spellType: "field" })],
-          graveyard: [],
-          banished: [],
-        },
+      const monsterInstanceId = "monster-effect-1";
+      const mixedState = createSpaceState({
+        mainDeck: [createSpellInstance("main-0", { location: "mainDeck" })],
+        mainMonsterZone: [createMonsterOnField(monsterInstanceId, { cardId: DUMMY_CARD_IDS.EFFECT_MONSTER })],
+        fieldZone: [createSpellOnField(fieldSpellInstanceId, { spellType: "field" })],
       });
 
+      const fieldCommand = new ActivateIgnitionEffectCommand(fieldSpellInstanceId);
+      const monsterCommand = new ActivateIgnitionEffectCommand(monsterInstanceId);
+
       // 両方のカードが起動効果を発動できるはず
-      const chickenCommand = new ActivateIgnitionEffectCommand(chickenGameId);
-      const libraryCommand = new ActivateIgnitionEffectCommand(royalLibraryId);
+      expect(fieldCommand.canExecute(mixedState).isValid).toBe(true);
+      expect(monsterCommand.canExecute(mixedState).isValid).toBe(true);
 
-      expect(chickenCommand.canExecute(mixedState).isValid).toBe(true);
-      expect(libraryCommand.canExecute(mixedState).isValid).toBe(true);
+      // フィールド魔法の起動効果を発動
+      const fieldResult = fieldCommand.execute(mixedState);
+      expect(fieldResult.success).toBe(true);
 
-      // 一方を発動しても、もう一方の発動可否に影響しない
-      const chickenResult = chickenCommand.execute(mixedState);
-      expect(chickenResult.success).toBe(true);
-
-      // チキンゲームの発動ステップを実行して発動記録を行う
-      let stateAfterChicken = chickenResult.updatedState;
-      for (const step of chickenResult.activationSteps!) {
-        const stepResult = step.action(stateAfterChicken);
+      // フィールド魔法の起動効果の発動ステップを実行して発動記録を行う
+      let stateAfterField = fieldResult.updatedState;
+      for (const step of fieldResult.activationSteps!) {
+        const stepResult = step.action(stateAfterField);
         if (stepResult.success) {
-          stateAfterChicken = stepResult.updatedState;
+          stateAfterField = stepResult.updatedState;
         }
       }
 
-      // 王立魔法図書館はまだ発動できるはず
-      expect(libraryCommand.canExecute(stateAfterChicken).isValid).toBe(true);
+      // モンスターの起動効果は未使用のため使用可能
+      expect(monsterCommand.canExecute(stateAfterField).isValid).toBe(true);
     });
   });
 });
