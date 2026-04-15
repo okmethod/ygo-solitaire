@@ -19,7 +19,6 @@ export const ACTUAL_CARD_IDS = {
   GRACEFUL_CHARITY: 79571449, // 天使の施し
   TERRAFORMING: 73628505, // テラ・フォーミング
   CHICKEN_GAME: 67616300, // チキンレース
-  BROKEN_BAMBOO_SWORD: 41587307, // 折れ竹光
   JAR_OF_GREED: 83968380, // 強欲な瓶（DSL未登録）
   METAL_FIEND_TOKEN: 24874631, // メタルデビル・トークン
 } as const;

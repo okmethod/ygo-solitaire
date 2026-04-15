@@ -15,7 +15,17 @@ import type { GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/mo
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { ACTUAL_CARD_IDS } from "./constants";
 import { createMonsterInstance, createMonsterOnField } from "./cardInstanceFactory";
-import { createFilledMainDeck, createHand } from "./cardSpaceFactory";
+import {
+  createFilledMainDeck,
+  createFilledExtraDeck,
+  createFilledHand,
+  createFilledMonsterZone,
+  createFilledSpellZone,
+  createFilledFieldZone,
+  createFilledGraveyard,
+  createFilledBanished,
+  createHand,
+} from "./cardSpaceFactory";
 
 /**
  * カードID配列を InitialDeckCardIds に変換
@@ -83,6 +93,38 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
     },
   };
 }
+
+/**
+ * 各ロケーションを指定した枚数のダミーカードで埋めたゲーム状態を生成する
+ *
+ * 省略したロケーションは空（0枚）として扱われる。
+ * カード種別は各ロケーションのデフォルト（通常モンスター・通常魔法など）が使用される。
+ *
+ * @param options - 各ロケーションの枚数を指定するオプション
+ */
+export const createFilledSpaceState = (options: {
+  mainDeckCount?: number;
+  extraDeckCount?: number;
+  handCount?: number;
+  monsterZoneCount?: number;
+  spellTrapZoneCount?: number;
+  fieldZoneCount?: number;
+  graveyardCount?: number;
+  banishedCount?: number;
+}) => {
+  return createMockGameState({
+    space: {
+      ...createFilledMainDeck(options.mainDeckCount ?? 0),
+      ...createFilledExtraDeck(options.extraDeckCount ?? 0),
+      ...createFilledHand(options.handCount ?? 0),
+      ...createFilledMonsterZone(options.monsterZoneCount ?? 0),
+      ...createFilledSpellZone(options.spellTrapZoneCount ?? 0),
+      ...createFilledFieldZone(options.fieldZoneCount ?? 0),
+      ...createFilledGraveyard(options.graveyardCount ?? 0),
+      ...createFilledBanished(options.banishedCount ?? 0),
+    },
+  });
+};
 
 /**
  * モンスターゾーンにカードを配置した状態を生成
