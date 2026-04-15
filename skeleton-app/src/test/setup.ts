@@ -76,11 +76,27 @@ ChainableActionRegistry.registerTrigger(
   }),
 );
 
-// シンクロモンスター
+// 融合モンスター
 CardDataRegistry.register(2001, {
+  jaName: "Dummy Fusion Monster",
+  type: "monster",
+  frameType: "fusion",
+  edition: "latest",
+});
+
+// シンクロモンスター
+CardDataRegistry.register(2002, {
   jaName: "Dummy Synchro Monster",
   type: "monster",
   frameType: "synchro",
+  edition: "latest",
+});
+
+// エクシーズモンスター
+CardDataRegistry.register(2003, {
+  jaName: "Dummy Xyz Monster",
+  type: "monster",
+  frameType: "xyz",
   edition: "latest",
 });
 
