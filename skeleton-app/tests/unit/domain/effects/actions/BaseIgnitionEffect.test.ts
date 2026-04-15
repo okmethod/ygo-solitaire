@@ -8,7 +8,7 @@ import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
-import { createMockGameState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
+import { createPhaseState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -92,7 +92,7 @@ describe("BaseIgnitionEffect", () => {
     it("メイン1フェイズかつ個別条件を満たす場合は true を返すこと", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, true);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -105,7 +105,7 @@ describe("BaseIgnitionEffect", () => {
     it("スタンバイフェイズでは false を返すこと（NOT_MAIN_PHASE）", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, true);
-      const state = createMockGameState({ phase: "standby" });
+      const state = createPhaseState("standby");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -119,7 +119,7 @@ describe("BaseIgnitionEffect", () => {
     it("ドローフェイズでは false を返すこと（NOT_MAIN_PHASE）", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, true);
-      const state = createMockGameState({ phase: "draw" });
+      const state = createPhaseState("draw");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -133,7 +133,7 @@ describe("BaseIgnitionEffect", () => {
     it("個別条件を満たさない場合は false を返すこと", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, false); // shouldPass = false
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -149,7 +149,7 @@ describe("BaseIgnitionEffect", () => {
     it("通知ステップと個別ステップが含まれること", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -168,7 +168,7 @@ describe("BaseIgnitionEffect", () => {
     it("個別の解決ステップを返すこと", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -182,7 +182,7 @@ describe("BaseIgnitionEffect", () => {
     it("状態を変更しないステップを返すこと", () => {
       // Arrange
       const effect = new TestIgnitionEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act

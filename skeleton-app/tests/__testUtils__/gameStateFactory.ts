@@ -10,7 +10,7 @@
  * - createExodiaVictoryState: エクゾディア勝利状態
  */
 
-import type { GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
+import type { GamePhase, GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { ACTUAL_CARD_IDS } from "./constants";
 import { createMonsterInstance, createMonsterOnField } from "./cardInstanceFactory";
@@ -91,6 +91,15 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
       ...overrides?.result,
     },
   };
+}
+
+/**
+ * 指定したフェイズのゲーム状態を生成する
+ *
+ * @param phase - ゲームのフェイズ（デフォルト: "main1"）
+ */
+export function createPhaseState(phase: GamePhase = "main1"): GameSnapshot {
+  return createMockGameState({ phase });
 }
 
 /**

@@ -43,6 +43,7 @@ export {
 export {
   createTestInitialDeck,
   createMockGameState,
+  createPhaseState,
   createSpaceState,
   createFilledSpaceState,
   createExodiaVictoryState,

@@ -4,24 +4,21 @@
 
 import { describe, it, expect } from "vitest";
 import { AdvancePhaseCommand } from "$lib/domain/commands/AdvancePhaseCommand";
-import { createMockGameState, createExodiaVictoryState, createMonsterInstance } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createFilledSpaceState,
+  createPhaseState,
+  createExodiaVictoryState,
+} from "../../../__testUtils__";
 
 describe("AdvancePhaseCommand", () => {
   describe("canExecute", () => {
     it("ドロー → スタンバイ の場合は true を返す", () => {
-      const deckCard = { ...createMonsterInstance("main-0"), location: "mainDeck" as const };
       const state = createMockGameState({
+        ...createFilledSpaceState({
+          mainDeckCount: 1,
+        }),
         phase: "draw",
-        space: {
-          mainDeck: [deckCard],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
       });
       const command = new AdvancePhaseCommand();
 
@@ -29,21 +26,21 @@ describe("AdvancePhaseCommand", () => {
     });
 
     it("スタンバイ → メイン1 の場合は true を返す", () => {
-      const state = createMockGameState({ phase: "standby" });
+      const state = createPhaseState("standby");
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("メイン1 → エンド の場合は true を返す", () => {
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
     });
 
     it("エンド → エンド（循環）の場合は true を返す", () => {
-      const state = createMockGameState({ phase: "end" });
+      const state = createPhaseState("end");
       const command = new AdvancePhaseCommand();
 
       expect(command.canExecute(state).isValid).toBe(true);
@@ -59,19 +56,11 @@ describe("AdvancePhaseCommand", () => {
 
   describe("execute", () => {
     it("ドローからスタンバイに進行する", () => {
-      const deckCard = { ...createMonsterInstance("main-0"), location: "mainDeck" as const };
       const state = createMockGameState({
+        ...createFilledSpaceState({
+          mainDeckCount: 1,
+        }),
         phase: "draw",
-        space: {
-          mainDeck: [deckCard],
-          extraDeck: [],
-          hand: [],
-          mainMonsterZone: [],
-          spellTrapZone: [],
-          fieldZone: [],
-          graveyard: [],
-          banished: [],
-        },
       });
       const command = new AdvancePhaseCommand();
 
@@ -83,7 +72,7 @@ describe("AdvancePhaseCommand", () => {
     });
 
     it("スタンバイからメイン1に進行する", () => {
-      const state = createMockGameState({ phase: "standby" });
+      const state = createPhaseState("standby");
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
@@ -94,7 +83,7 @@ describe("AdvancePhaseCommand", () => {
     });
 
     it("メイン1からエンドに進行する", () => {
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
@@ -105,7 +94,7 @@ describe("AdvancePhaseCommand", () => {
     });
 
     it("エンドフェイズからはエンドフェイズに留まる", () => {
-      const state = createMockGameState({ phase: "end" });
+      const state = createPhaseState("end");
       const command = new AdvancePhaseCommand();
 
       const result = command.execute(state);
@@ -115,7 +104,7 @@ describe("AdvancePhaseCommand", () => {
     });
 
     it("元の状態を変更しない（イミュータビリティ）", () => {
-      const state = createMockGameState({ phase: "draw" });
+      const state = createPhaseState("draw");
       const originalPhase = state.phase;
       const command = new AdvancePhaseCommand();
 
@@ -138,28 +127,28 @@ describe("AdvancePhaseCommand", () => {
 
   describe("getNextPhase", () => {
     it("ドローフェイズの次はスタンバイを返す", () => {
-      const state = createMockGameState({ phase: "draw" });
+      const state = createPhaseState("draw");
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("standby");
     });
 
     it("スタンバイフェイズの次はメイン1を返す", () => {
-      const state = createMockGameState({ phase: "standby" });
+      const state = createPhaseState("standby");
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("main1");
     });
 
     it("メイン1フェイズの次はエンドを返す", () => {
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("end");
     });
 
     it("エンドフェイズの次はエンドを返す", () => {
-      const state = createMockGameState({ phase: "end" });
+      const state = createPhaseState("end");
       const command = new AdvancePhaseCommand();
 
       expect(command.getNextPhase(state)).toBe("end");

@@ -6,54 +6,105 @@
 
 import { describe, it, expect } from "vitest";
 import { NormalSpellActivation } from "$lib/domain/effects/actions/activations/NormalSpellActivation";
-import { createMockGameState, createMonsterInstance, DUMMY_CARD_IDS } from "../../../../__testUtils__";
+import { createPhaseState, DUMMY_CARD_IDS, createSpellInstance } from "../../../../__testUtils__";
 
-describe("NormalSpellActivation", () => {
-  const action = NormalSpellActivation.createNoOp(DUMMY_CARD_IDS.NORMAL_SPELL);
+// =============================================================================
+// テストヘルパー
+// =============================================================================
 
-  describe("ChainableAction インターフェースのプロパティ", () => {
-    it("effectCategory が 'activation' であること", () => {
-      expect(action.effectCategory).toBe("activation");
-    });
+const normalSpellActivation = NormalSpellActivation.createNoOp(DUMMY_CARD_IDS.NORMAL_SPELL);
+const sourceInstance = createSpellInstance("normal-1", { cardId: DUMMY_CARD_IDS.NORMAL_SPELL });
 
-    it("spellSpeed が 1 であること", () => {
-      expect(action.spellSpeed).toBe(1);
-    });
+// =============================================================================
+// createNoOp テスト
+// =============================================================================
+
+describe("NormalSpellActivation.createNoOp", () => {
+  it("createNoOp でインスタンスを生成できる", () => {
+    expect(normalSpellActivation).toBeInstanceOf(NormalSpellActivation);
+    expect(normalSpellActivation.cardId).toBe(DUMMY_CARD_IDS.NORMAL_SPELL);
   });
 
-  describe("canActivate()", () => {
-    it("main1 フェーズで true を返すこと", () => {
-      // Arrange
-      const state = createMockGameState({ phase: "main1" });
-
-      // Act & Assert
-      expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(true);
-    });
-
-    it("フェーズが Main1 でない場合に false を返すこと", () => {
-      // Arrange: フェーズがドロウ（NormalSpellActivation固有のフェーズ制約テスト）
-      const state = createMockGameState({ phase: "draw" });
-
-      // Act & Assert
-      expect(action.canActivate(state, state.space.hand[0]).isValid).toBe(false);
-    });
+  it("NoOp の spellSpeed は 1 である", () => {
+    expect(normalSpellActivation.spellSpeed).toBe(1);
   });
 
-  describe("createActivationSteps()", () => {
-    it("デフォルトの発動ステップを返すこと", () => {
-      // Arrange
-      const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createMonsterInstance("test-normal-spell-1");
+  it("NoOp の effectCategory は 'activation' である", () => {
+    expect(normalSpellActivation.effectCategory).toBe("activation");
+  });
 
-      // Act
-      const steps = action.createActivationSteps(state, sourceInstance);
+  it("NoOp はメインフェイズで発動可能", () => {
+    const state = createPhaseState("main1");
 
-      // Assert
-      expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep（発動通知 + イベント発火）
-      expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_SPELL}-activation-notification`);
-      expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBeDefined();
-      expect(steps[1].id).toBe("emit-spell-activated-test-normal-spell-1");
-    });
+    const result = normalSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(true);
+  });
+});
+
+// =============================================================================
+// 条件チェックテスト
+// =============================================================================
+
+describe("NormalSpellActivation - subTypeConditions", () => {
+  it("メインフェイズ1で発動可能", () => {
+    const state = createPhaseState("main1");
+
+    const result = normalSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it("ドローフェイズでは発動不可", () => {
+    const state = createPhaseState("draw");
+
+    const result = normalSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorCode).toBe("NOT_MAIN_PHASE");
+  });
+
+  it("スタンバイフェイズでは発動不可", () => {
+    const state = createPhaseState("standby");
+
+    const result = normalSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorCode).toBe("NOT_MAIN_PHASE");
+  });
+
+  it("エンドフェイズでは発動不可", () => {
+    const state = createPhaseState("end");
+
+    const result = normalSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorCode).toBe("NOT_MAIN_PHASE");
+  });
+});
+
+// =============================================================================
+// ステップ生成テスト
+// =============================================================================
+
+describe("NormalSpellActivation - ステップ生成", () => {
+  it("createActivationSteps で発動通知ステップとイベントステップを生成する", () => {
+    const state = createPhaseState("main1");
+
+    const steps = normalSpellActivation.createActivationSteps(state, sourceInstance);
+
+    expect(steps).toHaveLength(2);
+    expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_SPELL}-activation-notification`);
+    expect(steps[0].summary).toBe("カード発動");
+    expect(steps[1].id).toBe("emit-spell-activated-normal-1");
+  });
+
+  it("createResolutionSteps で墓地送りステップを生成する（通常魔法は効果解決後に墓地へ）", () => {
+    const state = createPhaseState("main1");
+
+    const steps = normalSpellActivation.createResolutionSteps(state, sourceInstance);
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0].id).toBe("send-normal-1-to-graveyard");
   });
 });

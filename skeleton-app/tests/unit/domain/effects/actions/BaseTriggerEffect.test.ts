@@ -9,7 +9,7 @@ import type { GameSnapshot } from "$lib/domain/models/GameState";
 import type { AtomicStep, ValidationResult, EventType } from "$lib/domain/models/GameProcessing";
 import { GameProcessing } from "$lib/domain/models/GameProcessing";
 import type { ChainableAction, EffectId } from "$lib/domain/models/Effect";
-import { createMockGameState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
+import { createPhaseState, createMonsterOnField, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
 /**
  * テスト用の具象クラス
@@ -163,7 +163,7 @@ describe("BaseTriggerEffect", () => {
     it("個別条件を満たす場合に true を返すこと", () => {
       // Arrange
       const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, 1, true);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -176,7 +176,7 @@ describe("BaseTriggerEffect", () => {
     it("個別条件を満たさない場合に false を返すこと", () => {
       // Arrange
       const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, 1, false); // shouldPass = false
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -190,7 +190,7 @@ describe("BaseTriggerEffect", () => {
     it("任意のフェーズで発動できること（誘発効果はメインフェーズに限定されない）", () => {
       // Arrange
       const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1, 1, true);
-      const state = createMockGameState({ phase: "draw" });
+      const state = createPhaseState("draw");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -205,7 +205,7 @@ describe("BaseTriggerEffect", () => {
     it("通知ステップと個別ステップを含むこと", () => {
       // Arrange
       const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act
@@ -224,7 +224,7 @@ describe("BaseTriggerEffect", () => {
     it("個別の解決ステップを返すこと", () => {
       // Arrange
       const effect = new TestTriggerEffect(DUMMY_CARD_IDS.NORMAL_MONSTER, 1);
-      const state = createMockGameState({ phase: "main1" });
+      const state = createPhaseState("main1");
       const sourceInstance = createMonsterOnField("test-1");
 
       // Act

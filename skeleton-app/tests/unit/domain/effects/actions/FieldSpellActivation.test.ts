@@ -6,77 +6,103 @@
 
 import { describe, it, expect } from "vitest";
 import { FieldSpellActivation } from "$lib/domain/effects/actions/activations/FieldSpellActivation";
-import { createMockGameState, createSpellInstance, DUMMY_CARD_IDS } from "../../../../__testUtils__";
+import { createPhaseState, createSpellInstance, DUMMY_CARD_IDS } from "../../../../__testUtils__";
 
-describe("FieldSpellActivation", () => {
-  const action = FieldSpellActivation.createNoOp(DUMMY_CARD_IDS.FIELD_SPELL);
+// =============================================================================
+// テストヘルパー
+// =============================================================================
 
-  describe("ChainableAction インターフェースのプロパティ", () => {
-    it("effectCategory が 'activation' であること", () => {
-      expect(action.effectCategory).toBe("activation");
-    });
+const fieldSpellActivation = FieldSpellActivation.createNoOp(DUMMY_CARD_IDS.FIELD_SPELL);
+const sourceInstance = createSpellInstance("field-1", { cardId: DUMMY_CARD_IDS.FIELD_SPELL, spellType: "field" });
 
-    it("spellSpeed が 1 であること", () => {
-      expect(action.spellSpeed).toBe(1);
-    });
+// =============================================================================
+// createNoOp テスト
+// =============================================================================
+
+describe("FieldSpellActivation.createNoOp", () => {
+  it("createNoOp でインスタンスを生成できる", () => {
+    expect(fieldSpellActivation).toBeInstanceOf(FieldSpellActivation);
+    expect(fieldSpellActivation.cardId).toBe(DUMMY_CARD_IDS.FIELD_SPELL);
   });
 
-  describe("canActivate()", () => {
-    it("全条件を満たす場合（メインフェイズ＋追加条件なし）は true を返すこと", () => {
-      // Arrange: メインフェイズ1
-      const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
-
-      // Act & Assert
-      expect(action.canActivate(state, sourceInstance).isValid).toBe(true);
-    });
-
-    it("フェイズがメインフェイズ1以外の場合は false を返すこと", () => {
-      // Arrange: ドローフェイズ（FieldSpellActivation固有のフェーズ制約テスト）
-      const state = createMockGameState({ phase: "draw" });
-      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
-
-      // Act & Assert
-      expect(action.canActivate(state, sourceInstance).isValid).toBe(false);
-    });
-
-    it("デッキが空でも true を返すこと（追加条件なし）", () => {
-      // Arrange: メインフェイズ1、デッキ空（フィールド魔法は追加条件なし）
-      const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
-
-      // Act & Assert
-      expect(action.canActivate(state, sourceInstance).isValid).toBe(true);
-    });
+  it("NoOp の spellSpeed は 1 である", () => {
+    expect(fieldSpellActivation.spellSpeed).toBe(1);
   });
 
-  describe("createActivationSteps()", () => {
-    it("通知ステップとイベントステップを返すこと（フィールド魔法は追加の発動ステップなし）", () => {
-      // Arrange
-      const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
-
-      // Act
-      const steps = action.createActivationSteps(state, sourceInstance);
-
-      // Assert: フィールド魔法は通知ステップ＋イベントステップ（配置は ActivateSpellCommand が担当）
-      expect(steps).toHaveLength(2);
-      expect(steps[0].summary).toBe("カード発動");
-      expect(steps[1].id).toBe("emit-spell-activated-test-field-spell-1");
-    });
+  it("NoOp の effectCategory は 'activation' である", () => {
+    expect(fieldSpellActivation.effectCategory).toBe("activation");
   });
 
-  describe("createResolutionSteps()", () => {
-    it("空配列を返すこと（フィールド魔法は解決ステップなし）", () => {
-      // Arrange
-      const state = createMockGameState({ phase: "main1" });
-      const sourceInstance = createSpellInstance("test-field-spell-1", { spellType: "field" });
+  it("NoOp はメインフェイズで発動可能", () => {
+    const state = createPhaseState("main1");
 
-      // Act
-      const steps = action.createResolutionSteps(state, sourceInstance);
+    const result = fieldSpellActivation.canActivate(state, sourceInstance);
 
-      // Assert
-      expect(steps).toEqual([]);
-    });
+    expect(result.isValid).toBe(true);
+  });
+});
+
+// =============================================================================
+// 条件チェックテスト
+// =============================================================================
+
+describe("FieldSpellActivation - subTypeConditions", () => {
+  it("メインフェイズ1で発動可能", () => {
+    const state = createPhaseState("main1");
+
+    const result = fieldSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(true);
+  });
+
+  it("ドローフェイズでは発動不可", () => {
+    const state = createPhaseState("draw");
+
+    const result = fieldSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorCode).toBe("NOT_MAIN_PHASE");
+  });
+
+  it("スタンバイフェイズでは発動不可", () => {
+    const state = createPhaseState("standby");
+
+    const result = fieldSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorCode).toBe("NOT_MAIN_PHASE");
+  });
+
+  it("エンドフェイズでは発動不可", () => {
+    const state = createPhaseState("end");
+
+    const result = fieldSpellActivation.canActivate(state, sourceInstance);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorCode).toBe("NOT_MAIN_PHASE");
+  });
+});
+
+// =============================================================================
+// ステップ生成テスト
+// =============================================================================
+
+describe("FieldSpellActivation - ステップ生成", () => {
+  it("createActivationSteps で発動通知ステップとイベントステップを生成する", () => {
+    const state = createPhaseState("main1");
+
+    const steps = fieldSpellActivation.createActivationSteps(state, sourceInstance);
+
+    expect(steps).toHaveLength(2);
+    expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.FIELD_SPELL}-activation-notification`);
+    expect(steps[0].summary).toBe("カード発動");
+    expect(steps[1].id).toBe("emit-spell-activated-field-1");
+  });
+
+  it("createResolutionSteps は空配列を返す（フィールド魔法はフィールドに残る）", () => {
+    const state = createPhaseState("main1");
+    const steps = fieldSpellActivation.createResolutionSteps(state, sourceInstance);
+
+    expect(steps).toEqual([]);
   });
 });
