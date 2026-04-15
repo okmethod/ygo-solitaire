@@ -12,8 +12,7 @@ import type { AdditionalRule, RuleCategory } from "$lib/domain/models/Effect";
 import {
   createMonsterOnField,
   createSpellOnField,
-  createStateWithMonsterZone,
-  createStateWithFieldZone,
+  createSpaceState,
   DUMMY_CARD_IDS,
   ACTUAL_CARD_IDS,
 } from "../../../../__testUtils__";
@@ -207,7 +206,7 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(chickenGameId, chickenGameRule);
 
       const chickenGameCard = createSpellOnField("fieldZone-0", { cardId: chickenGameId, spellType: "field" });
-      const state = createStateWithFieldZone([chickenGameCard]);
+      const state = createSpaceState({ fieldZone: [chickenGameCard] });
 
       // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -224,9 +223,9 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      const state = createStateWithFieldZone([
-        createSpellOnField("fieldZone-0", { cardId, spellType: "field", position: "faceDown" }),
-      ]);
+      const state = createSpaceState({
+        fieldZone: [createSpellOnField("fieldZone-0", { cardId, spellType: "field", position: "faceDown" })],
+      });
 
       // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -247,7 +246,9 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, rule);
 
-      const state = createStateWithFieldZone([createSpellOnField("fieldZone-0", { cardId, spellType: "field" })]);
+      const state = createSpaceState({
+        fieldZone: [createSpellOnField("fieldZone-0", { cardId, spellType: "field" })],
+      });
 
       // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -264,9 +265,9 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(CHICKEN_GAME_ID, permissionRule);
       AdditionalRuleRegistry.register(CHICKEN_GAME_ID, modifierRule);
 
-      const state = createStateWithFieldZone([
-        createSpellOnField("fieldZone-0", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
-      ]);
+      const state = createSpaceState({
+        fieldZone: [createSpellOnField("fieldZone-0", { cardId: CHICKEN_GAME_ID, spellType: "field" })],
+      });
 
       // 実行
       const permissionRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -287,10 +288,12 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule1);
       AdditionalRuleRegistry.register(CHICKEN_GAME_ID, rule2);
 
-      const state = createStateWithFieldZone([
-        createSpellOnField("fieldZone-0", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
-        createSpellOnField("fieldZone-1", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
-      ]);
+      const state = createSpaceState({
+        fieldZone: [
+          createSpellOnField("fieldZone-0", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
+          createSpellOnField("fieldZone-1", { cardId: CHICKEN_GAME_ID, spellType: "field" }),
+        ],
+      });
 
       // 実行
       const activeRules = AdditionalRuleRegistry.collectActiveRules(state, "ActionPermission");
@@ -408,7 +411,7 @@ describe("AdditionalRuleRegistry", () => {
       AdditionalRuleRegistry.register(CHICKEN_GAME_ID, triggerRule);
 
       const monsterCard = createMonsterOnField("mainMonsterZone-0", { cardId: CHICKEN_GAME_ID });
-      const state = createStateWithMonsterZone([monsterCard]);
+      const state = createSpaceState({ mainMonsterZone: [monsterCard] });
 
       // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -425,9 +428,9 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(CHICKEN_GAME_ID, triggerRule);
 
-      const state = createStateWithMonsterZone([
-        createMonsterOnField("mainMonsterZone-0", { cardId: CHICKEN_GAME_ID }),
-      ]);
+      const state = createSpaceState({
+        mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId: CHICKEN_GAME_ID })],
+      });
 
       // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "normalSummoned");
@@ -443,9 +446,9 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([
-        createMonsterOnField("mainMonsterZone-0", { cardId, position: "faceDown" }),
-      ]);
+      const state = createSpaceState({
+        mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId, position: "faceDown" })],
+      });
 
       // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -463,7 +466,7 @@ describe("AdditionalRuleRegistry", () => {
 
       const monsterCard1 = createMonsterOnField("mainMonsterZone-0", { cardId });
       const monsterCard2 = createMonsterOnField("mainMonsterZone-1", { cardId });
-      const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
+      const state = createSpaceState({ mainMonsterZone: [monsterCard1, monsterCard2] });
 
       // 実行
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
@@ -543,7 +546,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createMonsterOnField("mainMonsterZone-0", { cardId })]);
+      const state = createSpaceState({ mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId })] });
 
       // 実行
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
@@ -563,7 +566,7 @@ describe("AdditionalRuleRegistry", () => {
 
       AdditionalRuleRegistry.register(cardId, triggerRule);
 
-      const state = createStateWithMonsterZone([createMonsterOnField("mainMonsterZone-0", { cardId })]);
+      const state = createSpaceState({ mainMonsterZone: [createMonsterOnField("mainMonsterZone-0", { cardId })] });
 
       // 実行
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };
@@ -585,7 +588,7 @@ describe("AdditionalRuleRegistry", () => {
 
       const monsterCard1 = createMonsterOnField("mainMonsterZone-0", { cardId });
       const monsterCard2 = createMonsterOnField("mainMonsterZone-1", { cardId });
-      const state = createStateWithMonsterZone([monsterCard1, monsterCard2]);
+      const state = createSpaceState({ mainMonsterZone: [monsterCard1, monsterCard2] });
 
       // 実行
       const event: GameEvent = { type: "spellActivated", sourceCardId: 12345, sourceInstanceId: "test-instance" };

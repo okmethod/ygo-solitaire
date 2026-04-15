@@ -5,12 +5,11 @@
  *
  * - createTestInitialDeck: カードID配列から InitialDeckCardIds を生成
  * - createMockGameState: 基本のゲーム状態（部分的な上書き可能）
- * - createStateWithMonsterZone: モンスターゾーンにカードを配置した状態
- * - createStateWithFieldZone: フィールドゾーンにカードを配置した状態
+ * - createSpaceState: 各ロケーションに CardInstance[] を渡した状態
+ * - createFilledSpaceState: 各ロケーションをダミーカード（枚数指定）で埋めた状態
  * - createExodiaVictoryState: エクゾディア勝利状態
  */
 
-import type { CardInstance } from "$lib/domain/models/Card";
 import type { GameSnapshot, CardSpace, InitialDeckCardIds } from "$lib/domain/models/GameState";
 import { INITIAL_LP } from "$lib/domain/models/GameState/GameSnapshot";
 import { ACTUAL_CARD_IDS } from "./constants";
@@ -95,6 +94,18 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
 }
 
 /**
+ * 各ロケーションに CardInstance[] を渡したゲーム状態を生成する
+ *
+ * 省略したロケーションは空（[]）として扱われる。
+ * createStateWithMonsterZone / createStateWithFieldZone の汎用版。
+ *
+ * @param space - 各ロケーションの CardInstance[] を指定するオプション（Partial<CardSpace>）
+ */
+export function createSpaceState(space: Partial<CardSpace> = {}): GameSnapshot {
+  return createMockGameState({ space });
+}
+
+/**
  * 各ロケーションを指定した枚数のダミーカードで埋めたゲーム状態を生成する
  *
  * 省略したロケーションは空（0枚）として扱われる。
@@ -125,24 +136,6 @@ export const createFilledSpaceState = (options: {
     },
   });
 };
-
-/**
- * モンスターゾーンにカードを配置した状態を生成
- *
- * @param cards - モンスターゾーンに配置するカード配列
- */
-export function createStateWithMonsterZone(cards: CardInstance[]): GameSnapshot {
-  return createMockGameState({ space: { mainMonsterZone: cards } });
-}
-
-/**
- * フィールドゾーンにカードを配置した状態を生成
- *
- * @param cards - フィールドゾーンに配置するカード配列
- */
-export function createStateWithFieldZone(cards: CardInstance[]): GameSnapshot {
-  return createMockGameState({ space: { fieldZone: cards } });
-}
 
 /**
  * エクゾディア全パーツが手札にある勝利状態を作成

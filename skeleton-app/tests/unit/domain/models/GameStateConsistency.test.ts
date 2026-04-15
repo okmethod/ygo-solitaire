@@ -7,10 +7,8 @@ import { assertValidGameState } from "$lib/domain/models/GameState/GameStateCons
 import type { GameSnapshot } from "$lib/domain/models/GameState";
 import {
   createMockGameState,
+  createFilledSpaceState,
   createFilledMainDeck,
-  createFilledExtraDeck,
-  createFilledMonsterZone,
-  createFilledFieldZone,
   createMonsterInstance,
 } from "../../../__testUtils__";
 
@@ -48,42 +46,25 @@ describe("assertValidGameState", () => {
 
   describe("validateSpace", () => {
     it("デッキ枚数が範囲外の場合はエラー", () => {
-      const state = createMockGameState({
-        space: { ...createFilledMainDeck(61) },
-      });
+      const state = createFilledSpaceState({ mainDeckCount: 61 });
 
       expect(() => assertValidGameState(state)).toThrow("Deck size is out of bounds");
     });
 
     it("EXデッキ枚数が範囲外の場合はエラー", () => {
-      const state = createMockGameState({
-        space: {
-          ...createFilledMainDeck(10),
-          ...createFilledExtraDeck(16),
-        },
-      });
+      const state = createFilledSpaceState({ mainDeckCount: 10, extraDeckCount: 16 });
 
       expect(() => assertValidGameState(state)).toThrow("Extra Deck size is out of bounds");
     });
 
     it("モンスターゾーン枚数が範囲外の場合はエラー", () => {
-      const state = createMockGameState({
-        space: {
-          ...createFilledMainDeck(10),
-          ...createFilledMonsterZone(6),
-        },
-      });
+      const state = createFilledSpaceState({ mainDeckCount: 10, monsterZoneCount: 6 });
 
       expect(() => assertValidGameState(state)).toThrow("Main Monster Zone size is out of bounds");
     });
 
     it("フィールドゾーン枚数が範囲外の場合はエラー", () => {
-      const state = createMockGameState({
-        space: {
-          ...createFilledMainDeck(10),
-          ...createFilledFieldZone(2),
-        },
-      });
+      const state = createFilledSpaceState({ mainDeckCount: 10, fieldZoneCount: 2 });
 
       expect(() => assertValidGameState(state)).toThrow("Field Zone size is out of bounds");
     });

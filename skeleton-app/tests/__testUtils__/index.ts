@@ -43,9 +43,8 @@ export {
 export {
   createTestInitialDeck,
   createMockGameState,
+  createSpaceState,
   createFilledSpaceState,
-  createStateWithMonsterZone,
-  createStateWithFieldZone,
   createExodiaVictoryState,
   createSynchroSummonReadyState,
 } from "./gameStateFactory";

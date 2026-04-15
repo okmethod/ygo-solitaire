@@ -4,7 +4,13 @@
 
 import { describe, it, expect } from "vitest";
 import { checkedVictoryState } from "$lib/domain/models/GameState/VictoryCondition";
-import { createMockGameState, createHand, createGraveyard, ACTUAL_CARD_IDS } from "../../../__testUtils__";
+import {
+  createMockGameState,
+  createSpaceState,
+  createHand,
+  createGraveyard,
+  ACTUAL_CARD_IDS,
+} from "../../../__testUtils__";
 
 const ALL_PARTS: number[] = [
   ACTUAL_CARD_IDS.EXODIA_BODY,
@@ -18,11 +24,7 @@ describe("VictoryCondition", () => {
   describe("エクゾディア勝利", () => {
     it("エクゾディア5パーツが手札に揃った場合、プレイヤーの勝利を宣言する", () => {
       // Arrange
-      const state = createMockGameState({
-        space: {
-          ...createHand(ALL_PARTS),
-        },
-      });
+      const state = createSpaceState({ ...createHand(ALL_PARTS) });
 
       // Act
       const checkedState = checkedVictoryState(state);
@@ -36,11 +38,7 @@ describe("VictoryCondition", () => {
 
     it("手札にエクゾディアが4パーツしかない場合、勝利を宣言しない", () => {
       // Arrange: 1パーツ不足
-      const state = createMockGameState({
-        space: {
-          ...createHand(ALL_PARTS.slice(0, 4)),
-        },
-      });
+      const state = createSpaceState({ ...createHand(ALL_PARTS.slice(0, 4)) });
 
       // Act
       const checkedState = checkedVictoryState(state);
@@ -51,11 +49,9 @@ describe("VictoryCondition", () => {
 
     it("エクゾディアのパーツが異なるゾーンにある場合、勝利を宣言しない", () => {
       // Arrange: 一部のパーツは手札、一部は墓地
-      const state = createMockGameState({
-        space: {
-          ...createHand(ALL_PARTS.slice(0, 3)),
-          ...createGraveyard(ALL_PARTS.slice(3, 5)),
-        },
+      const state = createSpaceState({
+        ...createHand(ALL_PARTS.slice(0, 3)),
+        ...createGraveyard(ALL_PARTS.slice(3, 5)),
       });
 
       // Act
