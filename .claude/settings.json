@@ -24,7 +24,7 @@
       "Bash(ruff *)",
       "Bash(pytest *)",
       "SlashCommand(*)",
-      "Skill(*)"
+      "mcp__playwright"
     ],
     "deny": [
       "Bash(sudo *)",
@@ -37,5 +37,10 @@
       "Read(id_ed25519)"
     ]
   },
-  "hooks": {}
+  "hooks": {},
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["playwright"],
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
+  }
 }
