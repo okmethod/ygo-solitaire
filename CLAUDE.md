@@ -20,7 +20,7 @@
 - **リポジトリ**: https://github.com/okmethod/ygo-solitaire
 - **コンセプトとスコープ**: 固定デッキで先行 1 ターン目のみをプレイ
 - **アーキテクチャ**: 4 層 Clean Architecture - レイヤー境界を常に意識すること
-- **技術スタック**: TypeScript 5, Skeleton v4 (Svelte v5 + TailwindCSS v4 + Vite v6)
+- **技術スタック**: TypeScript 6, Skeleton v4 (Svelte v5 + TailwindCSS v4 + Vite v6)
 
 ## ディレクトリ
 
