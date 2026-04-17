@@ -1,12 +1,12 @@
 # アーキテクチャ
 
-このディレクトリには、システムの設計方針と構造に関するドキュメントが格納されています。
+どのようにな構造で実装するかを記述した、**技術的な設計方針** を整理する。
+
+---
 
 ## 📄 ファイル一覧
 
-### [overview.md](./overview.md)
-
-Clean Architecture の概要と設計原則
+### アーキテクチャ概要: [overview.md](./overview.md)
 
 **内容**:
 
@@ -16,28 +16,34 @@ Clean Architecture の概要と設計原則
 - デザインパターン（Command、Strategy、Port/Adapter 等）
 - ディレクトリ構造
 
-**読むべき人**: 全開発者（必読）
-
----
-
-### [card-model-design.md](./card-model-design.md)
-
-Card モデル設計と API 統合
+### Card モデル設計: [card-model-design.md](./card-model-design.md)
 
 **内容**:
 
-- 3 層データモデル（CardData/CardDisplayData）
+- 主要データモデル（CardData/ExternalCardData/DisplayCardData）
 - レイヤー別のデータ構造と責務
 - YGOPRODeck API 統合とキャッシング戦略
 - データ変換フロー
 
-**読むべき人**: データモデル設計者、API 統合担当者
+### Effect モデル設計: [effect-model-design.md](./effect-model-design.md)
 
----
+**内容**:
 
-### [typescript-comment-guide.md](./typescript-comment-guide.md)
+- 3 層構造（Domain/Application/Presentation）
+- Atomic Step による効果処理ステップの定義と再利用
+- 発動する効果・適用する効果のモデルと実装
+- 効果処理キュー（effectQueueStore）による非同期処理制御
 
-TypeScript コメント規約
+### カード定義 DSL 設計: [card-definition-dsl-design.md](./card-definition-dsl-design.md)
+
+**内容**:
+
+- DSL（YAML）によるカードデータ・効果の一元定義
+- ConditionChecker / AtomicStep / 効果ファクトリの組み合わせモデル
+- エラッタ前バージョンの量産方針
+- 既存の AtomicStep・BaseSpellActivation の再利用戦略
+
+### TypeScript コメント規約: [typescript-comment-guide.md](./typescript-comment-guide.md)
 
 **内容**:
 
@@ -45,13 +51,7 @@ TypeScript コメント規約
 - JSDoc の書き方と省略ルール
 - 良い例 / 悪い例
 
-**読むべき人**: 実装者全員
-
----
-
-### [testing-strategy.md](./testing-strategy.md)
-
-テスト戦略と実装方法
+### テスト戦略: [testing-strategy.md](./testing-strategy.md)
 
 **内容**:
 
@@ -61,17 +61,9 @@ TypeScript コメント規約
 - カバレッジ目標（ドメイン層 80%以上）
 - テスト実行フロー
 
-**読むべき人**: 実装者、レビュアー
-
 ---
-
-## 🎯 このディレクトリの目的
-
-「どのように実装するか」を記述した、**技術的な設計方針**。
 
 ## 📖 読む順序
 
 1. **実装開始前**: まず [overview.md](./overview.md) でレイヤー構成と設計原則を理解
-2. **データモデル設計時**: [card-model-design.md](./card-model-design.md) で 3 層データモデルと API 統合を確認
-3. **実装時**: [typescript-comment-guide.md](./typescript-comment-guide.md) でコメント規約を確認
-4. **テスト実装前**: [testing-strategy.md](./testing-strategy.md) でテストの書き方とカバレッジ目標を確認
+2. **実装開始前**: 改修箇所に応じて、各種設計ドキュメントを確認
