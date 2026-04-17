@@ -35,6 +35,20 @@ Card モデル設計と API 統合
 
 ---
 
+### [typescript-comment-guide.md](./typescript-comment-guide.md)
+
+TypeScript コメント規約
+
+**内容**:
+
+- コメントの目的・粒度の考え方（根幹 vs 枝葉）
+- JSDoc の書き方と省略ルール
+- 良い例 / 悪い例
+
+**読むべき人**: 実装者全員
+
+---
+
 ### [testing-strategy.md](./testing-strategy.md)
 
 テスト戦略と実装方法
@@ -58,5 +72,6 @@ Card モデル設計と API 統合
 ## 📖 読む順序
 
 1. **実装開始前**: まず [overview.md](./overview.md) でレイヤー構成と設計原則を理解
-2. **データモデル設計時**: [data-model-design.md](./data-model-design.md) で 3 層データモデルと API 統合を確認
-3. **テスト実装前**: [testing-strategy.md](./testing-strategy.md) でテストの書き方とカバレッジ目標を確認
+2. **データモデル設計時**: [card-model-design.md](./card-model-design.md) で 3 層データモデルと API 統合を確認
+3. **実装時**: [typescript-comment-guide.md](./typescript-comment-guide.md) でコメント規約を確認
+4. **テスト実装前**: [testing-strategy.md](./testing-strategy.md) でテストの書き方とカバレッジ目標を確認
