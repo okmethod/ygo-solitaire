@@ -18,23 +18,17 @@
 遊戯王カードの 1 ターンキルシミュレータ
 
 - **リポジトリ**: https://github.com/okmethod/ygo-solitaire
-- **コンセプトとスコープ**: 固定デッキで先行 1 ターン目のみをプレイ（詳細: [docs/README.md](docs/README.md)）
-- **ドメイン知識**: 必要なゲームルールをドキュメント化（詳細: [docs/domain/overview.md](docs/domain/overview.md)）
-- **アーキテクチャ**: 4 層 Clean Architecture（詳細: [docs/architecture/overview.md](docs/architecture/overview.md)）
-  - Note: ドメイン層 / アプリ層 / インフラ層 / プレゼン層の責務とレイヤー境界を常に意識すること
-- **技術スタック**: Skeleton v4 (Svelte v5 + TailwindCSS v4 + Vite v6)
-  - Note: Svelte 5 Runes モード(`$state`, `$derived`, `$effect`) を活用すること
+- **コンセプトとスコープ**: 固定デッキで先行 1 ターン目のみをプレイ
+- **アーキテクチャ**: 4 層 Clean Architecture - レイヤー境界を常に意識すること
+- **技術スタック**: TypeScript 5, Skeleton v4 (Svelte v5 + TailwindCSS v4 + Vite v6)
 
----
+## ディレクトリ
 
-### よく使うコマンド（skeleton-app/内）
-
-```bash
-# lint/format
-npm run lint          # prettier check + eslint
-npm run format        # prettier format
-npm run check         # svelte-check --tsconfig
-
-# テスト
-npm run test:run      # vitest run
-```
+- `docs`: ドキュメント全体像 + コンセプト + スコープ方針
+  - `docs/domain`: ゲームルール
+  - `docs/architecture/`: アーキテクチャ設計
+- `skeleton-app/`: Skeleton フロントエンド
+  - `src/lib/domain/`: ドメイン層
+  - `src/lib/application/`: アプリ層
+  - `src/lib/infrastructure/`: インフラ層
+  - `src/lib/presentation/`: プレゼン層
