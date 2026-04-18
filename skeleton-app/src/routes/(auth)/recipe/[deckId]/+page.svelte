@@ -6,21 +6,10 @@
   import CardList from "./_componets/CardList.svelte";
 
   let { data }: { data: PageData } = $props();
-  const deckName = data.deckData.name;
-  const deckDescription = data.deckData.description;
-  const {
-    mainDeckCount,
-    monsterCount,
-    spellCount,
-    trapCount,
-    extraDeckCount,
-    fusionCount,
-    synchroCount,
-    xyzCount,
-    linkCount,
-  } = data.deckData.stats;
-  const { monsters, spells, traps } = data.deckData.mainDeck;
-  const { fusion, synchro, xyz, link } = data.deckData.extraDeck;
+  const deck = $derived(data.deckData);
+  const stats = $derived(deck.stats);
+  const mainDeck = $derived(deck.mainDeck);
+  const extraDeck = $derived(deck.extraDeck);
 
   onMount(async () => {
     // DisplayCardData キャッシュを初期化
@@ -36,7 +25,7 @@
   <!-- ヘッダー -->
   <header class="my-6">
     <div class="flex items-center space-x-8 mb-4">
-      <h2 class="h3">{deckName}</h2>
+      <h2 class="h3">{deck.name}</h2>
       <button class="btn preset-tonal rounded-full shadow-lg md:text-lg px-4 py-2" onclick={navigateToSimulator}>
         決闘開始
       </button>
@@ -45,7 +34,7 @@
 
   <!-- デッキ説明 -->
   <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
-    <p class="text-sm opacity-75">{deckDescription}</p>
+    <p class="text-sm opacity-75">{deck.description}</p>
   </div>
 
   <hr class="my-8 border-t border-gray-300" />
@@ -56,44 +45,44 @@
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">メインデッキ</h2>
       <span class="badge preset-tonal-surface text-sm shadow-md">
-        {mainDeckCount}枚
+        {stats.mainDeckCount}枚
       </span>
     </div>
     <!-- モンスターカード -->
-    <CardList title="モンスター" cardCount={monsterCount} cards={monsters} />
+    <CardList title="モンスター" cardCount={stats.monsterCount} cards={mainDeck.monsters} />
 
     <!-- 魔法カード -->
-    <CardList title="魔法" cardCount={spellCount} cards={spells} />
+    <CardList title="魔法" cardCount={stats.spellCount} cards={mainDeck.spells} />
 
     <!-- 罠カード -->
-    <CardList title="罠" cardCount={trapCount} cards={traps} />
+    <CardList title="罠" cardCount={stats.trapCount} cards={mainDeck.traps} />
 
     <!-- エクストラデッキ -->
     <div class="mb-4 flex items-center space-x-4">
       <h2 class="h3">エクストラデッキ</h2>
       <span class="badge preset-tonal-surface text-sm shadow-md">
-        {extraDeckCount}枚
+        {stats.extraDeckCount}枚
       </span>
     </div>
 
     <!-- 融合モンスター -->
-    {#if fusion.length > 0}
-      <CardList title="融合" cardCount={fusionCount} cards={fusion} />
+    {#if extraDeck.fusion.length > 0}
+      <CardList title="融合" cardCount={stats.fusionCount} cards={extraDeck.fusion} />
     {/if}
 
     <!-- シンクロモンスター -->
-    {#if synchro.length > 0}
-      <CardList title="シンクロ" cardCount={synchroCount} cards={synchro} />
+    {#if extraDeck.synchro.length > 0}
+      <CardList title="シンクロ" cardCount={stats.synchroCount} cards={extraDeck.synchro} />
     {/if}
 
     <!-- エクシーズモンスター -->
-    {#if xyz.length > 0}
-      <CardList title="エクシーズ" cardCount={xyzCount} cards={xyz} />
+    {#if extraDeck.xyz.length > 0}
+      <CardList title="エクシーズ" cardCount={stats.xyzCount} cards={extraDeck.xyz} />
     {/if}
 
     <!-- リンクモンスター -->
-    {#if link.length > 0}
-      <CardList title="リンク" cardCount={linkCount} cards={link} />
+    {#if extraDeck.link.length > 0}
+      <CardList title="リンク" cardCount={stats.linkCount} cards={extraDeck.link} />
     {/if}
   </div>
 </div>

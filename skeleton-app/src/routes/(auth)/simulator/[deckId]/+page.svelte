@@ -35,7 +35,7 @@
   import CardMovingAnimationOverlay from "./_components/animations/CardMovingAnimationOverlay.svelte";
 
   const { data } = $props<{ data: PageData }>();
-  const deckName = data.deckData.name;
+  const deckName = $derived(data.deckData.name);
 
   // ゲーム状態が変化するたびに自動保存するサブスクリプション
   let unsubscribeAutoSave: (() => void) | undefined;
