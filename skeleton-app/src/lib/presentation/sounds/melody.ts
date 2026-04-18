@@ -1,12 +1,21 @@
-import { getFrequency } from "$lib/presentation/utils/musicalNote";
-import { playBeep } from "$lib/presentation/utils/beep";
+/**
+ * melody - 音符列を時系列で再生するメロディーユーティリティ
+ *
+ * MelodyNote の配列と BPM を受け取り、setTimeout で順次再生する。
+ * null を挿入することで休符を表現できる。
+ */
 
+import { getFrequency } from "$lib/presentation/sounds/musicalNote";
+import { playBeep } from "$lib/presentation/sounds/beep";
+
+/** メロディーを構成する1音符（音名・オクターブ・拍数） */
 export interface MelodyNote {
   name: string;
   octave: number;
   duration: number;
 }
 
+/** BPM に基づいて音符列を順次再生する */
 export function playMelody(
   audioContextProvider: () => AudioContext | null,
   waveType: OscillatorType,
@@ -31,6 +40,7 @@ export function playMelody(
   });
 }
 
+/** MelodyButton での動作確認用サンプルメロディー */
 export const sampleMelody: { melodyNotes: (MelodyNote | null)[]; defaultTempoBpm: number } = {
   melodyNotes: [
     { name: "ファ#", octave: 4, duration: 1 },

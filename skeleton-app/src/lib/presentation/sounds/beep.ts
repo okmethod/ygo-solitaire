@@ -1,3 +1,11 @@
+/**
+ * beep - Web Audio API の低レベル音声ラッパー
+ *
+ * 単音・スライド・和音の再生に必要な型定義と基本再生関数を提供する。
+ * ストアに依存せず audioContextProvider を引数で受け取るため、テスト・再利用が容易。
+ * soundEffects.ts や melody.ts から参照されるエンジン層。
+ */
+
 export const WAVE_TYPES: readonly OscillatorType[] = ["sine", "square", "sawtooth", "triangle"] as const;
 
 export const LABEL_TYPES = ["none", "ja", "en"] as const;
@@ -37,6 +45,7 @@ export interface NoteOptions extends NotePattern, PlaybackSettings {}
 /** playChord用設定（和音） */
 export interface ChordOptions extends ChordPattern, Omit<PlaybackSettings, "delay"> {}
 
+/** 連続音を開始し、停止関数を返す（押下中に音を鳴らし続けるボタン等での使用を想定） */
 export function startBeep(
   audioContextProvider: () => AudioContext | null,
   waveType: OscillatorType,

@@ -1,3 +1,9 @@
+/**
+ * musicalNote - 音楽理論の基礎データと周波数計算ユーティリティ
+ *
+ * 音名・周波数・オクターブの対応関係を定義し、任意のオクターブの周波数を算出する。
+ */
+
 interface MusicalNote {
   name: { ja: string; en: string };
   octave: number;
@@ -28,6 +34,7 @@ function shiftOctaveFrequency(baseFrequency: number, octaveShift: number): numbe
   return baseFrequency * Math.pow(2, octaveShift); // オクターブごとに周波数は 2倍 or 1/2倍 になる
 }
 
+/** オクターブ4の基音から任意オクターブの周波数を返す */
 export function getFrequency(name: JaName | EnName, octave: number): number {
   const baseNote = baseMusicalNotes
     .filter((note) => note.octave === 4)
@@ -38,6 +45,7 @@ export function getFrequency(name: JaName | EnName, octave: number): number {
   return shiftOctaveFrequency(baseNote.frequency, octaveShift);
 }
 
+/** 全音符をオクターブシフトして返す（ピアノキーUI等での全音域表示用） */
 export function getNotesWithOctaveShift(octaveShift: number): MusicalNote[] {
   return baseMusicalNotes.map(({ name, octave: baseOctave, frequency, isSharp }) => ({
     name,

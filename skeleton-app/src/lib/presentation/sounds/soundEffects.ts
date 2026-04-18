@@ -1,6 +1,13 @@
+/**
+ * soundEffects - ゲーム用サウンドエフェクトのアダプター層
+ *
+ * beep.ts の汎用音声エンジンと audioStore を繋ぎ、ゲームアクションに対応した SE を定義・公開する。
+ * ストアへの依存はこのファイルに集約し、呼び出し側は playSE.confirm() のように引数なしで使える。
+ */
+
 import { audioContextProvider } from "$lib/presentation/stores/audioStore";
-import type { NotePattern, NoteOptions, ChordPattern, ChordOptions } from "$lib/presentation/utils/beep";
-import { WAVE_TYPES, playNote, playChord } from "$lib/presentation/utils/beep";
+import type { NotePattern, NoteOptions, ChordPattern, ChordOptions } from "$lib/presentation/sounds/beep";
+import { WAVE_TYPES, playNote, playChord } from "$lib/presentation/sounds/beep";
 
 /**
  * 単音パターン（周波数の推移）
