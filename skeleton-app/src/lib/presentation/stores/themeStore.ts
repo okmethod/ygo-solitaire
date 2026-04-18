@@ -1,3 +1,11 @@
+/**
+ * themeStore - カラーテーマとライト/ダークモードの状態管理ストア
+ *
+ * 選択中のテーマ名とダークモードフラグを localStorage に永続化し、
+ * ページ再訪時に前回の設定を復元する。
+ * DOM への反映（data-theme / data-mode 属性）は applyTheme() に集約する。
+ */
+
 import { writable, get } from "svelte/store";
 import { browser } from "$app/environment";
 
@@ -6,6 +14,7 @@ interface ThemeLabel {
   emoji: string;
 }
 
+/** 選択可能なテーマの表示名と絵文字の対応リスト */
 export const themeLabels: Array<ThemeLabel> = [
   { name: "catppuccin", emoji: "🐈" },
   { name: "cerberus", emoji: "🐺" },
@@ -32,6 +41,7 @@ export const themeLabels: Array<ThemeLabel> = [
   { name: "custom", emoji: "🎨" },
 ] as const;
 
+/** themeLabels に定義されたテーマ名の Union 型 */
 export type ThemeName = (typeof themeLabels)[number]["name"];
 
 interface Theme {
@@ -45,12 +55,15 @@ const savedTheme: Theme =
     ? JSON.parse(localStorage.getItem("theme") || JSON.stringify(defaultTheme))
     : defaultTheme;
 
+/** 現在適用中のテーマ状態。localStorage の値で初期化される */
 export const themeStore = writable<Theme>(savedTheme);
 
+/** 現在のテーマ状態を返す */
 export function getTheme(): Theme {
   return get(themeStore);
 }
 
+/** テーマを更新し localStorage に永続化する。DOM への反映も行う */
 export function setTheme(theme: Theme): void {
   themeStore.set(theme);
   if (typeof localStorage !== "undefined") {
@@ -60,6 +73,7 @@ export function setTheme(theme: Theme): void {
   applyTheme();
 }
 
+/** data-theme / data-mode 属性を DOM に反映する */
 export function applyTheme(): void {
   const theme = getTheme();
   if (browser) {

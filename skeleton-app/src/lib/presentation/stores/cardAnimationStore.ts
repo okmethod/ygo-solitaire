@@ -1,8 +1,18 @@
+/**
+ * cardAnimationStore - カード移動アニメーションのライフサイクル管理ストア
+ *
+ * カードがゾーン間を移動する際の飛行アニメーション（sourceRect → targetRect）を管理する。
+ * 状態変更前に DOM 座標をキャッシュしておく必要があるため、
+ * カード位置・ゾーン位置の登録/取得もここに集約する。
+ */
+
 import { writable, get } from "svelte/store";
 import type { DisplayCardData } from "$lib/presentation/types";
 
+/** アニメーション対象となるフィールドゾーン識別子 */
 export type AnimationZone = "hand" | "graveyard" | "mainDeck" | "monsterZone" | "spellTrapZone" | "fieldZone";
 
+/** 移動アニメーション1件分のデータ */
 export interface CardAnimation {
   instanceId: string;
   cardData: DisplayCardData;
@@ -99,4 +109,5 @@ function createCardAnimationStore() {
   };
 }
 
+/** カード移動アニメーションのグローバルストア */
 export const cardAnimationStore = createCardAnimationStore();
