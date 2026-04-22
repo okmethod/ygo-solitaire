@@ -13,7 +13,7 @@
 <div
   class="absolute -top-2 -right-2 {BADGE_SIZE_CLASSES[
     size
-  ]} {colorClasses} rounded-full flex items-center justify-center font-bold shadow-md z-10"
+  ]} {colorClasses} z-10 flex items-center justify-center rounded-full font-bold shadow-md"
 >
   {count}
 </div>

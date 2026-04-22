@@ -89,13 +89,13 @@
 
 <Dialog {open} onOpenChange={handleOpenChange}>
   <Portal>
-    <Dialog.Backdrop class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" />
-    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+    <Dialog.Backdrop class="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" />
+    <Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center">
       <Dialog.Content
-        class="card bg-surface-100-900 p-6 mx-auto space-y-4 shadow-xl w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto"
+        class="card bg-surface-100-900 mx-auto max-h-[90vh] w-[95vw] space-y-4 overflow-auto p-6 shadow-xl md:max-w-4xl"
       >
-        <header class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl sm:text-3xl font-bold mx-2">{title}</h2>
+        <header class="mb-4 flex items-center justify-between">
+          <h2 class="mx-2 text-2xl font-bold sm:text-3xl">{title}</h2>
           <div class="flex items-center gap-2">
             <!-- 集約表示トグル -->
             <button
@@ -115,12 +115,12 @@
         </header>
 
         <!-- カード枚数表示 -->
-        <div class="text-sm text-surface-600-300-token mb-2">
+        <div class="text-surface-600-300-token mb-2 text-sm">
           {cards.length}枚
         </div>
 
         {#if cards.length > 0}
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex flex-wrap gap-2">
             {#if isAggregated}
               <!-- 集約表示モード -->
               {#each aggregatedCards as { card, instanceId, quantity } (instanceId)}
@@ -146,7 +146,7 @@
             {/if}
           </div>
         {:else}
-          <div class="text-center py-8">
+          <div class="py-8 text-center">
             <p class="text-gray-500">{emptyMessage}</p>
           </div>
         {/if}

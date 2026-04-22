@@ -301,7 +301,7 @@
           </div>
           <!-- アニメーション中: 位置取得用の透明要素 -->
           {#if card && instanceId && isAnimating}
-            <div use:registerFieldCardElement={instanceId} class="absolute inset-0 opacity-0 pointer-events-none">
+            <div use:registerFieldCardElement={instanceId} class="pointer-events-none absolute inset-0 opacity-0">
               <ActivatableCard
                 card={card.card}
                 {instanceId}
@@ -355,7 +355,7 @@
           </div>
           <!-- アニメーション中: 位置取得用の透明要素 -->
           {#if card && instanceId && isAnimating}
-            <div use:registerFieldCardElement={instanceId} class="absolute inset-0 opacity-0 pointer-events-none">
+            <div use:registerFieldCardElement={instanceId} class="pointer-events-none absolute inset-0 opacity-0">
               {#if card.faceUp}
                 <CardComponent card={card.card} faceUp={true} size={cardSize} clickable={false} />
               {:else}
@@ -393,7 +393,7 @@
           </div>
           <!-- アニメーション中: 位置取得用の透明要素 -->
           {#if card && instanceId && isAnimating}
-            <div use:registerFieldCardElement={instanceId} class="absolute inset-0 opacity-0 pointer-events-none">
+            <div use:registerFieldCardElement={instanceId} class="pointer-events-none absolute inset-0 opacity-0">
               <ActivatableCard card={card.card} {instanceId} faceUp={card.faceUp} actionButtons={[]} size={cardSize} />
             </div>
           {/if}
@@ -422,36 +422,36 @@
 {/snippet}
 
 <!-- レイアウト -->
-<div class="card p-2 max-w-6xl mx-auto">
+<div class="card mx-auto max-w-6xl p-2">
   <div class="transition-all duration-300">
     {#if _isMobile}
       <!-- スマホレイアウト: 3行構成 -->
-      <div class="grid grid-cols-4 gap-1 mb-2">
+      <div class="mb-2 grid grid-cols-4 gap-1">
         {@render fieldZone("F")}
         {@render extraDeckZone()}
         {@render mainDeckZone()}
         {@render graveyardZone()}
       </div>
-      <div class="grid grid-cols-5 gap-1 mb-2">
+      <div class="mb-2 grid grid-cols-5 gap-1">
         {#each zones as i (i)}
           {@render monsterZone(i)}
         {/each}
       </div>
-      <div class="grid grid-cols-5 gap-1 mb-2">
+      <div class="mb-2 grid grid-cols-5 gap-1">
         {#each zones as i (i)}
           {@render spellTrapZone(i)}
         {/each}
       </div>
     {:else}
       <!-- PCレイアウト: 2行構成 -->
-      <div class="grid grid-cols-7 gap-2 mb-4">
+      <div class="mb-4 grid grid-cols-7 gap-2">
         {@render fieldZone("フィールド")}
         {#each zones as i (i)}
           {@render monsterZone(i)}
         {/each}
         {@render graveyardZone()}
       </div>
-      <div class="grid grid-cols-7 gap-2 mb-4">
+      <div class="mb-4 grid grid-cols-7 gap-2">
         {@render extraDeckZone()}
         {#each zones as i (i)}
           {@render spellTrapZone(i)}

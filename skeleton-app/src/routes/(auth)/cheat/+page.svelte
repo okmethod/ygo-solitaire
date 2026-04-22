@@ -21,7 +21,7 @@
 </script>
 
 <div class="container mx-auto p-4">
-  <header class="text-center mb-8">
+  <header class="mb-8 text-center">
     <h1 class="h2 opacity-75">Sound Test</h1>
   </header>
 
@@ -36,7 +36,7 @@
         <Accordion.ItemContent>
           <div class="grid grid-cols-8 gap-4">
             {#each effects as { name, play } (name)}
-              <button class="btn preset-tonal-primary rounded-lg shadow p-3 flex flex-col items-start" onclick={play}>
+              <button class="btn preset-tonal-primary flex flex-col items-start rounded-lg p-3 shadow" onclick={play}>
                 <span class="font-mono text-xs opacity-75">{name.split("_").slice(1).join("_") || name}</span>
               </button>
             {/each}
@@ -52,10 +52,10 @@
         ゲーム用SEパターン
       </Accordion.ItemTrigger>
       <Accordion.ItemContent>
-        <div class="grid grid-cols-1 grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <div class="mx-auto grid max-w-4xl grid-cols-1 grid-cols-3 gap-4">
           {#each gameSoundEffects as { name, description, play } (name)}
             <button
-              class="btn preset-tonal-primary rounded-lg shadow p-4 flex flex-col items-start text-left"
+              class="btn preset-tonal-primary flex flex-col items-start rounded-lg p-4 text-left shadow"
               onclick={play}
             >
               <span class="font-mono text-sm opacity-60">{name}</span>

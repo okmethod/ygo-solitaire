@@ -26,12 +26,12 @@
   <title>Yu-Gi-Oh! ソリティア</title>
 </svelte:head>
 
-<Toast.Group {toaster} class="fixed top-4 right-4 flex flex-col gap-2 z-50">
+<Toast.Group {toaster} class="fixed top-4 right-4 z-50 flex flex-col gap-2">
   {#snippet children(toast)}
-    <Toast {toast} class="card p-4 rounded-lg w-64 md:w-96 shadow-lg">
-      <div class="flex items-center gap-2 w-full">
+    <Toast {toast} class="card w-64 rounded-lg p-4 shadow-lg md:w-96">
+      <div class="flex w-full items-center gap-2">
         <Toast.Title class="flex-1">{toast.title}</Toast.Title>
-        <Toast.CloseTrigger class="btn-icon btn-icon-sm preset-tonal shrink-0 ml-auto">
+        <Toast.CloseTrigger class="btn-icon btn-icon-sm preset-tonal ml-auto shrink-0">
           <Icon icon="mdi:close" class="size-4" />
         </Toast.CloseTrigger>
       </div>
@@ -40,15 +40,15 @@
 </Toast.Group>
 
 {#if isLoaded}
-  <header class="p-2 sm:p-4 shadow-md bg-surface-100-900">
-    <div class="flex justify-between items-center">
-      <a class="h5 flex items-center" href="{base}/">
+  <header class="bg-surface-100-900 p-2 shadow-md sm:p-4">
+    <div class="flex items-center justify-between">
+      <a class="h5 flex items-center" href={base}>
         <span class="hidden sm:inline">Yu-Gi-Oh! ソリティア</span>
         <Icon icon="mdi:home" class="size-6 sm:hidden" />
       </a>
 
       <nav>
-        <ul class="flex space-x-2 items-center justify-center">
+        <ul class="flex items-center justify-center space-x-2">
           <li>
             <AudioToggle />
           </li>
@@ -67,7 +67,7 @@
   <!-- カード詳細表示エリア -->
   <CardDetailDisplay />
 {:else}
-  <div class="h-screen flex items-center justify-center bg-gray-100">
-    <div class="font-mono text-black text-[32px]">Now Loading...</div>
+  <div class="flex h-screen items-center justify-center bg-gray-100">
+    <div class="font-mono text-[32px] text-black">Now Loading...</div>
   </div>
 {/if}

@@ -128,19 +128,19 @@
   preventScroll={true}
 >
   <Portal>
-    <Dialog.Backdrop class="fixed inset-0 bg-black/80 backdrop-blur-md z-40" />
-    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+    <Dialog.Backdrop class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md" />
+    <Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center">
       <Dialog.Content
-        class="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 w-[95vw] md:max-w-4xl max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+        class="card bg-surface-50 dark:bg-surface-900 border-surface-300 dark:border-surface-700 max-h-[90vh] w-[95vw] space-y-4 overflow-auto border-2 p-6 shadow-2xl md:max-w-4xl"
       >
         {#if config}
           <!-- ヘッダー -->
-          <div class="flex justify-between items-center mb-4">
+          <div class="mb-4 flex items-center justify-between">
             <div>
               {#if config.sourceCardName}
-                <p class="text-xs font-semibold mb-1">{config.sourceCardName}</p>
+                <p class="mb-1 text-xs font-semibold">{config.sourceCardName}</p>
               {/if}
-              <h3 class="font-bold text-lg">{config.summary}</h3>
+              <h3 class="text-lg font-bold">{config.summary}</h3>
             </div>
             {#if cancelable}
               <button class="btn btn-sm btn-circle btn-ghost" onclick={handleCancel}> ✕ </button>
@@ -149,21 +149,21 @@
 
           {#if isFizzled}
             <!-- 不発UI -->
-            <div class="flex flex-col items-center justify-center py-10 gap-4 text-center">
+            <div class="flex flex-col items-center justify-center gap-4 py-10 text-center">
               <p class="text-surface-500 dark:text-surface-400 text-sm">
                 対象となるカードが存在しないため、不発となります
               </p>
             </div>
-            <div class="flex justify-end mt-6">
+            <div class="mt-6 flex justify-end">
               <button class="btn btn-primary" onclick={handleFizzle}> 確認 </button>
             </div>
           {:else}
             <!-- 説明文 -->
-            <p class="text-sm text-surface-600-300-token mb-4">{config.description}</p>
+            <p class="text-surface-600-300-token mb-4 text-sm">{config.description}</p>
 
             <!-- 選択状況 -->
             <div
-              class="flex justify-between items-center mb-4 p-3 bg-surface-200 dark:bg-surface-800 rounded-lg border border-surface-300 dark:border-surface-600"
+              class="bg-surface-200 dark:bg-surface-800 border-surface-300 dark:border-surface-600 mb-4 flex items-center justify-between rounded-lg border p-3"
             >
               <span class="text-sm font-semibold">
                 選択中: {selectedCount} / {config.maxCards}枚
@@ -171,8 +171,8 @@
             </div>
 
             <!-- カード選択エリア -->
-            <div class="min-h-[200px] max-h-[400px] overflow-y-auto mb-6">
-              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div class="mb-6 max-h-[400px] min-h-[200px] overflow-y-auto">
+              <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                 {#each config.availableCards as cardInstance (cardInstance.instanceId)}
                   {@const selected = isSelected(cardInstance.instanceId)}
                   {@const canToggle = canToggleCard(cardInstance.instanceId)}
@@ -195,7 +195,7 @@
             </div>
 
             <!-- ボタンエリア -->
-            <div class="flex justify-end gap-3 mt-6">
+            <div class="mt-6 flex justify-end gap-3">
               {#if cancelable}
                 <button class="btn btn-ghost" onclick={handleCancel}> キャンセル </button>
               {/if}

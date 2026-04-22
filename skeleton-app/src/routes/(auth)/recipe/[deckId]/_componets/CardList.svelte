@@ -38,22 +38,22 @@
 
 <section>
   <div
-    class="badge preset-tonal-surface mb-3 grid items-center gap-4 p-2 rounded-lg shadow-md {showHeader
+    class="badge preset-tonal-surface mb-3 grid items-center gap-4 rounded-lg p-2 shadow-md {showHeader
       ? 'grid-cols-1 md:grid-cols-12'
       : 'grid-cols-1'}"
   >
     {#if showHeader}
-      <h3 class="md:col-span-2 h4 flex flex-col min-w-fit">
+      <h3 class="h4 flex min-w-fit flex-col md:col-span-2">
         {#if title}
           {title}
         {/if}
         {#if cardCount !== undefined}
-          <span class="badge w-fit preset-tonal-surface text-sm">{cardCount}枚</span>
+          <span class="badge preset-tonal-surface w-fit text-sm">{cardCount}枚</span>
         {/if}
       </h3>
     {/if}
     {#if cards.length > 0}
-      <div class="{showHeader ? 'md:col-span-10' : ''} flex-1 flex gap-2 flex-wrap">
+      <div class="{showHeader ? 'md:col-span-10' : ''} flex flex-1 flex-wrap gap-2">
         {#each cards as cardEntry (cardEntry.cardData.id)}
           {@const displayData = getDisplayData(cardEntry.cardData.id)}
           {#if displayData}

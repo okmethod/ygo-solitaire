@@ -24,16 +24,16 @@
 <div class="container mx-auto p-4">
   <!-- ヘッダー -->
   <header class="my-6">
-    <div class="flex items-center space-x-8 mb-4">
+    <div class="mb-4 flex items-center space-x-8">
       <h2 class="h3">{deck.name}</h2>
-      <button class="btn preset-tonal rounded-full shadow-lg md:text-lg px-4 py-2" onclick={navigateToSimulator}>
+      <button class="btn preset-tonal rounded-full px-4 py-2 shadow-lg md:text-lg" onclick={navigateToSimulator}>
         決闘開始
       </button>
     </div>
   </header>
 
   <!-- デッキ説明 -->
-  <div class="mb-6 p-4 bg-surface-100-800-token rounded-lg">
+  <div class="bg-surface-100-800-token mb-6 rounded-lg p-4">
     <p class="text-sm opacity-75">{deck.description}</p>
   </div>
 

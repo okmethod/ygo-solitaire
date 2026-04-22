@@ -14,7 +14,7 @@
 
 <button
   type="button"
-  class="btn p-2 rounded-xl h-10 w-10 {currentAudioOn ? 'preset-filled-primary-500' : 'preset-tonal'}"
+  class="btn h-10 w-10 rounded-xl p-2 {currentAudioOn ? 'preset-filled-primary-500' : 'preset-tonal'}"
   onclick={toggleAudio}
   aria-label={currentAudioOn ? "音声をオフにする" : "音声をオンにする"}
 >

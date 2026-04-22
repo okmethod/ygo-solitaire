@@ -21,11 +21,11 @@
 
 {#if shouldShow}
   <div
-    class="absolute bottom-8 right-1 px-1 bg-green-900 text-white rounded-full flex items-center justify-center font-bold border-1 border-green-400 shadow-md z-10"
+    class="absolute right-1 bottom-8 z-10 flex items-center justify-center rounded-full border-1 border-green-400 bg-green-900 px-1 font-bold text-white shadow-md"
     title="魔力カウンター: {count}"
     data-testid="spell-counter-badge"
   >
-    <img src={spellCounterIcon} alt="魔力カウンター" class="w-4 h-4" />
+    <img src={spellCounterIcon} alt="魔力カウンター" class="h-4 w-4" />
     <span class="text-xs" data-testid="spell-counter-count">{count}</span>
   </div>
 {/if}

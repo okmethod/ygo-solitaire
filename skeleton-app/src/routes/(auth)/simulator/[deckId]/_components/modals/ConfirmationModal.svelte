@@ -44,17 +44,17 @@
   preventScroll={true}
 >
   <Portal>
-    <Dialog.Backdrop class="fixed inset-0 bg-black/80 backdrop-blur-md z-40" />
-    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+    <Dialog.Backdrop class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md" />
+    <Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center">
       <Dialog.Content
-        class="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 max-w-md shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+        class="card bg-surface-50 dark:bg-surface-900 border-surface-300 dark:border-surface-700 max-w-md space-y-4 border-2 p-6 shadow-2xl"
       >
         {#if config}
           <header class="text-center">
             {#if config.sourceCardName}
-              <p class="text-xs font-semibold mb-1">{config.sourceCardName}</p>
+              <p class="mb-1 text-xs font-semibold">{config.sourceCardName}</p>
             {/if}
-            <h2 class="h3 font-bold text-primary-600-300-token">{config.summary}</h2>
+            <h2 class="h3 text-primary-600-300-token font-bold">{config.summary}</h2>
           </header>
 
           <article class="text-center">

@@ -82,12 +82,12 @@
   class="
     {CARD_SIZE_CLASSES[size]}
     relative
-    border-2 border-dashed border-gray-400
-    rounded-lg
-    bg-gray-100 dark:bg-gray-800
+    cursor-pointer rounded-lg border-2
+    border-dashed
+    border-gray-400 bg-gray-100
     transition-all duration-300
-    cursor-pointer
-    hover:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700
+    hover:border-gray-600
+    hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700
     {isHovered ? 'scale-105 shadow-lg' : ''}
   "
   role="button"
@@ -106,12 +106,12 @@
   {:else}
     <!-- カードが無い場合、プレースホルダー色調：グレーを表示する -->
     <div
-      class="h-full flex items-center justify-center p-1 relative"
+      class="relative flex h-full items-center justify-center p-1"
       style="filter: grayscale(0.8) brightness(0.7) contrast(1.2);"
     >
-      <img src={cardBackImage} alt="墓地" class="w-full h-full object-cover opacity-30 rounded-sm" />
+      <img src={cardBackImage} alt="墓地" class="h-full w-full rounded-sm object-cover opacity-30" />
       <div class="absolute inset-0 flex items-center justify-center">
-        <span class="text-xs text-surface-600-300-token text-center select-none drop-shadow-lg">
+        <span class="text-surface-600-300-token text-center text-xs drop-shadow-lg select-none">
           {_isMobile ? "GY" : "墓地"}
         </span>
       </div>
@@ -123,13 +123,13 @@
   {#if banishedCount > 0}
     <button
       class="
-        absolute -bottom-2 -right-2
-        bg-primary-600 text-white
+        bg-primary-600 absolute -right-2
+        -bottom-2 rounded-full
         text-xs font-bold
-        rounded-full {BADGE_SIZE_CLASSES[size]}
-        shadow-md z-20
-        hover:bg-primary-400
+        text-white {BADGE_SIZE_CLASSES[size]}
+        hover:bg-primary-400 z-20
         leading-tight
+        shadow-md
       "
       onclick={handleBanishedClick}
       onkeydown={(e) => e.key === "Enter" && handleBanishedClick(e)}

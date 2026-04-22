@@ -27,21 +27,21 @@
 
 <Dialog open={isOpen} onOpenChange={() => {}} modal={true} trapFocus={true} closeOnEscape={false} preventScroll={true}>
   <Portal>
-    <Dialog.Backdrop class="fixed inset-0 bg-black/80 backdrop-blur-md z-40" />
-    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+    <Dialog.Backdrop class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md" />
+    <Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center">
       <Dialog.Content
-        class="card bg-surface-50 dark:bg-surface-900 p-6 space-y-4 w-[95vw] md:max-w-md max-h-[90vh] overflow-auto shadow-2xl border-2 border-surface-300 dark:border-surface-700"
+        class="card bg-surface-50 dark:bg-surface-900 border-surface-300 dark:border-surface-700 max-h-[90vh] w-[95vw] space-y-4 overflow-auto border-2 p-6 shadow-2xl md:max-w-md"
       >
         {#if config}
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-lg">効果を発動しますか？</h3>
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-bold">効果を発動しますか？</h3>
           </div>
 
-          <p class="text-sm text-surface-600-300-token mb-4">
+          <p class="text-surface-600-300-token mb-4 text-sm">
             {config.sourceCardName} の効果を発動できます。
           </p>
 
-          <div class="flex justify-end gap-3 mt-6">
+          <div class="mt-6 flex justify-end gap-3">
             <button class="btn btn-ghost" onclick={handlePass}> 発動しない </button>
             <button class="btn btn-primary" onclick={handleActivate}> 発動する </button>
           </div>

@@ -31,24 +31,24 @@
 {#if isVisible && $selectedCardForDisplay}
   <div
     class="
-      fixed top-10 left-4 z-50 p-4 w-80
+      fixed top-10 left-4 z-50 w-80 p-4
       {bgClass}
       {borderClass}
-      border border-4 rounded-lg shadow-lg
+      rounded-lg border border-4 shadow-lg
       transition-all duration-300 ease-in-out
     "
     role="dialog"
     aria-labelledby="card-image-title"
     aria-describedby="card-image-description"
   >
-    <div class="flex justify-between items-center mb-3">
-      <h3 id="card-image-title" class="text-lg font-semibold truncate">
+    <div class="mb-3 flex items-center justify-between">
+      <h3 id="card-image-title" class="truncate text-lg font-semibold">
         {$selectedCardForDisplay.edition === "legacy" ? "L" : ""}
         《{$selectedCardForDisplay.jaName}》
       </h3>
       <button
         onclick={handleClose}
-        class="btn-icon btn-icon-sm border hover:bg-surface-200-700-token"
+        class="btn-icon btn-icon-sm hover:bg-surface-200-700-token border"
         aria-label="カード詳細を閉じる"
       >
         <Icon icon="mdi:close" class="size-4" />
@@ -59,12 +59,12 @@
       <img
         src={$selectedCardForDisplay.images?.imageCropped || "/CardBack.jpg"}
         alt={$selectedCardForDisplay.jaName}
-        class="w-full h-auto rounded-md shadow-sm"
+        class="h-auto w-full rounded-md shadow-sm"
         loading="lazy"
       />
     </div>
 
-    <div id="card-image-description" class="text-sm space-y-2">
+    <div id="card-image-description" class="space-y-2 text-sm">
       {#if $selectedCardForDisplay.type === "monster" && $selectedCardForDisplay.monsterAttributes}
         {@const monsterData: MonsterAttributes = $selectedCardForDisplay.monsterAttributes}
         <div class="flex justify-between">
@@ -78,8 +78,8 @@
       {/if}
 
       {#if $selectedCardForDisplay.description}
-        <div class="mt-3 pt-3 border-t border-surface-300-600-token">
-          <p class="text-xs text-surface-700-200-token leading-relaxed">
+        <div class="border-surface-300-600-token mt-3 border-t pt-3">
+          <p class="text-surface-700-200-token text-xs leading-relaxed">
             {$selectedCardForDisplay.description}
           </p>
         </div>

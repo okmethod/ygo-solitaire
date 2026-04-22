@@ -202,7 +202,7 @@
   }
 </script>
 
-<div class="grid {getHandGridColumns(cards.length)} justify-items-center gap-2 mb-16">
+<div class="grid {getHandGridColumns(cards.length)} mb-16 justify-items-center gap-2">
   {#each cards as { card, instanceId } (instanceId)}
     {#if card}
       <div bind:this={cardElements[instanceId]} class={animatingInstanceIds.has(instanceId) ? "opacity-0" : ""}>

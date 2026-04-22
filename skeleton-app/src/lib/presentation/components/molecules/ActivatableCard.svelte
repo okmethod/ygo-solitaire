@@ -102,7 +102,7 @@
     positioning={{ placement: "bottom", flip: false }}
     onOpenChange={({ open }) => (isMenuOpen = open)}
   >
-    <Menu.Trigger class="block p-0 m-0 bg-transparent border-none">
+    <Menu.Trigger class="m-0 block border-none bg-transparent p-0">
       <div class="transition-transform duration-300 hover:scale-105">
         <CardComponent
           {card}
@@ -122,7 +122,7 @@
       </div>
     </Menu.Trigger>
     <Menu.Positioner>
-      <Menu.Content class="card bg-surface-100-900 shadow-xl p-1 flex flex-col gap-1 z-50 min-w-[5rem]">
+      <Menu.Content class="card bg-surface-100-900 z-50 flex min-w-[5rem] flex-col gap-1 p-1 shadow-xl">
         {#each actionButtons as btn (btn.label)}
           <Menu.Item
             value={btn.label}

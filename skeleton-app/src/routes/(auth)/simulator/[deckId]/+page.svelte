@@ -132,16 +132,16 @@
 </script>
 
 <div class="container mx-auto p-4">
-  <main class="max-w-4xl mx-auto space-y-2">
+  <main class="mx-auto max-w-4xl space-y-2">
     <!-- Header -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
       <!-- Left Column: Deck Title -->
       <div class="card px-4">
-        <h1 class="text-xl md:text-2xl font-bold">Deck: {deckName}</h1>
+        <h1 class="text-xl font-bold md:text-2xl">Deck: {deckName}</h1>
       </div>
 
       <!-- Right Column: Game Info -->
-      <div class="card px-4 space-y-4">
+      <div class="card space-y-4 px-4">
         <div class="space-y-2">
           <div class="flex justify-start space-x-4">
             <span>Now:</span>
@@ -150,9 +150,9 @@
 
           <div class="flex justify-between">
             <span>自分 LP:</span>
-            <span class="font-bold text-success-500">{$playerLP.toLocaleString()}</span>
+            <span class="text-success-500 font-bold">{$playerLP.toLocaleString()}</span>
             <span>相手 LP:</span>
-            <span class="font-bold text-error-500">{$opponentLP.toLocaleString()}</span>
+            <span class="text-error-500 font-bold">{$opponentLP.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -170,17 +170,17 @@
     />
 
     <!-- 手札UI -->
-    <div class="card px-4 space-y-4">
-      <h2 class="text-lg md:text-xl font-bold">手札 ({$handCardCount} 枚)</h2>
+    <div class="card space-y-4 px-4">
+      <h2 class="text-lg font-bold md:text-xl">手札 ({$handCardCount} 枚)</h2>
       <Hands cards={handCardsWithInstanceId} />
     </div>
 
     <!-- Debug Info -->
     <details class="card p-4">
-      <summary class="cursor-pointer text-sm text-gray-400 font-bold">Debug Info</summary>
+      <summary class="cursor-pointer text-sm font-bold text-gray-400">Debug Info</summary>
 
       <div class="mt-4 space-y-4">
-        <pre class="text-xs overflow-auto">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>
+        <pre class="overflow-auto text-xs">{JSON.stringify(gameFacade.getGameState(), null, 2)}</pre>
       </div>
     </details>
   </main>

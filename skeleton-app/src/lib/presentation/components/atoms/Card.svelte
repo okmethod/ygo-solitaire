@@ -139,33 +139,33 @@
 {#snippet cardContent()}
   <!-- 裏側表示の場合はカード裏面のみ表示 -->
   {#if !faceUp}
-    <div class="w-full h-full flex items-center justify-center p-1">
-      <img src={placeholderImageUrl} alt="裏向きカード" class="w-full h-full object-cover rounded-sm" />
+    <div class="flex h-full w-full items-center justify-center p-1">
+      <img src={placeholderImageUrl} alt="裏向きカード" class="h-full w-full rounded-sm object-cover" />
     </div>
   {:else}
     <!-- カード画像エリア -->
-    <div class="flex-1 flex items-center justify-center p-1">
+    <div class="flex flex-1 items-center justify-center p-1">
       {#if card?.images?.imageCropped}
         <img
           src={card.images.imageCropped}
           alt={card.jaName || "カード"}
-          class="w-full h-full object-cover rounded-sm"
+          class="h-full w-full rounded-sm object-cover"
         />
       {:else if isPlaceholder}
         <div
-          class="w-full h-full bg-surface-200-700-token rounded-sm flex flex-col items-center justify-center text-center overflow-hidden"
+          class="bg-surface-200-700-token flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-sm text-center"
         >
-          <img src={placeholderImageUrl} alt={placeholderText} class="w-full h-full object-cover opacity-30" />
+          <img src={placeholderImageUrl} alt={placeholderText} class="h-full w-full object-cover opacity-30" />
           <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-xs select-none text-surface-600-300-token font-medium">{placeholderText}</span>
+            <span class="text-surface-600-300-token text-xs font-medium select-none">{placeholderText}</span>
             {#if card?.type}
-              <span class="text-xs opacity-75 select-none mt-1">{card.type}</span>
+              <span class="mt-1 text-xs opacity-75 select-none">{card.type}</span>
             {/if}
           </div>
         </div>
       {:else}
-        <div class="w-full h-full bg-surface-200-700-token rounded-sm flex items-center justify-center">
-          <img src={placeholderImageUrl} alt="" class="w-full h-full object-cover opacity-20" />
+        <div class="bg-surface-200-700-token flex h-full w-full items-center justify-center rounded-sm">
+          <img src={placeholderImageUrl} alt="" class="h-full w-full object-cover opacity-20" />
           <div class="absolute inset-0 flex items-center justify-center">
             <span class="text-xs opacity-50 select-none">No Image</span>
           </div>
@@ -175,37 +175,37 @@
 
     <!-- カード情報エリア -->
     {#if card && !isPlaceholder}
-      <div class="px-1 py-1 bg-surface-50-900-token border-t border-surface-300">
-        <div class="text-xs font-medium truncate">{card.jaName}</div>
+      <div class="bg-surface-50-900-token border-surface-300 border-t px-1 py-1">
+        <div class="truncate text-xs font-medium">{card.jaName}</div>
       </div>
     {/if}
   {/if}
 
   <!-- 選択状態インジケーター -->
   {#if selectedState}
-    <div class="absolute top-1 right-1 w-3 h-3 bg-primary-500 rounded-full animate-pulse"></div>
+    <div class="bg-primary-500 absolute top-1 right-1 h-3 w-3 animate-pulse rounded-full"></div>
   {/if}
 
   <!-- 装備カードインジケーター（このカードに装備カードが付いている） -->
   {#if isEquipped}
     <div
-      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-md z-10 transition-opacity duration-200 {isEquipmentHovered
+      class="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform rounded-full shadow-md transition-opacity duration-200 {isEquipmentHovered
         ? 'opacity-100'
         : 'opacity-75'}"
       title="装備カード付き"
     >
-      <Icon icon="mdi:plus-circle-outline" class="size-8 md:size-12 text-white" />
+      <Icon icon="mdi:plus-circle-outline" class="size-8 text-white md:size-12" />
     </div>
   {/if}
 
   <!-- フェードアニメーション用オーバーレイ -->
   {#if animate && (isHovered || selectedState)}
-    <div class="absolute inset-0 bg-primary-500 opacity-10 pointer-events-none"></div>
+    <div class="bg-primary-500 pointer-events-none absolute inset-0 opacity-10"></div>
   {/if}
 {/snippet}
 
 {#if clickable || selectable || showDetailOnClick}
-  <button class="{commonClasses()} bg-transparent p-0 border border-2 border-gray-100" {...interactiveProps}>
+  <button class="{commonClasses()} border border-2 border-gray-100 bg-transparent p-0" {...interactiveProps}>
     {@render cardContent()}
   </button>
 {:else}

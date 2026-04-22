@@ -29,17 +29,17 @@
   class="
     {CARD_SIZE_CLASSES[size]}
     relative
-    border-2 border-dashed border-gray-400
-    rounded-lg
+    rounded-lg border-2 border-dashed
+    border-gray-400
     bg-gray-100 dark:bg-gray-800
   "
   role="img"
 >
   <!-- メインデッキは常に裏向き表示 -->
-  <div class="h-full flex items-center justify-center p-1 relative">
-    <img src={cardBackImage} alt="メインデッキ" class="w-full h-full object-cover rounded-sm" />
+  <div class="relative flex h-full items-center justify-center p-1">
+    <img src={cardBackImage} alt="メインデッキ" class="h-full w-full rounded-sm object-cover" />
     <div class="absolute inset-0 flex items-center justify-center">
-      <span class="text-xs text-white font-bold text-center select-none drop-shadow-lg"> Deck </span>
+      <span class="text-center text-xs font-bold text-white drop-shadow-lg select-none"> Deck </span>
     </div>
   </div>
   <CountBadge count={cardCount} />

@@ -31,10 +31,10 @@
 
 <Dialog open={isOpen} {onOpenChange} modal={true} trapFocus={true} closeOnEscape={true} preventScroll={true}>
   <Portal>
-    <Dialog.Backdrop class="fixed inset-0 bg-black/80 backdrop-blur-md z-40" />
-    <Dialog.Positioner class="fixed inset-0 flex items-center justify-center z-50">
+    <Dialog.Backdrop class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md" />
+    <Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center">
       <Dialog.Content
-        class="card bg-surface-50 dark:bg-surface-900 p-8 space-y-6 max-w-lg shadow-2xl border-4 {getBorderColor()}"
+        class="card bg-surface-50 dark:bg-surface-900 max-w-lg space-y-6 border-4 p-8 shadow-2xl {getBorderColor()}"
       >
         <header class="text-center">
           <h2

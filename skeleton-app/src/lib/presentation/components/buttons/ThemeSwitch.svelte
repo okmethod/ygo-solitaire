@@ -15,7 +15,7 @@
   const _isMobile = isMobile();
 </script>
 
-<div class="space-y-3 w-full">
+<div class="w-full space-y-3">
   <div class="flex items-center justify-between gap-2">
     <div class="flex items-center gap-1 md:gap-2">
       <Icon icon="mdi:shimmer" class="size-5" />
@@ -53,13 +53,13 @@
     </SegmentedControl>
   </div>
   <details class="card p-4" open={!_isMobile}>
-    <summary class="cursor-pointer font-bold p-1">テーマ選択</summary>
+    <summary class="cursor-pointer p-1 font-bold">テーマ選択</summary>
     <ul class="grid grid-cols-4 gap-4">
       {#each themeLabels as theme, key (key)}
         <li>
           <button
             onclick={() => handleThemeChange(theme.name)}
-            class={`btn w-full flex items-center space-x-1 ${
+            class={`btn flex w-full items-center space-x-1 ${
               currentTheme.name === theme.name
                 ? "preset-outlined-primary-500"
                 : "preset-filled-primary-500 dark:preset-tonal-primary"
@@ -67,7 +67,7 @@
             aria-pressed={currentTheme.name === theme.name}
           >
             <span class="w-3 text-center">{theme.emoji}</span>
-            <span class="flex-1 text-left hidden sm:inline">{theme.name}</span>
+            <span class="hidden flex-1 text-left sm:inline">{theme.name}</span>
           </button>
         </li>
       {/each}

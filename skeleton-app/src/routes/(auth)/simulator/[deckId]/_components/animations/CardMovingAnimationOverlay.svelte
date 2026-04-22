@@ -323,7 +323,7 @@
 </script>
 
 {#if animationState.isAnimating}
-  <div class="fixed inset-0 pointer-events-none z-50">
+  <div class="pointer-events-none fixed inset-0 z-50">
     {#each animationState.activeAnimations as animation (animation.instanceId)}
       {@const sourceRect = animation.sourceRect}
       <div
