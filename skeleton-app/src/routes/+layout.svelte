@@ -8,7 +8,7 @@
   import CardDetailDisplay from "$lib/presentation/components/atoms/CardDetailDisplay.svelte";
   import { applyTheme } from "$lib/presentation/stores/themeStore";
   import { toaster } from "$lib/presentation/utils/toaster";
-  import { base } from "$app/paths";
+  import { resolve } from "$app/paths";
 
   let { children } = $props();
 
@@ -42,7 +42,7 @@
 {#if isLoaded}
   <header class="bg-surface-100-900 p-2 shadow-md sm:p-4">
     <div class="flex items-center justify-between">
-      <a class="h5 flex items-center" href={base}>
+      <a class="h5 flex items-center" href={resolve("/")}>
         <span class="hidden sm:inline">Yu-Gi-Oh! ソリティア</span>
         <Icon icon="mdi:home" class="size-6 sm:hidden" />
       </a>
