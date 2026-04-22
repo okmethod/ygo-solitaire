@@ -36,8 +36,10 @@ export interface ConfirmationConfig extends InteractionConfig {
  * - availableCards: 実行時に解決済みのカード配列
  * - _sourceZone, _filter: 不要（解決済みのため除外）
  */
-export interface ResolvedCardSelectionConfig
-  extends Omit<CardSelectionConfig, "availableCards" | "_sourceZone" | "_filter"> {
+export interface ResolvedCardSelectionConfig extends Omit<
+  CardSelectionConfig,
+  "availableCards" | "_sourceZone" | "_filter"
+> {
   availableCards: readonly CardInstance[];
   sourceCardName?: string; // 発動元カード名（AtomicStep.sourceCardId から解決済み）
   onConfirm: (selectedInstanceIds: string[]) => void;
