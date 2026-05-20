@@ -233,6 +233,7 @@ export function buildDeckData(deckRecipe: DeckRecipe, uniqueCardIds: number[]): 
     name: deckRecipe.name,
     description: deckRecipe.description,
     category: deckRecipe.category,
+    guide: deckRecipe.guide,
     mainDeck: mainDeckData,
     extraDeck: extraDeckData,
     stats,

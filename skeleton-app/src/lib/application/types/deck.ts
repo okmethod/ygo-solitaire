@@ -44,6 +44,8 @@ interface DeckBase {
   name: string;
   description: string;
   category?: string;
+  /** デッキの回し方ガイド（コパイロット向けヒント） */
+  guide?: string;
 }
 
 /** 保存用デッキレシピ (軽量な ID + 枚数形式) */
