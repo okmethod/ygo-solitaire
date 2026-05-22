@@ -18,6 +18,7 @@
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
   import { isMobile } from "$lib/presentation/utils/mobile";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
+  import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
   const ANIMATION_DURATION_MS = 300 as const;
 
@@ -40,7 +41,7 @@
 
   // フィールド上の全カードIDを取得するヘルパー
   function getAllFieldCardIds(): Set<string> {
-    const ids = new Set<string>();
+    const ids = new SvelteSet<string>();
     for (const ref of $monsterZoneInstanceOnFieldRefs) {
       ids.add(ref.instanceId);
     }
@@ -128,12 +129,12 @@
 
     // 移動前の位置を即座にキャプチャ（$effect発火時の位置を保存）
     // これにより、リトライ中も移動前の正しい位置が使える
-    const capturedHandPositions = new Map<string, DOMRect>();
+    const capturedHandPositions = new SvelteMap<string, DOMRect>();
     for (const id of previousHandIds) {
       const rect = cardAnimationStore.getCardPosition(id);
       if (rect) capturedHandPositions.set(id, rect);
     }
-    const capturedFieldPositions = new Map<string, DOMRect>();
+    const capturedFieldPositions = new SvelteMap<string, DOMRect>();
     for (const id of previousFieldIds) {
       const rect = cardAnimationStore.getCardPosition(id);
       if (rect) capturedFieldPositions.set(id, rect);

@@ -15,6 +15,7 @@
   import ActivatableCard, {
     type CardActionButton,
   } from "$lib/presentation/components/molecules/ActivatableCard.svelte";
+  import { SvelteMap } from "svelte/reactivity";
 
   /** カードアクション定義 */
   export interface CardActionDefinition {
@@ -49,7 +50,7 @@
 
   // 集約表示用データを生成
   const aggregatedCards = $derived.by(() => {
-    const cardMap = new Map<number, DisplayCardInstanceAggregated>();
+    const cardMap = new SvelteMap<number, DisplayCardInstanceAggregated>();
 
     reverseCards.forEach(({ card, instanceId }) => {
       const existing = cardMap.get(card.id);

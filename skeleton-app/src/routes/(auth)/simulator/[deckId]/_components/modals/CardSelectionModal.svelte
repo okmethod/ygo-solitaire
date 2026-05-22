@@ -12,6 +12,7 @@
   import type { DisplayCardData, CardSelectionModalConfig } from "$lib/presentation/types";
   import { getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import CardComponent from "$lib/presentation/components/atoms/Card.svelte";
+  import { SvelteSet } from "svelte/reactivity";
 
   interface CardSelectionModalProps {
     isOpen: boolean;
@@ -85,7 +86,7 @@
     const alreadySelected = isSelected(instanceId);
 
     if (canToggle || alreadySelected) {
-      const newSelectedIds = new Set(selectedIds);
+      const newSelectedIds = new SvelteSet(selectedIds);
       if (alreadySelected) {
         newSelectedIds.delete(instanceId);
       } else {

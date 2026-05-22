@@ -12,6 +12,7 @@
    * @module presentation/components/organisms/board/DuelField
    */
   import { tick, onMount } from "svelte";
+  import { SvelteMap } from "svelte/reactivity";
   import type { DisplayCardInstance, DisplayCardInstanceOnField } from "$lib/presentation/types";
   import type { ComponentSize } from "$lib/presentation/constants/sizes";
   import { gameFacade } from "$lib/application/GameFacade";
@@ -77,7 +78,7 @@
 
   // フィールドカード要素の参照を保持
   // use: ディレクティブで要素を登録（Svelte 5 での bind:this の問題を回避）
-  const fieldCardElements = new Map<string, HTMLElement>();
+  const fieldCardElements = new SvelteMap<string, HTMLElement>();
 
   // use: ディレクティブ用の登録関数
   function registerFieldCardElement(node: HTMLElement, instanceId: string) {
