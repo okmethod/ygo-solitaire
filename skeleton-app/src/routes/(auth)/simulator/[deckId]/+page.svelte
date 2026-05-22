@@ -21,10 +21,14 @@
     fieldZoneInstanceOnFieldRefs,
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
+  import { appSecretStore } from "$lib/application/stores/appSecretStore";
+  import { getDuelCopilotClient } from "$lib/infrastructure/adapters/DuelCopilotAdapter";
+  import { getDefaultLLMProvider } from "$lib/infrastructure/adapters/LLMProxyRepository";
   import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
   import { showSuccessToast } from "$lib/presentation/utils/toaster";
   import { playSE } from "$lib/presentation/sounds/soundEffects";
+  import AppSecretModal from "$lib/presentation/components/modals/AppSecretModal.svelte";
   import DuelField from "./_components/DuelField.svelte";
   import Hands from "./_components/Hands.svelte";
   import ConfirmationModal from "./_components/modals/ConfirmationModal.svelte";
@@ -33,6 +37,7 @@
   import ChainConfirmationModal from "./_components/modals/ChainConfirmationModal.svelte";
   import GameOverModal from "./_components/modals/GameOverModal.svelte";
   import CardMovingAnimationOverlay from "./_components/animations/CardMovingAnimationOverlay.svelte";
+  import DuelCopilotPanel from "./_components/DuelCopilotPanel.svelte";
 
   const { data } = $props<{ data: PageData }>();
   const deckName = $derived(data.deckData.name);
@@ -175,6 +180,9 @@
       <Hands cards={handCardsWithInstanceId} />
     </div>
 
+    <!-- デュエルコパイロット -->
+    <DuelCopilotPanel client={getDuelCopilotClient()} deckData={data.deckData} snapshot={$gameStateStore} />
+
     <!-- Debug Info -->
     <details class="card p-4">
       <summary class="cursor-pointer text-sm font-bold text-gray-400">Debug Info</summary>
@@ -223,3 +231,8 @@
 
 <!-- カード移動アニメーション -->
 <CardMovingAnimationOverlay />
+
+<!-- あいことばモーダル: stub 以外で未認証の場合に表示 -->
+{#if getDefaultLLMProvider() !== "stub" && $appSecretStore === ""}
+  <AppSecretModal />
+{/if}

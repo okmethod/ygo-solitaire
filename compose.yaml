@@ -4,6 +4,9 @@ services:
     ports:
       - 5173:5173
     working_dir: /app
+    environment:
+      LOCAL_API_BASE_URL: "https://multi-ai-gateway.okmethod2020.workers.dev"
+      VITE_DEFAULT_LLM_PROVIDER: "gemini"
     volumes:
       - ./skeleton-app:/app
       - skeleton-app-node-modules:/app/node_modules
