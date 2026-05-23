@@ -20,28 +20,34 @@
 
 **内容**:
 
-- 主要データモデル（CardData/ExternalCardData/DisplayCardData）
-- レイヤー別のデータ構造と責務
-- YGOPRODeck API 統合とキャッシング戦略
-- データ変換フロー
+- CardData（1種類のカード）と CardInstance（1枚のカード）の分離モデル
+- カードレジストリによる一元管理と YGOPRODeck API 統合
+- レイヤー間のデータ変換フロー（内部データ・外部データ・表示用データ）
 
 ### Effect モデル設計: [effect-model-design.md](./effect-model-design.md)
 
 **内容**:
 
-- 3 層構造（Domain/Application/Presentation）
-- Atomic Step による効果処理ステップの定義と再利用
 - 発動する効果・適用する効果のモデルと実装
-- 効果処理キュー（effectQueueStore）による非同期処理制御
+- Atomic Step による効果処理ステップの定義と再利用
+- 効果処理キューストアによるキュー処理・チェーン管理・イベント割り込み制御
 
 ### カード定義 DSL 設計: [card-definition-dsl-design.md](./card-definition-dsl-design.md)
 
 **内容**:
 
 - DSL（YAML）によるカードデータ・効果の一元定義
-- ConditionChecker / AtomicStep / 効果ファクトリの組み合わせモデル
-- エラッタ前バージョンの量産方針
-- 既存の AtomicStep・BaseSpellActivation の再利用戦略
+- 条件チェック・処理ステップ・効果クラスファクトリの組み合わせモデル
+- 新たなカードを DSL で追加実装する際の流れ
+
+### Duel Copilot 設計: [duel-copilot-design.md](./duel-copilot-design.md)
+
+**内容**:
+
+- ゲーム状態・デッキ情報・カード情報を LLM プロンプトに変換する仕組み
+- Clean Architecture における依存関係（Port/Adapter パターン）
+- サービス層の責務とメソッド
+- 今後の拡張アイデア
 
 ### TypeScript コメント規約: [typescript-comment-guide.md](./typescript-comment-guide.md)
 
