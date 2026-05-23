@@ -42,7 +42,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 4,
         fieldCount: 0,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
       gameStateStore.set(state);
 
       const result = facade.summonMonster(handMonsterId);
@@ -51,9 +51,9 @@ describe("通常召喚 - 基本フローテスト", () => {
       const updatedState = getState();
       expect(updatedState.space.hand.length).toBe(0);
       expect(updatedState.space.mainMonsterZone.length).toBe(1);
-      expect(updatedState.space.mainMonsterZone[0].instanceId).toBe(handMonsterId);
-      expect(updatedState.space.mainMonsterZone[0].stateOnField?.position).toBe("faceUp");
-      expect(updatedState.space.mainMonsterZone[0].stateOnField?.battlePosition).toBe("attack");
+      expect(updatedState.space.mainMonsterZone[0]!.instanceId).toBe(handMonsterId);
+      expect(updatedState.space.mainMonsterZone[0]!.stateOnField?.position).toBe("faceUp");
+      expect(updatedState.space.mainMonsterZone[0]!.stateOnField?.battlePosition).toBe("attack");
     });
 
     it("召喚後に normalSummonUsed が 1 になる", () => {
@@ -62,7 +62,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 4,
         fieldCount: 0,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
       gameStateStore.set(state);
 
       expect(state.normalSummonUsed).toBe(0);
@@ -85,8 +85,8 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 5,
         fieldCount: 1,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
-      const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
+      const fieldMonsterId = state.space.mainMonsterZone[0]!.instanceId;
       gameStateStore.set(state);
 
       expect(facade.canSummonMonster(handMonsterId)).toBe(true);
@@ -113,7 +113,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 5,
         fieldCount: 0,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
       gameStateStore.set(state);
 
       expect(facade.canSummonMonster(handMonsterId)).toBe(false);
@@ -133,8 +133,8 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 6,
         fieldCount: 1,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
-      const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
+      const fieldMonsterId = state.space.mainMonsterZone[0]!.instanceId;
       gameStateStore.set(state);
 
       facade.summonMonster(handMonsterId);
@@ -159,9 +159,9 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 7,
         fieldCount: 2,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
-      const fieldMonsterId1 = state.space.mainMonsterZone[0].instanceId;
-      const fieldMonsterId2 = state.space.mainMonsterZone[1].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
+      const fieldMonsterId1 = state.space.mainMonsterZone[0]!.instanceId;
+      const fieldMonsterId2 = state.space.mainMonsterZone[1]!.instanceId;
       gameStateStore.set(state);
 
       expect(facade.canSummonMonster(handMonsterId)).toBe(true);
@@ -184,7 +184,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 7,
         fieldCount: 1,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
 
       gameStateStore.set(state);
 
@@ -202,7 +202,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 4,
         fieldCount: 0,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
       gameStateStore.set(state);
 
       const result = facade.setMonster(handMonsterId);
@@ -210,8 +210,8 @@ describe("通常召喚 - 基本フローテスト", () => {
       expect(result.success).toBe(true);
       const updatedState = getState();
       expect(updatedState.space.mainMonsterZone.length).toBe(1);
-      expect(updatedState.space.mainMonsterZone[0].stateOnField?.position).toBe("faceDown");
-      expect(updatedState.space.mainMonsterZone[0].stateOnField?.battlePosition).toBe("defense");
+      expect(updatedState.space.mainMonsterZone[0]!.stateOnField?.position).toBe("faceDown");
+      expect(updatedState.space.mainMonsterZone[0]!.stateOnField?.battlePosition).toBe("defense");
     });
 
     it("セット後も normalSummonUsed が 1 になる", () => {
@@ -220,7 +220,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 4,
         fieldCount: 0,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
       gameStateStore.set(state);
 
       facade.setMonster(handMonsterId);
@@ -238,8 +238,8 @@ describe("通常召喚 - 基本フローテスト", () => {
         levelOfHandMonster: 5,
         fieldCount: 1,
       });
-      const handMonsterId = state.space.hand[0].instanceId;
-      const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+      const handMonsterId = state.space.hand[0]!.instanceId;
+      const fieldMonsterId = state.space.mainMonsterZone[0]!.instanceId;
       gameStateStore.set(state);
 
       facade.setMonster(handMonsterId);
@@ -300,7 +300,7 @@ describe("通常召喚 - 基本フローテスト", () => {
         fieldCount: 0,
         phase: "draw",
       });
-      const monsterId = state.space.hand[0].instanceId;
+      const monsterId = state.space.hand[0]!.instanceId;
 
       expect(facade.canSummonMonster(monsterId)).toBe(false);
       const result = facade.summonMonster(monsterId);

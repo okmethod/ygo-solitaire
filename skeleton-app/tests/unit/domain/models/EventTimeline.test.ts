@@ -97,7 +97,7 @@ describe("EventTimeline", () => {
       expect(result.current.timestamp).toBe(1);
       expect(result.current.events).toEqual([]);
       expect(result.history).toHaveLength(1);
-      expect(result.history[0].events[0]).toEqual(event);
+      expect(result.history[0]!.events[0]).toEqual(event);
       expect(result.nextTimestamp).toBe(2);
     });
 
@@ -128,8 +128,8 @@ describe("EventTimeline", () => {
 
       // Assert
       expect(timeline.history).toHaveLength(2);
-      expect(timeline.history[0].events[0].type).toBe("spellActivated");
-      expect(timeline.history[1].events[0].type).toBe("normalSummoned");
+      expect(timeline.history[0]!.events[0]!.type).toBe("spellActivated");
+      expect(timeline.history[1]!.events[0]!.type).toBe("normalSummoned");
       expect(timeline.nextTimestamp).toBe(3);
     });
   });
@@ -223,7 +223,7 @@ describe("EventTimeline", () => {
       // Assert
       expect(result.history).toEqual([]);
       expect(result.current.events).toHaveLength(1);
-      expect(result.current.events[0].type).toBe("normalSummoned");
+      expect(result.current.events[0]!.type).toBe("normalSummoned");
     });
 
     it("元のタイムラインを変更しない", () => {

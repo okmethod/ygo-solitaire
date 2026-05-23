@@ -82,7 +82,7 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
       // モンスター1体が選択されている場合のみ確定可能
       canConfirm: (selectedCards: readonly CardInstance[]): boolean => {
         if (selectedCards.length !== 1) return false;
-        return selectedCards[0].type === "monster";
+        return selectedCards[0]!.type === "monster";
       },
     }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
@@ -96,7 +96,7 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
 
       // めくったカード（インデックス0からmonsterIndexまで）
       const excavatedCards = deck.slice(0, monsterIndex + 1);
-      const monsterCard = excavatedCards[excavatedCards.length - 1];
+      const monsterCard = excavatedCards[excavatedCards.length - 1]!;
       const cardsToGraveyard = excavatedCards.slice(0, -1); // モンスター以外
 
       // UIが選択モーダルを表示するまで待機
@@ -105,7 +105,7 @@ export const excavateUntilMonsterStep = (cardId: number, battlePosition: BattleP
       }
 
       // 選択されたモンスターを確認
-      const selectedInstanceId = selectedInstanceIds[0];
+      const selectedInstanceId = selectedInstanceIds[0]!;
       if (selectedInstanceId !== monsterCard.instanceId) {
         return GameProcessing.Result.failure(currentState, "Invalid selection");
       }
@@ -199,7 +199,7 @@ export const excavateUntilMonsterWithLevelCheckStep = (
       },
       canConfirm: (selectedCards: readonly CardInstance[]): boolean => {
         if (selectedCards.length !== 1) return false;
-        return selectedCards[0].type === "monster";
+        return selectedCards[0]!.type === "monster";
       },
     }),
     action: (currentState: GameSnapshot, selectedInstanceIds?: string[]): GameStateUpdateResult => {
@@ -211,14 +211,14 @@ export const excavateUntilMonsterWithLevelCheckStep = (
       }
 
       const excavatedCards = deck.slice(0, monsterIndex + 1);
-      const monsterCard = excavatedCards[excavatedCards.length - 1];
+      const monsterCard = excavatedCards[excavatedCards.length - 1]!;
       const cardsToGraveyard = excavatedCards.slice(0, -1);
 
       if (!selectedInstanceIds || selectedInstanceIds.length === 0) {
         return GameProcessing.Result.failure(currentState, "No cards selected");
       }
 
-      const selectedInstanceId = selectedInstanceIds[0];
+      const selectedInstanceId = selectedInstanceIds[0]!;
       if (selectedInstanceId !== monsterCard.instanceId) {
         return GameProcessing.Result.failure(currentState, "Invalid selection");
       }

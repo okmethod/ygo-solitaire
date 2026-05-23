@@ -94,7 +94,7 @@ describe("BaseSpellActivation", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(true);
+      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]!).isValid).toBe(true);
     });
 
     it("個別条件が満たされない場合に false を返すこと", () => {
@@ -109,7 +109,7 @@ describe("BaseSpellActivation", () => {
       };
 
       // Act & Assert
-      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]).isValid).toBe(false);
+      expect(action.canActivate(stateInMain1, stateInMain1.space.hand[0]!).isValid).toBe(false);
     });
   });
 
@@ -146,13 +146,13 @@ describe("BaseSpellActivation", () => {
 
       // Assert
       expect(steps).toHaveLength(2); // notifyActivationStep + emitSpellActivatedEventStep
-      expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_MONSTER}-activation-notification`);
-      expect(steps[0].summary).toBe("カード発動");
-      expect(steps[0].description).toBe("《Dummy Normal Monster》を発動します"); // レジストリの getCardNameWithBrackets を使用
-      expect(steps[0].notificationLevel).toBe("static");
+      expect(steps[0]!.id).toBe(`${DUMMY_CARD_IDS.NORMAL_MONSTER}-activation-notification`);
+      expect(steps[0]!.summary).toBe("カード発動");
+      expect(steps[0]!.description).toBe("《Dummy Normal Monster》を発動します"); // レジストリの getCardNameWithBrackets を使用
+      expect(steps[0]!.notificationLevel).toBe("static");
       // イベント発行ステップの検証
-      expect(steps[1].id).toBe("emit-spell-activated-test-instance-1");
-      expect(steps[1].notificationLevel).toBe("silent");
+      expect(steps[1]!.id).toBe("emit-spell-activated-test-instance-1");
+      expect(steps[1]!.notificationLevel).toBe("silent");
     });
 
     it("状態を変更しないアクションを持つステップを返すこと", () => {
@@ -173,7 +173,7 @@ describe("BaseSpellActivation", () => {
       const steps = action.createActivationSteps(state, sourceInstance);
 
       // Act
-      const result = steps[0].action(state);
+      const result = steps[0]!.action(state);
 
       // Assert
       expect(result.success).toBe(true);
@@ -199,7 +199,7 @@ describe("BaseSpellActivation", () => {
       );
 
       // Act
-      const steps = action.createResolutionSteps(state, state.space.hand[0]);
+      const steps = action.createResolutionSteps(state, state.space.hand[0]!);
 
       // Assert
       expect(steps).toBeDefined();

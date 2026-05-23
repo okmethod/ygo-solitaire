@@ -116,7 +116,7 @@ describe("StepRegistry - ESTABLISH_EQUIP", () => {
       expect(result.success).toBe(true);
       expect(result.message).toContain("Equipped");
 
-      const updatedEquip = result.updatedState.space.spellTrapZone[0];
+      const updatedEquip = result.updatedState.space.spellTrapZone[0]!;
       expect(updatedEquip.stateOnField?.equippedTo).toBe("target-monster");
 
       // コンテキストがクリアされている
@@ -386,7 +386,7 @@ describe("StepRegistry - UNEQUIP", () => {
       const result = step.action(state);
 
       expect(result.success).toBe(true);
-      expect(result.updatedState.space.spellTrapZone[0].stateOnField?.equippedTo).toBeUndefined();
+      expect(result.updatedState.space.spellTrapZone[0]!.stateOnField?.equippedTo).toBeUndefined();
     });
 
     it("装備カードが見つからない場合エラー", () => {

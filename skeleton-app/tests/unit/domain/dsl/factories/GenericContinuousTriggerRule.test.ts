@@ -68,10 +68,10 @@ describe("GenericContinuousTriggerRule", () => {
     const rule = new GenericContinuousTriggerRule(EFFECT_MONSTER_ID, baseDsl());
     const state = stateHasMonsterOnField(true);
 
-    const steps = rule.createTriggerSteps(state, state.space.mainMonsterZone[0]);
+    const steps = rule.createTriggerSteps(state, state.space.mainMonsterZone[0]!);
 
     expect(steps.length).toBeGreaterThan(0);
-    expect(steps[0].id).toContain("counter");
+    expect(steps[0]!.id).toContain("counter");
   });
 
   it("triggerTiming が正しく設定される", () => {

@@ -162,7 +162,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
     const steps = effect.createActivationSteps(stateByPhase(), monsterOnField());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
-    expect(steps[0].id).toContain("activation-notification");
+    expect(steps[0]!.id).toContain("activation-notification");
   });
 
   it("activations が定義されている場合は発動ステップに含まれる", () => {
@@ -182,7 +182,7 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
     const steps = effect.createActivationSteps(stateByPhase(), monsterOnField());
 
     expect(steps.filter((s) => s.id.includes("select")).length).toBe(0);
-    expect(steps[0].id).toContain("activation-notification");
+    expect(steps[0]!.id).toContain("activation-notification");
   });
 
   it("createResolutionSteps で効果解決ステップを生成できる", () => {
@@ -198,9 +198,9 @@ describe("GenericIgnitionEffect - ステップ生成", () => {
     const steps = effect.createResolutionSteps(stateByPhase(), monsterOnField());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
-    expect(steps[0].id).toBe("draw-2");
-    expect(steps[1].id).toBe("then-marker");
-    expect(steps[2].id).toBe("select-and-discard-1-any-cards");
+    expect(steps[0]!.id).toBe("draw-2");
+    expect(steps[1]!.id).toBe("then-marker");
+    expect(steps[2]!.id).toBe("select-and-discard-1-any-cards");
   });
 
   it("resolutions が定義されていない場合は空の解決ステップを返す", () => {

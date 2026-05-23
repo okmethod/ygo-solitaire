@@ -72,8 +72,8 @@ describe("getCardsByIds - モックを使用", () => {
     const cards = await getCardsByIds(mockFetch, [ACTUAL_CARD_IDS.EXODIA_BODY]);
 
     expect(cards).toHaveLength(1);
-    expect(cards[0].name).toBe("Exodia the Forbidden One");
-    expect(cards[0].id).toBe(ACTUAL_CARD_IDS.EXODIA_BODY);
+    expect(cards[0]!.name).toBe("Exodia the Forbidden One");
+    expect(cards[0]!.id).toBe(ACTUAL_CARD_IDS.EXODIA_BODY);
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
@@ -91,7 +91,7 @@ describe("getCardsByIds - モックを使用", () => {
     // 2回目のリクエスト（キャッシュヒット）
     const secondCall = await getCardsByIds(mockFetch, [ACTUAL_CARD_IDS.EXODIA_BODY]);
     expect(secondCall).toHaveLength(1);
-    expect(secondCall[0].name).toBe("Exodia the Forbidden One");
+    expect(secondCall[0]!.name).toBe("Exodia the Forbidden One");
 
     // APIリクエストは1回のみ（キャッシュヒット）
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -186,10 +186,10 @@ describe("カードID解決の統合テスト", () => {
 
     // 解決されたカードデータを検証
     expect(cards).toHaveLength(2);
-    expect(cards[0].id).toBe(ACTUAL_CARD_IDS.EXODIA_BODY);
-    expect(cards[0].name).toBe("Exodia the Forbidden One");
-    expect(cards[1].id).toBe(ACTUAL_CARD_IDS.POT_OF_GREED);
-    expect(cards[1].name).toBe("Pot of Greed");
+    expect(cards[0]!.id).toBe(ACTUAL_CARD_IDS.EXODIA_BODY);
+    expect(cards[0]!.name).toBe("Exodia the Forbidden One");
+    expect(cards[1]!.id).toBe(ACTUAL_CARD_IDS.POT_OF_GREED);
+    expect(cards[1]!.name).toBe("Pot of Greed");
 
     // APIリクエストが正しいIDで呼ばれたことを確認
     expect(mockFetch).toHaveBeenCalledWith(
@@ -214,7 +214,7 @@ describe("カードID解決の統合テスト", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
 
     // URLにカンマ区切りIDが含まれることを確認
-    const callUrl = mockFetch.mock.calls[0][0] as string;
+    const callUrl = mockFetch.mock.calls[0]![0] as string;
     expect(callUrl).toContain(`${ACTUAL_CARD_IDS.EXODIA_BODY}`);
     expect(callUrl).toContain(`${ACTUAL_CARD_IDS.POT_OF_GREED}`);
   });

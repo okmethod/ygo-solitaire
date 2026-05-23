@@ -29,14 +29,14 @@ describe("CardSpace", () => {
         graveyard: [],
         banished: [],
       };
-      const card = space.mainMonsterZone[0];
+      const card = space.mainMonsterZone[0]!;
 
       const result = GameState.Space.moveCard(space, card, "graveyard");
 
       expect(result.mainMonsterZone.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
-      expect(result.graveyard[0].instanceId).toBe(card.instanceId);
-      expect(result.graveyard[0].location).toBe("graveyard");
+      expect(result.graveyard[0]!.instanceId).toBe(card.instanceId);
+      expect(result.graveyard[0]!.location).toBe("graveyard");
     });
 
     // 代表例テスト: hand から graveyard への移動
@@ -51,14 +51,14 @@ describe("CardSpace", () => {
         graveyard: [],
         banished: [],
       };
-      const card = space.hand[0];
+      const card = space.hand[0]!;
 
       const result = GameState.Space.moveCard(space, card, "graveyard");
 
       expect(result.hand.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
-      expect(result.graveyard[0].instanceId).toBe(card.instanceId);
-      expect(result.graveyard[0].location).toBe("graveyard");
+      expect(result.graveyard[0]!.instanceId).toBe(card.instanceId);
+      expect(result.graveyard[0]!.location).toBe("graveyard");
     });
 
     // 他ゾーンの保持確認: 変更対象以外のゾーンが保持されることを確認
@@ -75,7 +75,7 @@ describe("CardSpace", () => {
         graveyard: [],
         banished: [],
       };
-      const card = space.spellTrapZone[0];
+      const card = space.spellTrapZone[0]!;
 
       const result = GameState.Space.moveCard(space, card, "graveyard");
 
@@ -86,7 +86,7 @@ describe("CardSpace", () => {
       // 変更対象のゾーンは更新される
       expect(result.spellTrapZone.length).toBe(0);
       expect(result.graveyard.length).toBe(1);
-      expect(result.graveyard[0].instanceId).toBe(card.instanceId);
+      expect(result.graveyard[0]!.instanceId).toBe(card.instanceId);
     });
   });
 });

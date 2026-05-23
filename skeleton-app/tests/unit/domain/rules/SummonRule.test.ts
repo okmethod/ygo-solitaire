@@ -39,7 +39,7 @@ describe("SummonRule", () => {
         levelOfHandMonster: 4,
       });
 
-      const result = canNormalSummon(state, state.space.hand[0].instanceId);
+      const result = canNormalSummon(state, state.space.hand[0]!.instanceId);
 
       expect(result.isValid).toBe(true);
       expect(result.errorCode).toBeUndefined();
@@ -51,7 +51,7 @@ describe("SummonRule", () => {
         phase: "draw",
       });
 
-      const result = canNormalSummon(state, state.space.hand[0].instanceId);
+      const result = canNormalSummon(state, state.space.hand[0]!.instanceId);
 
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.NOT_MAIN_PHASE);
@@ -63,7 +63,7 @@ describe("SummonRule", () => {
         normalSummonUsed: 1,
       });
 
-      const result = canNormalSummon(state, state.space.hand[0].instanceId);
+      const result = canNormalSummon(state, state.space.hand[0]!.instanceId);
 
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.SUMMON_LIMIT_REACHED);
@@ -75,7 +75,7 @@ describe("SummonRule", () => {
         fieldCount: 5,
       });
 
-      const result = canNormalSummon(state, state.space.hand[0].instanceId);
+      const result = canNormalSummon(state, state.space.hand[0]!.instanceId);
 
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.MONSTER_ZONE_FULL);
@@ -87,7 +87,7 @@ describe("SummonRule", () => {
         fieldCount: 1,
       });
 
-      const result = canNormalSummon(state, state.space.mainMonsterZone[0].instanceId);
+      const result = canNormalSummon(state, state.space.mainMonsterZone[0]!.instanceId);
 
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.CARD_NOT_IN_HAND);
@@ -100,7 +100,7 @@ describe("SummonRule", () => {
         fieldCount: 1,
       });
 
-      const result = canNormalSummon(state, state.space.hand[0].instanceId);
+      const result = canNormalSummon(state, state.space.hand[0]!.instanceId);
 
       expect(result.isValid).toBe(true);
     });
@@ -112,7 +112,7 @@ describe("SummonRule", () => {
         fieldCount: 1,
       });
 
-      const result = canNormalSummon(state, state.space.hand[0].instanceId);
+      const result = canNormalSummon(state, state.space.hand[0]!.instanceId);
 
       expect(result.isValid).toBe(false);
       expect(result.errorCode).toBe(GameProcessing.Validation.ERROR_CODES.NOT_ENOUGH_TRIBUTES);
@@ -128,7 +128,7 @@ describe("SummonRule", () => {
           fieldCount: 0,
         });
 
-        const result = performNormalSummon(state, state.space.hand[0].instanceId, "attack");
+        const result = performNormalSummon(state, state.space.hand[0]!.instanceId, "attack");
 
         expect(result.type).toBe("immediate");
         if (result.type === "immediate") {
@@ -147,7 +147,7 @@ describe("SummonRule", () => {
           fieldCount: 0,
         });
 
-        const result = performNormalSummon(state, state.space.hand[0].instanceId, "defense");
+        const result = performNormalSummon(state, state.space.hand[0]!.instanceId, "defense");
 
         expect(result.type).toBe("immediate");
         if (result.type === "immediate") {
@@ -164,10 +164,10 @@ describe("SummonRule", () => {
           fieldCount: 0,
         });
 
-        const result = performNormalSummon(state, state.space.hand[0].instanceId, "attack");
+        const result = performNormalSummon(state, state.space.hand[0]!.instanceId, "attack");
 
         if (result.type === "immediate") {
-          const summonedMonster = result.state.space.mainMonsterZone[0];
+          const summonedMonster = result.state.space.mainMonsterZone[0]!;
           expect(summonedMonster.stateOnField?.position).toBe("faceUp");
           expect(summonedMonster.stateOnField?.battlePosition).toBe("attack");
         }
@@ -180,10 +180,10 @@ describe("SummonRule", () => {
           fieldCount: 0,
         });
 
-        const result = performNormalSummon(state, state.space.hand[0].instanceId, "defense");
+        const result = performNormalSummon(state, state.space.hand[0]!.instanceId, "defense");
 
         if (result.type === "immediate") {
-          const summonedMonster = result.state.space.mainMonsterZone[0];
+          const summonedMonster = result.state.space.mainMonsterZone[0]!;
           expect(summonedMonster.stateOnField?.position).toBe("faceDown");
           expect(summonedMonster.stateOnField?.battlePosition).toBe("defense");
         }
@@ -198,7 +198,7 @@ describe("SummonRule", () => {
           fieldCount: 1,
         });
 
-        const result = performNormalSummon(state, state.space.hand[0].instanceId, "attack");
+        const result = performNormalSummon(state, state.space.hand[0]!.instanceId, "attack");
 
         expect(result.type).toBe("needsSelection");
         if (result.type === "needsSelection") {
@@ -214,7 +214,7 @@ describe("SummonRule", () => {
           fieldCount: 2,
         });
 
-        const result = performNormalSummon(state, state.space.hand[0].instanceId, "attack");
+        const result = performNormalSummon(state, state.space.hand[0]!.instanceId, "attack");
 
         expect(result.type).toBe("needsSelection");
         if (result.type === "needsSelection") {
@@ -259,15 +259,15 @@ describe("SummonRule", () => {
         fieldCount: 0,
       });
 
-      const { state: result, event } = executeSpecialSummon(state, state.space.hand[0].instanceId, "attack");
+      const { state: result, event } = executeSpecialSummon(state, state.space.hand[0]!.instanceId, "attack");
 
       expect(result.space.hand.length).toBe(0);
       expect(result.space.mainMonsterZone.length).toBe(1);
-      const summonedMonster = result.space.mainMonsterZone[0];
+      const summonedMonster = result.space.mainMonsterZone[0]!;
       expect(summonedMonster.stateOnField?.position).toBe("faceUp");
       expect(summonedMonster.stateOnField?.battlePosition).toBe("attack");
       expect(event.type).toBe("specialSummoned");
-      expect(event.sourceInstanceId).toBe(state.space.hand[0].instanceId);
+      expect(event.sourceInstanceId).toBe(state.space.hand[0]!.instanceId);
     });
 
     it("手札のモンスターを守備表示でモンスターゾーンに移動する", () => {
@@ -277,9 +277,9 @@ describe("SummonRule", () => {
         fieldCount: 0,
       });
 
-      const { state: result } = executeSpecialSummon(state, state.space.hand[0].instanceId, "defense");
+      const { state: result } = executeSpecialSummon(state, state.space.hand[0]!.instanceId, "defense");
 
-      const summonedMonster = result.space.mainMonsterZone[0];
+      const summonedMonster = result.space.mainMonsterZone[0]!;
       expect(summonedMonster.stateOnField?.position).toBe("faceUp"); // 特殊召喚は常に表側
       expect(summonedMonster.stateOnField?.battlePosition).toBe("defense");
     });
@@ -291,7 +291,7 @@ describe("SummonRule", () => {
         fieldCount: 0,
       });
 
-      const { state: result } = executeSpecialSummon(state, state.space.hand[0].instanceId, "attack");
+      const { state: result } = executeSpecialSummon(state, state.space.hand[0]!.instanceId, "attack");
 
       expect(result.normalSummonUsed).toBe(0); // 0のまま
     });

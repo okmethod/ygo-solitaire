@@ -200,7 +200,7 @@ describe("ActivateIgnitionEffectCommand", () => {
       const result = command.execute(initialState);
 
       expect(result.success).toBe(true);
-      const fieldCard = result.updatedState.space.fieldZone[0];
+      const fieldCard = result.updatedState.space.fieldZone[0]!;
       expect(fieldCard.stateOnField?.activatedEffects.includes(`ignition-${DUMMY_CARD_IDS.FIELD_SPELL}-1`)).toBe(true);
     });
   });

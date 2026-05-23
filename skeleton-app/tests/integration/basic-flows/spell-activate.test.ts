@@ -83,7 +83,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
       // advanceToMain1 しない（ドローフェイズのまま）
 
       const state = getState();
-      const spellId = state.space.hand[0].instanceId;
+      const spellId = state.space.hand[0]!.instanceId;
 
       expect(facade.canActivateSpell(spellId)).toBe(false);
     });
@@ -127,7 +127,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
 
       const state = getState();
       expect(state.space.spellTrapZone.length).toBe(1);
-      expect(state.space.spellTrapZone[0].stateOnField?.position).toBe("faceDown");
+      expect(state.space.spellTrapZone[0]!.stateOnField?.position).toBe("faceDown");
     });
 
     it("魔法・罠ゾーン5枚満杯では6枚目をセットできない", () => {
@@ -193,7 +193,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
 
       const after = getState();
       expect(after.space.fieldZone.length).toBe(1);
-      expect(after.space.fieldZone[0].stateOnField?.position).toBe("faceUp");
+      expect(after.space.fieldZone[0]!.stateOnField?.position).toBe("faceUp");
       expect(after.space.spellTrapZone.length).toBe(0); // 魔法・罠ゾーンには置かれない
     });
   });
@@ -215,7 +215,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
 
       const state = getState();
       expect(state.space.fieldZone.length).toBe(1);
-      expect(state.space.fieldZone[0].stateOnField?.position).toBe("faceDown");
+      expect(state.space.fieldZone[0]!.stateOnField?.position).toBe("faceDown");
       expect(state.space.spellTrapZone.length).toBe(0); // 魔法・罠ゾーンではなくフィールドゾーン
     });
 
@@ -236,7 +236,7 @@ describe("魔法カード発動 - 基本フローテスト", () => {
 
       const after = getState();
       expect(after.space.fieldZone.length).toBe(1);
-      expect(after.space.fieldZone[0].stateOnField?.position).toBe("faceUp"); // 発動後は表側
+      expect(after.space.fieldZone[0]!.stateOnField?.position).toBe("faceUp"); // 発動後は表側
     });
   });
 });

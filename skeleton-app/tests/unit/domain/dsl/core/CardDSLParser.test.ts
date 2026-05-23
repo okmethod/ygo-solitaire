@@ -129,7 +129,7 @@ describe("parseCardDSL - 正常系", () => {
     const actions = result["effectChainableActions"];
     expect(actions).toBeDefined();
     expect(actions?.activations?.conditions?.requirements).toHaveLength(1);
-    expect(actions?.activations?.conditions?.requirements?.[0].step).toBe("CAN_DRAW");
+    expect(actions?.activations?.conditions?.requirements?.[0]!.step).toBe("CAN_DRAW");
     expect(actions?.activations?.resolutions).toHaveLength(3);
   });
 
@@ -148,8 +148,8 @@ describe("parseCardDSL - 正常系", () => {
     const rules = result["effectAdditionalRules"];
     expect(rules).toBeDefined();
     expect(rules?.continuous).toHaveLength(1);
-    expect(rules?.continuous?.[0].category).toBe("TriggerRule");
-    expect(rules?.continuous?.[0].conditions?.trigger?.events).toContain("spellActivated");
+    expect(rules?.continuous?.[0]!.category).toBe("TriggerRule");
+    expect(rules?.continuous?.[0]!.conditions?.trigger?.events).toContain("spellActivated");
   });
 });
 
@@ -218,8 +218,8 @@ describe("parseMultipleCardDSL", () => {
     const results = parseMultipleCardDSL([VALID_MINIMAL_YAML, VALID_GRACEFUL_CHARITY_YAML]);
 
     expect(results).toHaveLength(2);
-    expect(results[0].id).toBe(1111);
-    expect(results[1].id).toBe(22222);
+    expect(results[0]!.id).toBe(1111);
+    expect(results[1]!.id).toBe(22222);
   });
 
   it("最初のエラーで停止する", () => {

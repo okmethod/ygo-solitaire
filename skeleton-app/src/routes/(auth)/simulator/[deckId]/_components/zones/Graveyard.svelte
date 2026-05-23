@@ -46,7 +46,7 @@
   const visibleCards = $derived(cards.filter((c) => !animatingInstanceIds.has(c.instanceId)));
 
   // 最後に墓地に置かれたカード（アニメーション中のカードを除外）
-  const topCard = $derived(visibleCards.length > 0 ? visibleCards[visibleCards.length - 1].card : null);
+  const topCard = $derived(visibleCards.length > 0 ? visibleCards[visibleCards.length - 1]!.card : null);
 
   // 表示用のカード枚数（アニメーション中のカードを除外）
   const displayCount = $derived(visibleCards.length);

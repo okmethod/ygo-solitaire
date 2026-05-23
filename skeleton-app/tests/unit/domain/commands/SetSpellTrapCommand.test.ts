@@ -162,7 +162,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.updatedState.space.hand.length).toBe(0);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = result.updatedState.space.spellTrapZone[0];
+      const setCard = result.updatedState.space.spellTrapZone[0]!;
       expect(setCard.instanceId).toBe("spell-1");
       expect(setCard.location).toBe("spellTrapZone");
       expect(setCard.stateOnField?.position).toBe("faceDown");
@@ -185,7 +185,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = result.updatedState.space.spellTrapZone[0];
+      const setCard = result.updatedState.space.spellTrapZone[0]!;
       expect(setCard.instanceId).toBe("quick-1");
       expect(setCard.stateOnField?.position).toBe("faceDown");
       expect(setCard.stateOnField?.placedThisTurn).toBe(true);
@@ -207,7 +207,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
 
-      const setCard = result.updatedState.space.spellTrapZone[0];
+      const setCard = result.updatedState.space.spellTrapZone[0]!;
       expect(setCard.instanceId).toBe("continuous-1");
       expect(setCard.stateOnField?.position).toBe("faceDown");
     });
@@ -229,7 +229,7 @@ describe("SetSpellTrapCommand", () => {
       expect(result.updatedState.space.hand.length).toBe(0);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
 
-      const setCard = result.updatedState.space.fieldZone[0];
+      const setCard = result.updatedState.space.fieldZone[0]!;
       expect(setCard.instanceId).toBe("field-1");
       expect(setCard.location).toBe("fieldZone");
       expect(setCard.stateOnField?.position).toBe("faceDown");
@@ -253,9 +253,9 @@ describe("SetSpellTrapCommand", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
-      expect(result.updatedState.space.fieldZone[0].instanceId).toBe("field-new");
+      expect(result.updatedState.space.fieldZone[0]!.instanceId).toBe("field-new");
       expect(result.updatedState.space.graveyard.length).toBe(1);
-      expect(result.updatedState.space.graveyard[0].instanceId).toBe("field-old");
+      expect(result.updatedState.space.graveyard[0]!.instanceId).toBe("field-old");
     });
 
     it("魔法をセットしても normalSummonUsed を消費しない", () => {

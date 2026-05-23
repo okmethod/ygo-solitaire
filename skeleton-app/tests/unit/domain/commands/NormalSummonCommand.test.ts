@@ -14,7 +14,7 @@ describe("NormalSummonCommand", () => {
     describe("canExecute", () => {
       it("全条件を満たす場合は true を返す", () => {
         const state = createSummonReadyState({ hand: "monster" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.canExecute(state);
@@ -24,7 +24,7 @@ describe("NormalSummonCommand", () => {
 
       it("ゲームが終了している場合は false を返す", () => {
         const state = createSummonReadyState({ hand: "monster", isGameOver: true });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.canExecute(state);
@@ -34,7 +34,7 @@ describe("NormalSummonCommand", () => {
 
       it("メインフェイズでない場合は false を返す", () => {
         const state = createSummonReadyState({ hand: "monster", phase: "draw" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.canExecute(state);
@@ -44,7 +44,7 @@ describe("NormalSummonCommand", () => {
 
       it("召喚回数の上限に達している場合は false を返す", () => {
         const state = createSummonReadyState({ hand: "monster", normalSummonUsed: 1 });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.canExecute(state);
@@ -63,7 +63,7 @@ describe("NormalSummonCommand", () => {
 
       it("カードが手札にない場合は false を返す", () => {
         const state = createSummonReadyState({ hand: "empty", fieldCount: 1 });
-        const fieldMonsterId = state.space.mainMonsterZone[0].instanceId;
+        const fieldMonsterId = state.space.mainMonsterZone[0]!.instanceId;
 
         const command = new NormalSummonCommand(fieldMonsterId, "summon");
         const result = command.canExecute(state);
@@ -73,7 +73,7 @@ describe("NormalSummonCommand", () => {
 
       it("カードがモンスターでない場合は false を返す", () => {
         const state = createSummonReadyState({ hand: "spell" });
-        const handSpellId = state.space.hand[0].instanceId;
+        const handSpellId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handSpellId, "summon");
         const result = command.canExecute(state);
@@ -83,7 +83,7 @@ describe("NormalSummonCommand", () => {
 
       it("モンスターゾーンが満杯の場合は false を返す", () => {
         const state = createSummonReadyState({ hand: "monster", fieldCount: 5 });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.canExecute(state);
@@ -95,7 +95,7 @@ describe("NormalSummonCommand", () => {
     describe("execute", () => {
       it("モンスターを攻撃表示でモンスターゾーンに正常召喚する", () => {
         const state = createSummonReadyState({ hand: "monster" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.execute(state);
@@ -104,7 +104,7 @@ describe("NormalSummonCommand", () => {
         expect(result.updatedState.space.hand.length).toBe(0);
         expect(result.updatedState.space.mainMonsterZone.length).toBe(1);
 
-        const summonedCard = result.updatedState.space.mainMonsterZone[0];
+        const summonedCard = result.updatedState.space.mainMonsterZone[0]!;
         expect(summonedCard.instanceId).toBe("hand-monster");
         expect(summonedCard.location).toBe("mainMonsterZone");
         expect(summonedCard.stateOnField?.position).toBe("faceUp");
@@ -114,7 +114,7 @@ describe("NormalSummonCommand", () => {
 
       it("normalSummonUsed をインクリメントする", () => {
         const state = createSummonReadyState({ hand: "monster" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.execute(state);
@@ -125,7 +125,7 @@ describe("NormalSummonCommand", () => {
 
       it("メインフェイズでない場合は失敗する", () => {
         const state = createSummonReadyState({ hand: "monster", phase: "draw" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "summon");
         const result = command.execute(state);
@@ -143,7 +143,7 @@ describe("NormalSummonCommand", () => {
     describe("canExecute", () => {
       it("条件を満たす場合にモンスターをセットできる", () => {
         const state = createSummonReadyState({ hand: "monster" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "set");
         const result = command.canExecute(state);
@@ -153,7 +153,7 @@ describe("NormalSummonCommand", () => {
 
       it("ゲームが既に終了している場合は失敗する", () => {
         const state = createSummonReadyState({ hand: "monster", isGameOver: true });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "set");
         const result = command.canExecute(state);
@@ -163,7 +163,7 @@ describe("NormalSummonCommand", () => {
 
       it("モンスターゾーンが満杯の場合（5枚）は失敗する", () => {
         const state = createSummonReadyState({ hand: "monster", fieldCount: 5 });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "set");
         const result = command.canExecute(state);
@@ -175,7 +175,7 @@ describe("NormalSummonCommand", () => {
     describe("execute", () => {
       it("手札からモンスターを裏向きでモンスターゾーンにセットする", () => {
         const state = createSummonReadyState({ hand: "monster" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "set");
         const result = command.execute(state);
@@ -184,7 +184,7 @@ describe("NormalSummonCommand", () => {
         expect(result.updatedState.space.hand.length).toBe(0);
         expect(result.updatedState.space.mainMonsterZone.length).toBe(1);
 
-        const setCard = result.updatedState.space.mainMonsterZone[0];
+        const setCard = result.updatedState.space.mainMonsterZone[0]!;
         expect(setCard.instanceId).toBe(handMonsterId);
         expect(setCard.location).toBe("mainMonsterZone");
         expect(setCard.stateOnField?.position).toBe("faceDown");
@@ -194,7 +194,7 @@ describe("NormalSummonCommand", () => {
 
       it("モンスターをセットする際に normalSummonUsed をインクリメントする", () => {
         const state = createSummonReadyState({ hand: "monster" });
-        const handMonsterId = state.space.hand[0].instanceId;
+        const handMonsterId = state.space.hand[0]!.instanceId;
 
         const command = new NormalSummonCommand(handMonsterId, "set");
         const result = command.execute(state);

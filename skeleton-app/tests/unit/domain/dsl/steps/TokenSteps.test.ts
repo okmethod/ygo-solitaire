@@ -90,7 +90,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.mainMonsterZone.length).toBe(1);
 
-      const token = result.updatedState.space.mainMonsterZone[0];
+      const token = result.updatedState.space.mainMonsterZone[0]!;
       expect(token.id).toBe(DUMMY_CARD_IDS.BASIC_TOKEN);
       expect(token.instanceId).toContain("token-");
       expect(token.location).toBe("mainMonsterZone");
@@ -113,7 +113,7 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
       const result = step.action(state);
 
       expect(result.success).toBe(true);
-      const token = result.updatedState.space.mainMonsterZone[0];
+      const token = result.updatedState.space.mainMonsterZone[0]!;
       expect(token.stateOnField?.battlePosition).toBe("defense");
     });
 
@@ -131,8 +131,8 @@ describe("StepRegistry - CREATE_TOKEN_MONSTER", () => {
       const result1 = step.action(state);
       const result2 = step.action(state);
 
-      const token1 = result1.updatedState.space.mainMonsterZone[0];
-      const token2 = result2.updatedState.space.mainMonsterZone[0];
+      const token1 = result1.updatedState.space.mainMonsterZone[0]!;
+      const token2 = result2.updatedState.space.mainMonsterZone[0]!;
 
       expect(token1.instanceId).not.toBe(token2.instanceId);
     });

@@ -453,7 +453,7 @@ function createEffectQueueStore(): EffectQueueStore {
       update((s) => ({
         ...s,
         currentIndex: nextIndex,
-        currentStep: s.steps[nextIndex],
+        currentStep: s.steps[nextIndex]!,
       }));
       return true;
     } else {

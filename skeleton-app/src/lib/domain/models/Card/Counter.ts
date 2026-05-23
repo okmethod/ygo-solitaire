@@ -32,7 +32,7 @@ export function updateCounters(
   const existingIndex = counters.findIndex((c) => c.type === type);
 
   if (existingIndex >= 0) {
-    const existing = counters[existingIndex];
+    const existing = counters[existingIndex]!;
     const newCount = Math.max(0, existing.count + delta);
 
     if (newCount === 0) {

@@ -72,10 +72,11 @@ export const selectTargetFromFieldByRaceStep = (cardId: number, effectId: Effect
         ),
       };
 
-      const targetCard = GameState.Space.findCard(state.space, selectedInstanceIds[0]);
+      const selectedId = selectedInstanceIds[0]!;
+      const targetCard = GameState.Space.findCard(state.space, selectedId);
       return GameProcessing.Result.success(
         updatedState,
-        `Selected ${targetCard?.jaName ?? selectedInstanceIds[0]} as equip target`,
+        `Selected ${targetCard?.jaName ?? selectedId} as equip target`,
       );
     },
   };

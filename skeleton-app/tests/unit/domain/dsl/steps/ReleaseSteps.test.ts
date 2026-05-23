@@ -65,7 +65,7 @@ describe("StepRegistry - RELEASE", () => {
 
       const step = buildStep("RELEASE", {}, createStepBuildContext());
 
-      const result = step.action(state, [monsters[0].instanceId]);
+      const result = step.action(state, [monsters[0]!.instanceId]);
 
       expect(result.success).toBe(true);
       expect(result.updatedState.space.mainMonsterZone.length).toBe(0);
@@ -82,7 +82,7 @@ describe("StepRegistry - RELEASE", () => {
 
       const step = buildStep("RELEASE", { count: 2 }, createStepBuildContext());
 
-      const result = step.action(state, [monsters[0].instanceId, monsters[1].instanceId]);
+      const result = step.action(state, [monsters[0]!.instanceId, monsters[1]!.instanceId]);
 
       expect(result.success).toBe(true);
       expect(result.updatedState.space.mainMonsterZone.length).toBe(0);
@@ -170,7 +170,7 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
         createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
-      const result = step.action(state, [monsters[0].instanceId]);
+      const result = step.action(state, [monsters[0]!.instanceId]);
 
       expect(result.success).toBe(true);
       expect(result.updatedState.space.graveyard.length).toBe(1);
@@ -198,7 +198,7 @@ describe("StepRegistry - RELEASE_FOR_BURN", () => {
         createStepBuildContext({ effectId: EFFECT_ID_1 }),
       );
 
-      const result = step.action(state, [monsters[0].instanceId]);
+      const result = step.action(state, [monsters[0]!.instanceId]);
 
       expect(result.success).toBe(true);
       // ダメージがコンテキストに保存される (1500 * 1.0 = 1500)

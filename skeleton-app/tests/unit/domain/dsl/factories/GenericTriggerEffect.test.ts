@@ -214,9 +214,9 @@ describe("GenericTriggerEffect - ステップ生成", () => {
     const steps = effect.createResolutionSteps(state, monsterOnField());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
-    expect(steps[0].id).toBe("draw-2");
-    expect(steps[1].id).toBe("then-marker");
-    expect(steps[2].id).toBe("select-and-discard-1-any-cards");
+    expect(steps[0]!.id).toBe("draw-2");
+    expect(steps[1]!.id).toBe("then-marker");
+    expect(steps[2]!.id).toBe("select-and-discard-1-any-cards");
   });
 
   it("createActivationSteps で発動ステップを生成できる", () => {

@@ -163,7 +163,7 @@ const SE_ASSIGNMENTS = {
 
 /** ゲーム用SE一覧（イテレート・一覧表示用） */
 export const gameSoundEffects: readonly SoundEffect[] = Object.entries(SE_ASSIGNMENTS).map(([name, { sound, desc }]) =>
-  toSoundEffect({ name, description: desc, sound }),
+  toSoundEffect({ name, description: desc, sound: sound! }),
 );
 
 /**

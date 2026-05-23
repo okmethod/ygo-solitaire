@@ -29,7 +29,7 @@ export function shuffleArray<T>(array: readonly T[]): T[] {
   // 配列の末尾から順に、ランダムな位置の要素と入れ替える
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
   }
 
   return shuffled;

@@ -94,9 +94,9 @@ describe("NormalSpellActivation - ステップ生成", () => {
     const steps = normalSpellActivation.createActivationSteps(state, sourceInstance);
 
     expect(steps).toHaveLength(2);
-    expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.NORMAL_SPELL}-activation-notification`);
-    expect(steps[0].summary).toBe("カード発動");
-    expect(steps[1].id).toBe("emit-spell-activated-normal-1");
+    expect(steps[0]!.id).toBe(`${DUMMY_CARD_IDS.NORMAL_SPELL}-activation-notification`);
+    expect(steps[0]!.summary).toBe("カード発動");
+    expect(steps[1]!.id).toBe("emit-spell-activated-normal-1");
   });
 
   it("createResolutionSteps で墓地送りステップを生成する（通常魔法は効果解決後に墓地へ）", () => {
@@ -105,6 +105,6 @@ describe("NormalSpellActivation - ステップ生成", () => {
     const steps = normalSpellActivation.createResolutionSteps(state, sourceInstance);
 
     expect(steps).toHaveLength(1);
-    expect(steps[0].id).toBe("send-normal-1-to-graveyard");
+    expect(steps[0]!.id).toBe("send-normal-1-to-graveyard");
   });
 });

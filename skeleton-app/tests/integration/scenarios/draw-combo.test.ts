@@ -63,7 +63,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
       expect(before.space.hand.length).toBe(5);
       expect(before.space.mainDeck.length).toBe(2);
 
-      const potId = before.space.hand[0].instanceId;
+      const potId = before.space.hand[0]!.instanceId;
       facade.activateSpell(potId);
       await flushEffectQueue();
 
@@ -117,7 +117,7 @@ describe("Draw Spell Combos - 実カードシナリオテスト", () => {
       expect(before.space.mainDeck.length).toBe(1);
       expect(before.lp.opponent).toBe(8000);
 
-      const goblinId = before.space.hand[0].instanceId;
+      const goblinId = before.space.hand[0]!.instanceId;
       facade.activateSpell(goblinId);
       await flushEffectQueue();
 

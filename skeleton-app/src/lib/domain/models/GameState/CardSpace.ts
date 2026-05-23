@@ -185,7 +185,7 @@ export function drawCards(currentSpace: CardSpace, count: number = 1): CardSpace
 
   for (let i = 0; i < count; i++) {
     // デッキの末尾（トップ）から引く
-    const topCard = updatedSpace.mainDeck[updatedSpace.mainDeck.length - 1];
+    const topCard = updatedSpace.mainDeck[updatedSpace.mainDeck.length - 1]!;
     updatedSpace = moveCardInstance(updatedSpace, topCard, "hand");
   }
 
@@ -203,7 +203,7 @@ export function shuffleMainDeck(space: CardSpace): CardSpace {
 /** 既存のフィールド魔法を墓地へ送る（存在する場合） */
 export function sendExistingFieldSpellToGraveyard(space: CardSpace): CardSpace {
   if (!isFieldZoneFull(space)) return space;
-  return moveCardInstance(space, space.fieldZone[0], "graveyard");
+  return moveCardInstance(space, space.fieldZone[0]!, "graveyard");
 }
 
 /**

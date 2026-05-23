@@ -5,7 +5,7 @@
   import { gameFacade } from "$lib/application/GameFacade";
 
   const decks = getPresetDecks();
-  let selectedRecipeId = decks[0].id;
+  let selectedRecipeId = decks[0]!.id;
 
   // browser環境では layout の DI が完了しているので hasSavedGame が使える
   const savedDeckId = browser ? gameFacade.getSavedDeckId() : null;

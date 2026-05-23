@@ -27,7 +27,7 @@ export const getNextPhase = (currentPhase: GamePhase): GamePhase => {
   if (currentIndex === -1 || currentIndex === GAME_PHASES.length - 1) {
     return "end";
   }
-  return GAME_PHASES[currentIndex + 1];
+  return GAME_PHASES[currentIndex + 1]!;
 };
 
 /** フェイズ遷移が有効か */

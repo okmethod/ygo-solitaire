@@ -61,7 +61,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       await flushEffectQueue();
 
       const after = getState();
-      const library = after.space.mainMonsterZone[0];
+      const library = after.space.mainMonsterZone[0]!;
       expect(Card.Counter.get(library.stateOnField?.counters ?? [], "spell")).toBe(1);
     });
 
@@ -94,7 +94,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       }
 
       const after = getState();
-      const library = after.space.mainMonsterZone[0];
+      const library = after.space.mainMonsterZone[0]!;
       expect(Card.Counter.get(library.stateOnField?.counters ?? [], "spell")).toBe(3);
       expect(after.space.graveyard.length).toBe(3); // ゴブリン3枚
     });
@@ -123,7 +123,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       await flushEffectQueue();
 
       const after = getState();
-      const library = after.space.mainMonsterZone[0];
+      const library = after.space.mainMonsterZone[0]!;
       expect(Card.Counter.get(library.stateOnField?.counters ?? [], "spell")).toBe(3); // 上限のまま
     });
   });
@@ -158,7 +158,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
       await flushEffectQueue();
 
       const after = getState();
-      const library = after.space.mainMonsterZone[0];
+      const library = after.space.mainMonsterZone[0]!;
       expect(Card.Counter.get(library.stateOnField?.counters ?? [], "spell")).toBe(0); // カウンター消費
       expect(after.space.hand.length).toBe(1); // 1枚ドロー
       expect(after.space.mainDeck.length).toBe(1); // デッキ -1
@@ -220,7 +220,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
 
       // Phase2: 王立魔法図書館の起動効果
       const stateBeforeIgnition = getState();
-      const library = stateBeforeIgnition.space.mainMonsterZone[0];
+      const library = stateBeforeIgnition.space.mainMonsterZone[0]!;
       expect(Card.Counter.get(library.stateOnField?.counters ?? [], "spell")).toBe(3);
 
       facade.activateIgnitionEffect(libraryInstanceId);
@@ -228,7 +228,7 @@ describe("王立魔法図書館コンボ - 実カードシナリオテスト", (
 
       // 検証: カウンター消費 + 1ドロー
       const finalState = getState();
-      const finalLibrary = finalState.space.mainMonsterZone[0];
+      const finalLibrary = finalState.space.mainMonsterZone[0]!;
       expect(Card.Counter.get(finalLibrary.stateOnField?.counters ?? [], "spell")).toBe(0);
       expect(finalState.space.graveyard.length).toBe(3); // ゴブリン3枚
       expect(finalState.lp.opponent).toBe(11000); // ゴブリン分 +3000

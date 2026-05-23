@@ -49,7 +49,7 @@ test.describe("Application Smoke Test", () => {
       if (url.includes("id=")) {
         const idMatch = url.match(/id=([0-9,]+)/);
         if (idMatch) {
-          const ids = idMatch[1].split(",").map((id) => parseInt(id, 10));
+          const ids = idMatch[1]!.split(",").map((id) => parseInt(id, 10));
           const cards = ids
             .map((id) => {
               if (id === ACTUAL_CARD_IDS.EXODIA_BODY) return exodiaFixture;
@@ -92,7 +92,7 @@ test.describe("Application Smoke Test", () => {
       if (url.includes("id=")) {
         const idMatch = url.match(/id=([0-9,]+)/);
         if (idMatch) {
-          const ids = idMatch[1].split(",").map((id) => parseInt(id, 10));
+          const ids = idMatch[1]!.split(",").map((id) => parseInt(id, 10));
           const cards = ids.map((id) => {
             // Exodia pieces and spell cards
             if (id === ACTUAL_CARD_IDS.EXODIA_BODY) return exodiaFixture;

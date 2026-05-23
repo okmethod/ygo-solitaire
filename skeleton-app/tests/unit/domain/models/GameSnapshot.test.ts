@@ -137,7 +137,7 @@ describe("GameSnapshot", () => {
       );
       const originalDeckLength = originalState.space.mainDeck.length;
 
-      const card = originalState.space.mainDeck[originalState.space.mainDeck.length - 1];
+      const card = originalState.space.mainDeck[originalState.space.mainDeck.length - 1]!;
       const newState: GameSnapshot = {
         ...originalState,
         space: {
@@ -232,7 +232,7 @@ describe("GameSnapshot", () => {
 
       // デッキから手札へカードを移動
       const card = {
-        ...originalState.space.mainDeck[originalState.space.mainDeck.length - 1],
+        ...originalState.space.mainDeck[originalState.space.mainDeck.length - 1]!,
         location: "hand" as const,
       };
       const newState: GameSnapshot = {
@@ -295,7 +295,7 @@ describe("GameSnapshot", () => {
             skipInitialDraw: true,
           },
         );
-        const movedCard = { ...initialState.space.mainDeck[0], location: "hand" as const };
+        const movedCard = { ...initialState.space.mainDeck[0]!, location: "hand" as const };
         const state: GameSnapshot = {
           ...initialState,
           space: {
@@ -336,13 +336,13 @@ describe("GameSnapshot", () => {
             skipInitialDraw: true,
           },
         );
-        const card1 = { ...initialState.space.mainDeck[2], location: "hand" as const };
-        const card2 = { ...initialState.space.mainDeck[1], location: "graveyard" as const };
+        const card1 = { ...initialState.space.mainDeck[2]!, location: "hand" as const };
+        const card2 = { ...initialState.space.mainDeck[1]!, location: "graveyard" as const };
         const state: GameSnapshot = {
           ...initialState,
           space: {
             ...initialState.space,
-            mainDeck: [initialState.space.mainDeck[0]],
+            mainDeck: [initialState.space.mainDeck[0]!],
             hand: [card1],
             graveyard: [card2],
           },

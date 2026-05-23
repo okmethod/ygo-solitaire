@@ -37,8 +37,8 @@ describe("Counter", () => {
       const counters: readonly CounterState[] = [{ type: "spell", count: 1 }];
       const result = Card.Counter.update(counters, "spell", 1);
 
-      expect(counters[0].count).toBe(1);
-      expect(result[0].count).toBe(2);
+      expect(counters[0]!.count).toBe(1);
+      expect(result[0]!.count).toBe(2);
     });
   });
 
@@ -87,8 +87,8 @@ describe("Counter", () => {
       const counters: readonly CounterState[] = [{ type: "spell", count: 3 }];
       const result = Card.Counter.update(counters, "spell", -1);
 
-      expect(counters[0].count).toBe(3);
-      expect(result[0].count).toBe(2);
+      expect(counters[0]!.count).toBe(3);
+      expect(result[0]!.count).toBe(2);
     });
   });
 

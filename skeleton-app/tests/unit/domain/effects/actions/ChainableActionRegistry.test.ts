@@ -453,8 +453,8 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectChainableActions(state, 1);
 
       expect(result).toHaveLength(1);
-      expect(result[0].instance).toBe(quickPlaySpell);
-      expect(result[0].action).toBe(action);
+      expect(result[0]!.instance).toBe(quickPlaySpell);
+      expect(result[0]!.action).toBe(action);
     });
 
     it("セットされた速攻魔法（前ターンセット）を収集できる", () => {
@@ -470,7 +470,7 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectChainableActions(state, 1);
 
       expect(result).toHaveLength(1);
-      expect(result[0].instance).toBe(setQuickPlaySpell);
+      expect(result[0]!.instance).toBe(setQuickPlaySpell);
     });
 
     it("セットされた罠カード（前ターンセット）を収集できる", () => {
@@ -483,7 +483,7 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectChainableActions(state, 1);
 
       expect(result).toHaveLength(1);
-      expect(result[0].instance).toBe(setTrap);
+      expect(result[0]!.instance).toBe(setTrap);
     });
 
     it("セットしたターンのカードは収集されない（canActivateで判定）", () => {
@@ -517,7 +517,7 @@ describe("ChainableActionRegistry", () => {
 
       // 表側表示の永続魔法・罠の効果発動が収集される
       expect(result).toHaveLength(1);
-      expect(result[0].instance).toBe(faceUpCard);
+      expect(result[0]!.instance).toBe(faceUpCard);
     });
 
     it("表側表示のカードはactivationが収集されない（カードの発動は不可）", () => {
@@ -559,7 +559,7 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectChainableActions(state, 2);
 
       expect(result).toHaveLength(1);
-      expect(result[0].instance.id).toBe(spellSpeed2CardId);
+      expect(result[0]!.instance.id).toBe(spellSpeed2CardId);
     });
 
     it("excludeInstanceIdsで除外できる", () => {
@@ -583,7 +583,7 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectChainableActions(state, 1, excludeIds);
 
       expect(result).toHaveLength(1);
-      expect(result[0].instance.instanceId).toBe("hand-1");
+      expect(result[0]!.instance.instanceId).toBe("hand-1");
     });
 
     it("canActivateがfalseの場合は収集されない", () => {
@@ -715,7 +715,7 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
 
       expect(result.mandatoryChainBlocks).toHaveLength(1);
-      expect(result.mandatoryChainBlocks[0].sourceInstanceId).toBe("mainMonsterZone-0");
+      expect(result.mandatoryChainBlocks[0]!.sourceInstanceId).toBe("mainMonsterZone-0");
       expect(result.mandatorySteps.length).toBeGreaterThan(0);
       expect(result.optionalEffects).toHaveLength(0);
     });
@@ -729,7 +729,7 @@ describe("ChainableActionRegistry", () => {
       const result = ChainableActionRegistry.collectTriggerSteps(state, makeEvent("spellActivated"));
 
       expect(result.optionalEffects).toHaveLength(1);
-      expect(result.optionalEffects[0].instance).toBe(card);
+      expect(result.optionalEffects[0]!.instance).toBe(card);
       expect(result.mandatoryChainBlocks).toHaveLength(0);
       expect(result.mandatorySteps).toHaveLength(0);
     });

@@ -158,9 +158,9 @@ describe("BaseIgnitionEffect", () => {
       // Assert
       expect(steps.length).toBeGreaterThanOrEqual(2);
       // 最初のステップは通知ステップであること
-      expect(steps[0].id).toContain("activation-notification");
+      expect(steps[0]!.id).toContain("activation-notification");
       // 2番目のステップは individualActivationSteps から取得されること
-      expect(steps[1].id).toBe("test-activation-step");
+      expect(steps[1]!.id).toBe("test-activation-step");
     });
   });
 
@@ -176,7 +176,7 @@ describe("BaseIgnitionEffect", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("test-resolution-step");
+      expect(steps[0]!.id).toBe("test-resolution-step");
     });
 
     it("状態を変更しないステップを返すこと", () => {
@@ -187,7 +187,7 @@ describe("BaseIgnitionEffect", () => {
 
       // Act
       const steps = effect.createResolutionSteps(state, sourceInstance);
-      const result = steps[0].action(state);
+      const result = steps[0]!.action(state);
 
       // Assert
       expect(result.success).toBe(true);

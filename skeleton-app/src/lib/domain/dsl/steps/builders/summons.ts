@@ -105,7 +105,7 @@ const internalSpecialSummonStep = (
       }
 
       // 特殊召喚を実行
-      const instanceId = selectedInstanceIds[0];
+      const instanceId = selectedInstanceIds[0]!;
       const card = GameState.Space.findCard(currentState.space, instanceId)!;
       const { state: summonedState, event: summonEvent } = executeSpecialSummon(
         currentState,
@@ -264,7 +264,7 @@ export const specialSummonFromContextStep = (
       if (targets.length === 0) {
         return GameProcessing.Result.failure(state, "No target found in context");
       }
-      const targetInstanceId = targets[0];
+      const targetInstanceId = targets[0]!;
 
       // 2. 対象がまだ墓地にいるか確認
       const targetCard = state.space.graveyard.find((c) => c.instanceId === targetInstanceId);

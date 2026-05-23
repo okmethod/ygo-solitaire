@@ -163,7 +163,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
     const steps = activation.createActivationSteps(state, quickPlayFromHand());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
-    expect(steps[0].id).toContain("activation-notification");
+    expect(steps[0]!.id).toContain("activation-notification");
   });
 
   it("activations が定義されている場合は発動ステップに含まれる", () => {
@@ -198,9 +198,9 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
     const steps = activation.createResolutionSteps(state, quickPlayFromHand());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
-    expect(steps[0].id).toBe("draw-2");
-    expect(steps[1].id).toBe("then-marker");
-    expect(steps[2].id).toBe("select-and-discard-1-any-cards");
+    expect(steps[0]!.id).toBe("draw-2");
+    expect(steps[1]!.id).toBe("then-marker");
+    expect(steps[2]!.id).toBe("select-and-discard-1-any-cards");
   });
 
   it("createResolutionSteps の末尾に墓地送りステップが含まれる（速攻魔法は使用後墓地へ）", () => {
@@ -208,7 +208,7 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
 
     const steps = activation.createResolutionSteps(state, quickPlayFromHand());
 
-    const lastStep = steps[steps.length - 1];
+    const lastStep = steps[steps.length - 1]!;
     expect(lastStep.id).toContain("to-graveyard");
   });
 
@@ -218,6 +218,6 @@ describe("GenericQuickPlaySpellActivation - ステップ生成", () => {
     const steps = activation.createResolutionSteps(state, quickPlayFromHand());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
-    expect(steps[steps.length - 1].id).toContain("to-graveyard");
+    expect(steps[steps.length - 1]!.id).toContain("to-graveyard");
   });
 });

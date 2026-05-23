@@ -40,7 +40,7 @@ export const establishEquipStep = (effectId: EffectId, equipCardInstanceId: stri
     if (targets.length === 0) {
       return GameProcessing.Result.failure(state, "No equip target found in activation context");
     }
-    const targetInstanceId = targets[0];
+    const targetInstanceId = targets[0]!;
 
     // 2. 装備カードを見つける
     const equipCard = GameState.Space.findCard(state.space, equipCardInstanceId);

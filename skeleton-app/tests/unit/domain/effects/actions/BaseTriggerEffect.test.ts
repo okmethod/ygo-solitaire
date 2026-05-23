@@ -214,9 +214,9 @@ describe("BaseTriggerEffect", () => {
       // Assert
       expect(steps.length).toBeGreaterThanOrEqual(2);
       // 最初のステップは通知ステップ
-      expect(steps[0].id).toContain("activation-notification");
+      expect(steps[0]!.id).toContain("activation-notification");
       // 次のステップは individualActivationSteps からのステップ
-      expect(steps[1].id).toBe("test-trigger-activation-step");
+      expect(steps[1]!.id).toBe("test-trigger-activation-step");
     });
   });
 
@@ -232,7 +232,7 @@ describe("BaseTriggerEffect", () => {
 
       // Assert
       expect(steps).toHaveLength(1);
-      expect(steps[0].id).toBe("test-trigger-resolution-step");
+      expect(steps[0]!.id).toBe("test-trigger-resolution-step");
     });
   });
 });

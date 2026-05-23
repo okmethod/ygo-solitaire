@@ -94,9 +94,9 @@ describe("FieldSpellActivation - ステップ生成", () => {
     const steps = fieldSpellActivation.createActivationSteps(state, sourceInstance);
 
     expect(steps).toHaveLength(2);
-    expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.FIELD_SPELL}-activation-notification`);
-    expect(steps[0].summary).toBe("カード発動");
-    expect(steps[1].id).toBe("emit-spell-activated-field-1");
+    expect(steps[0]!.id).toBe(`${DUMMY_CARD_IDS.FIELD_SPELL}-activation-notification`);
+    expect(steps[0]!.summary).toBe("カード発動");
+    expect(steps[1]!.id).toBe("emit-spell-activated-field-1");
   });
 
   it("createResolutionSteps は空配列を返す（フィールド魔法はフィールドに残る）", () => {

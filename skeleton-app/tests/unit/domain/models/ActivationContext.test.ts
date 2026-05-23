@@ -35,7 +35,7 @@ describe("ActivationContext", () => {
 
       // Assert
       expect(result[effectId]).toBeDefined();
-      expect(result[effectId].targets).toEqual(targets);
+      expect(result[effectId]!.targets).toEqual(targets);
     });
 
     it("既存エフェクトのターゲットを取得できる", () => {
@@ -72,8 +72,8 @@ describe("ActivationContext", () => {
       const result = setActivationTargets(contexts, EFFECT_1, ["card-1"]);
 
       // Assert
-      expect(result[EFFECT_1].targets).toEqual(["card-1"]);
-      expect(result[EFFECT_1].paidCosts).toBe(100);
+      expect(result[EFFECT_1]!.targets).toEqual(["card-1"]);
+      expect(result[EFFECT_1]!.paidCosts).toBe(100);
     });
 
     it("元のコンテキストを変更しない（不変性）", () => {
@@ -97,7 +97,7 @@ describe("ActivationContext", () => {
       const result = setPaidCosts(contexts, EFFECT_1, 1000);
 
       // Assert
-      expect(result[EFFECT_1].paidCosts).toBe(1000);
+      expect(result[EFFECT_1]!.paidCosts).toBe(1000);
     });
 
     it("既存エフェクトのコスト支払い量を取得できる", () => {
@@ -134,7 +134,7 @@ describe("ActivationContext", () => {
       const result = setCalculatedDamage(contexts, EFFECT_1, 2000);
 
       // Assert
-      expect(result[EFFECT_1].calculatedDamage).toBe(2000);
+      expect(result[EFFECT_1]!.calculatedDamage).toBe(2000);
     });
 
     it("既存エフェクトの計算済みダメージを取得できる", () => {
@@ -173,7 +173,7 @@ describe("ActivationContext", () => {
       const result = setDeclaredInteger(contexts, EFFECT_1, 5);
 
       // Assert
-      expect(result[EFFECT_1].declaredInteger).toBe(5);
+      expect(result[EFFECT_1]!.declaredInteger).toBe(5);
     });
 
     it("既存エフェクトの宣言整数を取得できる", () => {

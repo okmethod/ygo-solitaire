@@ -71,7 +71,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       expect(afterActivate.space.spellTrapZone.length).toBe(0);
 
       // 起動効果: LP-1000 → 1ドロー
-      const fieldCardId = afterActivate.space.fieldZone[0].instanceId;
+      const fieldCardId = afterActivate.space.fieldZone[0]!.instanceId;
       expect(facade.canActivateIgnitionEffect(fieldCardId)).toBe(true);
 
       facade.activateIgnitionEffect(fieldCardId);
@@ -97,7 +97,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       // ドローフェイズのまま（advanceToMain1しない）
 
       const state = getState();
-      const chickenId = state.space.hand[0].instanceId;
+      const chickenId = state.space.hand[0]!.instanceId;
       expect(facade.canActivateSpell(chickenId)).toBe(false); // ドローフェイズは発動不可
     });
   });
@@ -200,7 +200,7 @@ describe("フィールド魔法コンボ - 実カードシナリオテスト", (
       expect(afterChicken.space.fieldZone.length).toBe(1);
 
       // Step3: チキンレースの起動効果（LP-1000→1ドロー）
-      const fieldId = afterChicken.space.fieldZone[0].instanceId;
+      const fieldId = afterChicken.space.fieldZone[0]!.instanceId;
       facade.activateIgnitionEffect(fieldId);
       await flushEffectQueue();
 

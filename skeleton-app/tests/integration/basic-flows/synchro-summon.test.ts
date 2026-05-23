@@ -49,7 +49,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
       const before = getState();
       const tunerInstanceId = before.space.mainMonsterZone.find((c) => c.instanceId === "tuner-0")!.instanceId;
       const nonTunerInstanceId = before.space.mainMonsterZone.find((c) => c.instanceId === "nontuner-0")!.instanceId;
-      const synchroId = before.space.extraDeck[0].instanceId;
+      const synchroId = before.space.extraDeck[0]!.instanceId;
 
       expect(facade.canSynchroSummon(synchroId)).toBe(true);
 
@@ -61,7 +61,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
 
       const after = getState();
       expect(after.space.mainMonsterZone.some((c) => c.instanceId === synchroId)).toBe(true);
-      expect(after.space.mainMonsterZone[0].stateOnField?.position).toBe("faceUp");
+      expect(after.space.mainMonsterZone[0]!.stateOnField?.position).toBe("faceUp");
     });
 
     it("シンクロ召喚後、素材モンスターが墓地へ送られる", async () => {
@@ -69,7 +69,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
 
       const before = getState();
       const materialIds = before.space.mainMonsterZone.map((c) => c.instanceId);
-      const synchroId = before.space.extraDeck[0].instanceId;
+      const synchroId = before.space.extraDeck[0]!.instanceId;
 
       facade.synchroSummon(synchroId);
       await flushEffectQueue();
@@ -89,7 +89,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
 
       const before = getState();
       const materialIds = before.space.mainMonsterZone.map((c) => c.instanceId);
-      const synchroId = before.space.extraDeck[0].instanceId;
+      const synchroId = before.space.extraDeck[0]!.instanceId;
 
       facade.synchroSummon(synchroId);
       await flushEffectQueue();
@@ -107,7 +107,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
       const before = getState();
       expect(before.space.mainMonsterZone.length).toBe(3); // チューナー + 非チューナー2体
       const materialIds = before.space.mainMonsterZone.map((c) => c.instanceId);
-      const synchroId = before.space.extraDeck[0].instanceId;
+      const synchroId = before.space.extraDeck[0]!.instanceId;
 
       facade.synchroSummon(synchroId);
       await flushEffectQueue();
@@ -129,7 +129,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
       gameStateStore.set(createSynchroSummonReadyState({ tunerLevel: null }));
 
       const state = getState();
-      const synchroId = state.space.extraDeck[0].instanceId;
+      const synchroId = state.space.extraDeck[0]!.instanceId;
 
       expect(facade.canSynchroSummon(synchroId)).toBe(false);
     });
@@ -138,7 +138,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
       gameStateStore.set(createSynchroSummonReadyState({ tunerLevel: null }));
 
       const state = getState();
-      const synchroId = state.space.extraDeck[0].instanceId;
+      const synchroId = state.space.extraDeck[0]!.instanceId;
 
       const result = facade.synchroSummon(synchroId);
       expect(result.success).toBe(false);
@@ -149,7 +149,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
       gameStateStore.set(createSynchroSummonReadyState({ tunerLevel: 1, nonTunerLevels: [4], synchroLevel: 8 }));
 
       const state = getState();
-      const synchroId = state.space.extraDeck[0].instanceId;
+      const synchroId = state.space.extraDeck[0]!.instanceId;
 
       expect(facade.canSynchroSummon(synchroId)).toBe(false);
     });
@@ -159,7 +159,7 @@ describe("シンクロ召喚 - 基本フローテスト", () => {
       gameStateStore.set({ ...state, phase: "draw" }); // ドローフェイズに変更
 
       const currentState = getState();
-      const synchroId = currentState.space.extraDeck[0].instanceId;
+      const synchroId = currentState.space.extraDeck[0]!.instanceId;
 
       expect(facade.canSynchroSummon(synchroId)).toBe(false);
     });

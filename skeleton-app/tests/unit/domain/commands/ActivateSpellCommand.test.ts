@@ -239,7 +239,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
       expect(result.updatedState.space.spellTrapZone.length).toBe(0);
-      expect(result.updatedState.space.fieldZone[0].id).toBe(DUMMY_CARD_IDS.FIELD_SPELL);
+      expect(result.updatedState.space.fieldZone[0]!.id).toBe(DUMMY_CARD_IDS.FIELD_SPELL);
     });
 
     it("通常魔法をspellTrapZoneに配置する", () => {
@@ -280,7 +280,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.fieldZone.length).toBe(0);
-      expect(result.updatedState.space.spellTrapZone[0].id).toBe(DUMMY_CARD_IDS.NORMAL_SPELL);
+      expect(result.updatedState.space.spellTrapZone[0]!.id).toBe(DUMMY_CARD_IDS.NORMAL_SPELL);
     });
 
     it("永続魔法をspellTrapZoneに配置しフィールドに維持する", () => {
@@ -311,7 +311,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
       expect(result.updatedState.space.graveyard.length).toBe(0);
-      expect(result.updatedState.space.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
+      expect(result.updatedState.space.spellTrapZone[0]!.stateOnField?.position).toBe("faceUp");
     });
   });
 
@@ -348,7 +348,7 @@ describe("ActivateSpellCommand", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
-      expect(result.updatedState.space.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
+      expect(result.updatedState.space.spellTrapZone[0]!.stateOnField?.position).toBe("faceUp");
     });
 
     it("fieldZoneにセットされたフィールド魔法を発動できる", () => {
@@ -374,8 +374,8 @@ describe("ActivateSpellCommand", () => {
       // Assert: フィールド魔法は表向きになりfieldZoneに残る
       expect(result.success).toBe(true);
       expect(result.updatedState.space.fieldZone.length).toBe(1);
-      expect(result.updatedState.space.fieldZone[0].stateOnField?.position).toBe("faceUp");
-      expect(result.updatedState.space.fieldZone[0].instanceId).toBe("set-field-spell-1");
+      expect(result.updatedState.space.fieldZone[0]!.stateOnField?.position).toBe("faceUp");
+      expect(result.updatedState.space.fieldZone[0]!.instanceId).toBe("set-field-spell-1");
       expect(result.activationSteps).toBeDefined();
     });
 
@@ -435,7 +435,7 @@ describe("ActivateSpellCommand", () => {
       expect(result.success).toBe(true);
       // カードが表向きになることを確認
       expect(result.updatedState.space.spellTrapZone.length).toBe(1);
-      expect(result.updatedState.space.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
+      expect(result.updatedState.space.spellTrapZone[0]!.stateOnField?.position).toBe("faceUp");
     });
   });
 });

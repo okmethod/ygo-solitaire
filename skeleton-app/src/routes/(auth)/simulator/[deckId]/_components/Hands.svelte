@@ -110,7 +110,7 @@
       // PCでは最大10列
       if (handCount >= 10) return "grid-cols-10";
     }
-    return gridClassMap[handCount];
+    return gridClassMap[handCount] ?? "grid-cols-1";
   }
 
   // ゲームアクション実行の共通ヘルパー

@@ -91,7 +91,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
       const result = step.action(state);
 
       expect(result.success).toBe(true);
-      const updatedMonster = result.updatedState.space.mainMonsterZone[0];
+      const updatedMonster = result.updatedState.space.mainMonsterZone[0]!;
       expect(updatedMonster.stateOnField?.battlePosition).toBe("attack");
       expect(updatedMonster.stateOnField?.position).toBe("faceUp");
     });
@@ -115,7 +115,7 @@ describe("StepRegistry - CHANGE_BATTLE_POSITION", () => {
       const result = step.action(state);
 
       expect(result.success).toBe(true);
-      const updatedMonster = result.updatedState.space.mainMonsterZone[0];
+      const updatedMonster = result.updatedState.space.mainMonsterZone[0]!;
       expect(updatedMonster.stateOnField?.battlePosition).toBe("defense");
       expect(updatedMonster.stateOnField?.position).toBe("faceUp");
     });

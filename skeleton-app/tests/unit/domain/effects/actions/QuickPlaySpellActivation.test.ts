@@ -115,9 +115,9 @@ describe("QuickPlaySpellActivation - ステップ生成", () => {
     const steps = quickPlaySpellActivation.createActivationSteps(state, sourceInstance);
 
     expect(steps).toHaveLength(2);
-    expect(steps[0].id).toBe(`${DUMMY_CARD_IDS.QUICKPLAY_SPELL}-activation-notification`);
-    expect(steps[0].summary).toBe("カード発動");
-    expect(steps[1].id).toBe("emit-spell-activated-quickplay-1");
+    expect(steps[0]!.id).toBe(`${DUMMY_CARD_IDS.QUICKPLAY_SPELL}-activation-notification`);
+    expect(steps[0]!.summary).toBe("カード発動");
+    expect(steps[1]!.id).toBe("emit-spell-activated-quickplay-1");
   });
 
   it("createResolutionSteps で墓地送りステップを生成する（速攻魔法は効果解決後に墓地へ）", () => {
@@ -126,6 +126,6 @@ describe("QuickPlaySpellActivation - ステップ生成", () => {
     const steps = quickPlaySpellActivation.createResolutionSteps(state, sourceInstance);
 
     expect(steps).toHaveLength(1);
-    expect(steps[0].id).toBe("send-quickplay-1-to-graveyard");
+    expect(steps[0]!.id).toBe("send-quickplay-1-to-graveyard");
   });
 });

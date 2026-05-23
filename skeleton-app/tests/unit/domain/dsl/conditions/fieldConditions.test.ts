@@ -98,7 +98,7 @@ describe("fieldHasEquippedNameIncludesCondition", () => {
     (state.space.spellTrapZone[0] as unknown as { jaName: string }).jaName = "折れ竹光";
     (state.space.spellTrapZone[0] as unknown as { spellType: string }).spellType = "equip";
     (state.space.spellTrapZone[0] as unknown as { stateOnField: { position: string } }).stateOnField = {
-      ...(state.space.spellTrapZone[0].stateOnField ?? {}),
+      ...(state.space.spellTrapZone[0]!.stateOnField ?? {}),
       position: "faceDown",
     };
 
@@ -151,7 +151,7 @@ describe("fieldHasMonsterWithRaceCondition", () => {
     const state = createFilledSpaceState({ monsterZoneCount: 1 });
     (state.space.mainMonsterZone[0] as unknown as { race: string }).race = "warrior";
     (state.space.mainMonsterZone[0] as unknown as { stateOnField: { position: string } }).stateOnField = {
-      ...(state.space.mainMonsterZone[0].stateOnField ?? {}),
+      ...(state.space.mainMonsterZone[0]!.stateOnField ?? {}),
       position: "faceDown",
     };
 
@@ -203,7 +203,7 @@ describe("fieldHasNonEffectMonsterCondition", () => {
   it("裏側表示のモンスターはカウントしない", () => {
     const state = createFilledSpaceState({ monsterZoneCount: 1 });
     (state.space.mainMonsterZone[0] as unknown as { stateOnField: { position: string } }).stateOnField = {
-      ...(state.space.mainMonsterZone[0].stateOnField ?? {}),
+      ...(state.space.mainMonsterZone[0]!.stateOnField ?? {}),
       position: "faceDown",
     };
 

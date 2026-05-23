@@ -27,8 +27,8 @@ describe("ActivationRule", () => {
         // Assert
         expect(result.hand).toHaveLength(0);
         expect(result.spellTrapZone).toHaveLength(1);
-        expect(result.spellTrapZone[0].instanceId).toBe("spell-0");
-        expect(result.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
+        expect(result.spellTrapZone[0]!.instanceId).toBe("spell-0");
+        expect(result.spellTrapZone[0]!.stateOnField?.position).toBe("faceUp");
       });
 
       it("速攻魔法を手札から魔法・罠ゾーンに配置できる", () => {
@@ -44,7 +44,7 @@ describe("ActivationRule", () => {
         // Assert
         expect(result.hand).toHaveLength(0);
         expect(result.spellTrapZone).toHaveLength(1);
-        expect(result.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
+        expect(result.spellTrapZone[0]!.stateOnField?.position).toBe("faceUp");
       });
 
       it("永続魔法を手札から魔法・罠ゾーンに配置できる", () => {
@@ -75,8 +75,8 @@ describe("ActivationRule", () => {
         // Assert
         expect(result.hand).toHaveLength(0);
         expect(result.fieldZone).toHaveLength(1);
-        expect(result.fieldZone[0].instanceId).toBe("spell-0");
-        expect(result.fieldZone[0].stateOnField?.position).toBe("faceUp");
+        expect(result.fieldZone[0]!.instanceId).toBe("spell-0");
+        expect(result.fieldZone[0]!.stateOnField?.position).toBe("faceUp");
       });
 
       it("新しいフィールド魔法を置くと既存のフィールド魔法が墓地に送られる", () => {
@@ -94,9 +94,9 @@ describe("ActivationRule", () => {
         // Assert
         expect(result.hand).toHaveLength(0);
         expect(result.fieldZone).toHaveLength(1);
-        expect(result.fieldZone[0].instanceId).toBe("new-field-0");
+        expect(result.fieldZone[0]!.instanceId).toBe("new-field-0");
         expect(result.graveyard).toHaveLength(1);
-        expect(result.graveyard[0].instanceId).toBe("existing-field-0");
+        expect(result.graveyard[0]!.instanceId).toBe("existing-field-0");
       });
     });
 
@@ -116,7 +116,7 @@ describe("ActivationRule", () => {
 
         // Assert
         expect(result.spellTrapZone).toHaveLength(1);
-        expect(result.spellTrapZone[0].stateOnField?.position).toBe("faceUp");
+        expect(result.spellTrapZone[0]!.stateOnField?.position).toBe("faceUp");
       });
 
       it("フィールドゾーンのセットフィールド魔法を表向きに反転できる", () => {
@@ -135,7 +135,7 @@ describe("ActivationRule", () => {
 
         // Assert
         expect(result.fieldZone).toHaveLength(1);
-        expect(result.fieldZone[0].stateOnField?.position).toBe("faceUp");
+        expect(result.fieldZone[0]!.stateOnField?.position).toBe("faceUp");
       });
     });
 

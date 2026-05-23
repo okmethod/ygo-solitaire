@@ -156,7 +156,7 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
     const steps = activation.createActivationSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.length).toBeGreaterThanOrEqual(1);
-    expect(steps[0].id).toContain("activation-notification");
+    expect(steps[0]!.id).toContain("activation-notification");
   });
 
   it("activations が定義されている場合は発動ステップに含まれる", () => {
@@ -191,9 +191,9 @@ describe("GenericContinuousSpellActivation - ステップ生成", () => {
     const steps = activation.createResolutionSteps(stateByPhase(), continuousSpellInstance());
 
     expect(steps.length).toBeGreaterThanOrEqual(3);
-    expect(steps[0].id).toBe("draw-2");
-    expect(steps[1].id).toBe("then-marker");
-    expect(steps[2].id).toBe("select-and-discard-1-any-cards");
+    expect(steps[0]!.id).toBe("draw-2");
+    expect(steps[1]!.id).toBe("then-marker");
+    expect(steps[2]!.id).toBe("select-and-discard-1-any-cards");
   });
 
   it("resolutions が定義されていない場合は空の解決ステップを返す", () => {

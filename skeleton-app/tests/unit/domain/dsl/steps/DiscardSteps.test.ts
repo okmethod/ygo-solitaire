@@ -133,8 +133,8 @@ describe("StepRegistry - SELECT_AND_DISCARD", () => {
       expect(result.emittedEvents).toBeDefined();
       // モンスターの場合: sentToGraveyard + monsterSentToGraveyard の2イベント
       expect(result.emittedEvents?.length).toBe(2);
-      expect(result.emittedEvents?.[0].type).toBe("sentToGraveyard");
-      expect(result.emittedEvents?.[1].type).toBe("monsterSentToGraveyard");
+      expect(result.emittedEvents?.[0]!.type).toBe("sentToGraveyard");
+      expect(result.emittedEvents?.[1]!.type).toBe("monsterSentToGraveyard");
     });
   });
 
@@ -243,7 +243,7 @@ describe("sendToGraveyardStep", () => {
     expect(result.success).toBe(true);
     expect(result.updatedState.space.hand.length).toBe(0);
     expect(result.updatedState.space.graveyard.length).toBe(1);
-    expect(result.emittedEvents?.[0].type).toBe("sentToGraveyard");
+    expect(result.emittedEvents?.[0]!.type).toBe("sentToGraveyard");
   });
 });
 

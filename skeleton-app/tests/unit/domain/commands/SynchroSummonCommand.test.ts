@@ -147,7 +147,7 @@ describe("SynchroSummonCommand", () => {
       expect(result.success).toBe(true);
       expect(result.activationSteps).toBeDefined();
       expect(result.activationSteps?.length).toBe(1);
-      expect(result.activationSteps?.[0].summary).toContain("シンクロ素材");
+      expect(result.activationSteps?.[0]!.summary).toContain("シンクロ素材");
     });
 
     it("選択完了まで状態は変更されない（現在の状態を返す）", () => {

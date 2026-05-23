@@ -356,8 +356,8 @@ describe("AdditionalRuleRegistry", () => {
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
 
       expect(results).toHaveLength(1);
-      expect(results[0].rule).toBe(triggerRule);
-      expect(results[0].sourceInstance).toBe(monsterCard);
+      expect(results[0]!.rule).toBe(triggerRule);
+      expect(results[0]!.sourceInstance).toBe(monsterCard);
     });
 
     it("異なるイベントのトリガールールは収集しない", () => {
@@ -402,8 +402,8 @@ describe("AdditionalRuleRegistry", () => {
       const results = AdditionalRuleRegistry.collectTriggerRules(state, "spellActivated");
 
       expect(results).toHaveLength(2);
-      expect(results[0].sourceInstance).toBe(monsterCard1);
-      expect(results[1].sourceInstance).toBe(monsterCard2);
+      expect(results[0]!.sourceInstance).toBe(monsterCard1);
+      expect(results[1]!.sourceInstance).toBe(monsterCard2);
     });
   });
 

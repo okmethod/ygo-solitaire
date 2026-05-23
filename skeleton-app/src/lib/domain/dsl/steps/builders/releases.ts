@@ -184,7 +184,7 @@ export const selectAndReleaseForBurnStepBuilder: StepBuilderFn = (args, context)
     summary: "リリース対象を選択",
     description: `フィールドのモンスター1体をリリースし、攻撃力の${multiplierPercent}%のダメージを与えます`,
     onReleased: (state, releasedCards, releaseEvents) => {
-      const monster = releasedCards[0];
+      const monster = releasedCards[0]!;
       const monsterAtk = monster.attack ?? 0;
       const damage = Math.floor(monsterAtk * damageMultiplier);
 
