@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { IDuelCopilotClient } from "$lib/application/ports/IDuelCopilotClient";
   import type { GameSnapshot } from "$lib/domain/models/GameState";
   import type { DeckData } from "$lib/application/types/deck";
+  import type { DuelCopilotService } from "$lib/application/copilot/DuelCopilotService";
   import ChatWindow from "$lib/presentation/components/molecules/ChatWindow.svelte";
 
   interface Props {
-    client: IDuelCopilotClient;
+    client: DuelCopilotService;
     deckData: DeckData;
     snapshot: GameSnapshot;
   }
@@ -61,7 +61,7 @@
     errorMessage = "";
 
     try {
-      await client.sendMessage(message, (chunk) => {
+      await client.sendMessage(message, snapshot, (chunk) => {
         streamingText += chunk;
       });
       const finalText = streamingText;

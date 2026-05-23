@@ -1,10 +1,7 @@
 /**
- * DuelCopilotContextBuilder - デュエルコパイロット向けプロンプトの組み立て
+ * デュエルコパイロット向けプロンプトの組み立て
  *
  * ゲーム状態・カードDSL・デッキガイドをLLMへ渡すプロンプトに変換する。
- *
- * @architecture インフラ層 (Adapter 内部ヘルパー)
- * @module infrastructure/adapters/DuelCopilotContextBuilder
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";
@@ -25,6 +22,11 @@ export function buildDuelCopilotPrompt(deckData: DeckData, snapshot: GameSnapsho
   };
 }
 
+/** sendMessage 時に現在盤面をユーザーメッセージへ差し込む（DSL は再送しない） */
+export function buildStateUpdatePrefix(snapshot: GameSnapshot): string {
+  return buildStateSection(snapshot);
+}
+
 function buildSystemPrompt(): string {
   return `あなたは遊戯王OCGの1ターンキルシミュレーターのデュエルコパイロットです。
 ユーザーから現在のゲーム状態とデッキの回し方ガイドを受け取り、次に取るべき行動を日本語で簡潔に提案してください。
@@ -43,10 +45,15 @@ function buildMessage(deckData: DeckData, snapshot: GameSnapshot): string {
     parts.push(dslSection);
   }
 
-  parts.push(`## 現在のゲーム状態\n\`\`\`json\n${JSON.stringify(buildStateContext(snapshot), null, 2)}\n\`\`\``);
+  parts.push(buildStateSection(snapshot));
   parts.push("## 質問\nこの盤面で次に何をすべきか教えてください。");
 
   return parts.join("\n\n");
+}
+
+/** 現在のゲーム状態セクション（move番号付き）を組み立てる */
+function buildStateSection(snapshot: GameSnapshot): string {
+  return `## 現在のゲーム状態 (move: ${snapshot.moveCount})\n\`\`\`json\n${JSON.stringify(buildStateContext(snapshot), null, 2)}\n\`\`\``;
 }
 
 /** 手札・フィールドのカードDSLセクションを組み立てる */
@@ -73,6 +80,7 @@ function buildDslSection(snapshot: GameSnapshot): string | null {
 /** LLMに渡す簡略化したゲーム状態オブジェクトを組み立てる */
 function buildStateContext(snapshot: GameSnapshot) {
   return {
+    moveCount: snapshot.moveCount,
     phase: snapshot.phase,
     lp: snapshot.lp,
     normalSummonUsed: snapshot.normalSummonUsed,

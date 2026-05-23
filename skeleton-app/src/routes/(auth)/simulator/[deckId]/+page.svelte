@@ -22,8 +22,9 @@
   } from "$lib/application/stores/derivedStores";
   import { effectQueueStore } from "$lib/application/stores/effectQueueStore";
   import { appSecretStore } from "$lib/application/stores/appSecretStore";
-  import { getDuelCopilotClient } from "$lib/infrastructure/adapters/DuelCopilotAdapter";
-  import { getDefaultLLMProvider } from "$lib/infrastructure/adapters/LLMProxyRepository";
+  import { DuelCopilotService } from "$lib/application/copilot/DuelCopilotService";
+  import { getDefaultLLMChatRepository, getDefaultLLMProvider } from "$lib/infrastructure/adapters/LLMProxyRepository";
+  import { LocalStorageCopilotConversationRepository } from "$lib/infrastructure/adapters/LocalStorageCopilotConversationRepository";
   import { initializeCache, getDisplayCardData } from "$lib/presentation/services/displayDataCache";
   import { toFixedSlotZone } from "$lib/presentation/services/displayInstanceAdapter";
   import { showSuccessToast } from "$lib/presentation/utils/toaster";
@@ -42,11 +43,17 @@
   const { data } = $props<{ data: PageData }>();
   const deckName = $derived(data.deckData.name);
 
+  const copilotService = new DuelCopilotService(
+    getDefaultLLMChatRepository(),
+    new LocalStorageCopilotConversationRepository(),
+    getDefaultLLMProvider(),
+  );
+
   // ゲーム状態が変化するたびに自動保存するサブスクリプション
   let unsubscribeAutoSave: (() => void) | undefined;
 
   onMount(async () => {
-    const copilotClient = getDuelCopilotClient();
+    const copilotClient = copilotService;
 
     // 復元モードの場合はスナップショットと会話履歴を復元する
     if (data.isRestore) {
@@ -188,7 +195,7 @@
     </div>
 
     <!-- デュエルコパイロット -->
-    <DuelCopilotPanel client={getDuelCopilotClient()} deckData={data.deckData} snapshot={$gameStateStore} />
+    <DuelCopilotPanel client={copilotService} deckData={data.deckData} snapshot={$gameStateStore} />
 
     <!-- Debug Info -->
     <details class="card p-4">
