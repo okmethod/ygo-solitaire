@@ -73,6 +73,7 @@ export function createMockGameState(overrides?: GameStateOverrides): GameSnapsho
     queuedEndPhaseEffectIds: [],
     activatedCardIds: [],
     activationContexts: {},
+    moveCount: 0,
   };
 
   return {

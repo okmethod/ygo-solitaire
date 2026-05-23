@@ -67,7 +67,8 @@ export class GameFacade {
 
   /** コマンド結果を適用する */
   private applyCommandResult(result: GameCommandResult) {
-    gameStateStore.set(result.updatedState);
+    const nextMoveCount = getCurrentGameState().moveCount + 1;
+    gameStateStore.set({ ...result.updatedState, moveCount: nextMoveCount });
     effectQueueStore.handleEffectQueues(result.chainBlock, result.activationSteps);
   }
 

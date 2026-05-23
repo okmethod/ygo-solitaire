@@ -258,6 +258,45 @@ describe("通常召喚 - 基本フローテスト", () => {
   });
 
   // ───────────────────────────────────────────────
+  // moveCount（手数カウント）
+  // ───────────────────────────────────────────────
+  describe("moveCount（手数カウント）", () => {
+    it("コマンド成功で moveCount が 1 増える", () => {
+      const state = createSummonReadyState({ hand: "monster", levelOfHandMonster: 4, fieldCount: 0 });
+      const monsterId = state.space.hand[0]!.instanceId;
+      gameStateStore.set(state);
+
+      expect(state.moveCount).toBe(0);
+      const result = facade.summonMonster(monsterId);
+      expect(result.success).toBe(true);
+      expect(getState().moveCount).toBe(1);
+    });
+
+    it("コマンド失敗では moveCount は増えない", () => {
+      // レベル5モンスターをフィールドなしで召喚試みる（失敗ケース）
+      const state = createSummonReadyState({ hand: "monster", levelOfHandMonster: 5, fieldCount: 0 });
+      const monsterId = state.space.hand[0]!.instanceId;
+      gameStateStore.set(state);
+
+      expect(state.moveCount).toBe(0);
+      const result = facade.summonMonster(monsterId);
+      expect(result.success).toBe(false);
+      expect(getState().moveCount).toBe(0);
+    });
+
+    it("複数コマンド成功で moveCount が累積カウントアップされる", () => {
+      const state = createSummonReadyState({ hand: "monster", levelOfHandMonster: 4, fieldCount: 0 });
+      const monsterId = state.space.hand[0]!.instanceId;
+      gameStateStore.set(state);
+
+      facade.summonMonster(monsterId); // moveCount → 1
+      facade.advancePhase(); //           moveCount → 2
+
+      expect(getState().moveCount).toBe(2);
+    });
+  });
+
+  // ───────────────────────────────────────────────
   // 通常召喚失敗フロー
   // ───────────────────────────────────────────────
   describe("通常召喚失敗フロー", () => {

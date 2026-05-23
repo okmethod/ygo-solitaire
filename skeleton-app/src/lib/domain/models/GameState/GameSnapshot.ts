@@ -57,6 +57,9 @@ export interface GameSnapshot {
    * - 例: 無の煉獄、命削りの宝札、等
    */
   readonly queuedEndPhaseEffectIds: readonly string[];
+
+  /** コマンド実行回数（手数を記録し時系列を把握する） */
+  readonly moveCount: number;
 }
 
 /** デッキに含まれるカードID群を表す型エイリアス */
@@ -129,6 +132,7 @@ export function createInitialGameSnapshot(
     activatedCardIds: [],
     activationContexts: {},
     queuedEndPhaseEffectIds: [],
+    moveCount: 0,
   };
 }
 
