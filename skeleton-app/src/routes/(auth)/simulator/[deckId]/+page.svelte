@@ -46,9 +46,15 @@
   let unsubscribeAutoSave: (() => void) | undefined;
 
   onMount(async () => {
-    // 復元モードの場合はスナップショットを復元する
+    const copilotClient = getDuelCopilotClient();
+
+    // 復元モードの場合はスナップショットと会話履歴を復元する
     if (data.isRestore) {
       gameFacade.restoreGame();
+      copilotClient.restoreHistory();
+    } else {
+      // 新規ゲームの場合は会話履歴をクリアする
+      copilotClient.clearHistory();
     }
 
     // DisplayCardData キャッシュを初期化
@@ -77,6 +83,7 @@
     unsubscribeAutoSave = gameStateStore.subscribe((snapshot) => {
       if (snapshot.result.isGameOver) {
         gameFacade.clearSavedGame();
+        copilotClient.clearHistory();
       } else {
         gameFacade.saveGame(data.deckId);
       }
