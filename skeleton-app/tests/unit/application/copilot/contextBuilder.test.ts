@@ -12,7 +12,7 @@ function createMockDeckData(overrides?: Partial<DeckData>): DeckData {
   return {
     name: "テストデッキ",
     description: "テスト用デッキ",
-    guide: undefined,
+    guide: "テスト用ガイド",
     mainDeck: { monsters: [], spells: [], traps: [] },
     extraDeck: { fusion: [], synchro: [], xyz: [], link: [] },
     stats: {

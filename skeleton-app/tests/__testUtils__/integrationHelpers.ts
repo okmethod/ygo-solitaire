@@ -22,6 +22,7 @@ export function createScenarioDeck(cardIds: number[], extraDeckIds: number[] = [
   return {
     name: "Scenario Test Deck",
     description: "A deck for scenario testing",
+    guide: "テスト用デッキ",
     mainDeck: cardIds.map((id) => ({ id, quantity: 1 })),
     extraDeck: extraDeckIds.map((id) => ({ id, quantity: 1 })),
   };

@@ -54,10 +54,9 @@ graph LR
   - 主要関数:
     - `buildDuelCopilotPrompt(deckData, snapshot)` - `requestHint` 用の初回フルプロンプトを組み立てる
       1. システムプロンプト（LLMのロール定義）
-      2. `## デッキの回し方`（guide が設定されている場合のみ）
-      3. `## 手札・フィールドのカード定義`（DSL テキスト、カードがある場合のみ）
+      2. `## デッキの回し方`（デッキ固有の勝ち筋の説明）
+      3. `## カード定義`（DSL テキスト）
       4. `## 現在のゲーム状態 (move: N)`（JSON）
-      5. `## 質問`（固定メッセージ）
     - `buildStateUpdatePrefix(snapshot)` - `sendMessage` 用の盤面更新プレフィックスを生成する
       1. `## 現在のゲーム状態 (move: N)`（JSON）
   - 実装コード: `application/copilot/contextBuilder.ts`

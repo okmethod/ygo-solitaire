@@ -18,7 +18,7 @@ const DeckRecipeDefinitionSchema = z.object({
   name: z.string().min(1),
   description: z.string(),
   category: z.string().optional(),
-  guide: z.string().optional(),
+  guide: z.string().min(1),
   mainDeck: z.array(RecipeCardEntrySchema),
   extraDeck: z.array(RecipeCardEntrySchema),
 });
