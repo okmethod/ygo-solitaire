@@ -24,6 +24,7 @@
       "Bash(ruff *)",
       "Bash(pytest *)",
       "SlashCommand(*)",
+      "Skill(*)",
       "mcp__playwright"
     ],
     "deny": [
