@@ -72,8 +72,7 @@ const resolveMonsterOptions = (options?: {
 }) => ({
   resolvedFrameType: options?.frameType ?? (options?.isTuner ? "effect" : undefined),
   resolvedMonsterTypeList: (options?.monsterTypeList ?? (options?.isTuner ? ["effect", "tuner"] : undefined)) as
-    | CardData["monsterTypeList"]
-    | undefined,
+    CardData["monsterTypeList"] | undefined,
 });
 
 /**

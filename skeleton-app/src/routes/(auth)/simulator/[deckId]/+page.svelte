@@ -40,7 +40,7 @@
   import CardMovingAnimationOverlay from "./_components/animations/CardMovingAnimationOverlay.svelte";
   import DuelCopilotPanel from "./_components/DuelCopilotPanel.svelte";
 
-  const { data } = $props<{ data: PageData }>();
+  const { data }: { data: PageData } = $props();
   const deckName = $derived(data.deckData.name);
 
   const copilotService = new DuelCopilotService(

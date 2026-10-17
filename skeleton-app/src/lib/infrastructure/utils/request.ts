@@ -14,6 +14,6 @@ export async function fetchApi(
     return await fetchFunction(url, requestConfig);
   } catch (e) {
     console.error("API error:", e);
-    throw new Error(`Failed to fetch: ${requestConfig.method} ${url}`);
+    throw new Error(`Failed to fetch: ${requestConfig.method} ${url}`, { cause: e });
   }
 }

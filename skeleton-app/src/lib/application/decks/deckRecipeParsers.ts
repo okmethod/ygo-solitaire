@@ -38,7 +38,9 @@ export function parseDeckRecipeYaml(yamlContent: string): DeckRecipeDefinition {
   try {
     rawData = yaml.load(yamlContent);
   } catch (error) {
-    throw new Error(`Deck recipe YAML parse error: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(`Deck recipe YAML parse error: ${error instanceof Error ? error.message : String(error)}`, {
+      cause: error,
+    });
   }
 
   const result = DeckRecipeDefinitionSchema.safeParse(rawData);

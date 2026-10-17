@@ -60,8 +60,7 @@ const createChordSE = (p: ChordPattern, wave: OscillatorType, vol = 0.1): ChordO
  * サウンド定義（単音 or 和音）
  */
 type SoundDefinition =
-  | { type: "note"; options: NoteOptions }
-  | { type: "chord"; frequencies: number[]; options: ChordOptions };
+  { type: "note"; options: NoteOptions } | { type: "chord"; frequencies: number[]; options: ChordOptions };
 
 /**
  * 波形ごとに整理されたサウンド定義の集合
