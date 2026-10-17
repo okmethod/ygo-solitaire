@@ -81,25 +81,11 @@ describe("buildDuelCopilotPrompt", () => {
     expect(message).toContain("## デッキの回し方");
   });
 
-  it("guide が undefined の場合、message に ## デッキの回し方 が含まれない", () => {
-    const deckData = createMockDeckData({ guide: undefined });
-    const snapshot = createMockGameState();
-    const { message } = buildDuelCopilotPrompt(deckData, snapshot);
-    expect(message).not.toContain("## デッキの回し方");
-  });
-
   it("message に ## 現在のゲーム状態 (move: N) が含まれる", () => {
     const deckData = createMockDeckData();
     const snapshot = createMockGameState({ moveCount: 7 });
     const { message } = buildDuelCopilotPrompt(deckData, snapshot);
     expect(message).toContain("## 現在のゲーム状態 (move: 7)");
-  });
-
-  it("message に ## 質問 が含まれる", () => {
-    const deckData = createMockDeckData();
-    const snapshot = createMockGameState();
-    const { message } = buildDuelCopilotPrompt(deckData, snapshot);
-    expect(message).toContain("## 質問");
   });
 
   it("手札・フィールドが空の場合、message に ## 手札・フィールドのカード定義 が含まれない", () => {

@@ -5,7 +5,10 @@ import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
 import ts from "typescript-eslint";
-import svelteConfig from "./svelte.config.js";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+
+// SvelteKit v3 で svelte.config.js が廃止されたため、eslint-plugin-svelte 用に最小構成を定義
+const svelteConfig = { preprocess: vitePreprocess() };
 
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
+  import { browser } from "$app/env";
   import { getPresetDecks } from "$lib/application/decks/deckLoader";
   import { navigateTo } from "$lib/presentation/utils/navigation";
   import { gameFacade } from "$lib/application/GameFacade";
@@ -11,16 +11,16 @@
   const savedDeckId = browser ? gameFacade.getSavedDeckId() : null;
 
   function navigateToSimulator() {
-    navigateTo(`/simulator/${selectedRecipeId}`);
+    navigateTo(`simulator/${selectedRecipeId}`);
   }
 
   function navigateToRecipe() {
-    navigateTo(`/recipe/${selectedRecipeId}`);
+    navigateTo(`recipe/${selectedRecipeId}`);
   }
 
   function continueGame() {
     if (savedDeckId) {
-      navigateTo(`/simulator/${savedDeckId}?restore=true`);
+      navigateTo(`simulator/${savedDeckId}?restore=true`);
     }
   }
 </script>

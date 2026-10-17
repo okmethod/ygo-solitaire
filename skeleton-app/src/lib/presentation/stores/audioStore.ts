@@ -7,7 +7,7 @@
  */
 
 import { writable, get } from "svelte/store";
-import { browser } from "$app/environment";
+import { browser } from "$app/env";
 
 // クリックイベントで audioContext を初期化するため、デフォルトは false
 const audioOnStore = writable<boolean>(false);

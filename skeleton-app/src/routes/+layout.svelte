@@ -44,7 +44,7 @@
 {#if isLoaded}
   <header class="bg-surface-100-900 p-2 shadow-md sm:p-4">
     <div class="flex items-center justify-between">
-      <a class="h5 flex items-center" href={resolve("/")}>
+      <a class="h5 flex items-center" href={resolve("")}>
         <span class="hidden sm:inline">Yu-Gi-Oh! ソリティア</span>
         <Icon icon="mdi:home" class="size-6 sm:hidden" />
       </a>

@@ -17,7 +17,7 @@
   });
 
   function navigateToSimulator() {
-    navigateTo(`/simulator/${data.deckId}`);
+    navigateTo(`simulator/${data.deckId}`);
   }
 </script>
 

@@ -7,7 +7,7 @@
  */
 
 import { writable, get } from "svelte/store";
-import { browser } from "$app/environment";
+import { browser } from "$app/env";
 
 interface ThemeLabel {
   name: string;

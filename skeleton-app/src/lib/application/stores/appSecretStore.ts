@@ -4,7 +4,7 @@
  * localStorage に永続化し、LLM を使用する機能で認証ヘッダーに利用する。
  */
 
-import { browser } from "$app/environment";
+import { browser } from "$app/env";
 import { writable, get } from "svelte/store";
 
 const STORAGE_KEY = "app_secret";

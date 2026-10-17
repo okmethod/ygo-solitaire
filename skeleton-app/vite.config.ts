@@ -1,5 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import adapter from "@sveltejs/adapter-static";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 import fs from "fs";
 import path from "path";
@@ -33,11 +35,32 @@ export default defineConfig({
   publicDir: "static",
   plugins: [
     tailwindcss(),
-    sveltekit(),
+    // SvelteKit v3 から設定は svelte.config.js ではなく sveltekit() に渡す
+    sveltekit({
+      // Consult https://svelte.dev/docs/kit/integrations
+      // for more information about preprocessors
+      preprocess: vitePreprocess(),
+      // SvelteKit v3 で $lib は廃止されたが、エイリアス指定で従来どおり利用する
+      alias: {
+        $lib: "src/lib",
+      },
+      appDir: "app",
+      adapter: adapter({
+        pages: "build",
+        assets: "build",
+        fallback: "index.html",
+        precompress: false,
+        strict: true,
+      }),
+      paths: {
+        // Github Pagesで公開する場合は、base にリポジトリ名を指定
+        base: `/${githubRepoName}`,
+      },
+    }),
     {
       name: "generate-404",
       closeBundle() {
-        const dirPath = path.resolve(__dirname, "build");
+        const dirPath = path.resolve(import.meta.dirname, "build");
         if (!fs.existsSync(dirPath)) {
           fs.mkdirSync(dirPath, { recursive: true });
         }
@@ -49,7 +72,7 @@ export default defineConfig({
     {
       name: "log-version",
       closeBundle() {
-        const versionFilePath = path.resolve(__dirname, "build/app/version.json");
+        const versionFilePath = path.resolve(import.meta.dirname, "build/app/version.json");
         if (fs.existsSync(versionFilePath)) {
           const versionContent = fs.readFileSync(versionFilePath, "utf-8");
           console.log("version.json:", versionContent);

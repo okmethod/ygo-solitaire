@@ -84,7 +84,7 @@ test.describe("Application Smoke Test", () => {
 
   test("should auto-advance to Main Phase on simulator page", async ({ page }) => {
     // YGOPRODeck APIをモック（必要最小限のカードのみ）
-    // greedy-exodia-deckで必要な全カードIDに対応
+    // exodia-deckで必要な全カードIDに対応
     await page.route("**/api.ygoprodeck.com/api/v7/**", async (route) => {
       const url = route.request().url();
 
@@ -138,9 +138,9 @@ test.describe("Application Smoke Test", () => {
       await route.abort("failed");
     });
 
-    // シミュレータページに移動（有効なdeckId "greedy-exodia-deck" を使用）
+    // シミュレータページに移動（有効なdeckId "exodia-deck" を使用）
     // Note: ベースURL /ygo-solitaire が設定されているため、相対パスで指定
-    await page.goto("/ygo-solitaire/simulator/greedy-exodia-deck");
+    await page.goto("/ygo-solitaire/simulator/exodia-deck");
 
     // 自動フェーズ進行を確認：Main Phase 1に到達することを期待
     const phaseIndicator = page.locator('[data-testid="current-phase"]');
@@ -148,7 +148,7 @@ test.describe("Application Smoke Test", () => {
     // 自動フェーズ進行の完了を待機（300ms × 2 + マージン = 1500ms）
     await page.waitForTimeout(1500);
 
-    // メインフェーズ1に到達していることを確認（英語表記で文字エンコーディング問題を回避）
-    await expect(phaseIndicator).toContainText("Main Phase 1");
+    // メインフェーズに到達していることを確認（Phase.ts の表示名に準拠）
+    await expect(phaseIndicator).toContainText("メインフェイズ");
   });
 });
