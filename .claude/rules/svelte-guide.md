@@ -6,9 +6,9 @@ globs:
 
 # Svelte 5
 
-- **FW**: SvelteKit 2 (Svelte 5) + Skeleton v4
+- **FW**: SvelteKit 3 (Svelte 5) + Skeleton v5
 - **スタイル**: TailwindCSS v4
-- **ビルド**: Vite 6
+- **ビルド**: Vite 8
 
 ## 開発規約
 
