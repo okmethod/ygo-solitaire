@@ -93,10 +93,12 @@ specs/
 
 ### フロントエンド
 
+- **ランタイム**: Node.js 26
+- **パッケージ管理**: npm
 - **フレームワーク**: SvelteKit + Svelte 5
-- **UI ライブラリ**: Skeleton v4
+- **UI ライブラリ**: Skeleton v5
 - **CSS**: TailwindCSS v4
-- **ビルド**: Vite 6
+- **ビルド**: Vite 8
 - **状態管理**: Svelte Stores
 - **型チェック**: TypeScript (Strict mode)
 - **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）

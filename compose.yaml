@@ -1,6 +1,6 @@
 services:
   skeleton-app:
-    image: node:22.14.0-slim
+    image: node:26.12.0-slim
     ports:
       - 5173:5173
     working_dir: /app
