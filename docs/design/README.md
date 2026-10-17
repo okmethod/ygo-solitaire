@@ -16,6 +16,7 @@
 - [effect-model.md](./effect-model.md) — Effect モデル設計（発動する効果・適用する効果・効果処理の進行管理・チェーン）
 - [game-state-model.md](./game-state-model.md) — GameState モデル設計（ドメインモデル全体像・不変スナップショット・判定して更新・ゲーム状態更新の共通基盤・Command）
 - [dsl.md](./dsl.md) — カード定義 DSL 設計（YAML によるカード・効果の一元定義）
+- [duel-copilot.md](./duel-copilot.md) — Duel Copilot 設計（ゲーム状態を LLM に渡す AI デュエルアシスタント）
 - [testing-strategy.md](./testing-strategy.md) — テスト戦略（テストピラミッド・層割り当て・実行フロー）
 - [comment-guide.md](./comment-guide.md) — TypeScript コメント規約（根幹 vs 枝葉・JSDoc の省略ルール）
 

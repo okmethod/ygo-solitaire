@@ -1,7 +1,5 @@
 # Duel Copilot 設計
 
-## 概要
-
 Duel Copilot は、現在のゲーム状態を LLM に渡し、次の行動を提案する「AI デュエルアシスタント」機能。
 
 - ゲーム状態（`GameSnapshot`）とデッキ情報をプロンプトに変換し、LLM へ送信する
