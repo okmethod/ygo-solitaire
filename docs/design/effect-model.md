@@ -4,8 +4,9 @@
 効果には、プレイヤーが発動を宣言する **発動する効果**（チェーンブロックを作る）と、盤面に反応して自動で効く **適用する効果**（チェーンブロックを作らない）の 2 系統がある。  
 効果分類そのもの（ルール）は [効果の分類](../game-rules/effect.md)・[チェーンシステム](../game-rules/chain.md) を参照し、ここでは再説明しない。
 
-本書は、その 2 系統を **どの層にどう配置し、どう進行させるか** の設計を扱う。  
-レイヤー構成と依存方向は [architecture.md](./architecture.md)、カードデータ側は [card-model.md](./card-model.md)、YAML からの効果生成は [dsl.md](./dsl.md) を参照。
+本書は、その 2 系統を **どの層にどう配置し、どう進行させるか** の設計を扱う。
+
+> レイヤー構成と依存方向は [architecture.md](./architecture.md)、カードデータ側は [card-model.md](./card-model.md)、YAML からの効果生成は [dsl.md](./dsl.md) を参照。
 
 ---
 

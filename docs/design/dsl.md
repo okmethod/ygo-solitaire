@@ -2,7 +2,7 @@
 
 **カード 1 種類＝ YAML 1 ファイル** に宣言し、そこから `CardData` と効果インスタンスを生成・登録する **DSL（Domain Specific Language）** の設計を扱う。
 
-効果分類ごとの基底クラスは [effect-model.md](./effect-model.md)、カードデータは [card-model.md](./card-model.md)、レイヤー構成は [architecture.md](./architecture.md) を参照。
+> 効果分類ごとの基底クラスは [effect-model.md](./effect-model.md)、カードデータは [card-model.md](./card-model.md)、レイヤー構成は [architecture.md](./architecture.md) を参照。
 
 ---
 

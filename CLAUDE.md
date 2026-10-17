@@ -25,8 +25,8 @@
 ## ディレクトリ
 
 - `docs`: ドキュメント全体像 + コンセプト + スコープ方針
-  - `docs/domain`: ゲームルール
-  - `docs/architecture/`: アーキテクチャ設計
+  - `docs/game-rules/`: ゲームルール
+  - `docs/design/`: 設計方針
 - `skeleton-app/`: Skeleton フロントエンド
   - `src/lib/domain/`: ドメイン層
   - `src/lib/application/`: アプリ層
