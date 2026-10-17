@@ -138,7 +138,7 @@ skeleton-app/src/lib/domain/
 - **GameState**: イミュータブルなゲーム状態モデル
 - **GameCommand**: ゲーム操作の具象実装（Command Pattern）
 - **CardDataRegistry**: Card ID → カードの静的データ。詳細は [card-model.md](./card-model.md)
-- **効果 Registry**: Card ID → カードの効果
+- **効果 Registry**: Card ID → カードの効果。詳細は [effect-model.md](./effect-model.md)
   - **ChainableActionRegistry**: 発動する効果
   - **AdditionalRuleRegistry**: 適用する効果
 - **DSL 部品 Registry**: 名前 → 再利用可能な DSL 部品
