@@ -5,7 +5,7 @@
  * エラー時はカードIDとフィールドパスを含むエラーメッセージを提供する。
  */
 
-import yaml from "js-yaml";
+import { load } from "js-yaml";
 import type { CardDSLDefinition } from "$lib/domain/dsl/types";
 import { CardDSLDefinitionSchema, DSLParseError, DSLValidationError } from "$lib/domain/dsl/types";
 
@@ -21,7 +21,7 @@ export function parseCardDSL(yamlContent: string): CardDSLDefinition {
   // Step 1: YAML → JavaScript object
   let rawData: unknown;
   try {
-    rawData = yaml.load(yamlContent);
+    rawData = load(yamlContent);
   } catch (error) {
     throw new DSLParseError(
       error instanceof Error ? error.message : "Unknown YAML parse error",

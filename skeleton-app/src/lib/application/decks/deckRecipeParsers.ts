@@ -4,7 +4,7 @@
  * js-yamlでYAML文字列をパースし、Zodスキーマでバリデーションする。
  */
 
-import yaml from "js-yaml";
+import { load } from "js-yaml";
 import { z } from "zod";
 import type { DeckRecipe } from "$lib/application/types/deck";
 
@@ -36,7 +36,7 @@ export type DeckRecipeDefinition = z.infer<typeof DeckRecipeDefinitionSchema>;
 export function parseDeckRecipeYaml(yamlContent: string): DeckRecipeDefinition {
   let rawData: unknown;
   try {
-    rawData = yaml.load(yamlContent);
+    rawData = load(yamlContent);
   } catch (error) {
     throw new Error(`Deck recipe YAML parse error: ${error instanceof Error ? error.message : String(error)}`, {
       cause: error,
