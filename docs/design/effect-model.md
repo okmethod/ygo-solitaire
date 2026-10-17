@@ -6,7 +6,7 @@
 
 本書は、その 2 系統を **どの層にどう配置し、どう進行させるか** の設計を扱う。
 
-> レイヤー構成と依存方向は [architecture.md](./architecture.md)、カードデータ側は [card-model.md](./card-model.md)、YAML からの効果生成は [dsl.md](./dsl.md) を参照。
+> レイヤー構成と依存方向は [architecture.md](./architecture.md)、ゲーム状態側は [game-state-model.md](./game-state-model.md)、カードデータ側は [card-model.md](./card-model.md)、YAML からの効果生成は [dsl.md](./dsl.md) を参照。
 
 ---
 
@@ -26,7 +26,7 @@
 | 定義レジストリ   | `ChainableActionRegistry`           | `AdditionalRuleRegistry`           |
 | 進行の主役       | ドメイン層（入力 → 出力の純粋関数） | アプリ層（逐次進行・割り込み制御） |
 
-どちらの効果も、状態更新はドメイン層の **GameProcessing 共通基盤** を通す（後述）。  
+どちらの効果も、状態更新はドメイン層の **GameProcessing 共通基盤** を通す（[game-state-model.md](./game-state-model.md)）。  
 アプリ層のストアは「いつ・どの順で・何を差し込むか」の進行制御だけを担い、「呼ばれた処理が何をするか」はドメイン層に留める。  
 この分担を崩すとアプリ層が God Object 化し、ドメイン層が貧血化するため、境界を常に意識する。
 
@@ -46,22 +46,10 @@
 
 ---
 
-## GameProcessing : ゲーム状態更新の共通基盤
+## 効果の組み立て : AtomicStep の合成
 
-発動する効果も適用する効果も、状態更新は **同じ語彙** を通して行う。  
-これを束ねたのがドメイン層の `GameProcessing` モデルで、`Effect` も `Command` もこの基盤を経由して状態を更新する。
-
-**関連ファイル**: `domain/models/GameProcessing/`
-
-- **`AtomicStep`**: 処理の最小単位。割り込みで差し込める、ゲーム状態更新のステップ
-- **`GameEvent`**: 「何が起きたか」。`spellActivated` のような、pub/sub で流れるイベントの型（`EventType`）
-- **`GameStateUpdate`（`Result`）**: 「状態がどう変わったか」を表す共通の戻り値。ステップは `Result.success(state, events)` の形で、起きたことをイベントとして戻り値に **添えて返す**
-- **`UpdateValidation`（`Validation`）**: 「その更新を実行してよいか」の事前チェックとエラーコード（`ValidationResult`）
-- **`EventTimeline`**: イベント発生の「同時／順次」を区別する時間軸（タイミング管理に使う）
-
-ドメイン層のステップは誰も呼ばず、起きたことをイベントとして戻すだけに留める。  
-これによりドメイン層は純粋関数を保ち、「誰が反応するか」を気にしない（疎結合）。  
-反応を集めて差し込む仲介は、アプリ層の `effectQueueStore` が担う。
+状態更新の共通基盤 `GameProcessing`（`AtomicStep` / `GameEvent` / `GameStateUpdate` / `UpdateValidation` / `EventTimeline`）は [game-state-model.md](./game-state-model.md) を参照。  
+ここでは、その `AtomicStep` を効果としてどう組み立てるかを扱う。
 
 ### 効果 ＝ AtomicStep の列（合成）
 
