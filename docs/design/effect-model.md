@@ -5,7 +5,7 @@
 効果分類そのもの（ルール）は [効果の分類](../game-rules/effect.md)・[チェーンシステム](../game-rules/chain.md) を参照し、ここでは再説明しない。
 
 本書は、その 2 系統を **どの層にどう配置し、どう進行させるか** の設計を扱う。  
-レイヤー構成と依存方向は [architecture.md](./architecture.md)、カードデータ側は [card-model.md](./card-model.md) を参照。
+レイヤー構成と依存方向は [architecture.md](./architecture.md)、カードデータ側は [card-model.md](./card-model.md)、YAML からの効果生成は [dsl.md](./dsl.md) を参照。
 
 ---
 
@@ -67,7 +67,7 @@
 効果は「ドローする」「手札を捨てる」といった `AtomicStep` の **列** として表現する。  
 これは 2 系統に共通で、`ChainableAction` は `createResolutionSteps` 等で、`AdditionalRule`（`TriggerRule`）は `createTriggerSteps` で、いずれも `AtomicStep[]` を組み立てて返す。  
 `AtomicStep` は小さく独立した部品のため、カードをまたいで再利用でき、テストしやすい。  
-この「効果＝ステップの合成」が、割り込み・チェーンの土台になり、かつ DSL（カード定義）の語彙にもなる。
+この「効果＝ステップの合成」が、割り込み・チェーンの土台になり、かつ [DSL（カード定義）](./dsl.md)の語彙にもなる。
 
 ### 継承と DSL による組み立て
 
@@ -76,7 +76,7 @@
 現在は個別カードごとにクラスを書く代わりに、**DSL の Generic ファクトリ** が YAML 定義を読み、基底クラスをベースに効果インスタンスを組み立てて、各レジストリ（`ChainableActionRegistry` / `AdditionalRuleRegistry`）に登録する。
 
 用意された基底クラスの数には系統差があるが（発動する効果は魔法サブタイプ等で厚く、適用する効果はまだ薄い）、構造は同じ。  
-各系統の具体的な階層は後述する。
+各系統の具体的な階層は後述する。YAML から効果インスタンスを組み立てる仕組みの詳細は [dsl.md](./dsl.md) を参照。
 
 ---
 

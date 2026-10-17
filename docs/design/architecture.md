@@ -141,11 +141,11 @@ skeleton-app/src/lib/domain/
 - **効果 Registry**: Card ID → カードの効果。詳細は [effect-model.md](./effect-model.md)
   - **ChainableActionRegistry**: 発動する効果
   - **AdditionalRuleRegistry**: 適用する効果
-- **DSL 部品 Registry**: 名前 → 再利用可能な DSL 部品
+- **DSL 部品 Registry**: 名前 → 再利用可能な DSL 部品。詳細は [dsl.md](./dsl.md)
   - **AtomicConditionRegistry**: 条件名 → 発動条件チェック関数
   - **AtomicStepRegistry**: ステップ名 → 効果処理ステップ生成関数
   - **ActionOverrideRegistry**: Override 名 → 処理置換ハンドラ
-- **DSL エンジン**: YAML 定義を解釈し、上記 DSL 部品を組み立ててカードデータ・効果を生成、各 Registry に登録する処理系
+- **DSL エンジン**: YAML 定義を解釈し、上記 DSL 部品を組み立ててカードデータ・効果を生成、各 Registry に登録する処理系。詳細は [dsl.md](./dsl.md)
 
 ### アプリ層（Application Layer）
 

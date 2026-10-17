@@ -90,7 +90,7 @@ Task tool を使用:
 
 ## Phase 3: 計画フェーズ
 
-**参照ドキュメント**: [docs/architecture/card-definition-dsl-design.md](docs/architecture/card-definition-dsl-design.md)
+**参照ドキュメント**: [docs/design/dsl.md](docs/design/dsl.md)
 
 ### 3.1 Genericファクトリ選定
 
