@@ -1,7 +1,5 @@
 # 召喚ルール
 
-**実装箇所**: `domain/rules/SummonRule.ts`
-
 ---
 
 ## 通常召喚
