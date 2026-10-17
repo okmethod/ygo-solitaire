@@ -122,8 +122,7 @@
           const t = e.currentTarget;
           t.style.height = "auto";
           t.style.height = `${t.scrollHeight}px`;
-        }}
-      ></textarea>
+        }}></textarea>
       <button
         type="button"
         class="btn preset-filled-primary-500 shrink-0"
