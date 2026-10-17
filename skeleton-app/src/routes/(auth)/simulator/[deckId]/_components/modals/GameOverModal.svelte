@@ -71,7 +71,7 @@
           {/if}
 
           {#if message}
-            <p class="text-base">
+            <p class="text-base whitespace-pre-line">
               {message}
             </p>
           {/if}

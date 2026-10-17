@@ -38,7 +38,7 @@ const checkedVictoryResult = (state: GameSnapshot): GameResult => {
       isGameOver: true,
       winner: "player",
       reason: "exodia",
-      message: `5つのエクゾディアパーツが手札に揃いました。勝利です！`,
+      message: `5つのエクゾディアパーツが手札に揃いました。\n勝利です！`,
     };
   }
 
@@ -48,7 +48,7 @@ const checkedVictoryResult = (state: GameSnapshot): GameResult => {
       isGameOver: true,
       winner: "opponent",
       reason: "lp0",
-      message: `ライフポイントが0になりました。敗北です。`,
+      message: `ライフポイントが0になりました。\n敗北です。`,
     };
   }
   if (state.lp.opponent <= 0) {
@@ -56,7 +56,7 @@ const checkedVictoryResult = (state: GameSnapshot): GameResult => {
       isGameOver: true,
       winner: "player",
       reason: "lp0",
-      message: `相手のライフポイントが0になりました。勝利です！`,
+      message: `相手のライフポイントが0になりました。\n勝利です！`,
     };
   }
 
