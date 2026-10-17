@@ -107,9 +107,3 @@ npm run test:e2e:ui     # E2E UIモード
 
 - ドメインロジックの詳細（→ Unit Test で検証）
 - 内部処理の分岐（→ Unit/Integration Test で検証）
-
----
-
-## 関連ドキュメント
-
-- [アーキテクチャ概要](./overview.md)

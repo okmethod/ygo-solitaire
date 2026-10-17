@@ -11,6 +11,8 @@
 ## 📄 ファイル一覧
 
 - [architecture.md](./architecture.md) — アーキテクチャ全体像（4 層構造・依存方向・データフロー・各層の責務）
+- [testing-strategy.md](./testing-strategy.md) — テスト戦略（テストピラミッド・層割り当て・実行フロー）
+- [comment-guide.md](./comment-guide.md) — TypeScript コメント規約（根幹 vs 枝葉・JSDoc の省略ルール）
 
 ---
 
