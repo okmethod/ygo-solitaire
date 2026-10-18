@@ -32,3 +32,13 @@
   - `src/lib/application/`: アプリ層
   - `src/lib/infrastructure/`: インフラ層
   - `src/lib/presentation/`: プレゼン層
+- `.claude/rules/`: コーディング規約（言語非依存 + TS/Svelte 固有）
+
+---
+
+## 開発ワークフロー
+
+- **ローカル / 1 人作業**: `main` に直接コミットして進めてよい
+- **クラウド / spec-kit 作業**: ブランチを切り、PR を成果物として進める
+- **コミットメッセージ**: gitmoji 規約（例: `:up:` `:gear:` `:memo:`）
+- **設計判断の記録**: git log / コミットメッセージ / PR 説明、および docs/design の inline Why に残す（ADR は廃止）
