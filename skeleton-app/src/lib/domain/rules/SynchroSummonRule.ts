@@ -60,6 +60,9 @@ export function canSynchroSummon(state: GameSnapshot, cardInstanceId: string): V
 
 /**
  * フィールドモンスターから有効なシンクロ素材の組み合わせが存在するかチェック
+ *
+ * TODO: 汎用条件（チューナー1体＋非チューナー1体以上＋レベル合計一致）のみ対応。
+ * シンクロモンスター個別の素材指定（例: 特定カード名・種族/属性限定の「戦士族チューナー」等）は未対応。
  */
 function hasValidSynchroMaterials(monsters: readonly CardInstance[], targetLevel: number): boolean {
   const faceUpMonsters = monsters.filter((m) => Card.Instance.isFaceUp(m));
@@ -182,6 +185,8 @@ export function performSynchroSummon(state: GameSnapshot, cardInstanceId: string
       }
 
       // シンクロモンスターを特殊召喚（executeSpecialSummon を使用）
+      // Why: ルール上は攻撃/守備どちらでも選べるが（docs/game-rules/summon.md）、
+      // スコープ（先攻1ターン目）ではバトルが発生せず表示形式の差が無意味なため攻撃表示に固定している。
       const tempState: GameSnapshot = { ...currentState, space: updatedSpace };
       const { state: summonedState, event: specialSummonEvent } = executeSpecialSummon(
         tempState,

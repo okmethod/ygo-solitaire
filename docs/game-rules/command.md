@@ -30,6 +30,7 @@
 | ゲーム進行 | Advance Phase            | ○        | 次のフェイズに遷移する         |
 | モンスター | Summon Monster           | ○        | モンスターを通常召喚する       |
 | モンスター | Set Monster              | ○        | モンスターをセットする         |
+| モンスター | Synchro Summon Monster   | ○        | モンスターをシンクロ召喚する   |
 | モンスター | Flip Summon Monster      | ×        | モンスターを反転召喚する       |
 | モンスター | Change Battle Position   | ×        | モンスターの表示形式を変更する |
 | 魔法・罠   | Set Spell/Trap           | ○        | 魔法・罠カードをセットする     |
