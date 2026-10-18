@@ -106,6 +106,29 @@ describe("StepRegistry - RELEASE", () => {
       expect(config?.maxCards).toBe(2);
     });
   });
+
+  describe("_filter（リリース対象の絞り込み）", () => {
+    const faceUpEffect = createMonsterOnField("eff", { cardId: DUMMY_CARD_IDS.EFFECT_MONSTER });
+    const faceUpNormal = createMonsterOnField("norm", { cardId: DUMMY_CARD_IDS.NORMAL_MONSTER });
+    const faceDown = createMonsterOnField("fd", { position: "faceDown" });
+
+    it("デフォルトは表側表示モンスターのみ対象（裏側は除外）", () => {
+      const step = buildStep("RELEASE", {}, createStepBuildContext());
+      const filter = step.cardSelectionConfig!(createMockGameState())!._filter!;
+
+      expect(filter(faceUpEffect)).toBe(true);
+      expect(filter(faceUpNormal)).toBe(true);
+      expect(filter(faceDown)).toBe(false);
+    });
+
+    it("excludeEffect: true のとき効果モンスターを除外する", () => {
+      const step = buildStep("RELEASE", { excludeEffect: true }, createStepBuildContext());
+      const filter = step.cardSelectionConfig!(createMockGameState())!._filter!;
+
+      expect(filter(faceUpEffect)).toBe(false);
+      expect(filter(faceUpNormal)).toBe(true);
+    });
+  });
 });
 
 // =============================================================================
