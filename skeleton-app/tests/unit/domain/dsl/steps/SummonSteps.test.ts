@@ -446,3 +446,80 @@ describe("StepRegistry - SPECIAL_SUMMON_FROM_CONTEXT", () => {
     });
   });
 });
+
+// =============================================================================
+// SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE ステップのテスト（次元融合）
+//
+// Note: このステップは「除外ゾーンからの特殊召喚（解決）」のみを担う。
+//       次元融合の 2000LP 支払いは前段の PAY_LP ステップで処理されるため、
+//       ここでの「不発（何も召喚されない）」はコスト支払い後の挙動を指す。
+//       また対象は自分の除外ゾーンのみ（相手ゾーンは未モデル化のスコープ簡略化）。
+// =============================================================================
+
+describe("StepRegistry - SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE", () => {
+  /** 除外ゾーンにモンスターを並べた状態を作る */
+  const stateWithBanished = (banishedCount: number, fieldCount: number) =>
+    createMockGameState({
+      space: {
+        banished: Array.from({ length: banishedCount }, (_, i) =>
+          createMonsterInstance(`banished-${i}`, { location: "banished", level: 4 }),
+        ),
+        ...createFilledMonsterZone(fieldCount),
+      },
+    });
+
+  it("登録済みである", () => {
+    expect(AtomicStepRegistry.isRegistered("SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE")).toBe(true);
+  });
+
+  describe("cardSelectionConfig（選択UIの要否）", () => {
+    it("全員が空きゾーンに収まる場合は選択UIなし（null）", () => {
+      const step = buildStep("SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE", {}, createStepBuildContext());
+      const config = step.cardSelectionConfig!(stateWithBanished(2, 0));
+
+      expect(config).toBeNull();
+    });
+
+    it("空きゾーンに収まらない場合は空き数ちょうどを選択させる", () => {
+      // 空き2・除外3体 → 2体を選択
+      const step = buildStep("SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE", {}, createStepBuildContext());
+      const config = step.cardSelectionConfig!(stateWithBanished(3, 3));
+
+      expect(config?.minCards).toBe(2);
+      expect(config?.maxCards).toBe(2);
+      expect(config?._sourceZone).toBe("banished");
+    });
+  });
+
+  describe("action実行", () => {
+    it("空きに収まる場合は選択なしで全員を特殊召喚する", () => {
+      const step = buildStep("SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE", {}, createStepBuildContext());
+      const result = step.action(stateWithBanished(2, 0));
+
+      expect(result.success).toBe(true);
+      expect(result.updatedState.space.mainMonsterZone.length).toBe(2);
+      expect(result.updatedState.space.banished.length).toBe(0);
+    });
+
+    it("収まらない場合は選択されたモンスターのみ特殊召喚する", () => {
+      // 空き2・除外3体 → 指定した2体のみ召喚、1体は除外に残る
+      const step = buildStep("SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE", {}, createStepBuildContext());
+      const result = step.action(stateWithBanished(3, 3), ["banished-0", "banished-1"]);
+
+      expect(result.success).toBe(true);
+      expect(result.updatedState.space.mainMonsterZone.length).toBe(5); // 3 + 2
+      expect(result.updatedState.space.banished.length).toBe(1);
+    });
+
+    it("ゾーン満杯なら不発（何も召喚されない）。step自体はエラーにならない", () => {
+      // 裁定上はコストの 2000LP を前段 PAY_LP で支払い済みのうえで不発になる
+      const step = buildStep("SPECIAL_SUMMON_FROM_BANISHED_AS_POSSIBLE", {}, createStepBuildContext());
+      const result = step.action(stateWithBanished(2, 5));
+
+      expect(result.success).toBe(true); // step はエラーにせず不発を成功として返す
+      expect(result.updatedState.space.banished.length).toBe(2); // 召喚されず除外に残る
+      expect(result.updatedState.space.mainMonsterZone.length).toBe(5); // 変化なし
+      expect(result.message).toContain("No banished monsters");
+    });
+  });
+});

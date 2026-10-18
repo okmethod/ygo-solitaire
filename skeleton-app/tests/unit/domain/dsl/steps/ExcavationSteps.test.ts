@@ -510,5 +510,70 @@ describe("StepRegistry - EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK", () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain("モンスターが存在しません");
     });
+
+    it("選択されていない場合エラー", () => {
+      const monster = createMonsterInstance("deck-monster-0", { location: "mainDeck", level: 4 });
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_ID_1]: { targets: [], declaredInteger: 3 },
+      };
+      const state = createMockGameState({
+        space: { mainDeck: [monster], mainMonsterZone: [], graveyard: [] },
+        activationContexts: contexts,
+      });
+
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
+
+      const result = step.action(state, []); // デッキにモンスターはいるが未選択
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("No cards selected");
+    });
+
+    it("無効な選択の場合エラー", () => {
+      const monster = createMonsterInstance("deck-monster-0", { location: "mainDeck", level: 4 });
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_ID_1]: { targets: [], declaredInteger: 3 },
+      };
+      const state = createMockGameState({
+        space: { mainDeck: [monster], mainMonsterZone: [], graveyard: [] },
+        activationContexts: contexts,
+      });
+
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
+
+      const result = step.action(state, ["wrong-monster"]);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Invalid selection");
+    });
+
+    it("レベル不一致でもモンスターゾーンが満杯なら特殊召喚に失敗する", () => {
+      const monster = createMonsterInstance("deck-monster-0", { location: "mainDeck", level: 4 });
+      const contexts: Record<EffectId, EffectActivationContext> = {
+        [EFFECT_ID_1]: { targets: [], declaredInteger: 3 }, // 不一致 → 特殊召喚を試みる
+      };
+      const state = createMockGameState({
+        space: { mainDeck: [monster], ...createFilledMonsterZone(5), graveyard: [] },
+        activationContexts: contexts,
+      });
+
+      const step = buildStep(
+        "EXCAVATE_UNTIL_MONSTER_WITH_LEVEL_CHECK",
+        {},
+        createStepBuildContext({ effectId: EFFECT_ID_1 }),
+      );
+
+      const result = step.action(state, ["deck-monster-0"]);
+
+      expect(result.success).toBe(false);
+    });
   });
 });
