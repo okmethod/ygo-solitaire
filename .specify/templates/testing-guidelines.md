@@ -6,7 +6,7 @@ description: "Testing strategy guidelines for ygo-solitaire project"
 
 **Purpose**: Ensure test tasks follow the project's testing pyramid and avoid over-reliance on E2E tests.
 
-**Reference**: [docs/architecture/testing-strategy.md](../../docs/architecture/testing-strategy.md)
+**Reference**: [docs/design/testing-strategy.md](../../docs/design/testing-strategy.md)
 
 ---
 
@@ -178,7 +178,7 @@ Layer 3: Integration Tests
 - [ ] T020 [P] Unit Test 実行: `npm test` で全テスト通過確認
 ```
 
-**Reference**: [docs/architecture/testing-strategy.md#card-effect-architecture-テストパターン](../../docs/architecture/testing-strategy.md)
+**Reference**: [docs/design/testing-strategy.md](../../docs/design/testing-strategy.md)
 
 ---
 
@@ -311,7 +311,7 @@ When creating test tasks for a new feature, ask:
 
 ---
 
-## Coverage Goals (from docs/architecture/testing-strategy.md)
+## Coverage Goals (from docs/design/testing-strategy.md)
 
 **ドメイン層**: 80%+ coverage required
 
@@ -347,8 +347,8 @@ coverage: {
 
 ## Related Documentation
 
-- [Testing Strategy](../../docs/architecture/testing-strategy.md) - Full testing approach
-- [Architecture Overview](../../docs/architecture/overview.md) - Clean Architecture layers
+- [Testing Strategy](../../docs/design/testing-strategy.md) - Full testing approach
+- [Architecture Overview](../../docs/design/architecture.md) - Clean Architecture layers
 
 ---
 

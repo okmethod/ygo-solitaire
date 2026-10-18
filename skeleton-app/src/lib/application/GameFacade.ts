@@ -7,6 +7,7 @@
  * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @module application/GameFacade
+ * @see {@link docs/design/game-state-model.md}
  */
 
 import type { GameSnapshot } from "$lib/domain/models/GameState";

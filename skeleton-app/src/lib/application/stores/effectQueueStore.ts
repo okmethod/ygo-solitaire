@@ -21,9 +21,7 @@
  * - ユーザー操作時にconfig内のコールバックを実行
  *
  * @module application/stores/effectQueueStore
- * @see {@link docs/domain/effect-model.md}
- * @see {@link docs/domain/chain-system.md}
- * @see {@link docs/architecture/effect-model-design.md}
+ * @see {@link docs/design/effect-model.md}
  */
 
 import { writable, get as getStoreValue } from "svelte/store";

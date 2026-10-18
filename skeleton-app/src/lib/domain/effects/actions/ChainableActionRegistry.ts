@@ -7,6 +7,8 @@
  * Registry Pattern + Strategy Pattern
  * - 効果の一元管理と、交換しやすい実装
  * - Map による O(1) 高速ルックアップ
+ *
+ * @see {@link docs/design/effect-model.md}
  */
 
 import type { ChainableAction } from "$lib/domain/models/Effect";

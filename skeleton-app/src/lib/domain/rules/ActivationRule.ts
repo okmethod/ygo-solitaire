@@ -4,6 +4,7 @@
  * 発動時のカード配置等のルールを定義する。
  *
  * @module domain/rules/ActivationRule
+ * @see {@link docs/game-rules/card.md}
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";

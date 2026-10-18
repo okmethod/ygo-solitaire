@@ -5,7 +5,7 @@
  * Effect も Command も、この仕組みを通してゲーム状態を更新する。
  *
  * @module domain/models/GameProcessing
- * @see {@link docs/domain/overview.md}
+ * @see {@link docs/design/game-state-model.md}
  */
 
 export type { EventType, EventContext, GameEvent } from "./GameEvent";

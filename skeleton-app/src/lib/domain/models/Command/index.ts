@@ -5,8 +5,8 @@
  * ユーザーは、この仕組みを通してゲーム状態を更新する。
  *
  * @module domain/models/Command
- * @see {@link docs/domain/game-command-model.md}
- * @see {@link docs/domain/commands}
+ * @see {@link docs/design/game-state-model.md}
+ * @see {@link docs/game-rules/command.md}
  */
 
 export type { GameCommand, GameCommandResult } from "./GameCommand";

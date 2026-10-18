@@ -9,6 +9,7 @@
  * - ドメイン層をインフラ層（YGOPRODeck API）から分離
  *
  * @module domain/registries/CardDataRegistry
+ * @see {@link docs/design/card-model.md}
  */
 
 import type { CardData } from "$lib/domain/models/Card";

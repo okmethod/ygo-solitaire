@@ -3,6 +3,8 @@
  *
  * 現状、カード固有の特殊勝利条件もここで判定している。
  * 将来的に、数が増えてきたら AdditionalRuleパターンに移行するかもしれない。
+ *
+ * @see {@link docs/game-rules/victory.md}
  */
 
 import type { GameSnapshot } from "./GameSnapshot";

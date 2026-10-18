@@ -2,6 +2,7 @@
  * SummonRule - 召喚ルール（通常召喚・特殊召喚）
  *
  * @module domain/rules/SummonRule
+ * @see {@link docs/game-rules/summon.md}
  */
 
 import type { BattlePosition } from "$lib/domain/models/Card";

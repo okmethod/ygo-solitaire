@@ -7,7 +7,8 @@
  * 代わりに名前空間としてエクスポートし、純粋関数をクラスライクに利用できるようにする。
  *
  * @module domain/models/GameState
- * @see {@link docs/domain/overview.md}
+ * @see {@link docs/design/game-state-model.md}
+ * @see {@link docs/game-rules/overview.md}
  */
 
 export type { GameSnapshot, InitialDeckCardIds } from "./GameSnapshot";

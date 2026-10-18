@@ -2,6 +2,7 @@
  * SynchroSummonRule - シンクロ召喚ルール
  *
  * @module domain/rules/SynchroSummonRule
+ * @see {@link docs/game-rules/summon.md}
  */
 
 import { Card, type CardInstance } from "$lib/domain/models/Card";

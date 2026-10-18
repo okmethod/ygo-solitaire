@@ -5,8 +5,8 @@
  * 効果処理は、この仕組みを通してゲーム状態を更新する。
  *
  * @module domain/models/Effect
- * @see {@link docs/domain/effect-model.md}
- * @see {@link docs/domain/effects}
+ * @see {@link docs/design/effect-model.md}
+ * @see {@link docs/game-rules/effect.md}
  */
 
 export type { ChainableAction, ActionEffectCategory } from "./ChainableAction";

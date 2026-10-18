@@ -35,18 +35,18 @@ Clean Architecture（4 層構造）を採用:
 
 ```
 Domain Layer         : ゲームルール（純粋TypeScript）
-Application Layer    : ユースケース（Commands, Stores）
+Application Layer    : ゲーム進行（Svelte Stores）
 Infrastructure Layer : 外部アクセス（YGOPRODeck API）
 Presentation Layer   : UI（Skeleton v4）
 ```
+
+> 詳細は [docs/design/architecture.md](docs/design/architecture.md) を参照。
 
 **技術スタック**:
 
 - **フロントエンド**: Skeleton v4 (Svelte v5 + TailwindCSS v4 + Vite v6)
 - **状態管理**: Svelte Stores
 - **テスト**: Vitest（Unit tests / Integration tests） + Playwright（E2E tests）
-
-詳細は [docs/architecture/overview.md](docs/architecture/overview.md) を参照してください。
 
 ---
 

@@ -15,7 +15,7 @@
 
 - **実装の詳細**: コードコメントや docstring に記載
 - **運用手順**: CLAUDE.md に記載
-- **ドメイン知識**: domain/に記載
+- **ドメイン知識**: game-rules/ に記載
 
 ---
 
@@ -32,13 +32,13 @@
 ### 代替手段
 
 - **設計判断の記録**: git log、コミットメッセージ
-- **現在のアーキテクチャ**: [docs/architecture/](../architecture/)
-- **ドメイン知識**: [docs/domain/](../domain/)
+- **現在のアーキテクチャ**: [docs/design/](../design/)
+- **ドメイン知識**: [docs/game-rules/](../game-rules/)
 
 ---
 
 ## 関連リソース
 
 - [親ディレクトリ](../) - docs/全体の目次
-- [アーキテクチャ概要](../architecture/overview.md) - 現在のアーキテクチャ
+- [アーキテクチャ概要](../design/architecture.md) - 現在のアーキテクチャ
 - [ADR の提唱者](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) - Michael Nygard の原文

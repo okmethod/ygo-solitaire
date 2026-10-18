@@ -7,7 +7,8 @@
  * 代わりに名前空間としてエクスポートし、純粋関数をクラスライクに利用できるようにする。
  *
  * @module domain/models/Card
- * @see {@link docs/domain/card-model.md}
+ * @see {@link docs/design/card-model.md}
+ * @see {@link docs/game-rules/card.md}
  */
 
 export type {

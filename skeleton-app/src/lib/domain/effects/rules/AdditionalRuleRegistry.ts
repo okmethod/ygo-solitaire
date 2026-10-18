@@ -8,6 +8,8 @@
  * - 1枚のカードに複数のルールを登録可能
  * - カテゴリ別フィルタ機能
  * - フィールド全体から適用可能なルールを収集
+ *
+ * @see {@link docs/design/effect-model.md}
  */
 
 import type { CardInstance } from "$lib/domain/models/Card";

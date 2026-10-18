@@ -8,7 +8,8 @@
  * ある位置から別の位置へのカード移動や、状態管理のためのユーティリティ関数も提供する。
  *
  * @module domain/models/state/CardSpace
- * @see {@link docs/domain/overview.md}
+ * @see {@link docs/design/game-state-model.md}
+ * @see {@link docs/game-rules/overview.md}
  */
 
 import type { LocationName } from "$lib/domain/models/Location";

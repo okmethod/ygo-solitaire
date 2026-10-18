@@ -4,6 +4,7 @@
  * DSL（Domain Specific Language）を使ってカードを宣言的に定義するための機能を提供する。
  *
  * @module domain/dsl
+ * @see {@link docs/design/dsl.md}
  */
 
 // Loader

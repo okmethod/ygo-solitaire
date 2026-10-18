@@ -10,8 +10,7 @@
  * - FORBIDDEN: インフラ層への依存、プレゼン層への依存
  *
  * @module application/stores/chainStackStore
- * @see {@link docs/domain/chain-system.md}
- * @see {@link docs/architecture/effect-model-design.md}
+ * @see {@link docs/design/effect-model.md}
  */
 
 import { writable, get as getStoreValue } from "svelte/store";
